@@ -352,13 +352,16 @@ import static org.apache.commons.lang.Validate.notNull;
 
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = site.getGenerateSiteMapOptions();
-        PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
-        try {
-            psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+        if (jsonString != null) {
+            PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
+            try {
+                psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
+            } catch (JsonProcessingException e) {
+                log.error("Error in json String for site {} and the error is: {} " ,
+                        site.getName(), PSExceptionUtils.getMessageForLog(e));
+            }
+            props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
         }
-        props.setGenerateSiteMapOptions(psGenerateSiteMapOptions);
     }
 
     public PSSitePublishProperties getSitePublishProperties(String siteName) throws PSValidationException, PSNotFoundException {
