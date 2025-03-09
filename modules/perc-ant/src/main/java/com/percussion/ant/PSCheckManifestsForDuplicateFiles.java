@@ -27,12 +27,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Fails build if finds bundled jar with the same name
@@ -66,6 +61,19 @@ public class PSCheckManifestsForDuplicateFiles extends Task
       return exclude;
    }
 
+
+   private Set<String> filterExcludes(final Set<String> filesToFilter,  final Set<String> excludes){
+      Set<String> ret = new HashSet<>(filesToFilter);
+
+       for(String ex : excludes){
+          for(String s : filesToFilter){
+             if(s.equalsIgnoreCase(ex) || s.toLowerCase().endsWith(ex.toLowerCase())){
+                ret.remove(s);
+             }
+          }
+       }
+       return ret;
+   }
    /**
     * Executes the task.
     * @see org.apache.tools.ant.Task#execute()
@@ -78,8 +86,8 @@ public class PSCheckManifestsForDuplicateFiles extends Task
       final Map<String, File> libFiles = new HashMap<>();
       for (final File file : getManifestFiles())
       {
-         final Set<String> libs = extractLibs(file);
-         libs.removeAll(excludedLibs);
+         final Set<String> libs = filterExcludes(extractLibs(file),excludedLibs);
+
          for (final String lib : libs)
          {
             if (libFiles.containsKey(lib))
@@ -246,7 +254,7 @@ public class PSCheckManifestsForDuplicateFiles extends Task
             throw new IllegalArgumentException(
                   "Excluded file name should not be null");
          }
-         mi_name = name;
+         mi_name = name.trim();
       }
       
       private String mi_name;
