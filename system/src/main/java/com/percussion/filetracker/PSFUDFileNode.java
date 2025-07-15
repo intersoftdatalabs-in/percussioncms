@@ -495,7 +495,7 @@ public class PSFUDFileNode extends PSFUDAbstractNode
                         try (InputStream content = postRequest.getResponseContent()) {
                            if (null != content) {
                               try {
-                                 DocumentBuilder db = RXFileTracker.getDocumentBuilder();
+                                 DocumentBuilder db = RXFileTracker.getSecureDocumentBuilder();
                                  Document doc = null;
                                  Element elem = null;
                                  Node node = null;
