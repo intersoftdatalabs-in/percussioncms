@@ -171,7 +171,7 @@ public class TLSTester {
         Set<String> testCipher = null;
         String lastProt = null;
         testCipher = new HashSet<>(Arrays.asList(supportedCiphers));
-        System.out.println("test"+testCipher);
+        log.debug("Testing cipher suites: {}", testCipher);
         try{
         while (connected = true)
         {
@@ -190,7 +190,7 @@ public class TLSTester {
                     socket.close();
 
                     lastProt = protocol;
-                    System.out.println("Connected with "+protocol+" cipher "+cipher);
+                    log.info("Connected with protocol {} using cipher {}", protocol, cipher);
                     testCipher.remove(cipher);
                     workingProtocols.add(protocol+":"+cipher);
                 }
@@ -209,7 +209,7 @@ public class TLSTester {
             }
         }
         }catch (IOException e2){
-            System.out.println("No more connections");
+            log.info("No more SSL connections available for testing");
         }
 
         
@@ -251,7 +251,7 @@ public class TLSTester {
         {
             Certificate cert = cf.generateCertificate(bis);
             String alias = caCert.getSubjectDN().getName().replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-            System.out.println("adding alias "+alias);
+            log.debug("Adding certificate alias: {}", alias);
             myTrustStore.setCertificateEntry( alias, cert);
         }
         try(FileOutputStream fo = new FileOutputStream( store )) {
@@ -276,9 +276,7 @@ public class TLSTester {
     private static void print_content(HttpsURLConnection con){
         if(con!=null){
 
-
-
-                System.out.println("****** Content of the URL ********");
+                log.info("****** Content of the URL ********");
                 try(BufferedReader br =
                         new BufferedReader(
                                 new InputStreamReader(con.getInputStream()))){
@@ -286,7 +284,7 @@ public class TLSTester {
                 String input;
 
                 while ((input = br.readLine()) != null){
-                    System.out.println(input);
+                    log.info(input);
                 }
 
             } catch (IOException e) {
@@ -304,19 +302,15 @@ public class TLSTester {
 
             try {
 
-                System.out.println("Response Code : " + con.getResponseCode());
-                System.out.println("Cipher Suite : " + con.getCipherSuite());
-                System.out.println("\n");
+                log.info("Response Code : {}", con.getResponseCode());
+                log.info("Cipher Suite : {}", con.getCipherSuite());
 
                 Certificate[] certs = con.getServerCertificates();
                 for(Certificate cert : certs){
-                    System.out.println("Cert Type : " + cert.getType());
-                    System.out.println("Cert Hash Code : " + cert.hashCode());
-                    System.out.println("Cert Public Key Algorithm : "
-                            + cert.getPublicKey().getAlgorithm());
-                    System.out.println("Cert Public Key Format : "
-                            + cert.getPublicKey().getFormat());
-                    System.out.println("\n");
+                    log.info("Cert Type : {}", cert.getType());
+                    log.info("Cert Hash Code : {}", cert.hashCode());
+                    log.info("Cert Public Key Algorithm : {}", cert.getPublicKey().getAlgorithm());
+                    log.info("Cert Public Key Format : {}", cert.getPublicKey().getFormat());
                 }
 
             } catch (SSLPeerUnverifiedException e) {
@@ -346,20 +340,22 @@ public class TLSTester {
         Set<String> availableCiphers = new HashSet<>(Arrays.asList(ssf.getSupportedCipherSuites()));
 
 
-        System.out.println("Default\tCipher");
+        log.info("Default\tCipher");
         for (Iterator i = availableCiphers.iterator(); i.hasNext(); ) {
             String cipher = (String) i.next();
+            StringBuilder cipherInfo = new StringBuilder();
             if (defaultCiphers.contains(cipher))
-                System.out.print('*');
+                cipherInfo.append('*');
             else
-                System.out.print(' ');
+                cipherInfo.append(' ');
             if (enabledCiphers.contains(cipher))
-                System.out.print('*');
+                cipherInfo.append('*');
             else
-                System.out.print(' ');
+                cipherInfo.append(' ');
 
-            System.out.print('\t');
-            System.out.println(cipher);
+            cipherInfo.append('\t');
+            cipherInfo.append(cipher);
+            log.info(cipherInfo.toString());
         }
     }
 
@@ -379,9 +375,9 @@ public class TLSTester {
 
     public static void getEnabledCiphers() {
         for (Provider provider : Security.getProviders()) {
-            System.out.println(provider.getName());
+            log.info("Security Provider: {}", provider.getName());
             for (String key : provider.stringPropertyNames())
-                System.out.println("\t" + key + "\t" + provider.getProperty(key));
+                log.debug("\t{}\t{}", key, provider.getProperty(key));
         }
     }
 
