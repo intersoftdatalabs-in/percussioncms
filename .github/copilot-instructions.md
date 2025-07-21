@@ -22,14 +22,17 @@ Use try-with-resources, minimize mutability, and avoid raw types.
 Synchronize shared mutable data; prefer concurrency utilities over threads.
 Avoid Java serialization; use alternatives or defensive serialization.
 Write side-effect-free streams and standard functional interfaces.
+Use Repository pattern for data access; avoid direct database calls in services.
 
 Project Structure
-
-src/: Core Java code (XML handling, SOAP services, JavaFX UI).
-tests/: JUnit5 tests for all logic.
-docs/: Markdown documentation and API specs.
-rxconfig/: Configuration files (e.g., PercussionXMLCatalog.xml).
-Use Repository pattern for data access.
+Source, Test, and Resource directories can be identified from the maven pom.xml file, general structure is:
+```
+src/main/java/: Main application code
+src/main/resources/: Configuration files (e.g., application.properties)
+src/test/java/: Unit tests
+src/test/resources/: Test resources (e.g., test data, configuration)
+docs/: Markdown documentation and API specs. 
+```
 
 Refactoring Guidelines
 
