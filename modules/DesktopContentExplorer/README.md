@@ -40,7 +40,13 @@ The module automatically includes the following JavaFX 21 dependencies:
 
 ### Running the Application
 
-To run the Desktop Content Explorer:
+To run the Desktop Content Explorer using the JavaFX Maven plugin:
+
+```bash
+mvn javafx:run
+```
+
+Or using the traditional exec plugin:
 
 ```bash
 mvn exec:java -Dexec.mainClass="com.percussion.cx.PSContentExplorerApplication"
