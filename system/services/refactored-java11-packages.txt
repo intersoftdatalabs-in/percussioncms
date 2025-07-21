@@ -1,0 +1,21 @@
+# Refactored Java 11 Packages
+# This file tracks packages that have been fully refactored to Java 11 standards
+# Format: package.name - Description
+
+com.percussion.services.content - Content management with keywords, auto-translations, folder properties
+com.percussion.services.assembly - Template assembly and rendering services
+com.percussion.services.catalog - Object cataloging and type management services
+com.percussion.services.guidmgr - GUID generation and management services
+com.percussion.services.contentchange - Content modification tracking services
+com.percussion.services.contentmgr - Comprehensive content management with JCR integration
+com.percussion.services.data - Foundational interfaces for identification and cloning
+com.percussion.services.error - Modern exception handling with internationalization
+com.percussion.services.general - Server information access services
+com.percussion.services.memory - Cache access services with EHCache integration
+com.percussion.services.workflow - Workflow management and action calculation services
+com.percussion.services.notification - Event-driven notification system with Observer pattern implementation
+com.percussion.services.security - Authentication, authorization, and ACL management services
+com.percussion.services.publisher - Publishing service interfaces with Java 11 modernization
+com.percussion.services.filter - Content filtering services with rule-based processing and Stream API
+com.percussion.services.relationship - Content relationship management with modern concurrency patterns
+com.percussion.services.locking - Object locking services with thread-safe operations and async support

@@ -18,10 +18,10 @@ package com.percussion.services.filter;
 
 /**
  * Provides error codes for messages located in
- * <code>PSFilterErrorStringBundle</code>
+ * {@code PSFilterErrorStringBundle}
  */
-public interface IPSFilterServiceErrors
-{
+public interface IPSFilterServiceErrors {
+
    /**
     * Missing filter
     * <p>
@@ -36,8 +36,8 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int FILTER_MISSING = 1;
-   
+   int FILTER_MISSING = 1;
+
    /**
     * Unknown authtype
     * <p>
@@ -52,8 +52,8 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int AUTHTYPE_MISSING = 2;   
-   
+   int AUTHTYPE_MISSING = 2;
+
    /**
     * Filter rule missing
     * <p>
@@ -68,12 +68,12 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int RULE_MISSING = 3;
+   int RULE_MISSING = 3;
 
    /**
     * Database problem while processing a filter - no arguments
     */
-   public static final int DATABASE = 4;
+   int DATABASE = 4;
 
    /**
     * Filter rule argument missing
@@ -93,7 +93,7 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int ARGUMENT_MISSING = 5;
+   int ARGUMENT_MISSING = 5;
 
    /**
     * Filters are forming a likely graph cycle
@@ -109,12 +109,12 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int PROBABLE_CYCLE = 6;
+   int PROBABLE_CYCLE = 6;
 
    /**
     * Missing site id that is required for the filter
     */
-   public static final int SITE_MISSING = 7;
+   int SITE_MISSING = 7;
 
    /**
     * Problems loading the site
@@ -130,7 +130,7 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int SITE_LOAD = 8;
+   int SITE_LOAD = 8;
 
    /**
     * Problems loading the finder for the slot
@@ -146,23 +146,23 @@ public interface IPSFilterServiceErrors
     * </TR>
     * </TABLE>
     */
-   public static final int FINDER_MISSING = 9;
+   int FINDER_MISSING = 9;
 
    /**
     * Unexpected problem, essentially a runtime exception
     */
-   public static final int UNEXPECTED = 10;
+   int UNEXPECTED = 10;
 
    /**
     * The sys_context parameter is missing
     */
-   public static final int CONTEXT_MISSING = 11;   
-   
+   int CONTEXT_MISSING = 11;
+
    /**
     * The filter or authtype parameters must be specified - no params
     */
-   public static final int PARAMS_AUTHTYPE_OR_FILTER = 12;
-   
+   int PARAMS_AUTHTYPE_OR_FILTER = 12;
+
    /**
     * Missing item filter.
     * <p>
@@ -172,6 +172,5 @@ public interface IPSFilterServiceErrors
     * <TR><TD>0</TD><TD>The id of the missing item filter.</TD></TR>
     * </TABLE>
     */
-   public static final int MISSING_ITEM_FILTER = 13;
+   int MISSING_ITEM_FILTER = 13;
 }
-

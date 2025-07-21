@@ -17,8 +17,6 @@
 
 package com.percussion.data;
 
-
-
 /**
  * The IPSResultGenerator interface must be implemented by any classes
  * capable of producing output (results) for an E2 request.
@@ -31,17 +29,14 @@ public interface IPSResultGenerator {
    /**
     * Generate the results for this request.
     *
-    * @param   execData    the execution data associated with this request.
-    *                      This includes all context data, result sets, etc.
+    * @param data the execution data associated with this request.
+    *             This includes all context data, result sets, etc.
+    *             May not be {@code null}.
     *
-    * @exception   PSConversionException
-    *                        if the conversion fails
-    *
-    * @exception  PSUnsupportedConversionException
-    *                      if conversion to the format required by the
-    *                      specified request URL is not supported
+    * @throws PSConversionException if the conversion fails
+    * @throws PSUnsupportedConversionException if conversion to the format
+    *         required by the specified request URL is not supported
     */
-   public void generateResults( PSExecutionData data)
+   void generateResults(PSExecutionData data)
       throws PSConversionException, PSUnsupportedConversionException;
 }
-

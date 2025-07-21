@@ -19,85 +19,137 @@ package com.percussion.services.guidmgr.data;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
- * Allows construction of a guid from the guid value only, without any type
- * checking other than ensuring the value specifies a valid type.  Intended for
- * internal use with the design webservices, where the full guid value is 
- * provided only as a long.
+ * Design GUID implementation that allows construction from GUID values with type validation.
+ *
+ * <p>This class is specifically designed for internal use with design web services, where
+ * the full GUID value is provided as a long. It extends {@link PSGuid} with enhanced
+ * validation and type safety features using Java 11 patterns.
+ *
+ * <p>All constructors perform strict validation to ensure the GUID contains a valid type
+ * and that the type is recognized by the system.
+ *
+ * @author dougrand
+ * @since Java 11 Modernization
  */
-public class PSDesignGuid extends PSGuid
-{
-   /**
-    * 
-    */
+public final class PSDesignGuid extends PSGuid {
+
    private static final long serialVersionUID = -7095060778250604874L;
 
    /**
-    * Construct a guid from a value that specifies a valid type as well as the 
-    * value.
-    * 
-    * @param value The guid value as a long, must specify a valid guid type as 
-    *    well.
+    * Constructs a design GUID from a complete GUID value.
+    *
+    * <p>The provided value must include both the type information and the actual
+    * GUID value. This constructor performs validation to ensure the type is valid
+    * and recognized by the system.
+    *
+    * @param value the complete GUID value as a long, must specify a valid GUID type
+    * @throws IllegalArgumentException if the value doesn't specify a valid type
     */
-   public PSDesignGuid(long value)
-   {
+   public PSDesignGuid(long value) {
       m_guid = value;
       validateGuid();
    }
    
    /**
-    * Constructs a design guid from the supplied guid.
-    * 
-    * @param guid the guid to construct this design guid from, not 
-    *    <code>null</code>. The supplied guid must specify a valid type.
+    * Constructs a design GUID from an existing GUID instance.
+    *
+    * <p>This constructor provides type-safe conversion from other GUID implementations
+    * to PSDesignGuid, with proper validation of the source GUID.
+    *
+    * @param guid the source GUID to copy from, must not be null and must be a PSGuid instance
+    * @throws IllegalArgumentException if guid is null or not a PSGuid instance
     */
-   public PSDesignGuid(IPSGuid guid)
-   {
-      if (guid == null)
-         throw new IllegalArgumentException("guid cannot be null");
-      
-      if (!(guid instanceof PSGuid))
-         throw new IllegalArgumentException("guid must be of instance PSGuid");
-      
+   public PSDesignGuid(IPSGuid guid) {
+      Objects.requireNonNull(guid, "guid cannot be null");
+
+      if (!(guid instanceof PSGuid)) {
+         throw new IllegalArgumentException(
+             "guid must be an instance of PSGuid, but was: " + guid.getClass().getSimpleName());
+      }
+
       m_guid = ((PSGuid) guid).m_guid;
       validateGuid();
    }
    
    /**
-    * See base class for details.
-    * 
-    * @param type
-    * @param value
+    * Constructs a design GUID from explicit type and value parameters.
+    *
+    * <p>This constructor delegates to the parent class for standard GUID creation
+    * with type and value components.
+    *
+    * @param type the GUID type, must not be null
+    * @param value the GUID value component
+    * @throws IllegalArgumentException if type is null or invalid
     */
-   public PSDesignGuid(PSTypeEnum type, long value)
-   {
-      super(type, value);
+   public PSDesignGuid(PSTypeEnum type, long value) {
+      super(Objects.requireNonNull(type, "type cannot be null"), value);
    }
 
    /**
-    * Get the complete guid value, including all parts such as the UUID, the
-    * type ID and the host ID.
-    * 
-    * @return the complete guid value allows users to referenence rhythmyx 
-    *    objects uniquely, including the UUID, the type ID and the host ID.
+    * Retrieves the complete GUID value including all components.
+    *
+    * <p>The returned value includes the UUID, type ID, and host ID components,
+    * allowing for unique reference to Rhythmyx objects across the system.
+    *
+    * @return the complete GUID value as a long
     */
-   public long getValue()
-   {
+   public long getValue() {
       return m_guid;
    }
    
    /**
-    * Validates the guid to make sure that it contains a type and that we 
-    * know the specified type.
+    * Creates a PSDesignGuid safely from a long value, returning an Optional.
+    *
+    * <p>This factory method provides a safe way to create design GUIDs without
+    * throwing exceptions for invalid values.
+    *
+    * @param value the GUID value to validate and wrap
+    * @return an Optional containing the PSDesignGuid, or empty if invalid
     */
-   private void validateGuid()
-   {
-      if (getType() == 0)
-         throw new IllegalArgumentException("Type must be specified");
+   public static Optional<PSDesignGuid> ofNullable(long value) {
+      try {
+         return Optional.of(new PSDesignGuid(value));
+      } catch (IllegalArgumentException e) {
+         return Optional.empty();
+      }
+   }
 
-      PSTypeEnum type = PSTypeEnum.valueOf(getType());
-      if (type == null)
-         throw new IllegalArgumentException("value must include a valid type");
+   /**
+    * Creates a PSDesignGuid safely from an existing GUID, returning an Optional.
+    *
+    * @param guid the source GUID to convert
+    * @return an Optional containing the PSDesignGuid, or empty if conversion fails
+    */
+   public static Optional<PSDesignGuid> ofNullable(IPSGuid guid) {
+      try {
+         return guid != null ? Optional.of(new PSDesignGuid(guid)) : Optional.empty();
+      } catch (IllegalArgumentException e) {
+         return Optional.empty();
+      }
+   }
+
+   /**
+    * Validates the GUID to ensure it contains a valid, recognized type.
+    *
+    * <p>This method performs strict validation of the GUID structure and type
+    * information, throwing descriptive exceptions for various failure cases.
+    *
+    * @throws IllegalArgumentException if the GUID type is missing or unrecognized
+    */
+   private void validateGuid() {
+      var typeValue = getType();
+      if (typeValue == 0) {
+         throw new IllegalArgumentException("GUID type must be specified (type value was 0)");
+      }
+
+      var type = PSTypeEnum.valueOf(typeValue);
+      if (type == null) {
+         throw new IllegalArgumentException(
+             String.format("GUID contains unrecognized type: %d", typeValue));
+      }
    }
 }
-

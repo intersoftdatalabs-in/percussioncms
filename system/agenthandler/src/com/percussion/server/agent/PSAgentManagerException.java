@@ -18,25 +18,56 @@
 package com.percussion.server.agent;
 
 /**
- * This exception is thrown by the <code>IPSAgentManager</code> or its implementation
- * object when it fails to get initialized.
+ * Exception thrown when agent manager operations fail.
+ * This is a checked exception that should be used for recoverable conditions
+ * related to agent manager processing.
+ *
+ * @since Java 11
  */
-public class PSAgentManagerException extends Exception
-{
+public class PSAgentManagerException extends Exception {
+
+   private static final long serialVersionUID = 1L;
+
    /**
-    * Default constructor.
+    * Constructs a new agent manager exception with {@code null} as its detail message.
     */
-   public PSAgentManagerException()
-   {
+   public PSAgentManagerException() {
       super();
    }
 
    /**
-    * Constructor taking the error message.
+    * Constructs a new agent manager exception with the specified detail message.
+    *
+    * @param message the detail message (which is saved for later retrieval
+    *                by the {@link #getMessage()} method)
     */
-   public PSAgentManagerException(String msg)
-   {
-      super(msg);
+   public PSAgentManagerException(String message) {
+      super(message);
+   }
+
+   /**
+    * Constructs a new agent manager exception with the specified detail message and cause.
+    *
+    * @param message the detail message (which is saved for later retrieval
+    *                by the {@link #getMessage()} method)
+    * @param cause the cause (which is saved for later retrieval by the
+    *              {@link #getCause()} method). A {@code null} value is
+    *              permitted, and indicates that the cause is nonexistent or unknown
+    */
+   public PSAgentManagerException(String message, Throwable cause) {
+      super(message, cause);
+   }
+
+   /**
+    * Constructs a new agent manager exception with the specified cause and a detail
+    * message of {@code (cause==null ? null : cause.toString())} (which
+    * typically contains the class and detail message of {@code cause}).
+    *
+    * @param cause the cause (which is saved for later retrieval by the
+    *              {@link #getCause()} method). A {@code null} value is
+    *              permitted, and indicates that the cause is nonexistent or unknown
+    */
+   public PSAgentManagerException(Throwable cause) {
+      super(cause);
    }
 }
-

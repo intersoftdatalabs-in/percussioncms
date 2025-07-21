@@ -25,20 +25,19 @@ import com.percussion.utils.guid.IPSGuid;
  * 
  * @author dougrand
  */
-public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem
-{
-   
+public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem {
+
    /**
     * Get the item's identifying folder guid
     * 
-    * @return the item's folder guid, may be <code>null</code>
+    * @return the item's folder guid, may be {@code null}
     */
    IPSGuid getFolderId();
    
    /**
     * Get the item's containing site guid
     * 
-    * @return the item's site guid, may be <code>null</code>
+    * @return the item's site guid, may be {@code null}
     */
    IPSGuid getSiteId();
    
@@ -53,7 +52,7 @@ public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem
     * hash arrays, it uses the default hash code calculation. This will not
     * work properly.
     * 
-    * @return an opaque key, never <code>null</code>, that identifies the
+    * @return an opaque key, never {@code null}, that identifies the
     * tuple content item id, folder id and site id.
     */
    Object getKey();
@@ -67,7 +66,7 @@ public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem
     * <p>
     * Note that the general clone method is not guaranteed to be present.
     * 
-    * @param newItemId the new item id, never <code>null</code>
+    * @param newItemId the new item id, never {@code null}
     * @return the cloned and modified object
     */
    IPSFilterItem clone(IPSGuid newItemId);
@@ -75,21 +74,7 @@ public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem
    /**
     * Set a new item id, this must only be called on a cloned object.
     * 
-    * @param newId the new item id, never <code>null</code>.
+    * @param newId the new item id, never {@code null}.
     */
    void setItemId(IPSGuid newId);
-   
-   /**
-    * Set a new folder id, this must only be called on a cloned object.
-    * 
-    * @param newId the new folder id, never <code>null</code>.
-    */
-   void setFolderId(IPSGuid newId);
-   
-   /**
-    * Set a new site id, this must only be called on a cloned object.
-    * 
-    * @param newId the new item id, never <code>null</code>.
-    */
-   void setSiteId(IPSGuid newId);
 }

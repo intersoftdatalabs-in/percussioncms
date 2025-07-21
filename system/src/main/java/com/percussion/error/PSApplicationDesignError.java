@@ -24,7 +24,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Element;
 
 import java.util.Locale;
-
+import java.util.Objects;
 
 /**
  * The PSApplicationDesignError class is used to report a design error
@@ -42,8 +42,8 @@ import java.util.Locale;
  * @version    1.0
  * @since      1.0
  */
-public class PSApplicationDesignError extends PSLogError {
-   
+public final class PSApplicationDesignError extends PSLogError {
+
    /**
     * Report an application design error.
     * <p>
@@ -66,35 +66,34 @@ public class PSApplicationDesignError extends PSLogError {
     * @param      source         the XML sub-tree containing the element(s)
     *                            causing the error
     */
-   public PSApplicationDesignError( int applId,
-                                    int errorCode,
-                                    Object[] errorParams,
-                                    Element source)
+   public PSApplicationDesignError(int applId,
+                                   int errorCode,
+                                   Object[] errorParams,
+                                   Element source)
    {
       super(applId);
 
       m_errorCode = errorCode;
       m_errorArgs = errorParams;
-
-      if (source == null)
-         m_source = "";
-      else
-         m_source = PSXmlDocumentBuilder.toString(source);
+      m_source = Objects.isNull(source) ? "" : PSXmlDocumentBuilder.toString(source);
    }
 
    /**
-    * sublcasses must override this to build the messages in the
+    * Subclasses must override this to build the messages in the
     * specified locale
     */
+   @Override
    protected PSLogSubMessage[] buildSubMessages(Locale loc)
    {
-      int msgCount   = (m_source.length() == 0) ? 1 : 2;
-      PSLogSubMessage[] msgs   = new PSLogSubMessage[msgCount];
+      Objects.requireNonNull(loc, "locale cannot be null");
 
-      /* use the errorCode/errorString to format the first submessage */
-      msgs[0]   = new PSLogSubMessage(
+      var msgCount = m_source.isEmpty() ? 1 : 2;
+      var msgs = new PSLogSubMessage[msgCount];
+
+      // Use the errorCode/errorString to format the first submessage
+      msgs[0] = new PSLogSubMessage(
                                  m_errorCode,
-                                 PSErrorManager.createMessage(   m_errorCode,
+                                 PSErrorManager.createMessage(m_errorCode,
                                                                m_errorArgs,
                                                                loc));
 
@@ -110,8 +109,7 @@ public class PSApplicationDesignError extends PSLogError {
       return msgs;
    }
 
-
-   private int         m_errorCode;
-   private Object[]   m_errorArgs;
-   private String      m_source;
+   private final int m_errorCode;
+   private final Object[] m_errorArgs;
+   private final String m_source;
 }

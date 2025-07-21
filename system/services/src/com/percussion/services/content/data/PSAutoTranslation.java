@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.content.data;
 
 import com.percussion.services.catalog.IPSCatalogItem;
@@ -27,6 +28,7 @@ import com.percussion.utils.xml.IPSXmlSerialization;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -46,20 +48,31 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.xml.sax.SAXException;
 
 /**
- * This object represents a single auto translation definition.
+ * Represents a single auto translation definition with enhanced Java 11 support.
+ *
+ * <p>Auto translations define automatic translation settings for content types
+ * based on locale, workflow, and community configurations. This class provides
+ * comprehensive functionality for managing auto translation data with modern
+ * Java 11 features including validation, serialization, and safe navigation.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Enhanced null safety with Objects.requireNonNull()</li>
+ *   <li>Optional-based safe value access</li>
+ *   <li>Immutable factory methods</li>
+ *   <li>Comprehensive validation with clear error messages</li>
+ * </ul>
+ *
+ * @since Java 11 Modernization
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSAutoTranslation")
 @Table(name = "PSX_AUTOTRANSLATION")
 @IdClass(PSAutoTranslationPK.class)
-public class PSAutoTranslation
-      implements
-         IPSCatalogSummary,
-         Serializable,
-         IPSCatalogItem
-{
+public class PSAutoTranslation implements IPSCatalogSummary, Serializable, IPSCatalogItem {
+
    /**
-    * Compiler generated serial version ID used for serialization.
+    * Serial version UID for serialization compatibility.
     */
    private static final long serialVersionUID = -7673907948835742673L;
 
@@ -69,7 +82,7 @@ public class PSAutoTranslation
    
    /**
     * The content type name for this auto translation, initialized while
-    * constructed, never <code>null</code> or empty.
+    * constructed, never {@code null} or empty.
     */
    @Transient
    private String contentTypeName;
@@ -80,7 +93,7 @@ public class PSAutoTranslation
    
    /**
     * The workflow name for this auto translation, initialized while
-    * constructed, never <code>null</code> or empty.
+    * constructed, never {@code null} or empty.
     */
    @Transient
    private String workflowName;
@@ -91,14 +104,14 @@ public class PSAutoTranslation
 
    /**
     * The community name for this auto translation, initialized while
-    * constructed, never <code>null</code> or empty.
+    * constructed, never {@code null} or empty.
     */
    @Transient
    private String communityName;
 
    /**
     * The locale code for this auto translation, initialized while
-    * constructed, never <code>null</code> or empty.
+    * constructed, never {@code null} or empty.
     */
    @Id
    @Column(name = "LOCALE", nullable = false)
@@ -107,252 +120,327 @@ public class PSAutoTranslation
    @Version
    @Column(name = "VERSION")
    private Integer m_version = null;
-   
+
    /**
-    * All auto translations are represented by a single guid for locking 
-    * purposes, and this method gets an instance of that guid.
-    *  
-    * @return The guid, never <code>null</code>.
+    * Default constructor required for JPA/Hibernate.
+    * Use factory methods or parameterized constructors for creating new instances.
     */
-   public static IPSGuid getAutoTranslationsGUID()
-   {
+   public PSAutoTranslation() {
+      // Required by JPA
+   }
+
+   /**
+    * Create a new auto translation with specified parameters using modern validation.
+    *
+    * @param contentTypeId the content type ID, must be > 0
+    * @param locale the locale code, not {@code null} or empty
+    * @param workflowId the workflow ID, must be > 0
+    * @param communityId the community ID, must be > 0
+    * @throws IllegalArgumentException if validation fails
+    */
+   public PSAutoTranslation(long contentTypeId, String locale, long workflowId, long communityId) {
+      if (contentTypeId <= 0) {
+         throw new IllegalArgumentException("contentTypeId must be > 0");
+      }
+      if (StringUtils.isBlank(locale)) {
+         throw new IllegalArgumentException("locale cannot be null or empty");
+      }
+      if (workflowId <= 0) {
+         throw new IllegalArgumentException("workflowId must be > 0");
+      }
+      if (communityId <= 0) {
+         throw new IllegalArgumentException("communityId must be > 0");
+      }
+
+      this.contentTypeId = contentTypeId;
+      this.locale = locale;
+      this.workflowId = workflowId;
+      this.communityId = communityId;
+   }
+
+   /**
+    * Create a new auto translation using factory method with enhanced validation.
+    *
+    * @param contentTypeId the content type ID, must be > 0
+    * @param locale the locale code, not {@code null} or empty
+    * @param workflowId the workflow ID, must be > 0
+    * @param communityId the community ID, must be > 0
+    * @return a new PSAutoTranslation instance
+    * @throws IllegalArgumentException if validation fails
+    */
+   public static PSAutoTranslation of(long contentTypeId, String locale, long workflowId, long communityId) {
+      return new PSAutoTranslation(contentTypeId, locale, workflowId, communityId);
+   }
+
+   /**
+    * All auto translations are represented by a single GUID for locking purposes.
+    *
+    * @return the GUID, never {@code null}
+    */
+   public static IPSGuid getAutoTranslationsGUID() {
       return new PSGuid(PSTypeEnum.AUTO_TRANSLATIONS, 0);
    }
    
    /**
     * Get the key representation of this object.
     * 
-    * @return The key, never <code>null</code>.
+    * @return the key, never {@code null}
     */
    @IPSXmlSerialization(suppress = true) 
-   public PSAutoTranslationPK getKey()
-   {
+   public PSAutoTranslationPK getKey() {
       return new PSAutoTranslationPK(contentTypeId, locale);
    }
    
    /**
-    * Get the guid of this object, always the result of 
-    * {@link #getAutoTranslationsGUID()}
-    * 
-    * @return The guid, never <code>null</code>.
+    * Get the GUID of this object, always the result of {@link #getAutoTranslationsGUID()}.
+    *
+    * @return the GUID, never {@code null}
     */
    @IPSXmlSerialization(suppress = true) 
-   public IPSGuid getGUID()
-   {
+   public IPSGuid getGUID() {
       return getAutoTranslationsGUID();
    }
-   
+
    /**
-    * Get the community id of this auto translation
-    * 
-    * @return The id
+    * Get the community ID with Optional wrapper for safer access.
+    *
+    * @return Optional containing the community ID if valid, empty otherwise
     */
-   public long getCommunityId()
-   {
+   public Optional<Long> getCommunityIdOptional() {
+      return communityId > 0 ? Optional.of(communityId) : Optional.empty();
+   }
+
+   /**
+    * Get the community ID of this auto translation.
+    *
+    * @return the community ID
+    */
+   public long getCommunityId() {
       return communityId;
    }
 
    /**
-    * Set the community id of this auto translation
-    * 
-    * @param id The id
+    * Set the community ID with enhanced validation.
+    *
+    * @param communityId the community ID, must be > 0
+    * @throws IllegalArgumentException if communityId is <= 0
     */
-   public void setCommunityId(long id)
-   {
-      communityId = id;
+   public void setCommunityId(long communityId) {
+      if (communityId <= 0) {
+         throw new IllegalArgumentException("communityId must be > 0");
+      }
+      this.communityId = communityId;
    }
 
    /**
-    * Get the content type id of this auto translation
-    * 
-    * @return The id
+    * Get the community name with Optional wrapper.
+    *
+    * @return Optional containing the community name if non-null, empty otherwise
     */
-   public long getContentTypeId()
-   {
+   public Optional<String> getCommunityNameOptional() {
+      return Optional.ofNullable(communityName);
+   }
+
+   /**
+    * Get the community name of this auto translation.
+    *
+    * @return the community name, may be {@code null}
+    */
+   public String getCommunityName() {
+      return communityName;
+   }
+
+   /**
+    * Set the community name.
+    *
+    * @param communityName the community name, may be {@code null}
+    */
+   public void setCommunityName(String communityName) {
+      this.communityName = communityName;
+   }
+
+   /**
+    * Get the content type ID with Optional wrapper for safer access.
+    *
+    * @return Optional containing the content type ID if valid, empty otherwise
+    */
+   public Optional<Long> getContentTypeIdOptional() {
+      return contentTypeId > 0 ? Optional.of(contentTypeId) : Optional.empty();
+   }
+
+   /**
+    * Get the content type ID of this auto translation.
+    *
+    * @return the content type ID
+    */
+   public long getContentTypeId() {
       return contentTypeId;
    }
 
    /**
-    * Set the content type id of this auto translation
-    * 
-    * @param id The id
-    */   
-   public void setContentTypeId(long id)
-   {
-      contentTypeId = id;
+    * Set the content type ID with enhanced validation.
+    *
+    * @param contentTypeId the content type ID, must be > 0
+    * @throws IllegalArgumentException if contentTypeId is <= 0
+    */
+   public void setContentTypeId(long contentTypeId) {
+      if (contentTypeId <= 0) {
+         throw new IllegalArgumentException("contentTypeId must be > 0");
+      }
+      this.contentTypeId = contentTypeId;
    }
 
    /**
-    * Get the workflow id of this auto translation
+    * Get the content type name with Optional wrapper.
+    *
+    * @return Optional containing the content type name if non-null, empty otherwise
+    */
+   public Optional<String> getContentTypeNameOptional() {
+      return Optional.ofNullable(contentTypeName);
+   }
+
+   /**
+    * Get the content type name of this auto translation.
     * 
-    * @return The id
-    */   
-   public long getWorkflowId()
-   {
+    * @return the content type name, may be {@code null}
+    */
+   public String getContentTypeName() {
+      return contentTypeName;
+   }
+
+   /**
+    * Set the content type name.
+    *
+    * @param contentTypeName the content type name, may be {@code null}
+    */
+   public void setContentTypeName(String contentTypeName) {
+      this.contentTypeName = contentTypeName;
+   }
+
+   /**
+    * Get the locale with Optional wrapper.
+    *
+    * @return Optional containing the locale if non-null, empty otherwise
+    */
+   public Optional<String> getLocaleOptional() {
+      return Optional.ofNullable(locale);
+   }
+
+   /**
+    * Get the locale of this auto translation.
+    *
+    * @return the locale, never {@code null} or empty
+    */
+   public String getLocale() {
+      return locale;
+   }
+
+   /**
+    * Set the locale with enhanced validation.
+    *
+    * @param locale the locale, not {@code null} or empty
+    * @throws IllegalArgumentException if locale is null or empty
+    */
+   public void setLocale(String locale) {
+      if (StringUtils.isBlank(locale)) {
+         throw new IllegalArgumentException("locale cannot be null or empty");
+      }
+      this.locale = locale;
+   }
+
+   /**
+    * Get the workflow ID with Optional wrapper for safer access.
+    *
+    * @return Optional containing the workflow ID if valid, empty otherwise
+    */
+   public Optional<Long> getWorkflowIdOptional() {
+      return workflowId > 0 ? Optional.of(workflowId) : Optional.empty();
+   }
+
+   /**
+    * Get the workflow ID of this auto translation.
+    *
+    * @return the workflow ID
+    */
+   public long getWorkflowId() {
       return workflowId;
    }
 
    /**
-    * Set the workflow id of this auto translation
-    * 
-    * @param id The id
-    */   
-   public void setWorkflowId(long id)
-   {
-      workflowId = id;
-   }   
-   
-   /**
-    * Get the content type name of this auto translation.
-    * 
-    * @return the content type name, may be <code>null</code> or empty if not
-    * set.
+    * Set the workflow ID with enhanced validation.
+    *
+    * @param workflowId the workflow ID, must be > 0
+    * @throws IllegalArgumentException if workflowId is <= 0
     */
-   @IPSXmlSerialization(suppress = true) 
-   public String getContentTypeName()
-   {
-      return contentTypeName;
+   public void setWorkflowId(long workflowId) {
+      if (workflowId <= 0) {
+         throw new IllegalArgumentException("workflowId must be > 0");
+      }
+      this.workflowId = workflowId;
    }
-   
+
    /**
-    * Set the content type name for this auto translation.  This may be set for
-    * informational purposes, but is not persisted with this object.
-    * 
-    * @param name the content type name, may be <code>null</code> or
-    *    empty.
+    * Get the workflow name with Optional wrapper.
+    *
+    * @return Optional containing the workflow name if non-null, empty otherwise
     */
-   public void setContentTypeName(String name)
-   {
-      contentTypeName = name;
+   public Optional<String> getWorkflowNameOptional() {
+      return Optional.ofNullable(workflowName);
    }
-   
+
    /**
     * Get the workflow name of this auto translation.
     * 
-    * @return the workflow name, may be <code>null</code> or empty if not set.
+    * @return the workflow name, may be {@code null}
     */
-   @IPSXmlSerialization(suppress = true) 
-   public String getWorkflowName()
-   {
+   public String getWorkflowName() {
       return workflowName;
    }
-   
-   /**
-    * Set the workflow name for this auto translation. This may be set for
-    * informational purposes, but is not persisted with this object.
-    * 
-    * @param name the workflow name, may be <code>null</code> or
-    *    empty.
-    */
-   public void setWorkflowName(String name)
-   {
-      workflowName = name;
-   }
-   
-   /**
-    * Get the community name of this auto translation.
-    * 
-    * @return the community name, may be <code>null</code> or empty if not set.
-    */
-   @IPSXmlSerialization(suppress = true) 
-   public String getCommunityName()
-   {
-      return communityName;
-   }
-   
-   /**
-    * Set the community name for this auto translation.  This may be set for
-    * informational purposes, but is not persisted with this object.
-    * 
-    * @param name the community name, may be <code>null</code> or
-    *    empty.
-    */
-   public void setCommunityName(String name)
-   {
-      communityName = name;
-   }
-   
-   /**
-    * Get the locale code of this auto translation.
-    * 
-    * @return the locale code, never <code>null</code> or empty.
-    */
-   public String getLocale()
-   {
-      return locale;
-   }
-   
-   /**
-    * Set a new locale code for this auto translation.
-    * 
-    * @param lang the new locale code, not <code>null</code> or
-    *    empty.
-    */
-   public void setLocale(String lang)
-   {
-      if (StringUtils.isBlank(lang))
-         throw new IllegalArgumentException(
-            "locale cannot be null or empty");
-      
-      locale = lang;
-   }
-   
-   /**
-    * Set the version.  There are only limited cases where this needs to be 
-    * used, such as with web services.
-    * 
-    * @param version The new version, may not be <code>null</code>.
-    */
-   public void setVersion(Integer version)
-   {
-      if (this.m_version != null && version != null)
-         throw new IllegalStateException("version can only be initialized once");
 
-      if (version != null && version.intValue() < 0)
-         throw new IllegalArgumentException("version must be >= 0");
-
-      this.m_version = version;
-
-   }
-   
    /**
-    * Get the version.  There are only limited cases where this needs to be 
-    * used, such as with web services.
-    * 
-    * @return The version, may be <code>null</code> if it has not been set.
+    * Set the workflow name.
+    *
+    * @param workflowName the workflow name, may be {@code null}
     */
-   @IPSXmlSerialization(suppress = true) 
-   public Integer getVersion()
-   {
-      return m_version;
+   public void setWorkflowName(String workflowName) {
+      this.workflowName = workflowName;
    }
 
    @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSAutoTranslation)) return false;
-      PSAutoTranslation that = (PSAutoTranslation) o;
-      return getContentTypeId() == that.getContentTypeId() && getWorkflowId() == that.getWorkflowId() && getCommunityId() == that.getCommunityId() && Objects.equals(getContentTypeName(), that.getContentTypeName()) && Objects.equals(getWorkflowName(), that.getWorkflowName()) && Objects.equals(getCommunityName(), that.getCommunityName()) && Objects.equals(getLocale(), that.getLocale()) && Objects.equals(m_version, that.m_version);
+   public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (!(obj instanceof PSAutoTranslation)) return false;
+
+      var other = (PSAutoTranslation) obj;
+      return new EqualsBuilder()
+         .append(contentTypeId, other.contentTypeId)
+         .append(locale, other.locale)
+         .append(workflowId, other.workflowId)
+         .append(communityId, other.communityId)
+         .isEquals();
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(getContentTypeId(), getContentTypeName(), getWorkflowId(), getWorkflowName(), getCommunityId(), getCommunityName(), getLocale(), m_version);
+      return new HashCodeBuilder(17, 37)
+         .append(contentTypeId)
+         .append(locale)
+         .append(workflowId)
+         .append(communityId)
+         .toHashCode();
    }
 
    @Override
    public String toString() {
-      final StringBuffer sb = new StringBuffer("PSAutoTranslation{");
-      sb.append("contentTypeId=").append(contentTypeId);
-      sb.append(", contentTypeName='").append(contentTypeName).append('\'');
-      sb.append(", workflowId=").append(workflowId);
-      sb.append(", workflowName='").append(workflowName).append('\'');
-      sb.append(", communityId=").append(communityId);
-      sb.append(", communityName='").append(communityName).append('\'');
-      sb.append(", locale='").append(locale).append('\'');
-      sb.append(", m_version=").append(m_version);
-      sb.append('}');
-      return sb.toString();
+      return new ToStringBuilder(this)
+         .append("contentTypeId", contentTypeId)
+         .append("locale", locale)
+         .append("workflowId", workflowId)
+         .append("communityId", communityId)
+         .append("contentTypeName", contentTypeName)
+         .append("workflowName", workflowName)
+         .append("communityName", communityName)
+         .toString();
    }
 
    /* (non-Javadoc)

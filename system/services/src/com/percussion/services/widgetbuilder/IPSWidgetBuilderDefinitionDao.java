@@ -21,32 +21,42 @@ import com.percussion.share.dao.IPSGenericDao;
 
 import java.util.List;
 
+/**
+ * Data Access Object interface for Widget Builder Definition operations.
+ * Provides CRUD operations for managing widget builder definitions in the system.
+ *
+ * @author matthewernewein
+ */
+public interface IPSWidgetBuilderDefinitionDao {
 
-
-public interface IPSWidgetBuilderDefinitionDao
-{
     /**
      * Saves the widget builder definition object.
-     * @param definition must not be <code>null</code>
-     * @return the widget builder definition
+     *
+     * @param definition must not be {@code null}
+     * @return the saved widget builder definition
+     * @throws IPSGenericDao.SaveException if there's an error saving the definition
      */
     PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws IPSGenericDao.SaveException;
     
     /**
-     * Finds widget builder definition by the definition id
-     * @param definitionId raw contentid of the item
-     * @return a widget builder definition if exists otherwise <code>null</code>.
+     * Finds widget builder definition by the definition id.
+     *
+     * @param definitionId the unique identifier of the widget builder definition
+     * @return a widget builder definition if exists, otherwise {@code null}
      */
     PSWidgetBuilderDefinition find(long definitionId);
     
     /**
      * Deletes the widget builder definition entry for the supplied id.
-     * @param definitionId must not be <code>null</code>
+     *
+     * @param definitionId the unique identifier, must not be negative
      */
     void delete(long definitionId);
     
     /**
-     * Gets a list of all the WidgetBuilderDefinitions
+     * Gets a list of all the Widget Builder Definitions in the system.
+     *
+     * @return a list of all widget builder definitions, never {@code null}, may be empty
      */
     List<PSWidgetBuilderDefinition> getAll();
 }

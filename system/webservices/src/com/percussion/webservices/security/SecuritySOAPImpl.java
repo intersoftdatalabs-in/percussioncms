@@ -27,17 +27,13 @@ import com.percussion.webservices.faults.PSContractViolationFault;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthenticatedFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import com.percussion.webservices.security.data.PSCommunity;
-import com.percussion.webservices.security.data.PSRole;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.List;
 
 import javax.security.auth.login.LoginException;
 import javax.servlet.ServletException;
-
-import org.apache.commons.lang.exception.ExceptionUtils;
 
 /**
  * Server side implementations for web services defined in

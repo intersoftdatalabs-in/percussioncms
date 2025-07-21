@@ -35,13 +35,15 @@ import java.util.Set;
  * Test case for the {@link PSRoleManager}. Requires the mock role and subject
  * cataloger registrations found in the
  * UnitTestResources\com\percussion\security\cataloger-beans.xml to be added to
- * the cataloger-beans.xmlused by the running server, and also requires that the
+ * the cataloger-beans.xml used by the running server, and also requires that the
  * PSRoleManagerTest.class file be manually deployed to the
  * WEB-INF/classes/com/percussion/security directory and the
  * IPSCustomJunitTest.class file be manually deployed to the
  * WEB-INF/classes/com/percussion/testing directory (requires server restart).
+ *
+ * <p>This test class has been updated for Java 11 compatibility with proper
+ * generic type usage and modern Java practices.</p>
  */
-@SuppressWarnings(value={"unchecked"})
 @Category(IntegrationTest.class)
 public class PSRoleManagerTest extends ServletTestCase
 {
@@ -50,10 +52,10 @@ public class PSRoleManagerTest extends ServletTestCase
     */
    public void testGetRoles()
    {
-      List roles = PSRoleManager.getInstance().getRoles();
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Admin"));
-      assertTrue(roles.contains("Editor"));
+      List<String> roles = PSRoleManager.getInstance().getRoles();
+      assertFalse("Roles list should not be empty", roles.isEmpty());
+      assertTrue("Should contain Admin role", roles.contains("Admin"));
+      assertTrue("Should contain Editor role", roles.contains("Editor"));
    }
 
    /**
@@ -62,34 +64,37 @@ public class PSRoleManagerTest extends ServletTestCase
    public void testGetRolesStringint()
    {
       PSRoleManager mgr = PSRoleManager.getInstance();
-      List roles;
+      List<String> roles;
+
       roles = mgr.getRoles("admin1", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Admin"));
-      assertEquals(roles, mgr.getRoles("admin1", 0));
+      assertFalse("Admin1 roles should not be empty", roles.isEmpty());
+      assertTrue("Admin1 should have Admin role", roles.contains("Admin"));
+      assertEquals("getRoles with type should match getRoles with 0", roles, mgr.getRoles("admin1", 0));
 
       roles = mgr.getRoles("subCatUser1_1", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Author"));
-      assertEquals(roles, mgr.getRoles("subCatUser1_1", 0));
+      assertFalse("SubCatUser1_1 roles should not be empty", roles.isEmpty());
+      assertTrue("SubCatUser1_1 should have Author role", roles.contains("Author"));
+      assertEquals("getRoles with type should match getRoles with 0", roles, mgr.getRoles("subCatUser1_1", 0));
 
       roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(roles.isEmpty());
-      roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_GROUP);
-      assertTrue(roles.contains("QA"));
-      assertEquals(roles, mgr.getRoles("subCatGroup2", 0));
-      
-      assertEquals(mgr.getRoles(null, 0), mgr.getRoles());
-      
-      roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_GROUP);
-      assertTrue(roles.contains("QA"));
-      assertFalse(roles.contains("Author"));
-      assertFalse(roles.contains("Editor"));
+      assertTrue("SubCatGroup2 user roles should be empty", roles.isEmpty());
 
-      assertEquals(mgr.getRoles(null, 0), mgr.getRoles());
+      roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_GROUP);
+      assertTrue("SubCatGroup2 should have QA role", roles.contains("QA"));
+      assertEquals("getRoles with type should match getRoles with 0", roles, mgr.getRoles("subCatGroup2", 0));
+
+      assertEquals("Null subject should return all roles", mgr.getRoles(null, 0), mgr.getRoles());
+
+      roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_GROUP);
+      assertTrue("Group roles should contain QA", roles.contains("QA"));
+      assertFalse("Group roles should not contain Author", roles.contains("Author"));
+      assertFalse("Group roles should not contain Editor", roles.contains("Editor"));
+
+      assertEquals("Null subject with type 0 should match getRoles()", mgr.getRoles(null, 0), mgr.getRoles());
+
       roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(roles.contains("Admin"));
-      assertTrue(roles.contains("Author"));
+      assertTrue("User roles should contain Admin", roles.contains("Admin"));
+      assertTrue("User roles should contain Author", roles.contains("Author"));
    }
 
    /**
@@ -99,13 +104,28 @@ public class PSRoleManagerTest extends ServletTestCase
    public void testIsMemberOfRole()
    {
       PSRoleManager mgr = PSRoleManager.getInstance();
-      assertTrue(mgr.isMemberOfRole("admin1", "Admin"));
-      assertTrue(mgr.isMemberOfRole("editor1", "Editor"));
-      assertFalse(mgr.isMemberOfRole("editor1", "Admin"));
-      assertTrue(mgr.isMemberOfRole("subCatUser1_1", "Author"));
-      assertFalse(mgr.isMemberOfRole("subCatUser1_1", "Editor"));
-      assertTrue(mgr.isMemberOfRole("subCatGroup1", "QA")); 
-      assertFalse(mgr.isMemberOfRole("subCatGroup1", "Editor"));
+
+      // Test cases using proper type safety and Java 11 best practices
+      assertTrue("admin1 should be member of Admin role",
+                 mgr.isMemberOfRole("admin1", "Admin", PSSubject.SUBJECT_TYPE_USER));
+
+      assertTrue("editor1 should be member of Editor role",
+                 mgr.isMemberOfRole("editor1", "Editor", PSSubject.SUBJECT_TYPE_USER));
+
+      assertFalse("editor1 should not be member of Admin role",
+                  mgr.isMemberOfRole("editor1", "Admin", PSSubject.SUBJECT_TYPE_USER));
+
+      assertTrue("subCatUser1_1 should be member of Author role",
+                 mgr.isMemberOfRole("subCatUser1_1", "Author", PSSubject.SUBJECT_TYPE_USER));
+
+      assertFalse("subCatUser1_1 should not be member of Editor role",
+                  mgr.isMemberOfRole("subCatUser1_1", "Editor", PSSubject.SUBJECT_TYPE_USER));
+
+      assertTrue("subCatGroup1 should be member of QA role",
+                 mgr.isMemberOfRole("subCatGroup1", "QA", PSSubject.SUBJECT_TYPE_GROUP));
+
+      assertFalse("subCatGroup1 should not be member of Editor role",
+                  mgr.isMemberOfRole("subCatGroup1", "Editor", PSSubject.SUBJECT_TYPE_GROUP));
    }
 
    /**
@@ -124,7 +144,7 @@ public class PSRoleManagerTest extends ServletTestCase
          PSRequestInfo.KEY_PSREQUEST);
       PSUserSession userSession = psreq.getUserSession();
       
-      List roles;
+      List<String> roles;
       roles = mgr.memberRoleList(userSession, "author1");
       assertTrue(roles.contains("Author"));
       assertTrue(!roles.contains("Admin"));

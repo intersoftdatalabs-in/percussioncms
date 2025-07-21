@@ -20,130 +20,158 @@ package com.percussion.services.widgetbuilder;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.util.PSBaseBean;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.query.Query;
 import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * @author matthewernewein
+ * Data Access Object implementation for Widget Builder Definition operations.
+ * This Spring Repository provides CRUD operations for managing widget builder definitions
+ * using JPA/Hibernate for persistence.
  *
+ * @author matthewernewein
  */
 @Transactional
 @Repository
 @PSBaseBean("sys_widgetBuilderDefinitionDao")
-public class PSWidgetBuilderDefinitionDao
-        implements IPSWidgetBuilderDefinitionDao
-{
-    
-    private static final Logger log = LogManager.getLogger(PSWidgetBuilderDefinitionDao.class);
+public class PSWidgetBuilderDefinitionDao implements IPSWidgetBuilderDefinitionDao {
+
+    private static final Logger logger = LogManager.getLogger(PSWidgetBuilderDefinitionDao.class);
+
+    /**
+     * Constant for the key used to generate widget builder definition IDs.
+     */
+    private static final String WIDGET_BUILDER_DEFINITION_ID_KEY = "PSX_WIDGETBUILDERDEFINITIONID";
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Session getSession(){
+    @Autowired
+    private IPSGuidManager guidManager;
+
+    /**
+     * Gets the current Hibernate session from the EntityManager.
+     *
+     * @return the current Hibernate session
+     */
+    private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
-    
-    /**
-     * Constant for the key used to generate summary ids.
-     */
-    private static final String USER_ITEM_KEY = "PSX_WIDGETBUILDERDEFINITIONID";
-    
-    private IPSGuidManager m_guidManager;
 
-
+    @Override
     @Transactional
     public PSWidgetBuilderDefinition save(PSWidgetBuilderDefinition definition) throws IPSGenericDao.SaveException {
-        Validate.notNull(definition);
+        Validate.notNull(definition, "Widget builder definition cannot be null");
 
-        if (definition.getWidgetBuilderDefinitionId() == -1)
-        {
-           definition.setWidgetBuilderDefinitionId(m_guidManager.createId(USER_ITEM_KEY));
+        // Generate new ID if this is a new entity
+        if (definition.getWidgetBuilderDefinitionId() == -1) {
+            var newId = guidManager.createId(WIDGET_BUILDER_DEFINITION_ID_KEY);
+            definition.setWidgetBuilderDefinitionId(newId);
         }
 
-        Session session = getSession();
-        try
-        {
+        var session = getSession();
+        try {
             session.saveOrUpdate(definition);
-        }
-        catch (HibernateException e)
-        {
-            String msg = "database error " + e.getMessage();
-            log.error(msg);
-            throw new IPSGenericDao.SaveException(msg, e);
-        }
-        finally
-        {
             session.flush();
+            logger.debug("Successfully saved widget builder definition with ID: {}",
+                        definition.getWidgetBuilderDefinitionId());
+            return definition;
+        } catch (HibernateException e) {
+            var errorMsg = "Database error while saving widget builder definition: " + e.getMessage();
+            logger.error(errorMsg, e);
+            throw new IPSGenericDao.SaveException(errorMsg, e);
         }
-        return definition;
-        
     }
 
-    public PSWidgetBuilderDefinition find(long definitionId)
-    {
-        PSWidgetBuilderDefinition definition = null;
-        Session session = getSession();
+    @Override
+    public PSWidgetBuilderDefinition find(long definitionId) {
+        Validate.isTrue(definitionId > 0, "Definition ID must be positive");
 
-            Query query = session.createQuery("from PSWidgetBuilderDefinition where widgetBuilderDefinitionId = :widgetBuilderDefinitionId");
+        var session = getSession();
+        try {
+            var query = session.createQuery(
+                "FROM PSWidgetBuilderDefinition WHERE widgetBuilderDefinitionId = :widgetBuilderDefinitionId",
+                PSWidgetBuilderDefinition.class);
             query.setParameter("widgetBuilderDefinitionId", definitionId);
 
-            @SuppressWarnings("unchecked")
-           List<PSWidgetBuilderDefinition> definitions = query.list(); 
-            if(!definitions.isEmpty())
-               definition = definitions.get(0);
-            return definition;
-
+            var result = query.uniqueResult();
+            logger.debug("Found widget builder definition with ID {}: {}", definitionId, result != null);
+            return result;
+        } catch (HibernateException e) {
+            logger.error("Error finding widget builder definition with ID: {}", definitionId, e);
+            return null;
+        }
     }
 
+    @Override
     @Transactional
-    public void delete(long definitionId)
-    {
-       
-        Validate.notNull(definitionId);
-        PSWidgetBuilderDefinition definition = find(definitionId);
-        Validate.notNull(definition);
-              
-        Session session = getSession();
-        try
-        {
-            session.delete(definition);
-        }
-        catch (HibernateException e)
-        {
-            String msg = "Failed to delete user item: " + e.getMessage();
-            log.error(msg);
-        }
-        finally
-        {
-            session.flush();
+    public void delete(long definitionId) {
+        Validate.isTrue(definitionId > 0, "Definition ID must be positive");
 
+        var definition = find(definitionId);
+        if (definition != null) {
+            var session = getSession();
+            try {
+                session.delete(definition);
+                session.flush();
+                logger.debug("Successfully deleted widget builder definition with ID: {}", definitionId);
+            } catch (HibernateException e) {
+                logger.error("Error deleting widget builder definition with ID: {}", definitionId, e);
+                throw new RuntimeException("Failed to delete widget builder definition", e);
+            }
+        } else {
+            logger.warn("Attempted to delete non-existent widget builder definition with ID: {}", definitionId);
         }
     }
 
-   public void setGuidManager(IPSGuidManager guidManager)
-    {
-        m_guidManager = guidManager;
+    @Override
+    public List<PSWidgetBuilderDefinition> getAll() {
+        var session = getSession();
+        try {
+            var query = session.createQuery(
+                "FROM PSWidgetBuilderDefinition ORDER BY label",
+                PSWidgetBuilderDefinition.class);
+            var results = query.list();
+            logger.debug("Retrieved {} widget builder definitions", results.size());
+            return results;
+        } catch (HibernateException e) {
+            logger.error("Error retrieving all widget builder definitions", e);
+            return List.of(); // Return empty list instead of null
+        }
     }
 
-   @SuppressWarnings("unchecked")
-   public List<PSWidgetBuilderDefinition> getAll()
-   {
-      Session session = getSession();
+    /**
+     * Finds a widget builder definition by prefix.
+     *
+     * @param prefix the prefix to search for
+     * @return the widget builder definition if found, otherwise empty Optional
+     */
+    public Optional<PSWidgetBuilderDefinition> findByPrefix(String prefix) {
+        Validate.notBlank(prefix, "Prefix cannot be blank");
 
-         Criteria criteria = session.createCriteria(PSWidgetBuilderDefinition.class);
-         return criteria.list();
+        var session = getSession();
+        try {
+            var query = session.createQuery(
+                "FROM PSWidgetBuilderDefinition WHERE prefix = :prefix",
+                PSWidgetBuilderDefinition.class);
+            query.setParameter("prefix", prefix);
 
-
-   }
+            var result = Optional.ofNullable(query.uniqueResult());
+            logger.debug("Found widget builder definition with prefix {}: {}", prefix, result.isPresent());
+            return result;
+        } catch (HibernateException e) {
+            logger.error("Error finding widget builder definition with prefix: {}", prefix, e);
+            return Optional.empty();
+        }
+    }
 }
