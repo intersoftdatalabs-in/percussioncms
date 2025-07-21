@@ -16,6 +16,9 @@
         <tomcat-directory>${basedir}/target/tomcat</tomcat-directory>
         <assembly-directory>${basedir}/target/classes/distribution</assembly-directory>
         <ant-installer>${assembly-directory}/rxconfig/Installer</ant-installer>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
     <dependencies>
         <dependency>

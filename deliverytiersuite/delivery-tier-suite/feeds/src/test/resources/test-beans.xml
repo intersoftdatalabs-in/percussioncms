@@ -1,93 +1,71 @@
-
-
+<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <!-- Enable component scanning for test packages -->
+    <context:component-scan base-package="com.percussion.delivery.feeds"/>
 
-   <bean id="propertyPlaceholderProps"
-         class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">
-      <property name="ignoreResourceNotFound" value="true" />
-      <property name="autoSecure" value="true" />
-      <property name="securedProperties">
-         <list>
-            <value>db.password</value>
-         </list>
-      </property>
-      <property name="locations">
-         <!-- One or more locations of the property files. Properties with 
-            the same name override based on the order the file appears in the list last 
-            one defined wins -->
-         <list>
-            <value>perc-datasources.properties</value>
-         </list>
-      </property>
-      <!-- Local properties to default to if no file exists or the properties 
-         do not exist in the file DO NOT USE THESE FOR PRODUCTION, put them in the 
-         properties file where the password will be encrypted -->
-      <property name="properties">
-         <props>
-            <!-- Global and database-agnostic Hibernate properties -->
-            <prop key="datasource">percDataSource</prop>
-            <prop key="hibernateProperties">percHibernateProperties</prop>
-            <prop key="hibernate.cache.use_second_level_cache">false</prop>
-            <prop key="hibernate.cache.use_query_cache">false</prop>
+    <!-- Properties configuration -->
+    <context:property-placeholder location="classpath:feed-validation.properties"/>
 
-            <!-- Apache Derby -->
-            <prop key="jdbcUrl">jdbc:derby:memory:percfeeds;create=true</prop>
-            <prop key="jdbcDriver">org.apache.derby.jdbc.EmbeddedDriver</prop>
-            <prop key="db.username">test</prop>
-            <prop key="db.password">test</prop>
-            <prop key="db.schema">APP</prop>
-            <prop key="hibernate.dialect">com.percussion.delivery.rdbms.DerbyTenOneFourDialect</prop>
-            <prop key="hibernate.query.substitutions">true 'T', false 'F'</prop>
-            <prop key="tenant.cache.ttl">1440</prop>
-            <prop key="tenant.cache.reauth">true</prop>
-            <prop key="rss.feeds.ip">127.0.0.1</prop>
-         </props>
-      </property>
-   </bean>
+    <!-- Enable transaction management -->
+    <tx:annotation-driven/>
 
+    <!-- Test database configuration -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="org.h2.Driver"/>
+        <property name="url" value="jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1"/>
+        <property name="username" value="sa"/>
+        <property name="password" value=""/>
+    </bean>
 
-   <bean id="propertyConfigurer"
-         class="com.percussion.delivery.utils.spring.PSPropertyPlaceholderConfigurer">
-      <property name="properties" ref="propertyPlaceholderProps" />
-   </bean>
+    <!-- Hibernate configuration for tests -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>com.percussion.delivery.feeds.data</value>
+                <value>com.percussion.delivery.feeds.services.rdbms</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+                <prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+            </props>
+        </property>
+    </bean>
 
-   <import resource="perc-datasources.xml" />
-   <import resource="feeds.xml" />
+    <!-- Transaction manager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
 
-   <!-- Hibernate SessionFactory -->
-   <bean id="feedsSessionFactory"
-         class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
-      <property name="dataSource">
-         <ref bean="${datasource}" />
-      </property>
-      <property name="hibernateProperties">
-         <ref bean="${hibernateProperties}" />
-      </property>
-      <property name="configLocation">
-         <value>hibernate.cfg.xml</value>
-      </property>
-   </bean>
+    <!-- Feed generator for tests -->
+    <bean id="feedGenerator" class="com.percussion.delivery.feeds.PSFeedGenerator"/>
 
+    <!-- Performance monitor -->
+    <bean id="performanceMonitor" class="com.percussion.delivery.feeds.test.FeedPerformanceMonitor"
+          factory-method="create">
+        <constructor-arg value="${jmx.base-name}"/>
+    </bean>
 
-   <tx:annotation-driven transaction-manager="txManager"/>
+    <!-- XML Schema validator -->
+    <bean id="schemaValidator" class="javax.xml.validation.SchemaFactory"
+          factory-method="newInstance">
+        <constructor-arg value="http://www.w3.org/2001/XMLSchema"/>
+    </bean>
 
-   <bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
-      <property name="sessionFactory" ref="feedsSessionFactory" />
-   </bean>
-
-   <bean id="feedsDao" class="com.percussion.delivery.feeds.services.rdbms.PSFeedDao">
-      <property name="sessionFactory">
-         <ref bean="feedsSessionFactory" />
-      </property>
-   </bean>
-
-   <bean id="httpClient"
-      class="com.percussion.delivery.utils.security.PSHttpClient"
-      autowire="constructor">
-   </bean>
+    <!-- Test execution listener -->
+    <bean class="com.percussion.delivery.feeds.test.FeedTestExecutionListener"/>
 </beans>
