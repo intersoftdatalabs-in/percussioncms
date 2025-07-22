@@ -17,34 +17,49 @@
 
 package com.percussion.services.audit;
 
-import com.percussion.rx.design.IPSDesignModel;
 import com.percussion.services.PSBaseServiceLocator;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
 /**
- * Locator for the {@link IPSDesignObjectAuditService}
+ * Locator for the {@link IPSDesignObjectAuditService} using modern Java 11 patterns.
+ *
+ * <p>This service locator uses thread-safe lazy initialization with atomic references
+ * for optimal performance and memory visibility.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
-public class PSDesignObjectAuditServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSDesignObjectAuditService doas=null;
+public class PSDesignObjectAuditServiceLocator {
+
    /**
-    * Find and return the audit service.
-    * 
+    * Thread-safe reference to the audit service instance using modern concurrency patterns.
+    */
+   private static final AtomicReference<IPSDesignObjectAuditService> AUDIT_SERVICE_REF =
+      new AtomicReference<>();
+
+   /**
+    * Lazy service supplier for thread-safe initialization.
+    */
+   private static final Supplier<IPSDesignObjectAuditService> SERVICE_SUPPLIER = () ->
+      (IPSDesignObjectAuditService) PSBaseServiceLocator.getCtx().getBean("sys_designObjectAuditService");
+
+   /**
+    * Find and return the audit service using modern lazy initialization patterns.
+    *
     * @return the service, never <code>null</code>.
     */
-   public static IPSDesignObjectAuditService getAuditService()
-   {
-       if(doas==null)
-       {
-           synchronized (PSDesignObjectAuditServiceLocator.class)
-           {
-               if(doas==null)
-               {
-                   doas = (IPSDesignObjectAuditService) getCtx().getBean(
-                           "sys_designObjectAuditService");
-               }
-           }
-       }
-      return doas;
+   public static IPSDesignObjectAuditService getAuditService() {
+      return AUDIT_SERVICE_REF.updateAndGet(existing ->
+         existing != null ? existing : SERVICE_SUPPLIER.get());
    }
 
+   /**
+    * Clear the cached service instance - primarily for testing purposes.
+    * This method is thread-safe and will force reinitialization on next access.
+    */
+   public static void clearCache() {
+      AUDIT_SERVICE_REF.set(null);
+   }
 }

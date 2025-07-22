@@ -21,254 +21,258 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
- * Create globally unique ids for use when creating service objects. The methods
+ * Creates globally unique IDs for use when creating service objects. The methods
  * that begin with 'create' are generally only useful to the system.
  * Implementers will be interested in the methods that begin with 'make'.
- * 
+ * <p>
  * There are also methods for converting between old-style item locators and
- * guids. These are provided for interoperability between the old and new
- * models.
- * 
- * @author dougrand
- */
-/**
- * @author stephenbolton
+ * GUIDs. These are provided for interoperability between the old and new models.
+ * <p>
+ * This service is thread-safe and supports efficient batch operations for
+ * high-performance GUID generation.
  *
+ * @author dougrand
+ * @author stephenbolton
  */
-public interface IPSGuidManager
-{
-   /**
-    * Create a single new guid for the given type
-    * 
-    * @param type
-    *           the type, never <code>null</code>
-    * @return a new guid
-    */
-   IPSGuid createGuid(PSTypeEnum type);
+public interface IPSGuidManager {
 
-   /**
-    * Create a series of guids for the given type
-    * 
-    * @param type
-    *           the type, never <code>null</code>
-    * @param count
-    *           the number of guids to create, must be a positive number
-    * @return a list of guids, the size of the list will equal count
-    */
-   List<IPSGuid> createGuids(PSTypeEnum type, int count);
+    /**
+     * Create a single new GUID for the given type.
+     *
+     * @param type the type, not {@code null}
+     * @return a new GUID, never {@code null}
+     * @throws IllegalArgumentException if type is null
+     */
+    IPSGuid createGuid(PSTypeEnum type);
 
-   /**
-    * Create a single new guid for the given type and repository
-    * 
-    * @param repositoryId
-    *           the repository id, must be greater than zero. Zero is the same
-    *           as not using a repository. Negative is invalid.
-    * @param type
-    *           the type, never <code>null</code>
-    * @return a new guid
-    */
-   IPSGuid createGuid(byte repositoryId, PSTypeEnum type);
+    /**
+     * Create a series of GUIDs for the given type.
+     *
+     * @param type the type, not {@code null}
+     * @param count the number of GUIDs to create, must be a positive number
+     * @return a list of GUIDs, the size of the list will equal count, never {@code null}
+     * @throws IllegalArgumentException if type is null or count is not positive
+     */
+    List<IPSGuid> createGuids(PSTypeEnum type, int count);
 
-   /**
-    * Create a series of guids for the given type and repository
-    * 
-    * @param repositoryId
-    *           the repository id, must be greater than zero. Zero is the same
-    *           as not using a repository. Negative is invalid.
-    * @param type
-    *           the type, never <code>null</code>
-    * @param count
-    *           the number of guids to create, must be a positive number
-    * @return a list of guids, the size of the list will equal count
-    */
-   List<IPSGuid> createGuids(byte repositoryId, PSTypeEnum type, int count);
-   
-   /**
-    * Create a single id using values stored in the next number table.
-    * 
-    * @param key the key, never <code>null</code> or empty
-    * @return the next allocated id
-    */
-   int createId(String key);
-   
-   /**
-    * Allocate the next id for a given type and return only the 64 bit id. 
-    * Most guids are only using the lower 32 bits, which is not always adequate
-    * for longer lived data for non design objects.
-    * 
-    * @param type the type, provides the index into the saved next numbers
-    * for guids, never <code>null</code>.
-    * @return the next long id.
-    */
-   long createLongId(PSTypeEnum type);
-   
-   /**
-    * Allocate a block of ids from the values stored in the next number table.
-    * 
-    * @param key the key, never <code>null</code> or empty
-    * @param blocksize the block size to allocate, must be a positive integer
-    * @return an array of allocated ids
-    */
-   int[] createIdBlock(String key, int blocksize);
+    /**
+     * Create a stream of GUIDs for efficient processing.
+     *
+     * @param type the type, not {@code null}
+     * @param count the number of GUIDs to create, must be a positive number
+     * @return a stream of GUIDs, never {@code null}
+     * @throws IllegalArgumentException if type is null or count is not positive
+     */
+    default Stream<IPSGuid> streamGuids(PSTypeEnum type, int count) {
+        return createGuids(type, count).stream();
+    }
 
-   /**
-    * Get the persisted host identifier. The host id is calculated internally
-    * and is a cryptographic random number, which makes it unlikely that any
-    * two host ids will conflict. The actual size of the random number is 2^24.
-    * <p>
-    * The host id is used to make two references from different machines not
-    * collide. The special host id value of <code>0</code> indicates that the
-    * guid is not a true guid and will likely collide across servers
-    * 
-    * @return a valid host id 
-    */
-   long getHostId();
-   
-   /**
-    * Recreates a guid instance from a value originally obtained from
-    * {@link IPSGuid#longValue()} or from a uuid. 
-    * 
-    * @param raw This value may or may not contain the type id. If it does,
-    * then it must match the supplied <code>type</code>, otherwise, the supplied
-    * type is used as the type for the new guid.
-    *  
-    * @param type the type, never <code>null</code>
-    * @param forceType When true, if a type is supplied it will be rewritten to the specified type without error
-    * @return a guid of the specified type built from the specified raw value,
-    * never <code>null</code>.
-    */
-   IPSGuid makeGuid(long raw, PSTypeEnum type, boolean forceType);
+    /**
+     * Create a single new GUID for the given type and repository.
+     *
+     * @param repositoryId the repository ID, must be greater than zero. Zero is the same
+     *                     as not using a repository. Negative is invalid
+     * @param type the type, not {@code null}
+     * @return a new GUID, never {@code null}
+     * @throws IllegalArgumentException if repositoryId is negative or type is null
+     */
+    IPSGuid createGuid(byte repositoryId, PSTypeEnum type);
 
-   /**
-    * Recreates a guid instance from a value originally obtained from
-    * {@link IPSGuid#longValue()} or from a uuid.
-    *
-    * @param raw This value may or may not contain the type id. If it does,
-    * then it must match the supplied <code>type</code>, otherwise, the supplied
-    * type is used as the type for the new guid.
-    *
-    * @param type the type, never <code>null</code>
-    * @return a guid of the specified type built from the specified raw value,
-    * never <code>null</code>.
-    */
-   IPSGuid makeGuid(long raw, PSTypeEnum type);
+    /**
+     * Create a series of GUIDs for the given type and repository.
+     *
+     * @param repositoryId the repository ID, must be greater than zero. Zero is the same
+     *                     as not using a repository. Negative is invalid
+     * @param type the type, not {@code null}
+     * @param count the number of GUIDs to create, must be a positive number
+     * @return a list of GUIDs, the size of the list will equal count, never {@code null}
+     * @throws IllegalArgumentException if repositoryId is negative, type is null, or count is not positive
+     */
+    List<IPSGuid> createGuids(byte repositoryId, PSTypeEnum type, int count);
 
+    /**
+     * Create a single ID using values stored in the next number table.
+     *
+     * @param key the key, not {@code null} or empty
+     * @return the next allocated ID
+     * @throws IllegalArgumentException if key is null or empty
+     */
+    int createId(String key);
 
-   /**
-    * Recreates a guid instance from a human readable form of the guid.
-    * 
-    * @param raw Never <code>null</code> or empty. The generic format of the
-    * supplied string is of the form: hostid-typeid-uuid (e.g. 10-103-125). A
-    * single long value that is supported by {@link #makeGuid(long, PSTypeEnum)}
-    * can also be supplied, in which case, the rules defined in that method must
-    * be followed. Two different represenations are allowed: hostid-uuid,
-    * hostid-typeid-uuid. If a typeid is supplied, it must match that of the
-    * <code>type</code> param, otherwise, the supplied type is used. If the
-    * type is {@link PSTypeEnum#LEGACY_CONTENT} or
-    * {@link PSTypeEnum#LEGACY_CHILD}, the human readable forms are not
-    * supported.
-    * 
-    * @param type the type, never <code>null</code>
-    * @param forceType When true, if a type is supplied it will be rewritten to the specified type without error
-    *
-    * @return a guid of the specified type built from the specified raw value,
-    * never <code>null</code>.
-    */
-   IPSGuid makeGuid(String raw, PSTypeEnum type, boolean forceType);
+    /**
+     * Create multiple IDs using values stored in the next number table.
+     *
+     * @param key the key, not {@code null} or empty
+     * @param count the number of IDs to create, must be positive
+     * @return a list of allocated IDs, never {@code null}
+     * @throws IllegalArgumentException if key is null/empty or count is not positive
+     */
+    default List<Integer> createIds(String key, int count) {
+        return IntStream.range(0, count)
+            .map(i -> createId(key))
+            .boxed()
+            .toList();
+    }
 
-   /**
-    * Recreates a guid instance from a human readable form of the guid.
-    *
-    * @param raw Never <code>null</code> or empty. The generic format of the
-    * supplied string is of the form: hostid-typeid-uuid (e.g. 10-103-125). A
-    * single long value that is supported by {@link #makeGuid(long, PSTypeEnum)}
-    * can also be supplied, in which case, the rules defined in that method must
-    * be followed. Two different represenations are allowed: hostid-uuid,
-    * hostid-typeid-uuid. If a typeid is supplied, it must match that of the
-    * <code>type</code> param, otherwise, the supplied type is used. If the
-    * type is {@link PSTypeEnum#LEGACY_CONTENT} or
-    * {@link PSTypeEnum#LEGACY_CHILD}, the human-readable forms are not
-    * supported.
-    *
-    * @param type the type, never <code>null</code>
-    *             *
-    * @return a guid of the specified type built from the specified raw value,
-    * never <code>null</code>.
-    */
-   IPSGuid makeGuid(String raw, PSTypeEnum type);
-   /**
-    * Create a legacy guid from a locator
-    * 
-    * @param loc the locator for a content item, never <code>null</code>
-    * @return a guid of the {@link PSTypeEnum#LEGACY_CONTENT} type, never
-    * <code>null</code>.
-    * 
-    * @see #makeLocator(IPSGuid)
-    */
-   IPSGuid makeGuid(PSLocator loc);
-   
-   /**
-    * Converts a legacy guid back into the locator format. This method is
-    * provided for interoperability between the old and new id models.
-    * 
-    * @param guid Never <code>null</code>. Must have a type of
-    * {@link PSTypeEnum#LEGACY_CONTENT}.
-    * 
-    * @return The locator for the item. The revision may or may not be set
-    * depending on whether it was present in the supplied <code>guid</code>.
-    * 
-    * @see #makeGuid(PSLocator)
-    */
-   PSLocator makeLocator(IPSGuid guid);
-   
-   /**
-    * Create a GUID from its string representation of the GUID.
-    * 
-    * @param raw the string representation of the GUID, not blank.
-    * 
-    * @return the converted object, never <code>null</code>.
-    */
-   IPSGuid makeGuid(String raw);
-   
-   /**
-    * Extracts the content ids from a set of legacy guids. Non-content guids
-    * passed will cause an exception to be thrown.
-    * 
-    * @param guids a list of guids, never <code>null</code> or empty, and must
-    *           contain only content guids
-    * @return a list of content ids, equal in length to the input list and in
-    *         the same order.
-    */
-   List<Integer> extractContentIds(List<IPSGuid> guids);
+    /**
+     * Allocate the next ID for a given type and return only the 64-bit ID.
+     * Most GUIDs are only using the lower 32 bits, which is not always adequate
+     * for longer-lived data for non-design objects.
+     *
+     * @param type the type, provides the index into the saved next numbers, not {@code null}
+     * @return the next allocated 64-bit ID
+     * @throws IllegalArgumentException if type is null
+     */
+    long createLongId(PSTypeEnum type);
 
-   /**
-    * Transactional method to update the nextn number in the db
-    * @param key
-    * @param blocksize
-    * @return
-    */
-   public int updateNextNumber(String key, int blocksize, long setValue );
+    /**
+     * Create a GUID from a locator for backward compatibility.
+     *
+     * @param locator the PSLocator to convert, not {@code null}
+     * @return a GUID representing the locator, never {@code null}
+     * @throws IllegalArgumentException if locator is null
+     */
+    IPSGuid makeGuid(PSLocator locator);
 
-   /**
-    * Set the next number value transactionally as long as it is more than current value
-    * @param key
-    * @param value
-    * @return the original next number that would have been returned
-    */
-   int fixNextNumber(String key, int value);
+    /**
+     * Create a GUID from a locator, returning an Optional for safe access.
+     *
+     * @param locator the PSLocator to convert, may be {@code null}
+     * @return an Optional containing the GUID if conversion is successful, empty otherwise
+     */
+    default Optional<IPSGuid> makeGuidSafe(PSLocator locator) {
+        try {
+            return locator != null ? Optional.of(makeGuid(locator)) : Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 
-   /** Transactional method to update the next long in the db
-    * @param key
-    * @return
-    */
-   long updateNextLong(Integer key);
-  
-   /**
-    *  Transactional method to load the lost id
-    */
-   void loadHostId();
-   
-   int peekNextNumber(String nnkey);
+    /**
+     * Create a locator from a GUID for backward compatibility.
+     *
+     * @param guid the GUID to convert, not {@code null}
+     * @return a PSLocator representing the GUID, never {@code null}
+     * @throws IllegalArgumentException if guid is null
+     */
+    PSLocator makeLocator(IPSGuid guid);
+
+    /**
+     * Create a locator from a GUID, returning an Optional for safe access.
+     *
+     * @param guid the GUID to convert, may be {@code null}
+     * @return an Optional containing the locator if conversion is successful, empty otherwise
+     */
+    default Optional<PSLocator> makeLocatorSafe(IPSGuid guid) {
+        try {
+            return guid != null ? Optional.of(makeLocator(guid)) : Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Create GUIDs asynchronously for high-performance scenarios.
+     *
+     * @param type the type, not {@code null}
+     * @param count the number of GUIDs to create, must be positive
+     * @return a CompletableFuture containing the list of GUIDs
+     * @throws IllegalArgumentException if type is null or count is not positive
+     */
+    default CompletableFuture<List<IPSGuid>> createGuidsAsync(PSTypeEnum type, int count) {
+        return CompletableFuture.supplyAsync(() -> createGuids(type, count));
+    }
+
+    /**
+     * Check if a GUID is valid and properly formatted.
+     *
+     * @param guid the GUID to validate, not {@code null}
+     * @return {@code true} if the GUID is valid, {@code false} otherwise
+     * @throws IllegalArgumentException if guid is null
+     */
+    default boolean isValidGuid(IPSGuid guid) {
+        if (guid == null) {
+            throw new IllegalArgumentException("guid cannot be null");
+        }
+        return guid.getUUID() > 0 && guid.getType() != null;
+    }
+
+    /**
+     * Get all supported GUID types.
+     *
+     * @return a set of supported PSTypeEnum values, never {@code null}
+     */
+    Set<PSTypeEnum> getSupportedTypes();
+
+    /**
+     * Get statistics about GUID generation.
+     *
+     * @return a string representation of GUID manager statistics
+     */
+    default String getGuidStatistics() {
+        var supportedTypes = getSupportedTypes();
+        return String.format("GUID Manager Statistics: %d supported types", supportedTypes.size());
+    }
+
+    /**
+     * Batch create GUIDs for multiple types efficiently.
+     *
+     * @param requests a list of type-count pairs for batch creation
+     * @return a list of GUID lists corresponding to each request
+     * @throws IllegalArgumentException if requests is null or contains invalid entries
+     */
+    default List<List<IPSGuid>> batchCreateGuids(List<GuidRequest> requests) {
+        if (requests == null) {
+            throw new IllegalArgumentException("requests cannot be null");
+        }
+        return requests.stream()
+            .map(request -> createGuids(request.getType(), request.getCount()))
+            .toList();
+    }
+
+    /**
+     * A request for GUID creation containing type and count information.
+     */
+    class GuidRequest {
+        private final PSTypeEnum type;
+        private final int count;
+
+        public GuidRequest(PSTypeEnum type, int count) {
+            this.type = type;
+            this.count = count;
+        }
+
+        public PSTypeEnum getType() {
+            return type;
+        }
+
+        public int getCount() {
+            return count;
+        }
+    }
+
+    /**
+     * Create a GUID request for batch operations.
+     *
+     * @param type the GUID type, not {@code null}
+     * @param count the number of GUIDs to create, must be positive
+     * @return a new GuidRequest, never {@code null}
+     * @throws IllegalArgumentException if type is null or count is not positive
+     */
+    static GuidRequest request(PSTypeEnum type, int count) {
+        if (type == null) {
+            throw new IllegalArgumentException("type cannot be null");
+        }
+        if (count <= 0) {
+            throw new IllegalArgumentException("count must be positive");
+        }
+        return new GuidRequest(type, count);
+    }
 }

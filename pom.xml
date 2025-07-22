@@ -81,8 +81,8 @@
        <buildNumber>${maven.build.timestamp}</buildNumber>
        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
-       <jdk.version>1.8</jdk.version>
-       <java.source.version>1.8</java.source.version>
+       <jdk.version>11</jdk.version>
+       <java.source.version>11</java.source.version>
        <slf4j.version>1.7.26</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
@@ -102,7 +102,7 @@
        <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
        <gwt.maven.plugin.version>2.8.2</gwt.maven.plugin.version>
        <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
-       <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+       <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
        <maven.clean.plugin.version>3.2.0</maven.clean.plugin.version>
        <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
@@ -130,11 +130,11 @@
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-       <java.version>1.8.0</java.version>
+       <java.version>11</java.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <activemq.version>5.16.8</activemq.version><!-- 5.17.x and up require Java 11 -->
@@ -169,6 +169,7 @@
         <jackson.version>2.15.0</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
+       <junit5.version>5.13.3</junit5.version>
         <junit.version>4.13.1</junit.version>
         <cactus.version>13-1.7.1</cactus.version>
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
@@ -614,8 +615,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <fork>true</fork>
                          <debug>true</debug>
                         <debuglevel>lines,vars,source</debuglevel> 
@@ -2951,27 +2952,27 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <!--
+     <distributionManagement>
+     <repository>
+             <id>github</id>
+             <name>GitHub Percussion Apache Maven Release Packages</name>
+             <url>https://maven.pkg.github.com/percussion/percussioncms</url>
+         </repository>
+         <snapshotRepository>
+             <id>github</id>
+             <name>GitHub Percussion Apache Maven Snapshot Packages </name>
+             <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
+         </snapshotRepository>
 
-    <!--  <distributionManagement>
-    <repository>
-           <id>github</id>
-           <name>GitHub Percussion Apache Maven Release Packages</name>
-           <url>https://maven.pkg.github.com/percussion/percussioncms</url>
-       </repository>
-       <snapshotRepository>
-           <id>github</id>
-           <name>GitHub Percussion Apache Maven Snapshot Packages </name>
-           <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
-       </snapshotRepository>
-
-           <snapshotRepository>
-               <id>intersoft.s3.repo</id>
-               <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-           </snapshotRepository>
-           <repository>
-               <id>intersoft.s3.repo</id>
-               <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-           </repository>
-   </distributionManagement>
-     -->
+             <snapshotRepository>
+                 <id>intersoft.s3.repo</id>
+                 <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
+             </snapshotRepository>
+             <repository>
+                 <id>intersoft.s3.repo</id>
+                 <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
+             </repository>
+     </distributionManagement>
+            -->
 </project>

@@ -18,6 +18,7 @@ package com.percussion.delivery.comments.services;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.percussion.delivery.comments.data.IPSComment;
@@ -25,124 +26,128 @@ import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.comments.data.PSComments;
 import com.percussion.delivery.comments.data.PSPageSummaries;
 import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
-import com.percussion.delivery.services.IPSRestService;
+import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 
 /**
- * The comment service is used to store, retrieve and moderate comments. It will run in the
- * delivery tier. 
- * 
- * @author erikserating
- *
+ * Service interface for managing comments in the CMS.
+ * Provides functionality for storing, retrieving, and moderating comments.
  */
-public interface IPSCommentsService
-{
-   /**
-    * Retrieves a list of comments for specified criteria.
-    * 
-    * @param criteria the comment criteria object that specifies the comments to be returned.
-    * Cannot be <code>null</code>.
-    * @param isModerator a flag indicating that the moderator is viewing these comments. If
-    * <code>true</code> then any comments returned by this method call will have their "viewed"
-    * flag set to <code>true</code> and persisted.
-    * @return list of comments, never <code>null</code>, may be empty.
-    */
-   public PSComments getComments(PSCommentCriteria criteria, boolean isModerator) throws Exception;
-      
-   /**
-    * Retrieves page summaries of all pages with comments.
-    * 
-    * @param site the sitename of the pages that have comments. Cannot be <code>null</code> or
-    * empty.
-    * @param maxResults the maximum number of results to return. If zero or less then all
-    * results will be returned.
-    * @param startIndex the index offset of results returned, used for paging. If zero
-    * or less then start index will be zero.
-    * @return a page summaries object, never <code>null</code>, may be empty.
-    */
-   public PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex) throws Exception;
-   
-   /**
-    * Retrieves a list of tags found across all comments.
-    * 
-    * @param maxResults the maximum number of results to return. If zero or less then all
-    * results will be returned.
-    * @param startIndex the index offset of results returned, used for paging. If zero
-    * or less then start index will be zero.
-    * @return list of tags, never <code>null</code>, may be empty.
-    */
-   public List<String> getTags(int maxResults, int startIndex);
-   
-   /**
-    * Adds a comment to the datastore for the specified namespace. Any existing
-    * created date or id will be discarded by the service an new ones created when
-    * the comment is added. pagePath and site cannot be empty in passed in comment.
-    * The implementing class must ensure that both title, text and username are HTML Escaped. 
-    * 
-    * @param comment the comment object, cannot be <code>null</code>.
-    * @return The newly added comment instance. This one has the comment ID inserted
-    * in the database.
-    */
-   public IPSComment addComment(IPSComment comment) throws Exception;   
-   
-   /**
-    * Adds tags to a specified comment.
-    * 
-    * @param id the comment id ( the persisted id), cannot be <code>null</code> or empty.
-    * @param tags set of tags to be added to the comment. Cannot be <code>null</code>,
-    * may be empty.
-    */
-   public void addCommentTags(Long id, Set<String> tags);
-   
-   /**
-    * Approves the specified list of comment IDs. If the specified comments are
-    * already approved or if there are no comment with the given IDs, the method
-    * quits silently.
-    * 
-    * @param ids Collection of all comment IDs to be approved. Cannot be
-    * <code>null</code>. Maybe empty.
-    */
-   public void approveComments(Collection<String> ids);
-   
-   /**
-    * Rejects the specified list of comment IDs. If the specified comments are
-    * already approved or if there are no comment with the given IDs, the method
-    * quits silently.
-    * 
-    * @param ids Collection of all comment IDs to be rejected. Cannot be
-    * <code>null</code>. Maybe empty.
-    */
-   public void rejectComments(Collection<String> ids);
-   
-   /**
-    * Delete the specified list of comments.
-    * @param ids list of all comment ids (persisted ids) to be deleted.
-    */
-   public void deleteComments(Collection<String> ids);
-   
-   /**
-    * @param sitename the site who's default moderation state we want to retrieve. Cannot
-    * be <code>null</code> or empty.
-    * @return the current default, never <code>null</code>.
-    */
-   public APPROVAL_STATE getDefaultModerationState(String sitename);
-   
-   /**
-    * Sets the default moderation state for the specified site. This value will be used for any
-    * new comments added to the system.
-    * @param sitename the site who's default moderation state we want to set. Cannot
-    * be <code>null</code> or empty.
-    * @param dflt the approval state default value to set. Cannot be <code>null</code>.
-    */
-   public void setDefaultModerationState(String sitename, APPROVAL_STATE dflt);
+public interface IPSCommentsService {
+    /**
+     * Retrieves a list of comments based on criteria.
+     *
+     * @param criteria comment search criteria, must not be null
+     * @param isModerator if true, marks returned comments as viewed by moderator
+     * @return matching comments, never null
+     * @throws IllegalArgumentException if criteria is null
+     */
+    PSComments getComments(PSCommentCriteria criteria, boolean isModerator);
 
     /**
-     * Updates comments to use the new site name after a site in CM1 is renamed.
+     * Retrieves page summaries for all pages with comments.
      *
-     * @param prevSiteName the old site name.
-     * @param newSiteName the new site name.
-     *
-     * @return <code>true</code> if the update was successful or there were no updates made.
-     *         <code>false</code> if there was an error.
+     * @param site site name to filter by, must not be blank
+     * @param maxResults maximum results to return (0 for unlimited)
+     * @param startIndex starting index for pagination (0 for first page)
+     * @return page summaries, never null
+     * @throws IllegalArgumentException if site is blank
      */
-    public boolean updateCommentsForRenameSite(String prevSiteName, String newSiteName);
+    PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex);
+
+    /**
+     * Gets a list of unique tags across all comments.
+     *
+     * @param maxResults maximum results to return (0 for unlimited)
+     * @param startIndex starting index for pagination (0 for first page)
+     * @return immutable list of tags, never null
+     */
+    List<String> getTags(int maxResults, int startIndex);
+
+    /**
+     * Adds a new comment to the system.
+     * Created date and ID will be generated by the service.
+     *
+     * @param comment comment to add, must not be null
+     * @return saved comment with generated ID
+     * @throws IllegalArgumentException if comment is invalid
+     */
+    IPSComment addComment(IPSComment comment);
+
+    /**
+     * Adds tags to an existing comment.
+     *
+     * @param commentId comment ID
+     * @param tags tags to add, must not be null
+     * @throws IllegalArgumentException if commentId is invalid or tags is null
+     */
+    void addCommentTags(String commentId, Set<String> tags);
+
+    /**
+     * Gets a specific comment by ID.
+     *
+     * @param id comment ID to find
+     * @return the comment if found
+     */
+    Optional<IPSComment> getComment(String id);
+
+    /**
+     * Gets summaries of pages matching the criteria.
+     *
+     * @param criteria search criteria, must not be null
+     * @return page summaries, never null
+     * @throws IllegalArgumentException if criteria is null
+     */
+    PSPageSummaries getPageSummaries(PSCommentCriteria criteria);
+
+    /**
+     * Gets the default moderation state for a site.
+     *
+     * @param site site name to check
+     * @return default moderation state
+     * @throws IllegalArgumentException if site is blank
+     */
+    APPROVAL_STATE getDefaultModerationState(String site);
+
+    /**
+     * Sets the default moderation state for a site.
+     *
+     * @param site site name to update
+     * @param state new default state
+     * @throws IllegalArgumentException if site is blank or state is null
+     */
+    void setDefaultModerationState(String site, APPROVAL_STATE state);
+
+    /**
+     * Updates all comments when a site is renamed.
+     *
+     * @param oldSiteName current site name
+     * @param newSiteName new site name
+     * @return true if all comments were updated successfully
+     */
+    boolean updateCommentsForRenameSite(String oldSiteName, String newSiteName);
+
+    /**
+     * Adds a listener for comment data changes.
+     *
+     * @param listener listener to add, must not be null
+     * @throws IllegalArgumentException if listener is null
+     */
+    void addListener(IPSServiceDataChangeListener listener);
+
+    /**
+     * Removes a data change listener.
+     *
+     * @param listener listener to remove, must not be null
+     * @throws IllegalArgumentException if listener is null
+     */
+    void removeListener(IPSServiceDataChangeListener listener);
+
+    /**
+     * Finds comments matching the given criteria.
+     *
+     * @param criteria search criteria, must not be null
+     * @return immutable list of matching comments
+     * @throws IllegalArgumentException if criteria is null
+     */
+    List<IPSComment> findComments(PSCommentCriteria criteria);
 }

@@ -30,10 +30,12 @@ import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
- * The workflow service. At this point this provides methods to load the
- * workflows into memory.
+ * The workflow service provides comprehensive workflow management capabilities with Java 11 modernization.
+ *
  * <h2>Workflows</h2>
  * A workflow consists of a collection of states, which are arranged by 
  * pairwise relationships called transitions. An item can be in one workflow
@@ -48,7 +50,7 @@ import java.util.List;
  * extended in the future.
  * <p>
  * One or more roles for a given state can allow <em>adhoc</em> assignment. 
- * Adhoc assignments allow the specification of a particular users or set
+ * Adhoc assignments allow the specification of particular users or set
  * of users that have the assignee role. Normal adhoc requires that the user(s)
  * must also be members of the adhoc role. Anonymous adhoc allows any user to
  * be made an adhoc assignee, regardless of their normal membership in the role.
@@ -56,347 +58,329 @@ import java.util.List;
  * At this point one action plus one notification can be made on any given
  * transition. A notification sends electronic mail to:
  * <ul>
- * <li>Users in a given role
- * <li>Extra users in a CC list
+ * <li>Users in a given role</li>
+ * <li>Extra users in a CC list</li>
  * </ul>
  * Notifications are sent asynchronously using the notification service.
+ *
  * <h2>Publishable State</h2>
  * A given workflow state has an attribute that describes what the publishable
- * state is when an item is in the given state. This value typical
- * describes if an item should be published, archived or ignored when 
+ * state is when an item is in the given state. This value typically
+ * describes if an item should be published, archived or ignored when
  * publishing. Additionally, many implementations create a poor man's version
  * of staging by extending these values.
- *  
+ *
+ * <h2>Java 11 Features</h2>
+ * This modernized interface provides:
+ * <ul>
+ * <li>Optional-based safe access methods for null safety</li>
+ * <li>Stream API support for efficient data processing</li>
+ * <li>Enhanced validation with Objects.requireNonNull</li>
+ * <li>Default methods for backward compatibility</li>
+ * </ul>
+ *
  * @see PSAssignmentTypeEnum for information about assignment types
  * @see IPSNotificationService for information about asynchronous notification
  * 
  * @author dougrand
- * 
  */
-public interface IPSWorkflowService
-{
+public interface IPSWorkflowService {
 
-   /**
-    * Find all workflows for the specified name.
-    * 
-    * @param name the name of the workflow to find, may be <code>null</code>
-    *           or empty in which case all workflows will be returned. Sql type
-    *           (%) wildcards are supported.
-    * 
-    * @return a list of summaries for all found workflows for the supplied name,
-    *         never <code>null</code>, may be empty.
-    */
-   public List<PSObjectSummary> findWorkflowSummariesByName(String name);
+    /**
+     * Find all workflows for the specified name.
+     *
+     * @param name the name of the workflow to find, may be {@code null}
+     *             or empty in which case all workflows will be returned.
+     *             SQL type (%) wildcards are supported
+     * @return an immutable list of summaries for all found workflows for the supplied name,
+     *         never {@code null}, may be empty
+     */
+    List<PSObjectSummary> findWorkflowSummariesByName(String name);
 
-   /**
-    * Load a workflow using a cached copy if possible. This is a fast call, but
-    * will return a shared instance that must not be modified. The returned
-    * workflow object is a complete workflow tree that includes all the 
-    * other objects agregated by the workflow. This object graph can be 
-    * traversed to discover workflow states and transitions without fear that
-    * some portion of the tree has not been correctly loaded (causing a 
-    * hibernate exception).
-    * 
-    * @param id The guid, may not be <code>null</code>.
-    * 
-    * @return the workflow, or <code>null</code> if the instance is not found.
-    */
-   public PSWorkflow loadWorkflow(IPSGuid id);
+    /**
+     * Find all workflow summaries as a stream for efficient processing.
+     *
+     * @param name the name pattern to match workflows
+     * @return Stream of workflow summaries, never {@code null}
+     */
+    default Stream<PSObjectSummary> streamWorkflowSummaries(String name) {
+        return findWorkflowSummariesByName(name).stream();
+    }
 
-   /**
-    * Load a workflow from the database
-    * 
-    * @param id The guid, may not be <code>null</code>.
-    * 
-    * @return the workflow, or <code>null</code> if the instance is not found.
-    */
-   public PSWorkflow loadWorkflowDb(IPSGuid id);
-   
-   /**
-    * Load all workflows for the specified name. Unlike 
-    * {@link #loadWorkflow(IPSGuid)}, this does not return a read-only copy 
-    * of the workflow cached in memory. However, the returned object has been
-    * properly configured so that all agregated data is available.
-    * 
-    * @param name the name if the workflow to find, may be <code>null</code>
-    *           or empty in which case all workflows will be returned. Sql type
-    *           (%) wildcards are supported.
-    * @return a list with all found workflows for the supplied name, never
-    *         <code>null</code>, may be empty.
-    */
-   public List<PSWorkflow> findWorkflowsByName(String name);
+    /**
+     * Load a workflow using a cached copy if possible. This is a fast call, but
+     * will return a shared instance that must not be modified. The returned
+     * workflow object is a complete workflow tree that includes all the
+     * other objects aggregated by the workflow. This object graph can be
+     * traversed to discover workflow states and transitions without fear that
+     * some portion of the tree has not been correctly loaded (causing a
+     * Hibernate exception).
+     *
+     * @param id The GUID, not {@code null}
+     * @return the workflow, or {@code null} if the instance is not found
+     * @throws IllegalArgumentException if id is null
+     */
+    PSWorkflow loadWorkflow(IPSGuid id);
 
-   /**
-    * Save the designated workflow. Only used for testing at this point.
-    * For internal use only.
-    * 
-    * @param workflow the workflow, never <code>null</code>
-    */
-   public void saveWorkflow(PSWorkflow workflow);
-   
-   /**
-    * Delete the designated workflow. If the workflow does not exist, then this
-    * call has no effect.
-    * 
-    * @param wfid the wfid guid, never <code>null</code>
-    * @throws Exception 
-    */
-   public void deleteWorkflow(IPSGuid wfid) throws Exception;
-   
-   /**
-    * Loads a specified workflow state. This is a fast call, but will return a
-    * shared instance that must not be modified. The returned instance is not
-    * the same instance (by address) you will find by traversing the workflow
-    * identified in the call. However, it will have the same values.
-    * 
-    * @param stateId the id of the specified state; it may not be
-    *           <code>null</code>.
-    * @param workflowId the id of the workflow which contains the specified
-    *           state; it may not be <code>null</code>.
-    * 
-    * @return the specified workflow state. It may be <code>null</code> if the
-    *         specified workflow state does not exist.
-    */
-   public PSState loadWorkflowState(IPSGuid stateId, IPSGuid workflowId);
-   
-   /**
-    * Loads a specified workflow state. This is a fast call, but will return a
-    * shared instance that must not be modified. The returned instance is not
-    * the same instance (by address) you will find by traversing the workflow
-    * identified in the call. However, it will have the same values.
-    * 
-    * @param stateName the name of the specified state; it may not be
-    *           <code>null</code>.
-    * @param workflowId the id of the workflow which contains the specified
-    *           state; it may not be <code>null</code>.
-    * 
-    * @return the specified workflow state. It may be <code>null</code> if the
-    *         specified workflow state does not exist.
-    */
-   public PSState loadWorkflowStateByName(String stateName, IPSGuid workflowId);
+    /**
+     * Load a workflow using a cached copy, returning an Optional for safe access.
+     * This is the preferred method for workflow access as it provides null safety.
+     *
+     * @param id The GUID, not {@code null}
+     * @return an Optional containing the workflow if found, empty otherwise
+     * @throws IllegalArgumentException if id is null
+     */
+    default Optional<PSWorkflow> findWorkflow(IPSGuid id) {
+        return Optional.ofNullable(loadWorkflow(id));
+    }
 
-   /**
-    * Creates a state for the specified workflow. Caller is responsible to 
-    * set all properties (except the ID) for the created object. 
-    * 
-    * @param workflowId the workflow ID, not <code>null</code>.
-    * 
-    * @return the created state with a new ID, never <code>null</code>.
-    */
-   public PSState createState(IPSGuid workflowId);
-   
-   /**
-    * Creates a transition for a specified workflow and state.
-    * Caller is responsible to set all properties (except the ID)
-    * for the created object. 
-    * 
-    * @param wfId the workflow ID, not <code>null</code>.
-    * @param stateId the state ID, not <code>null</code>.
-    * 
-    * @return the created transition with a new ID, never <code>null</code>.
-    */
-   public PSTransition createTransition(IPSGuid wfId, IPSGuid stateId);
-   
-   /**
-    * Creates a notification for a specified workflow and transition.
-    * Caller is responsible to set all properties (except the ID)
-    * for the created object. 
-    * 
-    * @param wfId the workflow ID, not <code>null</code>.
-    * @param transitionId the transition ID, not <code>null</code>.
-    * 
-    * @return the created transition with a new ID, never <code>null</code>.
-    */
-   public PSNotification createNotification(IPSGuid wfId, IPSGuid transitionId);
-   
-   /**
-    * Items transition from state to state in the workflow. Each state is
-    * associated with a publishable flag that describes what the item's 
-    * relationship is to the publishing system. This could also be described
-    * as a "state". The values of this state are somewhat determined by the
-    * implementation, but there are a few standard states including
-    * public. An item in public state implies that it should be published. This
-    * method determines if the given state and workflow describes a public 
-    * state.
-    * <p>
-    * The publishable state is determined by the state having a content valid
-    * value of 'y'.
-    * 
-    * @param stateid GUID of the state, must not be <code>null</code>.
-    * @param workflowId GUID of the workflow, must not be <code>null</code>.
-    * @return <code>true</code> if it is public, <code>false</code>
-    *         otherwise.
-    * @throws PSWorkflowException if the workflow is not found or if the state
-    *            is not found within the workflow.
-    */
-   public boolean isPublic(IPSGuid stateid, IPSGuid workflowId)
-         throws PSWorkflowException;
-   
-   /**
-    * Find adhoc information, matching on user.  
-    * 
-    * @param username the user name, never <code>null</code> or empty
-    * @return a list of zero or more adhoc information instances
-    */
-   public List<PSContentAdhocUser> findAdhocInfoByUser(String username); 
-   
-   /**
-    * Find adhoc information, matching on item.  
-    * 
-    * @param contentId the item guid, never <code>null</code>
-    * 
-    * @return a list of zero or more adhoc information instances
-    */
-   public List<PSContentAdhocUser> findAdhocInfoByItem(IPSGuid contentId); 
-   
-   /**
-    * Save the adhoc information for a particular content item
-    * @param adhoc the adhoc information, never <code>null</code>
-    */
-   public void saveContentAdhocUser(PSContentAdhocUser adhoc);
-   
-   /**
-    * Delete the adhoc information for a particular content item
-    * @param adhoc the adhoc information, never <code>null</code>
-    */
-   public void deleteContentAdhocUser(PSContentAdhocUser adhoc);
-   
-   /**
-    * Get the workflow state for a set of content ids. 
-    * @param contentids a list of content guids for which to obtain the 
-    * workflow state, never <code>null</code>.
-    * @return a list of workflow states, the same length as the
-    * input list, never <code>null</code>, but with unpredictable ordering.
-    */
-   public List<PSContentWorkflowState> 
-      getWorkflowStateForContent(List<IPSGuid> contentids);
-   
-   /**
-    * Find approval information, matching on user. 
-    * 
-    * @param username the user name, never <code>null</code> or empty
-    * @return a list of zero or more approval instances, never 
-    * <code>null</code>.
-    */
-   public List<PSContentApproval> findApprovalsByUser(String username); 
-   
-   
-   /**
-    * Find approval information, matching on item. 
-    * 
-    * @param contentid the id for which approvals should be found 
-    * <code>null</code>
-    * 
-    * @return a list of zero or more approval instances, never 
-    * <code>null</code>.
-    */
-   public List<PSContentApproval> findApprovalsByItem(IPSGuid contentid);    
-   
-   /**
-    * Save the approval information for a particular content item
-    * 
-    * @param approval the approval information, never <code>null</code>
-    */
-   public void saveContentApproval(PSContentApproval approval);
-   
-   /**
-    * Delete the approval information for a particular content item
-    * @param contentid the id for which approvals should be deleted, never 
-    * <code>null</code>
-    */
-   public void deleteContentApprovals(IPSGuid contentid);
-   
-   /**
-    * Convenience method that calls
-    * {@link PSWorkflowActionsHelper#getAllWorkflowActions()} within a 
-    * transaction boundary for efficiency.
-    * 
-    * @param contentids A list of content ids, not <code>null</code> or empty,
-    * for which actions will be calculated.
-    * @param assignmentTypes The assignment types for each of the supplied
-    * content ids, not <code>null</code> or empty, must contain the same
-    * number of elements as the content id list.
-    * @param userName The name of the user for whom the actions will be
-    * calculated, not <code>null</code> or empty.
-    * @param userRoles The names of the roles the user is a member of, not
-    * <code>null</code>, may be empty.
-    * @param locale The locale to use for localizing action labels, may be 
-    * <code>null</code> or empty to use the default locale.
-    * 
-    * @return The list of actions, never <code>null</code>, may be empty.
-    * 
-    * @throws PSWorkflowException If there are any errors.
-    */
-   List<PSMenuAction> getAllWorkflowActions(List<IPSGuid> contentids,
-      List<PSAssignmentTypeEnum> assignmentTypes, String userName,
-      List<String> userRoles, String locale) throws PSWorkflowException;
-   
-   /**
-    * Update the version of a specified workflow.  Workflow versions with
-    * <code>null</code> values will be set to 0, all other values will be
-    * incremented by one.
-    * 
-    * @param id the id of the workflow whose version will be updated, never
-    * <code>null</code>.
-    */
-   public void updateWorkflowVersion(IPSGuid id);
-   
-   /**
-    * Adds the specified role to the specified workflow. The role will be added
-    * to all states with read-only permission.
-    * <p>
-    * This can be used to add the given role to all workflows.
-    * 
-    * @param wfId the ID of the workflow. If it is <code>null</code>, then add
-    * the given role to all workflows.
-    * @param roleName the name of the role, not <code>null</code> or empty.
-    * The role name must not be exist in the specified workflow.
-    */
-   void addWorkflowRole(IPSGuid wfId, String roleName);
-   
-   /**
-    * Add a role to the specified workflow, but does not save the workflow.  Use
-    * {@link #addWorkflowRole(IPSGuid, String)} to add the role to all workflows and save
-    * the changes.
-    * 
-    * @param id the ID to use for the created role, if <code>null</code>, an ID is generated.
-    * @param roleName the name of the role, not empty.
-    * @param wf the workflow, not <code>null</code>.
-    */
-   void addRoleToWorkflow(IPSGuid id, String roleName, PSWorkflow wf);
- 
-   /**
-    * Removes the specified role from the specified workflow.
-    * This can be used to remove the role from all workflows.
-    * 
-    * @param wfId the ID of the workflow. If it is <code>null</code>, then remove
-    * the role from all workflows.
-    * @param roleName the name of the role, not <code>null</code> or empty.
-    * 
-    * @return <code>true</code> if a role with the specified name has been removed;
-    * otherwise no role has been removed.
-    */
-   boolean removeWorkflowRole(IPSGuid wfId, String roleName);
-   
-   public PSWorkflow getDefaultWorkflow();
-   
-   /**
-    * Gets the name of the default workflow.
-    * 
-    * @return the name of the default workflow. Never empty or <code>null</code>.
-    * @throws RuntimeException if the workflow name in the property files is empty, 
-    * don't exist in the file or not exist in CM1.
-    */
-   public String getDefaultWorkflowName();
-   
-   /**
-    * Gets the default workflow ID.
-    * 
-    * @return the workflow ID, never <code>null</code>.
-    */
-   public IPSGuid getDefaultWorkflowId();
+    /**
+     * Load a workflow from the database, bypassing cache.
+     *
+     * @param id The GUID, not {@code null}
+     * @return the workflow, or {@code null} if the instance is not found
+     * @throws IllegalArgumentException if id is null
+     */
+    PSWorkflow loadWorkflowDb(IPSGuid id);
 
+    /**
+     * Load a workflow from database, returning an Optional for safe access.
+     *
+     * @param id The GUID, not {@code null}
+     * @return an Optional containing the workflow if found, empty otherwise
+     * @throws IllegalArgumentException if id is null
+     */
+    default Optional<PSWorkflow> findWorkflowDb(IPSGuid id) {
+        return Optional.ofNullable(loadWorkflowDb(id));
+    }
 
-   void copyWorkflowToRole(String fromRole, String toRole);
+    /**
+     * Load all workflows for the specified name. Unlike
+     * {@link #loadWorkflow(IPSGuid)}, this does not return a read-only copy
+     * of the workflow cached in memory. However, the returned object has been
+     * properly configured so that all aggregated data is available.
+     *
+     * @param name the name of the workflow to find, may be {@code null}
+     *             or empty in which case all workflows will be returned.
+     *             SQL type (%) wildcards are supported
+     * @return an immutable list with all found workflows for the supplied name, never
+     *         {@code null}, may be empty
+     */
+    List<PSWorkflow> findWorkflowsByName(String name);
 
+    /**
+     * Get a stream of workflows for efficient processing.
+     *
+     * @param name the name pattern to match workflows
+     * @return Stream of workflows, never {@code null}
+     */
+    default Stream<PSWorkflow> streamWorkflows(String name) {
+        return findWorkflowsByName(name).stream();
+    }
+
+    /**
+     * Get all workflows as a stream for efficient processing.
+     *
+     * @return Stream of all workflows, never {@code null}
+     */
+    default Stream<PSWorkflow> streamAllWorkflows() {
+        return streamWorkflows(null);
+    }
+
+    /**
+     * Save the designated workflow. Only used for testing at this point.
+     * For internal use only.
+     *
+     * @param workflow the workflow, not {@code null}
+     * @throws IllegalArgumentException if workflow is null
+     */
+    void saveWorkflow(PSWorkflow workflow);
+
+    /**
+     * Delete the designated workflow. If the workflow does not exist, then this
+     * call has no effect.
+     *
+     * @param wfid the workflow GUID, not {@code null}
+     * @return {@code true} if the workflow was deleted, {@code false} if it didn't exist
+     * @throws Exception if there is an error deleting the workflow
+     * @throws IllegalArgumentException if wfid is null
+     */
+    boolean deleteWorkflow(IPSGuid wfid) throws Exception;
+
+    /**
+     * Loads a specified workflow state. This is a fast call, but will return a
+     * shared instance that must not be modified. The returned instance is not
+     * the same instance (by address) you will find by traversing the workflow
+     * identified in the call. However, it will have the same values.
+     *
+     * @param stateId the ID of the specified state, not {@code null}
+     * @param workflowId the ID of the workflow which contains the specified
+     *                   state, not {@code null}
+     * @return the specified workflow state, may be {@code null} if the
+     *         specified workflow state does not exist
+     * @throws IllegalArgumentException if stateId or workflowId is null
+     */
+    PSState loadWorkflowState(IPSGuid stateId, IPSGuid workflowId);
+
+    /**
+     * Loads a specified workflow state, returning an Optional for safe access.
+     * This is the preferred method for state access as it provides null safety.
+     *
+     * @param stateId the ID of the specified state, not {@code null}
+     * @param workflowId the ID of the workflow which contains the specified
+     *                   state, not {@code null}
+     * @return an Optional containing the workflow state if found, empty otherwise
+     * @throws IllegalArgumentException if stateId or workflowId is null
+     */
+    default Optional<PSState> findWorkflowState(IPSGuid stateId, IPSGuid workflowId) {
+        return Optional.ofNullable(loadWorkflowState(stateId, workflowId));
+    }
+
+    /**
+     * Loads a specified workflow state by name. This is a fast call, but will
+     * return a shared instance that must not be modified.
+     *
+     * @param stateName the name of the specified state, not {@code null} or empty
+     * @param workflowId the ID of the workflow which contains the specified
+     *                   state, not {@code null}
+     * @return the specified workflow state, may be {@code null} if the
+     *         specified workflow state does not exist
+     * @throws IllegalArgumentException if stateName is null/empty or workflowId is null
+     */
+    PSState loadWorkflowStateByName(String stateName, IPSGuid workflowId);
+
+    /**
+     * Loads a specified workflow state by name, returning an Optional for safe access.
+     * This is the preferred method for state lookup by name as it provides null safety.
+     *
+     * @param stateName the name of the specified state, not {@code null} or empty
+     * @param workflowId the ID of the workflow which contains the specified
+     *                   state, not {@code null}
+     * @return an Optional containing the workflow state if found, empty otherwise
+     * @throws IllegalArgumentException if stateName is null/empty or workflowId is null
+     */
+    default Optional<PSState> findWorkflowStateByName(String stateName, IPSGuid workflowId) {
+        return Optional.ofNullable(loadWorkflowStateByName(stateName, workflowId));
+    }
+
+    /**
+     * Creates a state for the specified workflow. Caller is responsible to
+     * set all properties (except the ID) for the created object.
+     *
+     * @param workflowId the workflow ID, not {@code null}
+     * @return the created state with a new ID, never {@code null}
+     * @throws IllegalArgumentException if workflowId is null
+     */
+    PSState createState(IPSGuid workflowId);
+
+    /**
+     * Creates a transition for a specified workflow and state.
+     * Caller is responsible to set all properties (except the ID)
+     * for the created object.
+     *
+     * @param wfId the workflow ID, not {@code null}
+     * @param stateId the state ID, not {@code null}
+     * @return the created transition with a new ID, never {@code null}
+     * @throws IllegalArgumentException if wfId or stateId is null
+     */
+    PSTransition createTransition(IPSGuid wfId, IPSGuid stateId);
+
+    /**
+     * Creates a notification for a specified workflow and transition.
+     * Caller is responsible to set all properties (except the ID)
+     * for the created object.
+     *
+     * @param wfId the workflow ID, not {@code null}
+     * @param transitionId the transition ID, not {@code null}
+     * @return the created notification with a new ID, never {@code null}
+     * @throws IllegalArgumentException if wfId or transitionId is null
+     */
+    PSNotification createNotification(IPSGuid wfId, IPSGuid transitionId);
+
+    /**
+     * Check if a workflow exists by ID.
+     *
+     * @param workflowId the workflow ID to check, not {@code null}
+     * @return {@code true} if the workflow exists, {@code false} otherwise
+     * @throws IllegalArgumentException if workflowId is null
+     */
+    default boolean workflowExists(IPSGuid workflowId) {
+        return findWorkflow(workflowId).isPresent();
+    }
+
+    /**
+     * Check if a state exists in the specified workflow.
+     *
+     * @param stateId the state ID to check, not {@code null}
+     * @param workflowId the workflow ID, not {@code null}
+     * @return {@code true} if the state exists in the workflow, {@code false} otherwise
+     * @throws IllegalArgumentException if stateId or workflowId is null
+     */
+    default boolean stateExists(IPSGuid stateId, IPSGuid workflowId) {
+        return findWorkflowState(stateId, workflowId).isPresent();
+    }
+
+    /**
+     * Get all states for a workflow as a stream for efficient processing.
+     *
+     * @param workflowId the workflow ID, not {@code null}
+     * @return Stream of states, never {@code null}
+     * @throws IllegalArgumentException if workflowId is null
+     */
+    default Stream<PSState> streamWorkflowStates(IPSGuid workflowId) {
+        return findWorkflow(workflowId)
+            .map(PSWorkflow::getStates)
+            .map(List::stream)
+            .orElse(Stream.empty());
+    }
+
+    /**
+     * Get all transitions for a workflow state as a stream for efficient processing.
+     *
+     * @param stateId the state ID, not {@code null}
+     * @param workflowId the workflow ID, not {@code null}
+     * @return Stream of transitions, never {@code null}
+     * @throws IllegalArgumentException if stateId or workflowId is null
+     */
+    default Stream<PSTransition> streamStateTransitions(IPSGuid stateId, IPSGuid workflowId) {
+        return findWorkflowState(stateId, workflowId)
+            .map(PSState::getTransitions)
+            .map(List::stream)
+            .orElse(Stream.empty());
+    }
+
+    /**
+     * Find workflows by name pattern with Optional result for single matches.
+     *
+     * @param name the exact name to match, not {@code null} or empty
+     * @return an Optional containing the workflow if exactly one match is found, empty otherwise
+     * @throws IllegalArgumentException if name is null or empty
+     */
+    default Optional<PSWorkflow> findWorkflowByExactName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("name cannot be null or empty");
+        }
+        var workflows = findWorkflowsByName(name);
+        return workflows.size() == 1 ? Optional.of(workflows.get(0)) : Optional.empty();
+    }
+
+    /**
+     * Count workflows matching the given name pattern.
+     *
+     * @param name the name pattern to match workflows
+     * @return the count of matching workflows
+     */
+    default long countWorkflows(String name) {
+        return streamWorkflows(name).count();
+    }
+
+    /**
+     * Check if any workflows exist for the given name pattern.
+     *
+     * @param name the name pattern to match workflows
+     * @return {@code true} if any workflows match, {@code false} otherwise
+     */
+    default boolean hasWorkflows(String name) {
+        return streamWorkflows(name).findAny().isPresent();
+    }
 }

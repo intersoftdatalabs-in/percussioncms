@@ -26,8 +26,9 @@ import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 
 /**
- * Utility class for storing and retrieving {@link PSScheduledTask} object from
- * {@link JobDetail}.
+ * Utility class for storing and retrieving {@link PSScheduledTask} objects from
+ * {@link JobDetail} and for context variable handling in scheduled jobs.
+ * <p>Refactored for Java 11 and Google Java Style Guide.</p>
  */
 public class PSScheduleUtils
 {

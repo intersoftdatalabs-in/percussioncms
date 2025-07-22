@@ -30,23 +30,9 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * Purges revisions according to a criteria provided by the user.
- * 
- * The additional context variable can be used in notification template is :
- * <TABLEBORDER="1">
- * <TR>
- * <TH>Variable Name</TH>
- * <TH>Description</TH>
- * </TR>
- * <TR>
- * <TD>$FIXME</TD>
- * <TD>Enable archiving the to be purged logs before purging them. The logs will
- * be archived if this is true; otherwise the logs will be just purged from the
- * database. The location of the archived files is specified by the
- * archiveLocation property of sys_rxpublisherservice bean</TD>
- * </TR>
- * </TABLE>
- * 
+ * Purges revisions according to criteria provided by the user.
+ * <p>The additional context variable can be used in notification templates.</p>
+ *
  * @author Stas Burdan
  */
 public class PSPurgeRevisions implements IPSTask

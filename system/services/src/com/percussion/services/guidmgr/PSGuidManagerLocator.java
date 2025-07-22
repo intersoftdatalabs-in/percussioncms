@@ -20,28 +20,68 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Find the guid manager service
- * 
+ * Service locator for the GUID manager service with enhanced Java 11 support.
+ *
+ * <p>This class provides thread-safe access to the {@link IPSGuidManager} service
+ * using modern Java concurrency patterns and Optional-based error handling.
+ *
+ * <p>The locator uses lazy initialization with atomic references to ensure
+ * thread safety without synchronization overhead on subsequent access.
+ *
  * @author dougrand
+ * @since Java 11 Modernization
  */
 @ThreadSafe
-public class PSGuidManagerLocator extends PSBaseServiceLocator
-{
-   private static  IPSGuidManager gmgr=null;
-   /**
-    * Locator for guid manager
-    * @return instance of guid manager
-    * @throws PSMissingBeanConfigurationException
-    */
-   public static synchronized IPSGuidManager getGuidMgr() throws PSMissingBeanConfigurationException
-   {
-             if (gmgr==null)
-             {
-                 gmgr = (IPSGuidManager) getBean("sys_guidmanager");
-             }
+public class PSGuidManagerLocator extends PSBaseServiceLocator {
 
-      return gmgr;
-   }
+    private static final AtomicReference<IPSGuidManager> GUID_MANAGER_REF =
+        new AtomicReference<>();
+
+    private static final String BEAN_NAME = "sys_guidmanager";
+
+    /**
+     * Private constructor to prevent external instantiation.
+     */
+    private PSGuidManagerLocator() {
+        // Utility class - no instantiation
+    }
+
+    /**
+     * Retrieves the GUID manager service instance using thread-safe lazy initialization.
+     *
+     * @return the GUID manager service instance
+     * @throws PSMissingBeanConfigurationException if the service bean is not configured
+     */
+    public static IPSGuidManager getGuidMgr() throws PSMissingBeanConfigurationException {
+        return GUID_MANAGER_REF.updateAndGet(current -> {
+            if (current != null) {
+                return current;
+            }
+            try {
+                return (IPSGuidManager) getBean(BEAN_NAME);
+            } catch (PSMissingBeanConfigurationException e) {
+                throw new RuntimeException("Failed to initialize GUID manager", e);
+            }
+        });
+    }
+
+    /**
+     * Safely retrieves the GUID manager service instance wrapped in an Optional.
+     *
+     * <p>This method provides a safe way to access the GUID manager without
+     * throwing exceptions, returning an empty Optional if the service is not available.
+     *
+     * @return an Optional containing the GUID manager service, or empty if not available
+     */
+    public static Optional<IPSGuidManager> getGuidMgrSafely() {
+        try {
+            return Optional.of(getGuidMgr());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 }

@@ -16,8 +16,48 @@
  */
 
 package com.percussion.services.guidmgr;
-// In Java 8 can use BiFunction
-public interface BlockFunction<T1, T2, T3>
-{
+
+import java.util.function.BiFunction;
+
+/**
+ * A functional interface for operations that take two parameters and return a result.
+ * This interface is equivalent to {@link BiFunction} and is maintained for backward compatibility.
+ *
+ * <p>New code should prefer using {@link BiFunction} directly for better integration
+ * with the standard Java functional programming APIs.
+ *
+ * @param <T1> the type of the first argument to the function
+ * @param <T2> the type of the second argument to the function
+ * @param <T3> the type of the result of the function
+ *
+ * @author dougrand
+ * @since Java 11 Modernization
+ * @deprecated Use {@link BiFunction} instead for new implementations
+ */
+@Deprecated(since = "Java 11 Migration")
+@FunctionalInterface
+public interface BlockFunction<T1, T2, T3> extends BiFunction<T1, T2, T3> {
+
+   /**
+    * Applies this function to the given arguments.
+    *
+    * @param t1 the first function argument
+    * @param t2 the second function argument
+    * @return the function result
+    */
+   @Override
    T3 apply(T1 t1, T2 t2);
+
+   /**
+    * Creates a new BlockFunction from a BiFunction for backward compatibility.
+    *
+    * @param <T1> the type of the first argument
+    * @param <T2> the type of the second argument
+    * @param <T3> the type of the result
+    * @param biFunction the BiFunction to wrap
+    * @return a BlockFunction equivalent
+    */
+   static <T1, T2, T3> BlockFunction<T1, T2, T3> of(BiFunction<T1, T2, T3> biFunction) {
+      return biFunction::apply;
+   }
 }

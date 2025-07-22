@@ -16,93 +16,94 @@
  */
 package com.percussion.delivery.comments.service.rdbms;
 
-import javax.persistence.Basic;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.apache.commons.lang.StringUtils;
+import com.percussion.delivery.comments.data.IPSDefaultModerationState;
+import com.percussion.delivery.comments.data.APPROVAL_STATE;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import com.percussion.delivery.comments.data.IPSDefaultModerationState;
-
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Simple entity to store default moderation state for comments service.
- * @author erikserating
- *
+ * JPA entity for storing default moderation state per site.
+ * Uses Hibernate second-level cache for improved performance.
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments2")
 @Table(name = "PERC_DEFAULT_MODERATION_STATE")
-public class PSDefaultModerationState implements IPSDefaultModerationState
-{
-   
-   @Id
-   private String site;
-   
-   @Basic
-   private String defaultState;
-   
-   public PSDefaultModerationState()
-   {
-      
-   }
-   
-   public PSDefaultModerationState(String site, String defaultState)
-   {
-      if(StringUtils.isBlank(site))
-         throw new IllegalArgumentException("site cannot be null or empty.");
-      if(StringUtils.isBlank(defaultState))
-         throw new IllegalArgumentException("defaultState cannot be null or empty.");
-      this.site = site;
-      this.defaultState = defaultState;      
-   }
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments2")
+public class PSDefaultModerationState implements IPSDefaultModerationState, Serializable {
+    private static final long serialVersionUID = 1L;
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-public String getSite()
-   {
-      return site;
-   }
+    @Id
+    @NotBlank
+    @Column(nullable = false, length = 255)
+    private String site;
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-public void setSite(String site)
-   {
-      this.site = site;
-   }
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "defaultState", nullable = false)
+    private APPROVAL_STATE defaultState = APPROVAL_STATE.PENDING;
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-public String getDefaultState()
-   {
-      return defaultState;
-   }
+    // Required by JPA
+    protected PSDefaultModerationState() {}
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-public void setDefaultState(String defaultState)
-   {
-      this.defaultState = defaultState;
-   }   
-   
+    /**
+     * Creates a new default moderation state for a site.
+     *
+     * @param site site name, must not be blank
+     * @param state default approval state, must not be null
+     * @return new moderation state entity
+     * @throws IllegalArgumentException if site is blank or state is null
+     */
+    public static PSDefaultModerationState create(String site, APPROVAL_STATE state) {
+        var moderationState = new PSDefaultModerationState();
+        moderationState.setSite(site);
+        moderationState.setDefaultState(state);
+        return moderationState;
+    }
 
+    @Override
+    public String getSite() {
+        return site;
+    }
+
+    @Override
+    public void setSite(@NotBlank String site) {
+        this.site = Optional.ofNullable(site)
+            .filter(s -> !s.isBlank())
+            .orElseThrow(() -> new IllegalArgumentException("site must not be blank"));
+    }
+
+    @Override
+    public APPROVAL_STATE getDefaultState() {
+        return defaultState;
+    }
+
+    @Override
+    public void setDefaultState(@NotNull APPROVAL_STATE state) {
+        this.defaultState = Objects.requireNonNull(state, "state must not be null");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSDefaultModerationState)) return false;
+        PSDefaultModerationState that = (PSDefaultModerationState) o;
+        return Objects.equals(site, that.site);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(site);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("DefaultModerationState{site='%s', state=%s}",
+            site, defaultState);
+    }
 }

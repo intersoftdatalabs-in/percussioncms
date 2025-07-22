@@ -16,24 +16,53 @@
  */
 package com.percussion.delivery.feeds.services;
 
+import java.util.Optional;
+
 /**
- * @author erikserating
- *
+ * Interface for secure connection information with encrypted credentials support.
+ * Implementations should ensure proper handling of sensitive data.
  */
-public interface IPSConnectionInfo
-{
+public interface IPSConnectionInfo {
+    /**
+     * Gets the connection URL.
+     * @return URL, may be empty if not set
+     */
+    Optional<String> getUrl();
 
-    
-    public String getUrl();
+    /**
+     * Gets the username for authentication.
+     * @return username, may be empty if not set
+     */
+    Optional<String> getUsername();
 
-   
-    public String getUsername();
+    /**
+     * Gets the encrypted password for authentication.
+     * Implementations must ensure this is never exposed in logs or toString().
+     * @return encrypted password, may be empty if not set
+     */
+    Optional<String> getPassword();
 
-    
-    public String getPassword();
+    /**
+     * Checks if the password is encrypted.
+     * @return true if password is encrypted, false otherwise
+     */
+    boolean isEncrypted();
 
-    public String getEncrypted();
+    /**
+     * Gets the unique identifier for this connection.
+     * @return connection ID
+     */
+    long getId();
 
-    public long getId();
-
+    /**
+     * Creates a safe string representation without sensitive data.
+     * @return connection info without password
+     */
+    default String toSafeString() {
+        return String.format("ConnectionInfo{id=%d, url='%s', username='%s', encrypted=%b}",
+            getId(),
+            getUrl().orElse("<not set>"),
+            getUsername().orElse("<not set>"),
+            isEncrypted());
+    }
 }

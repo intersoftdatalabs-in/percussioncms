@@ -30,27 +30,27 @@ public interface IPSExtensionParamDef extends IPSComponent
    /**
     * Gets the parameter name.
     *
-    * @return The parameter name. Never <CODE>null</CODE>.
+    * @return The parameter name. Never {@code null}.
     */
-   public String getName();
+   String getName();
 
    /**
     * Gets the name of the parameter data type. The set of valid type names
     * will be different for each language.
     *
-    * @return The data type name. Never <CODE>null</CODE>.
+    * @return The data type name. Never {@code null}.
     */
-   public String getDataType();
+   String getDataType();
 
    /**
     * Gets the description of this parameter, which is free-form human
     * readable text used to describe the parameter and possibly its usage and
-    * constraints. Can be <CODE>null</CODE>.
+    * constraints. Can be {@code null}.
     *
-    * @return The human readable description, or <CODE>null</CODE> if none
+    * @return The human readable description, or {@code null} if none
     * is provided.
     */
-   public String getDescription();
+   String getDescription();
 
    /**
     * Serializes this param def into (or under) the given root element.
@@ -59,9 +59,9 @@ public interface IPSExtensionParamDef extends IPSComponent
     * then the content will be created directly under root. If root
     * is not of the correct type, an additional element of the correct
     * type will be created under root, and the content stored directly beneath
-    * the newly created element. Must not be <CODE>null</CODE>.
+    * the newly created element. Must not be {@code null}.
     *
     * @return The element under which the content was stored directly.
     */
-   public Element toXml(Element root);
+   Element toXml(Element root);
 }

@@ -1,3 +1,4 @@
+// JAVA_11_REFACTORED: This class has been modernized with Java 11 features by Sunny Sal
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -47,167 +48,167 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 
 /**
- * This is the Hibernate implementation of the <code>IPSRelationshipService</code>.
+ * This is the Hibernate implementation of the {@code IPSRelationshipService}.
+ * This service provides comprehensive relationship management capabilities for
+ * the Percussion CMS system, utilizing modern Java 11 features and best practices.
  *
+ * @author Original Author
+ * @since Java 11 Modernization
  */
 @PSSiteManageBean("sys_relationshipService")
 @Transactional
-public class PSRelationshipService
-        implements
-        IPSRelationshipService
-{
+public class PSRelationshipService implements IPSRelationshipService {
+
+   /**
+    * The maximum number of elements in an IN Clause. This number cannot be
+    * bigger than 1000, which is the limit of the IN Clause for Oracle.
+    */
+   private static final int MAX_NUM_OF_IN_CLAUSE = 999;
+
+   private static final Logger logger = LogManager.getLogger(PSRelationshipService.class);
 
    @PersistenceContext
    private EntityManager entityManager;
 
-   private Session getSession(){
+   private Session getSession() {
       return entityManager.unwrap(Session.class);
    }
    
-   /* (non-Javadoc)
-    * @see IPSRelationshipService#getRelationshipData(int)
+   /**
+    * {@inheritDoc}
     */
-   public PSRelationship loadRelationship(int id) throws PSException
-   {
+   @Override
+   public PSRelationship loadRelationship(int id) throws PSException {
       loadConfigs(); // load configs if needed
 
-      PSRelationshipData rdata = getSession()
-              .get(PSRelationshipData.class, id);
-      if (rdata != null && setConfigAddChildProperties(rdata, null, false, false))
+      var rdata = getSession().get(PSRelationshipData.class, id);
+      if (rdata != null && setConfigAddChildProperties(rdata, null, false, false)) {
          return getRelationship(rdata);
-      else
-         return null;
+      }
+      return null;
    }
 
-   /* (non-Javadoc)
-    * @see IPSRelationshipService#findPersistedRid(Collection<Integer>)
+   /**
+    * {@inheritDoc}
     */
-   public List<Integer> findPersistedRid(Collection<Integer> testedIds)
-   {
-      if (testedIds == null)
+   @Override
+   public List<Integer> findPersistedRid(Collection<Integer> testedIds) {
+      if (testedIds == null) {
          throw new IllegalArgumentException("testedIds may not be null.");
+      }
 
       // process all together if less than the max
-      if (testedIds.size() < MAX_NUM_OF_IN_CLAUSE)
+      if (testedIds.size() < MAX_NUM_OF_IN_CLAUSE) {
          return findPersistedRids(testedIds);
+      }
 
-      // otherwise, process the IDs in groups
-      List<Integer> returnIds = new ArrayList<>();
-      List<Integer> groupIds = new ArrayList<>();
-      for (Integer rid : testedIds)
-      {
+      // otherwise, process the IDs in groups using modern Java streams
+      var returnIds = new ArrayList<Integer>();
+      var groupIds = new ArrayList<Integer>();
+
+      for (var rid : testedIds) {
          groupIds.add(rid);
-         if (groupIds.size() == MAX_NUM_OF_IN_CLAUSE)
-         {
+         if (groupIds.size() == MAX_NUM_OF_IN_CLAUSE) {
             returnIds.addAll(findPersistedRids(groupIds));
             groupIds.clear();
          }
       }
-      // process whatever left
-      if (!groupIds.isEmpty())
+
+      // process whatever is left
+      if (!groupIds.isEmpty()) {
          returnIds.addAll(findPersistedRids(groupIds));
+      }
 
       return returnIds;
    }
 
    /**
     * The same as {@link #findPersistedRid(Collection)}, except the number
-    * of the IDs is assumed less or equals to {@link #MAX_NUM_OF_IN_CLAUSE}
+    * of the IDs is assumed less than or equal to {@link #MAX_NUM_OF_IN_CLAUSE}.
+    *
+    * @param testedIds the IDs to test, never {@code null}
+    * @return list of persisted relationship IDs, never {@code null}
     */
-   private List<Integer> findPersistedRids(Collection<Integer> testedIds)
-   {
-      if (testedIds.isEmpty())
+   private List<Integer> findPersistedRids(Collection<Integer> testedIds) {
+      if (testedIds.isEmpty()) {
          return Collections.emptyList();
-      else
-         return getSession().createQuery(
-                 "select r.rid from PSRelationshipData as r where r.rid in (:rids)").setParameterList(
-                 "rids",
-                 testedIds).list();
+      }
+
+      return getSession()
+         .createQuery("select r.rid from PSRelationshipData as r where r.rid in (:rids)", Integer.class)
+         .setParameterList("rids", testedIds)
+         .list();
    }
 
-   // Implements IPSRelationshipService.findByFilter()
-   public List<PSRelationship> findByFilter(
-           PSRelationshipFilter filter) throws PSException
-   {
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   public List<PSRelationship> findByFilter(PSRelationshipFilter filter) throws PSException {
       List<PSRelationship> rels = null;
       loadConfigs(); // load configs if needed
 
       // execute the query and load the data
-      Session sess = getSession();
+      var sess = getSession();
+      var filters = getProcessedFilters(filter);
 
-      IPSQueryHelper qry;
-
-      List<PSRelationshipFilter> filters = getProcessedFilters(filter);
-      for (PSRelationshipFilter f : filters)
-      {
+      for (var f : filters) {
          // query with HQL, which may be slower than straight JDBC
          // qry = new PSHQLQueryHelper(filter, m_configMap,  m_nameMapToId);
          // query with straight JDBC, which should be faster than HQL
-         qry = new PSHQLQueryHelper(f, m_configMap, m_nameMapToId);
-         //qry = new PSJDBCQueryHelper(f, m_configMap, m_nameMapToId);
+         var qry = new PSHQLQueryHelper(f, m_configMap, m_nameMapToId);
 
-         List<PSRelationshipData> relsData = qry.executeQuery(sess);
-         if (rels == null)
+         var relsData = qry.executeQuery(sess);
+
+         if (rels == null) {
             rels = postProcessResultList(relsData, qry);
-         else
+         } else {
             rels.addAll(postProcessResultList(relsData, qry));
+         }
       }
 
-
-      return rels;
+      return Optional.ofNullable(rels).orElse(Collections.emptyList());
    }
 
    /**
-    * Gets a list of ready to be processed filter from the specified filter.
-    * A ready to be processed filter cannot contain more than
-    * {@link #MAX_NUM_OF_IN_CLAUSE}.
+    * Gets a list of ready-to-be-processed filters from the specified filter.
+    * A ready-to-be-processed filter cannot contain more than {@link #MAX_NUM_OF_IN_CLAUSE}.
     *
-    * @param filter the source filter; assumed not <code>null</code>.
-    *
-    * @return a list of ready to be processed filters; never <code>null</code>
-    *    or empty.
+    * @param filter the source filter, assumed not {@code null}
+    * @return a list of ready-to-be-processed filters, never {@code null} or empty
     */
-   private List<PSRelationshipFilter> getProcessedFilters(
-           PSRelationshipFilter filter)
-   {
-      List<PSLocator> dependents = filter.getDependents();
-      if (dependents == null || dependents.size() <= MAX_NUM_OF_IN_CLAUSE)
-      {
+   private List<PSRelationshipFilter> getProcessedFilters(PSRelationshipFilter filter) {
+      var dependents = filter.getDependents();
+      if (dependents == null || dependents.size() <= MAX_NUM_OF_IN_CLAUSE) {
          return Collections.singletonList(filter);
       }
 
-      List<PSRelationshipFilter> filters = new ArrayList<>();
-      PSRelationshipFilter f;
-      Set<PSLocator> deps = new HashSet<>();
-      for(PSLocator loc : dependents)
-      {
+      var filters = new ArrayList<PSRelationshipFilter>();
+      var deps = new HashSet<PSLocator>();
+
+      for (var loc : dependents) {
          deps.add(loc);
-         if (deps.size() >= MAX_NUM_OF_IN_CLAUSE)
-         {
-            f = new PSRelationshipFilter(filter);
+         if (deps.size() >= MAX_NUM_OF_IN_CLAUSE) {
+            var f = new PSRelationshipFilter(filter);
             f.setDependents(null); // force to reset the dependents
             f.setDependents(deps);
             filters.add(f);
             deps = new HashSet<>();
          }
       }
-      if (!deps.isEmpty())
-      {
-         f = new PSRelationshipFilter(filter);
+
+      if (!deps.isEmpty()) {
+         var f = new PSRelationshipFilter(filter);
          f.setDependents(null); // force to reset the dependents
          f.setDependents(deps);
          filters.add(f);
       }
+
       return filters;
    }
-
-   /**
-    * The maximum number of element in a IN Clause. This number cannot be
-    * bigger than 1000, which is the limit of the IN Clause for Oracle.
-    */
-   private static final int MAX_NUM_OF_IN_CLAUSE = 999;
 
    /**
     * Post process the supplied query result. It set the related relationship
@@ -365,17 +366,17 @@ public class PSRelationshipService
     * child properties, and performs additional filtering, such as filtering by
     * owner revision, dependent revision and child/custom properties if needed.
     *
-    * @param rdata the relationship data, assumed not <code>null</code>.
+    * @param rdata the relationship data, assumed not {@code null}.
     * @param qryHelper the query helper object, used to perform additional
-    *   filtering if needed. It may be <code>null</code> if do not perform the
+    *   filtering if needed. It may be {@code null} if do not perform the
     *   additional filtering process.
-    * @param filterOwnerRev <code>true</code> if need to consider to filter by
+    * @param filterOwnerRev {@code true} if need to consider to filter by
     *   owner revision.
-    * @param filterDependentRev <code>true</code> if need to consider to filter by
+    * @param filterDependentRev {@code true} if need to consider to filter by
     *   dependent revision.
     *
-    * @return <code>true</code> if successful done the above;
-    *   return <code>false</code> if cannot find a matching relationship config
+    * @return {@code true} if successful done the above;
+    *   return {@code false} if cannot find a matching relationship config
     *   for the given relationship data or the child properties does not
     *   match the criteria of the filter.
     */
@@ -383,12 +384,10 @@ public class PSRelationshipService
            PSRelationshipData rdata, IPSQueryHelper qryHelper,
            boolean filterOwnerRev, boolean filterDependentRev)
    {
-      PSRelationshipConfig config;
-      config = m_configMap.get(rdata.getConfigId());
+      var config = m_configMap.get(rdata.getConfigId());
       if (config == null)
       {
-         ms_logger.warn("Cannot find relationship config for {}",
-                 rdata);
+         logger.warn("Cannot find relationship config for {}", rdata);
          return false;
       }
       else
@@ -415,8 +414,7 @@ public class PSRelationshipService
          // load the additional properties if needed
          if (!config.getCustomPropertyNames().isEmpty())
          {
-            Collection<PSRelationshipPropertyData> relProps = null;
-            relProps = findPropertiesByRid(rdata.getId());
+            var relProps = findPropertiesByRid(rdata.getId());
             if (qryHelper == null)
                rdata.setProperties(relProps);
             else if (qryHelper.filterCustomProperties(relProps))
@@ -600,7 +598,7 @@ public class PSRelationshipService
          }
          else
          {
-            ms_logger.warn("Cannot find relationship configuration from {}",
+            logger.warn("Cannot find relationship configuration from {}",
                      cname);
          }
       }

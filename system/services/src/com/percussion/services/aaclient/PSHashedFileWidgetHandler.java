@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import com.percussion.services.filestorage.IPSFileMeta;
@@ -26,47 +27,50 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * 
- * Previews a Hashed Image.
- * This class is essential a servlet whos endpoint is
- * <code>/Rhythmyx/assembly/aa?widget=hi&hash=[HASH_HERE]</code>
- * <b>HASH_HERE</b> is the hash of the image from the 
- * {@link IPSFileStorageService}.
+ * Widget handler for previewing hashed files stored in the file storage service.
+ * This handler serves files via the endpoint:
+ * {@code /Rhythmyx/assembly/aa?widget=hi&hash=[HASH_HERE]}
+ * where {@code HASH_HERE} is the hash of the file from the {@link IPSFileStorageService}.
+ *
  * @see IPSFileStorageService
  * @author adamgent
- *
  */
-public class PSHashedFileWidgetHandler implements IPSWidgetHandler
-{
+public class PSHashedFileWidgetHandler implements IPSWidgetHandler {
 
-   public void handleRequest(
-         HttpServletRequest request,
-         HttpServletResponse response) throws Exception
-   {
-      IPSFileStorageService s = PSFileStorageServiceLocator.getFileStorageService();
-      String hash = request.getParameter("hash");
-      notEmpty(hash, "Hash");
-      if (! s.fileExists(hash) ) {
+   @Override
+   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var storageService = PSFileStorageServiceLocator.getFileStorageService();
+      var hash = request.getParameter("hash");
+
+      notEmpty(hash, "Hash parameter is required");
+
+      if (!storageService.fileExists(hash)) {
          response.setStatus(HttpServletResponse.SC_NOT_FOUND);
          response.flushBuffer();
          return;
       }
-      IPSFileMeta m = s.getMeta(hash);
-      notNull(m, "Meta not found");
-      String contentType = m.get(HttpHeaders.CONTENT_TYPE);
-      if (isNotBlank(contentType))
-         response.setContentType(contentType);
-      OutputStream os = response.getOutputStream();
-      InputStream is = s.getStream(hash);
-      notNull(is, "Inputstream not found for hash: " + hash);
-      IOUtils.copy(is, os);
-      response.flushBuffer();
-   }
 
+      var fileMeta = storageService.getMeta(hash);
+      notNull(fileMeta, "File metadata not found for hash: " + hash);
+
+      // Set content type if available
+      Optional.ofNullable(fileMeta.get(HttpHeaders.CONTENT_TYPE))
+              .filter(contentType -> isNotBlank(contentType))
+              .ifPresent(response::setContentType);
+
+      try (var inputStream = storageService.getStream(hash);
+           var outputStream = response.getOutputStream()) {
+
+         notNull(inputStream, "Input stream not found for hash: " + hash);
+         IOUtils.copy(inputStream, outputStream);
+         response.flushBuffer();
+      }
+   }
 }

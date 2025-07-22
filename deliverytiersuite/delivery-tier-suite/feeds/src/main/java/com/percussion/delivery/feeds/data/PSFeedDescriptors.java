@@ -1,140 +1,144 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License")
  */
 package com.percussion.delivery.feeds.data;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * A transfer class for feed descriptors and connection info.
- *
+ * Immutable container for feed descriptors and service connection information.
  */
-public class PSFeedDescriptors
-{
+public final class PSFeedDescriptors {
     @JsonDeserialize(as = ArrayList.class, contentAs = PSFeedDescriptor.class)
-   private List<IPSFeedDescriptor> descriptors = new ArrayList<>();
-   
-   private String serviceUrl;
-   private String serviceUser;
-   private String servicePass;
-   private boolean servicePassEncrypted;
-   private String site;
+    private final List<IPSFeedDescriptor> descriptors;
+    private final String serviceUrl;
+    private final String serviceUser;
+    private final String servicePass;
+    private final boolean servicePassEncrypted;
+    private final String site;
 
-   public PSFeedDescriptors(){
-       super();
-   }
-/**
- * @return the descriptors
- */
-public List<IPSFeedDescriptor> getDescriptors()
-{
-    return descriptors;
-}
+    private PSFeedDescriptors(Builder builder) {
+        this.descriptors = Collections.unmodifiableList(new ArrayList<>(
+            Objects.requireNonNull(builder.descriptors, "descriptors must not be null")));
+        this.serviceUrl = builder.serviceUrl;
+        this.serviceUser = builder.serviceUser;
+        this.servicePass = builder.servicePass;
+        this.servicePassEncrypted = builder.servicePassEncrypted;
+        this.site = builder.site;
+    }
 
-/**
- * @param descriptors the descriptors to set
- */
-public void setDescriptors(List<IPSFeedDescriptor> descriptors)
-{
-    this.descriptors = descriptors;
-}
+    public List<IPSFeedDescriptor> getDescriptors() {
+        return descriptors;
+    }
 
-/**
- * @return the serviceUrl
- */
-public String getServiceUrl()
-{
-    return serviceUrl;
-}
+    public Optional<String> getServiceUrl() {
+        return Optional.ofNullable(serviceUrl);
+    }
 
-/**
- * @param serviceUrl the serviceUrl to set
- */
-public void setServiceUrl(String serviceUrl)
-{
-    this.serviceUrl = serviceUrl;
-}
+    public Optional<String> getServiceUser() {
+        return Optional.ofNullable(serviceUser);
+    }
 
-/**
- * @return the serviceUser
- */
-public String getServiceUser()
-{
-    return serviceUser;
-}
+    public Optional<String> getServicePass() {
+        return Optional.ofNullable(servicePass);
+    }
 
-/**
- * @param serviceUser the serviceUser to set
- */
-public void setServiceUser(String serviceUser)
-{
-    this.serviceUser = serviceUser;
-}
+    public boolean isServicePassEncrypted() {
+        return servicePassEncrypted;
+    }
 
-/**
- * @return the servicePass
- */
-public String getServicePass()
-{
-    return servicePass;
-}
+    public Optional<String> getSite() {
+        return Optional.ofNullable(site);
+    }
 
-/**
- * @param servicePass the servicePass to set
- */
-public void setServicePass(String servicePass)
-{
-    this.servicePass = servicePass;
-}
+    public static Builder builder() {
+        return new Builder();
+    }
 
-/**
- * @return the servicePassEncrypted
- */
-public boolean isServicePassEncrypted()
-{
-    return servicePassEncrypted;
-}
+    public static final class Builder {
+        private List<IPSFeedDescriptor> descriptors = new ArrayList<>();
+        private String serviceUrl;
+        private String serviceUser;
+        private String servicePass;
+        private boolean servicePassEncrypted;
+        private String site;
 
-/**
- * @param servicePassEncrypted the servicePassEncrypted to set
- */
-public void setServicePassEncrypted(boolean servicePassEncrypted)
-{
-    this.servicePassEncrypted = servicePassEncrypted;
-}
+        private Builder() {}
 
-/**
- * @return the site
- */
-public String getSite()
-{
-    return site;
-}
+        public Builder descriptors(List<IPSFeedDescriptor> descriptors) {
+            this.descriptors = new ArrayList<>(descriptors);
+            return this;
+        }
 
-/**
- * @param site the site to set
- */
-public void setSite(String site)
-{
-    this.site = site;
-}
+        public Builder addDescriptor(IPSFeedDescriptor descriptor) {
+            this.descriptors.add(Objects.requireNonNull(descriptor));
+            return this;
+        }
 
-   
-   
+        public Builder serviceUrl(String serviceUrl) {
+            this.serviceUrl = serviceUrl;
+            return this;
+        }
+
+        public Builder serviceUser(String serviceUser) {
+            this.serviceUser = serviceUser;
+            return this;
+        }
+
+        public Builder servicePass(String servicePass) {
+            this.servicePass = servicePass;
+            return this;
+        }
+
+        public Builder servicePassEncrypted(boolean servicePassEncrypted) {
+            this.servicePassEncrypted = servicePassEncrypted;
+            return this;
+        }
+
+        public Builder site(String site) {
+            this.site = site;
+            return this;
+        }
+
+        public PSFeedDescriptors build() {
+            return new PSFeedDescriptors(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PSFeedDescriptors that = (PSFeedDescriptors) o;
+        return servicePassEncrypted == that.servicePassEncrypted &&
+               Objects.equals(descriptors, that.descriptors) &&
+               Objects.equals(serviceUrl, that.serviceUrl) &&
+               Objects.equals(serviceUser, that.serviceUser) &&
+               Objects.equals(servicePass, that.servicePass) &&
+               Objects.equals(site, that.site);
+    }
+
+    @Override
+    public int hashCode() {
+        // Exclude servicePass from hash to avoid potential security issues
+        return Objects.hash(descriptors, serviceUrl, serviceUser, servicePassEncrypted, site);
+    }
+
+    @Override
+    public String toString() {
+        return "PSFeedDescriptors{" +
+               "descriptors=" + descriptors +
+               ", serviceUrl='" + serviceUrl + '\'' +
+               ", serviceUser='" + serviceUser + '\'' +
+               ", servicePassEncrypted=" + servicePassEncrypted +
+               ", site='" + site + '\'' +
+               // Exclude servicePass from toString for security
+               '}';
+    }
 }

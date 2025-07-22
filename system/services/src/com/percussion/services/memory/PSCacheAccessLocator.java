@@ -14,40 +14,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.services.memory;
 
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
 /**
- * Locator for cache service
- * 
+ * Locator for cache service using thread-safe lazy initialization.
+ *
+ * <p>This class provides access to the cache service implementation through
+ * Spring bean configuration. It uses double-checked locking for thread-safe
+ * singleton initialization.</p>
+ *
  * @author dougrand
  */
-public class PSCacheAccessLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSCacheAccess cac=null;
+public final class PSCacheAccessLocator {
+
+   private static volatile IPSCacheAccess cacheAccess;
+
    /**
-    * Get the cache accessor
-    * 
-    * @return the accessor, never <code>null</code>
-    * @throws PSMissingBeanConfigurationException if there's a problem with the
-    *            spring configuration, the bean might not be found and this
-    *            exception will be thrown
+    * Private constructor to prevent instantiation of this utility class.
     */
-   public static IPSCacheAccess getCacheAccess()
-         throws PSMissingBeanConfigurationException
-   {
-       if (cac==null)
-       {
-           synchronized (PSCacheAccessLocator.class)
-           {
-               if (cac==null)
-               {
-                   cac = (IPSCacheAccess) getBean("sys_cacheAccessor");
-               }
-           }
-       }
-      return cac;
+   private PSCacheAccessLocator() {
+      // Utility class - no instances allowed
+   }
+
+   /**
+    * Get the cache accessor using thread-safe lazy initialization.
+    *
+    * @return the cache accessor, never {@code null}
+    * @throws PSMissingBeanConfigurationException if there's a problem with the
+    *         Spring configuration or the bean cannot be found
+    */
+   public static IPSCacheAccess getCacheAccess() throws PSMissingBeanConfigurationException {
+      var localRef = cacheAccess;
+      if (localRef == null) {
+         synchronized (PSCacheAccessLocator.class) {
+            localRef = cacheAccess;
+            if (localRef == null) {
+               cacheAccess = localRef = (IPSCacheAccess) PSBaseServiceLocator.getBean("sys_cacheAccessor");
+            }
+         }
+      }
+      return localRef;
    }
 }
