@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.cx;
 
 
@@ -51,7 +53,7 @@ public class PSContentExplorerApplication extends Application {
    static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
    
    private static File configDir;
-   private static Dimension dimension = new Dimension(1180, 750);
+   private static final Dimension DEFAULT_DIMENSION = new Dimension(1180, 750);
 
    public  static int sessionExpired = 0;
    
@@ -119,19 +121,15 @@ public class PSContentExplorerApplication extends Application {
       String codebase = params.get("codebase");
       if (codebase==null)
     	  codebase="http://localhost:9992";
-      String protocol = null;
-      String host = null;
-      int port = -1;
-      URI uri = null;
       String clientConfigDir = DEFAULT_CONFIG_FOLDER_NAME;
       try
       {
          if (StringUtils.isNotEmpty(codebase))
          {
-            uri = new URI(codebase);
-            protocol = uri.getScheme();
-            host = uri.getHost();
-            port = uri.getPort();
+            var uri = new URI(codebase);
+            var protocol = uri.getScheme();
+            var host = uri.getHost();
+            var port = uri.getPort();
             if (port==-1)
                port = ("https".equals(protocol)) ? 443:80;
             
@@ -147,24 +145,21 @@ public class PSContentExplorerApplication extends Application {
          log.error("Codebase parameter is not a valid url "+ codebase);
       }
       
-      
-      
       configDir = new File(System.getProperty("user.home")
-            + File.separator + clientConfigDir + File.separator );
+            + File.separator + clientConfigDir);
       
       configDir.mkdirs();
-      
 
       logConfig = new File(configDir,"log4j.properties");
 
 
       System.out.println("Setting log4j config to "+logConfig);
       System.setProperty("configDir", configDir.getAbsolutePath());
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      var loader = Thread.currentThread().getContextClassLoader();
       
       if (!logConfig.exists())
       {
-         URL inputUrl = loader.getResource("dce_log4j.properties");
+         var inputUrl = loader.getResource("dce_log4j.properties");
          if (inputUrl != null)
             {
             try {

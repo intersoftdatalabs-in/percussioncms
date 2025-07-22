@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.cx;
 
 import com.percussion.cx.javafx.PSDesktopExplorerWindow;
@@ -33,14 +35,13 @@ public class PSJavaBridge implements ClipboardOwner {
 
    static Logger log = LogManager.getLogger(PSJavaBridge.class);
 
-   CountDownLatch initialized = new CountDownLatch(1);
+   final CountDownLatch initialized = new CountDownLatch(1);
 
-   private PSDesktopExplorerWindow frame;
+   private final PSDesktopExplorerWindow frame;
 
    public PSJavaBridge(PSDesktopExplorerWindow frame)
    {
       this.frame = frame;
-
    }
 
    public void log(String text)

@@ -70,7 +70,7 @@ public class PSNavigationTree
         extends JTree
         implements DragGestureListener, DropTargetListener
 {
-   static Logger log = LogManager.getLogger(PSNavigationTree.class);
+   static final Logger log = LogManager.getLogger(PSNavigationTree.class);
 
    /**
     * Serializable id
