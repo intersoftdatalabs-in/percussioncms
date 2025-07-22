@@ -12,3 +12,7 @@ com.percussion.services.notification
 com.percussion.services.relationship
 com.percussion.services.security
 com.percussion.services.sitemgr
+com.percussion.services.aaclient
+com.percussion.services.filter
+com.percussion.services.publisher
+com.percussion.services.integrations

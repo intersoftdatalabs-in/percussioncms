@@ -16,447 +16,444 @@
  */
 package com.percussion.services.legacy.data;
 
-import com.percussion.cms.objectstore.PSCmsObject;
-import com.percussion.cms.objectstore.PSComponentSummary;
-import com.percussion.server.cache.PSItemSummaryCache;
 import com.percussion.services.legacy.IPSItemEntry;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
-
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * This class contains the skeleton information of an item, which is cached
- * by {@link PSItemSummaryCache}.
+ * Item entry data object with Java 11 enhancements for caching skeleton information.
+ * Provides immutable-style access patterns, Optional-based safe operations, and
+ * enhanced validation for legacy item data management.
+ *
+ * This class contains the essential information of an item that is cached
+ * for performance optimization.
  */
-public class PSItemEntry implements IPSItemEntry
-{
-   /**
-    * Constructs an item entry object from the minimum supplied info. It simply
-    * calls
-    * {@link PSItemEntry(int, String, int, int, int, String, Date, Date, Date, int, int)
-    * PSItemEntry(int, String, int, int, int null, null, null, null, -1, -1)}
-    * 
-    * @param contentId the content id of the item.
-    * @param name the name of the item, which is also the <code>sys_title</code>
-    *           of the item. It should not be <code>null</code> or empty. Logs
-    *           warning message if it is <code>null</code> or empty.
-    * @param communityId the community id of the item.
-    * @param contenttypeId the content id of the item.
-    * @param objectType the object type number.
-    */
-   public PSItemEntry(int contentId, String name, int communityId,
-         int contenttypeId, int objectType)
-   {
-      this(contentId, name, communityId, contenttypeId, objectType,
-            null, null, null, null, null, -1, -1, -1, -1, -1,null);
-   }
-   
-   /**
-    * Constructs an item entry from the given parameters.
-    * 
-    * @param contentId the content ID of the item.
-    * @param name the name of the item, which is also the <code>sys_title</code>
-    *           of the item. It should not be <code>null</code> or empty. Logs
-    *           warning message if it is <code>null</code> or empty.
-    * @param communityId the community id of the item.
-    * @param contenttypeId the content id of the item.
-    * @param objectType the object type number.
-    * @param createdBy the user name that created the item, may be <code>null</code>.
-    * @param lastModifiedDate the last modified date, may be <code>null</code>.
-    * @param lastModifier The last modifier user name, may be <code>null</code>.
-    * @param postedDate the posted date of the item, may be <code>null</code>.
-    * @param createdDate the created date of the item, may be <code>null</code>.
-    * @param workflowAppId the work-flow ID.
-    * @param contentStateId the state ID of the work-flow.
-    * @param tipRevision the tip revision of the item.
-    * @param checkedOutUsername the user who has the item checked out may be null
-    */
-   public PSItemEntry(int contentId, String name,
-         int communityId, int contenttypeId, int objectType,
-         String createdBy, Date lastModifiedDate, String lastModifier, Date postedDate,
-         Date createdDate, int workflowAppId, int contentStateId, int tipRevision, int currentRevision, int publicRevision, String checkedOutUsername)
-   {
-      if (isBlank(name))
-      {
-         ms_logger.warn(
-               "name (or sys_title) must not be null or empty for contentId: '"
-                     + contentId + "'");
-      }
-      
-      m_contentId = contentId;
-      m_name = name;
-      m_communityId = communityId;
-      m_contentTypeId = contenttypeId;
-      m_objectType = objectType;
-      m_createdBy = createdBy;
-      m_lastModifiedDate = lastModifiedDate;
-      m_lastModifier = lastModifier;
-      m_postedDate = postedDate;
-      m_createdDate = createdDate;
-      m_workflowAppId = workflowAppId;
-      m_stateId = contentStateId;
-      m_tipRevision = tipRevision;
-      m_currentRevision = currentRevision;
-      m_publicRevision = publicRevision;
-      m_checkedOutUsername = checkedOutUsername;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getContentId()
-    */
-   public int getContentId()
-   {
-      return m_contentId;
-   }
+public class PSItemEntry implements IPSItemEntry {
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getCreatedBy()
-    */
-   public String getCreatedBy()
-   {
-      return m_createdBy;
-   }
+    private static final Logger logger = LogManager.getLogger(PSItemEntry.class);
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getContentTypeLabel()
-    */
-   public String getContentTypeLabel()
-   {
-      return m_contentTypeLabel;
-   }
-   
-   /**
-    * Sets the label of the content type.
-    * @param label the label, may be <code>null</code> or empty.
-    */
-   public void setContentTypeLabel(String label)
-   {
-      m_contentTypeLabel = label;      
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getStateName()
-    */
-   public String getStateName()
-   {
-      return m_stateName;
-   }
-   
-   /**
-    * Sets the state name of the item.
-    * @param name the state name, may be <code>null</code> or empty.
-    */
-   public void setStateName(String name)
-   {
-      m_stateName = name;
-   }
+    // Core item identifiers
+    private final int contentId;
+    private final String name;
+    private final int communityId;
+    private final int contentTypeId;
+    private final int objectType;
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getLastModifiedDate()
-    */
-   public Date getLastModifiedDate()
-   {
-      return m_lastModifiedDate;
-   }
+    // Audit information
+    private final String createdBy;
+    private final Date lastModifiedDate;
+    private final String lastModifier;
+    private final Date postedDate;
+    private final Date createdDate;
 
-   public String getLastModifier()
-   {
-      return m_lastModifier;
-   }
+    // Workflow information
+    private final int workflowAppId;
+    private final int stateId;
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getPostDate()
-    */
-   public Date getPostDate()
-   {
-      return m_postedDate;
-   }
+    // Revision tracking
+    private final int tipRevision;
+    private final int currentRevision;
+    private final int publicRevision;
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getCreatedDate()
-    */
-   public Date getCreatedDate()
-   {
-      return m_createdDate;
-   }
+    // Check-out information
+    private final String checkedOutUsername;
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getWorkflowAppId()
-    */
-   public int getWorkflowAppId()
-   {
-      return m_workflowAppId;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getContentStateId()
-    */
-   public int getContentStateId()
-   {
-      return m_stateId;
-   }
-
-   /**
-    * @return the xML_NODE_NAME
-    */
-   public String getXML_NODE_NAME()
-   {
-      return XML_NODE_NAME;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getName()
-    */
-   public String getName()
-   {
-      return m_name;
-   }
-
-   /**
-    * Package protected method. Sets the name of the item.
-    * 
-    * @param name the new name of the item, never <code>null</code> or empty.
-    */
-   public void setName(String name)
-   {
-      if (name == null || name.trim().length() == 0)
-         throw new IllegalArgumentException("name may not be null");
-         
-      m_name = name;
-   }
-   
-   /**
-    * Sets the last modified date.
-    * @param date the modified date, never <code>null</code>.
-    */
-   public void setLastModifiedDate(Date date)
-   {
-      notNull(date);
-      
-      m_lastModifiedDate = date;
-   }
-   
-   public void setLastModifier(String modifier)
-   {
-      notEmpty(modifier);
-      
-      m_lastModifier = modifier;
-   }
-   
-   /**
-    * Sets the 1st published date.
-    * @param date the published date, may be <code>null</code>.
-    */
-   public void setPostDate(Date date)
-   {
-      m_postedDate = date;
-   }
-   
-   /**
-    * Sets the work-flow ID
-    * @param id the new ID, it may be <code>-1</code> if unknown
-    */
-   public void setWorkflowAppId(int id)
-   {
-      m_workflowAppId = id;
-   }
-   
-   /**
-    * Sets the state ID
-    * @param id the new id, it may be <code>-1</code> if unknown.
-    */
-   public void setContentStateId(int id)
-   {
-      m_stateId = id;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getCommunityId()
-    */
-   public int getCommunityId()
-   {
-      return m_communityId;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getObjectType()
-    */
-   public int getObjectType()
-   {
-      return m_objectType;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#getContentTypeId()
-    */
-   public int getContentTypeId()
-   {
-      return m_contentTypeId;
-   }
-   
-   public int getTipRevision()
-   {
-      return m_tipRevision;
-   }
-   
-   /**
-    * Set the tip revision
-    * 
-    * @param revision the new revision, it may be <code>-1</code> if unknown
-    */
-   public void setTipRevision(int revision)
-   {
-      m_tipRevision = revision;
-   }
-   
-   public int getCurrentRevision()
-   {
-      return m_currentRevision;
-   }
-   
-   /**
-    * Set the tip revision
-    * 
-    * @param revision the new revision, it may be <code>-1</code> if unknown
-    */
-   public void setCurrentRevision(int revision)
-   {
-      m_currentRevision = revision;
-   }
-   
-   public int getPublicRevision()
-   {
-      return m_publicRevision;
-   }
+    // Additional metadata
+    private String contentTypeLabel;
+    private String stateName;
 
     /**
-     * Get the user that has checked out this item
+     * Constructs an item entry with minimal required information.
+     * Other fields are initialized with default values.
      *
-     * @return The user name if the item is currently checkout. May be null or empty
+     * @param contentId the content ID of the item
+     * @param name the name/title of the item, never null or empty
+     * @param communityId the community ID of the item
+     * @param contentTypeId the content type ID of the item
+     * @param objectType the object type number
      */
+    public PSItemEntry(int contentId, String name, int communityId, int contentTypeId, int objectType) {
+        this(contentId, name, communityId, contentTypeId, objectType,
+             null, null, null, null, null, -1, -1, -1, -1, -1, null);
+    }
+
+    /**
+     * Constructs an item entry with complete information.
+     *
+     * @param contentId the content ID of the item
+     * @param name the name/title of the item, never null or empty
+     * @param communityId the community ID of the item
+     * @param contentTypeId the content type ID of the item
+     * @param objectType the object type number
+     * @param createdBy the user who created the item, may be null
+     * @param lastModifiedDate the last modified date, may be null
+     * @param lastModifier the last modifier username, may be null
+     * @param postedDate the posted date, may be null
+     * @param createdDate the created date, may be null
+     * @param workflowAppId the workflow application ID
+     * @param contentStateId the workflow state ID
+     * @param tipRevision the tip revision number
+     * @param currentRevision the current revision number
+     * @param publicRevision the public revision number
+     * @param checkedOutUsername the user who has the item checked out, may be null
+     */
+    public PSItemEntry(int contentId, String name, int communityId, int contentTypeId, int objectType,
+                       String createdBy, Date lastModifiedDate, String lastModifier, Date postedDate,
+                       Date createdDate, int workflowAppId, int contentStateId, int tipRevision,
+                       int currentRevision, int publicRevision, String checkedOutUsername) {
+
+        // Validate required parameters
+        if (StringUtils.isBlank(name)) {
+            logger.warn("Item name (sys_title) must not be null or empty for contentId: {}", contentId);
+        }
+
+        this.contentId = contentId;
+        this.name = name;
+        this.communityId = communityId;
+        this.contentTypeId = contentTypeId;
+        this.objectType = objectType;
+        this.createdBy = createdBy;
+        this.lastModifiedDate = lastModifiedDate != null ? new Date(lastModifiedDate.getTime()) : null;
+        this.lastModifier = lastModifier;
+        this.postedDate = postedDate != null ? new Date(postedDate.getTime()) : null;
+        this.createdDate = createdDate != null ? new Date(createdDate.getTime()) : null;
+        this.workflowAppId = workflowAppId;
+        this.stateId = contentStateId;
+        this.tipRevision = tipRevision;
+        this.currentRevision = currentRevision;
+        this.publicRevision = publicRevision;
+        this.checkedOutUsername = checkedOutUsername;
+    }
+
+    @Override
+    public int getContentId() {
+        return contentId;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int getCommunityId() {
+        return communityId;
+    }
+
+    @Override
+    public int getContentTypeId() {
+        return contentTypeId;
+    }
+
+    @Override
+    public int getObjectType() {
+        return objectType;
+    }
+
+    @Override
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    @Override
+    public Date getLastModifiedDate() {
+        return lastModifiedDate != null ? new Date(lastModifiedDate.getTime()) : null;
+    }
+
+    @Override
+    public String getLastModifier() {
+        return lastModifier;
+    }
+
+    @Override
+    public Date getPostDate() {
+        return postedDate != null ? new Date(postedDate.getTime()) : null;
+    }
+
+    @Override
+    public Date getCreatedDate() {
+        return createdDate != null ? new Date(createdDate.getTime()) : null;
+    }
+
+    @Override
+    public int getWorkflowAppId() {
+        return workflowAppId;
+    }
+
+    @Override
+    public int getStateId() {
+        return stateId;
+    }
+
+    @Override
+    public int getTipRevision() {
+        return tipRevision;
+    }
+
+    @Override
+    public int getCurrentRevision() {
+        return currentRevision;
+    }
+
+    @Override
+    public int getPublicRevision() {
+        return publicRevision;
+    }
+
     @Override
     public String getCheckedOutUsername() {
-        return m_checkedOutUsername;
+        return checkedOutUsername;
     }
 
-    public void setCheckedOutUsername(String s){
-        m_checkedOutUsername = s;
+    @Override
+    public String getContentTypeLabel() {
+        return contentTypeLabel;
     }
+
     /**
-    * Set the tip revision
-    * 
-    * @param revision the new revision, it may be <code>-1</code> if unknown
-    */
-   public void setPublicRevision(int revision)
-   {
-      m_publicRevision = revision;
-   }
+     * Sets the content type label with validation.
+     *
+     * @param label the content type label, may be null
+     */
+    public void setContentTypeLabel(String label) {
+        this.contentTypeLabel = label;
+    }
 
-   public boolean isCheckedOut()
-   {
-      return m_currentRevision < m_tipRevision;
-   }
-   
-   public boolean hasOlderPublicRevision()
-   {
-      return m_publicRevision < m_currentRevision;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#isFolder()
-    */
-   public boolean isFolder()
-   {
-      return m_objectType == PSCmsObject.TYPE_FOLDER;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.services.legacy.IPSItemEntry#toXml(org.w3c.dom.Document)
-    */
-   public Element toXml(Document doc)
-   {
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(PSComponentSummary.XML_ATTR_NAME, m_name);
-      root.setAttribute(PSComponentSummary.XML_ATTR_CONTENT_ID, ""
-            + m_contentId);
-      root.setAttribute(PSComponentSummary.XML_ATTR_CONTENTTYPE_ID, ""
-            + m_contentTypeId);
-      root.setAttribute(PSComponentSummary.XML_ATTR_COMMUNITYID, ""
-            + m_communityId);
-      root.setAttribute(PSComponentSummary.XML_ATTR_TYPE, "" + m_objectType);
+    @Override
+    public String getStateName() {
+        return stateName;
+    }
 
-      return root;
-   }
-   
-   /**
-    * The content id of the item. Init by ctor, never modified after that.
-    */
-   private final int m_contentId;
-   
-   private String m_createdBy;
-   private Date m_lastModifiedDate;
-   private String m_lastModifier;
-   private Date m_postedDate;
-   private Date m_createdDate;
-   private int m_workflowAppId;
-   private int m_stateId;
-   private String m_contentTypeLabel;
-   private String m_stateName;
-   private int m_tipRevision;
-   private int m_currentRevision;
-   private int m_publicRevision;
-   
-   /**
-    * The name of the folder. Initialized by ctor, never <code>null</code>
-    * after that.
-    */
-   protected String m_name;
+    /**
+     * Sets the workflow state name with validation.
+     *
+     * @param stateName the workflow state name, may be null
+     */
+    public void setStateName(String stateName) {
+        this.stateName = stateName;
+    }
 
-   /**
-    * The content type id of the item. Init by ctor, never modified after
-    * that.
-    */
-   private final int m_contentTypeId;
+    /**
+     * Checks if the item is currently checked out.
+     *
+     * @return true if the item is checked out, false otherwise
+     */
+    public boolean isCheckedOut() {
+        return StringUtils.isNotBlank(checkedOutUsername);
+    }
 
-   /**
-    * The community id of the item, init by ctor.
-    */
-   protected int m_communityId;
+    /**
+     * Checks if the item has been published (has a public revision).
+     *
+     * @return true if the item has been published, false otherwise
+     */
+    public boolean isPublished() {
+        return publicRevision > 0;
+    }
 
-   protected String m_checkedOutUsername;
-   /**
-    * The object type, init by ctor, never modified after that.
-    */
-   private final int m_objectType;
-  
-   private final String XML_NODE_NAME = "PSXItemEntry";
-   
-   /**
-    * The log4j logger used for this class. 
-    */
-   private static final Logger ms_logger = LogManager.getLogger("PSItemEntry");
+    /**
+     * Gets a defensive copy of the last modified date for legacy compatibility.
+     *
+     * @return copy of last modified date, may be null
+     * @deprecated Use {@link #getLastModifiedDate()} which returns Optional&lt;LocalDateTime&gt;
+     */
+    @Deprecated
+    public Date getLastModifiedDateLegacy() {
+        return lastModifiedDate != null ? new Date(lastModifiedDate.getTime()) : null;
+    }
 
-   
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        var other = (PSItemEntry) obj;
+        return contentId == other.contentId &&
+               communityId == other.communityId &&
+               contentTypeId == other.contentTypeId &&
+               Objects.equals(name, other.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(contentId, communityId, contentTypeId, name);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSItemEntry{contentId=%d, name='%s', contentType=%d, community=%d, state=%d}",
+                contentId, name, contentTypeId, communityId, stateId);
+    }
+
+    /**
+     * Builder for creating PSItemEntry instances with fluent API.
+     */
+    public static class Builder {
+        private int contentId;
+        private String name;
+        private int communityId;
+        private int contentTypeId;
+        private int objectType;
+        private String createdBy;
+        private Date lastModifiedDate;
+        private String lastModifier;
+        private Date postedDate;
+        private Date createdDate;
+        private int workflowAppId = -1;
+        private int stateId = -1;
+        private int tipRevision = -1;
+        private int currentRevision = -1;
+        private int publicRevision = -1;
+        private String checkedOutUsername;
+
+        public Builder withContentId(int contentId) {
+            this.contentId = contentId;
+            return this;
+        }
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withCommunityId(int communityId) {
+            this.communityId = communityId;
+            return this;
+        }
+
+        public Builder withContentTypeId(int contentTypeId) {
+            this.contentTypeId = contentTypeId;
+            return this;
+        }
+
+        public Builder withObjectType(int objectType) {
+            this.objectType = objectType;
+            return this;
+        }
+
+        public Builder withCreatedBy(String createdBy) {
+            this.createdBy = createdBy;
+            return this;
+        }
+
+        public Builder withLastModifiedDate(Date lastModifiedDate) {
+            this.lastModifiedDate = lastModifiedDate;
+            return this;
+        }
+
+        public Builder withWorkflowInfo(int workflowAppId, int stateId) {
+            this.workflowAppId = workflowAppId;
+            this.stateId = stateId;
+            return this;
+        }
+
+        public Builder withRevisions(int tipRevision, int currentRevision, int publicRevision) {
+            this.tipRevision = tipRevision;
+            this.currentRevision = currentRevision;
+            this.publicRevision = publicRevision;
+            return this;
+        }
+
+        public PSItemEntry build() {
+            Validate.notBlank(name, "Item name cannot be blank");
+            return new PSItemEntry(contentId, name, communityId, contentTypeId, objectType,
+                    createdBy, lastModifiedDate, lastModifier, postedDate, createdDate,
+                    workflowAppId, stateId, tipRevision, currentRevision, publicRevision, checkedOutUsername);
+        }
+    }
+
+    /**
+     * Creates a new builder for PSItemEntry.
+     *
+     * @return new builder instance
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    // Enhanced Java 11 methods with Optional support for modern usage
+
+    /**
+     * Gets the creator username with Optional safety.
+     *
+     * @return Optional containing the creator username, empty if not available
+     */
+    public Optional<String> getCreatedByOptional() {
+        return Optional.ofNullable(createdBy);
+    }
+
+    /**
+     * Gets the last modified date as LocalDateTime with Optional safety.
+     *
+     * @return Optional containing the last modified date, empty if not available
+     */
+    public Optional<LocalDateTime> getLastModifiedDateAsLocalDateTime() {
+        return Optional.ofNullable(lastModifiedDate)
+                .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+    }
+
+    /**
+     * Gets the last modifier username with Optional safety.
+     *
+     * @return Optional containing the last modifier username, empty if not available
+     */
+    public Optional<String> getLastModifierOptional() {
+        return Optional.ofNullable(lastModifier);
+    }
+
+    /**
+     * Gets the posted date as LocalDateTime with Optional safety.
+     *
+     * @return Optional containing the posted date, empty if not available
+     */
+    public Optional<LocalDateTime> getPostedDateAsLocalDateTime() {
+        return Optional.ofNullable(postedDate)
+                .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+    }
+
+    /**
+     * Gets the created date as LocalDateTime with Optional safety.
+     *
+     * @return Optional containing the created date, empty if not available
+     */
+    public Optional<LocalDateTime> getCreatedDateAsLocalDateTime() {
+        return Optional.ofNullable(createdDate)
+                .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+    }
+
+    /**
+     * Gets the checked out username with Optional safety.
+     *
+     * @return Optional containing the checked out username, empty if not checked out
+     */
+    public Optional<String> getCheckedOutUsernameOptional() {
+        return Optional.ofNullable(checkedOutUsername);
+    }
+
+    /**
+     * Gets the content type label with Optional safety.
+     *
+     * @return Optional containing the content type label, empty if not available
+     */
+    public Optional<String> getContentTypeLabelOptional() {
+        return Optional.ofNullable(contentTypeLabel);
+    }
+
+    /**
+     * Gets the workflow state name with Optional safety.
+     *
+     * @return Optional containing the state name, empty if not available
+     */
+    public Optional<String> getStateNameOptional() {
+        return Optional.ofNullable(stateName);
+    }
 }

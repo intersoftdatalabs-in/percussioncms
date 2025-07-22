@@ -19,28 +19,51 @@ package com.percussion.services.filter;
 import com.percussion.services.data.IPSIdentifiableItem;
 import com.percussion.utils.guid.IPSGuid;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * Represents an item to be filtered. Items are considered immutable in filter
  * rules. If a modification is required, clone the item and modify the clone.
- * 
+ * This interface provides safe access methods and enhanced validation for
+ * filter item operations.
+ *
  * @author dougrand
  */
 public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem {
 
    /**
-    * Get the item's identifying folder guid
-    * 
-    * @return the item's folder guid, may be {@code null}
+    * Get the item's identifying folder GUID.
+    *
+    * @return the item's folder GUID, may be {@code null}
     */
    IPSGuid getFolderId();
-   
+
    /**
-    * Get the item's containing site guid
-    * 
-    * @return the item's site guid, may be {@code null}
+    * Get the item's identifying folder GUID safely.
+    *
+    * @return Optional containing the folder GUID, or empty if not set
+    */
+   default Optional<IPSGuid> getFolderIdSafely() {
+      return Optional.ofNullable(getFolderId());
+   }
+
+   /**
+    * Get the item's containing site GUID.
+    *
+    * @return the item's site GUID, may be {@code null}
     */
    IPSGuid getSiteId();
-   
+
+   /**
+    * Get the item's containing site GUID safely.
+    *
+    * @return Optional containing the site GUID, or empty if not set
+    */
+   default Optional<IPSGuid> getSiteIdSafely() {
+      return Optional.ofNullable(getSiteId());
+   }
+
    /**
     * A number of operations require deciding if a filter item is in a set or
     * map. But the items are mutable, which can render these maps and sets
@@ -56,7 +79,20 @@ public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem {
     * tuple content item id, folder id and site id.
     */
    Object getKey();
-   
+
+   /**
+    * Get the key safely with validation.
+    *
+    * @return Optional containing the key, guaranteed non-null if present
+    */
+   default Optional<Object> getKeySafely() {
+      try {
+         return Optional.ofNullable(getKey());
+      } catch (Exception e) {
+         return Optional.empty();
+      }
+   }
+
    /**
     * Make a clone and replace the item id. This is provided to enable 
     * implementers who need to return a modified item in the result set of
@@ -67,14 +103,74 @@ public interface IPSFilterItem extends Cloneable, IPSIdentifiableItem {
     * Note that the general clone method is not guaranteed to be present.
     * 
     * @param newItemId the new item id, never {@code null}
-    * @return the cloned and modified object
+    * @return the cloned and modified object, never {@code null}
+    * @throws IllegalArgumentException if newItemId is null
     */
    IPSFilterItem clone(IPSGuid newItemId);
-   
+
+   /**
+    * Make a clone safely with validation and error handling.
+    *
+    * @param newItemId the new item id, never {@code null}
+    * @return Optional containing the cloned item, or empty if cloning fails
+    */
+   default Optional<IPSFilterItem> cloneSafely(IPSGuid newItemId) {
+      try {
+         Objects.requireNonNull(newItemId, "New item ID cannot be null");
+         return Optional.ofNullable(clone(newItemId));
+      } catch (Exception e) {
+         return Optional.empty();
+      }
+   }
+
    /**
     * Set a new item id, this must only be called on a cloned object.
     * 
-    * @param newId the new item id, never {@code null}.
+    * @param newId the new item id, never {@code null}
+    * @throws IllegalArgumentException if newId is null
     */
    void setItemId(IPSGuid newId);
+
+   /**
+    * Set a new item id safely with validation.
+    *
+    * @param newId the new item id, never {@code null}
+    * @return true if the id was set successfully, false otherwise
+    */
+   default boolean setItemIdSafely(IPSGuid newId) {
+      try {
+         Objects.requireNonNull(newId, "New item ID cannot be null");
+         setItemId(newId);
+         return true;
+      } catch (Exception e) {
+         return false;
+      }
+   }
+
+   /**
+    * Check if this filter item has a folder assignment.
+    *
+    * @return true if folder ID is present and valid
+    */
+   default boolean hasFolder() {
+      return getFolderIdSafely().isPresent();
+   }
+
+   /**
+    * Check if this filter item has a site assignment.
+    *
+    * @return true if site ID is present and valid
+    */
+   default boolean hasSite() {
+      return getSiteIdSafely().isPresent();
+   }
+
+   /**
+    * Check if this filter item is fully specified with folder and site.
+    *
+    * @return true if both folder and site IDs are present
+    */
+   default boolean isFullySpecified() {
+      return hasFolder() && hasSite();
+   }
 }

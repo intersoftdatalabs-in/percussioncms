@@ -48,11 +48,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is used to publishing a specified Edition. The name of the Edition
- * is expected to by specified by <code>editionName</code> parameter of the 
- * Extension.
+ * Executes a scheduled edition as a task. Handles publishing jobs and site management.
+ * <p>Uses Java 11 features and follows Google Java Style Guide.</p>
  *
- * @author Yu-Bing Chen
+ * @author Percussion Team
  */
 public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
 {

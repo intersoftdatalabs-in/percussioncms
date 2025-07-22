@@ -24,12 +24,10 @@ import org.apache.commons.lang.StringUtils;
 import org.quartz.CronTrigger;
 
 /**
- * This represents a single recorded periodic task. The tasks are loaded at
- * system start to create jobs that are periodically run using Quartz scheduler.
- * <p>
- * This schedule data is stored by Quartz in serialized form with Quartz job 
- * properties. The class has been modernized with Java 11 features for better
- * maintainability and type safety.
+ * Represents a single recorded periodic task. Tasks are loaded at
+ * system start to create jobs that are periodically run using the Quartz scheduler.
+ * <p>This schedule data is stored by Quartz in serialized form with Quartz job
+ * properties. Modernized with Java 11 features for maintainability and type safety.</p>
  *
  * @author Doug Rand
  * @since Java 11 Modernization
@@ -51,7 +49,8 @@ public class PSScheduledTask extends PSJob {
    @Override
    public void apply(PSJob schedule) {
       super.apply(schedule);
-      if (schedule instanceof PSScheduledTask scheduledTask) {
+      if (schedule instanceof PSScheduledTask) {
+         PSScheduledTask scheduledTask = (PSScheduledTask) schedule;
          setCronSpecification(scheduledTask.getCronSpecification());
       }
    }
@@ -132,9 +131,9 @@ public class PSScheduledTask extends PSJob {
    @Override
    public boolean equals(Object obj) {
       if (this == obj) return true;
-      if (!(obj instanceof PSScheduledTask that)) return false;
+      if (!(obj instanceof PSScheduledTask)) return false;
       if (!super.equals(obj)) return false;
-
+      PSScheduledTask that = (PSScheduledTask) obj;
       return Objects.equals(m_cronSpecification, that.m_cronSpecification);
    }
 

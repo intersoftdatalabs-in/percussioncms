@@ -36,9 +36,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is used to execute a native command. The command and its associated
- * arguments are expected to be specified by the <code>command</code> parameter
- * which is passed to {@link #perform(Map)}.
+ * Executes a native command. The command and its associated arguments are expected
+ * to be specified by the <code>command</code> parameter passed to {@link #perform(Map)}.
  *
  * @author Yu-Bing Chen
  */

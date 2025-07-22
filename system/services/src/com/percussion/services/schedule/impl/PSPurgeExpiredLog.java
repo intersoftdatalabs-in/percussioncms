@@ -30,14 +30,15 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * This is used to purge log entries older than a specified date.
+ * Used to purge log entries older than a specified date.
+ * <p>Derived classes may add additional parameters for purging logic.</p>
  *
  * @author Yu-Bing Chen
  */
 public abstract class PSPurgeExpiredLog implements IPSTask
 {
    /**
-    * logger for this class.
+    * Logger for this class.
     */
    private static final Logger m_log = LogManager.getLogger(PSPurgeExpiredLog.class);
    
