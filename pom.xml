@@ -918,19 +918,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions>
-       <!-- Not released yet     <extension>
-                <groupId>org.apache.maven.extensions</groupId>
-                <artifactId>maven-build-cache-extension</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </extension>
-            -->
-            <extension>
-                <groupId>fi.yle.tools</groupId>
-                <artifactId>aws-maven</artifactId>
-                <version>1.4.1</version>
-            </extension>
-        </extensions>
     </build>
     <reporting>
         <plugins>
@@ -1074,12 +1061,6 @@
         <pluginRepository>
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>yle-public</id>
-            <name>Yle public repository</name>
-            <url>https://maven.yle.fi/release</url>
-            <layout>default</layout>
         </pluginRepository>
     </pluginRepositories>
 
@@ -2971,25 +2952,26 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-   <!--     <repository>
-            <id>github</id>
-            <name>GitHub Percussion Apache Maven Release Packages</name>
-            <url>https://maven.pkg.github.com/percussion/percussioncms</url>
-        </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Percussion Apache Maven Snapshot Packages </name>
-            <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
-        </snapshotRepository>
-        -->
-            <snapshotRepository>
-                <id>intersoft.s3.repo</id>
-                <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-            </snapshotRepository>
-            <repository>
-                <id>intersoft.s3.repo</id>
-                <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-            </repository>
-    </distributionManagement>
+    <!--  <distributionManagement>
+    <repository>
+           <id>github</id>
+           <name>GitHub Percussion Apache Maven Release Packages</name>
+           <url>https://maven.pkg.github.com/percussion/percussioncms</url>
+       </repository>
+       <snapshotRepository>
+           <id>github</id>
+           <name>GitHub Percussion Apache Maven Snapshot Packages </name>
+           <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
+       </snapshotRepository>
+
+           <snapshotRepository>
+               <id>intersoft.s3.repo</id>
+               <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
+           </snapshotRepository>
+           <repository>
+               <id>intersoft.s3.repo</id>
+               <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
+           </repository>
+   </distributionManagement>
+     -->
 </project>

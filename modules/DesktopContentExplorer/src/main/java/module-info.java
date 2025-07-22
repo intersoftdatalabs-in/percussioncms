@@ -1,13 +1,7 @@
 module desktop.content.explorer {
     requires javafx.controls;
     requires javafx.fxml;
-    requires javafx.web;
-    requires java.desktop;
-    requires java.logging;
-    requires java.xml;
-    requires java.prefs;
-    requires java.management;
-    
+
     // Note: Some dependencies may not be modularized yet
     // requires commons.lang;
     // requires commons.io;
