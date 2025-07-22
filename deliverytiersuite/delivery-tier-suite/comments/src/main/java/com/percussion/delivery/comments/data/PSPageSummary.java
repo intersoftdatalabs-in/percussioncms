@@ -16,118 +16,132 @@
  */
 package com.percussion.delivery.comments.data;
 
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
- * A simple bean class to hold basic page/comment summary info.
- * 
- * @author erikserating
- * 
+ * Immutable class holding page and comment summary information.
  */
-public class PSPageSummary
-{
-    private String pagePath;
-
-    private long commentCount;
-
-    private long approvedCount;
-
-    private long newCommentCount;
+@XmlRootElement(name = "pageSummary")
+@XmlAccessorType(XmlAccessType.FIELD)
+public final class PSPageSummary {
+    @XmlElement(required = true)
+    private final String pagePath;
+    private final long commentCount;
+    private final long approvedCount;
+    private final long newCommentCount;
 
     /**
-    * 
-    */
-    public PSPageSummary()
-    {
-
+     * Creates a new page summary.
+     */
+    private PSPageSummary(Builder builder) {
+        this.pagePath = Objects.requireNonNull(builder.pagePath, "pagePath must not be null");
+        this.commentCount = builder.commentCount;
+        this.approvedCount = builder.approvedCount;
+        this.newCommentCount = builder.newCommentCount;
     }
 
     /**
-     * @param pagePath
-     * @param commentCount
+     * Default constructor for JAXB.
      */
-    public PSPageSummary(String pagePath, long commentCount, long approvedCount)
-    {
-        this.pagePath = pagePath;
-        this.commentCount = commentCount;
-        this.approvedCount = approvedCount;
+    protected PSPageSummary() {
+        this.pagePath = "";
+        this.commentCount = 0;
+        this.approvedCount = 0;
+        this.newCommentCount = 0;
     }
 
     /**
-     * @param pagePath
-     * @param commentCount
-     * @param approvedCount
-     * @param newCommentCount
-     * 
+     * @return the page path, never null
      */
-    public PSPageSummary(String pagePath, long commentCount, long approvedCount, long newCommentCount)
-    {
-        this.pagePath = pagePath;
-        this.commentCount = commentCount;
-        this.approvedCount = approvedCount;
-        this.newCommentCount = newCommentCount;
-    }
-
-    /**
-     * @return the pagePath
-     */
-    public String getPagePath()
-    {
+    public String getPagePath() {
         return pagePath;
     }
 
     /**
-     * @param pagePath the pagePath to set
+     * @return total number of comments
      */
-    public void setPagePath(String pagePath)
-    {
-        this.pagePath = pagePath;
-    }
-
-    /**
-     * @return the commentCount
-     */
-    public long getCommentCount()
-    {
+    public long getCommentCount() {
         return commentCount;
     }
 
     /**
-     * @param commentCount the commentCount to set
+     * @return number of approved comments
      */
-    public void setCommentCount(long commentCount)
-    {
-        this.commentCount = commentCount;
-    }
-
-    /**
-     * @return the approvedCount
-     */
-    public long getApprovedCount()
-    {
+    public long getApprovedCount() {
         return approvedCount;
     }
 
     /**
-     * @param approvedCount the approvedCount to set
+     * @return number of new comments
      */
-    public void setApprovedCount(long approvedCount)
-    {
-        this.approvedCount = approvedCount;
-    }
-
-    /**
-     * @return the newCommentCount
-     */
-    public long getNewCommentCount()
-    {
+    public long getNewCommentCount() {
         return newCommentCount;
     }
 
     /**
-     * @param newCommentCount the newCommentCount to set
+     * Creates a new builder for PSPageSummary.
      */
-    public void setNewCommentCount(long newCommentCount)
-    {
-        this.newCommentCount = newCommentCount;
+    public static Builder builder() {
+        return new Builder();
     }
 
+    /**
+     * Builder for PSPageSummary.
+     */
+    public static class Builder {
+        private String pagePath;
+        private long commentCount;
+        private long approvedCount;
+        private long newCommentCount;
+
+        public Builder pagePath(String pagePath) {
+            this.pagePath = pagePath;
+            return this;
+        }
+
+        public Builder commentCount(long commentCount) {
+            this.commentCount = commentCount;
+            return this;
+        }
+
+        public Builder approvedCount(long approvedCount) {
+            this.approvedCount = approvedCount;
+            return this;
+        }
+
+        public Builder newCommentCount(long newCommentCount) {
+            this.newCommentCount = newCommentCount;
+            return this;
+        }
+
+        public PSPageSummary build() {
+            return new PSPageSummary(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSPageSummary)) return false;
+        PSPageSummary that = (PSPageSummary) o;
+        return commentCount == that.commentCount &&
+               approvedCount == that.approvedCount &&
+               newCommentCount == that.newCommentCount &&
+               pagePath.equals(that.pagePath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pagePath, commentCount, approvedCount, newCommentCount);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSPageSummary{path='%s', total=%d, approved=%d, new=%d}",
+            pagePath, commentCount, approvedCount, newCommentCount);
+    }
 }
