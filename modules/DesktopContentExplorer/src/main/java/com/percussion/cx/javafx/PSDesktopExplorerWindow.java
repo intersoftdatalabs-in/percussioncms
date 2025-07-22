@@ -29,7 +29,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JFrame;
@@ -60,7 +61,7 @@ public abstract class PSDesktopExplorerWindow extends JFrame
 
    protected PSDesktopExplorerStateProvider myStateProvider = new PSDesktopExplorerStateProvider();
 
-   static Logger log = Logger.getLogger(PSDesktopExplorerWindow.class);
+   static Logger log = LogManager.getLogger(PSDesktopExplorerWindow.class);
 
    protected PSJavaBridge bridge = new PSJavaBridge(this);
 

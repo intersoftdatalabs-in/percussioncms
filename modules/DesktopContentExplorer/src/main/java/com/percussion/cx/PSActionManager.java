@@ -83,7 +83,8 @@ import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -144,7 +145,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener
 
    private PSDesktopExplorerWindow dceWindow = null;
    
-   static Logger log = Logger.getLogger(PSActionManager.class);
+   static Logger log = LogManager.getLogger(PSActionManager.class);
 
    /**
     * Constructs the action manager with supplied parameters, a reference back

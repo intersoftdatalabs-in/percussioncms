@@ -17,7 +17,8 @@
 
 package com.percussion.cx;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 
@@ -27,7 +28,7 @@ public class PSAjaxSwingWrapperLocator
 
    private static final Object lock = new Object();
 
-   static Logger log = Logger.getLogger(PSAjaxSwingWrapperLocator.class);
+   static Logger log = LogManager.getLogger(PSAjaxSwingWrapperLocator.class);
    
    public static IPSAjaxSwingWrapper getInstance()
    {

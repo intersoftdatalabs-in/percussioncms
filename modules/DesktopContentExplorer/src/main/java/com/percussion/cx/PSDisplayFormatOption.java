@@ -19,7 +19,8 @@ package com.percussion.cx;
 import com.percussion.cx.error.IPSContentExplorerErrors;
 import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSXMLDomUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 public class PSDisplayFormatOption implements IPSClientObjects
 {
-   static Logger log = Logger.getLogger(PSDisplayFormatOption.class);
+   static Logger log = LogManager.getLogger(PSDisplayFormatOption.class);
    /**
     * Empty constructor.
     */

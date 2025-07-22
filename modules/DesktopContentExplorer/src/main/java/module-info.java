@@ -1,14 +1,18 @@
 module desktop.content.explorer {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.web;
 
-    // Note: Some dependencies may not be modularized yet
-    // requires commons.lang;
-    // requires commons.io;
-    // requires log4j;
-    // requires org.apache.logging.log4j;
-    // requires org.apache.logging.log4j.core;
-    // requires slf4j.api;
+    // Log4j2 dependencies
+    requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j.core;
+
+    // Other required modules
+    requires java.desktop;
+    requires java.xml;
+    requires commons.lang;
+    requires commons.io;
+    requires org.slf4j;
     
     opens com.percussion.cx to javafx.fxml;
     opens com.percussion.cx.javafx to javafx.fxml;

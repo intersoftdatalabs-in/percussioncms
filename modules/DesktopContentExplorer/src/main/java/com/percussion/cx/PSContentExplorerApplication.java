@@ -26,8 +26,9 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import javax.swing.InputMap;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -47,7 +48,7 @@ import java.util.Map;
 
 public class PSContentExplorerApplication extends Application {
    
-   static Logger log = Logger.getLogger(PSContentExplorerApplication.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerApplication.class);
    
    private static File configDir;
    private static Dimension dimension = new Dimension(1180, 750);
@@ -166,7 +167,8 @@ public class PSContentExplorerApplication extends Application {
          URL inputUrl = loader.getResource("dce_log4j.properties");
          if (inputUrl != null)
             {
-               PropertyConfigurator.configure(inputUrl);
+            try {
+               Configurator.initialize(null, inputUrl.toURI());
             
             try
             {
@@ -176,9 +178,16 @@ public class PSContentExplorerApplication extends Application {
             {
                log.error("Cannot write user log config to "+logConfig.getAbsolutePath());
             }
+            } catch (URISyntaxException e) {
+               log.error("Cannot convert URL to URI for Log4j configuration: " + inputUrl, e);
+            }
          }
       } else {
-         PropertyConfigurator.configure(logConfig.getAbsolutePath());
+         try {
+         Configurator.initialize(null, logConfig.toURI());
+         } catch (URISyntaxException e) {
+            log.error("Cannot convert file path to URI for Log4j configuration: " + logConfig, e);
+         }
       }
       PSSecureXMLUtils.setupJAXPDefaults();
 
