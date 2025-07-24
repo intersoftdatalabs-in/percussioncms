@@ -92,30 +92,20 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
     }
 
     @Override
-    public void invoke(Request request, Response response) throws IOException, ServletException
-    {
-        boolean matched = false;
-        if (started && !targetHost.equals(request.getServerName()))
-        {
-            MessageBytes path = request.getRequestPathMB();
-            boolean found = false;
-            for (int i = 0; !found && i < servletUrls.length; i++)
-            {
-                if (path.startsWithIgnoreCase(servletUrls[i],0))
-                {
+    public void invoke(Request request, Response response) throws IOException, ServletException {
+        var matched = false;
+        if (started && !targetHost.equals(request.getServerName())) {
+            var path = request.getRequestPathMB();
+            for (var servletUrl : servletUrls) {
+                if (path.startsWithIgnoreCase(servletUrl, 0)) {
                     matched = true;
-                    CharChunk chunk = request.getCoyoteRequest().serverName().getCharChunk();
+                    var chunk = request.getCoyoteRequest().serverName().getCharChunk();
                     chunk.recycle();
                     chunk.append(targetHost);
                     request.getMappingData().recycle();
-                    try
-                    {
-                        request.getConnector().getProtocolHandler().getAdapter().service(request.getCoyoteRequest(),
-                                response.getCoyoteResponse());
-                    }
-                    catch (Exception e)
-                    {
-                        //will be handled higher up the stack
+                    try {
+                        request.getConnector().getProtocolHandler().getAdapter().service(request.getCoyoteRequest(), response.getCoyoteResponse());
+                    } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -125,51 +115,26 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
             getNext().invoke(request, response);
     }
 
-    /**
-     * Provided to allow Tomcat to set this property from the attribute in
-     * server.xml.
-     * 
-     * @param targetHost If <code>null</code> or empty, the property is not
-     * set.
-     */
-    public void setTargetHost(String targetHost)
-    {
-        if (targetHost != null && targetHost.trim().length() > 0)
+    public void setTargetHost(String targetHost) {
+        if (targetHost != null && !targetHost.isBlank())
             this.targetHost = targetHost;
     }
 
-    /**
-     * Provided to allow Tomcat to set this property from the attribute in
-     * server.xml.
-     * 
-     * @param serviceNames If <code>null</code> or empty, the property is not
-     * set.
-     */
-    public void setServiceNames(String serviceNames)
-    {
-        if (serviceNames != null && serviceNames.trim().length() > 0)
+    public void setServiceNames(String serviceNames) {
+        if (serviceNames != null && !serviceNames.isBlank())
             this.serviceNames = serviceNames;
     }
 
-    /**
-     * Performs some initialization.
-     * @throws LifecycleException 
-     */
     @Override
-    public void startInternal() throws LifecycleException
-    {
+    public void startInternal() throws LifecycleException {
         log.info("Starting Simple Redirector valve");
-        if (serviceNames == null)
-        {
+        if (serviceNames == null) {
             servletUrls = new String[0];
             return;
         }
-
-        StringTokenizer toker = new StringTokenizer(serviceNames, ",");
-        Collection<String> urls = new ArrayList<>();
-        while (toker.hasMoreTokens())
-        {
-            String s = toker.nextToken().trim();
+        var urls = new ArrayList<String>();
+        for (var s : serviceNames.split(",")) {
+            s = s.trim();
             if (!s.startsWith("/"))
                 s = "/" + s;
             if (!s.endsWith("/"))
@@ -179,9 +144,8 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
         servletUrls = urls.toArray(new String[0]);
         log.info("   Redirecting to " + targetHost + " for the following paths: " + Arrays.toString(servletUrls));
         serviceNames = null;
-        
         started = true;
-        if (getContainer()!=null)
+        if (getContainer() != null)
             setState(LifecycleState.STARTING);
     }
     

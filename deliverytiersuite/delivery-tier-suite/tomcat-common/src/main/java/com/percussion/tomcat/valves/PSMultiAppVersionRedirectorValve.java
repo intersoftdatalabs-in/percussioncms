@@ -92,58 +92,41 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase implements Lifec
 
 	@Override
 	public synchronized void startInternal() throws LifecycleException {
-	
-		started = false;
-		
-		log.debug("start");
-		
-		log.info("Starting Multi App Version Redirector Valve");
-		
-		if(mappingFile!=null){
-			try {
-				File file = new File(mappingFile);
-				try(FileInputStream fis = new FileInputStream(file)) {
-					properties.load(fis);
-				}
-			} catch (FileNotFoundException e) {
-				log.warn("Could not find the version Mapping file specified: {} Multi Version Routing is disabled. Error: {}",
-						mappingFile,
-						PSExceptionUtils.getMessageForLog(e));
-			} catch (IOException e) {
-				log.warn("Could not access the version Mapping file specified: {}. Error: {}. Multi Version Routing is disabled.",
-						mappingFile,
-						PSExceptionUtils.getMessageForLog(e));
-			}
-			
-			
-			//Try to parse out the property file.
-			try{
-				Enumeration<?> e = properties.propertyNames();
-
-				while (e.hasMoreElements()) {
-				 
-				 String context = (String) e.nextElement();
-				 String [] map = properties.getProperty(context).split(",");
-				 
-				 routingTable.addServiceContextVersionMap(context, 
-						 map[0], 
-						 map[1]);
-			    }
-				
-				//if we got this far then we have a valid routine table. 
-				started = true;
-				log.info("Routing Table initialized");
-	
-			}catch(Exception e){
-				log.error("Unable to initialize routing tables.", e);
-			}
-			
-		}
-		started = true;
-		if (getContainer()!=null)
-		    setState(LifecycleState.STARTING);
-	}
-
+        started = false;
+        log.debug("start");
+        log.info("Starting Multi App Version Redirector Valve");
+        if (mappingFile != null) {
+            try {
+                var file = new File(mappingFile);
+                try (var fis = new FileInputStream(file)) {
+                    properties.load(fis);
+                }
+            } catch (FileNotFoundException e) {
+                log.warn("Could not find the version Mapping file specified: {} Multi Version Routing is disabled. Error: {}",
+                        mappingFile,
+                        PSExceptionUtils.getMessageForLog(e));
+            } catch (IOException e) {
+                log.warn("Could not access the version Mapping file specified: {}. Error: {}. Multi Version Routing is disabled.",
+                        mappingFile,
+                        PSExceptionUtils.getMessageForLog(e));
+            }
+            try {
+                var e = properties.propertyNames();
+                while (e.hasMoreElements()) {
+                    var context = (String) e.nextElement();
+                    var map = properties.getProperty(context).split(",");
+                    routingTable.addServiceContextVersionMap(context, map[0], map[1]);
+                }
+                started = true;
+                log.info("Routing Table initialized");
+            } catch (Exception e) {
+                log.error("Unable to initialize routing tables.", e);
+            }
+        }
+        started = true;
+        if (getContainer() != null)
+            setState(LifecycleState.STARTING);
+    }
 
 	/* (non-Javadoc)
 	 * @see org.apache.catalina.valves.ValveBase#invoke(org.apache.catalina.connector.Request, org.apache.catalina.connector.Response)
@@ -154,48 +137,33 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase implements Lifec
 
 		log.debug("invoke");
 		
-		if (pipelining.get() == Boolean.TRUE) {
-			   getNext().invoke(request, response);
-			   pipelining.remove();
-			   return;
-		 }
-		
-		//Only apply routing logic if the valve is properly initialized.
-		if(started){
-			pipelining.set(Boolean.TRUE);
-			String context = routingTable.determineRoute(request.getContextPath(),
-					request.getHeader(PERC_VERSION_HEADER));
-			
-			if(!context.startsWith("/"))
-				context="/"+context;
-			
-			//Make sure we don't re-route if the context is the same as the target. 
-			if(!context.equals(request.getContextPath())){
-					
-	            StringBuffer sbUrl = request.getRequestURL ();
-	            String sQueryString = request.getQueryString ();
+		if (Boolean.TRUE.equals(pipelining.get())) {
+            getNext().invoke(request, response);
+            pipelining.remove();
+            return;
+        }
 
-	            if (sQueryString != null)
-	            {
-	                sbUrl.append ("?");
-	                sbUrl.append (sQueryString);
-	            }
-	            
-	            String sUrl = sbUrl.toString().replace(request.getContextPath(), context);
-	            
-	            response.setStatus (SC_MOVED_PERMANENTLY);
-	            response.setHeader ("Location",
-	            response.encodeRedirectURL (sUrl));
+		if (started) {
+            pipelining.set(Boolean.TRUE);
+            var context = routingTable.determineRoute(request.getContextPath(), request.getHeader(PERC_VERSION_HEADER));
+            if (!context.startsWith("/"))
+                context = "/" + context;
+            if (!context.equals(request.getContextPath())) {
+                var sbUrl = request.getRequestURL();
+                var sQueryString = request.getQueryString();
+                if (sQueryString != null) {
+                    sbUrl.append("?");
+                    sbUrl.append(sQueryString);
+                }
+                var sUrl = sbUrl.toString().replace(request.getContextPath(), context);
+                response.setStatus(SC_MOVED_PERMANENTLY);
+                response.setHeader("Location", response.encodeRedirectURL(sUrl));
                 return;
-			}
-			
-		Valve nextValve = getNext();
-		if(nextValve!=null)
-			nextValve.invoke(request, response);	
-			
-		}
-		
-		//Make sure thread local is cleared.
+            }
+            var nextValve = getNext();
+            if (nextValve != null)
+                nextValve.invoke(request, response);
+        }
 		pipelining.remove();
 					
 	}

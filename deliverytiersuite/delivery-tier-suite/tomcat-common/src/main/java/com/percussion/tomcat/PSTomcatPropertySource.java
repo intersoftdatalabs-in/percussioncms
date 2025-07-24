@@ -48,30 +48,23 @@ public class PSTomcatPropertySource implements org.apache.tomcat.util.Introspect
     }
 
     @Override
-    public String getProperty(String s) {
-        return getProperties().getProperty(s);
+    public String getProperty(String key) {
+        return getProperties().getProperty(key);
     }
 
     private Properties getProperties() {
-        String catalinaBase = System.getProperty("catalina.home");
-
-
-        if(catalinaBase == null){
-            logger.error("Unable to determine catalina.home!  Is the environment set?");
-            catalinaBase="";
+        var catalinaBase = System.getProperty("catalina.home", "");
+        if (catalinaBase.isBlank()) {
+            logger.error("Unable to determine catalina.home! Is the environment set?");
         }
         logger.debug("Got catalina.home:{}", catalinaBase);
-        Properties props = new Properties();
-
-        Path p = Paths.get(catalinaBase, "conf/perc");
-        p = p.resolve("perc-catalina.properties");
-
-        try (FileInputStream fs = new FileInputStream(p.toFile())) {
+        var props = new Properties();
+        var propPath = Paths.get(catalinaBase, "conf", "perc", "perc-catalina.properties");
+        try (var fs = new FileInputStream(propPath.toFile())) {
             props.load(fs);
         } catch (IOException exception) {
-            logger.error("Error reading:{} got error {}", p.toAbsolutePath(), exception.getMessage());
+            logger.error("Error reading:{} got error {}", propPath.toAbsolutePath(), exception.getMessage());
         }
-
         return props;
     }
 }

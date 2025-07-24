@@ -36,15 +36,16 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PSDefaultContentTypeFilter implements Filter{
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if(response.getContentType() == null){
-            final ServletContext servletContext = request.getServletContext();
-            if (request instanceof HttpServletRequest) {
-                String url = ((HttpServletRequest)request).getRequestURL().toString();
-                String queryString = ((HttpServletRequest)request).getQueryString();
-                final String mimeType = servletContext.getMimeType(url);
-                if(mimeType==null)
+        if (response.getContentType() == null) {
+            var servletContext = request.getServletContext();
+            if (request instanceof HttpServletRequest httpRequest) {
+                var url = httpRequest.getRequestURL().toString();
+                var mimeType = servletContext.getMimeType(url);
+                if (mimeType == null) {
                     response.setContentType("text/html; charset=UTF-8");
+                }
             }
         }
         chain.doFilter(request, response);
@@ -52,14 +53,12 @@ public class PSDefaultContentTypeFilter implements Filter{
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO Auto-generated method stub
-
+        // No initialization needed
     }
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-
+        // No cleanup needed
     }
 
 }

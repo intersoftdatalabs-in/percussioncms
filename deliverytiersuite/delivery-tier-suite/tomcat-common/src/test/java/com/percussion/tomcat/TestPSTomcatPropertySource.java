@@ -17,5 +17,23 @@
 
 package com.percussion.tomcat;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestPSTomcatPropertySource {
+    @Test
+    void testGetPropertyReturnsValue() {
+        var propertySource = new PSTomcatPropertySource();
+        // This test assumes a property named "test.property" exists in perc-catalina.properties
+        var value = propertySource.getProperty("test.property");
+        assertNotNull(value, "Property value should not be null");
+    }
+
+    @Test
+    void testGetPropertyReturnsNullForMissing() {
+        var propertySource = new PSTomcatPropertySource();
+        var value = propertySource.getProperty("nonexistent.property");
+        assertNull(value, "Missing property should return null");
+    }
 }

@@ -44,55 +44,41 @@ public class PSSecurityFilter extends GenericFilterBean {
     private static String CATALINA_BASE = "catalina.base";
 
     @Override
-     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-
-
-         if ( response instanceof HttpServletResponse) {
-             HttpServletResponse httpResp = (HttpServletResponse) response;
-
-             httpResp.addHeader(CONTENT_SECURITY_POLICY_NAME, CONTENT_SECURITY_POLICY_VALUE);
-             chain.doFilter(request, response);
-         }else{
-             chain.doFilter(request,response);
-         }
-
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        if (response instanceof HttpServletResponse httpResp) {
+            httpResp.addHeader(CONTENT_SECURITY_POLICY_NAME, CONTENT_SECURITY_POLICY_VALUE);
+            chain.doFilter(request, response);
+        } else {
+            chain.doFilter(request, response);
         }
-
+    }
 
     @Override
     protected void initFilterBean() throws ServletException {
-
-            Properties props = new Properties();
-            //Find in local Webapp,
-            String tomcatBase = System.getProperty(CATALINA_BASE);
-            if (tomcatBase != null) {
-                try (
-                        InputStream in = new FileInputStream(
-                                tomcatBase + PERC_SECURITY_PROPS_ROOT)) {
-                    props.load(in);
-                } catch (IOException e) {
-                    log.error(PSExceptionUtils.getMessageForLog(e));
-                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                }
+        var props = new Properties();
+        var tomcatBase = System.getProperty(CATALINA_BASE);
+        if (tomcatBase != null) {
+            try (var in = new FileInputStream(tomcatBase + PERC_SECURITY_PROPS_ROOT)) {
+                props.load(in);
+            } catch (IOException e) {
+                log.error(PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
-
-            String val = props.getProperty(CONTENT_SECURITY_POLICY_NAME);
-            if (val != null && val.trim() != "") {
-                CONTENT_SECURITY_POLICY_VALUE = val;
-            }
-
+        }
+        var val = props.getProperty(CONTENT_SECURITY_POLICY_NAME);
+        if (val != null && !val.isBlank()) {
+            CONTENT_SECURITY_POLICY_VALUE = val;
+        }
     }
 
-    private Properties readPropertiesFile(String fileName) throws IOException {
-        Properties prop = null;
-        try(FileInputStream fis = new FileInputStream(fileName) ) {
-            prop = new Properties();
+    private Properties readPropertiesFile(String fileName) {
+        var prop = new Properties();
+        try (var fis = new FileInputStream(fileName)) {
             prop.load(fis);
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return prop;
     }
 
