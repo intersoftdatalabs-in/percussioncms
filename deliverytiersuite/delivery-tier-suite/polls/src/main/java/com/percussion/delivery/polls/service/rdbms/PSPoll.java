@@ -22,6 +22,7 @@ import com.percussion.delivery.polls.data.IPSPollAnswer;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -95,33 +96,36 @@ public class PSPoll implements IPSPoll, Serializable
 	}
 
     @Override
-	public Set<IPSPollAnswer> getPollAnswers()
-	{
-		return this.pollAnswers;
-	}
+	public Set<IPSPollAnswer> getPollAnswers() {
+        return pollAnswers;
+    }
 
-	@Override
-	public void setPollAnswers(Set<IPSPollAnswer> pollAnswers) 
-	{
-		this.pollAnswers = pollAnswers;
-	}
-    /**
-     * @return Returns the version.
-     */
-    public Integer getVersion()
-    {
+    @Override
+    public void setPollAnswers(Set<IPSPollAnswer> pollAnswers) {
+        this.pollAnswers = pollAnswers;
+    }
+
+    @Override
+    public Integer getVersion() {
         return version;
     }
 
-    /**
-     * @param version The version to set.
-     */
-    public void setVersion(Integer version)
-    {
-        if (this.version != null && version != null)
+    @Override
+    public void setVersion(Integer version) {
+        if (this.version != null && version != null) {
             throw new IllegalStateException("Version can only be set once");
-
+        }
         this.version = version;
+    }
+
+    // Java 11+ modernization: use Optional for nullable version
+    public Optional<Integer> getOptionalVersion() {
+        return Optional.ofNullable(version);
+    }
+
+    // Java 11+ modernization: use Optional for nullable pollAnswers
+    public Optional<Set<IPSPollAnswer>> getOptionalPollAnswers() {
+        return Optional.ofNullable(pollAnswers);
     }
 
 }

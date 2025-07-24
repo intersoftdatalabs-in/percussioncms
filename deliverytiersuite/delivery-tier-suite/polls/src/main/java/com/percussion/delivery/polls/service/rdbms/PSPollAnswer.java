@@ -28,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 import java.io.Serializable;
+import java.util.Optional;
 
 @Entity
 @Table(name = "PERC_ANSWERS")
@@ -93,28 +94,36 @@ public class PSPollAnswer implements IPSPollAnswer, Serializable
     /**
      * @return Returns the version.
      */
-    public Integer getVersion()
-    {
+    @Override
+    public Integer getVersion() {
         return version;
     }
 
-	public PSPoll getPoll() {
-		return poll;
-	}
+    @Override
+    public PSPoll getPoll() {
+        return poll;
+    }
 
-	public void setPoll(PSPoll poll) {
-		this.poll = poll;
-	}
+    @Override
+    public void setPoll(PSPoll poll) {
+        this.poll = poll;
+    }
 
-
-    /**
-     * @param version The version to set.
-     */
-    public void setVersion(Integer version)
-    {
-        if (this.version != null && version != null)
+    @Override
+    public void setVersion(Integer version) {
+        if (this.version != null && version != null) {
             throw new IllegalStateException("Version can only be set once");
-
+        }
         this.version = version;
+    }
+
+    // Java 11+ modernization: use Optional for nullable version
+    public Optional<Integer> getOptionalVersion() {
+        return Optional.ofNullable(version);
+    }
+
+    // Java 11+ modernization: use Optional for nullable poll
+    public Optional<PSPoll> getOptionalPoll() {
+        return Optional.ofNullable(poll);
     }
 }

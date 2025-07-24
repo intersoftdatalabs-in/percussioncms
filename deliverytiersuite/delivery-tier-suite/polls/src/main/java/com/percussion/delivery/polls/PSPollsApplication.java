@@ -32,20 +32,25 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSPollsApplication extends  ResourceConfig {
-        public PSPollsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSPollsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-
+@ApplicationPath("/")
+public class PSPollsApplication extends ResourceConfig {
+    public PSPollsApplication() {
+        // Java 11+ modernization: use var for local variable
+        var clazzes = new Class[] {
+            RequestContextFilter.class,
+            SpringComponentProvider.class,
+            AutowiredInjectResolver.class,
+            SpringLifecycleListener.class,
+            SpringWebApplicationInitializer.class,
+            PSPollsRestService.class,
+            LoggingFeature.class,
+            RolesAllowedDynamicFeature.class,
+            PSJsonMappingErrorResponse.class,
+            PSUncaughtError.class,
+            JacksonJaxbJsonProvider.class
+        };
+        for (var clazz : clazzes) {
+            register(clazz);
         }
     }
+}
