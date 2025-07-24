@@ -13,6 +13,9 @@
     <artifactId>delivery-tier-distribution</artifactId>
 
     <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <java.version>11</java.version>
         <tomcat-directory>${basedir}/target/tomcat</tomcat-directory>
         <assembly-directory>${basedir}/target/classes/distribution</assembly-directory>
         <ant-installer>${assembly-directory}/rxconfig/Installer</ant-installer>
