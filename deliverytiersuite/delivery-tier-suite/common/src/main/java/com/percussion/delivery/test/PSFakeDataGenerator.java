@@ -17,22 +17,22 @@
 package com.percussion.delivery.test;
 
 import com.percussion.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class is responsible for parsing test data
- * from the data files, or using in memory algorithms to generate
- * in memory lists of fake data to be used in unit tests.
+ * from the data files, or using in-memory algorithms to generate
+ * in-memory lists of fake data to be used in unit tests.
  *
  * @author natechadwick
+ * // REFACTORED: CP-JAVA11
  */
 public class PSFakeDataGenerator {
 
@@ -72,42 +72,35 @@ public class PSFakeDataGenerator {
     public static final int Latitude = 32;
     public static final int Longitude = 33;
 
-    /***
-     * Will return up to count number of FakeRegistrant objects
+    /**
+     * Will return up to count number of FakeRegistrant objects.
      *
-     * @param count The number of registrations to return, 0 for all available data.  Be careful as test datasets can be large.
+     * @param count The number of registrations to return, 0 for all available data. Be careful as test datasets can be large.
      * @return A list of FakeRegistrants
      */
     public static List<FakeRegistrant> getFakeRegistrations(int count) {
-        ArrayList<FakeRegistrant> ret = new ArrayList<>();
+        var ret = new ArrayList<FakeRegistrant>();
+        int lineNumber = 0;
+        int tokenNumber = 0;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(PSFakeDataGenerator.class.getResourceAsStream("/FakeData.csv")));
-        StringTokenizer st = null;
-        int lineNumber = 0, tokenNumber = 0;
-        String line;
-
-        try {
+        try (var br = new BufferedReader(
+                new InputStreamReader(PSFakeDataGenerator.class.getResourceAsStream("/FakeData.csv")))) {
+            String line;
             while ((line = br.readLine()) != null) {
-
-                //Bust out of hear if we have enough lines, if the passed in 0 we just get them all
-                if (count > 0)
-                    if (lineNumber > count)
-                        break;
-
+                // Break out of here if we have enough lines; if the passed in 0 we just get them all
+                if (count > 0 && lineNumber >= count + 1) {
+                    break;
+                }
                 lineNumber++;
 
-                //Skip line 1 - it has fieldnames.
+                // Skip line 1 - it has field names.
                 if (lineNumber > 1) {
+                    var st = new StringTokenizer(line, ",");
+                    var data = new FakeRegistrant();
 
-                    st = new StringTokenizer(line, ",");
-                    FakeRegistrant data = new FakeRegistrant();
-                    String token;
-
-                    //Note this is pretty brute force - can be made more elegant
+                    // Note this is pretty brute force - can be made more elegant
                     while (st.hasMoreTokens()) {
-
-                        token = st.nextToken();
-
+                        var token = st.nextToken();
                         switch (tokenNumber) {
                             case Number:
                                 data.setNumber(Integer.parseInt(token));
@@ -217,18 +210,14 @@ public class PSFakeDataGenerator {
                         tokenNumber++;
                     }
                     ret.add(data);
-
-                    //reset token number
+                    // Reset token number
                     tokenNumber = 0;
-
                 }
             }
-
         } catch (IOException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return ret;
     }
 }

@@ -22,18 +22,20 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 /**
- * Returns a 400 Bad Request response with the supplied message
- * 
- * @author JaySeletz
+ * Returns a 400 Bad Request response with the supplied message.
  *
+ * <p>Sunny Sal says: If you see this, your request was so bad, even the server is shaking its head!
  */
-public class PSBadRequestException extends WebApplicationException
-{
+public class PSBadRequestException extends WebApplicationException {
 
-    public PSBadRequestException(String message)
-    {
-        super(Response.status(Status.BAD_REQUEST).entity(new GenericEntity<String>(message){}).build());
-        
+    /**
+     * Constructs a new PSBadRequestException with the specified message.
+     *
+     * @param message the detail message for the bad request
+     */
+    public PSBadRequestException(String message) {
+        super(Response.status(Status.BAD_REQUEST)
+                .entity(new GenericEntity<String>(message) {})
+                .build());
     }
-
 }

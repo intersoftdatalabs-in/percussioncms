@@ -15,27 +15,18 @@
  * limitations under the License.
  */
 package com.percussion.delivery.email.data;
-
-public interface IPSEmailRequest
-{
-    public void setToList(String toList);
-
-    public void setCCList(String ccList);
-
-    public void setBCCList(String bccList);
-
-    public void setBody(String bodycontent);
-
-    public void setSubject(String subject);
-
-    public String getToList();
-
-    public String getCCList();
-
-    public String getBCCList();
-
-    public String getBody();
-
-    public String getSubject();
-
+/**
+ * Interface for email request operations
+ */
+public interface IPSEmailRequest {
+    void setToList(String toList);
+    void setCCList(String ccList);
+    void setBCCList(String bccList);
+    void setBody(String bodycontent);
+    void setSubject(String subject);
+    String getToList();
+    String getCCList();
+    String getBCCList();
+    String getBody();
+    String getSubject();
 }

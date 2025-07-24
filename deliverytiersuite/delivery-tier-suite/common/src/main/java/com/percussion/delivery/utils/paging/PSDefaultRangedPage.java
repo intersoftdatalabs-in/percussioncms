@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.paging;
 
 import java.util.Map;
@@ -21,175 +22,131 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides a generic implementation of a Ranged Page object.
- * 
- * Intended for use in all Delivery Services that retrieve data 
- * from the sever for processing in the client user interface.
- * 
- * In general all find operations must implement paging to ensure
- * the viability/scalability and performance of both the client and server. 
- * 
- * For corner case datasets where Ranged Paging will not work, an alternative 
- * paging provider should be created. 
- * 
- * @author natechadwick
  *
+ * Intended for use in all Delivery Services that retrieve data
+ * from the server for processing in the client user interface.
+ *
+ * In general all find operations must implement paging to ensure
+ * the viability/scalability and performance of both the client and server.
+ *
+ * For corner case datasets where Ranged Paging will not work, an alternative
+ * paging provider should be created.
+ *
+ * @author natechadwick
  */
-public class PSDefaultRangedPage implements IPSRangedPage
-{
-    /***
-     * Default used when page size is not set. 
-     * Target is roughly 3 UX screens of data. 
-     */
-    public static final int DEFAULT_PAGE_SIZE=75;
-    
-    /***
-     * The direction of the paging operation. 
-     */
-    private PSRangedPageDirection direction;
-    
-    /***
-     * The map of sort fields with sort directions
-     */
-    private ConcurrentHashMap<String,PSRangedPageSortDirection> sortFields = new ConcurrentHashMap<>();
-    
-    private ConcurrentHashMap<String,Object> pageFields = new ConcurrentHashMap<>();
+public class PSDefaultRangedPage implements IPSRangedPage {
 
-    private int pageSize = DEFAULT_PAGE_SIZE;
-    
-    private int pageCount;
-    private int currentPage;
-    
-    
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#getSortFields()
-     */
-    @Override
-    public Map<String, PSRangedPageSortDirection> getSortFields()
-    {
-        return this.sortFields;
-    }
+  /***
+   * Default used when page size is not set.
+   * Target is roughly 3 UX screens of data.
+   */
+  public static final int DEFAULT_PAGE_SIZE = 75;
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#setSortFields(java.util.List)
-     */
-    @Override
-    public void setSortFields(Map<String, PSRangedPageSortDirection> fields)
-    {
-           if(fields!=null){
-               this.sortFields = (ConcurrentHashMap<String, PSRangedPageSortDirection>) fields;
-           }               
-    }
+  /***
+   * The direction of the paging operation.
+   */
+  private PSRangedPageDirection direction;
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#getPageFields()
-     */
-    @Override
-    public Map<String, Object> getPageFields()
-    {
-        return this.pageFields;
-    }
+  /***
+   * The map of sort fields with sort directions
+   */
+  private ConcurrentHashMap<String, PSRangedPageSortDirection> sortFields = new ConcurrentHashMap<>();
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#setPageFields(java.util.Map)
-     */
-    @Override
-    public void setPageFields(Map<String, Object> fields)
-    {
-        if(fields==null)
-            throw new IllegalArgumentException("Field list may not be null");
-        else
-            this.pageFields = (ConcurrentHashMap<String, Object>) fields;
-    }
+  private ConcurrentHashMap<String, Object> pageFields = new ConcurrentHashMap<>();
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#getPageSize()
-     */
-    @Override
-    public int getPageSize()
-    {
-        if(this.pageSize<=0)
-            return DEFAULT_PAGE_SIZE;
-        else
-            return this.pageSize;
-    }
+  private int pageSize = DEFAULT_PAGE_SIZE;
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#setPageSize(long)
-     */
-    @Override
-    public void setPageSize(int size)
-    {
-        if(size <= 0)
-            this.pageSize = DEFAULT_PAGE_SIZE;
-        else
-            this.pageSize = size; 
-    }
+  private int pageCount;
+  private int currentPage;
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#getDirection()
-     */
-    @Override
-    public PSRangedPageDirection getDirection()
-    {
-        if(this.direction==null){
-            this.direction = PSRangedPageDirection.FORWARD;
-        }
-        
-        return this.direction;
-    }
+  @Override
+  public Map<String, PSRangedPageSortDirection> getSortFields() {
+    return this.sortFields;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.IPSRangedPage#setDirection(com.percussion.delivery.utils.IPSRangedPage.IPSRangedPageDirection)
-     */
-    @Override
-    public void setDirection(PSRangedPageDirection dir)
-    {
-        this.direction = dir;
+  @Override
+  public void setSortFields(Map<String, PSRangedPageSortDirection> fields) {
+    if (fields != null) {
+      if (fields instanceof ConcurrentHashMap) {
+        this.sortFields = (ConcurrentHashMap<String, PSRangedPageSortDirection>) fields;
+      } else {
+        this.sortFields = new ConcurrentHashMap<>(fields);
+      }
     }
-    
-    public PSDefaultRangedPage(){}
-    
-    public PSDefaultRangedPage(IPSRangedPage page){
-        this.direction = page.getDirection();
-        this.pageFields = (ConcurrentHashMap<String, Object>) page.getPageFields();
-        this.pageSize = page.getPageSize();
-        this.sortFields = (ConcurrentHashMap<String, PSRangedPageSortDirection>) page.getSortFields();
-    }
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.paging.IPSRangedPage#setPageCount(int)
-     */
-    @Override
-    public void setPageCount(int numPages)
-    {
-        pageCount = numPages;
-    }
+  @Override
+  public Map<String, Object> getPageFields() {
+    return this.pageFields;
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.paging.IPSRangedPage#getPageCount()
-     */
-    @Override
-    public int getPageCount()
-    {
-        return pageCount;
+  @Override
+  public void setPageFields(Map<String, Object> fields) {
+    if (fields == null) {
+      throw new IllegalArgumentException("Field list may not be null");
     }
-
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.paging.IPSRangedPage#setCurrentPage(int)
-     */
-    @Override
-    public void setCurrentPage(int pageNum)
-    {
-        currentPage = pageNum;
+    if (fields instanceof ConcurrentHashMap) {
+      this.pageFields = (ConcurrentHashMap<String, Object>) fields;
+    } else {
+      this.pageFields = new ConcurrentHashMap<>(fields);
     }
+  }
 
-    /* (non-Javadoc)
-     * @see com.percussion.delivery.utils.paging.IPSRangedPage#getCurrentPage()
-     */
-    @Override
-    public int getCurrentPage()
-    {
-        return currentPage;
+  @Override
+  public int getPageSize() {
+    return this.pageSize <= 0 ? DEFAULT_PAGE_SIZE : this.pageSize;
+  }
+
+  @Override
+  public void setPageSize(int size) {
+    this.pageSize = size <= 0 ? DEFAULT_PAGE_SIZE : size;
+  }
+
+  @Override
+  public PSRangedPageDirection getDirection() {
+    if (this.direction == null) {
+      this.direction = PSRangedPageDirection.FORWARD;
     }
+    return this.direction;
+  }
 
+  @Override
+  public void setDirection(PSRangedPageDirection dir) {
+    this.direction = dir;
+  }
+
+  public PSDefaultRangedPage() {}
+
+  public PSDefaultRangedPage(IPSRangedPage page) {
+    this.direction = page.getDirection();
+    var pf = page.getPageFields();
+    this.pageFields = pf instanceof ConcurrentHashMap
+        ? (ConcurrentHashMap<String, Object>) pf
+        : new ConcurrentHashMap<>(pf);
+    this.pageSize = page.getPageSize();
+    var sf = page.getSortFields();
+    this.sortFields = sf instanceof ConcurrentHashMap
+        ? (ConcurrentHashMap<String, PSRangedPageSortDirection>) sf
+        : new ConcurrentHashMap<>(sf);
+  }
+
+  @Override
+  public void setPageCount(int numPages) {
+    pageCount = numPages;
+  }
+
+  @Override
+  public int getPageCount() {
+    return pageCount;
+  }
+
+  @Override
+  public void setCurrentPage(int pageNum) {
+    currentPage = pageNum;
+  }
+
+  @Override
+  public int getCurrentPage() {
+    return currentPage;
+  }
 }

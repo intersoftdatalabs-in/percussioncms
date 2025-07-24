@@ -1,290 +1,94 @@
+  public int getMaxLength() {
+    return maxLength;
+  }
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
+  public void setMaxLength(int maxLength) {
+    this.maxLength = maxLength;
+  }
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.percussion.delivery.utils.properties;
-
-import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
+  public String getValidationRegEx() {
+    return validationRegEx;
+  }
 import java.util.List;
-
-/**
- * Defines the definition for a Property. 
- * 
- * @author natechadwick
- *
- */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "property", propOrder = {
-    "enumValue"
+  public void setValidationRegEx(String validationRegEx) {
+    this.validationRegEx = validationRegEx;
+  }
 })
-public class PSPropertyDefinition {
-	
-	        @XmlElement(name = "EnumValue")
-	        private List<EnumValue> enumValue;
-	        @XmlAttribute(required = true)
-	        private String name;
-	        @XmlAttribute(name = "display_name")
-	        private String displayName;
-	        @XmlAttribute(name = "default_value")
-	        private String defaultValue;
-	        @XmlAttribute
-	        private String required;
-	        @XmlAttribute
-	        private String datatype;
-	        @XmlAttribute(name="max_length")
-	        private int maxLength;
-	        @XmlAttribute(name= "validation_regex")
-	        private String validationRegEx;
-	        @XmlAttribute(name="validation_message")
-	        private String validationMessage;
-	        @XmlAttribute(name="help_text")
-	        private String helpText;
-	        @XmlAttribute(name="display_regex")
-	        private String displayRegEx;
-	        @XmlAttribute(name="property_value")
-	        private Object propertyValue;
-	        
-	       
+  public String getHelpText() {
+    return helpText;
+  }
+  @XmlAttribute
+  public void setHelpText(String helpText) {
+    this.helpText = helpText;
+  }
+  private String validationMessage;
+  public String getDisplayRegEx() {
+    return displayRegEx;
+  }
+   * <p>This accessor method returns a reference to the live list,
+  public void setDisplayRegEx(String displayRegEx) {
+    this.displayRegEx = displayRegEx;
+  }
+   * @return never <code>null</code>.
+  public String getValidationMessage() {
+    return validationMessage;
+  }
 
-	        /**
-	         * Gets the value of the enumValue property.
-	         * 
-	         * <p>
-	         * This accessor method returns a reference to the live list,
-	         * not a snapshot. Therefore any modification you make to the
-	         * returned list will be present inside the JAXB object.
-	         * This is why there is not a <CODE>set</CODE> method for the enumValue property.
-	         * 
-	         * <p>
-	         * For example, to add a new item, do as follows:
-	         * <pre>
-	         *    getEnumValue().add(newItem);
-	         * </pre>
-	         * 
-	         * 
-	         * <p>
-	         * Objects of the following type(s) are allowed in the list
-	         * 
-	         * @return never <code>null</code>.
-	         * 
-	         * 
-	         */
-	        public List<EnumValue> getEnumValue() {
-	            if (enumValue == null) {
-	                enumValue = new ArrayList<>();
-	            }
-	            return this.enumValue;
-	        }
-
-	        /**
-	         * Gets the value of the name property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getName() {
-	            return name;
-	        }
-
-	        /**
-	         * Sets the value of the name property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setName(String value) {
-	            this.name = value;
-	        }
-
-	        /**
-	         * Gets the value of the displayName property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getDisplayName() {
-	            return displayName;
-	        }
-
-	        /**
-	         * Sets the value of the displayName property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDisplayName(String value) {
-	            this.displayName = value;
-	        }
-
-	        /**
-	         * Gets the value of the defaultValue property.
-	         * 
-	         * @return default value, it may <code>null</code> if not defined.
-	         *     
-	         */
-	        public String getDefaultValue() {
-	            return defaultValue;
-	        }
-
-	        /**
-	         * Sets the value of the defaultValue property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDefaultValue(String value) {
-	            this.defaultValue = value;
-	        }
-
-	        /**
-	         * Gets the value of the required property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getRequired() {
-	            return required;
-	        }
-
-	        /**
-	         * Sets the value of the required property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setRequired(String value) {
-	            this.required = value;
-	        }
-
-	        /**
-	         * Gets the value of the datatype property.
-	         * 
-	         * @return
-	         *     possible object is
-	         *     {@link String }
-	         *     
-	         */
-	        public String getDatatype() {
-	            if (datatype == null) {
-	                return "string";
-	            }
-	            return datatype;
-	        }
-
-	        /**
-	         * Sets the value of the datatype property.
-	         * 
-	         * @param value
-	         *     allowed object is
-	         *     {@link String }
-	         *     
-	         */
-	        public void setDatatype(String value) {
-	            this.datatype = value;
-	        }
-
-
-	        /**
-	         * Returns the maximum length that this
-	         * property can contain.
-			 * @return the maxLength
+  public void setValidationMessage(String validationMessage) {
+    this.validationMessage = validationMessage;
+  }
+  }
+  public Object getPropertyValue() {
+    return propertyValue;
+  }
+    return defaultValue;
+  public void setPropertyValue(Object propertyValue) {
+    this.propertyValue = propertyValue;
+  }
+  }
+  /**
+   * <p>Java class for anonymous complex type.
+   *
+   * <p>The following schema fragment specifies the expected content contained within this class.
+   *
+   * <pre>
+   * &lt;complexType>
+   *   &lt;complexContent>
+   *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+   *       &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *       &lt;attribute name="display_value" type="{http://www.w3.org/2001/XMLSchema}string" />
+   *     &lt;/restriction>
+   *   &lt;/complexContent>
+   * &lt;/complexType>
+   * </pre>
+   */
+  @XmlAccessorType(XmlAccessType.FIELD)
+  @XmlType(name = "")
+  public static class EnumValue {
 			 */
-			public int getMaxLength() {
-				return maxLength;
-			}
+    @XmlAttribute(required = true)
+    protected String value;
+    @XmlAttribute(name = "display_value")
+    protected String displayValue;
 
-			/**
-			 * Sets the maximum length that this property
-			 * can contain.
-			 * 
-			 * @param maxLength the maxLength to set
-			 */
-			public void setMaxLength(int maxLength) {
-				this.maxLength = maxLength;
-			}
-
-
-			/**
-			 * Returns a regular expression that can be used to validate
-			 * data input for this property.  May be null.
-			 * 
-			 * @return the validationRegEx
-			 */
-			public String getValidationRegEx() {
-				return validationRegEx;
-			}
-
-			/**
+    public String getValue() {
+      return value;
+    }
 			 * Sets the Validation regular expression that can be used
-			 * to validate input for this property. 
-			 * 
-			 * @param validationRegEx the validationRegEx to set
+    public void setValue(String value) {
+      this.value = value;
+    }
+			 * May be null.
+    public String getDisplayValue() {
+      return displayValue;
+    }
 			 */
-			public void setValidationRegEx(String validationRegEx) {
-				this.validationRegEx = validationRegEx;
-			}
-
-
-			/**
-			 * Returns the help text to be displayed for this property
-			 * May be null. 
-			 * 
-			 * @return the helpText
-			 */
-			public String getHelpText() {
-				return helpText;
-			}
-
-			/**
-			 * Sets the help text to be displayed for this property.
-			 * 
-			 * @param helpText the helpText to set
-			 */
-			public void setHelpText(String helpText) {
-				this.helpText = helpText;
-			}
-
-
-			/**
-			 * Returns a Regular Expression that can be used to 
-			 * format the display of the property. May be null. 
-			 * 
-			 * @return the displayRegEx
-			 */
-			public String getDisplayRegEx() {
-				return displayRegEx;
-			}
-
-			/**
-			 * Sets a Regular Expression that can be used to 
-			 * format the display of this property. 
+    public void setDisplayValue(String value) {
+      this.displayValue = value;
+    }
+  }
+}
+			 * format the display of this property.
 			 * 
 			 * @param displayRegEx the displayRegEx to set
 			 */

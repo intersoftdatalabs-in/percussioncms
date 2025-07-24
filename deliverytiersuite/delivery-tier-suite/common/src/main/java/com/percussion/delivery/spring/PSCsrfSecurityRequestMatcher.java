@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.delivery.spring;
 
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Pattern;
-
+/**
+ * Request matcher for CSRF protection, allowing configuration of allowed methods and ignored paths.
+ * // REFACTORED: CP-JAVA11
+ */
 @Component
 public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
 
@@ -32,42 +34,46 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
 
     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
     private String[] ignoredPaths;
-    private boolean caseInsensitive=false;
-
+    private boolean caseInsensitive = false;
 
     /**
+     * Constructs a CSRF request matcher.
      *
-     * @param allowedMethodsPattern Regular expression listing excluded methods
-     * @param unprotectedPaths comma seperated list of paths to ignore
-     * @param caseInsensitive use case-insensitive comparison
+     * @param allowedMethodsPattern Regular expression listing excluded methods.
+     * @param unprotectedPaths      Comma-separated list of paths to ignore.
+     * @param caseInsensitive       Use case-insensitive comparison.
      */
-    public PSCsrfSecurityRequestMatcher(String allowedMethodsPattern, String unprotectedPaths, boolean caseInsensitive){
+    public PSCsrfSecurityRequestMatcher(
+            String allowedMethodsPattern,
+            String unprotectedPaths,
+            boolean caseInsensitive) {
         this.allowedMethods = Pattern.compile(allowedMethodsPattern);
-
         this.caseInsensitive = caseInsensitive;
-        if(caseInsensitive)
+        if (caseInsensitive) {
             unprotectedPaths = unprotectedPaths.toLowerCase();
-
+        }
         this.ignoredPaths = unprotectedPaths.split(",");
-
-        log.debug("Initializing CSRF request matcher, Allowed Methods: {}, Ignored Paths: {}", allowedMethodsPattern, unprotectedPaths);
+        log.debug(
+                "Initializing CSRF request matcher, Allowed Methods: {}, Ignored Paths: {}",
+                allowedMethodsPattern, unprotectedPaths
+        );
     }
 
     @Override
     public boolean matches(HttpServletRequest request) {
-        if(allowedMethods.matcher(request.getMethod()).matches()){
-            log.debug("Skipping CSRF for request method: {}",request.getMethod() );
+        if (allowedMethods.matcher(request.getMethod()).matches()) {
+            log.debug("Skipping CSRF for request method: {}", request.getMethod());
             return false;
         }
 
-        String uri = request.getRequestURI();
-        if(caseInsensitive)
+        var uri = request.getRequestURI();
+        if (caseInsensitive) {
             uri = uri.toLowerCase();
+        }
 
-        for(String p : this.ignoredPaths){
-            if(caseInsensitive)
-                p = p.toLowerCase();
-            if(uri.contains(p)) {
+        for (var p : this.ignoredPaths) {
+            var path = caseInsensitive ? p.toLowerCase() : p;
+            if (uri.contains(path)) {
                 log.debug("Skipping CSRF for request URI: {}", request.getRequestURI());
                 return false;
             }
@@ -76,6 +82,4 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
         log.debug("Request not filtered, requiring CSRF for request: {}", request);
         return true;
     }
-
-
 }

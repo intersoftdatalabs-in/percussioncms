@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.properties;
 
 import java.util.List;
 
 /**
- * Defines an interface that services that provide configurable 
- * properties for editing in the front-end must implement. 
- * 
- * @author natechadwick
+ * Defines an interface that services that provide configurable
+ * properties for editing in the front-end must implement.
  *
+ * @author natechadwick
  */
 public interface IPSPropertyDefinitionProvider {
-	
-	public List<PSPropertyGroupDefinition> getPropertyGroups();
-	public void setPropertyGroups(List<PSPropertyGroupDefinition> groups);
-	
 
+  List<PSPropertyGroupDefinition> getPropertyGroups();
+
+  void setPropertyGroups(List<PSPropertyGroupDefinition> groups);
 }
