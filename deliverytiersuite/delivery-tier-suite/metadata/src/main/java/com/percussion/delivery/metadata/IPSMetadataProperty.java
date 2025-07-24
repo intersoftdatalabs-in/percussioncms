@@ -25,38 +25,38 @@ public interface IPSMetadataProperty {
 	/**
 	 * @return the name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * @param name the name to set
 	 */
-	public void setName(String name);
+	void setName(String name);
 
 	/**
 	 * @return the valuetype
 	 */
-	public VALUETYPE getValuetype();
+	VALUETYPE getValuetype();
 
 	/**
 	 * Returns the untyped value.
 	 * 
 	 * @return May be <code>null</code>.
 	 */
-	public Object getValue();
-	
-	public Date getDatevalue();
-	
-	public Double getNumbervalue();
-	
-	public String getStringvalue();
-	
-    public void setDatevalue(Date val);
-    
-    public void setNumbervalue(Double val);
-    
-    public void setStringvalue(String val);
-    
-    public void setTextvalue(String val);
+	Object getValue();
+
+	Date getDatevalue();
+
+	Double getNumbervalue();
+
+	String getStringvalue();
+
+    void setDatevalue(Date val);
+
+    void setNumbervalue(Double val);
+
+    void setStringvalue(String val);
+
+    void setTextvalue(String val);
 
 	
 	

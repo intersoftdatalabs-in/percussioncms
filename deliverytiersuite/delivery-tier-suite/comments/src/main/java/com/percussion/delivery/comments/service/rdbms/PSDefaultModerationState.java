@@ -47,59 +47,31 @@ public class PSDefaultModerationState implements IPSDefaultModerationState
    
    public PSDefaultModerationState()
    {
-      
+      // No-arg constructor
    }
    
    public PSDefaultModerationState(String site, String defaultState)
    {
-      if(StringUtils.isBlank(site))
-         throw new IllegalArgumentException("site cannot be null or empty.");
-      if(StringUtils.isBlank(defaultState))
-         throw new IllegalArgumentException("defaultState cannot be null or empty.");
       this.site = site;
-      this.defaultState = defaultState;      
+      this.defaultState = defaultState;
    }
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
-public String getSite()
+   public String getSite()
    {
       return site;
    }
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
-public void setSite(String site)
+   public void setSite(String site)
    {
       this.site = site;
    }
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
-public String getDefaultState()
+   public String getDefaultState()
    {
       return defaultState;
    }
 
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-   /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
-public void setDefaultState(String defaultState)
+   public void setDefaultState(String defaultState)
    {
       this.defaultState = defaultState;
    }   

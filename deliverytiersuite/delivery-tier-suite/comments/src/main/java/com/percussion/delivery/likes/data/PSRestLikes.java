@@ -42,7 +42,6 @@ public class PSRestLikes implements IPSLikes
     {
         return id;
     }
-
     /**
      * @param id the id to set
      */
@@ -50,7 +49,6 @@ public class PSRestLikes implements IPSLikes
     {
         this.id = id;
     }
-
     /**
      * @return the likeId
      */
@@ -58,7 +56,6 @@ public class PSRestLikes implements IPSLikes
     {
         return likeId;
     }
-
     /**
      * @param likesId the likeId to set
      */
@@ -66,7 +63,6 @@ public class PSRestLikes implements IPSLikes
     {
         this.likeId = likeId;
     }
-
     /**
      * @return the type
      */
@@ -74,7 +70,6 @@ public class PSRestLikes implements IPSLikes
     {
         return type;
     }
-
     /**
      * @param type the type to set
      */
@@ -82,7 +77,6 @@ public class PSRestLikes implements IPSLikes
     {
         this.type = type;
     }
-
     /**
      * @return the site
      */
@@ -90,7 +84,6 @@ public class PSRestLikes implements IPSLikes
     {
         return site;
     }
-
     /**
      * @param site the site to set
      */
@@ -98,7 +91,6 @@ public class PSRestLikes implements IPSLikes
     {
         this.site = site;
     }
-
     /**
      * @return the total
      */
@@ -106,7 +98,6 @@ public class PSRestLikes implements IPSLikes
     {
         return total;
     }
-
     /**
      * @param total the total to set
      */

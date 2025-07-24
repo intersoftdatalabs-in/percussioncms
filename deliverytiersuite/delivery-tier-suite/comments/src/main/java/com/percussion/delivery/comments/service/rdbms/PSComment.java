@@ -184,11 +184,9 @@ public class PSComment implements IPSComment, Serializable
     */
    public Set<String> getTags()
    {
-      Set<String> tagsAsString = new HashSet<>();
-      
-      for (PSCommentTag tag : this.commentTags)
+      var tagsAsString = new HashSet<String>();
+      for (var tag : this.commentTags)
           tagsAsString.add(tag.getName());
-      
       return tagsAsString;
    }
 
@@ -273,11 +271,9 @@ public class PSComment implements IPSComment, Serializable
    {
        if(tags == null)
           return;
-       PSCommentTag commentTag;
-       
-       for (String aTag : tags)
+       for (var aTag : tags)
        {
-           commentTag = new PSCommentTag(aTag);
+           var commentTag = new PSCommentTag(aTag);
            commentTag.setComment(this);
            this.commentTags.add(commentTag);
        }

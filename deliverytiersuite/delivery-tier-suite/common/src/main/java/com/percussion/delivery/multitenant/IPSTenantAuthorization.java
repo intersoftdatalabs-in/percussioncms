@@ -24,29 +24,24 @@ import javax.servlet.ServletRequest;
  * @author erikserating
  *
  */
-public interface IPSTenantAuthorization
-{
-	
+public interface IPSTenantAuthorization {
     /**
      * Authorize the tenantid from a request to make sure it is an existing tenantid attached to a customer
      * account and it is active and the request quota has not been exceeded.
-     * @param tenantid the tenantid string, cannot be <code>null</code> or empty.
-     * @return the appropriate status code, never <code>null</code>.
+     * @param tenantid the tenantid string, cannot be {@code null} or empty.
+     * @return the appropriate status code, never {@code null}.
      */
-    public PSLicenseStatus authorize(String tenantid, long apiCalls, ServletRequest req);
-    
+    PSLicenseStatus authorize(String tenantid, long apiCalls, ServletRequest req);
+
     /**
      * Authorization status codes.
      */
-    public enum Status 
-    {
-    	UNEXPECTED_ERROR, //Validation failed due to a system error - client behavior will be different than a failure
-    	EXCEEDED_QUOTA, // User has exceeded quota
+    enum Status {
+        UNEXPECTED_ERROR, //Validation failed due to a system error - client behavior will be different than a failure
+        EXCEEDED_QUOTA, // User has exceeded quota
         NO_ACCOUNT_EXISTS,  //There is no license matching that number
         NOT_ACTIVE, //The license is valid but not activated
         SUCCESS, //The licence is active and valid
         SUSPENDED  //The license has been suspended by Percussion.
     }
-   
-
 }

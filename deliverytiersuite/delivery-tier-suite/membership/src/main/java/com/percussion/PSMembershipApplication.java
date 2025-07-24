@@ -34,8 +34,9 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import javax.ws.rs.ApplicationPath;
 
     @ApplicationPath("/")
-    public class PSMembershipApplication extends  ResourceConfig {
+    public class PSMembershipApplication extends ResourceConfig {
         public PSMembershipApplication() {
+            // Use var for local variable if any are added in the future
             register(RequestContextFilter.class);
             register(SpringComponentProvider.class);
             register(AutowiredInjectResolver.class);
@@ -49,5 +50,4 @@ import javax.ws.rs.ApplicationPath;
             register(PSUncaughtError.class);
             register(JacksonJaxbJsonProvider.class);
         }
-
     }

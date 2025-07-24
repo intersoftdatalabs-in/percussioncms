@@ -16,6 +16,8 @@
  */
 package com.percussion.delivery.services;
 
+import java.util.Objects;
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
@@ -25,30 +27,26 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Provides a base class for Delivery REST services to extend from 
- * to handle common and shared methods between the services. 
- * 
- * @author natechadwick
+ * Provides a base class for Delivery REST services to extend from
+ * to handle common and shared methods between the services.
  *
+ * @author natechadwick
  */
 public abstract class PSAbstractRestService implements IPSRestService {
-	
-	private final Logger log = LogManager.getLogger(this.getClass());
+    private final Logger log = LogManager.getLogger(this.getClass());
 
-	/** 
-	 * @see com.percussion.delivery.services.IPSRestService#getVersion()
-	 */
-	@Override
-	public String getVersion() {
-		try
-	      {
-			log.info("Version from PSAbstractRestService.class : {}" , PSVersionHelper.getVersion(this.getClass()));
-			
-			return PSVersionHelper.getVersion(this.getClass());
-			
-	      }catch (Exception e){
-		         throw new WebApplicationException(e, Response.serverError().build());
-		  }
-	}
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getVersion() {
+        try {
+            // Use var for local variable (Java 11 feature)
+            var version = PSVersionHelper.getVersion();
+            return version;
+        } catch (Exception e) {
+            log.error("Error getting version", e);
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

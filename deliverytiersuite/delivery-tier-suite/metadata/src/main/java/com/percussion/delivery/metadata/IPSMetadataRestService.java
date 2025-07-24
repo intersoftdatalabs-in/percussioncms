@@ -67,7 +67,7 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSSearchResults get(PSMetadataQuery metadataQuery);
+	PSSearchResults get(PSMetadataQuery metadataQuery);
 
 	/**
 	 * Given a metadata query ({@link PSMetadataQuery}), it gets all pages
@@ -95,13 +95,13 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/tags/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataRestTagList getTags(
+	PSMetadataRestTagList getTags(
 			PSMetadataQuery metadataQuery);
 
 	@POST
 	@Path("/blog/getCurrent")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataBlogResult getBlog(PSMetadataQuery metadataQuery);
+	PSMetadataBlogResult getBlog(PSMetadataQuery metadataQuery);
 
 	/**
 	 * Given a metadata query ({@link PSMetadataQuery}), it gets all pages
@@ -125,13 +125,13 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/categories/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract List<PSMetadataRestCategory> getCategories(
+	List<PSMetadataRestCategory> getCategories(
 			PSMetadataQuery metadataQuery);
 
 	@POST
 	@Path("/blogs/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataRestBlogList getBlogs(
+	PSMetadataRestBlogList getBlogs(
 			PSMetadataQuery metadataQuery);
 
 	/**

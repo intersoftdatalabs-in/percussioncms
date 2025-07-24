@@ -31,24 +31,24 @@ import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
+import java.util.List;
 
-    @ApplicationPath("/")
-    public class PSFormsApplication extends  ResourceConfig {
-        public PSFormsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSFormRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-
-        }
+@ApplicationPath("/")
+public class PSFormsApplication extends ResourceConfig {
+    public PSFormsApplication() {
+        var classesToRegister = List.of(
+            RequestContextFilter.class,
+            SpringComponentProvider.class,
+            AutowiredInjectResolver.class,
+            SpringLifecycleListener.class,
+            SpringWebApplicationInitializer.class,
+            PSFormRestService.class,
+            LoggingFeature.class,
+            RolesAllowedDynamicFeature.class,
+            PSJsonMappingErrorResponse.class,
+            PSUncaughtError.class,
+            JacksonJaxbJsonProvider.class
+        );
+        classesToRegister.forEach(this::register);
     }
-
-
-
+}

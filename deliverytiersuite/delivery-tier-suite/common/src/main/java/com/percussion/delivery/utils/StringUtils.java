@@ -17,31 +17,28 @@
 
 package com.percussion.delivery.utils;
 
+import java.util.Objects;
+
 public class StringUtils {
 
     public static String joinURL(String firstPart, String secondPart){
-
-        String ret = null;
-
-            if(null != firstPart && firstPart != ""){
-                if(firstPart.endsWith("/")){
-                    firstPart = firstPart.substring(0,firstPart.length()-1);
-                }
-            }else{
-                firstPart="";
+        String fp = firstPart;
+        String sp = secondPart;
+        if (fp != null && !fp.isEmpty()) {
+            if (fp.endsWith("/")) {
+                fp = fp.substring(0, fp.length() - 1);
             }
-
-            if(null != secondPart && "" != secondPart){
-
-                if(secondPart.startsWith("/")){
-                    secondPart = secondPart.substring(1);
-                }
-            }else{
-                secondPart="";
+        } else {
+            fp = "";
+        }
+        if (sp != null && !sp.isEmpty()) {
+            if (sp.startsWith("/")) {
+                sp = sp.substring(1);
             }
-
-            return firstPart+ "/" + secondPart;
-
+        } else {
+            sp = "";
+        }
+        return fp + "/" + sp;
     }
 
 }

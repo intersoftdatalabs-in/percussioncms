@@ -35,7 +35,7 @@ public interface IPSLikesService
      * 
      * @return int total
      */
-    public int getTotalLikes(String site, String likeId, String type);
+    int getTotalLikes(String site, String likeId, String type);
 
     /**
      * Increments the total number of likes for the given URL and returns the
@@ -47,7 +47,7 @@ public interface IPSLikesService
      * 
      * @return int total
      */
-    public int like(String site, String likeId, String type);
+    int like(String site, String likeId, String type);
 
     /**
      * Decrements the total number of likes for the given URL and returns the
@@ -59,7 +59,7 @@ public interface IPSLikesService
      * 
      * @return int total
      */
-    public int unlike(String site, String likeId, String type);
+    int unlike(String site, String likeId, String type);
 
     /**
      * After a site rename in CM1, this method needs to be called to
@@ -68,6 +68,6 @@ public interface IPSLikesService
      * @param prevSiteName the old site name.
      * @param newSiteName the new site name.
      */
-    public void updateLikesForSiteAfterRename(String prevSiteName, String newSiteName);
+    void updateLikesForSiteAfterRename(String prevSiteName, String newSiteName);
 
 }

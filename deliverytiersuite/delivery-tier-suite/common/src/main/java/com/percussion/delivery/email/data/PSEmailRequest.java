@@ -24,6 +24,17 @@ public class PSEmailRequest implements IPSEmailRequest {
 	private String subject;
 	private String bccList;
 
+	// Java 11+ concise constructor
+	public PSEmailRequest() {}
+
+	public PSEmailRequest(String toList, String ccList, String bccList, String bodycontent, String subject) {
+	    this.toList = toList;
+	    this.ccList = ccList;
+	    this.bccList = bccList;
+	    this.bodycontent = bodycontent;
+	    this.subject = subject;
+	}
+
 	@Override
 	public void setToList(String toList) {
 		this.toList = toList;

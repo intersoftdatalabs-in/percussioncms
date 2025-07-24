@@ -33,11 +33,11 @@ public class CustomAuthenticationProvider  implements
 
 @Override
 public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
-    PreAuthenticatedAuthenticationToken sessionUserDetails =
-        (PreAuthenticatedAuthenticationToken) token.getDetails();
-        List<GrantedAuthority> authorities = (List<GrantedAuthority>) sessionUserDetails.getAuthorities();
-        return new User(sessionUserDetails.getName(),(String)sessionUserDetails.getCredentials(), true, true, true, true, authorities);
-        }
+    var sessionUserDetails = (PreAuthenticatedAuthenticationToken) token.getDetails();
+    @SuppressWarnings("unchecked")
+    var authorities = (List<GrantedAuthority>) sessionUserDetails.getAuthorities();
+    return new User(sessionUserDetails.getName(), (String) sessionUserDetails.getCredentials(), true, true, true, true, authorities);
+    }
 
 
 }

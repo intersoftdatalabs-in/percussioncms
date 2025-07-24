@@ -61,7 +61,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	 */
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSComments getComments(PSCommentCriteria criteria);
+	public PSComments getComments(PSCommentCriteria criteria);
 
 	/**
 	 * Returns all comments based on the passed in comments criteria. Comments
@@ -77,7 +77,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@RolesAllowed("deliverymanager")
 	@Path("/moderation/asmoderator")
 	@Produces("application/json")
-	public abstract PSComments getCommentsAsModerator(PSCommentCriteria criteria);
+	public PSComments getCommentsAsModerator(PSCommentCriteria criteria);
 
 	/**
 	 * Calls {@link #getComments(PSCommentCriteria)} and wraps for a jsonp call
@@ -117,7 +117,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	//@JSONP(callback = "fn", queryParam = "callback")
 
-	public abstract GenericEntity getCommentsP(PSCommentCriteria criteria/*
+	public GenericEntity getCommentsP(PSCommentCriteria criteria/*
 			@QueryParam("callback") @DefaultValue("fn") String callback,
 			@QueryParam("pagepath") String pagepath,
 			@QueryParam("site") String site,
@@ -145,7 +145,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@POST
 	@Path("/pageswithcomments/{site}")
 	@Produces("application/json")
-	public abstract PSPageSummaries getPagesWithComments(
+	public PSPageSummaries getPagesWithComments(
 			@PathParam("site") String site,
             PSCommentCriteria criteria);
 
@@ -160,7 +160,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@POST
 	@Path("/addcomment")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public abstract Response addComment( @Context ContainerRequest containerRequest,
+	public Response addComment( @Context ContainerRequest containerRequest,
 										@FormParam("action") String action, @Context HttpHeaders headers);
 
 	/**
@@ -172,7 +172,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@PUT
 	@RolesAllowed("deliverymanager")
 	@Path("/moderation/delete")
-	public abstract void delete(PSCommentIds commentIds);
+	public void delete(PSCommentIds commentIds);
 
 	/**
 	 * Approves the specified list of comments.
@@ -183,7 +183,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@PUT
 	@RolesAllowed("deliverymanager")
 	@Path("/moderation/approve")
-	public abstract void approve(PSCommentIds commentIds);
+	public void approve(PSCommentIds commentIds);
 
 	/**
 	 * Rejects the specified list of comments.
@@ -194,7 +194,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@PUT
 	@RolesAllowed("deliverymanager")
 	@Path("/moderation/reject")
-	public abstract void reject(PSCommentIds commentIds);
+	public void reject(PSCommentIds commentIds);
 
 	/**
 	 * 
@@ -203,7 +203,7 @@ public interface IPSCommentRestService extends IPSRestService {
 	@PUT
 	@RolesAllowed("deliverymanager")
 	@Path("/moderation/defaultModerationState")
-	public abstract void setDefaultModerationState(Map data);
+	public void setDefaultModerationState(Map data);
 
 	/**
 	 * 

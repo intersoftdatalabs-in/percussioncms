@@ -34,7 +34,8 @@ public class PSCommentIds
     
     public PSCommentIds()
     {
-        comments = new ArrayList<>();
+        var comments = new ArrayList<String>();
+        this.comments = comments;
     }
 
     /**

@@ -41,8 +41,7 @@ import java.io.IOException;
  *
  */
 @Path("/forms")
-public interface IPSFormRestService extends IPSRestService{
-
+public interface IPSFormRestService extends IPSRestService {
 	/**
 	 * 
 	 * Delete a form using the name provided if it was exported. If 'formName'
@@ -59,7 +58,7 @@ public interface IPSFormRestService extends IPSRestService{
 	 */
 	@DELETE
 	@Path("/form/cms/{formName}")
-	public abstract void delete(@PathParam("formName") String formName);
+	void delete(@PathParam("formName") String formName);
 
 	/**
 	 * Processes an entry form and adds a new form to the form service. Upon
@@ -78,7 +77,7 @@ public interface IPSFormRestService extends IPSRestService{
 	@POST
 	@Path("/form/collect")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public abstract void create(@Context ContainerRequest containerRequest,
+	void create(@Context ContainerRequest containerRequest,
 			@FormParam("action") String action, @Context HttpHeaders header,@Context HttpServletRequest request,
 			@Context HttpServletResponse resp) throws WebApplicationException,
 			IOException;
@@ -99,7 +98,7 @@ public interface IPSFormRestService extends IPSRestService{
 	@GET
 	@Path("/form/cms/{formName}")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public abstract PSFormSummaries get(@PathParam("formName") String formName);
+	PSFormSummaries get(@PathParam("formName") String formName);
 
 	/**
 	 * Retrieves list of form summaries. Form summaries include the name, total
@@ -117,7 +116,7 @@ public interface IPSFormRestService extends IPSRestService{
 	@GET
 	@Path("/form/cms/list")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public abstract PSFormSummaries get();
+	PSFormSummaries get();
 
 	/**
 	 * Export the form given the name.
@@ -137,7 +136,7 @@ public interface IPSFormRestService extends IPSRestService{
 	@GET
 	@Path("/form/cms/{formName}/{csvFile}")
 	@Produces({ "text/csv" })
-	public abstract Response export(@PathParam("formName") String formName,
+	Response export(@PathParam("formName") String formName,
 			@PathParam("csvFile") String csvFile);
 
 

@@ -35,8 +35,8 @@ public interface IPSCookieConsentDao {
      * @param consents the collection of consent objects
      * to save.
      */
-    public void save(Collection<PSDbCookieConsent> consents);
-    
+    void save(Collection<PSDbCookieConsent> consents);
+
     /**
      * Gets the entire list of cookie consent entries.
      * 
@@ -44,8 +44,8 @@ public interface IPSCookieConsentDao {
      * @return A collection of cookie consent entries, may be empty
      * never <code>null</code>.
      */
-    public Collection<IPSCookieConsent> getAllCookieConsentStats();
-    
+    Collection<IPSCookieConsent> getAllCookieConsentStats();
+
     /**
      * Returns the list of cookie consent entries for a site.
      * 
@@ -53,27 +53,27 @@ public interface IPSCookieConsentDao {
      * @return A collection of cookie consent entries
      * @see IPSCookieConsent
      */
-    public Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName);
-    
+    Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName);
+
     /**
      * Deletes all cookie consent entries from the DB.
      */
-    public void deleteAll() throws Exception;
-    
+    void deleteAll() throws Exception;
+
     /**
      * Deletes all cookie consent entries for the specified site.
      * 
      * @param siteName - the site in which to delete the entries for.
      */
-    public void deleteForSite(String siteName) throws Exception;
-    
+    void deleteForSite(String siteName) throws Exception;
+
     /**
      * Gets the totals from DB for all sites.
      * 
      * @return Key/value pair with siteName/total being pair.
      */
-    public Map<String, Integer> getTotalsForAllSites() throws Exception;
-    
+    Map<String, Integer> getTotalsForAllSites() throws Exception;
+
     /**
      * Gets the totals from DB for specified site.  Returns
      * Map format with service/total being key/value pair.
@@ -82,8 +82,8 @@ public interface IPSCookieConsentDao {
      * @return A map representation of each serviceName/total for site.
      * @throws Exception
      */
-    public Map<String, Integer> getTotalsForSite(String siteName) throws Exception;
+    Map<String, Integer> getTotalsForSite(String siteName) throws Exception;
 
-    public void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception;
-    
+    void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception;
+
 }

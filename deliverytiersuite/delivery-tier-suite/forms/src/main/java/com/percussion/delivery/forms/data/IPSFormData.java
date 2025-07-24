@@ -22,32 +22,13 @@ import java.util.Map;
 import java.util.Set;
 
 public interface IPSFormData {
-
-	public static final String FIELD_VALUES_SEPARATOR = "|";
-	public static final String FIELD_VALUES_SEPARATOR_ESCAPE = "\\";
-
-	public String getName();
-
-	public Date getCreateDate();
-
-	public char isExported();
-
-	public Date getCreated();
-
-	/** 
-	 * Retrieve all the field names in this form.
-	 * @return An unmodifiable collection. Never <code>null</code>, may be empty. 
-	 */
-	public Set<String> getFieldNames();
-
-	/**
-	 * Retrieve the fields and their values.
-	 * @return An unmodifiable map. Never <code>null</code>, may be empty.
-	 */
-	public Map<String, String> getFields();
-
-	public String getId();
-
-	public void setId(String id);
-
+    String FIELD_VALUES_SEPARATOR = "|";
+    String FIELD_VALUES_SEPARATOR_ESCAPE = "\\";
+    String getName();
+    Date getCreateDate();
+    char isExported();
+    Date getCreated();
+    Set<String> getFieldNames();
+    Map<String, String> getFields();
+    String getId();
 }

@@ -26,8 +26,8 @@ import com.percussion.delivery.metadata.data.PSVisitQuery;
 
 public interface IPSBlogPostVisitService
 {
-    public static final int INTIAL_DELAY_SECONDS = 0;
-    public static final int SAVE_INTERVAL_SECONDS = 60;
+    int INTIAL_DELAY_SECONDS = 0;
+    int SAVE_INTERVAL_SECONDS = 60;
 
     /**
      * Returns top visited pages within the given time period
@@ -36,7 +36,7 @@ public interface IPSBlogPostVisitService
      * @return List of IPSMetadataEntry objects
      * @throws Exception on query parsing error
      */
-    public List<String> getTopVisitedBlogPosts(PSVisitQuery visitQuery) throws Exception;
+    List<String> getTopVisitedBlogPosts(PSVisitQuery visitQuery) throws Exception;
 
     /**
      * Returns top visited pages within the given time period
@@ -46,8 +46,8 @@ public interface IPSBlogPostVisitService
      * @return List of IPSMetadataEntry objects
      * @throws Exception on query parsing error
      */
-    public void trackBlogPost(String pagePath);
-    
+    void trackBlogPost(String pagePath);
+
     /**
      * Tracks a cookie consent query.  This method is added
      * to the blog post visit service to piggyback off of
@@ -55,44 +55,41 @@ public interface IPSBlogPostVisitService
      * new thread to post updates in bulk.
      * @param query - obj with values to save.
      */
-    public void logCookieConsentEntry(PSCookieConsentQuery query);
-    
-    public void delete(Collection<String> pagepaths);
+    void logCookieConsentEntry(PSCookieConsentQuery query);
 
-    public int convertToLimit(String limit);
+    void delete(Collection<String> pagepaths);
 
-    public boolean visitSchedulerStatus();
+    int convertToLimit(String limit);
 
-    public void updatePostsAfterSiteRename(String prevSiteName, String newSiteName);
-    
-    public void startScheduler() throws Exception;
-    
-    public enum TIMEPERIOD
+    boolean visitSchedulerStatus();
+
+    void updatePostsAfterSiteRename(String prevSiteName, String newSiteName);
+
+    void startScheduler() throws Exception;
+
+    enum TIMEPERIOD
     {
         TODAY(1), WEEK(7), MONTH(30), YEAR(365), ALLTIME(-1);
-    	private int days;
-    	
-    	private TIMEPERIOD (int days) {
-    		this.days = days;
-    	}
-    	
-    	public int getDays() {
-    		return days;
-    	}
-    	
-    	public static TIMEPERIOD fromName(String timePeriod) {
-    		if (StringUtils.isBlank(timePeriod)) {
-    			return null;
-    		}
-    		TIMEPERIOD res = null;
-    		for (TIMEPERIOD val : values()) {
-    			if (timePeriod.equalsIgnoreCase(val.name())) {
-    				res = val;
-    				break;
-    			}
-    		}
-    		return res;
-    	}
+        private final int days;
+        TIMEPERIOD(int days) {
+            this.days = days;
+        }
+        public int getDays() {
+            return days;
+        }
+        public static TIMEPERIOD fromName(String timePeriod) {
+            if (StringUtils.isBlank(timePeriod)) {
+                return null;
+            }
+            TIMEPERIOD res = null;
+            for (TIMEPERIOD val : values()) {
+                if (timePeriod.equalsIgnoreCase(val.name())) {
+                    res = val;
+                    break;
+                }
+            }
+            return res;
+        }
     }
 
 }

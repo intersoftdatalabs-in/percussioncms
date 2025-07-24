@@ -38,7 +38,8 @@ public class PSPageSummaries
 
     public PSPageSummaries(List<PSPageSummary> summaries)
     {
-        this.summaries = summaries;
+        var list = summaries;
+        this.summaries = list;
     }
     
     public List<PSPageSummary> getSummaries()

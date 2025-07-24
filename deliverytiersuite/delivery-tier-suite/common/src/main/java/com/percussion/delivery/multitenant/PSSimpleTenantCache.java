@@ -38,18 +38,17 @@ import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
  *
  */
 public class PSSimpleTenantCache implements IPSTenantCache {
+    /**
+     * Thread safe Hash map to hold the cache
+     */
+    private final ConcurrentHashMap<String, IPSTenantInfo> cache = new ConcurrentHashMap<>();
 
-	/***
-	 * Thread safe Hash map to hold the cache
-	 */
-	private ConcurrentHashMap<String, IPSTenantInfo> cache = new ConcurrentHashMap<>();
-	
-	/***
-	 * Minutes cache entries have before needing re-authorization
-	 */
-	private long ttl;
-	
-	  /**
+    /**
+     * Minutes cache entries have before needing re-authorization
+     */
+    private long ttl;
+
+      /**
      * Log for this class.
      */
     private static final Logger log = LogManager.getLogger(PSSimpleTenantCache.class);

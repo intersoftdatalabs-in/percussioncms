@@ -69,11 +69,11 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     @Transactional
     public Set<String> findSitesForCommentIds(Collection<String> ids)
     {
-        Collection<Long> longIds = new ArrayList<>(ids.size());
-        for(String s : ids)
+        var longIds = new ArrayList<Long>(ids.size());
+        for(var s : ids)
             longIds.add(Long.valueOf(s));
-        String selectComments = "select site from PSComment where id in (:idList)";
-        List<String> siteNames = (List<String>) this.getHibernateTemplate().findByNamedParam(selectComments, "idList", longIds);
+        var selectComments = "select site from PSComment where id in (:idList)";
+        var siteNames = (List<String>) this.getHibernateTemplate().findByNamedParam(selectComments, "idList", longIds);
         return new HashSet<>(siteNames);
     }
 
@@ -87,7 +87,7 @@ public class PSCommentsDao extends HibernateDaoSupport implements IPSCommentsDao
     @Transactional
     public void save(IPSComment comment) throws Exception
     {
-        PSComment hComment = new PSComment(comment);
+        var hComment = new PSComment(comment);
         hComment.setId(comment.getId());
         getHibernateTemplate().saveOrUpdate(hComment);
         comment.setId(hComment.getId());

@@ -81,8 +81,11 @@
        <buildNumber>${maven.build.timestamp}</buildNumber>
        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
-       <jdk.version>1.8</jdk.version>
-       <java.source.version>1.8</java.source.version>
+       <jdk.version>11</jdk.version>
+       <java.source.version>11</java.source.version>
+       <java.version>11</java.version>
+       <maven.compiler.source>11</maven.compiler.source>
+       <maven.compiler.target>11</maven.compiler.target>
        <slf4j.version>1.7.26</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
@@ -130,11 +133,8 @@
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-       <java.version>1.8.0</java.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <activemq.version>5.16.8</activemq.version><!-- 5.17.x and up require Java 11 -->
@@ -2053,7 +2053,7 @@
                 <version>${lucene.version}</version>
             </dependency>
 
-              <dependency>
+            <dependency>
                 <groupId>org.apache.lucene</groupId>
                 <artifactId>lucene-test-framework</artifactId>
                 <version>${lucene.version}</version>

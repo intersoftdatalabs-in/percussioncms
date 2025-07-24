@@ -75,18 +75,12 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
     
 	@Override
     public void startScheduler() {
-    	Runnable scheduledTask = new Runnable() {
-			@Override
-			public void run() {
-				lastSave = System.currentTimeMillis();
-				saveVisits();
-				saveCookieConsentEntries();
-			}
-		};
-		// removed schedulerInitialDelay as a property in properties/beans files as this is now being loaded
-		// and started from afterPropertiesSet() which avoids the initial wait time to check if this service
-		// is running
-		visitExecutor.scheduleAtFixedRate(scheduledTask, schedulerInitialDelay, schedulerSaveInterval, TimeUnit.SECONDS);
+        Runnable scheduledTask = () -> {
+            lastSave = System.currentTimeMillis();
+            saveVisits();
+            saveCookieConsentEntries();
+        };
+        visitExecutor.scheduleAtFixedRate(scheduledTask, schedulerInitialDelay, schedulerSaveInterval, TimeUnit.SECONDS);
     }
     
 	private void saveVisits() {
@@ -94,7 +88,7 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
 			if (inMemoryVisitMap.size() < 1) {
 				return;
 			}
-			Collection<IPSBlogPostVisit> visits = new ArrayList<>(inMemoryVisitMap.values());
+			var visits = new ArrayList<>(inMemoryVisitMap.values());
 			inMemoryVisitMap.clear();
 			log.debug("Saving visits");
 			log.debug("Visits size: " + inMemoryVisitMap.size());
@@ -111,11 +105,10 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
                 return;
             }
             
-            this.cookieService.save(inMemoryCookieConsentMap);
+            cookieService.save(inMemoryCookieConsentMap);
             inMemoryCookieConsentMap.clear();
-        }
-        catch (Exception e) {
-            log.error("Error saving cookie consent entries. Error:{}",PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("Error saving cookie consent entries. Error:{}", PSExceptionUtils.getMessageForLog(e));
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
     }
@@ -131,7 +124,7 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
 
 	@Override
 	public void trackBlogPost(String pagePath) {
-		IPSBlogPostVisit visit = inMemoryVisitMap.get(pagePath);
+		var visit = inMemoryVisitMap.get(pagePath);
 		if (visit == null) {
 			inMemoryVisitMap.put(pagePath, new PSBlogPostVisit(pagePath, new Date(), BigInteger.ONE));
 		} else {
@@ -154,7 +147,7 @@ public class PSBlogPostVisitService implements IPSBlogPostVisitService, Initiali
 			return 0;
 		}
 		limit = limit.toUpperCase().replace("R-", "");
-		int res = 5;
+		var res = 5;
 		try {
 			res = Integer.parseInt(limit);
 		} catch (NumberFormatException e) {

@@ -40,23 +40,23 @@ public interface IPSMetadataIndexerService
      * @return A set of string with the indexed directories and subdirectories.
      * For example: "/testdir1", "/testdir1/subdir".
      */
-    public Set<String> getAllIndexedDirectories();
-    
+    Set<String> getAllIndexedDirectories();
+
     /**
      * Deletes multiple metadata index entries.
      * 
      * @param pagepaths collection of page path strings that identifies the
      *            index entries. Cannot be <code>null</code> may be empty.
      */
-    public void delete(Collection<String> entriesToDelete);
-    
+    void delete(Collection<String> entriesToDelete);
+
     /**
      * Deletes a single metadata entry.
      * 
      * @param entryToDelete The pagepath of the metadata entry that
      * should be deleted. Cannot be <code>null</code> nor empty.
      */
-    public void delete(String entryToDelete);
+    void delete(String entryToDelete);
 
     /**
      * Saves multiple metadata entries.
@@ -64,33 +64,33 @@ public interface IPSMetadataIndexerService
      * @param entries collection of entries to be saved, cannot be
      *            <code>null</code>, may be empty.
      */
-    public void save(Collection<IPSMetadataEntry> entriesToSave);
-    
+    void save(Collection<IPSMetadataEntry> entriesToSave);
+
     /**
      * Saves a single metadata entry.
      * 
      * @param entry A {@link PSDbMetadataEntry} instance to store
      * in the database. Cannot be <code>null</code>.
      */
-    public void save(IPSMetadataEntry entry);
-    
+    void save(IPSMetadataEntry entry);
+
     /**
      * Adds a metadata listener to the service.
      * @param listener cannot be <code>null</code>.
      */
-    public void addMetadataListener(IPSServiceDataChangeListener listener);
-    
+    void addMetadataListener(IPSServiceDataChangeListener listener);
+
     /**
      * Removes a metadata listener to the service.
      * @param listener cannot be <code>null</code>.
      */
-    public void removeMetadataListener(IPSServiceDataChangeListener listener);
+    void removeMetadataListener(IPSServiceDataChangeListener listener);
 
     /**
      * Deletes all metadata entries from the database, along with their
      * metadata properties.
      */
-    public void deleteAllMetadataEntries();
+    void deleteAllMetadataEntries();
 
     /**
      * Returns all metadata entries.
@@ -98,7 +98,7 @@ public interface IPSMetadataIndexerService
      * @return A list with all metadata entries. Never <code>null</code>,
      * may be empty.
      */
-    public List<IPSMetadataEntry> getAllEntries();
+    List<IPSMetadataEntry> getAllEntries();
 
     /**
      * Finds a metadata entry according to the given pagepath.
@@ -108,6 +108,6 @@ public interface IPSMetadataIndexerService
      * @return The metadata entry with the pagepath specified.
      * If no entry is found, null is returned.
      */
-    public IPSMetadataEntry findEntry(String pagepath);
+    IPSMetadataEntry findEntry(String pagepath);
 
 }

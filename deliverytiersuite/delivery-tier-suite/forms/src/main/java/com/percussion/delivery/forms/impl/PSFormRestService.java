@@ -29,9 +29,6 @@ import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.io.PathUtils;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,6 +60,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.ArrayList;
@@ -339,22 +343,22 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
             //No point in validating captcha if we already know it is spam.
             if(formService.getRecaptchaService().isCaptchaOn() && !isSpamBot){
                 String[] captchaResponse = formFields.get(PSRecaptchaService.RECAPTCHA_RESPONSE);
-                boolean missingCaptcha=false;
+                boolean missingCaptcha = false;
 
-                if(captchaResponse == null){
+                if (captchaResponse == null){
                     missingCaptcha = true;
 
-                    if(formName==null || formName.isEmpty())
-                        formName="<not set>";
+                    if (formName == null || formName.isEmpty())
+                        formName = "<not set>";
 
                     log.error("recaptcha.on=true in configured properties, but form post is missing reCaptcha response. Post will be treated as a bot, verify that reCaptcha field is present on form: {}",
                             formName);
                 }
-                if(!missingCaptcha && StringUtils.isNotEmpty(captchaResponse[0])){
+                if (!missingCaptcha && captchaResponse[0] != null && !captchaResponse[0].isEmpty()){
                     isSpamBot = !formService.getRecaptchaService().verify(captchaResponse[0]);
                     formFields.remove(PSRecaptchaService.RECAPTCHA_RESPONSE);
                 }else{
-                    isSpamBot=true;
+                    isSpamBot = true;
                 }
             }
 
@@ -380,41 +384,46 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
                     SSLContext sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(null, null, new SecureRandom());
 
-                    Protocol.registerProtocol("https",
-                            new Protocol("https", new PSTlsSocketFactory(this.enabledCiphers), 443));
+                    // Modern Java 11 HttpClient
+                    HttpClient client = HttpClient.newBuilder()
+                            .sslContext(sslContext)
+                            .build();
 
-                    HttpClient client = new HttpClient( );
-                    PostMethod post = new PostMethod(processorUrl);
-                    //Loop through form parameters and set up for re-posting
-                    params.keySet().forEach(key -> {
-                        for (String value : params.get(key)) {
-                            post.addParameter(key, value);
+                    // Build form data as application/x-www-form-urlencoded
+                    StringBuilder formBody = new StringBuilder();
+                    params.forEach((key, values) -> {
+                        for (String value : values) {
+                            if (formBody.length() > 0) formBody.append("&");
+                            formBody.append(URLEncoder.encode(key, StandardCharsets.UTF_8));
+                            formBody.append("=");
+                            formBody.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
                         }
                     });
 
-                    boolean success=false;
+                    HttpRequest request = HttpRequest.newBuilder()
+                            .uri(URI.create(processorUrl))
+                            .header("User-Agent", USER_AGENT)
+                            .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
+                            .POST(BodyPublishers.ofString(formBody.toString()))
+                            .build();
 
-                    // execute method and handle any error responses.
-                    client.executeMethod( post );
-                    String body = post.getResponseBodyAsString( );
-
+                    boolean success = false;
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    String body = response.body();
                     log.debug("Response Body: {}", body);
 
-
-                    if(post.getStatusCode() >=200 &&  post.getStatusCode()  <=399){
+                    if(response.statusCode() >= 200 && response.statusCode() <= 399){
                         success = true;
                     }else{
-                        log.error("Post to remote form service: {} failed with error code: {} and a response body of: {}",processorUrl, post.getStatusCode(), body);
+                        log.error("Post to remote form service: {} failed with error code: {} and a response body of: {}",processorUrl, response.statusCode(), body);
                         log.error("Redirecting to error page...");
                     }
 
-                    post.releaseConnection();
                     if(success) {
                         handleRedirect(successRedirect, encryptExist, hostRedirect, resp);
                     }else{
                         handleError(header, resp, null, hostRedirect, errorRedirect, encryptExist);
                     }
-
 
                 }else{
                     log.error("{} was not specified but Form is configured to POST to a remote service.", FORM_PROCESSORURL);
@@ -554,8 +563,7 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
             {
                 formNames.add(formName);
             }
-            if (StringUtils.isBlank(formName))
-            {
+            if (formName == null || formName.isBlank()){
                 formNames.addAll(formService.findDistinctFormNames());
             }
 
@@ -717,6 +725,4 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
     }
 
 }
-
-
 

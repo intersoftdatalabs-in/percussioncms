@@ -25,62 +25,62 @@ public interface IPSMetadataEntry
     /**
      * @return the name
      */
-    public String getName();
+    String getName();
 
     /**
      * @param name the name to set
      */
-    public void setName(String name);
+    void setName(String name);
 
     /**
      * @return the folder
      */
-    public String getFolder();
+    String getFolder();
 
     /**
      * @param folder the folder to set
      */
-    public void setFolder(String folder);
+    void setFolder(String folder);
 
     /**
      * @return the page path
      */
-    public String getPagepath();
+    String getPagepath();
 
     /**
      * @param path the pagepath to set
      */
-    public void setPagepath(String path);
+    void setPagepath(String path);
 
     /**
      * @return the linktext
      */
-    public String getLinktext();
+    String getLinktext();
 
     /**
      * @param linktext the linktext to set
      */
-    public void setLinktext(String linktext);
+    void setLinktext(String linktext);
 
     /**
      * @return the type
      */
-    public String getType();
+    String getType();
 
     /**
      * @param type the type to set
      */
-    public void setType(String type);
+    void setType(String type);
 
     /**
      * @return the site
      */
-    public String getSite();
+    String getSite();
 
     /**
      * @param site the site to set
      */
-    public void setSite(String site);
+    void setSite(String site);
 
     /**
      * @return the properties. This returns a cloned set of properties changing
@@ -89,15 +89,15 @@ public interface IPSMetadataEntry
      *         passed the properties back to the entries
      *         {@link #setProperties(Set)} method.
      */
-    public Set<IPSMetadataProperty> getProperties();
+    Set<IPSMetadataProperty> getProperties();
 
     /**
      * @param properties the properties to set
      */
-    public void setProperties(Set<IPSMetadataProperty> properties);
+    void setProperties(Set<IPSMetadataProperty> properties);
 
-    public void addProperty(IPSMetadataProperty prop);
+    void addProperty(IPSMetadataProperty prop);
 
-    public void clearProperties();
+    void clearProperties();
 
 }

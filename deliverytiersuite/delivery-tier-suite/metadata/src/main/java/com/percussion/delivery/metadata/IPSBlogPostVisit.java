@@ -22,15 +22,15 @@ import java.util.Date;
 
 public interface IPSBlogPostVisit
 {
-    public BigInteger getHitCount();
+    BigInteger getHitCount();
 
-    public void setHitCount(BigInteger count);
+    void setHitCount(BigInteger count);
 
-    public Date getHitDate();
+    Date getHitDate();
 
-    public void setHitDate(Date date);
+    void setHitDate(Date date);
 
-    public String getPagepath();
+    String getPagepath();
 
-    public void setPagepath(String path);
+    void setPagepath(String path);
 }

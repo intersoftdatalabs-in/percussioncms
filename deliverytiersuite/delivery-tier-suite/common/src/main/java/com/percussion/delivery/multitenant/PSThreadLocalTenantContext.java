@@ -24,43 +24,32 @@ import com.percussion.delivery.multitenant.IPSTenantContext;
  * @author erikserating
  *
  */
-public class PSThreadLocalTenantContext implements IPSTenantContext 
-{
+public class PSThreadLocalTenantContext implements IPSTenantContext {
+    private static final ThreadLocal<String> userLocal = new ThreadLocal<>();
 
-	private static ThreadLocal<String> userLocal = new ThreadLocal<>();
+    @Override
+    public String getTenantId() {
+        return userLocal.get();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * @see com.percussion.delivery.multitenant.IPSTenantContext#getTenantId()
-	 */
-	public String getTenantId() 
-	{
-		return userLocal.get();
-	}
-	
-	/**
-	 * @param tenantId may be <code>null</code>, but should not be <code>empty</code>.
-	 */
-	public static void setTenantId(String tenantId)
-	{
-		userLocal.set(tenantId);
-	}
-	
-	/**
-	 * Clear the tenant id value, setting it to <code>null</code>.
-	 */
-	public static void clearTenantId()
-	{
-		userLocal.set(null);
-	}
-	
-	/**
-	 * @return <code>true</code> if the context has a tenant id set.
-	 */
-	public static boolean hasTenantId()
-	{
-		return userLocal.get() != null;
-	}
-    
+    /**
+     * @param tenantId may be {@code null}, but should not be empty.
+     */
+    public static void setTenantId(String tenantId) {
+        userLocal.set(tenantId);
+    }
 
+    /**
+     * Clear the tenant id value, setting it to {@code null}.
+     */
+    public static void clearTenantId() {
+        userLocal.remove();
+    }
+
+    /**
+     * @return {@code true} if the context has a tenant id set.
+     */
+    public static boolean hasTenantId() {
+        return userLocal.get() != null;
+    }
 }

@@ -24,19 +24,19 @@ import com.percussion.delivery.likes.data.IPSLikes;
 
 public interface IPSLikesDao 
 {
-    public List<IPSLikes> find(String site, String likeId, String type) throws Exception;
+    List<IPSLikes> find(String site, String likeId, String type) throws Exception;
 
-    public List<IPSLikes> findLikesForSite(String site) throws Exception;
+    List<IPSLikes> findLikesForSite(String site) throws Exception;
 
-    public void delete(Collection<String> ids) throws Exception;
+    void delete(Collection<String> ids) throws Exception;
 
-    public void save(IPSLikes like) throws Exception;
+    void save(IPSLikes like) throws Exception;
 
-    public void save(List<IPSLikes> likes) throws Exception;
+    void save(List<IPSLikes> likes) throws Exception;
 
-    public IPSLikes create(String site, String likeId, String type) throws Exception;
+    IPSLikes create(String site, String likeId, String type) throws Exception;
 
-    public int incrementTotal(String site, String likeId, String type) throws Exception;
+    int incrementTotal(String site, String likeId, String type) throws Exception;
 
-    public int decrementTotal(String site, String likeId, String type) throws Exception;
+    int decrementTotal(String site, String likeId, String type) throws Exception;
 }

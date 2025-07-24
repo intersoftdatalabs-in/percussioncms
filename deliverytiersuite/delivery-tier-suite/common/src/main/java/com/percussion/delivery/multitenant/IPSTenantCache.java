@@ -27,34 +27,30 @@ import javax.servlet.ServletRequest;
  *
  */
 public interface IPSTenantCache {
-	
-	
-	/***
-	 * Tha maximum time to live that a tenants info can be cached 
-	 * before it must be re-authorized
-	 * @param minutes 
-	 */
-	public void setMaxTTL(long minutes);
-	
-	/***
-	 * Returns the number of minutes before and entry in cach must be re-authorized.
-	 * 
-	 * @return
-	 */
-	public long getMaxTTL();
+    /**
+     * The maximum time to live that a tenant's info can be cached
+     * before it must be re-authorized
+     * @param minutes
+     */
+    void setMaxTTL(long minutes);
 
-	/**
-	 * Returns weather or not the service will authorize expired urls. 
-	 * 
-	 * When false, the cache will simply return null for missing tenants
-	 * and remove tenants from cache when their TTL expires. 
-	 * 
-	 * @return
-	 */
-	public boolean getAuthorizeExpiredTTL();
-	
-	/***
-	 * When set to true, the service will attempt to autorize expiring urls using the 
+    /**
+     * Returns the number of minutes before an entry in cache must be re-authorized.
+     * @return time to live in minutes
+     */
+    long getMaxTTL();
+
+    /**
+     * Returns whether or not the service will authorize expired urls.
+     * When false, the cache will simply return null for missing tenants
+     * and remove tenants from cache when their TTL expires.
+     *
+     * @return
+     */
+    boolean getAuthorizeExpiredTTL();
+
+    /***
+	 * When set to true, the service will attempt to autorize expiring urls using the
 	 * provider set in the AuthorizationProvider property.
 	 * 
 	 * @param ret

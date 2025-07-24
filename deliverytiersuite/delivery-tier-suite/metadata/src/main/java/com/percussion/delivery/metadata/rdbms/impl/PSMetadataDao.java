@@ -81,16 +81,13 @@ public class PSMetadataDao implements IPSMetadataDao
     public void delete(Collection<String> pagepaths)
     {
         Validate.notNull(pagepaths, "pagepaths cannot be null.");
-
-        Collection<String> pagepathHashes = getPagepathHashes(pagepaths);
-
-
+        var pagepathHashes = getPagepathHashes(pagepaths);
         Transaction tx = null;
         try (Session session = getSession()){
-            String hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
+            var hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
             tx = session.beginTransaction();
-            Query q = session.createQuery(hql);
-            q.setParameterList("paths",pagepathHashes);
+            var q = session.createQuery(hql);
+            q.setParameterList("paths", pagepathHashes);
             q.executeUpdate();
             tx.commit();
         }catch(Exception e){
@@ -105,20 +102,17 @@ public class PSMetadataDao implements IPSMetadataDao
     public boolean delete(String pagepath)
     {
         Validate.notEmpty(pagepath, "pagepath cannot be null or empty.");
-
-        PSDbMetadataEntry entry = (PSDbMetadataEntry)findEntry(pagepath);
-
-
+        var entry = (PSDbMetadataEntry)findEntry(pagepath);
         if (entry != null)
         {
             Transaction tx = null;
-            try(Session session = getSession()) {
+            try (Session session = getSession()) {
                 tx = session.beginTransaction();
                 session.delete(entry);
                 tx.commit();
                 return true;
-            }catch(Exception e){
-                if(tx !=null && tx.isActive()){
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
                     tx.rollback();
                 }
                 log.error(PSExceptionUtils.getMessageForLog(e));
@@ -159,22 +153,20 @@ public class PSMetadataDao implements IPSMetadataDao
     {
 
         Transaction tx = null;
-        try(Session session = getSession()) {
-
-            tx=session.beginTransaction();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSDbMetadataProperty> deleteQuery = builder.createCriteriaDelete(PSDbMetadataProperty.class);
+        try (Session session = getSession()) {
+            tx = session.beginTransaction();
+            var builder = session.getCriteriaBuilder();
+            var deleteQuery = builder.createCriteriaDelete(PSDbMetadataProperty.class);
             deleteQuery.from(PSDbMetadataProperty.class);
             session.createQuery(deleteQuery).executeUpdate();
 
-            CriteriaBuilder builder2 = session.getCriteriaBuilder();
-            CriteriaDelete<PSDbMetadataEntry> deleteQuery2 = builder2.createCriteriaDelete(PSDbMetadataEntry.class);
+            var builder2 = session.getCriteriaBuilder();
+            var deleteQuery2 = builder2.createCriteriaDelete(PSDbMetadataEntry.class);
             deleteQuery2.from(PSDbMetadataEntry.class);
             session.createQuery(deleteQuery2).executeUpdate();
             tx.commit();
-
-        }catch(Exception e){
-            if(tx !=null && tx.isActive()){
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -184,15 +176,14 @@ public class PSMetadataDao implements IPSMetadataDao
    public IPSMetadataEntry findEntry(String pagepath)
     {
         Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
-
-        try (Session session = getSession()){
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSDbMetadataEntry> criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
+        try (var session = getSession()) {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
             criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), pagepath));
-            List<PSDbMetadataEntry> resultList = session.createQuery(criteriaQuery).getResultList();
+            var resultList = session.createQuery(criteriaQuery).getResultList();
             if (!resultList.isEmpty())
-                return (IPSMetadataEntry) resultList.get(0);
+                return resultList.get(0);
             else
                 return null;
         }
@@ -201,15 +192,15 @@ public class PSMetadataDao implements IPSMetadataDao
 
    public List<IPSMetadataEntry> getAllEntries()
     {
-        try( Session session = getSession()) {
+        try (var session = getSession()) {
             session.setHibernateFlushMode(FlushMode.MANUAL);
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSDbMetadataEntry> criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
-            List<PSDbMetadataEntry> result = session.createQuery(criteriaQuery).getResultList();
-            List<IPSMetadataEntry> entries = new ArrayList<>();
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
+            var result = session.createQuery(criteriaQuery).getResultList();
+            var entries = new ArrayList<IPSMetadataEntry>();
             if (result != null) {
-                for (PSDbMetadataEntry e : result)
+                for (var e : result)
                     entries.add(e);
             }
 
@@ -282,21 +273,15 @@ public class PSMetadataDao implements IPSMetadataDao
     {
 
 
-        try ( Session session = getSession()) {
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
+        try (var session = getSession()) {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(String.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
             criteriaQuery.select(root.get("pagepath"));
-            List<String> resultList = session.createQuery(criteriaQuery).getResultList();
-
-            // TODO Instead of using a Pattern and regular expressions here, we may
-            // use
-            // the Derby built-in regular expression functionality if this is too
-            // slow.
+            var resultList = session.createQuery(criteriaQuery).getResultList();
             Matcher matcher;
-            Set<String> indexedDirectories = new HashSet<>();
-
-            for (String dataEntry : resultList) {
+            var indexedDirectories = new HashSet<String>();
+            for (var dataEntry : resultList) {
                 matcher = patternToGetDirectoryFromPagepath.matcher(dataEntry);
                 matcher.find();
                 indexedDirectories.add(matcher.group(1));

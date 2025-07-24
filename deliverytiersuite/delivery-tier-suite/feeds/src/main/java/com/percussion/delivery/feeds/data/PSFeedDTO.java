@@ -18,9 +18,15 @@
 package com.percussion.delivery.feeds.data;
 
 public class PSFeedDTO {
-
     private String feedsUrl;
     private String hostName;
+
+    public PSFeedDTO() {}
+
+    public PSFeedDTO(String feedsUrl, String hostName) {
+        this.feedsUrl = feedsUrl;
+        this.hostName = hostName;
+    }
 
     public String getFeedsUrl() {
         return feedsUrl;
@@ -36,5 +42,10 @@ public class PSFeedDTO {
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("PSFeedDTO[feedsUrl=%s, hostName=%s]", feedsUrl, hostName);
     }
 }

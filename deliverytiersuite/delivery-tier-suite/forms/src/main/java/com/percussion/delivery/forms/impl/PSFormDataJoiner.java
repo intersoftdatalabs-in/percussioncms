@@ -60,10 +60,8 @@ public class PSFormDataJoiner
      * @param formHeader Array with form's header (column names). Assumed no
      * <code>null</code>.
      */
-    private void addColumnNames(Set<CaselessString> columnNames, Set<String> formHeader)
-    {
-        for (String header : formHeader)
-        {
+    private void addColumnNames(Set<CaselessString> columnNames, Set<String> formHeader) {
+        for (var header : formHeader) {
             columnNames.add(new CaselessString(header));
         }
     }
@@ -77,9 +75,8 @@ public class PSFormDataJoiner
      * argument, plus the 'form name' and 'create date' fields. Never
      * <code>null<code>, never empty.
      */
-    private List<CaselessString> prepareHeader(SortedSet<CaselessString> headerColumns)
-    {
-        List<CaselessString> finalHeader = new ArrayList<>(headerColumns);
+    private List<CaselessString> prepareHeader(SortedSet<CaselessString> headerColumns) {
+        var finalHeader = new ArrayList<>(headerColumns);
 
         // Add "form name" and "create date" fields at the beginning
         // of the header list
@@ -100,13 +97,12 @@ public class PSFormDataJoiner
      * 'formData', but using a CaselessString object as the key (field
      * names). Never <code>null</code>, never empty.
      */
-    private Map<CaselessString, String> processCsvRow(IPSFormData formData)
-    {
-        Map<String, String> formDataFields = formData.getFields();
+    private Map<CaselessString, String> processCsvRow(IPSFormData formData) {
+        var formDataFields = formData.getFields();
 
-        Map<CaselessString, String> processedFormDataFields = new HashMap<>();
+        var processedFormDataFields = new HashMap<CaselessString, String>();
 
-        for (String key : formDataFields.keySet())
+        for (var key : formDataFields.keySet())
             processedFormDataFields.put(new CaselessString(key), formDataFields.get(key));
 
         processedFormDataFields.put(new CaselessString(FORM_NAME_FIELD), formData.getName());
@@ -126,13 +122,11 @@ public class PSFormDataJoiner
      * 
      * @throws IOException
      */
-    private FormDataProcessingResult parseCSVData(List<IPSFormData> formsList) throws IOException
-    {
-        SortedSet<CaselessString> finalHeaderSet = new TreeSet<>();
-        List<Map<CaselessString, String>> currentDataList = new ArrayList<>();
+    private FormDataProcessingResult parseCSVData(List<IPSFormData> formsList) throws IOException {
+        var finalHeaderSet = new TreeSet<CaselessString>();
+        var currentDataList = new ArrayList<Map<CaselessString, String>>();
 
-        for (IPSFormData aForm : formsList)
-        {
+        for (var aForm : formsList) {
             addColumnNames(finalHeaderSet, aForm.getFieldNames());
 
             // TODO The Map returned by PSFormData is rebuilded here
@@ -141,23 +135,17 @@ public class PSFormDataJoiner
 
         // add every row with all columns
         Map<String, String> aFinalCsvRow;
-        List<Map<String, String>> finalCsvRowList = new ArrayList<>();
+        var finalCsvRowList = new ArrayList<Map<String, String>>();
 
         // Final header is based on 'finalHeaderSet'. It has the 'form name' and
         // 'create date' at the beginning.
-        List<CaselessString> finalHeader = this.prepareHeader(finalHeaderSet);
+        var finalHeader = this.prepareHeader(finalHeaderSet);
 
-        for (Map<CaselessString, String> aCsvRow : currentDataList)
-        {
-            aFinalCsvRow = new HashMap<>();
+        for (var aCsvRow : currentDataList) {
+            var aFinalCsvRow = new HashMap<String, String>();
 
-            for (CaselessString aHeader : finalHeader)
-            {
-                // if this row has no data for aHeader, add a blank value
-                if (aCsvRow.containsKey(aHeader))
-                    aFinalCsvRow.put(aHeader.toString(), aCsvRow.get(aHeader));
-                else
-                    aFinalCsvRow.put(aHeader.toString(), StringUtils.EMPTY);
+            for (var aHeader : finalHeader) {
+                aFinalCsvRow.put(aHeader.toString(), aCsvRow.getOrDefault(aHeader, ""));
             }
 
             finalCsvRowList.add(aFinalCsvRow);
@@ -175,22 +163,19 @@ public class PSFormDataJoiner
      * according to Excel rules. Never <code>null</code>, maybe empty.
      * @throws Exception
      */
-    private String writeCSV(FormDataProcessingResult formDataProcessingResult) throws IOException
-    {
+    private String writeCSV(FormDataProcessingResult formDataProcessingResult) throws IOException {
         if (formDataProcessingResult.isEmpty())
-            return StringUtils.EMPTY;
+            return "";
 
-        StringWriter finalResult = new StringWriter();
-        ICsvMapWriter csvWriter = new CsvMapWriter(finalResult, CsvPreference.EXCEL_PREFERENCE);
+        var finalResult = new StringWriter();
+        try (var csvWriter = new CsvMapWriter(finalResult, CsvPreference.EXCEL_PREFERENCE)) {
+            // write header
+            csvWriter.writeHeader(formDataProcessingResult.getHeader());
 
-        // write header
-        csvWriter.writeHeader(formDataProcessingResult.getHeader());
-
-        // write data
-        for (Map<String, String> aRow : formDataProcessingResult.getData())
-            csvWriter.write(aRow, formDataProcessingResult.getHeader());
-
-        csvWriter.close();
+            // write data
+            for (var aRow : formDataProcessingResult.getData())
+                csvWriter.write(aRow, formDataProcessingResult.getHeader());
+        }
 
         return finalResult.toString();
     }
@@ -206,12 +191,11 @@ public class PSFormDataJoiner
      * <code>null</code>, may be empty.
      * @throws Exception
      */
-    public String generateCsv(List<IPSFormData> forms) throws IOException
-    {
-        if (forms == null || forms.size() == 0)
-            return StringUtils.EMPTY;
+    public String generateCsv(List<IPSFormData> forms) throws IOException {
+        if (forms == null || forms.isEmpty())
+            return "";
 
-        FormDataProcessingResult parsingResult = parseCSVData(forms);
+        var parsingResult = parseCSVData(forms);
 
         return writeCSV(parsingResult);
     }
@@ -221,24 +205,21 @@ public class PSFormDataJoiner
      * 
      * @param form The form to process, not <code>null</code>.
      */
-    public String generateEmailBody(IPSFormData form)
-    {
+    public String generateEmailBody(IPSFormData form) {
         Validate.notNull(form);
         
-        SortedSet<CaselessString> finalHeaderSet = new TreeSet<>();
+        var finalHeaderSet = new TreeSet<CaselessString>();
         addColumnNames(finalHeaderSet, form.getFieldNames());
-        List<CaselessString> finalHeader = prepareHeader(finalHeaderSet);
-        Map<CaselessString, String> fieldMap = processCsvRow(form);
-        
-        StringBuilder bodyBuilder = new StringBuilder();
-        for (CaselessString cString : finalHeader)
-        {
+        var finalHeader = prepareHeader(finalHeaderSet);
+        var fieldMap = processCsvRow(form);
+
+        var bodyBuilder = new StringBuilder();
+        for (var cString : finalHeader) {
         	// this first line is so the generated e-mail disregards the empty honeypot field
         	if(cString.string.equals("topyenoh"))
         		continue;
-            bodyBuilder.append(cString.string);
-            bodyBuilder.append(": ");
-            String value = fieldMap.get(cString);
+            bodyBuilder.append(cString.string).append(": ");
+            var value = fieldMap.get(cString);
             bodyBuilder.append(value == null ? "" : value);
             bodyBuilder.append("\r\n");
         }

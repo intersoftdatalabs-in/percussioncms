@@ -54,18 +54,17 @@ public class PSLikesDao implements IPSLikesDao {
 
     public void delete(Collection<String> ids) throws Exception
 	{
-		Collection<Long> longIds = new ArrayList<>(ids.size());
-    	for(String s : ids)
+		var longIds = new ArrayList<Long>(ids.size());
+    	for(var s : ids)
     		longIds.add(Long.valueOf(s));
-    	Session session = getSession();
+    	var session = getSession();
         try
         {
-			CriteriaBuilder builder = session.getCriteriaBuilder();
-			CriteriaDelete<PSLikes> deleteQuery = builder.createCriteriaDelete(PSLikes.class);
-			Root<PSLikes> root = deleteQuery.from(PSLikes.class);
+			var builder = session.getCriteriaBuilder();
+			var deleteQuery = builder.createCriteriaDelete(PSLikes.class);
+			var root = deleteQuery.from(PSLikes.class);
 			root.get("id").in(longIds);
 			session.createQuery(deleteQuery).executeUpdate();
-
         }
         finally
         {
@@ -79,14 +78,13 @@ public class PSLikesDao implements IPSLikesDao {
 	}
 
     public List<IPSLikes> findLikesForSite(String siteName) throws Exception {
-        Session session = getSession();
+        var session = getSession();
 		try {
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
-			Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
+			var criteriaBuilder = session.getCriteriaBuilder();
+			var criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
+			var root = criteriaQuery.from(PSLikes.class);
 			criteriaQuery.select(root).where(criteriaBuilder.like(root.get("site"), siteName));
-
-			List<IPSLikes> results = session.createQuery(criteriaQuery).getResultList();
+			var results = session.createQuery(criteriaQuery).getResultList();
             return results;
         } finally {
             //session.close();
@@ -95,10 +93,10 @@ public class PSLikesDao implements IPSLikesDao {
 
     public void save(List<IPSLikes> likes) throws Exception
     {
-        Session session = getSession();
+        var session = getSession();
         try {
 			int i = 0;
-			for (IPSLikes like : likes) {
+			for (var like : likes) {
 				session.saveOrUpdate(like);
 				if (++i % 50 == 0) {
 					session.flush();
@@ -113,20 +111,18 @@ public class PSLikesDao implements IPSLikesDao {
 	public List<IPSLikes> find(String site, String likeId, String type)
 			throws Exception 
 	{
-		Session session = getSession();
-
+		var session = getSession();
 		try
 		{
-			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-			CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
-			Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
+			var criteriaBuilder = session.getCriteriaBuilder();
+			var criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
+			var root = criteriaQuery.from(PSLikes.class);
 			criteriaQuery.select(root).where(
 					criteriaBuilder.and(criteriaBuilder.like(root.get("site"), site),
 							criteriaBuilder.equal(root.get("type"), type),
 							criteriaBuilder.equal(root.get("likeId"), likeId)));
-			List<IPSLikes> results =session.createQuery(criteriaQuery).getResultList();
+			var results =session.createQuery(criteriaQuery).getResultList();
 			return results;
-			
 		}
 		finally
 		{
@@ -137,7 +133,7 @@ public class PSLikesDao implements IPSLikesDao {
 
 	public void save(IPSLikes like) throws Exception
 	{
-		PSLikes hlike = new PSLikes(like);
+		var hlike = new PSLikes(like);
 		hlike.setLikeId(like.getLikeId());
         getSession().saveOrUpdate(hlike);
 		like.setLikeId(hlike.getLikeId());

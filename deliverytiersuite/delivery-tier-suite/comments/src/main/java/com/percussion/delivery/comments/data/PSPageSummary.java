@@ -16,14 +16,17 @@
  */
 package com.percussion.delivery.comments.data;
 
+import java.io.Serializable;
+
 /**
  * A simple bean class to hold basic page/comment summary info.
  * 
  * @author erikserating
  * 
  */
-public class PSPageSummary
+public class PSPageSummary implements Serializable
 {
+    private static final long serialVersionUID = 1L;
     private String pagePath;
 
     private long commentCount;

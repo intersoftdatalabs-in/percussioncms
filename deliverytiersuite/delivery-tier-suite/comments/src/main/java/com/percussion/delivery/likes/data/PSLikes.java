@@ -41,12 +41,13 @@ public class PSLikes
 
     public PSLikes()
     {
-
+        // No-arg constructor
     }
 
     public PSLikes(List<IPSLikes> likes)
     {
-        this.likes = likes;
+        var list = likes;
+        this.likes = list;
     }
 
     public List<IPSLikes> getLikes()

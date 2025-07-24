@@ -34,7 +34,7 @@ public interface IPSBlogPostVisitDao
      * @param pagepaths collection of page path strings whose visits needs to be deleted. 
      * Cannot be <code>null</code> may be empty.         
      */
-    public void delete(Collection<String> pagepaths);
+    void delete(Collection<String> pagepaths);
 
     /**
      * Deletes a single page visit entry.
@@ -43,7 +43,7 @@ public interface IPSBlogPostVisitDao
      *            deleted. Cannot be <code>null</code> nor empty.
      * @return <code>true</code> if a delete operation actually occurred.            
      */
-    public boolean delete(String pagepath);
+    boolean delete(String pagepath);
 
     /**
      * Saves multiple page path entries.
@@ -51,7 +51,7 @@ public interface IPSBlogPostVisitDao
      * @param visits collection of entries to be saved, cannot be
      *            <code>null</code>, may be empty.
      */
-    public void save(Collection<IPSBlogPostVisit> visits);
+    void save(Collection<IPSBlogPostVisit> visits);
 
     /**
      * Saves a single page visit entry.
@@ -59,7 +59,7 @@ public interface IPSBlogPostVisitDao
      * @param visit A {@link IPSBlogPostVisit} instance to store in the
      *            database. Cannot be <code>null</code>.
      */
-    public void save(IPSBlogPostVisit visit);
+    void save(IPSBlogPostVisit visit);
 
     /**
      * Returns list of most visited pages within the supplied number of days, limits to the supplied limit amount.
@@ -70,7 +70,7 @@ public interface IPSBlogPostVisitDao
      * @param sortOrder sort the query by asc or desc
      * @return A list String pagepaths. Never <code>null</code>, may be empty.
      */
-    public List<String> getTopVisitedPages(String sectionPath, int days, int limit, String sortOrder);
+    List<String> getTopVisitedPages(String sectionPath, int days, int limit, String sortOrder);
 
     /**
      * Finds a page visit according to the given pagepath.
@@ -80,9 +80,9 @@ public interface IPSBlogPostVisitDao
      * @return The page visit entry with the pagepath specified. If no entry is
      *         found, null is returned.
      */
-    public List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath);
+    List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath);
 
-    public void updatePostsAfterSiteRename(String prevSiteName,
+    void updatePostsAfterSiteRename(String prevSiteName,
                                            String newSiteName) throws Exception;
     
 }

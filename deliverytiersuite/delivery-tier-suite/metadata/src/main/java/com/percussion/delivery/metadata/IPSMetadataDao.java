@@ -35,7 +35,7 @@ public interface IPSMetadataDao
      * @param pagepaths collection of page path strings that identifies the
      *            index entries. Cannot be <code>null</code> may be empty.         
      */
-    public void delete(Collection<String> entriesToDelete);
+    void delete(Collection<String> entriesToDelete);
 
     /**
      * Deletes a single metadata entry.
@@ -44,7 +44,7 @@ public interface IPSMetadataDao
      *            deleted. Cannot be <code>null</code> nor empty.
      * @return <code>true</code> if a delete operation actually occurred.            
      */
-    public boolean delete(String pagepath);
+    boolean delete(String pagepath);
 
     /**
      * Saves multiple metadata entries.
@@ -52,7 +52,7 @@ public interface IPSMetadataDao
      * @param entries collection of entries to be saved, cannot be
      *            <code>null</code>, may be empty.
      */
-    public void save(Collection<IPSMetadataEntry> entries);
+    void save(Collection<IPSMetadataEntry> entries);
 
     /**
      * Saves a single metadata entry.
@@ -60,13 +60,13 @@ public interface IPSMetadataDao
      * @param entry A {@link PSDbMetadataEntry} instance to store in the
      *            database. Cannot be <code>null</code>.
      */
-    public void save(IPSMetadataEntry entry);
+    void save(IPSMetadataEntry entry);
 
     /**
      * Deletes all metadata entries from the database, along with their metadata
      * properties.
      */
-    public void deleteAllMetadataEntries();
+    void deleteAllMetadataEntries();
 
     /**
      * Deletes all entries for a site name.  Originally implemented
@@ -78,7 +78,7 @@ public interface IPSMetadataDao
      * @param newSiteName the name of the site after rename.
      * @return <code> true if successful and operation occurred.
      */
-    public void deleteBySite(String prevSiteName, String newSiteName);
+    void deleteBySite(String prevSiteName, String newSiteName);
 
     /**
      * Returns all metadata entries.
@@ -86,7 +86,7 @@ public interface IPSMetadataDao
      * @return A list with all metadata entries. Never <code>null</code>, may be
      *         empty.
      */
-    public List<IPSMetadataEntry> getAllEntries();
+    List<IPSMetadataEntry> getAllEntries();
 
     /**
      * Finds a metadata entry according to the given pagepath.
@@ -96,17 +96,17 @@ public interface IPSMetadataDao
      * @return The metadata entry with the pagepath specified. If no entry is
      *         found, null is returned.
      */
-    public IPSMetadataEntry findEntry(String pagepath);
-    
+    IPSMetadataEntry findEntry(String pagepath);
+
     /**
      * Get a list of all sites that have an entry indexed.
      * @return never <code>null</code> may be empty.
      */
-    public List<String> getAllSites();
-   
-    public Set<String> getAllIndexedDirectories();
-    
-    public boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries);
-    
-    public int updateByCategoryProperty(String oldCategoryName, String newCategoryName);
+    List<String> getAllSites();
+
+    Set<String> getAllIndexedDirectories();
+
+    boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries);
+
+    int updateByCategoryProperty(String oldCategoryName, String newCategoryName);
 }

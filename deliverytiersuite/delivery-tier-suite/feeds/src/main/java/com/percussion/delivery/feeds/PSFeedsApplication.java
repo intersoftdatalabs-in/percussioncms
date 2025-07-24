@@ -37,17 +37,20 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class PSFeedsApplication extends ResourceConfig {
     public PSFeedsApplication() {
-        register(RequestContextFilter.class);
-        register(SpringComponentProvider.class);
-        register(AutowiredInjectResolver.class);
-        register(SpringLifecycleListener.class);
-        register(SpringWebApplicationInitializer.class);
-        register(PSFeedService.class);
-        register(LoggingFeature.class);
-        register(RolesAllowedDynamicFeature.class);
-        register(PSJsonMappingErrorResponse.class);
-        register(PSUncaughtError.class);
-        register(JacksonJaxbJsonProvider.class);
+        var classesToRegister = List.of(
+            RequestContextFilter.class,
+            SpringComponentProvider.class,
+            AutowiredInjectResolver.class,
+            SpringLifecycleListener.class,
+            SpringWebApplicationInitializer.class,
+            PSFeedService.class,
+            LoggingFeature.class,
+            RolesAllowedDynamicFeature.class,
+            PSJsonMappingErrorResponse.class,
+            PSUncaughtError.class,
+            JacksonJaxbJsonProvider.class
+        );
+        classesToRegister.forEach(this::register);
     }
 
 

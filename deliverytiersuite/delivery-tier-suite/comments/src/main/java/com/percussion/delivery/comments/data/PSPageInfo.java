@@ -26,13 +26,13 @@ public class PSPageInfo {
 	
 	
 	public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed)
-	{
-		this.pagePath = pagePath;
-		this.approvalState = approvalState;
-		this.commentCount = commentCount;
-		this.viewed = viewed;
-	}
-	
+   {
+       this.pagePath = pagePath;
+       this.approvalState = approvalState;
+       this.commentCount = commentCount;
+       this.viewed = viewed;
+   }
+
 	public String getPagePath()
 	{
 		return pagePath;

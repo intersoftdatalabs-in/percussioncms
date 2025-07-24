@@ -22,42 +22,50 @@ package com.percussion.delivery.forms.data;
  * @author leonardohildt
  * 
  */
-public class PSFormSummary
-{
+public class PSFormSummary {
     private String name;
-
     private Long totalForms;
-    
     private Long exportedForms;
 
-    public String getName()
-    {
-        return name;
-    }
-   
-    public void setName(String name)
-    {
+    public PSFormSummary() {}
+    public PSFormSummary(String name, Long totalForms, Long exportedForms) {
         this.name = name;
-    }
-
-    public Long getTotalForms()
-    {
-        return totalForms;
-    }
-
-    public void setTotalForms(Long totalForms)
-    {
         this.totalForms = totalForms;
-    }
-    
-    public Long getExportedForms()
-    {
-        return exportedForms;
-    }
-
-    public void setExportedforms(Long exportedForms)
-    {
         this.exportedForms = exportedForms;
     }
-
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public Long getTotalForms() {
+        return totalForms;
+    }
+    public void setTotalForms(Long totalForms) {
+        this.totalForms = totalForms;
+    }
+    public Long getExportedForms() {
+        return exportedForms;
+    }
+    public void setExportedForms(Long exportedForms) {
+        this.exportedForms = exportedForms;
+    }
+    @Override
+    public String toString() {
+        return String.format("PSFormSummary[name=%s, totalForms=%d, exportedForms=%d]", name, totalForms, exportedForms);
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PSFormSummary that = (PSFormSummary) o;
+        return java.util.Objects.equals(name, that.name) &&
+               java.util.Objects.equals(totalForms, that.totalForms) &&
+               java.util.Objects.equals(exportedForms, that.exportedForms);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name, totalForms, exportedForms);
+    }
 }

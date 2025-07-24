@@ -19,10 +19,9 @@ package com.percussion.delivery.metadata.utils;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.Validate;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Responsible for calculating a hash over a value. It uses SHA-1 by default
@@ -36,7 +35,6 @@ public class PSHashCalculator
 {
     private static final String HEXES = "0123456789ABCDEF";
     private static final String HASH_ALGORITHM = "SHA-1";
-    private static final String CONTENT_ENCODING = StandardCharsets.UTF_8.name();
 
     private MessageDigest digest;
     
@@ -72,33 +70,25 @@ public class PSHashCalculator
     public synchronized String calculateHash(String value)
     {
         Validate.notNull(value, "Value cannot be null");
-        
         digest.reset();
-        byte[] hashResult = null;
-        
-        try
-        {
-            hashResult = digest.digest(value.getBytes(CONTENT_ENCODING));
+        byte[] hashResult;
+        try {
+            hashResult = digest.digest(value.getBytes(StandardCharsets.UTF_8));
             return getHex(hashResult);
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     private String getHex(byte[] raw)
     {
         if (raw == null)
             return null;
-        
-        final StringBuilder hex = new StringBuilder(2 * raw.length);
-        
-        for (final byte b : raw)
+        var hex = new StringBuilder(2 * raw.length);
+        for (var b : raw)
         {
             hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
         }
-        
         return hex.toString();
     }
 }

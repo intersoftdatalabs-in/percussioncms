@@ -33,53 +33,53 @@ public interface IPSCookieConsentService {
      * Saves the client cookie consent information.
      * @param consent the consent object to save.
      */
-    public void save(Collection<PSCookieConsentQuery> consentQueries);
+    void save(Collection<PSCookieConsentQuery> consentQueries);
 
     /**
      * Saves the client cookie consent information.
      * @param consent the consent object to save.
      */
-    public void updateOldSiteName(String oldName, String newName);
-    
+    void updateOldSiteName(String oldName, String newName);
+
     /**
      * Gets a list of cookie consent entries in the database.
      * @see {@link #PSCookieConsent}
      * @return a list of cookie consent entries. May be empty, never <code>null</code>.
      */
-    public Collection<IPSCookieConsent> getAllConsentStats();
-    
+    Collection<IPSCookieConsent> getAllConsentStats();
+
     /**
      * Gets a list of cookie consent entries for site.
      * @param siteName - the name of the site to get the entries for.
      * @return a list of cookie consent entries.
      */
-    public Collection<IPSCookieConsent> getAllConsentStatsForSite(String siteName);
-    
+    Collection<IPSCookieConsent> getAllConsentStatsForSite(String siteName);
+
     /**
      * Deletes all cookie consent entries from the database.
      */
-    public void deleteAllCookieConsentEntries() throws Exception;
-    
+    void deleteAllCookieConsentEntries() throws Exception;
+
     /**
      * Deletes all cookie consent entries for the specified site.
      * @param siteName - the site in which to delete the entries for.
      * @throws Exception
      */
-    public void deleteCookieConsentEntriesForSite(String siteName) throws Exception;
-    
+    void deleteCookieConsentEntriesForSite(String siteName) throws Exception;
+
     /**
      * Gets cookie consent totals for all sites.
      *  
      * @return A map which contains corresponding siteName/cookie totals.
      */
-    public Map<String, Integer> getAllConsentEntryTotals() throws Exception;
-    
+    Map<String, Integer> getAllConsentEntryTotals() throws Exception;
+
     /**
      * Gets cookie consent entries / totals for specified site.  Key/value
      * pair with key being service/cookie name value being total approved.
      * @param siteName - the name of the site to find entries for.
      * @return A map which contains key/value pairs for service/cookie name and total entries.
      */
-    public Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception;
-    
+    Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception;
+
 }

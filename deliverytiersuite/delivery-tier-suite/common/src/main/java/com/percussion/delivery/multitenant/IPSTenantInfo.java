@@ -26,58 +26,51 @@ import java.util.Date;
  *
  */
 public interface IPSTenantInfo {
+    /**
+     * Sets the Tenant ID or License Number
+     * @param id A valid string
+     */
+    void setTenantId(String id);
 
-	/***
-	 * Sets the Tenant ID or License Number
-	 * 
-	 * @param id A valid string
- 	 */
-	public void setTenantId(String id);
-	
-	/***
-	 * Returns the Tenant ID
-	 * @return
-	 */
-	public String getTenantId();
-	
-	/***
-	 * Returns a long representing the total number of API Calls made by a tenant to this service. 
-	 * @return
-	 */
-	public long getAPIUsage();
-	
-	/***
-	 * Adds the specified value to the Tenant current API usage counter.
-	 * @param value A number representing API calls made to the service.
-	 */
-	public void addAPIUsage(long value);
-	
-	/***
-	 * Clears the tenant API usage counter.
-	 */
-	public void clearAPIUsage();
-	
-	/***
-	 * Sets the date and time that API Usage counting was reset to 0
-	 * @param start
-	 */
-	public void setAPIUsageStart(Date start);
-	
-	/***
-	 * Returns the Data and Time that usage counting was started for this 
-	 * tenant. 
-	 * 
-	 * @return
-	 */
-	public Date getAPIUsageStart();
-	
-	/***
-	 * Returns the date and time that the License was last authorized.
-	 * @return
-	 */
-	public Date getLastAuthorizationCheckDate();
-	public void setLastAuthorizationCheckDate(Date date);
-	
-	public PSLicenseStatus getLicenseStatus();
-	public void setLicenseStatus(PSLicenseStatus status);
+    /**
+     * Returns the Tenant ID
+     * @return tenant id
+     */
+    String getTenantId();
+
+    /**
+     * Returns a long representing the total number of API Calls made by a tenant to this service.
+     * @return API usage count
+     */
+    long getAPIUsage();
+
+    /**
+     * Adds the specified value to the Tenant current API usage counter.
+     * @param value amount to add
+     */
+    void addAPIUsage(long value);
+
+    /**
+     * Returns the date the API usage counter was last reset.
+     * @return last reset date
+     */
+    java.util.Date getAPIUsageStartDate();
+
+    /**
+     * Returns the date the tenant was last authorized.
+     * @return last authorization date
+     */
+    java.util.Date getLastAuthorizationDate();
+
+    /**
+     * Returns the license status for the tenant.
+     * @return license status
+     */
+    PSLicenseStatus getLicenseStatus();
+
+    /**
+     * Sets the license status for the tenant.
+     * @param status license status
+     */
+    void setLicenseStatus(PSLicenseStatus status);
 }

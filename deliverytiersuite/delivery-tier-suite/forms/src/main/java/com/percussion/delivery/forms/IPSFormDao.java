@@ -24,31 +24,27 @@ import java.util.Map;
 import com.percussion.delivery.forms.data.IPSFormData;
 
 public interface IPSFormDao {
+    void save(IPSFormData form);
 
-	public void save(IPSFormData form);
-	
-	/**
+    /**
      * Creates a new form data object for the underlying data implementation.
+     *
      * @param formname cannot be <code>null</code> or empty.
      * @param formdata cannot be <code>null</code>.
      * @return the new instance, never <code>null</code>.
      */
-	public IPSFormData createFormData(String formname, Map<String, String[]> formdata);
+    IPSFormData createFormData(String formname, Map<String, String[]> formdata);
 
-	public void delete(IPSFormData form);
+    void delete(IPSFormData form);
 
-	public long getExportedFormCount(String name);
+    long getExportedFormCount(String name);
 
-	public long getTotalFormCount(String name);
+    long getTotalFormCount(String name);
 
-	public void markAsExported(Collection<IPSFormData> forms);
+    void markAsExported(Collection<IPSFormData> forms);
 
-	public void deleteExportedForms(String formName);
-
-	public List<IPSFormData> findFormsByName(String name);
-
-	public List<IPSFormData> findAllForms();
-
-	public List<String> findDistinctFormNames();
-
+    void deleteExportedForms(String formName);
+    List<IPSFormData> findFormsByName(String name);
+    List<IPSFormData> findAllForms();
+    List<String> findDistinctFormNames();
 }

@@ -44,7 +44,7 @@ import java.util.Date;
  *
  */
 @Deprecated
-public class PSTenantSecurityFilter implements Filter
+public class PSTenantSecurityFilter implements javax.servlet.Filter
 {
 
 	  /**

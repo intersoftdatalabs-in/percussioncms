@@ -32,7 +32,7 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
 
     private Pattern allowedMethods = Pattern.compile("^(GET|HEAD|TRACE|OPTIONS)$");
     private String[] ignoredPaths;
-    private boolean caseInsensitive=false;
+    private boolean caseInsensitive = false;
 
 
     /**
@@ -41,13 +41,11 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
      * @param unprotectedPaths comma seperated list of paths to ignore
      * @param caseInsensitive use case-insensitive comparison
      */
-    public PSCsrfSecurityRequestMatcher(String allowedMethodsPattern, String unprotectedPaths, boolean caseInsensitive){
+    public PSCsrfSecurityRequestMatcher(String allowedMethodsPattern, String unprotectedPaths, boolean caseInsensitive) {
         this.allowedMethods = Pattern.compile(allowedMethodsPattern);
-
         this.caseInsensitive = caseInsensitive;
-        if(caseInsensitive)
+        if (caseInsensitive)
             unprotectedPaths = unprotectedPaths.toLowerCase();
-
         this.ignoredPaths = unprotectedPaths.split(",");
 
         log.debug("Initializing CSRF request matcher, Allowed Methods: {}, Ignored Paths: {}", allowedMethodsPattern, unprotectedPaths);

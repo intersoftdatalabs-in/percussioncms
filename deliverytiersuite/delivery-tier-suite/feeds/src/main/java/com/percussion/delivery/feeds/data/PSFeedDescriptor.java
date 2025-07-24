@@ -36,6 +36,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getDescription()
      */
+    @Override
     public String getDescription()
     {
         return description;
@@ -44,6 +45,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getLink()
      */
+    @Override
     public String getLink()
     {
         return link;
@@ -52,6 +54,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getName()
      */
+    @Override
     public String getName()
     {
         return name;
@@ -60,6 +63,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getQuery()
      */
+    @Override
     public String getQuery()
     {
         return query;
@@ -68,6 +72,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getSite()
      */
+    @Override
     public String getSite()
     {
         return site;
@@ -76,6 +81,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /* (non-Javadoc)
      * @see com.percussion.feeds.data.IPSFeedDescriptor#getTitle()
      */
+    @Override
     public String getTitle()
     {
         return title;
@@ -84,6 +90,7 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
     /**
      * @return the type
      */
+    @Override
     public String getType()
     {
         return type;
@@ -156,6 +163,21 @@ public class PSFeedDescriptor implements IPSFeedDescriptor
             return false;
         IPSFeedDescriptor desc = (IPSFeedDescriptor)obj;
         return (desc.getSite().equals(this.site) && desc.getName().equals(this.name));
+    }
+
+    public PSFeedDescriptor() {}
+    public PSFeedDescriptor(String name, String site, String description, String link, String title, String query, String type) {
+        this.name = name;
+        this.site = site;
+        this.description = description;
+        this.link = link;
+        this.title = title;
+        this.query = query;
+        this.type = type;
+    }
+    @Override
+    public String toString() {
+        return String.format("PSFeedDescriptor[name=%s, site=%s, description=%s, link=%s, title=%s, query=%s, type=%s]", name, site, description, link, title, query, type);
     }
 
     public PSFeedDescriptor(){

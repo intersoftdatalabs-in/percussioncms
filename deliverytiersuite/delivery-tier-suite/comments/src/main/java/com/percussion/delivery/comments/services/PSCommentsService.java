@@ -97,8 +97,8 @@ public class PSCommentsService implements IPSCommentsService
      */
     public IPSComment addComment(IPSComment comment)
     {
-        String siteName = comment.getSite();
-        HashSet<String> siteSet = new HashSet<>(1);
+        var siteName = comment.getSite();
+        var siteSet = new HashSet<String>(1);
         siteSet.add(siteName);
         this.fireDataChangeRequestedEvent(siteSet);
         
@@ -135,7 +135,7 @@ public class PSCommentsService implements IPSCommentsService
 
         try
         {
-            PSComment comm = new PSComment(comment);
+            var comm = new PSComment(comment);
             dao.save(comm);
             comment.setId(comm.getId());
             log.info("Comment successfully added");
@@ -177,10 +177,8 @@ public class PSCommentsService implements IPSCommentsService
     public void approveComments(Collection<String> commentIds)
     {
         Validate.notNull(commentIds);
-
         if (commentIds.isEmpty())
             return;
-
         log.info("Approving comments with the following IDs: {}" , commentIds);
         moderateComments(commentIds, APPROVAL_STATE.APPROVED);
     }
@@ -195,10 +193,8 @@ public class PSCommentsService implements IPSCommentsService
     public void rejectComments(Collection<String> commentIds)
     {
         Validate.notNull(commentIds);
-
         if (commentIds.isEmpty())
             return;
-
         log.info("Rejecting comments with the following IDs: {}" , commentIds);
         moderateComments(commentIds, APPROVAL_STATE.REJECTED);
     }
@@ -212,12 +208,12 @@ public class PSCommentsService implements IPSCommentsService
      */
     private void moderateComments(Collection<String> commentIds, APPROVAL_STATE newApprovalState)
     {
-        Set<String> siteNames = new HashSet<>();
+        var siteNames = new HashSet<String>();
         try
         {
-        	siteNames = dao.findSitesForCommentIds(commentIds);
+            siteNames = dao.findSitesForCommentIds(commentIds);
             this.fireDataChangeRequestedEvent(siteNames);
-        	dao.moderate(commentIds, newApprovalState);
+            dao.moderate(commentIds, newApprovalState);
         }
         catch (Exception ex)
         {
@@ -241,23 +237,18 @@ public class PSCommentsService implements IPSCommentsService
     public void deleteComments(Collection<String> commentIds)
     {
         Validate.notNull(commentIds);
-        
         if (commentIds.size() == 0)
         {
             log.info("Comment IDs list is empty.");
             return;
         }
-        
-        
-
         log.info("Deleting comments with the following IDs: {}" , commentIds);
-
-        Set<String> siteNames = new HashSet<>();
+        var siteNames = new HashSet<String>();
         try
         {
-        	siteNames = dao.findSitesForCommentIds(commentIds);
+            siteNames = dao.findSitesForCommentIds(commentIds);
             this.fireDataChangeRequestedEvent(siteNames);
-        	dao.delete(commentIds);
+            dao.delete(commentIds);
         }
         catch (Exception ex)
         {
@@ -281,20 +272,16 @@ public class PSCommentsService implements IPSCommentsService
     public PSComments getComments(PSCommentCriteria criteria, boolean isModerator)
     {
         log.info("Getting all comments according to the given criteria object");
-
-        List<IPSComment> comments = new ArrayList<>();
-
-       
+        var comments = new ArrayList<IPSComment>();
         try
         {
-            List<IPSComment> result = dao.find(criteria);
-
-            for (IPSComment com : result)
+            var result = dao.find(criteria);
+            for (var com : result)
             {
                 if (!isModerator && APPROVAL_STATE.REJECTED.equals(com.getApprovalState()))
                 {
-                    Calendar currentDate = Calendar.getInstance();
-                    Calendar commentDate = Calendar.getInstance();
+                    var currentDate = Calendar.getInstance();
+                    var commentDate = Calendar.getInstance();
                     commentDate.setTime(com.getCreatedDate());
 
                     // Get the represented date in milliseconds

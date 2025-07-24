@@ -37,6 +37,10 @@ public class PSFormSummaries
 {
     private List<PSFormSummary> formsInfo = new ArrayList<>();
 
+    public PSFormSummaries() {}
+    public PSFormSummaries(List<PSFormSummary> formsInfo) {
+        this.formsInfo = formsInfo != null ? formsInfo : new ArrayList<>();
+    }
     public List<PSFormSummary> getSummaries()
     {
         if (formsInfo == null)
@@ -47,5 +51,20 @@ public class PSFormSummaries
     public void setSummaries(List<PSFormSummary> formSummaries)
     {
         this.formsInfo = formSummaries;
+    }
+    @Override
+    public String toString() {
+        return String.format("PSFormSummaries[formsInfo=%s]", formsInfo);
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PSFormSummaries that = (PSFormSummaries) o;
+        return java.util.Objects.equals(formsInfo, that.formsInfo);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(formsInfo);
     }
 }

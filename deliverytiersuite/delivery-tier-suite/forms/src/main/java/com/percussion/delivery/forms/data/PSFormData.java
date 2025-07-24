@@ -51,190 +51,77 @@ import static org.apache.commons.lang.Validate.notNull;
  * @author PaulHoward
  */
 @Entity
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSFormData1")
-@Table(name = "PERC_FORMS")
-public class PSFormData implements IPSFormData
-{
-    /**
-     * The form's db id
-     */
-    @SuppressWarnings("unused")
-    @TableGenerator(
-        name="formId", 
-        table="PERC_ID_GEN", 
-        pkColumnName="GEN_KEY", 
-        valueColumnName="GEN_VALUE", 
-        pkColumnValue="formId", 
-        allocationSize=1)
+@Table(name = "PSX_FORM_DATA")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "FormData")
+public class PSFormData implements IPSFormData {
     @Id
-    @GeneratedValue(strategy=GenerationType.TABLE, generator="formId")
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "PSX_FORM_DATA_ID")
+    @TableGenerator(name = "PSX_FORM_DATA_ID", table = "PSX_FORM_DATA_ID_GEN", pkColumnName = "GEN_KEY", valueColumnName = "GEN_VALUE", pkColumnValue = "PSX_FORM_DATA_ID", allocationSize = 1)
     @Column(name = "ID")
-    private long id;
-
-    /**
-     * The hibernate object version
-     */
-    @SuppressWarnings("unused")
-    @Version
-    private Integer version;
+    private String id;
 
     @Basic
+    @Column(name = "NAME")
     private String name;
 
     @Basic
-    private Date created;
-    
-    @SuppressWarnings("unused")
-    @Column(name = "EXPORTED") 
-    private char isExported = 'n';
+    @Column(name = "CREATE_DATE")
+    private Date createDate;
+
+    @Basic
+    @Column(name = "EXPORTED")
+    private char exported;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @JoinTable(name = "PERC_FORM_FIELDS", joinColumns = @JoinColumn(name = "PARENT_FORM_ID",
-            referencedColumnName = "ID"))
+    @JoinTable(name = "PSX_FORM_DATA_FIELDS", joinColumns = @JoinColumn(name = "FORM_ID"))
     @MapKeyColumn(name = "FIELD_NAME")
-    @Column(name = "VALUE", length = 2048)
-    private Map<String, String> properties = new HashMap<>();
+    @Column(name = "FIELD_VALUE")
+    private Map<String, String> fields = new HashMap<>();
 
-    /**
-     * 
-     * @param name The name of the form. Never <code>null</code> or empty. Max length is 50 chars.
-     * 
-     * @param props The fields of the form with their values. The key is the
-     * name of the field, case-sensitive. If the value is a
-     * <code>String[]</code>, then all the entries in the array are merged
-     * into a single string, using the {@link #FIELD_VALUES_SEPARATOR} as a
-     * separator. If the entry contains separators, the caller is responsible for escaping them.
-     */
-    public PSFormData(String name, Map<String, String[]> props)
-    {
-        notNull(name);
-        notNull(props);
-
+    public PSFormData() {}
+    public PSFormData(String id, String name, Date createDate, char exported, Map<String, String> fields) {
+        this.id = id;
         this.name = name;
-        created = new Date();
-        for (String key : props.keySet())
-        {
-            String value;
-            String[] val = props.get(key);
-            if (val == null)
-                value = StringUtils.EMPTY;
-            else if (val.length == 1)
-                value = (String)escapeForJoin(val[0]);
-            else
-                value = convertArrayToString(val);
-            this.properties.put(key, value);
-        }
+        this.createDate = createDate;
+        this.exported = exported;
+        this.fields = fields != null ? fields : new HashMap<>();
     }
-
-    /**
-     * 
-     * @param val Assumed not <code>null</code>.
-     * @return Never <code>null</code>.
-     */
-    private String convertArrayToString(String[] entries)
-    {
-        StringBuilder result = new StringBuilder();
-        for (String s : entries)
-        {
-            if (result.length() > 0)
-                result.append(FIELD_VALUES_SEPARATOR);
-            if (s != null)
-                result.append(escapeForJoin(s));
-        }
-        return result.toString();
+    @Override
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    @Override
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    @Override
+    public Date getCreateDate() { return createDate; }
+    public void setCreateDate(Date createDate) { this.createDate = createDate; }
+    @Override
+    public char isExported() { return exported; }
+    public void setExported(char exported) { this.exported = exported; }
+    @Override
+    public Set<String> getFieldNames() { return Collections.unmodifiableSet(fields.keySet()); }
+    @Override
+    public Map<String, String> getFields() { return Collections.unmodifiableMap(fields); }
+    public void setFields(Map<String, String> fields) { this.fields = fields; }
+    @Override
+    public Date getCreated() { return createDate; }
+    @Override
+    public String toString() {
+        return String.format("PSFormData[id=%s, name=%s, createDate=%s, exported=%s, fields=%s]", id, name, createDate, exported, fields);
     }
-
-    /**
-     * Escapes any {@link #FIELD_VALUES_SEPARATOR} by inserting the {@link #FIELD_VALUES_SEPARATOR_ESCAPE} char before it.
-     * Any instances of the escape char are escaped in the same way with the same escape char.
-     * 
-     * @param s Assumed not <code>null</code>;
-     * @return Never <code>null</code>.
-     */
-    private Object escapeForJoin(String s)
-    {
-        if (s.indexOf(FIELD_VALUES_SEPARATOR_ESCAPE) >= 0)
-            s = s.replace(FIELD_VALUES_SEPARATOR_ESCAPE, FIELD_VALUES_SEPARATOR_ESCAPE + FIELD_VALUES_SEPARATOR_ESCAPE);
-        if (s.indexOf(FIELD_VALUES_SEPARATOR) >= 0)
-            s = s.replace(FIELD_VALUES_SEPARATOR, FIELD_VALUES_SEPARATOR_ESCAPE + FIELD_VALUES_SEPARATOR);
-        return s;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PSFormData that = (PSFormData) o;
+        return exported == that.exported &&
+                java.util.Objects.equals(id, that.id) &&
+                java.util.Objects.equals(name, that.name) &&
+                java.util.Objects.equals(createDate, that.createDate) &&
+                java.util.Objects.equals(fields, that.fields);
     }
-
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getName()
-	 */
-    public String getName()
-    {
-        return name;
-    }
-    
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getCreateDate()
-	 */
-    public Date getCreateDate()
-    {
-        return created;
-    }
-    
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#isExported()
-	 */
-    public char isExported()
-    {
-        return isExported;
-    }
-
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getCreated()
-	 */
-    public Date getCreated()
-    {
-        return created;
-    }
-
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getFieldNames()
-	 */
-    public Set<String> getFieldNames()
-    {
-        Set<String> result = Collections.unmodifiableSet(properties.keySet());
-        if (result == null)
-            result = Collections.emptySet();
-        return result;
-    }
-    
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getFields()
-	 */
-    public Map<String, String> getFields()
-    {
-        return Collections.unmodifiableMap(properties);
-    }
-    
-    protected PSFormData()
-    {}
-
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#getId()
-	 */
-    public String getId()
-    {
-        return String.valueOf(id);
-    }
-
-    /* (non-Javadoc)
-	 * @see com.percussion.delivery.forms.data.IPSFormData#setId(long)
-	 */
-    public void setId(String id)
-    {
-        if(id == null)
-        {
-        	this.id = 0;
-        }
-        else
-        {
-        	this.id = Long.valueOf(id);
-        }
-    	
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(id, name, createDate, exported, fields);
     }
 }

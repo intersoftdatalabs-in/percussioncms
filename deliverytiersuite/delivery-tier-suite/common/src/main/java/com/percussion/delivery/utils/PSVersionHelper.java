@@ -47,28 +47,24 @@ public class PSVersionHelper {
 	 * @param clazz
 	 * @return
 	 */
-	public static String getVersion(Class clazz){
+	public static String getVersion(Class<?> clazz){
 		String version = "";
 		
 		Validate.notNull(clazz);
 		Properties props = new Properties();
-		
-		InputStream in = clazz.getClassLoader().getResourceAsStream("build.properties");
-		
-		if(in==null)
-			version="undefined";
-		
-		try {
-			props.load(in);
+		try (InputStream in = clazz.getClassLoader().getResourceAsStream("build.properties")) {
+			if (in == null) {
+				version = "undefined";
+			} else {
+				props.load(in);
+				version = String.format("%s-%s_%s",
+						props.getProperty("version"),
+						props.getProperty("build_tag"),
+						props.getProperty("buildTime"));
+			}
 		} catch (IOException e) {
-			version="undefined";
+			version = "undefined";
 		}
-
-		version = String.format("%s-%s_%s",
-				props.getProperty("version"),
-				props.getProperty("build_tag"),
-				props.getProperty("buildTime"));
-		
 		return version;
 	}
 	

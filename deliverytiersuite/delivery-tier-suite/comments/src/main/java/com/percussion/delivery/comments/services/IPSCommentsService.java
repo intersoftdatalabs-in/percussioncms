@@ -36,18 +36,8 @@ import com.percussion.delivery.services.IPSRestService;
  */
 public interface IPSCommentsService
 {
-   /**
-    * Retrieves a list of comments for specified criteria.
-    * 
-    * @param criteria the comment criteria object that specifies the comments to be returned.
-    * Cannot be <code>null</code>.
-    * @param isModerator a flag indicating that the moderator is viewing these comments. If
-    * <code>true</code> then any comments returned by this method call will have their "viewed"
-    * flag set to <code>true</code> and persisted.
-    * @return list of comments, never <code>null</code>, may be empty.
-    */
-   public PSComments getComments(PSCommentCriteria criteria, boolean isModerator) throws Exception;
-      
+   PSComments getComments(PSCommentCriteria criteria, boolean isModerator) throws Exception;
+
    /**
     * Retrieves page summaries of all pages with comments.
     * 
@@ -59,8 +49,8 @@ public interface IPSCommentsService
     * or less then start index will be zero.
     * @return a page summaries object, never <code>null</code>, may be empty.
     */
-   public PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex) throws Exception;
-   
+   PSPageSummaries getPagesWithComments(String site, int maxResults, int startIndex) throws Exception;
+
    /**
     * Retrieves a list of tags found across all comments.
     * 
@@ -70,8 +60,8 @@ public interface IPSCommentsService
     * or less then start index will be zero.
     * @return list of tags, never <code>null</code>, may be empty.
     */
-   public List<String> getTags(int maxResults, int startIndex);
-   
+   List<String> getTags(int maxResults, int startIndex);
+
    /**
     * Adds a comment to the datastore for the specified namespace. Any existing
     * created date or id will be discarded by the service an new ones created when
@@ -82,8 +72,8 @@ public interface IPSCommentsService
     * @return The newly added comment instance. This one has the comment ID inserted
     * in the database.
     */
-   public IPSComment addComment(IPSComment comment) throws Exception;   
-   
+   IPSComment addComment(IPSComment comment) throws Exception;
+
    /**
     * Adds tags to a specified comment.
     * 
@@ -91,8 +81,8 @@ public interface IPSCommentsService
     * @param tags set of tags to be added to the comment. Cannot be <code>null</code>,
     * may be empty.
     */
-   public void addCommentTags(Long id, Set<String> tags);
-   
+   void addCommentTags(Long id, Set<String> tags);
+
    /**
     * Approves the specified list of comment IDs. If the specified comments are
     * already approved or if there are no comment with the given IDs, the method
@@ -101,8 +91,8 @@ public interface IPSCommentsService
     * @param ids Collection of all comment IDs to be approved. Cannot be
     * <code>null</code>. Maybe empty.
     */
-   public void approveComments(Collection<String> ids);
-   
+   void approveComments(Collection<String> ids);
+
    /**
     * Rejects the specified list of comment IDs. If the specified comments are
     * already approved or if there are no comment with the given IDs, the method
@@ -111,21 +101,21 @@ public interface IPSCommentsService
     * @param ids Collection of all comment IDs to be rejected. Cannot be
     * <code>null</code>. Maybe empty.
     */
-   public void rejectComments(Collection<String> ids);
-   
+   void rejectComments(Collection<String> ids);
+
    /**
     * Delete the specified list of comments.
     * @param ids list of all comment ids (persisted ids) to be deleted.
     */
-   public void deleteComments(Collection<String> ids);
-   
+   void deleteComments(Collection<String> ids);
+
    /**
     * @param sitename the site who's default moderation state we want to retrieve. Cannot
     * be <code>null</code> or empty.
     * @return the current default, never <code>null</code>.
     */
-   public APPROVAL_STATE getDefaultModerationState(String sitename);
-   
+   APPROVAL_STATE getDefaultModerationState(String sitename);
+
    /**
     * Sets the default moderation state for the specified site. This value will be used for any
     * new comments added to the system.
@@ -133,7 +123,7 @@ public interface IPSCommentsService
     * be <code>null</code> or empty.
     * @param dflt the approval state default value to set. Cannot be <code>null</code>.
     */
-   public void setDefaultModerationState(String sitename, APPROVAL_STATE dflt);
+   void setDefaultModerationState(String sitename, APPROVAL_STATE dflt);
 
     /**
      * Updates comments to use the new site name after a site in CM1 is renamed.
@@ -144,5 +134,5 @@ public interface IPSCommentsService
      * @return <code>true</code> if the update was successful or there were no updates made.
      *         <code>false</code> if there was an error.
      */
-    public boolean updateCommentsForRenameSite(String prevSiteName, String newSiteName);
+    boolean updateCommentsForRenameSite(String prevSiteName, String newSiteName);
 }

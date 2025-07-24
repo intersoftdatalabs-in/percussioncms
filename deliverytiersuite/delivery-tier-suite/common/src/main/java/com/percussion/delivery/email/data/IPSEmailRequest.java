@@ -18,24 +18,24 @@ package com.percussion.delivery.email.data;
 
 public interface IPSEmailRequest
 {
-    public void setToList(String toList);
+    void setToList(String toList);
 
-    public void setCCList(String ccList);
+    void setCCList(String ccList);
 
-    public void setBCCList(String bccList);
+    void setBCCList(String bccList);
 
-    public void setBody(String bodycontent);
+    void setBody(String bodycontent);
 
-    public void setSubject(String subject);
+    void setSubject(String subject);
 
-    public String getToList();
+    String getToList();
 
-    public String getCCList();
+    String getCCList();
 
-    public String getBCCList();
+    String getBCCList();
 
-    public String getBody();
+    String getBody();
 
-    public String getSubject();
+    String getSubject();
 
 }

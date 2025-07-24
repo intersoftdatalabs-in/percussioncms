@@ -42,8 +42,8 @@ public interface IPSMetadataQueryService
      */
 
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
-    public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query) throws Exception;
-    public List<Object[]>  executeCategoryQuery(PSMetadataQuery query) throws Exception;
+PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query) throws Exception;
+List<Object[]> executeCategoryQuery(PSMetadataQuery query) throws Exception;
     /**
      * Based on the query hibernate return type would be different Following
      * enum is to handle the return type from the hibernate if NONE it returns
@@ -52,28 +52,27 @@ public interface IPSMetadataQueryService
      * 
      * 
      */
-    public enum SORTTYPE
+    enum SORTTYPE
     {
         NONE, PROPERTY, METADATA
     }
 
     // Column names in the properties table
-    public static final String PROP_DATEVALUE_COLUMN_NAME = "datevalue";
+    static final String PROP_DATEVALUE_COLUMN_NAME = "datevalue";
 
-    public static final String PROP_NUMBERVALUE_COLUMN_NAME = "numbervalue";
+    static final String PROP_NUMBERVALUE_COLUMN_NAME = "numbervalue";
 
-    public static final String PROP_STRINGVALUE_COLUMN_NAME = "stringvalue";
+    static final String PROP_STRINGVALUE_COLUMN_NAME = "stringvalue";
 
-    public static final String PROP_VALUEHASH_COLUMN_NAME="valueHash";
+    static final String PROP_VALUEHASH_COLUMN_NAME="valueHash";
 
-    public static final String PROP_TEXTVALUE_COLUMN_NAME = "textvalue";
+    static final String PROP_TEXTVALUE_COLUMN_NAME = "textvalue";
 
-    public static final String SORT_ORDER_ASCEND = "asc";
+    static final String SORT_ORDER_ASCEND = "asc";
 
-    public static final String SORT_ORDER_DESCEND = "desc";
-    
-    public Integer getQueryLimit();
-    
-    public void setQueryLimit(Integer limit);
+    static final String SORT_ORDER_DESCEND = "desc";
+
+    Integer getQueryLimit();
+    void setQueryLimit(Integer limit);
 
 }

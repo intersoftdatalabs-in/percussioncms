@@ -35,33 +35,33 @@ import javax.ws.rs.core.Response;
  *
  */
 public interface IPSRestService {
-	
-	/***
-	 * Returns the currently deployed version of the service. 
-	 * 
-	 * @return
-	 */
-	@GET
-	@Path("/version")
-	public String getVersion();
+    /**
+     * Returns the currently deployed version of the service.
+     *
+     * @return the version string
+     */
+    @GET
+    @Path("/version")
+    String getVersion();
 
     /**
      * The purpose of this method is to fix behavior in the DTS db
-     * after a site is renamed in CM1.  Starting this for the purpose
+     * after a site is renamed in CM1. Starting this for the purpose
      * of deleting old DTS database information after a site is renamed in CM1.
      * Prior to fix all the old data after the rename is left behind.
      *
      * @param prevSiteName the old name for the site
      * @param newSiteName the new name for the site
-     *
-     * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries IPSSiteRenameService
-     *
-     * @return <code>204</code> if the process was successful.  Return error code otherwise.
+     * @return <code>204</code> if the process was successful. Return error code otherwise.
      */
     @DELETE
     @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("deliverymanager")
-    public Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName);
+    Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName);
 
+    // Java 11: Add default method for interface (optional, for future extensibility)
+    default Response getHealth() {
+        return Response.ok("Service is healthy").build();
+    }
 }

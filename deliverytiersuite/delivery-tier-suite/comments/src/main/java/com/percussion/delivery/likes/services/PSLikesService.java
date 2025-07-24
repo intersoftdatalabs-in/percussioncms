@@ -65,13 +65,12 @@ public class PSLikesService implements IPSLikesService
         Validate.notEmpty(site);
         Validate.notEmpty(likeId);
         Validate.notEmpty(type);
-
-        try
+continue        try
         {
-        	List<IPSLikes> results = dao.find(site, likeId, type);        
+            var results = dao.find(site, likeId, type);
             if(results.isEmpty())
                 return 0;
-        	return results.get(0).getTotal();
+            return results.get(0).getTotal();
         }
         catch (Exception ex)
         {
@@ -79,7 +78,7 @@ public class PSLikesService implements IPSLikesService
                     PSExceptionUtils.getMessageForLog(ex));
             log.debug(ex);
             throw new RuntimeException(ex);
-        }        
+        }
     }
     
     
@@ -97,7 +96,6 @@ public class PSLikesService implements IPSLikesService
     {
         return likeUnlike(site, likeId, type, true);
     }
-    
     /**
      * To UnLike a page, a comment.
      * 
@@ -109,7 +107,7 @@ public class PSLikesService implements IPSLikesService
      */
     public int unlike(String site, String likeId, String type)
     {
-    	return likeUnlike(site, likeId, type, false);
+        return likeUnlike(site, likeId, type, false);
     }
     
     /**
@@ -126,14 +124,12 @@ public class PSLikesService implements IPSLikesService
         Validate.notEmpty(site);
         Validate.notEmpty(likeId);
         Validate.notEmpty(type);
-
-        Set<String> sites = new HashSet<>(1);
+        var sites = new HashSet<String>(1);
         sites.add(site);
         fireDataChangeRequestedEvent(sites);
-
         try
         {
-            List<IPSLikes> likes = dao.find(site, likeId, type);
+            var likes = dao.find(site, likeId, type);
             IPSLikes like = null;
             if (likes.isEmpty())
             {

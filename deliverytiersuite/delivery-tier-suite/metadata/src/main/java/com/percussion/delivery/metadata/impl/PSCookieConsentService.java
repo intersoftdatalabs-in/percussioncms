@@ -51,7 +51,7 @@ public class PSCookieConsentService implements IPSCookieConsentService {
 
     @Override
     public void save(Collection<PSCookieConsentQuery> consentQueries) {
-        Collection<PSDbCookieConsent> consents = convertToDbCookieConsents(consentQueries);
+        var consents = convertToDbCookieConsents(consentQueries);
         consentDao.save(consents);
     }
 
@@ -72,19 +72,17 @@ public class PSCookieConsentService implements IPSCookieConsentService {
     }
     
     @Override
-    public void deleteCookieConsentEntriesForSite(String siteName)
-            throws Exception {
+    public void deleteCookieConsentEntriesForSite(String siteName) throws Exception {
         consentDao.deleteForSite(siteName);
     }
-    
+
     @Override
     public Map<String, Integer> getAllConsentEntryTotals() throws Exception {
         return consentDao.getTotalsForAllSites();
     }
-    
+
     @Override
-    public Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName)
-            throws Exception {
+    public Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception {
         return consentDao.getTotalsForSite(siteName);
     }
     
@@ -97,15 +95,13 @@ public class PSCookieConsentService implements IPSCookieConsentService {
      * Never <code>null</code>, may be empty.
      */
     private Collection<PSDbCookieConsent> convertToDbCookieConsents(Collection<PSCookieConsentQuery> consentQueries) {
-        Collection<PSDbCookieConsent> consents = new ArrayList<>();
-        
-        for (PSCookieConsentQuery query : consentQueries) {
-            for (String service : query.getServices()) {
-                consents.add(new PSDbCookieConsent(query.getSiteName(), service, 
+        var consents = new ArrayList<PSDbCookieConsent>();
+        for (var query : consentQueries) {
+            for (var service : query.getServices()) {
+                consents.add(new PSDbCookieConsent(query.getSiteName(), service,
                         query.getConsentDate(), query.getIP(), query.getOptIn()));
             }
         }
-        
         return consents;
     }
 

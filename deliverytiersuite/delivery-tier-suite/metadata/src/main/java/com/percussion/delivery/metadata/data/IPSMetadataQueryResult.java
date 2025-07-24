@@ -34,8 +34,8 @@ public interface IPSMetadataQueryResult
     * @return the string representation of the data. May be <code>null</code> or
     * empty.
     */
-   public String getString(String key);
-   
+   String getString(String key);
+
    /**
     * Retrieves the data for the specified property as an Integer. This will
     * only work for Integer, Float and Long dataTypes. Float and Long will be converted
@@ -46,8 +46,8 @@ public interface IPSMetadataQueryResult
     * @throws PSQueryResultException if the dataType is not a numeric
     * type.
     */
-   public int getNumber(String key);
-   
+   int getNumber(String key);
+
    /**
     * Retrieves the data for the specified property as a Date. This will
     * only work for Date dataTypes. 
@@ -57,8 +57,8 @@ public interface IPSMetadataQueryResult
     * @throws PSQueryResultException if the dataType is not a date
     * type.
     */
-   public Date getDate(String key); 
-   
+   Date getDate(String key);
+
    /**
     * Retrieves the data for the specified property as a Double. This will
     * only work for Integer, Float, Double and Long dataTypes. Integer, Float and Long will be converted
@@ -69,8 +69,7 @@ public interface IPSMetadataQueryResult
     * @throws PSQueryResultException if the dataType is not a numeric
     * type.
     */
-   public float getDouble(String key);
-   
+   double getDouble(String key);
    /**
     * Retrieves the data for the specified property as a Float. This will
     * only work for Integer, Float and Long dataTypes. Integer and Long will be converted
@@ -81,8 +80,7 @@ public interface IPSMetadataQueryResult
     * @throws PSQueryResultException if the dataType is not a numeric
     * type.
     */
-   public float getFloat(String key);
-   
+   float getFloat(String key);
    /**
     * Retrieves the data for the specified property as a Long. This will
     * only work for Integer, Float and Date dataTypes. Float and Integer will be converted
@@ -93,8 +91,7 @@ public interface IPSMetadataQueryResult
     * @throws PSQueryResultException if the dataType is not a numeric or date
     * type.
     */
-   public long getLong(String key);
-   
+   long getLong(String key);
    /**
     * Retrieves the data type of the data property specified.
     * @param key the field key that specifies the data to be returned, Cannot
@@ -102,8 +99,7 @@ public interface IPSMetadataQueryResult
     * @return the dataType enum value or <code>null</code> if the the specified
     * key does not exist.
     */
-   public DataType getDataType(String key);
-   
+   DataType getDataType(String key);
    /**
     * Indicates that the specified property has a value, in other words
     * it is not <code>null</code>.
@@ -111,14 +107,13 @@ public interface IPSMetadataQueryResult
     * be <code>null</code> or empty. The key is case insensitive.
     * @return <code>true</code> if the field value is not <code>null</code>.
     */
-   public boolean hasValue(String key);
-   
+   boolean hasValue(String key);
    /**
     * The set of keys for each property in the result.
     * @return the key set, never <code>null</code>, may be empty.
     */
-   public Set<String> keySet();
-   
+   Set<String> keySet();
+
    /**
     * The data type enumeration.
     */

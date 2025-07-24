@@ -42,41 +42,31 @@ import com.rometools.rome.io.SyndFeedOutput;
  */
 public class PSFeedGenerator
 {
-   public String makeFeedContent(IPSFeedDescriptor desc, String host, List<PSFeedItem> items) throws FeedException
-   {
-      
-      SyndFeed feed = new SyndFeedImpl();
+   public String makeFeedContent(IPSFeedDescriptor desc, String host, List<PSFeedItem> items) throws FeedException {
+      var feed = new SyndFeedImpl();
       feed.setFeedType(getFeedType(desc));
       feed.setTitle(desc.getTitle());
       feed.setDescription(desc.getDescription());
       feed.setLink(fixupHost(desc.getLink(), host));
       feed.setPublishedDate(new Date());
-      
-      // Process each item
-      SyndEntry entry;
-      SyndContent description;
-      List<SyndEntry> entries = new ArrayList<>();
-      for(PSFeedItem item : items)
-      {
-          entry = new SyndEntryImpl();
+
+      var entries = new ArrayList<SyndEntry>();
+      for (var item : items) {
+          var entry = new SyndEntryImpl();
           entry.setTitle(item.getTitle());
-          if(StringUtils.isNotBlank(item.getDescription()))
-          {
-              description = new SyndContentImpl();
+          if (item.getDescription() != null && !item.getDescription().isBlank()) {
+              var description = new SyndContentImpl();
               description.setType("text/html");
               description.setValue(item.getDescription());
               entry.setDescription(description);
           }
           entry.setLink(item.getLink());
           entry.setPublishedDate(item.getPublishDate());
-          entries.add(entry);          
+          entries.add(entry);
       }
       feed.setEntries(entries);
-      
-      
-      SyndFeedOutput output = new SyndFeedOutput();
+      var output = new SyndFeedOutput();
       return output.outputString(feed);
-      
    }
    
     /**

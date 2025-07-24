@@ -22,69 +22,47 @@ import java.util.Date;
  * @author erikserating
  *
  */
-public class PSFeedItem
-{
-   private String title;
-   private String description;
-   private Date publishDate;
-   private String link;
-   
-/**
- * @return the title
- */
-public String getTitle()
-{
-    return title;
-}
-/**
- * @param title the title to set
- */
-public void setTitle(String title)
-{
-    this.title = title;
-}
-/**
- * @return the description
- */
-public String getDescription()
-{
-    return description;
-}
-/**
- * @param description the description to set
- */
-public void setDescription(String description)
-{
-    this.description = description;
-}
-/**
- * @return the publishDate
- */
-public Date getPublishDate()
-{
-    return publishDate;
-}
-/**
- * @param publishDate the publishDate to set
- */
-public void setPublishDate(Date publishDate)
-{
-    this.publishDate = publishDate;
-}
-/**
- * @return the link
- */
-public String getLink()
-{
-    return link;
-}
-/**
- * @param link the link to set
- */
-public void setLink(String link)
-{
-    this.link = link;
-}
-   
-   
+public class PSFeedItem {
+    private String title;
+    private String description;
+    private Date publishDate;
+    private String link;
+
+    public PSFeedItem() {}
+
+    public PSFeedItem(String title, String description, Date publishDate, String link) {
+        this.title = title;
+        this.description = description;
+        this.publishDate = publishDate;
+        this.link = link;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public Date getPublishDate() {
+        return publishDate;
+    }
+    public void setPublishDate(Date publishDate) {
+        this.publishDate = publishDate;
+    }
+    public String getLink() {
+        return link;
+    }
+    public void setLink(String link) {
+        this.link = link;
+    }
+    @Override
+    public String toString() {
+        return String.format("PSFeedItem[title=%s, description=%s, publishDate=%s, link=%s]", title, description, publishDate, link);
+    }
 }

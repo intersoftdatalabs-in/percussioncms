@@ -40,64 +40,64 @@ public interface IPSCookieConsent {
      * Sets the name of site in which to apply the cookie(s).
      * @param siteName the name of the site
      */
-    public void setSiteName(String siteName);
-    
+    void setSiteName(String siteName);
+
     /**
      * Gets the name of site.
      * @return the name of the site
      */
-    public String getSiteName();
-    
+    String getSiteName();
+
     /**
      * Set the IP address.
      * @param ip the IP address
      */
-    public void setIP(String ip);
-    
+    void setIP(String ip);
+
     /**
      * Gets the IP address.
      * @return string representation of IP address
      */
-    public String getIP();
-    
+    String getIP();
+
     /**
      * Sets the date consent to use cookies was given.
      * @param consentDate the date object of consent date
      */
-    public void setConsentDate(Date consentDate);
-    
+    void setConsentDate(Date consentDate);
+
     /**
      * Gets the date consent was given to use cookies.
      * @return the date consent was given
      */
-    public Date getConsentDate();
-    
+    Date getConsentDate();
+
     /**
      * Sets the services approved to use cookies.
      * @param serviceName the name of service
      * cookies.
      */
-    public void setService(String serviceName);
-    
+    void setService(String serviceName);
+
     /**
      * Gets the service(s) approved for use with cookies.
      * @return the name of the service
      */
-    public String getService();
-    
+    String getService();
+
     /**
      * Sets whether the user opted in for cookie consent.
      * Should always be true as if they did not, no information
      * should be recorded.
      * @param optIn <code>true</code> if the user opted to use cookies
      */
-    public void setOptIn(boolean optIn);
-    
+    void setOptIn(boolean optIn);
+
     /**
      * Returns whether the user opted in to use cookies.
      * Should always be true if there is a record present.
      * @return <code>true</code> if the user opted in for cookies.
      */
-    public boolean getOptIn();
-    
+    boolean getOptIn();
+
 }

@@ -114,67 +114,37 @@ public class PSRecaptchaService {
 
 
 		public boolean verify(String gRecaptchaResponse) throws IOException {
-			if (gRecaptchaResponse == null || "".equals(gRecaptchaResponse)) {
-				return false;
-			}
-			
-			try{
-			URL obj = new URL(url);
-			HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-			// add requqest header
-			con.setRequestMethod("POST");
-			con.setRequestProperty("User-Agent", userAgent);
-			con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-
-			String postParams = "secret=" + secret + "&response="
-					+ gRecaptchaResponse;
-
-			// Send post request
-			con.setDoOutput(true);
-			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-			wr.writeBytes(postParams);
-			wr.flush();
-			wr.close();
-
-			int responseCode = con.getResponseCode();
-			log.debug("reCaptcha: \nSending 'POST' request to URL : {}", url);
-			log.debug("reCaptcha: Post parameters : {}", postParams);
-			log.debug("reCaptcha: Response Code : {}", responseCode);
-
-			BufferedReader in = new BufferedReader(new InputStreamReader(
-					con.getInputStream()));
-			String inputLine;
-			StringBuilder response = new StringBuilder();
-
-			while ((inputLine = in.readLine()) != null) {
-				response.append(inputLine);
-			}
-			in.close();
-
-			// print result
-			log.debug("{}",response);
-			
-			//parse JSON response and return 'success' value
-			 JSONObject json = new JSONObject(response.toString());
-			
-			boolean ret = json.getBoolean("success");
-			
-			if(log.isDebugEnabled()){
-				if(ret==true){
-					log.debug("reCaptcha: Successful validation.  This is not a robot! Yay humans!");
-				}else{
-					log.debug("reCaptcha: Validation failed.  Bad robot!");
-				}
-			}
-			
-			return ret;
-		
-			}catch(Exception e){
-				log.error("An error occurred validating reCaptcha.  Failing validation.");
-				log.debug("reCaptcha: Validation failed with exception", e);
-				return false;
-			}
-		}
+            if (gRecaptchaResponse == null || gRecaptchaResponse.isBlank()) {
+                return false;
+            }
+            try {
+                var obj = new URL(url);
+                var con = (HttpsURLConnection) obj.openConnection();
+                con.setRequestMethod("POST");
+                con.setRequestProperty("User-Agent", userAgent);
+                con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+                var postParams = "secret=" + secret + "&response=" + gRecaptchaResponse;
+                con.setDoOutput(true);
+                try (var wr = new DataOutputStream(con.getOutputStream())) {
+                    wr.writeBytes(postParams);
+                    wr.flush();
+                }
+                int responseCode = con.getResponseCode();
+                log.debug("reCaptcha: \nSending 'POST' request to URL : {}", url);
+                log.debug("reCaptcha: Post parameters : {}", postParams);
+                log.debug("reCaptcha: Response Code : {}", responseCode);
+                var response = new StringBuilder();
+                try (var in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+                }
+                var json = new JSONObject(response.toString());
+                return json.getBoolean("success");
+            } catch (Exception e) {
+                log.error("reCaptcha: Exception verifying captcha", e);
+                return false;
+            }
+        }
 }
-

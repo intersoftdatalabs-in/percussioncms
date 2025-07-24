@@ -79,156 +79,77 @@ public class PSFakeDataGenerator {
      * @return A list of FakeRegistrants
      */
     public static List<FakeRegistrant> getFakeRegistrations(int count) {
-        ArrayList<FakeRegistrant> ret = new ArrayList<>();
+        var ret = new ArrayList<FakeRegistrant>();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(PSFakeDataGenerator.class.getResourceAsStream("/FakeData.csv")));
-        StringTokenizer st = null;
-        int lineNumber = 0, tokenNumber = 0;
-        String line;
+        try (var br = new BufferedReader(new InputStreamReader(PSFakeDataGenerator.class.getResourceAsStream("/FakeData.csv")))) {
+            StringTokenizer st = null;
+            int lineNumber = 0, tokenNumber = 0;
+            String line;
 
-        try {
             while ((line = br.readLine()) != null) {
-
-                //Bust out of hear if we have enough lines, if the passed in 0 we just get them all
-                if (count > 0)
-                    if (lineNumber > count)
-                        break;
+                //Bust out of here if we have enough lines, if the passed in 0 we just get them all
+                if (count > 0 && lineNumber > count)
+                    break;
 
                 lineNumber++;
 
                 //Skip line 1 - it has fieldnames.
                 if (lineNumber > 1) {
-
                     st = new StringTokenizer(line, ",");
-                    FakeRegistrant data = new FakeRegistrant();
+                    var data = new FakeRegistrant();
                     String token;
 
                     //Note this is pretty brute force - can be made more elegant
                     while (st.hasMoreTokens()) {
-
                         token = st.nextToken();
-
                         switch (tokenNumber) {
-                            case Number:
-                                data.setNumber(Integer.parseInt(token));
-                                break;
-                            case Gender:
-                                data.setGender(token);
-                                break;
-                            case GivenName:
-                                data.setGivenName(token);
-                                break;
-                            case MiddleInitial:
-                                data.setMiddleInitial(token);
-                                break;
-                            case Surname:
-                                data.setSurname(token);
-                                break;
-                            case StreetAddress:
-                                data.setStreetAddress(token);
-                                break;
-                            case City:
-                                data.setCity(token);
-                                break;
-                            case State:
-                                data.setState(token);
-                                break;
-                            case ZipCode:
-                                data.setZipCode(token);
-                                break;
-                            case Country:
-                                data.setCountry(token);
-                                break;
-                            case EmailAddress:
-                                data.setEmailAddress(token);
-                                break;
-                            case Username:
-                                data.setUsername(token);
-                                break;
-                            case Password:
-                                data.setPassword(token);
-                                break;
-                            case TelephoneNumber:
-                                data.setTelephoneNumber(token);
-                                break;
-                            case MothersMaiden:
-                                data.setMothersMaiden(token);
-                                break;
-                            case Birthday:
-                                data.setBirthday(token);
-                                break;
-                            case CCType:
-                                data.setCCType(token);
-                                break;
-                            case CCNumber:
-                                data.setCCNumber(token);
-                                break;
-                            case CVV2:
-                                data.setCVV2(token);
-                                break;
-                            case CCExpires:
-                                data.setCCExpires(token);
-                                break;
-                            case NationalID:
-                                data.setNationalID(token);
-                                break;
-                            case UPS:
-                                data.setUPS(token);
-                                break;
-                            case Occupation:
-                                data.setOccupation(token);
-                                break;
-                            case Company:
-                                data.setCompany(token);
-                                break;
-                            case Vehicle:
-                                data.setVehicle(token);
-                                break;
-                            case Domain:
-                                data.setDomain(token);
-                                break;
-                            case BloodType:
-                                data.setBloodType(token);
-                                break;
-                            case Pounds:
-                                data.setPounds(token);
-                                break;
-                            case Kilograms:
-                                data.setKilograms(token);
-                                break;
-                            case FeetInches:
-                                data.setFeetInches(token);
-                                break;
-                            case Centimeters:
-                                data.setCentimeters(token);
-                                break;
-                            case GUID:
-                                data.setGUID(token);
-                                break;
-                            case Latitude:
-                                data.setLatitude(token);
-                                break;
-                            case Longitude:
-                                data.setLongitude(token);
-                                break;
-                            default:
-                                break;
+                            case Number -> data.setNumber(Integer.parseInt(token));
+                            case Gender -> data.setGender(token);
+                            case GivenName -> data.setGivenName(token);
+                            case MiddleInitial -> data.setMiddleInitial(token);
+                            case Surname -> data.setSurname(token);
+                            case StreetAddress -> data.setStreetAddress(token);
+                            case City -> data.setCity(token);
+                            case State -> data.setState(token);
+                            case ZipCode -> data.setZipCode(token);
+                            case Country -> data.setCountry(token);
+                            case EmailAddress -> data.setEmailAddress(token);
+                            case Username -> data.setUsername(token);
+                            case Password -> data.setPassword(token);
+                            case TelephoneNumber -> data.setTelephoneNumber(token);
+                            case MothersMaiden -> data.setMothersMaiden(token);
+                            case Birthday -> data.setBirthday(token);
+                            case CCType -> data.setCCType(token);
+                            case CCNumber -> data.setCCNumber(token);
+                            case CVV2 -> data.setCVV2(token);
+                            case CCExpires -> data.setCCExpires(token);
+                            case NationalID -> data.setNationalID(token);
+                            case UPS -> data.setUPS(token);
+                            case Occupation -> data.setOccupation(token);
+                            case Company -> data.setCompany(token);
+                            case Vehicle -> data.setVehicle(token);
+                            case Domain -> data.setDomain(token);
+                            case BloodType -> data.setBloodType(token);
+                            case Pounds -> data.setPounds(token);
+                            case Kilograms -> data.setKilograms(token);
+                            case FeetInches -> data.setFeetInches(token);
+                            case Centimeters -> data.setCentimeters(token);
+                            case GUID -> data.setGUID(token);
+                            case Latitude -> data.setLatitude(token);
+                            case Longitude -> data.setLongitude(token);
+                            default -> {}
                         }
                         tokenNumber++;
                     }
                     ret.add(data);
-
                     //reset token number
                     tokenNumber = 0;
-
                 }
             }
-
         } catch (IOException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return ret;
     }
 }

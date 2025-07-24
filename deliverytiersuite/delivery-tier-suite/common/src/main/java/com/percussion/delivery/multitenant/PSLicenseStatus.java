@@ -28,26 +28,24 @@ import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
  *
  */
 public class PSLicenseStatus {
+    private String licenseStatus = "";
+    private String company = "";
+    private String licenseType = "";
+    private String activationStatus = "";
+    private String maxSites = "";
+    private String maxPages = "";
+    private String maxApiCalls = "";
 
-	private String licenseStatus="";
-	private String company="";
-	private String licenseType="";
-	private String activationStatus="";
-	private String maxSites="";
-	private String maxPages="";
-	private String maxApiCalls="";
+    /**
+     * Default constructor
+     */
+    public PSLicenseStatus() {}
 
-	/***
-	 * Ctor
-	 */
-	public PSLicenseStatus(){};
-	
-	/***
-	 * Returns the status code for a given license status. 
-	 * 
-	 * @return
-	 */
-	public Status getStatusCode(){
+    /**
+     * Returns the status code for a given license status.
+     * @return status code
+     */
+    public Status getStatusCode(){
 
 		Status ret = Status.UNEXPECTED_ERROR;
 		

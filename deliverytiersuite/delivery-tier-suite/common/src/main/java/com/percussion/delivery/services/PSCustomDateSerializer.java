@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Custom date serializer to put the serialized date into a non numeric
@@ -43,10 +44,9 @@ public class PSCustomDateSerializer extends JsonSerializer<Object>
             @SuppressWarnings("unused") SerializerProvider provider) throws
            IOException
    {
-      String formattedDate = formatter.format(value);
-
+      // Java 11: Use Objects.requireNonNull for null safety
+      String formattedDate = formatter.format(Objects.requireNonNull(value));
       gen.writeString(formattedDate);
-      
    }
 
 }

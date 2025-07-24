@@ -42,7 +42,8 @@ public class PSComments
    
    public PSComments()
    {
-       comments = new ArrayList<>();
+       var comments = new ArrayList<IPSComment>();
+       this.comments = comments;
    }
    
    /**
@@ -54,7 +55,8 @@ public class PSComments
    {
        if(comments == null)
        {
-           this.comments = new ArrayList<>();
+           var emptyList = new ArrayList<IPSComment>();
+           this.comments = emptyList;
        }
        else
        {

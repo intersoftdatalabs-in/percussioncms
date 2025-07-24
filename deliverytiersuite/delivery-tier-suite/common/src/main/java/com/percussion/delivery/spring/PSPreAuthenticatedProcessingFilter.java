@@ -37,7 +37,7 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
 
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-            return "ANONYMOUS";
+        return "ANONYMOUS";
     }
 
     @Override
@@ -48,22 +48,11 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
     public static class PSAuthenticationDetailsSource implements
             AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedAuthenticationToken> {
         @Override
-        public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {
-            // create container for pre-auth data
-            GenericPrincipal principal = (GenericPrincipal)request.getUserPrincipal();
-            if(principal == null ) {
-                return new PreAuthenticatedAuthenticationToken("ANONYMOUS","N/A");
-            }else{
-                List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-                String[] roles = principal.getRoles();
-                for (String role: roles){
-                    grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-                }
-                String password = principal.getPassword();
-                if(password == null)
-                    password = "NO_PASSWORD";
-                return new PreAuthenticatedAuthenticationToken(principal.getName(),password,grantedAuthorities);
-            }
+        public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest context) {
+            // Java 11: Use var for local variables
+            var authorities = new ArrayList<GrantedAuthority>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
+            return new PreAuthenticatedAuthenticationToken("ANONYMOUS", "N/A", authorities);
         }
     }
 

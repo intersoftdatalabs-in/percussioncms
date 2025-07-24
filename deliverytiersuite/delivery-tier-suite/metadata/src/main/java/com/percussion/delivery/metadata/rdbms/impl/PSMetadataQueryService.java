@@ -107,9 +107,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      * @return
      */
     public List<Object[]> executeCategoryQuery(PSMetadataQuery query) throws PSMalformedMetadataQueryException {
-        List<Object[]> cats = new ArrayList<>();
-        List<PSCriteriaElement> entryCrit = new ArrayList<>();
-        List<PSCriteriaElement> propsCrit = new ArrayList<>();
+        var cats = new ArrayList<Object[]>();
+        var entryCrit = new ArrayList<PSCriteriaElement>();
+        var propsCrit = new ArrayList<PSCriteriaElement>();
         StringBuilder Q3 = null;
         StringBuilder Q4 = null;
 
@@ -136,7 +136,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         // Process criteria
         if (query.getCriteria() != null) {
             PSCriteriaElement el = null;
-            for (String s : query.getCriteria()) {
+            for (var s : query.getCriteria()) {
                 if (!s.isEmpty()) {
                     el = new PSCriteriaElement(s);
                     if (PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(el.getName())) {
@@ -150,47 +150,44 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
 
 
         StringBuilder Q4WhereClause = null;
-        String clauseTemplate = " e.{0} {1} :{2}";
-        int paramIndex = 0;
-        Map<String, Object> paramValues = new HashMap<String, Object>();
-        Map<String, PSCriteriaElement.OPERATION_TYPE> paramOps = new HashMap<String, PSCriteriaElement.OPERATION_TYPE>();
-        for (PSCriteriaElement ce : entryCrit) {
+        var clauseTemplate = " e.{0} {1} :{2}";
+        var paramIndex = 0;
+        var paramValues = new HashMap<String, Object>();
+        var paramOps = new HashMap<String, PSCriteriaElement.OPERATION_TYPE>();
+        for (var ce : entryCrit) {
             if (Q4WhereClause == null) {
                 Q4WhereClause = new StringBuilder(" WHERE ");
-            }else{
+            } else {
                 Q4WhereClause.append(" AND ");
             }
-            String replParam = "pagePropValue" + paramIndex++;
+            var replParam = "pagePropValue" + paramIndex++;
             Q4WhereClause.append(MessageFormat.format(clauseTemplate, ce.getName(), ce.getOperation(), replParam));
             paramValues.put(replParam, ce.getValue());
             paramOps.put(replParam, ce.getOperationType());
         }
-        if(Q4WhereClause != null) {
+        if (Q4WhereClause != null) {
             Q4 = new StringBuilder(" select distinct e.id from PSDbMetadataEntry e ");
             Q4.append(Q4WhereClause);
         }
 
         StringBuilder Q3WhereCaluse = null;
         clauseTemplate = " lower(p.name) = lower(:{3}) and p.{0} {1} :{2}";
-
-        for (PSCriteriaElement ce : propsCrit)
+        for (var ce : propsCrit)
         {
             if (Q3WhereCaluse == null) {
                 Q3WhereCaluse = new StringBuilder("WHERE ( ");
             } else {
                 Q3WhereCaluse.append(" OR ");
             }
-            String nameParam = "propName" + paramIndex;
-            String valueParam = "propValue" + paramIndex++;
-            Object value = ce.getValue();
-            String valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
-
+            var nameParam = "propName" + paramIndex;
+            var valueParam = "propValue" + paramIndex++;
+            var value = ce.getValue();
+            var valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
             if(valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME))
             {
-                Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
+                var date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
                 value = new Date(date.getTimeInMillis());
             }
-
 
             if((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
                     valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME))

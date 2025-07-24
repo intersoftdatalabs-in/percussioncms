@@ -31,21 +31,20 @@ import java.util.Set;
  */
 public interface IPSCommentsDao
 {
+    List<IPSComment> find(PSCommentCriteria criteria) throws Exception;
 
-    public List<IPSComment> find(PSCommentCriteria criteria) throws Exception;
-    
-    public List<PSPageInfo> findPagesWithComments(String site) throws Exception;
-    
-    public Set<String> findSitesForCommentIds(Collection<String> ids) throws Exception;
-    
-    public APPROVAL_STATE findDefaultModerationState(String site) throws Exception;
+    List<PSPageInfo> findPagesWithComments(String site) throws Exception;
 
-    public void save(IPSComment comment) throws Exception;
-    
-    public void saveDefaultModerationState(String sitename, APPROVAL_STATE state) throws Exception;
+    Set<String> findSitesForCommentIds(Collection<String> ids) throws Exception;
 
-    public void delete(Collection<String> commentIds) throws Exception;
+    APPROVAL_STATE findDefaultModerationState(String site) throws Exception;
 
-    public void moderate(Collection<String> commentIds, APPROVAL_STATE newApprovalState) throws Exception;
+    void save(IPSComment comment) throws Exception;
+
+    void saveDefaultModerationState(String sitename, APPROVAL_STATE state) throws Exception;
+
+    void delete(Collection<String> commentIds) throws Exception;
+
+    void moderate(Collection<String> commentIds, APPROVAL_STATE newApprovalState) throws Exception;
 
 }
