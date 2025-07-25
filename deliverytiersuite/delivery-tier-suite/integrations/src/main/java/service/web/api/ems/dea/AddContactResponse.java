@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,66 +15,88 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
+import java.util.Objects;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * Java 11+ refactored SOAP response for AddContact.
+ * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
+ *
+ * <p>Schema fragment:</p>
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="AddContactResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
+ *         &lt;element name="AddContactResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addContactResult"
 })
 @XmlRootElement(name = "AddContactResponse")
-public class AddContactResponse {
+public final class AddContactResponse {
 
     @XmlElement(name = "AddContactResult")
-    protected String addContactResult;
+    private final String addContactResult;
 
-    /**
-     * Gets the value of the addContactResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddContactResult() {
-        return addContactResult;
+    private AddContactResponse(Builder builder) {
+        this.addContactResult = builder.addContactResult;
     }
 
     /**
-     * Sets the value of the addContactResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @return Optional addContactResult
      */
-    public void setAddContactResult(String value) {
-        this.addContactResult = value;
+    public Optional<String> getAddContactResult() {
+        return Optional.ofNullable(addContactResult);
     }
 
+    /**
+     * Builder for AddContactResponse (Java 11+ style).
+     */
+    public static class Builder {
+        private String addContactResult;
+
+        public Builder addContactResult(String addContactResult) {
+            this.addContactResult = addContactResult;
+            return this;
+        }
+
+        public AddContactResponse build() {
+            return new AddContactResponse(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddContactResponse that = (AddContactResponse) o;
+        return Objects.equals(addContactResult, that.addContactResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(addContactResult);
+    }
+
+    @Override
+    public String toString() {
+        return "AddContactResponse{" +
+                "addContactResult='" + addContactResult + '\'' +
+                '}';
+    }
 }

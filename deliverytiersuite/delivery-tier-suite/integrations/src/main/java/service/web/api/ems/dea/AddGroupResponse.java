@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,66 +15,88 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
+import java.util.Objects;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * Java 11+ refactored SOAP response for AddGroup.
+ * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
+ *
+ * <p>Schema fragment:</p>
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="AddGroupResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
+ *         &lt;element name="AddGroupResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addGroupResult"
 })
 @XmlRootElement(name = "AddGroupResponse")
-public class AddGroupResponse {
+public final class AddGroupResponse {
 
     @XmlElement(name = "AddGroupResult")
-    protected String addGroupResult;
+    private final String addGroupResult;
 
-    /**
-     * Gets the value of the addGroupResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddGroupResult() {
-        return addGroupResult;
+    private AddGroupResponse(Builder builder) {
+        this.addGroupResult = builder.addGroupResult;
     }
 
     /**
-     * Sets the value of the addGroupResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @return Optional addGroupResult
      */
-    public void setAddGroupResult(String value) {
-        this.addGroupResult = value;
+    public Optional<String> getAddGroupResult() {
+        return Optional.ofNullable(addGroupResult);
     }
 
+    /**
+     * Builder for AddGroupResponse (Java 11+ style).
+     */
+    public static class Builder {
+        private String addGroupResult;
+
+        public Builder addGroupResult(String addGroupResult) {
+            this.addGroupResult = addGroupResult;
+            return this;
+        }
+
+        public AddGroupResponse build() {
+            return new AddGroupResponse(this);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddGroupResponse that = (AddGroupResponse) o;
+        return Objects.equals(addGroupResult, that.addGroupResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(addGroupResult);
+    }
+
+    @Override
+    public String toString() {
+        return "AddGroupResponse{" +
+                "addGroupResult='" + addGroupResult + '\'' +
+                '}';
+    }
 }

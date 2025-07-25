@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -97,52 +96,32 @@ public class AddBooking {
 
     /**
      * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of userName
      */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
     /**
      * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setUserName(String value) {
         this.userName = value;
     }
-
     /**
      * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of password
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
     /**
      * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setPassword(String value) {
         this.password = value;
     }
-
     /**
      * Gets the value of the reservationID property.
      * 
@@ -249,23 +228,14 @@ public class AddBooking {
 
     /**
      * Gets the value of the eventName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of eventName
      */
-    public String getEventName() {
-        return eventName;
+    public java.util.Optional<String> getEventName() {
+        return java.util.Optional.ofNullable(eventName);
     }
-
     /**
      * Sets the value of the eventName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setEventName(String value) {
         this.eventName = value;
@@ -303,4 +273,41 @@ public class AddBooking {
         this.eventTypeID = value;
     }
 
+    // REFACTORED: CP-JAVA11
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddBooking that = (AddBooking) o;
+        return reservationID == that.reservationID &&
+                roomID == that.roomID &&
+                statusID == that.statusID &&
+                eventTypeID == that.eventTypeID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(bookingDate, that.bookingDate) &&
+                java.util.Objects.equals(startTime, that.startTime) &&
+                java.util.Objects.equals(endTime, that.endTime) &&
+                java.util.Objects.equals(eventName, that.eventName);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, reservationID, roomID, bookingDate, startTime, endTime, eventName, statusID, eventTypeID);
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("AddBooking{");
+        sb.append("userName='").append(userName).append('\'');
+        sb.append(", password='[PROTECTED]'");
+        sb.append(", reservationID=").append(reservationID);
+        sb.append(", roomID=").append(roomID);
+        sb.append(", bookingDate=").append(bookingDate);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", endTime=").append(endTime);
+        sb.append(", eventName='").append(eventName).append('\'');
+        sb.append(", statusID=").append(statusID);
+        sb.append(", eventTypeID=").append(eventTypeID);
+        sb.append('}');
+        return sb.toString();
+    }
 }

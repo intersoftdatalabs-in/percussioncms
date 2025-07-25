@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "deleteServiceOrderResult"
 })
 @XmlRootElement(name = "DeleteServiceOrderResponse")
-public class DeleteServiceOrderResponse {
+public final class DeleteServiceOrderResponse {
 
     @XmlElement(name = "DeleteServiceOrderResult")
-    protected String deleteServiceOrderResult;
+    private String deleteServiceOrderResult;
 
     /**
      * Gets the value of the deleteServiceOrderResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getDeleteServiceOrderResult() {
-        return deleteServiceOrderResult;
+    public java.util.Optional<String> getDeleteServiceOrderResult() {
+        return java.util.Optional.ofNullable(deleteServiceOrderResult);
     }
 
     /**
      * Sets the value of the deleteServiceOrderResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setDeleteServiceOrderResult(String value) {
         this.deleteServiceOrderResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "DeleteServiceOrderResponse{" +
+                "deleteServiceOrderResult='" + deleteServiceOrderResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeleteServiceOrderResponse that = (DeleteServiceOrderResponse) o;
+        return java.util.Objects.equals(deleteServiceOrderResult, that.deleteServiceOrderResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(deleteServiceOrderResult);
+    }
 }

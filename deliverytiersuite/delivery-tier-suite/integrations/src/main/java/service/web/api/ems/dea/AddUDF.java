@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -194,4 +193,32 @@ public class AddUDF {
         this.udfValue = value;
     }
 
+    // REFACTORED: CP-JAVA11
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddUDF addUDF = (AddUDF) o;
+        return parentLevelID == addUDF.parentLevelID &&
+                parentID == addUDF.parentID &&
+                udfDefID == addUDF.udfDefID &&
+                java.util.Objects.equals(userName, addUDF.userName) &&
+                java.util.Objects.equals(password, addUDF.password) &&
+                java.util.Objects.equals(udfValue, addUDF.udfValue);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, parentLevelID, parentID, udfDefID, udfValue);
+    }
+    @Override
+    public String toString() {
+        return "AddUDF{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", parentLevelID=" + parentLevelID +
+                ", parentID=" + parentID +
+                ", udfDefID=" + udfDefID +
+                ", udfValue='" + udfValue + '\'' +
+                '}';
+    }
 }

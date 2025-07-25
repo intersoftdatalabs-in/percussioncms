@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,34 +47,41 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "getReservationCommentsResult"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetReservationCommentsResponse")
 public class GetReservationCommentsResponse {
-
     @XmlElement(name = "GetReservationCommentsResult")
     protected String getReservationCommentsResult;
 
     /**
      * Gets the value of the getReservationCommentsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of getReservationCommentsResult
      */
-    public String getGetReservationCommentsResult() {
-        return getReservationCommentsResult;
+    public java.util.Optional<String> getGetReservationCommentsResult() {
+        return java.util.Optional.ofNullable(getReservationCommentsResult);
     }
-
     /**
      * Sets the value of the getReservationCommentsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setGetReservationCommentsResult(String value) {
         this.getReservationCommentsResult = value;
     }
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetReservationCommentsResponse that = (GetReservationCommentsResponse) o;
+        return java.util.Objects.equals(getReservationCommentsResult, that.getReservationCommentsResult);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getReservationCommentsResult);
+    }
+    @Override
+    public String toString() {
+        return "GetReservationCommentsResponse{" +
+                "getReservationCommentsResult='" + getReservationCommentsResult + '\'' +
+                '}';
+    }
 }

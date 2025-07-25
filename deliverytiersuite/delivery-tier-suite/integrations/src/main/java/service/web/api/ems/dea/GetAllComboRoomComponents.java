@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,24 +25,11 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAllComboRoomComponents SOAP request.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
+ * <p>
+ * // REFACTORED: CP-JAVA11
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -51,59 +37,74 @@ import javax.xml.bind.annotation.XmlType;
     "password"
 })
 @XmlRootElement(name = "GetAllComboRoomComponents")
-public class GetAllComboRoomComponents {
-
+public final class GetAllComboRoomComponents {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private GetAllComboRoomComponents(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @return Optional user name for authentication.
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional password for authentication.
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
+    }
+
+    @Override
+    public String toString() {
+        return "GetAllComboRoomComponents{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetAllComboRoomComponents that = (GetAllComboRoomComponents) o;
+        return java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Builder for GetAllComboRoomComponents. Use for safe, immutable construction.
      */
-    public void setPassword(String value) {
-        this.password = value;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
 
+        public Builder() {}
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public GetAllComboRoomComponents build() {
+            return new GetAllComboRoomComponents(this);
+        }
+    }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -56,113 +55,87 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "buildings",
     "holidayDate"
 })
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 @XmlRootElement(name = "GetBuildingHolidays")
-public class GetBuildingHolidays {
-
+public final class GetBuildingHolidays {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
     @XmlElement(name = "Buildings")
-    protected ArrayOfInt buildings;
+    private final ArrayOfInt buildings;
     @XmlElement(name = "HolidayDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar holidayDate;
+    private final XMLGregorianCalendar holidayDate;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private GetBuildingHolidays(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.buildings = builder.buildings;
+        this.holidayDate = java.util.Objects.requireNonNull(builder.holidayDate, "holidayDate must not be null");
     }
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
+    public java.util.Optional<ArrayOfInt> getBuildings() {
+        return java.util.Optional.ofNullable(buildings);
     }
-
-    /**
-     * Gets the value of the buildings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getBuildings() {
-        return buildings;
-    }
-
-    /**
-     * Sets the value of the buildings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setBuildings(ArrayOfInt value) {
-        this.buildings = value;
-    }
-
-    /**
-     * Gets the value of the holidayDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public XMLGregorianCalendar getHolidayDate() {
         return holidayDate;
     }
 
-    /**
-     * Sets the value of the holidayDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setHolidayDate(XMLGregorianCalendar value) {
-        this.holidayDate = value;
+    public static class Builder {
+        private String userName;
+        private String password;
+        private ArrayOfInt buildings;
+        private XMLGregorianCalendar holidayDate;
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+        public Builder buildings(ArrayOfInt buildings) {
+            this.buildings = buildings;
+            return this;
+        }
+        public Builder holidayDate(XMLGregorianCalendar holidayDate) {
+            this.holidayDate = holidayDate;
+            return this;
+        }
+        public GetBuildingHolidays build() {
+            return new GetBuildingHolidays(this);
+        }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetBuildingHolidays that = (GetBuildingHolidays) o;
+        return java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(buildings, that.buildings) &&
+                java.util.Objects.equals(holidayDate, that.holidayDate);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, buildings, holidayDate);
+    }
+    @Override
+    public String toString() {
+        return "GetBuildingHolidays{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", buildings=" + buildings +
+                ", holidayDate=" + holidayDate +
+                '}';
+    }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -68,6 +67,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "groupTypes",
     "viewComboRoomComponents"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookings2")
 public class GetBookings2 {
 
@@ -96,47 +96,28 @@ public class GetBookings2 {
 
     /**
      * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of userName
      */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
     /**
      * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setUserName(String value) {
         this.userName = value;
     }
-
     /**
      * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of password
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
     /**
      * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setPassword(String value) {
         this.password = value;
@@ -316,6 +297,44 @@ public class GetBookings2 {
      */
     public void setViewComboRoomComponents(boolean value) {
         this.viewComboRoomComponents = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetBookings2 that = (GetBookings2) o;
+        return reservationID == that.reservationID &&
+                viewComboRoomComponents == that.viewComboRoomComponents &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(startDate, that.startDate) &&
+                java.util.Objects.equals(endDate, that.endDate) &&
+                java.util.Objects.equals(buildings, that.buildings) &&
+                java.util.Objects.equals(statuses, that.statuses) &&
+                java.util.Objects.equals(eventTypes, that.eventTypes) &&
+                java.util.Objects.equals(groupTypes, that.groupTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, reservationID, startDate, endDate, buildings, statuses, eventTypes, groupTypes, viewComboRoomComponents);
+    }
+
+    @Override
+    public String toString() {
+        return "GetBookings2{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", reservationID=" + reservationID +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", buildings=" + buildings +
+                ", statuses=" + statuses +
+                ", eventTypes=" + eventTypes +
+                ", groupTypes=" + groupTypes +
+                ", viewComboRoomComponents=" + viewComboRoomComponents +
+                '}';
     }
 
 }

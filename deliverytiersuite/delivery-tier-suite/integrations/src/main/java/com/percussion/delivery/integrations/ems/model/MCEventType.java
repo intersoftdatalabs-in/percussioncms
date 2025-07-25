@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,32 +24,34 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Represents an event type for EMS integration.
+ * <p>Refactored to use Java 11 features and Google Java Style.</p>
+ * @author natechadwick, refactored by Sunny Sal
+ */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MCEventType {
-	
-	private String eventTypeLocationName;
-	private Integer eventTypeId;
-	private String eventTypeColor;
-	public String getEventTypeLocationName() {
-		return eventTypeLocationName;
-	}
-	public void setEventTypeLocationName(String eventTypeLocationName) {
-		this.eventTypeLocationName = eventTypeLocationName;
-	}
-	public Integer getEventTypeId() {
-		return eventTypeId;
-	}
-	public void setEventTypeId(Integer eventTypeId) {
-		this.eventTypeId = eventTypeId;
-	}
-	public String getEventTypeColor() {
-		return eventTypeColor;
-	}
-	public void setEventTypeColor(String eventTypeColor) {
-		this.eventTypeColor = eventTypeColor;
-	}
-	
-	
+    private String eventTypeLocationName;
+    private Integer eventTypeId;
+    private String eventTypeColor;
 
+    public String getEventTypeLocationName() {
+        return eventTypeLocationName;
+    }
+    public void setEventTypeLocationName(String eventTypeLocationName) {
+        this.eventTypeLocationName = eventTypeLocationName;
+    }
+    public Integer getEventTypeId() {
+        return eventTypeId;
+    }
+    public void setEventTypeId(Integer eventTypeId) {
+        this.eventTypeId = eventTypeId;
+    }
+    public String getEventTypeColor() {
+        return eventTypeColor;
+    }
+    public void setEventTypeColor(String eventTypeColor) {
+        this.eventTypeColor = eventTypeColor;
+    }
 }

@@ -15,57 +15,80 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
 
 import java.util.List;
-
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/***
- * A model object to hold query parameters to pass to the
- * backend Bookings service. 
- * 
- * @author natechadwick
- *
+/**
+ * Model object to hold query parameters for the backend Bookings service.
+ * <p>
+ * Used for filtering bookings by building, event type, group type, and date range.
+ * </p>
  */
 @XmlRootElement
 public class PSBookingsQuery {
-	
-	private List<Integer> buildingIds;
-	private List<Integer> eventTypes;
-	private List<Integer> groupTypes;
-	private String startDate;
-	private String endDate;
-	public List<Integer> getBuildingIds() {
-		return buildingIds;
-	}
-	public void setBuildingIds(List<Integer> buildingIds) {
-		this.buildingIds = buildingIds;
-	}
-	public List<Integer> getEventTypes() {
-		return eventTypes;
-	}
-	public void setEventTypes(List<Integer> eventTypes) {
-		this.eventTypes = eventTypes;
-	}
-	public List<Integer> getGroupTypes() {
-		return groupTypes;
-	}
-	public void setGroupTypes(List<Integer> groupTypes) {
-		this.groupTypes = groupTypes;
-	}
-	public String getStartDate() {
-		return startDate;
-	}
-	public void setStartDate(String startDate) {
-		this.startDate = startDate;
-	}
-	public String getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(String endDate) {
-		this.endDate = endDate;
-	}
+    private List<Integer> buildingIds;
+    private List<Integer> eventTypes;
+    private List<Integer> groupTypes;
+    private String startDate;
+    private String endDate;
 
-	
+    public List<Integer> getBuildingIds() {
+        return buildingIds;
+    }
+    public void setBuildingIds(List<Integer> buildingIds) {
+        this.buildingIds = buildingIds;
+    }
+    public List<Integer> getEventTypes() {
+        return eventTypes;
+    }
+    public void setEventTypes(List<Integer> eventTypes) {
+        this.eventTypes = eventTypes;
+    }
+    public List<Integer> getGroupTypes() {
+        return groupTypes;
+    }
+    public void setGroupTypes(List<Integer> groupTypes) {
+        this.groupTypes = groupTypes;
+    }
+    public String getStartDate() {
+        return startDate;
+    }
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+    public String getEndDate() {
+        return endDate;
+    }
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PSBookingsQuery that = (PSBookingsQuery) o;
+        return Objects.equals(buildingIds, that.buildingIds) &&
+                Objects.equals(eventTypes, that.eventTypes) &&
+                Objects.equals(groupTypes, that.groupTypes) &&
+                Objects.equals(startDate, that.startDate) &&
+                Objects.equals(endDate, that.endDate);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(buildingIds, eventTypes, groupTypes, startDate, endDate);
+    }
+    @Override
+    public String toString() {
+        return "PSBookingsQuery{" +
+                "buildingIds=" + buildingIds +
+                ", eventTypes=" + eventTypes +
+                ", groupTypes=" + groupTypes +
+                ", startDate='" + startDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                '}';
+    }
 }

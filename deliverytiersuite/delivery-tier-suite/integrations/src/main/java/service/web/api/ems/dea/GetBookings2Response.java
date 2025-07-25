@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,34 +47,41 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "getBookings2Result"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookings2Response")
 public class GetBookings2Response {
-
     @XmlElement(name = "GetBookings2Result")
     protected String getBookings2Result;
 
     /**
      * Gets the value of the getBookings2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of getBookings2Result
      */
-    public String getGetBookings2Result() {
-        return getBookings2Result;
+    public java.util.Optional<String> getGetBookings2Result() {
+        return java.util.Optional.ofNullable(getBookings2Result);
     }
-
     /**
      * Sets the value of the getBookings2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setGetBookings2Result(String value) {
         this.getBookings2Result = value;
     }
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetBookings2Response that = (GetBookings2Response) o;
+        return java.util.Objects.equals(getBookings2Result, that.getBookings2Result);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getBookings2Result);
+    }
+    @Override
+    public String toString() {
+        return "GetBookings2Response{" +
+                "getBookings2Result='" + getBookings2Result + '\'' +
+                '}';
+    }
 }

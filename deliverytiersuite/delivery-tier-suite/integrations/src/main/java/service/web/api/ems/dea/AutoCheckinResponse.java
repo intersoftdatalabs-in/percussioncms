@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "autoCheckinResult"
 })
 @XmlRootElement(name = "AutoCheckinResponse")
-public class AutoCheckinResponse {
+public final class AutoCheckinResponse {
 
     @XmlElement(name = "AutoCheckinResult")
-    protected String autoCheckinResult;
+    private String autoCheckinResult;
 
     /**
      * Gets the value of the autoCheckinResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getAutoCheckinResult() {
-        return autoCheckinResult;
+    public java.util.Optional<String> getAutoCheckinResult() {
+        return java.util.Optional.ofNullable(autoCheckinResult);
     }
 
     /**
      * Sets the value of the autoCheckinResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setAutoCheckinResult(String value) {
         this.autoCheckinResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "AutoCheckinResponse{" +
+                "autoCheckinResult='" + autoCheckinResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AutoCheckinResponse that = (AutoCheckinResponse) o;
+        return java.util.Objects.equals(autoCheckinResult, that.autoCheckinResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(autoCheckinResult);
+    }
 }

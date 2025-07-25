@@ -17,6 +17,7 @@
 
 package com.percussion.delivery.integrations.ems;
 
+import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -25,19 +26,24 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
+/**
+ * Custom authentication provider that integrates with the EMS system.
+ */
 @Component
-public class CustomAuthenticationProvider implements
-        AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
-
+public class CustomAuthenticationProvider
+        implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+    /**
+     * Loads user details for the given token.
+     *
+     * @param token the pre-authenticated authentication token
+     * @return the user details
+     * @throws UsernameNotFoundException if the user is not found
+     */
     @Override
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
-        PreAuthenticatedAuthenticationToken sessionUserDetails =
-                (PreAuthenticatedAuthenticationToken) token.getDetails();
-        List<GrantedAuthority> authorities = (List<GrantedAuthority>) sessionUserDetails.getAuthorities();
+        var sessionUserDetails = (PreAuthenticatedAuthenticationToken) token.getDetails();
+        @SuppressWarnings("unchecked")
+        var authorities = (List<GrantedAuthority>) sessionUserDetails.getAuthorities();
         return new User(token.getName(), "N/A", true, true, true, true, authorities);
     }
-
-
 }

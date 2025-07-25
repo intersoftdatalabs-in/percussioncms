@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,34 +47,41 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "getBookingCheckInResult"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingCheckInResponse")
 public class GetBookingCheckInResponse {
-
     @XmlElement(name = "GetBookingCheckInResult")
     protected String getBookingCheckInResult;
 
     /**
      * Gets the value of the getBookingCheckInResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of getBookingCheckInResult
      */
-    public String getGetBookingCheckInResult() {
-        return getBookingCheckInResult;
+    public java.util.Optional<String> getGetBookingCheckInResult() {
+        return java.util.Optional.ofNullable(getBookingCheckInResult);
     }
-
     /**
      * Sets the value of the getBookingCheckInResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setGetBookingCheckInResult(String value) {
         this.getBookingCheckInResult = value;
     }
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetBookingCheckInResponse that = (GetBookingCheckInResponse) o;
+        return java.util.Objects.equals(getBookingCheckInResult, that.getBookingCheckInResult);
+    }
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getBookingCheckInResult);
+    }
+    @Override
+    public String toString() {
+        return "GetBookingCheckInResponse{" +
+                "getBookingCheckInResult='" + getBookingCheckInResult + '\'' +
+                '}';
+    }
 }

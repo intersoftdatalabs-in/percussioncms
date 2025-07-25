@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -61,149 +60,87 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "viewComboRoomComponents"
 })
 @XmlRootElement(name = "GetAllBookings")
-public class GetAllBookings {
-
+public final class GetAllBookings {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "StartDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startDate;
+    private XMLGregorianCalendar startDate;
     @XmlElement(name = "EndDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endDate;
+    private XMLGregorianCalendar endDate;
     @XmlElement(name = "BuildingID")
-    protected int buildingID;
+    private int buildingID;
     @XmlElement(name = "ViewComboRoomComponents")
-    protected boolean viewComboRoomComponents;
+    private boolean viewComboRoomComponents;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    // --- Modernized Getters/Setters ---
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setUserName(String value) {
         this.userName = value;
     }
-
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPassword(String value) {
         this.password = value;
     }
-
-    /**
-     * Gets the value of the startDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartDate() {
-        return startDate;
+    public java.util.Optional<XMLGregorianCalendar> getStartDate() {
+        return java.util.Optional.ofNullable(startDate);
     }
-
-    /**
-     * Sets the value of the startDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setStartDate(XMLGregorianCalendar value) {
         this.startDate = value;
     }
-
-    /**
-     * Gets the value of the endDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndDate() {
-        return endDate;
+    public java.util.Optional<XMLGregorianCalendar> getEndDate() {
+        return java.util.Optional.ofNullable(endDate);
     }
-
-    /**
-     * Sets the value of the endDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setEndDate(XMLGregorianCalendar value) {
         this.endDate = value;
     }
-
-    /**
-     * Gets the value of the buildingID property.
-     * 
-     */
     public int getBuildingID() {
         return buildingID;
     }
-
-    /**
-     * Sets the value of the buildingID property.
-     * 
-     */
     public void setBuildingID(int value) {
         this.buildingID = value;
     }
-
-    /**
-     * Gets the value of the viewComboRoomComponents property.
-     * 
-     */
     public boolean isViewComboRoomComponents() {
         return viewComboRoomComponents;
     }
-
-    /**
-     * Sets the value of the viewComboRoomComponents property.
-     * 
-     */
     public void setViewComboRoomComponents(boolean value) {
         this.viewComboRoomComponents = value;
     }
 
+    @Override
+    public String toString() {
+        return "GetAllBookings{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", buildingID=" + buildingID +
+                ", viewComboRoomComponents=" + viewComboRoomComponents +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetAllBookings that = (GetAllBookings) o;
+        return buildingID == that.buildingID &&
+                viewComboRoomComponents == that.viewComboRoomComponents &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(startDate, that.startDate) &&
+                java.util.Objects.equals(endDate, that.endDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, startDate, endDate, buildingID, viewComboRoomComponents);
+    }
 }

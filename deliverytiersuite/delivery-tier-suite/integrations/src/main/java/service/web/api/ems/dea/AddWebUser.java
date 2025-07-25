@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package service.web.api.ems.dea;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,40 +23,13 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
+import java.util.Objects;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserPassword" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Phone" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Fax" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ExternalReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="NetworkID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="TimeZoneID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="StatusID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebSecurityTemplateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebProcessTemplates" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="Groups" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="Validated" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 modernized: AddWebUser request for EMS SOAP API.
+ * <p>
+ * Represents a user to be added via the EMS web service.
+ * </p>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -78,7 +51,6 @@ import javax.xml.bind.annotation.XmlType;
 })
 @XmlRootElement(name = "AddWebUser")
 public class AddWebUser {
-
     @XmlElement(name = "UserName")
     protected String userName;
     @XmlElement(name = "Password")
@@ -438,4 +410,51 @@ public class AddWebUser {
         this.validated = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddWebUser that = (AddWebUser) o;
+        return timeZoneID == that.timeZoneID &&
+                statusID == that.statusID &&
+                webSecurityTemplateID == that.webSecurityTemplateID &&
+                validated == that.validated &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(webUserName, that.webUserName) &&
+                Objects.equals(webUserPassword, that.webUserPassword) &&
+                Objects.equals(emailAddress, that.emailAddress) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(fax, that.fax) &&
+                Objects.equals(externalReference, that.externalReference) &&
+                Objects.equals(networkID, that.networkID) &&
+                Objects.equals(webProcessTemplates, that.webProcessTemplates) &&
+                Objects.equals(groups, that.groups);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, password, webUserName, webUserPassword, emailAddress, phone, fax, externalReference, networkID, timeZoneID, statusID, webSecurityTemplateID, webProcessTemplates, groups, validated);
+    }
+
+    @Override
+    public String toString() {
+        return "AddWebUser{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", webUserName='" + webUserName + '\'' +
+                ", webUserPassword='[PROTECTED]'" +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", phone='" + phone + '\'' +
+                ", fax='" + fax + '\'' +
+                ", externalReference='" + externalReference + '\'' +
+                ", networkID='" + networkID + '\'' +
+                ", timeZoneID=" + timeZoneID +
+                ", statusID=" + statusID +
+                ", webSecurityTemplateID=" + webSecurityTemplateID +
+                ", webProcessTemplates=" + webProcessTemplates +
+                ", groups=" + groups +
+                ", validated=" + validated +
+                '}';
+    }
 }

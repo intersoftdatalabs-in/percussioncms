@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "addServiceOrderResult"
 })
 @XmlRootElement(name = "AddServiceOrderResponse")
-public class AddServiceOrderResponse {
+public final class AddServiceOrderResponse {
 
     @XmlElement(name = "AddServiceOrderResult")
-    protected String addServiceOrderResult;
+    private String addServiceOrderResult;
 
     /**
      * Gets the value of the addServiceOrderResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getAddServiceOrderResult() {
-        return addServiceOrderResult;
+    public java.util.Optional<String> getAddServiceOrderResult() {
+        return java.util.Optional.ofNullable(addServiceOrderResult);
     }
 
     /**
      * Sets the value of the addServiceOrderResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setAddServiceOrderResult(String value) {
         this.addServiceOrderResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "AddServiceOrderResponse{" +
+                "addServiceOrderResult='" + addServiceOrderResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddServiceOrderResponse that = (AddServiceOrderResponse) o;
+        return java.util.Objects.equals(addServiceOrderResult, that.addServiceOrderResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(addServiceOrderResult);
+    }
 }

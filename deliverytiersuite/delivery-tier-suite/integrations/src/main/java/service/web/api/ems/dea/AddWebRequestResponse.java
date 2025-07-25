@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,33 +15,21 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package service.web.api.ems.dea;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="AddWebRequestResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 modernized: AddWebRequestResponse for EMS SOAP API.
+ * <p>
+ * Represents the response for AddWebRequest SOAP operation.
+ * </p>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -50,32 +37,30 @@ import javax.xml.bind.annotation.XmlType;
 })
 @XmlRootElement(name = "AddWebRequestResponse")
 public class AddWebRequestResponse {
-
     @XmlElement(name = "AddWebRequestResult")
     protected String addWebRequestResult;
 
-    /**
-     * Gets the value of the addWebRequestResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getAddWebRequestResult() {
         return addWebRequestResult;
     }
-
-    /**
-     * Sets the value of the addWebRequestResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setAddWebRequestResult(String value) {
         this.addWebRequestResult = value;
     }
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddWebRequestResponse that = (AddWebRequestResponse) o;
+        return Objects.equals(addWebRequestResult, that.addWebRequestResult);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(addWebRequestResult);
+    }
+    @Override
+    public String toString() {
+        return "AddWebRequestResponse{" +
+                "addWebRequestResult='" + addWebRequestResult + '\'' +
+                '}';
+    }
 }

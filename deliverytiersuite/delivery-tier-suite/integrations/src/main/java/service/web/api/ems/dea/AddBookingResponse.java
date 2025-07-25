@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -78,4 +77,23 @@ public class AddBookingResponse {
         this.addBookingResult = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddBookingResponse that = (AddBookingResponse) o;
+        return java.util.Objects.equals(addBookingResult, that.addBookingResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(addBookingResult);
+    }
+
+    @Override
+    public String toString() {
+        return "AddBookingResponse{" +
+                "addBookingResult='" + addBookingResult + '\'' +
+                '}';
+    }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -78,4 +77,23 @@ public class AddUDFResponse {
         this.addUDFResult = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddUDFResponse that = (AddUDFResponse) o;
+        return java.util.Objects.equals(addUDFResult, that.addUDFResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(addUDFResult);
+    }
+
+    @Override
+    public String toString() {
+        return "AddUDFResponse{" +
+                "addUDFResult='" + addUDFResult + '\'' +
+                '}';
+    }
 }

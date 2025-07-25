@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "addServiceOrderDetailResult"
 })
 @XmlRootElement(name = "AddServiceOrderDetailResponse")
-public class AddServiceOrderDetailResponse {
+public final class AddServiceOrderDetailResponse {
 
     @XmlElement(name = "AddServiceOrderDetailResult")
-    protected String addServiceOrderDetailResult;
+    private String addServiceOrderDetailResult;
 
     /**
      * Gets the value of the addServiceOrderDetailResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getAddServiceOrderDetailResult() {
-        return addServiceOrderDetailResult;
+    public java.util.Optional<String> getAddServiceOrderDetailResult() {
+        return java.util.Optional.ofNullable(addServiceOrderDetailResult);
     }
 
     /**
      * Sets the value of the addServiceOrderDetailResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setAddServiceOrderDetailResult(String value) {
         this.addServiceOrderDetailResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "AddServiceOrderDetailResponse{" +
+                "addServiceOrderDetailResult='" + addServiceOrderDetailResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddServiceOrderDetailResponse that = (AddServiceOrderDetailResponse) o;
+        return java.util.Objects.equals(addServiceOrderDetailResult, that.addServiceOrderDetailResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(addServiceOrderDetailResult);
+    }
 }

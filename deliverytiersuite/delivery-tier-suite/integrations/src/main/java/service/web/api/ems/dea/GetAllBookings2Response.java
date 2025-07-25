@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "getAllBookings2Result"
 })
 @XmlRootElement(name = "GetAllBookings2Response")
-public class GetAllBookings2Response {
+public final class GetAllBookings2Response {
 
     @XmlElement(name = "GetAllBookings2Result")
-    protected String getAllBookings2Result;
+    private String getAllBookings2Result;
 
     /**
      * Gets the value of the getAllBookings2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getGetAllBookings2Result() {
-        return getAllBookings2Result;
+    public java.util.Optional<String> getGetAllBookings2Result() {
+        return java.util.Optional.ofNullable(getAllBookings2Result);
     }
 
     /**
      * Sets the value of the getAllBookings2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setGetAllBookings2Result(String value) {
         this.getAllBookings2Result = value;
     }
 
+    @Override
+    public String toString() {
+        return "GetAllBookings2Response{" +
+                "getAllBookings2Result='" + getAllBookings2Result + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetAllBookings2Response that = (GetAllBookings2Response) o;
+        return java.util.Objects.equals(getAllBookings2Result, that.getAllBookings2Result);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getAllBookings2Result);
+    }
 }

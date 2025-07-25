@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -66,6 +65,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "a7",
     "a8"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingHistory")
 public class GetBookingHistory {
 
@@ -92,47 +92,28 @@ public class GetBookingHistory {
 
     /**
      * Gets the value of the a0 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of a0
      */
-    public String getA0() {
-        return a0;
+    public java.util.Optional<String> getA0() {
+        return java.util.Optional.ofNullable(a0);
     }
-
     /**
      * Sets the value of the a0 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setA0(String value) {
         this.a0 = value;
     }
-
     /**
      * Gets the value of the a1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional of a1
      */
-    public String getA1() {
-        return a1;
+    public java.util.Optional<String> getA1() {
+        return java.util.Optional.ofNullable(a1);
     }
-
     /**
      * Sets the value of the a1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setA1(String value) {
         this.a1 = value;
@@ -296,6 +277,42 @@ public class GetBookingHistory {
      */
     public void setA8(boolean value) {
         this.a8 = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetBookingHistory that = (GetBookingHistory) o;
+        return a8 == that.a8 &&
+                java.util.Objects.equals(a0, that.a0) &&
+                java.util.Objects.equals(a1, that.a1) &&
+                java.util.Objects.equals(a2, that.a2) &&
+                java.util.Objects.equals(a3, that.a3) &&
+                java.util.Objects.equals(a4, that.a4) &&
+                java.util.Objects.equals(a5, that.a5) &&
+                java.util.Objects.equals(a6, that.a6) &&
+                java.util.Objects.equals(a7, that.a7);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(a0, a1, a2, a3, a4, a5, a6, a7, a8);
+    }
+
+    @Override
+    public String toString() {
+        return "GetBookingHistory{" +
+                "a0='" + a0 + '\'' +
+                ", a1='" + a1 + '\'' +
+                ", a2=" + a2 +
+                ", a3=" + a3 +
+                ", a4=" + a4 +
+                ", a5=" + a5 +
+                ", a6=" + a6 +
+                ", a7=" + a7 +
+                ", a8=" + a8 +
+                '}';
     }
 
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,46 @@ import javax.xml.bind.annotation.XmlType;
     "deleteServiceOrderDetailResult"
 })
 @XmlRootElement(name = "DeleteServiceOrderDetailResponse")
-public class DeleteServiceOrderDetailResponse {
+public final class DeleteServiceOrderDetailResponse {
 
     @XmlElement(name = "DeleteServiceOrderDetailResult")
-    protected String deleteServiceOrderDetailResult;
+    private String deleteServiceOrderDetailResult;
 
     /**
      * Gets the value of the deleteServiceOrderDetailResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return Optional containing the result string if present
      */
-    public String getDeleteServiceOrderDetailResult() {
-        return deleteServiceOrderDetailResult;
+    public java.util.Optional<String> getDeleteServiceOrderDetailResult() {
+        return java.util.Optional.ofNullable(deleteServiceOrderDetailResult);
     }
 
     /**
      * Sets the value of the deleteServiceOrderDetailResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
      */
     public void setDeleteServiceOrderDetailResult(String value) {
         this.deleteServiceOrderDetailResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "DeleteServiceOrderDetailResponse{" +
+                "deleteServiceOrderDetailResult='" + deleteServiceOrderDetailResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeleteServiceOrderDetailResponse that = (DeleteServiceOrderDetailResponse) o;
+        return java.util.Objects.equals(deleteServiceOrderDetailResult, that.deleteServiceOrderDetailResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(deleteServiceOrderDetailResult);
+    }
 }

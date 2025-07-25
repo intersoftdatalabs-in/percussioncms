@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,8 +15,10 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package service.web.api.ems.dea;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,40 +29,10 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EventName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EventTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="GroupName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Contact" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Phone" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Fax" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="SetupTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="SetupCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 modernized: AddWebRequest for EMS SOAP API.
+ * <p>
+ * Represents a web request to add an event via the EMS web service.
+ * </p>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -86,7 +57,6 @@ import javax.xml.datatype.XMLGregorianCalendar;
 })
 @XmlRootElement(name = "AddWebRequest")
 public class AddWebRequest {
-
     @XmlElement(name = "UserName")
     protected String userName;
     @XmlElement(name = "Password")
@@ -511,4 +481,55 @@ public class AddWebRequest {
         this.notes = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddWebRequest that = (AddWebRequest) o;
+        return eventTypeID == that.eventTypeID &&
+                webUserID == that.webUserID &&
+                buildingID == that.buildingID &&
+                roomID == that.roomID &&
+                setupTypeID == that.setupTypeID &&
+                setupCount == that.setupCount &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(eventName, that.eventName) &&
+                Objects.equals(groupName, that.groupName) &&
+                Objects.equals(contact, that.contact) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(fax, that.fax) &&
+                Objects.equals(emailAddress, that.emailAddress) &&
+                Objects.equals(bookingDate, that.bookingDate) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(notes, that.notes);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, password, eventName, eventTypeID, groupName, contact, phone, fax, emailAddress, webUserID, buildingID, roomID, bookingDate, startTime, endTime, setupTypeID, setupCount, notes);
+    }
+    @Override
+    public String toString() {
+        return "AddWebRequest{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", eventName='" + eventName + '\'' +
+                ", eventTypeID=" + eventTypeID +
+                ", groupName='" + groupName + '\'' +
+                ", contact='" + contact + '\'' +
+                ", phone='" + phone + '\'' +
+                ", fax='" + fax + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", webUserID=" + webUserID +
+                ", buildingID=" + buildingID +
+                ", roomID=" + roomID +
+                ", bookingDate=" + bookingDate +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", setupTypeID=" + setupTypeID +
+                ", setupCount=" + setupCount +
+                ", notes='" + notes + '\'' +
+                '}';
+    }
 }

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -53,77 +52,55 @@ import javax.xml.bind.annotation.XmlType;
     "serviceOrderDetailID"
 })
 @XmlRootElement(name = "DeleteServiceOrderDetail")
-public class DeleteServiceOrderDetail {
-
+public final class DeleteServiceOrderDetail {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "ServiceOrderDetailID")
-    protected int serviceOrderDetailID;
+    private int serviceOrderDetailID;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    // --- Modernized Getters/Setters ---
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setUserName(String value) {
         this.userName = value;
     }
-
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPassword(String value) {
         this.password = value;
     }
-
-    /**
-     * Gets the value of the serviceOrderDetailID property.
-     * 
-     */
     public int getServiceOrderDetailID() {
         return serviceOrderDetailID;
     }
-
-    /**
-     * Sets the value of the serviceOrderDetailID property.
-     * 
-     */
     public void setServiceOrderDetailID(int value) {
         this.serviceOrderDetailID = value;
     }
 
+    @Override
+    public String toString() {
+        return "DeleteServiceOrderDetail{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", serviceOrderDetailID=" + serviceOrderDetailID +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DeleteServiceOrderDetail that = (DeleteServiceOrderDetail) o;
+        return serviceOrderDetailID == that.serviceOrderDetailID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, serviceOrderDetailID);
+    }
 }
