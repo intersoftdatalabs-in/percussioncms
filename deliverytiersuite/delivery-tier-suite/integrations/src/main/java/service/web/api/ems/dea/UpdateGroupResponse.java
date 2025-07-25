@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,58 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UpdateGroupResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: Immutable SOAP response for UpdateGroup.
+ * <p>
+ * Represents the response payload for the UpdateGroup endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Group updated—now your team is as organized as your code!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateGroupResult"
 })
 @XmlRootElement(name = "UpdateGroupResponse")
-public class UpdateGroupResponse {
+public final class UpdateGroupResponse {
 
     @XmlElement(name = "UpdateGroupResult")
-    protected String updateGroupResult;
+    private final String updateGroupResult;
 
-    /**
-     * Gets the value of the updateGroupResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUpdateGroupResult() {
-        return updateGroupResult;
+    private UpdateGroupResponse(Builder builder) {
+        this.updateGroupResult = builder.updateGroupResult;
     }
 
     /**
-     * Sets the value of the updateGroupResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the update group result.
+     *
+     * @return Optional result string
      */
-    public void setUpdateGroupResult(String value) {
-        this.updateGroupResult = value;
+    public Optional<String> getUpdateGroupResult() {
+        return Optional.ofNullable(updateGroupResult);
     }
 
+    /**
+     * Builder for UpdateGroupResponse.
+     */
+    public static class Builder {
+        private String updateGroupResult;
+
+        public Builder withUpdateGroupResult(String updateGroupResult) {
+            this.updateGroupResult = updateGroupResult;
+            return this;
+        }
+
+        public UpdateGroupResponse build() {
+            return new UpdateGroupResponse(this);
+        }
+    }
 }

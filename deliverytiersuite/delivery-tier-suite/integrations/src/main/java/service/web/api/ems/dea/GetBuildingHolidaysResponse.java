@@ -21,27 +21,12 @@ package service.web.api.ems.dea;
 
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 /**
  * Java 11+ refactored SOAP response for GetBuildingHolidays.
- * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
- *
- * <p>Schema fragment:</p>
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetBuildingHolidaysResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Building holidays response, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -58,7 +43,8 @@ public final class GetBuildingHolidaysResponse {
     }
 
     /**
-     * @return Optional getBuildingHolidaysResult
+     * Gets the building holidays result.
+     * @return Optional result
      */
     public Optional<String> getGetBuildingHolidaysResult() {
         return Optional.ofNullable(getBuildingHolidaysResult);
@@ -83,8 +69,8 @@ public final class GetBuildingHolidaysResponse {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBuildingHolidaysResponse that = (GetBuildingHolidaysResponse) o;
+        if (!(o instanceof GetBuildingHolidaysResponse)) return false;
+        var that = (GetBuildingHolidaysResponse) o;
         return Objects.equals(getBuildingHolidaysResult, that.getBuildingHolidaysResult);
     }
 

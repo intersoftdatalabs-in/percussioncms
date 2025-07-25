@@ -36,12 +36,12 @@ import javax.xml.bind.annotation.XmlType;
     "addWebRequestResult"
 })
 @XmlRootElement(name = "AddWebRequestResponse")
-public class AddWebRequestResponse {
+public final class AddWebRequestResponse {
     @XmlElement(name = "AddWebRequestResult")
-    protected String addWebRequestResult;
+    private String addWebRequestResult;
 
-    public String getAddWebRequestResult() {
-        return addWebRequestResult;
+    public java.util.Optional<String> getAddWebRequestResult() {
+        return java.util.Optional.ofNullable(addWebRequestResult);
     }
     public void setAddWebRequestResult(String value) {
         this.addWebRequestResult = value;

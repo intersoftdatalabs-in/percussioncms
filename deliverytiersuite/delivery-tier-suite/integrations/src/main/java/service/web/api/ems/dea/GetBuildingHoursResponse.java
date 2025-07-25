@@ -21,27 +21,12 @@ package service.web.api.ems.dea;
 
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 /**
  * Java 11+ refactored SOAP response for GetBuildingHours.
- * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
- *
- * <p>Schema fragment:</p>
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetBuildingHoursResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Building hours response, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -58,7 +43,8 @@ public final class GetBuildingHoursResponse {
     }
 
     /**
-     * @return Optional getBuildingHoursResult
+     * Gets the building hours result.
+     * @return Optional result
      */
     public Optional<String> getGetBuildingHoursResult() {
         return Optional.ofNullable(getBuildingHoursResult);
@@ -83,8 +69,8 @@ public final class GetBuildingHoursResponse {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBuildingHoursResponse that = (GetBuildingHoursResponse) o;
+        if (!(o instanceof GetBuildingHoursResponse)) return false;
+        var that = (GetBuildingHoursResponse) o;
         return Objects.equals(getBuildingHoursResult, that.getBuildingHoursResult);
     }
 

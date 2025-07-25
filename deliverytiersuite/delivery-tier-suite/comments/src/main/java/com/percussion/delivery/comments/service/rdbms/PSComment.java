@@ -1,22 +1,14 @@
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSComment)) return false;
-        PSComment that = (PSComment) o;
-        return id != null && id.equals(that.id);
-    }
+// REFACTORED: CP-JAVA11
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
-    @Override
-    public String toString() {
-        return String.format("Comment{id=%d, title='%s', author='%s', state=%s}",
-            id, title, username, approvalState);
-    }
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -111,6 +103,8 @@ public class PSComment implements IPSComment, Serializable {
 
     @Size(max = 2000)
     private String url;
+
+    private String commentCreatedDate;
 
     // Required by JPA
     protected PSComment() {}
@@ -254,16 +248,30 @@ public class PSComment implements IPSComment, Serializable {
         this.viewed = viewed;
     }
 
-   {
-      this.title = title;
-   }
+    public String getCommentCreatedDate() {
+        return commentCreatedDate;
+    }
 
+    public void setCommentCreatedDate(String commentCreatedDate) {
+        this.commentCreatedDate = commentCreatedDate;
+    }
 
-   public String getCommentCreatedDate() {
-      return commentCreatedDate;
-   }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSComment)) return false;
+        var that = (PSComment) o;
+        return id != null && id.equals(that.id);
+    }
 
-   public void setCommentCreatedDate(String commentCreatedDate) {
-      this.commentCreatedDate = commentCreatedDate;
-   }
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Comment{id=%d, title='%s', author='%s', state=%s}",
+            id, title, username, approvalState);
+    }
 }

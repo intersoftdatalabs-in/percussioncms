@@ -91,8 +91,8 @@ DocumentBuilder db = null;
     }
 
     private List<MCCalendarEntry> parseCalendarListXML(String xml) {
-        List<MCCalendarEntry> ret = new ArrayList<>();
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        var ret = new ArrayList<MCCalendarEntry>();
+        var dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(false);
         dbf.setValidating(false);
         DocumentBuilder db = null;
@@ -103,62 +103,58 @@ DocumentBuilder db = null;
             log.debug(e1.getMessage(), e1);
         }
         try {
-            Document doc = db.newDocument();
-            Node fragmentNode = db.parse(
-                    new InputSource(new StringReader(xml)))
-                    .getDocumentElement();
+            var doc = db.newDocument();
+            var fragmentNode = db.parse(new InputSource(new StringReader(xml))).getDocumentElement();
             fragmentNode = doc.importNode(fragmentNode, true);
             doc.appendChild(fragmentNode);
-            NodeList entries = doc.getElementsByTagName("Data");
-            for (int i = 0; i < entries.getLength(); i++) {
-                NodeList children = entries.item(i).getChildNodes();
-                MCCalendarEntry e = new MCCalendarEntry();
-                for (int j = 0; j < children.getLength(); j++) {
-                    if (children.item(j).getNodeName() == "Name") {
+            var entries = doc.getElementsByTagName("Data");
+            for (var i = 0; i < entries.getLength(); i++) {
+                var children = entries.item(i).getChildNodes();
+                var e = new MCCalendarEntry();
+                for (var j = 0; j < children.getLength(); j++) {
+                    var nodeName = children.item(j).getNodeName();
+                    if ("Name".equals(nodeName)) {
                         e.setCalendarName(children.item(j).getTextContent());
-                    } else if (children.item(j).getNodeName() == "CalendarID") {
+                    } else if ("CalendarID".equals(nodeName)) {
                         e.setCalendarId(Integer.parseInt(children.item(j).getTextContent()));
                     }
                 }
                 ret.add(e);
             }
-
-        } catch (SAXException e) {
-            log.error("Error parsing response: {}, Error: {}", xml, e.getMessage());
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             log.error("Error parsing response: {}, Error: {}", xml, e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
         return ret;
     }
-public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarService {
-    public List<MCGrouping> getMasterCalendarGroupings() {
 
-        List<MCGrouping> ret = new ArrayList<>();
+    public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarService {
+        public List<MCGrouping> getMasterCalendarGroupings() {
 
-        String xml;
-        try {
-            xml = soap.getGroupings(mcUserName, mcPassword);
+            List<MCGrouping> ret = new ArrayList<>();
 
-            if (!checkForErrors(xml)) {
+            String xml;
+            try {
+                xml = soap.getGroupings(mcUserName, mcPassword);
 
-                ret = parseGroupingsXML(xml);
+                if (!checkForErrors(xml)) {
 
-            } else {
-                log.error("An error was returned when getting Groupings:{}", xml);
+                    ret = parseGroupingsXML(xml);
+
+                } else {
+                    log.error("An error was returned when getting Groupings:{}", xml);
+                }
+
+            } catch (RemoteException e) {
+                log.error("An unexpected error was returned by the remote server. Error: {}", PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
-
-        } catch (RemoteException e) {
-            log.error("An unexpected error was returned by the remote server. Error: {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return ret;
         }
-        return ret;
-    }
     }
     private List<MCGrouping> parseGroupingsXML(String xml) {
-        List<MCGrouping> ret = new ArrayList<>();
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        var ret = new ArrayList<MCGrouping>();
+        var dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(false);
         dbf.setValidating(false);
         DocumentBuilder db = null;
@@ -169,30 +165,25 @@ public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarSe
             log.debug(e1.getMessage(), e1);
         }
         try {
-            Document doc = db.newDocument();
-            Node fragmentNode = db.parse(
-                    new InputSource(new StringReader(xml)))
-                    .getDocumentElement();
+            var doc = db.newDocument();
+            var fragmentNode = db.parse(new InputSource(new StringReader(xml))).getDocumentElement();
             fragmentNode = doc.importNode(fragmentNode, true);
             doc.appendChild(fragmentNode);
-            NodeList entries = doc.getElementsByTagName("Data");
-            for (int i = 0; i < entries.getLength(); i++) {
-                NodeList children = entries.item(i).getChildNodes();
-                MCGrouping e = new MCGrouping();
-                for (int j = 0; j < children.getLength(); j++) {
-                    if (children.item(j).getNodeName() == "GroupingID") {
+            var entries = doc.getElementsByTagName("Data");
+            for (var i = 0; i < entries.getLength(); i++) {
+                var children = entries.item(i).getChildNodes();
+                var e = new MCGrouping();
+                for (var j = 0; j < children.getLength(); j++) {
+                    var nodeName = children.item(j).getNodeName();
+                    if ("GroupingID".equals(nodeName)) {
                         e.setGroupingId(Integer.parseInt(children.item(j).getTextContent()));
-                    } else if (children.item(j).getNodeName() == "Name") {
+                    } else if ("Name".equals(nodeName)) {
                         e.setName(children.item(j).getTextContent());
                     }
                 }
                 ret.add(e);
             }
-
-        } catch (SAXException e) {
-            log.error("Error parsing response: {}, Error: {}", xml, e.getMessage());
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        } catch (IOException e) {
+        } catch (SAXException | IOException e) {
             log.error("Error parsing response: {}, Error: {}", xml, e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
@@ -596,8 +587,8 @@ public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarSe
 	}
 	
 	private List<MCCalendarEntry> parseCalendarListXML(String xml) {
-		List<MCCalendarEntry> ret = new ArrayList<>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		var ret = new ArrayList<MCCalendarEntry>();
+		var dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(false);
 		dbf.setValidating(false);
 		DocumentBuilder db = null;
@@ -608,30 +599,28 @@ public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarSe
 			log.debug(e1.getMessage(), e1);
 		} 
 		try {
-			Document doc = db.newDocument();
-			Node fragmentNode = db.parse(
+			var doc = db.newDocument();
+			var fragmentNode = db.parse(
 				        new InputSource(new StringReader(xml)))
 				        .getDocumentElement();
 				    fragmentNode = doc.importNode(fragmentNode, true);
 				    doc.appendChild(fragmentNode);
-			NodeList entries = doc.getElementsByTagName("Data");
-			for(int i=0;i<entries.getLength();i++){
-				NodeList children = entries.item(i).getChildNodes();
-				MCCalendarEntry e = new MCCalendarEntry();
-				for(int j=0;j<children.getLength();j++){
-					if(children.item(j).getNodeName() == "Name"){
-						e.setCalendarName(children.item(j).getTextContent());
-					}else if(children.item(j).getNodeName() == "CalendarID"){
-						e.setCalendarId(Integer.parseInt(children.item(j).getTextContent()));
-					}
+			var entries = doc.getElementsByTagName("Data");
+			for(var i=0;i<entries.getLength();i++){
+				var children = entries.item(i).getChildNodes();
+				var e = new MCCalendarEntry();
+				for(var j=0;j<children.getLength();j++){
+					var nodeName = children.item(j).getNodeName();
+					if ("Name".equals(nodeName)) {
+                        e.setCalendarName(children.item(j).getTextContent());
+                    } else if ("CalendarID".equals(nodeName)) {
+                        e.setCalendarId(Integer.parseInt(children.item(j).getTextContent()));
+                    }
 				}
 				ret.add(e);
 			}
 			
-		} catch (SAXException e) {
-			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		} catch (IOException e) {
+		} catch (SAXException | IOException e) {
 			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 		}
@@ -662,8 +651,8 @@ public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarSe
 	}
 
 	private List<MCGrouping> parseGroupingsXML(String xml) {
-		List<MCGrouping> ret = new ArrayList<>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		var ret = new ArrayList<MCGrouping>();
+		var dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(false);
 		dbf.setValidating(false);
 		DocumentBuilder db = null;
@@ -674,30 +663,28 @@ public class EMSMasterCalendarSoapEventService implements IPSEMSMasterCalendarSe
 			log.debug(e1.getMessage(), e1);
 		} 
 		try {
-			Document doc = db.newDocument();
-			Node fragmentNode = db.parse(
+			var doc = db.newDocument();
+			var fragmentNode = db.parse(
 				        new InputSource(new StringReader(xml)))
 				        .getDocumentElement();
 				    fragmentNode = doc.importNode(fragmentNode, true);
 				    doc.appendChild(fragmentNode);
-			NodeList entries = doc.getElementsByTagName("Data");
-			for(int i=0;i<entries.getLength();i++){
-				NodeList children = entries.item(i).getChildNodes();
-				MCGrouping e = new MCGrouping();
-				for(int j=0;j<children.getLength();j++){
-					if(children.item(j).getNodeName() == "GroupingID"){
-						e.setGroupingId(Integer.parseInt(children.item(j).getTextContent()));
-					}else if(children.item(j).getNodeName() == "Name"){
-						e.setName(children.item(j).getTextContent());
-					}
+			var entries = doc.getElementsByTagName("Data");
+			for(var i=0;i<entries.getLength();i++){
+				var children = entries.item(i).getChildNodes();
+				var e = new MCGrouping();
+				for(var j=0;j<children.getLength();j++){
+					var nodeName = children.item(j).getNodeName();
+					if ("GroupingID".equals(nodeName)) {
+                        e.setGroupingId(Integer.parseInt(children.item(j).getTextContent()));
+                    } else if ("Name".equals(nodeName)) {
+                        e.setName(children.item(j).getTextContent());
+                    }
 				}
 				ret.add(e);
 			}
 			
-		} catch (SAXException e) {
-			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		} catch (IOException e) {
+		} catch (SAXException | IOException e) {
 			log.error("Error parsing response: {}, Error: {}", xml,e.getMessage());
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 		}

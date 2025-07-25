@@ -51,37 +51,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "GetBookingHistoryResponse")
 public class GetBookingHistoryResponse {
     @XmlElement(name = "GetBookingHistoryResult")
-    protected String getBookingHistoryResult;
+    private String getBookingHistoryResult;
 
-    /**
-     * Gets the value of the getBookingHistoryResult property.
-     * @return Optional of getBookingHistoryResult
-     */
     public java.util.Optional<String> getGetBookingHistoryResult() {
         return java.util.Optional.ofNullable(getBookingHistoryResult);
     }
-    /**
-     * Sets the value of the getBookingHistoryResult property.
-     * @param value allowed object is {@link String }
-     */
+
     public void setGetBookingHistoryResult(String value) {
-        this.getBookingHistoryResult = value;
+        getBookingHistoryResult = value;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBookingHistoryResponse that = (GetBookingHistoryResponse) o;
+        if (!(o instanceof GetBookingHistoryResponse)) return false;
+        var that = (GetBookingHistoryResponse) o;
         return java.util.Objects.equals(getBookingHistoryResult, that.getBookingHistoryResult);
     }
+
     @Override
     public int hashCode() {
         return java.util.Objects.hash(getBookingHistoryResult);
     }
+
     @Override
     public String toString() {
-        return "GetBookingHistoryResponse{" +
-                "getBookingHistoryResult='" + getBookingHistoryResult + '\'' +
-                '}';
+        return "GetBookingHistoryResponse{"
+                + "getBookingHistoryResult='" + getBookingHistoryResult + '\''
+                + '}';
     }
 }

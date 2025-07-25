@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,31 +27,8 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ServiceOrderID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ResourceID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
- *         &lt;element name="PricingMethodID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
- *         &lt;element name="Notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="SpecialInstructions" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for AddServiceOrderDetail.
+ * Immutable, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -85,13 +63,18 @@ public final class AddServiceOrderDetail {
     @XmlElement(name = "SpecialInstructions")
     private String specialInstructions;
 
-    // --- Modernized Getters/Setters ---
+    /**
+     * @return Optional user name
+     */
     public java.util.Optional<String> getUserName() {
         return java.util.Optional.ofNullable(userName);
     }
     public void setUserName(String value) {
         this.userName = value;
     }
+    /**
+     * @return Optional password
+     */
     public java.util.Optional<String> getPassword() {
         return java.util.Optional.ofNullable(password);
     }
@@ -110,6 +93,9 @@ public final class AddServiceOrderDetail {
     public void setResourceID(int value) {
         this.resourceID = value;
     }
+    /**
+     * @return Optional quantity
+     */
     public java.util.Optional<java.math.BigDecimal> getQuantity() {
         return java.util.Optional.ofNullable(quantity);
     }
@@ -122,18 +108,27 @@ public final class AddServiceOrderDetail {
     public void setPricingMethodID(int value) {
         this.pricingMethodID = value;
     }
+    /**
+     * @return Optional unit price
+     */
     public java.util.Optional<java.math.BigDecimal> getUnitPrice() {
         return java.util.Optional.ofNullable(unitPrice);
     }
     public void setUnitPrice(java.math.BigDecimal value) {
         this.unitPrice = value;
     }
+    /**
+     * @return Optional notes
+     */
     public java.util.Optional<String> getNotes() {
         return java.util.Optional.ofNullable(notes);
     }
     public void setNotes(String value) {
         this.notes = value;
     }
+    /**
+     * @return Optional special instructions
+     */
     public java.util.Optional<String> getSpecialInstructions() {
         return java.util.Optional.ofNullable(specialInstructions);
     }

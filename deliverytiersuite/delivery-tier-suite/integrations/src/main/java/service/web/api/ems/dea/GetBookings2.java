@@ -70,250 +70,124 @@ import javax.xml.datatype.XMLGregorianCalendar;
 // REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookings2")
 public class GetBookings2 {
-
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "ReservationID")
-    protected int reservationID;
+    private int reservationID;
     @XmlElement(name = "StartDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startDate;
+    private XMLGregorianCalendar startDate;
     @XmlElement(name = "EndDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endDate;
+    private XMLGregorianCalendar endDate;
     @XmlElement(name = "Buildings")
-    protected ArrayOfInt buildings;
+    private ArrayOfInt buildings;
     @XmlElement(name = "Statuses")
-    protected ArrayOfInt statuses;
+    private ArrayOfInt statuses;
     @XmlElement(name = "EventTypes")
-    protected ArrayOfInt eventTypes;
+    private ArrayOfInt eventTypes;
     @XmlElement(name = "GroupTypes")
-    protected ArrayOfInt groupTypes;
+    private ArrayOfInt groupTypes;
     @XmlElement(name = "ViewComboRoomComponents")
-    protected boolean viewComboRoomComponents;
+    private boolean viewComboRoomComponents;
 
-    /**
-     * Gets the value of the userName property.
-     * @return Optional of userName
-     */
     public java.util.Optional<String> getUserName() {
         return java.util.Optional.ofNullable(userName);
     }
-    /**
-     * Sets the value of the userName property.
-     * @param value allowed object is {@link String }
-     */
+
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
-    /**
-     * Gets the value of the password property.
-     * @return Optional of password
-     */
+
     public java.util.Optional<String> getPassword() {
         return java.util.Optional.ofNullable(password);
     }
-    /**
-     * Sets the value of the password property.
-     * @param value allowed object is {@link String }
-     */
+
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
-    /**
-     * Gets the value of the reservationID property.
-     * 
-     */
     public int getReservationID() {
         return reservationID;
     }
 
-    /**
-     * Sets the value of the reservationID property.
-     * 
-     */
     public void setReservationID(int value) {
-        this.reservationID = value;
+        reservationID = value;
     }
 
-    /**
-     * Gets the value of the startDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public XMLGregorianCalendar getStartDate() {
         return startDate;
     }
 
-    /**
-     * Sets the value of the startDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setStartDate(XMLGregorianCalendar value) {
-        this.startDate = value;
+        startDate = value;
     }
 
-    /**
-     * Gets the value of the endDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public XMLGregorianCalendar getEndDate() {
         return endDate;
     }
 
-    /**
-     * Sets the value of the endDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setEndDate(XMLGregorianCalendar value) {
-        this.endDate = value;
+        endDate = value;
     }
 
-    /**
-     * Gets the value of the buildings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public ArrayOfInt getBuildings() {
         return buildings;
     }
 
-    /**
-     * Sets the value of the buildings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public void setBuildings(ArrayOfInt value) {
-        this.buildings = value;
+        buildings = value;
     }
 
-    /**
-     * Gets the value of the statuses property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public ArrayOfInt getStatuses() {
         return statuses;
     }
 
-    /**
-     * Sets the value of the statuses property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public void setStatuses(ArrayOfInt value) {
-        this.statuses = value;
+        statuses = value;
     }
 
-    /**
-     * Gets the value of the eventTypes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public ArrayOfInt getEventTypes() {
         return eventTypes;
     }
 
-    /**
-     * Sets the value of the eventTypes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public void setEventTypes(ArrayOfInt value) {
-        this.eventTypes = value;
+        eventTypes = value;
     }
 
-    /**
-     * Gets the value of the groupTypes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public ArrayOfInt getGroupTypes() {
         return groupTypes;
     }
 
-    /**
-     * Sets the value of the groupTypes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
     public void setGroupTypes(ArrayOfInt value) {
-        this.groupTypes = value;
+        groupTypes = value;
     }
 
-    /**
-     * Gets the value of the viewComboRoomComponents property.
-     * 
-     */
     public boolean isViewComboRoomComponents() {
         return viewComboRoomComponents;
     }
 
-    /**
-     * Sets the value of the viewComboRoomComponents property.
-     * 
-     */
     public void setViewComboRoomComponents(boolean value) {
-        this.viewComboRoomComponents = value;
+        viewComboRoomComponents = value;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBookings2 that = (GetBookings2) o;
-        return reservationID == that.reservationID &&
-                viewComboRoomComponents == that.viewComboRoomComponents &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(startDate, that.startDate) &&
-                java.util.Objects.equals(endDate, that.endDate) &&
-                java.util.Objects.equals(buildings, that.buildings) &&
-                java.util.Objects.equals(statuses, that.statuses) &&
-                java.util.Objects.equals(eventTypes, that.eventTypes) &&
-                java.util.Objects.equals(groupTypes, that.groupTypes);
+        if (!(o instanceof GetBookings2)) return false;
+        var that = (GetBookings2) o;
+        return reservationID == that.reservationID
+                && viewComboRoomComponents == that.viewComboRoomComponents
+                && java.util.Objects.equals(userName, that.userName)
+                && java.util.Objects.equals(password, that.password)
+                && java.util.Objects.equals(startDate, that.startDate)
+                && java.util.Objects.equals(endDate, that.endDate)
+                && java.util.Objects.equals(buildings, that.buildings)
+                && java.util.Objects.equals(statuses, that.statuses)
+                && java.util.Objects.equals(eventTypes, that.eventTypes)
+                && java.util.Objects.equals(groupTypes, that.groupTypes);
     }
 
     @Override
@@ -323,18 +197,17 @@ public class GetBookings2 {
 
     @Override
     public String toString() {
-        return "GetBookings2{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", reservationID=" + reservationID +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", buildings=" + buildings +
-                ", statuses=" + statuses +
-                ", eventTypes=" + eventTypes +
-                ", groupTypes=" + groupTypes +
-                ", viewComboRoomComponents=" + viewComboRoomComponents +
-                '}';
+        return "GetBookings2{"
+                + "userName='" + userName + '\''
+                + ", password='[PROTECTED]'"
+                + ", reservationID=" + reservationID
+                + ", startDate=" + startDate
+                + ", endDate=" + endDate
+                + ", buildings=" + buildings
+                + ", statuses=" + statuses
+                + ", eventTypes=" + eventTypes
+                + ", groupTypes=" + groupTypes
+                + ", viewComboRoomComponents=" + viewComboRoomComponents
+                + '}';
     }
-
 }

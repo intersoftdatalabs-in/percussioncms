@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,38 +29,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="GroupID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EventName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="StatusID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="EventTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebTemplateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ReservationSourceID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BillingReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="PONumber" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="SetupCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for AddReservation5.
+ * Immutable, builder-based, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -82,159 +54,114 @@ import javax.xml.datatype.XMLGregorianCalendar;
 @XmlRootElement(name = "AddReservation5")
 public final class AddReservation5 {
     @XmlElement(name = "UserName")
-    private String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    private String password;
+    private final String password;
     @XmlElement(name = "GroupID")
-    private int groupID;
+    private final int groupID;
     @XmlElement(name = "RoomID")
-    private int roomID;
+    private final int roomID;
     @XmlElement(name = "BookingDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar bookingDate;
+    private final XMLGregorianCalendar bookingDate;
     @XmlElement(name = "StartTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar startTime;
+    private final XMLGregorianCalendar startTime;
     @XmlElement(name = "EndTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar endTime;
+    private final XMLGregorianCalendar endTime;
     @XmlElement(name = "EventName")
-    private String eventName;
+    private final String eventName;
     @XmlElement(name = "StatusID")
-    private int statusID;
+    private final int statusID;
     @XmlElement(name = "EventTypeID")
-    private int eventTypeID;
+    private final int eventTypeID;
     @XmlElement(name = "WebUserID")
-    private int webUserID;
+    private final int webUserID;
     @XmlElement(name = "WebTemplateID")
-    private int webTemplateID;
+    private final int webTemplateID;
     @XmlElement(name = "ReservationSourceID")
-    private int reservationSourceID;
+    private final int reservationSourceID;
     @XmlElement(name = "BillingReference")
-    private String billingReference;
+    private final String billingReference;
     @XmlElement(name = "PONumber")
-    private String poNumber;
+    private final String poNumber;
     @XmlElement(name = "SetupCount")
-    private int setupCount;
+    private final int setupCount;
 
-    // --- Modernized Getters/Setters ---
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
-    }
-    public void setUserName(String value) {
-        this.userName = value;
-    }
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
-    }
-    public void setPassword(String value) {
-        this.password = value;
-    }
-    public int getGroupID() {
-        return groupID;
-    }
-    public void setGroupID(int value) {
-        this.groupID = value;
-    }
-    public int getRoomID() {
-        return roomID;
-    }
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
-    public java.util.Optional<XMLGregorianCalendar> getBookingDate() {
-        return java.util.Optional.ofNullable(bookingDate);
-    }
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
-    public java.util.Optional<XMLGregorianCalendar> getStartTime() {
-        return java.util.Optional.ofNullable(startTime);
-    }
-    public void setStartTime(XMLGregorianCalendar value) {
-        this.startTime = value;
-    }
-    public java.util.Optional<XMLGregorianCalendar> getEndTime() {
-        return java.util.Optional.ofNullable(endTime);
-    }
-    public void setEndTime(XMLGregorianCalendar value) {
-        this.endTime = value;
-    }
-    public java.util.Optional<String> getEventName() {
-        return java.util.Optional.ofNullable(eventName);
-    }
-    public void setEventName(String value) {
-        this.eventName = value;
-    }
-    public int getStatusID() {
-        return statusID;
-    }
-    public void setStatusID(int value) {
-        this.statusID = value;
-    }
-    public int getEventTypeID() {
-        return eventTypeID;
-    }
-    public void setEventTypeID(int value) {
-        this.eventTypeID = value;
-    }
-    public int getWebUserID() {
-        return webUserID;
-    }
-    public void setWebUserID(int value) {
-        this.webUserID = value;
-    }
-    public int getWebTemplateID() {
-        return webTemplateID;
-    }
-    public void setWebTemplateID(int value) {
-        this.webTemplateID = value;
-    }
-    public int getReservationSourceID() {
-        return reservationSourceID;
-    }
-    public void setReservationSourceID(int value) {
-        this.reservationSourceID = value;
-    }
-    public java.util.Optional<String> getBillingReference() {
-        return java.util.Optional.ofNullable(billingReference);
-    }
-    public void setBillingReference(String value) {
-        this.billingReference = value;
-    }
-    public java.util.Optional<String> getPONumber() {
-        return java.util.Optional.ofNullable(poNumber);
-    }
-    public void setPONumber(String value) {
-        this.poNumber = value;
-    }
-    public int getSetupCount() {
-        return setupCount;
-    }
-    public void setSetupCount(int value) {
-        this.setupCount = value;
+    private AddReservation5(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.groupID = builder.groupID;
+        this.roomID = builder.roomID;
+        this.bookingDate = builder.bookingDate;
+        this.startTime = builder.startTime;
+        this.endTime = builder.endTime;
+        this.eventName = builder.eventName;
+        this.statusID = builder.statusID;
+        this.eventTypeID = builder.eventTypeID;
+        this.webUserID = builder.webUserID;
+        this.webTemplateID = builder.webTemplateID;
+        this.reservationSourceID = builder.reservationSourceID;
+        this.billingReference = builder.billingReference;
+        this.poNumber = builder.poNumber;
+        this.setupCount = builder.setupCount;
     }
 
-    @Override
-    public String toString() {
-        return "AddReservation5{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", groupID=" + groupID +
-                ", roomID=" + roomID +
-                ", bookingDate=" + bookingDate +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", eventName='" + eventName + '\'' +
-                ", statusID=" + statusID +
-                ", eventTypeID=" + eventTypeID +
-                ", webUserID=" + webUserID +
-                ", webTemplateID=" + webTemplateID +
-                ", reservationSourceID=" + reservationSourceID +
-                ", billingReference='" + billingReference + '\'' +
-                ", poNumber='" + poNumber + '\'' +
-                ", setupCount=" + setupCount +
-                '}';
+    public java.util.Optional<String> getUserName() { return java.util.Optional.ofNullable(userName); }
+    public java.util.Optional<String> getPassword() { return java.util.Optional.ofNullable(password); }
+    public int getGroupID() { return groupID; }
+    public int getRoomID() { return roomID; }
+    public java.util.Optional<XMLGregorianCalendar> getBookingDate() { return java.util.Optional.ofNullable(bookingDate); }
+    public java.util.Optional<XMLGregorianCalendar> getStartTime() { return java.util.Optional.ofNullable(startTime); }
+    public java.util.Optional<XMLGregorianCalendar> getEndTime() { return java.util.Optional.ofNullable(endTime); }
+    public java.util.Optional<String> getEventName() { return java.util.Optional.ofNullable(eventName); }
+    public int getStatusID() { return statusID; }
+    public int getEventTypeID() { return eventTypeID; }
+    public int getWebUserID() { return webUserID; }
+    public int getWebTemplateID() { return webTemplateID; }
+    public int getReservationSourceID() { return reservationSourceID; }
+    public java.util.Optional<String> getBillingReference() { return java.util.Optional.ofNullable(billingReference); }
+    public java.util.Optional<String> getPONumber() { return java.util.Optional.ofNullable(poNumber); }
+    public int getSetupCount() { return setupCount; }
+
+    /**
+     * Builder for AddReservation5.
+     */
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int groupID;
+        private int roomID;
+        private XMLGregorianCalendar bookingDate;
+        private XMLGregorianCalendar startTime;
+        private XMLGregorianCalendar endTime;
+        private String eventName;
+        private int statusID;
+        private int eventTypeID;
+        private int webUserID;
+        private int webTemplateID;
+        private int reservationSourceID;
+        private String billingReference;
+        private String poNumber;
+        private int setupCount;
+        public Builder userName(String userName) { this.userName = userName; return this; }
+        public Builder password(String password) { this.password = password; return this; }
+        public Builder groupID(int groupID) { this.groupID = groupID; return this; }
+        public Builder roomID(int roomID) { this.roomID = roomID; return this; }
+        public Builder bookingDate(XMLGregorianCalendar bookingDate) { this.bookingDate = bookingDate; return this; }
+        public Builder startTime(XMLGregorianCalendar startTime) { this.startTime = startTime; return this; }
+        public Builder endTime(XMLGregorianCalendar endTime) { this.endTime = endTime; return this; }
+        public Builder eventName(String eventName) { this.eventName = eventName; return this; }
+        public Builder statusID(int statusID) { this.statusID = statusID; return this; }
+        public Builder eventTypeID(int eventTypeID) { this.eventTypeID = eventTypeID; return this; }
+        public Builder webUserID(int webUserID) { this.webUserID = webUserID; return this; }
+        public Builder webTemplateID(int webTemplateID) { this.webTemplateID = webTemplateID; return this; }
+        public Builder reservationSourceID(int reservationSourceID) { this.reservationSourceID = reservationSourceID; return this; }
+        public Builder billingReference(String billingReference) { this.billingReference = billingReference; return this; }
+        public Builder poNumber(String poNumber) { this.poNumber = poNumber; return this; }
+        public Builder setupCount(int setupCount) { this.setupCount = setupCount; return this; }
+        public AddReservation5 build() { return new AddReservation5(this); }
     }
 
     @Override
@@ -259,9 +186,29 @@ public final class AddReservation5 {
                 java.util.Objects.equals(billingReference, that.billingReference) &&
                 java.util.Objects.equals(poNumber, that.poNumber);
     }
-
     @Override
     public int hashCode() {
         return java.util.Objects.hash(userName, password, groupID, roomID, bookingDate, startTime, endTime, eventName, statusID, eventTypeID, webUserID, webTemplateID, reservationSourceID, billingReference, poNumber, setupCount);
+    }
+    @Override
+    public String toString() {
+        return "AddReservation5{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", groupID=" + groupID +
+                ", roomID=" + roomID +
+                ", bookingDate=" + bookingDate +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", eventName='" + eventName + '\'' +
+                ", statusID=" + statusID +
+                ", eventTypeID=" + eventTypeID +
+                ", webUserID=" + webUserID +
+                ", webTemplateID=" + webTemplateID +
+                ", reservationSourceID=" + reservationSourceID +
+                ", billingReference='" + billingReference + '\'' +
+                ", poNumber='" + poNumber + '\'' +
+                ", setupCount=" + setupCount +
+                '}';
     }
 }

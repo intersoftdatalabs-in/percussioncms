@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,31 +17,11 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetGroupsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Response for GetGroups request.
+ * Sunny Sal: "Groups delivered, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -55,27 +34,18 @@ public class GetGroupsResponse {
     protected String getGroupsResult;
 
     /**
-     * Gets the value of the getGroupsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the groups result.
+     * @return result or null
      */
-    public String getGetGroupsResult() {
-        return getGroupsResult;
+    public java.util.Optional<String> getGetGroupsResult() {
+        return java.util.Optional.ofNullable(getGroupsResult);
     }
 
     /**
-     * Sets the value of the getGroupsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the groups result.
+     * @param value result
      */
     public void setGetGroupsResult(String value) {
-        this.getGroupsResult = value;
+        getGroupsResult = value;
     }
-
 }

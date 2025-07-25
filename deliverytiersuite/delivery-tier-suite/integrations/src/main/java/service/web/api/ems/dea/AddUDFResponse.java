@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,56 +24,25 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="AddUDFResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 modernized: AddUDFResponse for EMS SOAP API.
+ * <p>
+ * Represents the response for AddUDF SOAP operation.
+ * </p>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addUDFResult"
 })
 @XmlRootElement(name = "AddUDFResponse")
-public class AddUDFResponse {
+public final class AddUDFResponse {
 
     @XmlElement(name = "AddUDFResult")
-    protected String addUDFResult;
+    private String addUDFResult;
 
-    /**
-     * Gets the value of the addUDFResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddUDFResult() {
-        return addUDFResult;
+    public java.util.Optional<String> getAddUDFResult() {
+        return java.util.Optional.ofNullable(addUDFResult);
     }
-
-    /**
-     * Sets the value of the addUDFResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setAddUDFResult(String value) {
         this.addUDFResult = value;
     }

@@ -25,11 +25,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Represents a group type entry for EMS integration.
  * <p>Refactored to use Java 11 features and Google Java Style.</p>
+ *
  * @author natechadwick, refactored by Sunny Sal
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GroupType {
+
     private int id;
     private String description;
     private boolean availableOnWeb;
@@ -37,18 +39,23 @@ public class GroupType {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
+
     public boolean isAvailableOnWeb() {
         return availableOnWeb;
     }
+
     public void setAvailableOnWeb(boolean availableOnWeb) {
         this.availableOnWeb = availableOnWeb;
     }

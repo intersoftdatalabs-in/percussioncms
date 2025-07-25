@@ -30,6 +30,22 @@ import javax.xml.bind.annotation.XmlType;
  * <p>
  * Represents the response for AddWebUser SOAP operation.
  * </p>
+ */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "", propOrder = {
+    "addWebUserResult"
+})
+@XmlRootElement(name = "AddWebUserResponse")
+public final class AddWebUserResponse {
+    @XmlElement(name = "AddWebUserResult")
+    private String addWebUserResult;
+
+    public java.util.Optional<String> getAddWebUserResult() {
+        return java.util.Optional.ofNullable(addWebUserResult);
+    }
+    public void setAddWebUserResult(String value) {
+        this.addWebUserResult = value;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,20 +63,4 @@ import javax.xml.bind.annotation.XmlType;
                 "addWebUserResult='" + addWebUserResult + '\'' +
                 '}';
     }
-    public String getAddWebUserResult() {
-        return addWebUserResult;
-    }
-
-    /**
-     * Sets the value of the addWebUserResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddWebUserResult(String value) {
-        this.addWebUserResult = value;
-    }
-
 }

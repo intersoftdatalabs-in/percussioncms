@@ -17,33 +17,12 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAllRooms SOAP request.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -54,30 +33,29 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "GetAllRooms")
 public final class GetAllRooms {
     @XmlElement(name = "UserName")
-    private String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    private String password;
+    private final String password;
     @XmlElement(name = "BuildingID")
-    private int buildingID;
+    private final int buildingID;
 
-    // --- Modernized Getters/Setters ---
+    private GetAllRooms(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.buildingID = builder.buildingID;
+    }
+
+    /** @return Optional user name for authentication. */
     public java.util.Optional<String> getUserName() {
         return java.util.Optional.ofNullable(userName);
     }
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+    /** @return Optional password for authentication. */
     public java.util.Optional<String> getPassword() {
         return java.util.Optional.ofNullable(password);
     }
-    public void setPassword(String value) {
-        this.password = value;
-    }
+    /** @return Building ID for which rooms are requested. */
     public int getBuildingID() {
         return buildingID;
-    }
-    public void setBuildingID(int value) {
-        this.buildingID = value;
     }
 
     @Override
@@ -92,8 +70,8 @@ public final class GetAllRooms {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllRooms that = (GetAllRooms) o;
+        if (!(o instanceof GetAllRooms)) return false;
+        var that = (GetAllRooms) o;
         return buildingID == that.buildingID &&
                 java.util.Objects.equals(userName, that.userName) &&
                 java.util.Objects.equals(password, that.password);
@@ -102,5 +80,32 @@ public final class GetAllRooms {
     @Override
     public int hashCode() {
         return java.util.Objects.hash(userName, password, buildingID);
+    }
+
+    /**
+     * Builder for GetAllRooms. Use for safe, immutable construction.
+     */
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int buildingID;
+
+        public Builder() {}
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+        public Builder buildingID(int buildingID) {
+            this.buildingID = buildingID;
+            return this;
+        }
+        public GetAllRooms build() {
+            return new GetAllRooms(this);
+        }
     }
 }

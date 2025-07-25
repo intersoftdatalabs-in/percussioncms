@@ -17,40 +17,49 @@
 package com.percussion.delivery.likes.data;
 
 /**
- * @author Administrator
- * 
+ * Represents a like entity for a page, comment, or image.
  */
-public interface IPSLikes
-{
+public interface IPSLikes {
 
     /**
-     * @return the page path, the relative path to the page that this likes is
-     *         on, not including the site. Never <code>null</code> or empty.
+     * @return the site name; never null or empty.
      */
-    public String getSite();
-
-    public String getType();
-
-    public String getLikeId();
-    
-    public int getTotal();
-    
-    public String getId();
-    
-    public void setId(String id);
-    
-    public void setSite(String site);
-
-    public void setType(String type);
-
-    public void setLikeId(String id);
-    
-    public void setTotal(int total);
+    String getSite();
 
     /**
-     * Comment approval states.
+     * @return the type of like (page, comment, image).
      */
-    public enum TYPE {
+    String getType();
+
+    /**
+     * @return the like identifier.
+     */
+    String getLikeId();
+
+    /**
+     * @return the total number of likes.
+     */
+    int getTotal();
+
+    /**
+     * @return the unique ID for this like.
+     */
+    String getId();
+
+    void setId(String id);
+
+    void setSite(String site);
+
+    void setType(String type);
+
+    void setLikeId(String id);
+
+    void setTotal(int total);
+
+    /**
+     * Like types.
+     */
+    enum Type {
         PAGE, COMMENT, IMAGE
     }
 }

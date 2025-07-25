@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,188 +17,141 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebProcessTemplateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="OptionName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="OptionValue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: UpdateWebUserOptions SOAP request model.
+ * <p>
+ * Represents the request payload for the UpdateWebUserOptions endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Options updated—because every hero deserves choices!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "webUserID",
-    "webProcessTemplateID",
-    "optionName",
-    "optionValue"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "webUserId",
+        "optionName",
+        "optionValue"
+    }
+)
 @XmlRootElement(name = "UpdateWebUserOptions")
 public class UpdateWebUserOptions {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
+
     @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "WebUserID")
-    protected int webUserID;
-    @XmlElement(name = "WebProcessTemplateID")
-    protected int webProcessTemplateID;
+    private String password;
+
+    @XmlElement(name = "WebUserId")
+    private int webUserId;
+
     @XmlElement(name = "OptionName")
-    protected String optionName;
+    private String optionName;
+
     @XmlElement(name = "OptionValue")
-    protected String optionValue;
+    private String optionValue;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private UpdateWebUserOptions(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.webUserId = builder.webUserId;
+        this.optionName = builder.optionName;
+        this.optionValue = builder.optionValue;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     *
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     *
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the web user ID.
+     *
+     * @return web user ID
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public int getWebUserId() {
+        return webUserId;
     }
 
     /**
-     * Gets the value of the webUserID property.
-     * 
+     * Gets the option name.
+     *
+     * @return Optional option name
      */
-    public int getWebUserID() {
-        return webUserID;
+    public Optional<String> getOptionName() {
+        return Optional.ofNullable(optionName);
     }
 
     /**
-     * Sets the value of the webUserID property.
-     * 
+     * Gets the option value.
+     *
+     * @return Optional option value
      */
-    public void setWebUserID(int value) {
-        this.webUserID = value;
+    public Optional<String> getOptionValue() {
+        return Optional.ofNullable(optionValue);
     }
 
     /**
-     * Gets the value of the webProcessTemplateID property.
-     * 
+     * Builder for UpdateWebUserOptions.
      */
-    public int getWebProcessTemplateID() {
-        return webProcessTemplateID;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int webUserId;
+        private String optionName;
+        private String optionValue;
 
-    /**
-     * Sets the value of the webProcessTemplateID property.
-     * 
-     */
-    public void setWebProcessTemplateID(int value) {
-        this.webProcessTemplateID = value;
-    }
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
 
-    /**
-     * Gets the value of the optionName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOptionName() {
-        return optionName;
-    }
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
 
-    /**
-     * Sets the value of the optionName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOptionName(String value) {
-        this.optionName = value;
-    }
+        public Builder withWebUserId(int webUserId) {
+            this.webUserId = webUserId;
+            return this;
+        }
 
-    /**
-     * Gets the value of the optionValue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getOptionValue() {
-        return optionValue;
-    }
+        public Builder withOptionName(String optionName) {
+            this.optionName = optionName;
+            return this;
+        }
 
-    /**
-     * Sets the value of the optionValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setOptionValue(String value) {
-        this.optionValue = value;
-    }
+        public Builder withOptionValue(String optionValue) {
+            this.optionValue = optionValue;
+            return this;
+        }
 
+        public UpdateWebUserOptions build() {
+            return new UpdateWebUserOptions(this);
+        }
+    }
 }

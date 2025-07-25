@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,31 +18,14 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="DeleteServiceOrderDetailResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of DeleteServiceOrderDetailResponse SOAP response.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant.
+ * <p>
+ * Represents the response for deleting a service order detail.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -56,7 +40,7 @@ public final class DeleteServiceOrderDetailResponse {
     /**
      * Gets the value of the deleteServiceOrderDetailResult property.
      *
-     * @return Optional containing the result string if present
+     * @return an {@link Optional} containing the result string if present
      */
     public java.util.Optional<String> getDeleteServiceOrderDetailResult() {
         return java.util.Optional.ofNullable(deleteServiceOrderDetailResult);
@@ -73,16 +57,16 @@ public final class DeleteServiceOrderDetailResponse {
 
     @Override
     public String toString() {
-        return "DeleteServiceOrderDetailResponse{" +
-                "deleteServiceOrderDetailResult='" + deleteServiceOrderDetailResult + '\'' +
-                '}';
+        return "DeleteServiceOrderDetailResponse{"
+                + "deleteServiceOrderDetailResult='" + deleteServiceOrderDetailResult + '\''
+                + '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DeleteServiceOrderDetailResponse that = (DeleteServiceOrderDetailResponse) o;
+        if (!(o instanceof DeleteServiceOrderDetailResponse)) return false;
+        var that = (DeleteServiceOrderDetailResponse) o;
         return java.util.Objects.equals(deleteServiceOrderDetailResult, that.deleteServiceOrderDetailResult);
     }
 

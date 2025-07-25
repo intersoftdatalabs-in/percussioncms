@@ -18,11 +18,11 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
 
-import java.util.List;
 import com.percussion.delivery.integrations.ems.model.MCCalendar;
 import com.percussion.delivery.integrations.ems.model.MCEventDetail;
 import com.percussion.delivery.integrations.ems.model.MCEventType;
 import com.percussion.delivery.integrations.ems.model.MCLocation;
+import java.util.List;
 
 /**
  * EMS Master Calendar Service interface for event, calendar, and location queries.

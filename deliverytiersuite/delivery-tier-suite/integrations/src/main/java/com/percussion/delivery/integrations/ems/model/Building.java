@@ -35,6 +35,7 @@ import java.util.Optional;
 /**
  * Represents a building entry for EMS integration.
  * <p>Refactored to use Java 11 features and java.time API.</p>
+ *
  * @author natechadwick, refactored by Sunny Sal
  */
 @XmlRootElement(name = "PSXEntry")
@@ -64,36 +65,47 @@ public class Building {
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
+
     public String getBuildingCode() {
         return buildingCode;
     }
+
     public void setBuildingCode(String buildingCode) {
         this.buildingCode = buildingCode;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
+
     public String getTimeZoneAbbreviation() {
         return timeZoneAbbreviation;
     }
+
     public void setTimeZoneAbbreviation(String timeZoneAbbreviation) {
         this.timeZoneAbbreviation = timeZoneAbbreviation;
     }
+
     public String getTimeZoneDescription() {
         return timeZoneDescription;
     }
+
     public void setTimeZoneDescription(String timeZoneDescription) {
         this.timeZoneDescription = timeZoneDescription;
     }
+
     public Optional<LocalDateTime> getCurrentLocalTime() {
         return Optional.ofNullable(currentLocalTime);
     }
+
     public void setCurrentLocalTime(String currentLocalTime) {
         this.currentLocalTime = parseDateTime(currentLocalTime, DATE_TIME_FORMAT).orElse(null);
     }

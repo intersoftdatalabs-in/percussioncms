@@ -17,36 +17,15 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
-
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Buildings" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="HolidayDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for GetBuildingHolidays.
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Building holidays, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -59,6 +38,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 // REFACTORED: CP-SOAP
 @XmlRootElement(name = "GetBuildingHolidays")
 public final class GetBuildingHolidays {
+
     @XmlElement(name = "UserName")
     private final String userName;
     @XmlElement(name = "Password")
@@ -73,43 +53,70 @@ public final class GetBuildingHolidays {
         this.userName = builder.userName;
         this.password = builder.password;
         this.buildings = builder.buildings;
-        this.holidayDate = java.util.Objects.requireNonNull(builder.holidayDate, "holidayDate must not be null");
+        this.holidayDate = Objects.requireNonNull(builder.holidayDate, "holidayDate must not be null");
     }
 
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    /**
+     * Gets the user name.
+     * @return Optional user name
+     */
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+
+    /**
+     * Gets the password.
+     * @return Optional password
+     */
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
-    public java.util.Optional<ArrayOfInt> getBuildings() {
-        return java.util.Optional.ofNullable(buildings);
+
+    /**
+     * Gets the buildings.
+     * @return Optional buildings
+     */
+    public Optional<ArrayOfInt> getBuildings() {
+        return Optional.ofNullable(buildings);
     }
+
+    /**
+     * Gets the holiday date.
+     * @return holiday date (never null)
+     */
     public XMLGregorianCalendar getHolidayDate() {
         return holidayDate;
     }
 
+    /**
+     * Builder for GetBuildingHolidays (Java 11+ style).
+     */
     public static class Builder {
         private String userName;
         private String password;
         private ArrayOfInt buildings;
         private XMLGregorianCalendar holidayDate;
+
         public Builder userName(String userName) {
             this.userName = userName;
             return this;
         }
+
         public Builder password(String password) {
             this.password = password;
             return this;
         }
+
         public Builder buildings(ArrayOfInt buildings) {
             this.buildings = buildings;
             return this;
         }
+
         public Builder holidayDate(XMLGregorianCalendar holidayDate) {
             this.holidayDate = holidayDate;
             return this;
         }
+
         public GetBuildingHolidays build() {
             return new GetBuildingHolidays(this);
         }
@@ -118,17 +125,19 @@ public final class GetBuildingHolidays {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBuildingHolidays that = (GetBuildingHolidays) o;
-        return java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(buildings, that.buildings) &&
-                java.util.Objects.equals(holidayDate, that.holidayDate);
+        if (!(o instanceof GetBuildingHolidays)) return false;
+        var that = (GetBuildingHolidays) o;
+        return Objects.equals(userName, that.userName)
+                && Objects.equals(password, that.password)
+                && Objects.equals(buildings, that.buildings)
+                && Objects.equals(holidayDate, that.holidayDate);
     }
+
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(userName, password, buildings, holidayDate);
+        return Objects.hash(userName, password, buildings, holidayDate);
     }
+
     @Override
     public String toString() {
         return "GetBuildingHolidays{" +

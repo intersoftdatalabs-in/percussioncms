@@ -28,6 +28,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * Custom authentication provider that integrates with the EMS system.
+ * <p>
+ * Uses Spring Security pre-authentication and returns a user with authorities.
+ * </p>
  */
 @Component
 public class CustomAuthenticationProvider

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,58 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UpdateContactResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: Immutable SOAP response for UpdateContact.
+ * <p>
+ * Represents the response payload for the UpdateContact endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Contact updated—now your address book is as fresh as your code!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateContactResult"
 })
 @XmlRootElement(name = "UpdateContactResponse")
-public class UpdateContactResponse {
+public final class UpdateContactResponse {
 
     @XmlElement(name = "UpdateContactResult")
-    protected String updateContactResult;
+    private final String updateContactResult;
 
-    /**
-     * Gets the value of the updateContactResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUpdateContactResult() {
-        return updateContactResult;
+    private UpdateContactResponse(Builder builder) {
+        this.updateContactResult = builder.updateContactResult;
     }
 
     /**
-     * Sets the value of the updateContactResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the update contact result.
+     *
+     * @return Optional result string
      */
-    public void setUpdateContactResult(String value) {
-        this.updateContactResult = value;
+    public Optional<String> getUpdateContactResult() {
+        return Optional.ofNullable(updateContactResult);
     }
 
+    /**
+     * Builder for UpdateContactResponse.
+     */
+    public static class Builder {
+        private String updateContactResult;
+
+        public Builder withUpdateContactResult(String updateContactResult) {
+            this.updateContactResult = updateContactResult;
+            return this;
+        }
+
+        public UpdateContactResponse build() {
+            return new UpdateContactResponse(this);
+        }
+    }
 }

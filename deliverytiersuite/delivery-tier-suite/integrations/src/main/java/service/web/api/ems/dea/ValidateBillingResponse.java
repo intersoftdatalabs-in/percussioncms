@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,58 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="ValidateBillingResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: Immutable SOAP response for ValidateBilling.
+ * <p>
+ * Represents the response payload for the ValidateBilling endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Billing validated—now your paisa and your code are both sorted!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "validateBillingResult"
 })
 @XmlRootElement(name = "ValidateBillingResponse")
-public class ValidateBillingResponse {
+public final class ValidateBillingResponse {
 
     @XmlElement(name = "ValidateBillingResult")
-    protected String validateBillingResult;
+    private final String validateBillingResult;
 
-    /**
-     * Gets the value of the validateBillingResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getValidateBillingResult() {
-        return validateBillingResult;
+    private ValidateBillingResponse(Builder builder) {
+        this.validateBillingResult = builder.validateBillingResult;
     }
 
     /**
-     * Sets the value of the validateBillingResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the validate billing result.
+     *
+     * @return Optional result string
      */
-    public void setValidateBillingResult(String value) {
-        this.validateBillingResult = value;
+    public Optional<String> getValidateBillingResult() {
+        return Optional.ofNullable(validateBillingResult);
     }
 
+    /**
+     * Builder for ValidateBillingResponse.
+     */
+    public static class Builder {
+        private String validateBillingResult;
+
+        public Builder withValidateBillingResult(String validateBillingResult) {
+            this.validateBillingResult = validateBillingResult;
+            return this;
+        }
+
+        public ValidateBillingResponse build() {
+            return new ValidateBillingResponse(this);
+        }
+    }
 }

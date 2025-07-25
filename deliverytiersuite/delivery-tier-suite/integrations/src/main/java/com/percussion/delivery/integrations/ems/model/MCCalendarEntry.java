@@ -25,23 +25,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Represents a calendar entry reference for EMS integration.
  * <p>Refactored to use Java 11 features and Google Java Style.</p>
+ *
  * @author natechadwick, refactored by Sunny Sal
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MCCalendarEntry {
+
     private String calendarName;
     private Integer calendarId;
 
     public String getCalendarName() {
         return calendarName;
     }
+
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
     }
+
     public Integer getCalendarId() {
         return calendarId;
     }
+
     public void setCalendarId(Integer calendarId) {
         this.calendarId = calendarId;
     }

@@ -18,11 +18,11 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
 
-import java.util.List;
 import com.percussion.delivery.integrations.ems.model.Booking;
 import com.percussion.delivery.integrations.ems.model.Building;
 import com.percussion.delivery.integrations.ems.model.EventType;
 import com.percussion.delivery.integrations.ems.model.GroupType;
+import java.util.List;
 
 /**
  * EMS Event Service interface for event, building, and group queries.

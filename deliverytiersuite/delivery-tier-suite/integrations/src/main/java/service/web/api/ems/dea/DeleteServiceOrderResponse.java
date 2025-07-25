@@ -43,6 +43,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  * 
  */
+// REFACTORED: CP-JAVA11
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "deleteServiceOrderResult"

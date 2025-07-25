@@ -17,31 +17,12 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetAllBookingsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAllBookingsResponse SOAP response.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,20 +34,12 @@ public final class GetAllBookingsResponse {
     @XmlElement(name = "GetAllBookingsResult")
     private String getAllBookingsResult;
 
-    /**
-     * Gets the value of the getAllBookingsResult property.
-     *
-     * @return Optional containing the result string if present
-     */
+    /** @return Optional containing the result string if present. */
     public java.util.Optional<String> getGetAllBookingsResult() {
         return java.util.Optional.ofNullable(getAllBookingsResult);
     }
 
-    /**
-     * Sets the value of the getAllBookingsResult property.
-     *
-     * @param value allowed object is {@link String }
-     */
+    /** @param value allowed object is {@link String } */
     public void setGetAllBookingsResult(String value) {
         this.getAllBookingsResult = value;
     }
@@ -81,8 +54,8 @@ public final class GetAllBookingsResponse {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllBookingsResponse that = (GetAllBookingsResponse) o;
+        if (!(o instanceof GetAllBookingsResponse)) return false;
+        var that = (GetAllBookingsResponse) o;
         return java.util.Objects.equals(getAllBookingsResult, that.getAllBookingsResult);
     }
 

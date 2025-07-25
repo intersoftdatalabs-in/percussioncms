@@ -55,11 +55,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "GetBooking")
 public class GetBooking {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "BookingID")
-    protected int bookingID;
+    private int bookingID;
 
     /**
      * Gets the value of the userName property.
@@ -68,13 +68,15 @@ public class GetBooking {
     public java.util.Optional<String> getUserName() {
         return java.util.Optional.ofNullable(userName);
     }
+
     /**
      * Sets the value of the userName property.
      * @param value allowed object is {@link String }
      */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
+
     /**
      * Gets the value of the password property.
      * @return Optional of password
@@ -82,13 +84,15 @@ public class GetBooking {
     public java.util.Optional<String> getPassword() {
         return java.util.Optional.ofNullable(password);
     }
+
     /**
      * Sets the value of the password property.
      * @param value allowed object is {@link String }
      */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
+
     /**
      * Gets the value of the bookingID property.
      * @return bookingID
@@ -96,32 +100,36 @@ public class GetBooking {
     public int getBookingID() {
         return bookingID;
     }
+
     /**
      * Sets the value of the bookingID property.
      * @param value bookingID
      */
     public void setBookingID(int value) {
-        this.bookingID = value;
+        bookingID = value;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBooking that = (GetBooking) o;
-        return bookingID == that.bookingID &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password);
+        if (!(o instanceof GetBooking)) return false;
+        var that = (GetBooking) o;
+        return bookingID == that.bookingID
+                && java.util.Objects.equals(userName, that.userName)
+                && java.util.Objects.equals(password, that.password);
     }
+
     @Override
     public int hashCode() {
         return java.util.Objects.hash(userName, password, bookingID);
     }
+
     @Override
     public String toString() {
-        return "GetBooking{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", bookingID=" + bookingID +
-                '}';
+        return "GetBooking{"
+                + "userName='" + userName + '\''
+                + ", password='[PROTECTED]'"
+                + ", bookingID=" + bookingID
+                + '}';
     }
 }

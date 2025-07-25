@@ -51,37 +51,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "GetBookingResponse")
 public class GetBookingResponse {
     @XmlElement(name = "GetBookingResult")
-    protected String getBookingResult;
+    private String getBookingResult;
 
-    /**
-     * Gets the value of the getBookingResult property.
-     * @return Optional of getBookingResult
-     */
     public java.util.Optional<String> getGetBookingResult() {
         return java.util.Optional.ofNullable(getBookingResult);
     }
-    /**
-     * Sets the value of the getBookingResult property.
-     * @param value allowed object is {@link String }
-     */
+
     public void setGetBookingResult(String value) {
-        this.getBookingResult = value;
+        getBookingResult = value;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBookingResponse that = (GetBookingResponse) o;
+        if (!(o instanceof GetBookingResponse)) return false;
+        var that = (GetBookingResponse) o;
         return java.util.Objects.equals(getBookingResult, that.getBookingResult);
     }
+
     @Override
     public int hashCode() {
         return java.util.Objects.hash(getBookingResult);
     }
+
     @Override
     public String toString() {
-        return "GetBookingResponse{" +
-                "getBookingResult='" + getBookingResult + '\'' +
-                '}';
+        return "GetBookingResponse{"
+                + "getBookingResult='" + getBookingResult + '\''
+                + '}';
     }
 }

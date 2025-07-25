@@ -73,108 +73,143 @@ public class MCCalendar {
     public String getCalendarName() {
         return calendarName;
     }
+
     public void setCalendarName(String calendarName) {
         this.calendarName = calendarName;
     }
+
     public Integer getCalendarId() {
         return calendarId;
     }
+
     public void setCalendarId(Integer calendarId) {
         this.calendarId = calendarId;
     }
+
     public String getCalendarDescription() {
         return calendarDescription;
     }
+
     public void setCalendarDescription(String calendarDescription) {
         this.calendarDescription = calendarDescription;
     }
+
     public String getAdminName() {
         return adminName;
     }
+
     public void setAdminName(String adminName) {
         this.adminName = adminName;
     }
+
     public String getAdminEmail() {
         return adminEmail;
     }
+
     public void setAdminEmail(String adminEmail) {
         this.adminEmail = adminEmail;
     }
+
     public String getApprovalEmail() {
         return approvalEmail;
     }
+
     public void setApprovalEmail(String approvalEmail) {
         this.approvalEmail = approvalEmail;
     }
+
     public Boolean getPrivateCalendar() {
         return privateCalendar;
     }
+
     public void setPrivateCalendar(Boolean privateCalendar) {
         this.privateCalendar = privateCalendar;
     }
+
     public Boolean getActiveCalendar() {
         return activeCalendar;
     }
+
     public void setActiveCalendar(Boolean activeCalendar) {
         this.activeCalendar = activeCalendar;
     }
+
     public Boolean getShowCancelledEvents() {
         return showCancelledEvents;
     }
+
     public void setShowCancelledEvents(Boolean showCancelledEvents) {
         this.showCancelledEvents = showCancelledEvents;
     }
+
     public Integer getDefaultViewId() {
         return defaultViewId;
     }
+
     public void setDefaultViewId(Integer defaultViewId) {
         this.defaultViewId = defaultViewId;
     }
+
     public Integer getCalendarFormatId() {
         return calendarFormatId;
     }
+
     public void setCalendarFormatId(Integer calendarFormatId) {
         this.calendarFormatId = calendarFormatId;
     }
+
     public Integer getCalendarGroupingId() {
         return calendarGroupingId;
     }
+
     public void setCalendarGroupingId(Integer calendarGroupingId) {
         this.calendarGroupingId = calendarGroupingId;
     }
+
     public Boolean getShowWeekends() {
         return showWeekends;
     }
+
     public void setShowWeekends(Boolean showWeekends) {
         this.showWeekends = showWeekends;
     }
+
     public Integer getStartWeekOn() {
         return startWeekOn;
     }
+
     public void setStartWeekOn(Integer startWeekOn) {
         this.startWeekOn = startWeekOn;
     }
+
     public Boolean getAllowPublicSubmission() {
         return allowPublicSubmission;
     }
+
     public void setAllowPublicSubmission(Boolean allowPublicSubmission) {
         this.allowPublicSubmission = allowPublicSubmission;
     }
+
     public Boolean getShowCalendarContactInfo() {
         return showCalendarContactInfo;
     }
+
     public void setShowCalendarContactInfo(Boolean showCalendarContactInfo) {
         this.showCalendarContactInfo = showCalendarContactInfo;
     }
+
     public Integer getSubscription() {
         return subscription;
     }
+
     public void setSubscription(Integer subscription) {
         this.subscription = subscription;
     }
+
     public Integer getListTypeId() {
         return listTypeId;
     }
+
     public void setListTypeId(Integer listTypeId) {
         this.listTypeId = listTypeId;
     }

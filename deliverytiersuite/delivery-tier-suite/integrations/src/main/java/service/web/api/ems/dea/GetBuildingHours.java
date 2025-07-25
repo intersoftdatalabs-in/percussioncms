@@ -21,29 +21,13 @@ package service.web.api.ems.dea;
 
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
  * Java 11+ refactored SOAP request for GetBuildingHours.
- * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
- *
- * <p>Schema fragment:</p>
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;element name="Buildings" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/>&lt;element name="BuildingHoursDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>&lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Building hours, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -65,9 +49,6 @@ public final class GetBuildingHours {
     @XmlSchemaType(name = "dateTime")
     private final XMLGregorianCalendar buildingHoursDate;
 
-    /**
-     * Private constructor for builder.
-     */
     private GetBuildingHours(Builder builder) {
         this.userName = builder.userName;
         this.password = builder.password;
@@ -76,13 +57,15 @@ public final class GetBuildingHours {
     }
 
     /**
-     * @return Optional userName
+     * Gets the user name.
+     * @return Optional user name
      */
     public Optional<String> getUserName() {
         return Optional.ofNullable(userName);
     }
 
     /**
+     * Gets the password.
      * @return Optional password
      */
     public Optional<String> getPassword() {
@@ -90,6 +73,7 @@ public final class GetBuildingHours {
     }
 
     /**
+     * Gets the buildings.
      * @return Optional buildings
      */
     public Optional<ArrayOfInt> getBuildings() {
@@ -97,7 +81,8 @@ public final class GetBuildingHours {
     }
 
     /**
-     * @return buildingHoursDate (never null)
+     * Gets the building hours date.
+     * @return building hours date (never null)
      */
     public XMLGregorianCalendar getBuildingHoursDate() {
         return buildingHoursDate;
@@ -140,8 +125,8 @@ public final class GetBuildingHours {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBuildingHours that = (GetBuildingHours) o;
+        if (!(o instanceof GetBuildingHours)) return false;
+        var that = (GetBuildingHours) o;
         return Objects.equals(userName, that.userName)
                 && Objects.equals(password, that.password)
                 && Objects.equals(buildings, that.buildings)

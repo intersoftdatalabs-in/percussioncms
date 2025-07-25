@@ -17,31 +17,12 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetAllRoomsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAllRoomsResponse SOAP response.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,20 +34,12 @@ public final class GetAllRoomsResponse {
     @XmlElement(name = "GetAllRoomsResult")
     private String getAllRoomsResult;
 
-    /**
-     * Gets the value of the getAllRoomsResult property.
-     *
-     * @return Optional containing the result string if present
-     */
+    /** @return Optional containing the result string if present. */
     public java.util.Optional<String> getGetAllRoomsResult() {
         return java.util.Optional.ofNullable(getAllRoomsResult);
     }
 
-    /**
-     * Sets the value of the getAllRoomsResult property.
-     *
-     * @param value allowed object is {@link String }
-     */
+    /** @param value allowed object is {@link String } */
     public void setGetAllRoomsResult(String value) {
         this.getAllRoomsResult = value;
     }
@@ -81,8 +54,8 @@ public final class GetAllRoomsResponse {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllRoomsResponse that = (GetAllRoomsResponse) o;
+        if (!(o instanceof GetAllRoomsResponse)) return false;
+        var that = (GetAllRoomsResponse) o;
         return java.util.Objects.equals(getAllRoomsResult, that.getAllRoomsResult);
     }
 

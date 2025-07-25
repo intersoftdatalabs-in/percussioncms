@@ -51,37 +51,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "GetBookingCheckInResponse")
 public class GetBookingCheckInResponse {
     @XmlElement(name = "GetBookingCheckInResult")
-    protected String getBookingCheckInResult;
+    private String getBookingCheckInResult;
 
-    /**
-     * Gets the value of the getBookingCheckInResult property.
-     * @return Optional of getBookingCheckInResult
-     */
     public java.util.Optional<String> getGetBookingCheckInResult() {
         return java.util.Optional.ofNullable(getBookingCheckInResult);
     }
-    /**
-     * Sets the value of the getBookingCheckInResult property.
-     * @param value allowed object is {@link String }
-     */
+
     public void setGetBookingCheckInResult(String value) {
-        this.getBookingCheckInResult = value;
+        getBookingCheckInResult = value;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBookingCheckInResponse that = (GetBookingCheckInResponse) o;
+        if (!(o instanceof GetBookingCheckInResponse)) return false;
+        var that = (GetBookingCheckInResponse) o;
         return java.util.Objects.equals(getBookingCheckInResult, that.getBookingCheckInResult);
     }
+
     @Override
     public int hashCode() {
         return java.util.Objects.hash(getBookingCheckInResult);
     }
+
     @Override
     public String toString() {
-        return "GetBookingCheckInResponse{" +
-                "getBookingCheckInResult='" + getBookingCheckInResult + '\'' +
-                '}';
+        return "GetBookingCheckInResponse{"
+                + "getBookingCheckInResult='" + getBookingCheckInResult + '\''
+                + '}';
     }
 }

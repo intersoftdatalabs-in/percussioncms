@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,25 +23,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetPricingMethodsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Response for GetPricingMethods request.
+ * Sunny Sal: "Pricing methods delivered, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -55,27 +38,18 @@ public class GetPricingMethodsResponse {
     protected String getPricingMethodsResult;
 
     /**
-     * Gets the value of the getPricingMethodsResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the result string.
+     * @return result or null
      */
     public String getGetPricingMethodsResult() {
         return getPricingMethodsResult;
     }
 
     /**
-     * Sets the value of the getPricingMethodsResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the result string.
+     * @param value result
      */
     public void setGetPricingMethodsResult(String value) {
-        this.getPricingMethodsResult = value;
+        getPricingMethodsResult = value;
     }
-
 }

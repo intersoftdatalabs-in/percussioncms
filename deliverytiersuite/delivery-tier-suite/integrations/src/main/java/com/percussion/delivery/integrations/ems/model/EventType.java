@@ -25,11 +25,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 /**
  * Represents an event type entry for EMS integration.
  * <p>Refactored to use Java 11 features and Google Java Style.</p>
+ *
  * @author natechadwick, refactored by Sunny Sal
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EventType {
+
     private int id;
     private String description;
     private boolean displayOnWeb;
@@ -37,18 +39,23 @@ public class EventType {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
+
     public boolean isDisplayOnWeb() {
         return displayOnWeb;
     }
+
     public void setDisplayOnWeb(boolean displayOnWeb) {
         this.displayOnWeb = displayOnWeb;
     }

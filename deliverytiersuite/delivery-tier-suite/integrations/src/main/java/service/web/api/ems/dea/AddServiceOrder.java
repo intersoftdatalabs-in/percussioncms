@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,33 +28,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="CategoryID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="TimeStart" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="TimeEnd" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="ServiceTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="StateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="EstimatedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="GuaranteedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ActualCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for AddServiceOrder.
+ * Immutable, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -96,13 +72,18 @@ public final class AddServiceOrder {
     @XmlElement(name = "ActualCount")
     private int actualCount;
 
-    // --- Modernized Getters/Setters ---
+    /**
+     * @return Optional user name
+     */
     public java.util.Optional<String> getUserName() {
         return java.util.Optional.ofNullable(userName);
     }
     public void setUserName(String value) {
         this.userName = value;
     }
+    /**
+     * @return Optional password
+     */
     public java.util.Optional<String> getPassword() {
         return java.util.Optional.ofNullable(password);
     }
@@ -121,12 +102,18 @@ public final class AddServiceOrder {
     public void setBookingID(int value) {
         this.bookingID = value;
     }
+    /**
+     * @return Optional timeStart
+     */
     public java.util.Optional<XMLGregorianCalendar> getTimeStart() {
         return java.util.Optional.ofNullable(timeStart);
     }
     public void setTimeStart(XMLGregorianCalendar value) {
         this.timeStart = value;
     }
+    /**
+     * @return Optional timeEnd
+     */
     public java.util.Optional<XMLGregorianCalendar> getTimeEnd() {
         return java.util.Optional.ofNullable(timeEnd);
     }

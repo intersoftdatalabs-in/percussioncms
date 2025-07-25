@@ -21,27 +21,12 @@ package service.web.api.ems.dea;
 
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 /**
  * Java 11+ refactored SOAP request for GetBuildings.
- * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
- *
- * <p>Schema fragment:</p>
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Buildings, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -62,13 +47,15 @@ public final class GetBuildings {
     }
 
     /**
-     * @return Optional userName
+     * Gets the user name.
+     * @return Optional user name
      */
     public Optional<String> getUserName() {
         return Optional.ofNullable(userName);
     }
 
     /**
+     * Gets the password.
      * @return Optional password
      */
     public Optional<String> getPassword() {
@@ -100,9 +87,10 @@ public final class GetBuildings {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetBuildings that = (GetBuildings) o;
-        return Objects.equals(userName, that.userName) && Objects.equals(password, that.password);
+        if (!(o instanceof GetBuildings)) return false;
+        var that = (GetBuildings) o;
+        return Objects.equals(userName, that.userName)
+                && Objects.equals(password, that.password);
     }
 
     @Override
