@@ -27,67 +27,46 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class GadgetRequestWrapper extends HttpServletRequestWrapper {
+public final class GadgetRequestWrapper extends HttpServletRequestWrapper {
     private final String body;
 
-    public GadgetRequestWrapper(HttpServletRequest request) throws IOException
-    {
-        //So that other request method behave just like before
+    public GadgetRequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = null;
-        try {
-            InputStream inputStream = request.getInputStream();
-            if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[128];
-                int bytesRead = -1;
+        var stringBuilder = new StringBuilder();
+        try (var inputStream = request.getInputStream();
+             var bufferedReader = inputStream != null ? new BufferedReader(new InputStreamReader(inputStream)) : null) {
+            if (bufferedReader != null) {
+                var charBuffer = new char[128];
+                int bytesRead;
                 while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
                     stringBuilder.append(charBuffer, 0, bytesRead);
                 }
-            } else {
-                stringBuilder.append("");
-            }
-        } catch (IOException ex) {
-            throw ex;
-        } finally {
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                } catch (IOException ex) {
-                    throw ex;
-                }
             }
         }
-        //Store request pody content in 'body' variable
         body = stringBuilder.toString();
     }
 
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
-        ServletInputStream servletInputStream = new ServletInputStream() {
+        var byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
+        return new ServletInputStream() {
             @Override
             public boolean isFinished() {
-                return false;
+                return byteArrayInputStream.available() == 0;
             }
-
             @Override
             public boolean isReady() {
-                return false;
+                return true;
             }
-
             @Override
             public void setReadListener(ReadListener readListener) {
-
+                // No-op for this implementation
             }
-
+            @Override
             public int read() throws IOException {
                 return byteArrayInputStream.read();
             }
         };
-        return servletInputStream;
     }
 
     @Override
@@ -95,7 +74,10 @@ public class GadgetRequestWrapper extends HttpServletRequestWrapper {
         return new BufferedReader(new InputStreamReader(this.getInputStream()));
     }
 
-    //Use this method to read the request body N times
+    /**
+     * Returns the cached request body for repeated access.
+     * @return request body as String
+     */
     public String getBody() {
         return this.body;
     }

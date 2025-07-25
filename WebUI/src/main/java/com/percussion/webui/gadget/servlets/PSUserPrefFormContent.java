@@ -50,7 +50,7 @@ import java.util.Map;
  * @author erikserating
  *
  */
-public class PSUserPrefFormContent {
+public final class PSUserPrefFormContent {
 
 
 	private static final String CLASS = "class";
@@ -84,46 +84,38 @@ public class PSUserPrefFormContent {
 	 * case it will default to &quote;0&quote;.
 	 */
 	public PSUserPrefFormContent(List<JSONObject> prefs, String moduleId, Map<String, String> upValues, GadgetSettingsFormServlet gadgetSettingsFormServlet, HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		if(prefs == null)
-			throw new IllegalArgumentException("prefs cannot be null.");
-		if(upValues == null)
-			throw new IllegalArgumentException("upValues cannot be null.");
-		if(moduleId != null && moduleId.length() > 0)
-			m_moduleId = moduleId;
-
-		m_userPrefValues = upValues;
-		servlet = gadgetSettingsFormServlet;
-		request = req;
-		response = resp;
-
-		buildFormContent(prefs);
-
-   }
+        if (prefs == null) throw new IllegalArgumentException("prefs cannot be null.");
+        if (upValues == null) throw new IllegalArgumentException("upValues cannot be null.");
+        if (moduleId != null && !moduleId.isEmpty()) m_moduleId = moduleId;
+        m_userPrefValues = upValues;
+        servlet = gadgetSettingsFormServlet;
+        request = req;
+        response = resp;
+        buildFormContent(prefs);
+    }
 
 
 	@Override
-   public String toString()
-	{
-	   return m_content.toString();
-	}
-   
+    public String toString() {
+        return m_content.toString();
+    }
+
    /**
     * Returns the form content within a javascript variable and also 
     * adds the other needed js functions for user prefs to work.
     * @return js string, never <code>null</code> or empty.
     */
-   public String toJavaScript()
-   {
-      StringBuilder buff = new StringBuilder();
-      buff.append("var ");
-      buff.append(replaceTokens(VAR_HTML));
-      buff.append("='");
-      buff.append(hexEncodeString(m_content.toString()));
-      buff.append("';");
-      buff.append(replaceTokens(FUNCTIONS));
-      return buff.toString();
-   }
-   
+   public String toJavaScript() {
+        var buff = new StringBuilder();
+        buff.append("var ");
+        buff.append(replaceTokens(VAR_HTML));
+        buff.append("='");
+        buff.append(hexEncodeString(m_content.toString()));
+        buff.append("';");
+        buff.append(replaceTokens(FUNCTIONS));
+        return buff.toString();
+    }
+
    
 	/**
 	 * Builds the html form based on the passed in JSON preferences
@@ -131,38 +123,31 @@ public class PSUserPrefFormContent {
 	 * @param prefs the JSON preferences object, assumed not <code>null</code>.
 	 */
 	private void buildFormContent(List<JSONObject> prefs) throws IOException {
-		//Container div
-		Map<String, String> params = new HashMap<>();
-		params.put("id", replaceTokens(ID_MAIN_DIV));
-		params.put(CLASS, "perc-gadget-pref-div");
-		params.put("style", "display:none");
-		m_content.append(createStartTag("div", params, false));
-		m_content.append(createStartTag("table", null, false));
-		m_content.append(createStartTag("tr", null, false));
-		m_content.append(createStartTag("td", null, false));
-		params.clear();
-		params.put(CLASS, "perc-gadget-pref-inner-div");
-		m_content.append(createStartTag("div", params, false));
-		for(JSONObject pref : prefs)
-		{
-		    m_userPrefs.put((String)pref.get(FIELD_NAME), pref);
-		}
-		for(JSONObject pref : prefs)
-		{
-		   addField(pref);      
-		}
-		Map<String, String> nfParams = new HashMap<>();
-		nfParams.put("id", replaceTokens(ID_NUMFIELDS));
-		nfParams.put("type", HIDDEN);
-		nfParams.put(VALUE, String.valueOf(m_fieldCount + 1));
-		m_content.append(createStartTag(INPUT, nfParams, true));
-		m_content.append(createEndTag("div"));
-		m_content.append(createEndTag("td"));
-		m_content.append(createEndTag("tr"));
-		m_content.append(createEndTag("table"));
-		m_content.append(createEndTag("div"));
-		m_content.append("\\n");
-		
+        var params = new HashMap<String, String>();
+        params.put("id", replaceTokens(ID_MAIN_DIV));
+        params.put(CLASS, "perc-gadget-pref-div");
+        params.put("style", "display:none");
+        m_content.append(createStartTag("div", params, false));
+        m_content.append(createStartTag("table", null, false));
+        m_content.append(createStartTag("tr", null, false));
+        m_content.append(createStartTag("td", null, false));
+        params.clear();
+        params.put(CLASS, "perc-gadget-pref-inner-div");
+        m_content.append(createStartTag("div", params, false));
+        prefs.forEach(pref -> m_userPrefs.put((String) pref.get(FIELD_NAME), pref));
+        for (var pref : prefs) addField(pref);
+        var nfParams = new HashMap<String, String>();
+        nfParams.put("id", replaceTokens(ID_NUMFIELDS));
+        nfParams.put("type", HIDDEN);
+        nfParams.put(VALUE, String.valueOf(m_fieldCount + 1));
+        m_content.append(createStartTag(INPUT, nfParams, true));
+        m_content.append(createEndTag("div"));
+        m_content.append(createEndTag("td"));
+        m_content.append(createEndTag("tr"));
+        m_content.append(createEndTag("table"));
+        m_content.append(createEndTag("div"));
+        m_content.append("\n");
+
 	}
 	
 	/**
@@ -173,77 +158,45 @@ public class PSUserPrefFormContent {
 	 * @param isEmpty flag indicating that the HTML tag is empty.
 	 * @return the HTML string, never <code>null</code> or empty.
 	 */
-	private String createStartTag(String name, Map<String, String> attribs, boolean isEmpty){
-		StringBuilder sb = new StringBuilder();
-		sb.append("<");
-		sb.append(name);
-		if(attribs != null)
-		{
-		   for(String key : attribs.keySet())
-		   {
-			   sb.append(" ");
-			   sb.append(key);
-			   sb.append("=");
-			   sb.append("\"");
-			   sb.append(attribs.get(key));
-			   sb.append("\"");
-		   }
-		}
-		if(isEmpty)
-			sb.append("/");
-		sb.append(">");
-		return sb.toString();
-	}
-	
+	private String createStartTag(String name, Map<String, String> attribs, boolean isEmpty) {
+        var sb = new StringBuilder();
+        sb.append("<").append(name);
+        if (attribs != null) {
+            attribs.forEach((key, value) -> sb.append(" ").append(key).append("=\"").append(value).append("\""));
+        }
+        if (isEmpty) sb.append("/");
+        sb.append(">");
+        return sb.toString();
+    }
+
 	/**
 	 * Hex encodes the following chars: ( &lt; &gt; &amp; ' &quot; = ? ).
 	 * @param str the string to be encoded, assumed not <code>null</code>,
 	 * can be empty.
 	 * @return hex encoded string, never <code>null</code>.
 	 */
-	private String hexEncodeString(String str){
-	   StringBuilder buff = new StringBuilder();
-
-	   int c = -2;
-	   try(StringReader sr = new StringReader(str))
-	   {
-	      while((c = sr.read()) != -1)
-	      {
-	         switch(c)
-	         {
-	            case 34:
-	               buff.append("\\x22");
-	               break;
-	            case 38:
-	               buff.append("\\x26");
-	               break;
-	            case 39:
-	               buff.append("\\x27");
-	               break;
-	            case 60:
-	               buff.append("\\x3c");
-	               break;
-	            case 61:
-	               buff.append("\\x3d");
-	               break;
-	            case 62:
-	               buff.append("\\x3e");
-	               break;
-	            case 63:
-	               buff.append("\\x3f");
-	               break;
-	            default:
-	               buff.append((char)c);
-	         }
-	      }
-	   }
-	   catch(IOException e)
-	   {
-	   	log.error(PSExceptionUtils.getMessageForLog(e));
-		log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-	      throw new RuntimeException(e);
-	   }
-	   return buff.toString();
+	private String hexEncodeString(String str) {
+        var buff = new StringBuilder();
+        int c;
+        try (var sr = new StringReader(str)) {
+            while ((c = sr.read()) != -1) {
+                switch (c) {
+                    case 34: buff.append("\\x22"); break;
+                    case 38: buff.append("\\x26"); break;
+                    case 39: buff.append("\\x27"); break;
+                    case 60: buff.append("\\x3c"); break;
+                    case 61: buff.append("\\x3d"); break;
+                    case 62: buff.append("\\x3e"); break;
+                    case 63: buff.append("\\x3f"); break;
+                    default: buff.append((char) c);
+                }
+            }
+        } catch (IOException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new RuntimeException(e);
+        }
+        return buff.toString();
 	}
 	
 	
@@ -252,7 +205,7 @@ public class PSUserPrefFormContent {
 	 * @param name the tag name, assumed not <code>null</code>.
 	 * @return HTML end tag string, never <code>null</code> or empty.
 	 */
-	private String createEndTag(String name){
+	private String createEndTag(String name) {
 		return "</" + name + ">";
 	}
 	
@@ -262,52 +215,24 @@ public class PSUserPrefFormContent {
 	 * @param pref the JSON preference object, assumed not <code>null</code>.
 	 */
 	private void addField(JSONObject pref) throws IOException {
-	   m_fieldCount++;
-	   String type = (String)pref.get("type");
-	   String fn = (String)pref.get(FIELD_NAME);
-	   String fieldname = replaceTokens(INPUTNAME) + fn;
-	   String displayName = (String)pref.get("displayName");
-	   if(displayName == null || displayName.length() == 0)
-	      displayName = fn;
-	   
-	   if(type.equals(HIDDEN))
-	   {
-	      addHiddenField(fieldname, pref);
-	      return;
-	   }
-	   if(type.equals("bool"))
-	   {
-	      addBooleanField(fieldname, displayName, pref);
-	      return;
-	   }
-	   if(type.equals("separator"))
-	   {
-	      addSeparator(fieldname, displayName, pref);
-	      return;
-	   }
-	   		
-	   // Label
-	   Map<String, String> params = new HashMap<>();
-	   params.put("for", fieldname);
-	   m_content.append(createStartTag(LABEL, params, false));
-	   m_content.append(displayName);
-	   m_content.append(":");
-	   m_content.append(createEndTag(LABEL));
-	   m_content.append(createStartTag("br", null, true));
-	   
-	   if(type.equals("string"))
-	   {
-	      addTextField(fieldname, pref);
-	   }
-	   else if(type.equals("list"))
-	   {
-	      addListField(fieldname, pref);
-	   }
-	   else if(type.equals("enum"))
-	   {
-	      addEnumField(fieldname, pref);
-	   }	   
-	   
+        m_fieldCount++;
+        var type = (String) pref.get("type");
+        var fn = (String) pref.get(FIELD_NAME);
+        var fieldname = replaceTokens(INPUTNAME) + fn;
+        var displayName = (String) pref.get("displayName");
+        if (displayName == null || displayName.isEmpty()) displayName = fn;
+        if (type.equals(HIDDEN)) { addHiddenField(fieldname, pref); return; }
+        if (type.equals("bool")) { addBooleanField(fieldname, displayName, pref); return; }
+        if (type.equals("separator")) { addSeparator(fieldname, displayName, pref); return; }
+        var params = new HashMap<String, String>();
+        params.put("for", fieldname);
+        m_content.append(createStartTag(LABEL, params, false));
+        m_content.append(displayName).append(":");
+        m_content.append(createEndTag(LABEL));
+        m_content.append(createStartTag("br", null, true));
+        if (type.equals("string")) { addTextField(fieldname, pref); }
+        else if (type.equals("list")) { addListField(fieldname, pref); }
+        else if (type.equals("enum")) { addEnumField(fieldname, pref); }
 	}
 	
 	/**
@@ -317,17 +242,15 @@ public class PSUserPrefFormContent {
 	 * or empty.
 	 * @param pref the JSON preference object, assumed not <code>null</code>.
 	 */
-	private void addTextField(String fieldname, JSONObject pref){
-	   Map<String, String> params = new HashMap<>();
-	   String dVal = getFieldValue(pref);
-	   params.put("type", "text");
-	   params.put("id", replaceTokens(ID_INPUT));
-	   params.put("name", fieldname);
-	   if(dVal != null && dVal.length() > 0)
-	      params.put(VALUE, dVal);
-	   m_content.append(createStartTag(INPUT, params, true));
-	   m_content.append(createStartTag("br", null, true));
-		
+	private void addTextField(String fieldname, JSONObject pref) {
+        var params = new HashMap<String, String>();
+        var dVal = getFieldValue(pref);
+        params.put("type", "text");
+        params.put("id", replaceTokens(ID_INPUT));
+        params.put("name", fieldname);
+        if (dVal != null && !dVal.isEmpty()) params.put(VALUE, dVal);
+        m_content.append(createStartTag(INPUT, params, true));
+        m_content.append(createStartTag("br", null, true));
 	}
 	
 	/**
@@ -338,50 +261,36 @@ public class PSUserPrefFormContent {
     * @param pref the JSON preference object, assumed not <code>null</code>.
     */
    private void addEnumField(String fieldname, JSONObject pref) throws IOException {
-	   Map<String, String> params = new HashMap<>();
-      String dVal = getFieldValue(pref);
-      JSONArray vals = (JSONArray)pref.get("orderedEnumValues");
-      params.put("id", replaceTokens(ID_INPUT));
-      params.put("name", fieldname);
-      m_content.append(createStartTag(SELECT, params, false));
-      //Add options
-	   for (Object o : vals) {
-		   JSONObject current = (JSONObject) o;
-		   String val = (String) current.get(VALUE);
-		   String displayVal = (String) current.get("displayValue");
-		   if (val.startsWith("@url:")) {
-			   handleRemoteOptions(val,dVal);
-		   } else {
-			   addOption(val, displayVal, dVal);
-		   }
-
-	   }
-      m_content.append(createEndTag(SELECT));
-      m_content.append(createStartTag(BR, null, true));
+        var params = new HashMap<String, String>();
+        var dVal = getFieldValue(pref);
+        var vals = (JSONArray) pref.get("orderedEnumValues");
+        params.put("id", replaceTokens(ID_INPUT));
+        params.put("name", fieldname);
+        m_content.append(createStartTag(SELECT, params, false));
+        for (var o : vals) {
+            var current = (JSONObject) o;
+            var val = (String) current.get(VALUE);
+            var displayVal = (String) current.get("displayValue");
+            if (val.startsWith("@url:")) { handleRemoteOptions(val, dVal); }
+            else { addOption(val, displayVal, dVal); }
+        }
+        m_content.append(createEndTag(SELECT));
+        m_content.append(createStartTag(BR, null, true));
 	}
 	
-	private void addOption(String val, String displayVal, String defaultVal)
-	{
-	   Map<String, String> optParams = new HashMap<>();
-      
-      if(displayVal == null || displayVal.length() == 0)
-         displayVal = val;
-      
-      optParams.put("value", val);
-      if(defaultVal != null && defaultVal.equals(val))
-         optParams.put("selected", "true");
-      m_content.append(createStartTag("option", optParams, false));
-      m_content.append(displayVal);
-      m_content.append(createEndTag("option"));    
+	private void addOption(String val, String displayVal, String defaultVal) {
+        var optParams = new HashMap<String, String>();
+        if (displayVal == null || displayVal.isEmpty()) displayVal = val;
+        optParams.put("value", val);
+        if (defaultVal != null && defaultVal.equals(val)) optParams.put("selected", "true");
+        m_content.append(createStartTag("option", optParams, false));
+        m_content.append(displayVal);
+        m_content.append(createEndTag("option"));
 	}
 
 
-	protected String getEnumUrlValue(String enumValue){
-		if(enumValue.startsWith("@url:"))
-			return enumValue.replace("@url:","");
-		else
-			return enumValue;
-
+	protected String getEnumUrlValue(String enumValue) {
+        return enumValue.startsWith("@url:") ? enumValue.replace("@url:", "") : enumValue;
 	}
 
 	/**
@@ -390,20 +299,17 @@ public class PSUserPrefFormContent {
 	 * "@url:/services/sitemanage/site/choices"
 	 * @return Returns a JSON string containing a list of sites
 	 */
-	protected String getSiteList(){
-		PSSiteDataRestService siteSvc = (PSSiteDataRestService)PSSpringBeanProvider.getBean("siteDataRestService");
-		String ret = "{}"; //default ot an empty object
-		PSEnumVals siteList = siteSvc.getChoices();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-
-		try {
-			return mapper.writeValueAsString(siteList);
-		} catch (JsonProcessingException e) {
-			log.error("Error converting Site List to JSON. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-		}
-		return ret;
+	protected String getSiteList() {
+        var siteSvc = (PSSiteDataRestService) PSSpringBeanProvider.getBean("siteDataRestService");
+        var ret = "{}";
+        var siteList = siteSvc.getChoices();
+        var mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        try { return mapper.writeValueAsString(siteList); }
+        catch (JsonProcessingException e) {
+            log.error("Error converting Site List to JSON. Error: {}", PSExceptionUtils.getMessageForLog(e));
+        }
+        return ret;
 	}
 
 	/**
@@ -412,20 +318,17 @@ public class PSUserPrefFormContent {
 	 * "@url:/Rhythmyx/services/workflowmanagement/workflows/"
 	 * @return A json string containing workflows.
 	 */
-	protected String getWorkflows(){
-		PSSteppedWorkflowRestService svc = (PSSteppedWorkflowRestService) PSSpringBeanProvider.getBean("steppedWorkflowRestService");
-		String ret = "{}";
-		PSEnumVals wfList = svc.getWorflowList();
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-
-		try {
-			return mapper.writeValueAsString(wfList);
-		} catch (JsonProcessingException e) {
-			log.error("Error converting Workflow List to JSON. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-		}
-		return ret;
+	protected String getWorkflows() {
+        var svc = (PSSteppedWorkflowRestService) PSSpringBeanProvider.getBean("steppedWorkflowRestService");
+        var ret = "{}";
+        var wfList = svc.getWorflowList();
+        var mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        try { return mapper.writeValueAsString(wfList); }
+        catch (JsonProcessingException e) {
+            log.error("Error converting Workflow List to JSON. Error: {}", PSExceptionUtils.getMessageForLog(e));
+        }
+        return ret;
 	}
 
 	/**
@@ -434,21 +337,17 @@ public class PSUserPrefFormContent {
 	 * @param workflowName Required. A valid workflow name, if null or empty returns {}
 	 * @return A json string representing the list of workflows.
 	 */
-	protected String getWorkflowStates(String workflowName){
-		PSSteppedWorkflowRestService svc = (PSSteppedWorkflowRestService) PSSpringBeanProvider.getBean("steppedWorkflowRestService");
-		String ret = "{}";
-		PSEnumVals wfList = svc.getStatesChoices(workflowName);
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-
-		try {
-			return mapper.writeValueAsString(wfList);
-		} catch (JsonProcessingException e) {
-			log.error("Error converting Workflow State List to JSON for workflow: {}. Error: {}",
-					workflowName,
-					PSExceptionUtils.getMessageForLog(e));
-		}
-		return ret;
+	protected String getWorkflowStates(String workflowName) {
+        var svc = (PSSteppedWorkflowRestService) PSSpringBeanProvider.getBean("steppedWorkflowRestService");
+        var ret = "{}";
+        var wfList = svc.getStatesChoices(workflowName);
+        var mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        try { return mapper.writeValueAsString(wfList); }
+        catch (JsonProcessingException e) {
+            log.error("Error converting Workflow State List to JSON for workflow: {}. Error: {}", workflowName, PSExceptionUtils.getMessageForLog(e));
+        }
+        return ret;
 	}
 
 	/**
@@ -461,81 +360,64 @@ public class PSUserPrefFormContent {
 	//NOTE: I am not sure why we need to call the RPC servlet here.  We should just be able to call the service
 	//directly as these urls are always with the same web app.
 	@ToDoVulnerability
-   private void handleRemoteOptions(String enumValue,String defaultVal) throws IOException {
+    private void handleRemoteOptions(String enumValue, String defaultVal) throws IOException {
+        if (enumValue != null && !StringUtils.isEmpty(enumValue)) {
+            var url = getEnumUrlValue(enumValue);
+            try {
+                String result;
+                switch (url) {
+                    case SITELIST_URL: result = getSiteList(); break;
+                    case WORKFLOWS_URL: result = getWorkflows(); break;
+                    case WORKFLOW_STATE_URL:
+                        int index = url.indexOf('@');
+                        var fieldValue = "*";
+                        if (index != -1) {
+                            var replaceField = url.substring(index + 1);
+                            replaceField = replaceField.substring(0, replaceField.indexOf('@'));
+                            fieldValue = getFieldValue(m_userPrefs.get(replaceField));
+                        }
+                        result = getWorkflowStates(fieldValue);
+                        break;
+                    default: return;
+                }
+                if (result == null || StringUtils.isEmpty(result)) {
+                    log.debug("No results returned for remote options.");
+                    result = "{}";
+                }
+                var parser = new JSONParser();
+                Object res = parser.parse(new StringReader(result));
+                if (isRemoteEnumValJsonValid(res)) {
+                    var jobj = (JSONObject) res;
+                    if (jobj == null) return;
+                    Object temp = ((JSONObject) jobj.get("EnumVals")).get("entries");
+                    if (temp == null) return;
+                    JSONArray arr;
+                    if (temp instanceof JSONObject) {
+                        arr = new JSONArray();
+                        arr.add(temp);
+                    } else {
+                        arr = (JSONArray) temp;
+                    }
+                    for (var obj : arr) {
+                        if (obj instanceof JSONObject) {
+                            var entry = (JSONObject) obj;
+                            var val = (String) entry.get("value");
+                            var displayVal = (String) entry.get("display_value");
+                            if (val != null && !val.isEmpty()) addOption(val, displayVal, defaultVal);
+                        } else {
+                            throw new IOException("Invalid json data format");
+                        }
+                    }
+                } else {
+                    throw new IOException("Invalid json data format");
+                }
+            } catch (ParseException e) {
+                log.error(PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            }
+        }
+    }
 
-   	  if(enumValue != null && !StringUtils.isEmpty(enumValue)) {
-		 	  String url = getEnumUrlValue(enumValue);
-
-		  try {
-		  String result;
-		  switch(url){
-			  case SITELIST_URL:
-			  	result = getSiteList();
-			  	break;
-			  case WORKFLOWS_URL:
-			  	result = getWorkflows();
-			  	break;
-			  case WORKFLOW_STATE_URL:
-				  int index = url.indexOf('@');
-				  String fieldValue="*";
-				  if (index != -1)
-				  {
-					  String replaceField = url.substring(index + 1);
-					  replaceField = replaceField.substring(0, replaceField.indexOf('@'));
-					  fieldValue = getFieldValue(m_userPrefs.get(replaceField));
-				  }
-			  	result=getWorkflowStates(fieldValue);
-			  	break;
-			  default:
-			  	return;
-		  }
-
-		  if(result == null || StringUtils.isEmpty(result)){
-		    	log.debug("No results returned for remote options.");
-		    	result = "{}";
-		  }
-
-			  JSONParser parser = new JSONParser();
-			  Object res = null;
-
-				  res = parser.parse(new StringReader(result));
-				  if (isRemoteEnumValJsonValid(res)) {
-					  JSONObject jobj = (JSONObject) res;
-
-					  if(jobj==null)
-					  	return;
-
-					  Object temp = ((JSONObject) jobj.get("EnumVals")).get("entries");
-					  if (temp == null)
-						  return;
-					  JSONArray arr = null;
-					  if (temp instanceof JSONObject) {
-						  arr = new JSONArray();
-						  arr.add(temp);
-					  } else {
-						  arr = (JSONArray) temp;
-					  }
-					  for (Object obj : arr) {
-						  if (obj instanceof JSONObject) {
-							  JSONObject entry = (JSONObject) obj;
-							  String val = (String) entry.get("value");
-							  String displayVal = (String) entry.get("display_value");
-							  if (val != null && val.length() > 0)
-								  addOption(val, displayVal, defaultVal);
-						  } else {
-							  throw new IOException("Invalid json data format");
-						  }
-					  }
-				  } else {
-					  throw new IOException("Invalid json data format");
-				  }
-			  } catch (ParseException e) {
-			  log.error(PSExceptionUtils.getMessageForLog(e));
-			  log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		  }
-	  }
-	}
-	
 	/**
     * Add a checkbox form field representing a boolean to the content buffer. Sets as checked if 
     * that default exists.
@@ -543,22 +425,21 @@ public class PSUserPrefFormContent {
     * or empty.
     * @param pref the JSON preference object, assumed not <code>null</code>.
     */
-	private void addBooleanField(String fieldname, String displayName, JSONObject pref){
-	   Map<String, String> params = new HashMap<>();
-      String dVal = getFieldValue(pref);
-      params.put("type", "checkbox");
-      params.put("id", replaceTokens(ID_INPUT));
-      params.put("name", fieldname);
-      params.put("value", "true");
-      if(dVal != null && dVal.equalsIgnoreCase("true"))
-         params.put("checked", "true");
-      m_content.append(createStartTag(INPUT, params, true));
-      Map<String, String> lParams = new HashMap<>();
-      lParams.put(FOR, fieldname);
-      m_content.append(createStartTag(LABEL, lParams, false));
-      m_content.append(displayName);
-      m_content.append(createEndTag(LABEL));
-      m_content.append(createStartTag(BR, null, true));
+	private void addBooleanField(String fieldname, String displayName, JSONObject pref) {
+        var params = new HashMap<String, String>();
+        var dVal = getFieldValue(pref);
+        params.put("type", "checkbox");
+        params.put("id", replaceTokens(ID_INPUT));
+        params.put("name", fieldname);
+        params.put("value", "true");
+        if (dVal != null && dVal.equalsIgnoreCase("true")) params.put("checked", "true");
+        m_content.append(createStartTag(INPUT, params, true));
+        var lParams = new HashMap<String, String>();
+        lParams.put(FOR, fieldname);
+        m_content.append(createStartTag(LABEL, lParams, false));
+        m_content.append(displayName);
+        m_content.append(createEndTag(LABEL));
+        m_content.append(createStartTag(BR, null, true));
 	}
 	
 	/**
@@ -568,13 +449,13 @@ public class PSUserPrefFormContent {
     * or empty.
     * @param pref the JSON preference object, assumed not <code>null</code>.
     */
-	private void addListField(String fieldname, JSONObject pref){
-	   Map<String, String> params = new HashMap<>();
-      params.put("id", replaceTokens(ID_INPUT));
-      params.put("name", fieldname);
-      m_content.append(createStartTag(SELECT, params, false));
-      m_content.append(createEndTag(SELECT));
-      m_content.append(createStartTag(BR, null, true));
+	private void addListField(String fieldname, JSONObject pref) {
+        var params = new HashMap<String, String>();
+        params.put("id", replaceTokens(ID_INPUT));
+        params.put("name", fieldname);
+        m_content.append(createStartTag(SELECT, params, false));
+        m_content.append(createEndTag(SELECT));
+        m_content.append(createStartTag(BR, null, true));
 	}
 	
 	/**
@@ -583,48 +464,41 @@ public class PSUserPrefFormContent {
     * or empty.
     * @param pref the JSON preference object, assumed not <code>null</code>.
     */
-	private void addHiddenField(String fieldname, JSONObject pref){
-	   Map<String, String> params = new HashMap<>();
-      String dVal = getFieldValue(pref);
-      params.put("type", HIDDEN);
-      params.put("id", replaceTokens(ID_INPUT));
-      params.put("name", fieldname);
-      if(dVal != null && dVal.length() > 0)
-         params.put("value", dVal);
-      m_content.append(createStartTag("input", params, true));   
-	}
-	
-	private void addSeparator(String fieldname, String displayname, JSONObject pref)
-	{
-	   Map<String, String> params = new HashMap<>();
-	   String id = replaceTokens(ID_INPUT);
-	   String dVal = (String)pref.get("default");
-	   params.put("type", HIDDEN);
-      params.put("id", id);
-      params.put("name", fieldname);
-      params.put("value", "");
-      m_content.append(createStartTag("input", params, true)); 
-	   if(displayname != null && displayname.length() > 0)
-	   {
-	      params.clear();
-	      params.put("id", id + "_separator_label");
-         params.put(CLASS, "perc-gadget-form-separator");
-         m_content.append(createStartTag(LABEL, params, false));
-         m_content.append(displayname);
-         m_content.append(createEndTag(LABEL));
-	   }
-	   
-	   if(dVal != null && !dVal.equals("@noline"))
-	   {
-	      params.clear();
-	      params.put("id", id + "_separator_line");
-         params.put(CLASS, "perc-gadget-form-separator-line");
-         m_content.append(createStartTag("hr", params, true));
-	   }
-	   else
-	   {
-	      m_content.append(createStartTag("br", null, true));
-	   }
+	private void addHiddenField(String fieldname, JSONObject pref) {
+        var params = new HashMap<String, String>();
+        var dVal = getFieldValue(pref);
+        params.put("type", HIDDEN);
+        params.put("id", replaceTokens(ID_INPUT));
+        params.put("name", fieldname);
+        if (dVal != null && !dVal.isEmpty()) params.put("value", dVal);
+        m_content.append(createStartTag("input", params, true));
+    }
+
+	private void addSeparator(String fieldname, String displayname, JSONObject pref) {
+        var params = new HashMap<String, String>();
+        var id = replaceTokens(ID_INPUT);
+        var dVal = (String) pref.get("default");
+        params.put("type", HIDDEN);
+        params.put("id", id);
+        params.put("name", fieldname);
+        params.put("value", "");
+        m_content.append(createStartTag("input", params, true));
+        if (displayname != null && !displayname.isEmpty()) {
+            params.clear();
+            params.put("id", id + "_separator_label");
+            params.put(CLASS, "perc-gadget-form-separator");
+            m_content.append(createStartTag(LABEL, params, false));
+            m_content.append(displayname);
+            m_content.append(createEndTag(LABEL));
+        }
+        if (dVal != null && !dVal.equals("@noline")) {
+            params.clear();
+            params.put("id", id + "_separator_line");
+            params.put(CLASS, "perc-gadget-form-separator-line");
+            m_content.append(createStartTag("hr", params, true));
+        } else {
+            m_content.append(createStartTag("br", null, true));
+        }
 	}
 	
 	/**
@@ -633,11 +507,11 @@ public class PSUserPrefFormContent {
 	 * @param pref assumed not <code>null</code>.
 	 * @return the user or default field value.
 	 */
-	private String getFieldValue(JSONObject pref){
-	   String dVal = (String)pref.get("default");
-	   String fName = (String)pref.get(FIELD_NAME);
-	   String uVal = m_userPrefValues.get("up_" + fName);
-	   return (uVal == null || uVal.length() == 0) ? dVal : uVal;	   
+	private String getFieldValue(JSONObject pref) {
+        var dVal = (String) pref.get("default");
+        var fName = (String) pref.get(FIELD_NAME);
+        var uVal = m_userPrefValues.get("up_" + fName);
+        return (uVal == null || uVal.isEmpty()) ? dVal : uVal;
 	}
 	
 	/**
@@ -646,16 +520,15 @@ public class PSUserPrefFormContent {
 	 * @param str the string to do the replacement on, assumed not <code>null</code>.
 	 * @return the replaced string, never <code>null</code>, may be empty.
 	 */
-	private String replaceTokens(String str){
-	   str = str.replace("@@MODULEID@@", m_moduleId);
-	   str = str.replace("@@FIELDIDX@@", String.valueOf(m_fieldCount));
-	   return str;
-	}
-	
-	private boolean isRemoteEnumValJsonValid(Object obj)
-	{
-	   return obj != null;
-	}
+	private String replaceTokens(String str) {
+        str = str.replace("@@MODULEID@@", m_moduleId);
+        str = str.replace("@@FIELDIDX@@", String.valueOf(m_fieldCount));
+        return str;
+    }
+
+	private boolean isRemoteEnumValJsonValid(Object obj) {
+        return obj != null;
+    }
 
 	/**
 	 * The module id value. Never <code>null</code> or empty, generally

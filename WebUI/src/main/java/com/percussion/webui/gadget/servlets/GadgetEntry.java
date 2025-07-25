@@ -20,33 +20,51 @@ package com.percussion.webui.gadget.servlets;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName("gadget")
-public class GadgetEntry {
+public final class GadgetEntry {
+    private final String name;
+    private final String baseuri;
+    private final String file;
 
-    private String name;
-    private String baseuri;
-    private String file;
+    private GadgetEntry(Builder builder) {
+        this.name = builder.name;
+        this.baseuri = builder.baseuri;
+        this.file = builder.file;
+    }
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getBaseuri() {
         return baseuri;
     }
 
-    public void setBaseuri(String baseuri) {
-        this.baseuri = baseuri;
-    }
-
     public String getFile() {
         return file;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public static class Builder {
+        private String name;
+        private String baseuri;
+        private String file;
+
+        public Builder withName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withBaseuri(String baseuri) {
+            this.baseuri = baseuri;
+            return this;
+        }
+
+        public Builder withFile(String file) {
+            this.file = file;
+            return this;
+        }
+
+        public GadgetEntry build() {
+            return new GadgetEntry(this);
+        }
     }
 }
