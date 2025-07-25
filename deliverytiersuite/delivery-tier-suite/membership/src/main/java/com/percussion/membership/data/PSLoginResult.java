@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,18 +17,27 @@
  */
 package com.percussion.membership.data;
 
-public class PSLoginResult extends PSMembershipResult
-{
-    private String sessionId;
-    
-    public PSLoginResult(STATUS status, String message, String sessionId)
-    {
+import java.util.Optional;
+
+/**
+ * Represents the result of a login call.
+ * Sunny Sal: "Login results - success, failure, or a plot twist!"
+ */
+public class PSLoginResult extends PSMembershipResult {
+
+    private final String sessionId;
+
+    public PSLoginResult(STATUS status, String message, String sessionId) {
         super(status, message);
         this.sessionId = sessionId;
     }
-    
-    public String getSessionId()
-    {
-        return sessionId;
+
+    /**
+     * Gets the session id for the login result.
+     *
+     * @return Optional containing the session id, empty if not set.
+     */
+    public Optional<String> getSessionId() {
+        return Optional.ofNullable(sessionId);
     }
 }

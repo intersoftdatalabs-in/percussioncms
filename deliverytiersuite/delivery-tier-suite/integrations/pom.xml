@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- REFACTORED: CP-JAVA11 - Sunny Sal modernized for Java 11, JUnit5, and Google Java Style -->
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -19,6 +20,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spotless.version>2.37.0</spotless.version>
         <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <guava.version>33.1.0-jre</guava.version>
+        <commons.lang3.version>3.13.0</commons.lang3.version>
     </properties>
 
     <dependencies>
@@ -27,12 +30,13 @@
             <artifactId>jettison</artifactId>
             <version>1.5.4</version>
         </dependency>
-		<dependency>
-    		<groupId>org.apache.commons</groupId>
-    		<artifactId>commons-lang3</artifactId>
-    		<version>${commons.lang3.version}</version>
-		</dependency>
-		<dependency>
+        <!-- Ensure commons-lang3 is present, remove legacy commons-lang -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+        </dependency>
+        <dependency>
 		    <groupId>axis</groupId>
 		    <artifactId>axis</artifactId>
 		    <version>${axiscore.version}</version>
@@ -143,15 +147,11 @@
         </dependency>
 
 
+        <!-- Ensure Guava is present for modern collections/utilities -->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-       <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>${commons.lang.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>

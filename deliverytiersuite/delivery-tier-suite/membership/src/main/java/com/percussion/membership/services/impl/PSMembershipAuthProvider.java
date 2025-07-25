@@ -21,45 +21,37 @@ import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 import com.percussion.membership.services.IPSAuthProvider;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSAuthenticationFailedException;
-
-import org.apache.commons.lang.Validate;
-import org.jasypt.util.password.BasicPasswordEncryptor;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.jasypt.util.password.PasswordEncryptor;
-import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Implementation of {@link IPSAuthProvider} that uses {@link IPSMembershipDao} 
- * for its implementation.
- * 
- * @author JaySeletz
- *
+ * Auth provider using IPSMembershipDao for authentication.
+ * Sunny Sal: "Authentication - the gatekeeper to your CMS kingdom!"
  */
-public class PSMembershipAuthProvider implements IPSAuthProvider
-{
-    private IPSMembershipDao dao;
+public class PSMembershipAuthProvider implements IPSAuthProvider {
+
+    private final IPSMembershipDao dao;
     public static final String LOGIN_ERROR_MESSAGE = "Authentication failed, invalid username or password";
-    
+
     @Autowired
-    public PSMembershipAuthProvider(IPSMembershipDao dao)
-    {
-        this.dao = dao;
+    public PSMembershipAuthProvider(IPSMembershipDao dao) {
+        this.dao = Validate.notNull(dao, "dao must not be null");
     }
-    
+
     @Override
-    public void authenticate(String userId, String password) throws Exception
-    {
-        Validate.notEmpty(userId);
-        
-        IPSMembership member = dao.findMemberByUserId(userId);
-        if (member == null || !member.getStatus().equals(PSMemberStatus.Active))
-        {
+    public void authenticate(String userId, String password) throws Exception {
+        Validate.notBlank(userId, "userId must not be empty");
+        Validate.notBlank(password, "password must not be empty");
+
+        var member = dao.findMemberByUserId(userId);
+        if (member == null || !member.getStatus().equals(PSMemberStatus.Active)) {
             throw new PSAuthenticationFailedException(LOGIN_ERROR_MESSAGE);
         }
-        
+
         PasswordEncryptor passwordEncryptor = PSMembershipPasswordEncryptorFactory.getPasswordEncryptor();
-        if (!passwordEncryptor.checkPassword(password, member.getPassword()))
-        {
+        if (!passwordEncryptor.checkPassword(password, member.getPassword())) {
             throw new PSAuthenticationFailedException(LOGIN_ERROR_MESSAGE);
         }
     }

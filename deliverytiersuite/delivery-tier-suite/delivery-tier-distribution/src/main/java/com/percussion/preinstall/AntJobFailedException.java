@@ -17,9 +17,19 @@
 
 package com.percussion.preinstall;
 
+/**
+ * Exception thrown when an Ant job fails during pre-installation.
+ */
 public class AntJobFailedException extends RuntimeException {
 
-    public AntJobFailedException(String message){
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs a new AntJobFailedException with the specified detail message.
+     *
+     * @param message the detail message
+     */
+    public AntJobFailedException(String message) {
         super(message);
     }
 }

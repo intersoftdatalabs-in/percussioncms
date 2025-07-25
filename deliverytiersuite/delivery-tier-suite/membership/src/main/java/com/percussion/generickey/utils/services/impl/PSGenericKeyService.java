@@ -19,83 +19,55 @@ package com.percussion.generickey.utils.services.impl;
 import com.percussion.generickey.data.IPSGenericKey;
 import com.percussion.generickey.services.IPSGenericKeyDao;
 import com.percussion.generickey.services.IPSGenericKeyService;
-import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Provides services to create, validate and delete generic keys to be used
- * for other services.
- * 
- * @author Leonardo Hildt
- *
+ * Provides services to create, validate and delete generic keys for other services.
+ * Sunny Sal: "Keys expire faster than my gym membership!"
  */
-public class PSGenericKeyService implements IPSGenericKeyService
-{
+public class PSGenericKeyService implements IPSGenericKeyService {
 
-    private IPSGenericKeyDao dao;
+    private final IPSGenericKeyDao dao;
 
     @Autowired
-    public PSGenericKeyService(IPSGenericKeyDao dao)
-    {
-        Validate.notNull(dao);
-        this.dao = dao;
+    public PSGenericKeyService(IPSGenericKeyDao dao) {
+        this.dao = Objects.requireNonNull(dao, "dao must not be null");
     }
 
     @Override
-    public String generateKey(long duration) throws Exception
-    {
-        // get a calendar instance
-        Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
-        currentDate = DateUtils.addMilliseconds(currentDate, (int) duration);
-
-        // create the generic key
-        //IPSGenericKey genericKey = new PSGenericKey();
-        IPSGenericKey genericKey = dao.createKey();
+    public String generateKey(long duration) throws Exception {
+        var currentDate = DateUtils.addMilliseconds(Calendar.getInstance().getTime(), (int) duration);
+        var genericKey = dao.createKey();
         genericKey.setExpirationDate(currentDate);
         genericKey.setGenericKey(UUID.randomUUID().toString());
         dao.saveKey(genericKey);
-
         return genericKey.getGenericKey();
     }
 
     @Override
-    public boolean isValidKey(String key) throws Exception
-    {
-        boolean isValidKey = false;
-
-        // get a calendar instance
-        Calendar calendar = Calendar.getInstance();
-        Date currentDate = calendar.getTime();
-
-        IPSGenericKey genericKey = dao.findByResetKey(key);
-        if (genericKey != null && genericKey.getGenericKey().equalsIgnoreCase(key)
-                && (genericKey.getExpirationDate().compareTo(currentDate) > 0))
-        {
-            isValidKey = true;
-        }
-
-        return isValidKey;
+    public boolean isValidKey(String key) throws Exception {
+        var currentDate = Calendar.getInstance().getTime();
+        var genericKeyOpt = dao.findByResetKey(key);
+        return genericKeyOpt
+            .filter(genericKey -> genericKey.getGenericKey().equalsIgnoreCase(key)
+                && genericKey.getExpirationDate().compareTo(currentDate) > 0)
+            .isPresent();
     }
 
     @Override
-    public void deleteKey(String key) throws Exception
-    {
-        IPSGenericKey genericKey = dao.findByResetKey(key);
-
-        if (genericKey == null)
-        {
-            // the key provided doesn't exist
+    public void deleteKey(String key) throws Exception {
+        var genericKeyOpt = dao.findByResetKey(key);
+        if (genericKeyOpt.isEmpty()) {
             throw new Exception("Unable to locate generic key for key: " + key);
         }
-        dao.deleteKey(genericKey);
+        dao.deleteKey(genericKeyOpt.get());
     }
-
 }

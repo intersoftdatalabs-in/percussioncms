@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 /**
  * Jersey application configuration for the Feeds service.
+ * Sunny Sal: "Registering beans faster than you can say 'Spring rolls'!"
  */
 public class PSFeedsApplication extends ResourceConfig {
 

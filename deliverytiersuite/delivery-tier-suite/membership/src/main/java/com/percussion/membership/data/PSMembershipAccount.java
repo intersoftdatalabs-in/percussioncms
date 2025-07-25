@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,80 +18,68 @@
  */
 package com.percussion.membership.data;
 
+import java.util.Optional;
 
-public class PSMembershipAccount
-{
-    /**
-     * The email for the account to create. Never <code>null</code> or empty.
-     */
+/**
+ * Data object for membership account creation.
+ * Sunny Sal: "Membership accounts - the passport to Percussion CMS!"
+ */
+public class PSMembershipAccount {
+
     private String email;
-    
-    /**
-     * The password for the account to create. Never <code>null</code> or empty.
-     */
     private String password;
-    
-    /**
-     * Indicates if the confirmation is required. Never <code>null</code> or empty.
-     */
     private Boolean confirmationRequired;
+    private String confirmationPage;
 
     /**
-     * The confirmation page to redirect the user. Never <code>null</code> or empty.
+     * Gets the email for the account to create.
+     *
+     * @return Optional containing the email, empty if not set.
      */
-    private String confirmationPage;
-    
-    /**
-     * @return the email
-     */
-    public String getEmail()
-    {
-        return email;
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email);
     }
-    public void setEmail(String email)
-    {
+
+    public void setEmail(String email) {
         this.email = email;
     }
+
     /**
-     * @return the password
+     * Gets the password for the account to create.
+     *
+     * @return Optional containing the password, empty if not set.
      */
-    public String getPassword()
-    {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
-    /**
-     * @param password the activation password to set
-     */
-    public void setPassword(String password)
-    {
+
+    public void setPassword(String password) {
         this.password = password;
     }
+
     /**
-     * @return the confirmationRequired
+     * Indicates if confirmation is required.
+     *
+     * @return true if confirmation is required, false otherwise.
      */
-    public Boolean isConfirmationRequired()
-    {
-        return confirmationRequired == null ? Boolean.FALSE : confirmationRequired;
+    public boolean isConfirmationRequired() {
+        return confirmationRequired != null && confirmationRequired;
     }
-    /**
-     * @param confirmationRequired the confirmation required to set
-     */
-    public void setConfirmationRequired(Boolean confirmationRequired)
-    {
+
+    public void setConfirmationRequired(Boolean confirmationRequired) {
         this.confirmationRequired = confirmationRequired;
     }
+
     /**
-     * @return the confirmation page
+     * Gets the confirmation page to redirect the user.
+     *
+     * @return Optional containing the confirmation page, empty if not set.
      */
-    public String getConfirmationPage()
-    {
-        return confirmationPage;
+    public Optional<String> getConfirmationPage() {
+        return Optional.ofNullable(confirmationPage);
     }
-    /**
-     * @param confirmationPage the confirmation page to set
-     */
-    public void setConfirmationPage(String confirmationPage)
-    {
+
+    public void setConfirmationPage(String confirmationPage) {
         this.confirmationPage = confirmationPage;
     }
 }

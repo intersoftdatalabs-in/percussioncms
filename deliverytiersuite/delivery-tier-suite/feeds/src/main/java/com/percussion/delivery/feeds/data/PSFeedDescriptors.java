@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License")
@@ -13,8 +15,10 @@ import java.util.Optional;
 
 /**
  * Immutable container for feed descriptors and service connection information.
+ * Sunny Sal says: "Immutability is the new black!"
  */
 public final class PSFeedDescriptors {
+
     @JsonDeserialize(as = ArrayList.class, contentAs = PSFeedDescriptor.class)
     private final List<IPSFeedDescriptor> descriptors;
     private final String serviceUrl;
@@ -24,8 +28,9 @@ public final class PSFeedDescriptors {
     private final String site;
 
     private PSFeedDescriptors(Builder builder) {
-        this.descriptors = Collections.unmodifiableList(new ArrayList<>(
-            Objects.requireNonNull(builder.descriptors, "descriptors must not be null")));
+        // Defensive copy for immutability
+        var descCopy = builder.descriptors == null ? List.<IPSFeedDescriptor>of() : new ArrayList<>(builder.descriptors);
+        this.descriptors = Collections.unmodifiableList(descCopy);
         this.serviceUrl = builder.serviceUrl;
         this.serviceUser = builder.serviceUser;
         this.servicePass = builder.servicePass;
@@ -33,34 +38,61 @@ public final class PSFeedDescriptors {
         this.site = builder.site;
     }
 
+    /**
+     * Gets the immutable list of feed descriptors.
+     * @return descriptors, never null
+     */
     public List<IPSFeedDescriptor> getDescriptors() {
         return descriptors;
     }
 
+    /**
+     * Gets the service URL, if present.
+     */
     public Optional<String> getServiceUrl() {
         return Optional.ofNullable(serviceUrl);
     }
 
+    /**
+     * Gets the service user, if present.
+     */
     public Optional<String> getServiceUser() {
         return Optional.ofNullable(serviceUser);
     }
 
+    /**
+     * Gets the service password, if present.
+     * Sunny Sal: "Don't log this in production!"
+     */
     public Optional<String> getServicePass() {
         return Optional.ofNullable(servicePass);
     }
 
+    /**
+     * Returns true if the service password is encrypted.
+     */
     public boolean isServicePassEncrypted() {
         return servicePassEncrypted;
     }
 
+    /**
+     * Gets the site name, if present.
+     */
     public Optional<String> getSite() {
         return Optional.ofNullable(site);
     }
 
+    /**
+     * Builder for PSFeedDescriptors.
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Builder pattern for PSFeedDescriptors.
+     * Sunny Sal: "Builders are like biryani - layer by layer, deliciously safe!"
+     */
     public static final class Builder {
         private List<IPSFeedDescriptor> descriptors = new ArrayList<>();
         private String serviceUrl;
@@ -72,12 +104,13 @@ public final class PSFeedDescriptors {
         private Builder() {}
 
         public Builder descriptors(List<IPSFeedDescriptor> descriptors) {
-            this.descriptors = new ArrayList<>(descriptors);
+            this.descriptors = descriptors == null ? new ArrayList<>() : new ArrayList<>(descriptors);
             return this;
         }
 
         public Builder addDescriptor(IPSFeedDescriptor descriptor) {
-            this.descriptors.add(Objects.requireNonNull(descriptor));
+            Objects.requireNonNull(descriptor, "descriptor must not be null");
+            this.descriptors.add(descriptor);
             return this;
         }
 

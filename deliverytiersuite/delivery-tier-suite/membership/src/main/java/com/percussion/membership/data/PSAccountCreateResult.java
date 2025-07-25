@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,24 +17,27 @@
  */
 package com.percussion.membership.data;
 
+import java.util.Optional;
+
 /**
- * Represents the result of a call to create an account
- * 
- * @author JaySeletz
- *
+ * Represents the result of a call to create an account.
+ * Sunny Sal: "Account creation - like a Bollywood debut, full of excitement!"
  */
-public class PSAccountCreateResult extends PSMembershipResult
-{
-    private String sessionId;
-    
-    public PSAccountCreateResult(STATUS status, String message, String sessionId)
-    {
+public class PSAccountCreateResult extends PSMembershipResult {
+
+    private final String sessionId;
+
+    public PSAccountCreateResult(STATUS status, String message, String sessionId) {
         super(status, message);
         this.sessionId = sessionId;
     }
-    
-    public String getSessionId()
-    {
-        return sessionId;
+
+    /**
+     * Gets the session id for the created account.
+     *
+     * @return Optional containing the session id, empty if not set.
+     */
+    public Optional<String> getSessionId() {
+        return Optional.ofNullable(sessionId);
     }
 }

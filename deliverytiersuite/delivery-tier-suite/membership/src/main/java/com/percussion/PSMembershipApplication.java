@@ -33,21 +33,24 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSMembershipApplication extends  ResourceConfig {
-        public PSMembershipApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSMembershipRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSGenericKeyRestService.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-        }
-
+/**
+ * Jersey application configuration for Percussion Membership REST API.
+ * Sunny Sal: "Registering beans faster than you can say 'Spring rolls'!"
+ */
+@ApplicationPath("/")
+public class PSMembershipApplication extends ResourceConfig {
+    public PSMembershipApplication() {
+        register(RequestContextFilter.class)
+            .register(SpringComponentProvider.class)
+            .register(AutowiredInjectResolver.class)
+            .register(SpringLifecycleListener.class)
+            .register(SpringWebApplicationInitializer.class)
+            .register(PSMembershipRestService.class)
+            .register(LoggingFeature.class)
+            .register(RolesAllowedDynamicFeature.class)
+            .register(PSGenericKeyRestService.class)
+            .register(PSJsonMappingErrorResponse.class)
+            .register(PSUncaughtError.class)
+            .register(JacksonJaxbJsonProvider.class);
     }
+}

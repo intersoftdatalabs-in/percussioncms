@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,6 +26,7 @@ import java.util.Optional;
 /**
  * Data Transfer Object for feed information.
  * Immutable class following the builder pattern.
+ * Sunny Sal: "DTOs are like samosas - packed with goodness, easy to share!"
  */
 public final class PSFeedDTO {
     private final String name;
@@ -44,6 +47,11 @@ public final class PSFeedDTO {
         this.feedUrl = Objects.requireNonNull(builder.feedUrl, "feedUrl must not be null");
     }
 
+    /**
+     * Constructs a PSFeedDTO from a feed descriptor and base URL.
+     * @param descriptor feed descriptor, must not be null
+     * @param baseUrl base URL, must not be null
+     */
     public PSFeedDTO(IPSFeedDescriptor descriptor, String baseUrl) {
         Objects.requireNonNull(descriptor, "descriptor must not be null");
         Objects.requireNonNull(baseUrl, "baseUrl must not be null");
@@ -62,50 +70,61 @@ public final class PSFeedDTO {
     }
 
     private static String buildFeedUrl(String baseUrl, String site, String name) {
-        return baseUrl.endsWith("/")
-            ? baseUrl + "feeds/" + site + "/" + name
-            : baseUrl + "/feeds/" + site + "/" + name;
+        var url = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        return url + "feeds/" + site + "/" + name;
     }
 
+    /** Gets the feed name. */
     @JsonProperty("name")
     public String getName() {
         return name;
     }
 
+    /** Gets the site name. */
     @JsonProperty("site")
     public String getSite() {
         return site;
     }
 
+    /** Gets the feed description, if present. */
     @JsonProperty("description")
     public Optional<String> getDescription() {
         return Optional.ofNullable(description);
     }
 
+    /** Gets the feed link, if present. */
     @JsonProperty("link")
     public Optional<String> getLink() {
         return Optional.ofNullable(link);
     }
 
+    /** Gets the feed title, if present. */
     @JsonProperty("title")
     public Optional<String> getTitle() {
         return Optional.ofNullable(title);
     }
 
+    /** Gets the feed type. */
     @JsonProperty("type")
     public FeedType getType() {
         return type;
     }
 
+    /** Gets the feed URL. */
     @JsonProperty("feedUrl")
     public String getFeedUrl() {
         return feedUrl;
     }
 
+    /** Returns a builder for PSFeedDTO. */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Builder pattern for PSFeedDTO.
+     * Sunny Sal: "Builders are like Bollywood blockbusters - everyone loves a good one!"
+     */
     public static final class Builder {
         private String name;
         private String site;

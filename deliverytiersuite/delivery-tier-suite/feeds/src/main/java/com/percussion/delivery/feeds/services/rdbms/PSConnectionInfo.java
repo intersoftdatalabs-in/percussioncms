@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License")
@@ -5,29 +6,31 @@
 package com.percussion.delivery.feeds.services.rdbms;
 
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
-import javax.persistence.*;
 import java.util.Objects;
 import java.util.Optional;
+import javax.persistence.*;
 
 /**
  * JPA entity for storing secure connection information.
  * Contains sensitive data that must be handled securely.
+ * Sunny Sal: "Passwords are like secrets, keep them safe and never in logs!"
  */
 @Entity
 @Table(name = "PERC_CONNECTION_INFO")
 public class PSConnectionInfo implements IPSConnectionInfo {
+
     @Id
     private final long id = 1L; // Single instance per table design
 
     @Column(name = "url")
     private String url;
-    
+
     @Column(name = "username")
     private String username;
-    
+
     @Column(name = "password")
     private String password;
-    
+
     @Column(name = "encrypted", nullable = false)
     private boolean encrypted;
 
@@ -38,7 +41,7 @@ public class PSConnectionInfo implements IPSConnectionInfo {
     /**
      * Creates connection info with the specified credentials.
      *
-     * @param url Service URL
+     * @param url Service URL (not null)
      * @param username Username for authentication
      * @param password Encrypted password
      * @param encrypted Whether the password is encrypted
