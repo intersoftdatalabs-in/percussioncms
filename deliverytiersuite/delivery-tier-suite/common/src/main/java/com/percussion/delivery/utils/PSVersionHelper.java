@@ -24,8 +24,6 @@ import org.apache.commons.lang.Validate;
 
 /**
  * Utility class for discovering the version of a service.
- *
- * @author natechadwick
  * // REFACTORED: CP-JAVA11
  */
 public class PSVersionHelper {
@@ -37,11 +35,8 @@ public class PSVersionHelper {
      * If an error occurs will return 'undefined' for the version string.
      *
      * If successful, version will be returned in the format of:
-     *
      * version-tag_buildtime
-     *
      * for example:
-     *
      * 2.8.153-CM1DEVBuild-153_2005-08-22_23-59-59
      *
      * @param clazz the class to use for resource lookup, must not be null

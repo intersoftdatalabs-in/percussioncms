@@ -19,102 +19,92 @@ package com.percussion.delivery.polls.service.rdbms;
 
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * Entity representing a poll answer in the database.
+ * Sunny Sal says: "Every answer counts, especially in code!"
+ */
 @Entity
 @Table(name = "PERC_ANSWERS")
-public class PSPollAnswer implements IPSPollAnswer, Serializable
-{
+public class PSPollAnswer implements IPSPollAnswer, Serializable {
+
     @Id
     @GeneratedValue
     @Column(name = "ANSWER_ID")
-	private long id;
+    private long id;
 
     @Column(name = "ANSWER", nullable = false, length = 4000)
-	private String answer;
+    private String answer;
 
     @Column(name = "COUNT")
-	private int count;
+    private int count;
 
     @Version
     @Column(name = "VERSION")
-    Integer version;
+    private Integer version;
 
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "POLL_ID")
-	private PSPoll poll;
-
-
-
-	@Override
-	public long getId() 
-	{
-		return id;
-	}
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "POLL_ID")
+    private PSPoll poll;
 
     @Override
-	public void setId(long id) 
-	{
-		this.id = id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	@Override
-	public String getAnswer()
-	{
-		return answer;
-	}
+    @Override
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	@Override
-	public void setAnswer(String answer) 
-	{
-		this.answer = answer;
-	}
+    @Override
+    public String getAnswer() {
+        return answer;
+    }
 
-	@Override
-	public int getCount()
-	{
-		return count;
-	}
+    @Override
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
 
-	@Override
-	public void setCount(int count) 
-	{
-		this.count = count;
-	}
+    @Override
+    public int getCount() {
+        return count;
+    }
+
+    @Override
+    public void setCount(int count) {
+        this.count = count;
+    }
 
     /**
-     * @return Returns the version.
+     * Gets the version.
+     *
+     * @return the version.
      */
-    public Integer getVersion()
-    {
+    public Integer getVersion() {
         return version;
     }
 
-	public PSPoll getPoll() {
-		return poll;
-	}
+    public PSPoll getPoll() {
+        return poll;
+    }
 
-	public void setPoll(PSPoll poll) {
-		this.poll = poll;
-	}
-
+    public void setPoll(PSPoll poll) {
+        this.poll = poll;
+    }
 
     /**
-     * @param version The version to set.
+     * Sets the version. Can only be set once.
+     *
+     * @param version the version to set.
      */
-    public void setVersion(Integer version)
-    {
-        if (this.version != null && version != null)
+    public void setVersion(Integer version) {
+        if (this.version != null && version != null) {
             throw new IllegalStateException("Version can only be set once");
-
+        }
         this.version = version;
     }
 }

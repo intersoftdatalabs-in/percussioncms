@@ -25,8 +25,6 @@ import org.apache.logging.log4j.Logger;
 /**
  * Provides a base class for Delivery REST services to extend,
  * handling common and shared methods between the services.
- *
- * @author natechadwick
  * // REFACTORED: CP-JAVA11
  */
 public abstract class PSAbstractRestService implements IPSRestService {

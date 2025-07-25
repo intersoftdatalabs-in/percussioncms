@@ -17,6 +17,7 @@
 package com.percussion.delivery.spring;
 
 import java.util.regex.Pattern;
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
 /**
- * Request matcher for CSRF protection, allowing configuration of allowed methods and ignored paths.
+ * Sunny Sal here! This request matcher provides CSRF protection, allowing configuration of allowed methods and ignored paths.
+ * Uses Java 11 features and Google Java Style. Ensures robust, maintainable, and secure request matching.
  * // REFACTORED: CP-JAVA11
  */
 @Component
@@ -47,20 +49,28 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
             String allowedMethodsPattern,
             String unprotectedPaths,
             boolean caseInsensitive) {
+        Objects.requireNonNull(allowedMethodsPattern, "allowedMethodsPattern must not be null");
+        Objects.requireNonNull(unprotectedPaths, "unprotectedPaths must not be null");
         this.allowedMethods = Pattern.compile(allowedMethodsPattern);
         this.caseInsensitive = caseInsensitive;
-        if (caseInsensitive) {
-            unprotectedPaths = unprotectedPaths.toLowerCase();
-        }
-        this.ignoredPaths = unprotectedPaths.split(",");
+        var paths = caseInsensitive ? unprotectedPaths.toLowerCase() : unprotectedPaths;
+        this.ignoredPaths = paths.split(",");
         log.debug(
                 "Initializing CSRF request matcher, Allowed Methods: {}, Ignored Paths: {}",
                 allowedMethodsPattern, unprotectedPaths
         );
     }
 
+    /**
+     * Determines if the request should be protected by CSRF.
+     * Skips protection for allowed HTTP methods and ignored paths.
+     *
+     * @param request the HTTP servlet request
+     * @return true if CSRF protection is required, false otherwise
+     */
     @Override
     public boolean matches(HttpServletRequest request) {
+        Objects.requireNonNull(request, "HttpServletRequest must not be null");
         if (allowedMethods.matcher(request.getMethod()).matches()) {
             log.debug("Skipping CSRF for request method: {}", request.getMethod());
             return false;
@@ -71,9 +81,9 @@ public class PSCsrfSecurityRequestMatcher implements RequestMatcher {
             uri = uri.toLowerCase();
         }
 
-        for (var p : this.ignoredPaths) {
-            var path = caseInsensitive ? p.toLowerCase() : p;
-            if (uri.contains(path)) {
+        for (var path : this.ignoredPaths) {
+            var comparePath = caseInsensitive ? path.toLowerCase() : path;
+            if (!comparePath.isEmpty() && uri.contains(comparePath)) {
                 log.debug("Skipping CSRF for request URI: {}", request.getRequestURI());
                 return false;
             }

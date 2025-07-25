@@ -14,12 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.secure.services;
 
-import org.glassfish.jersey.server.ContainerRequest;
-import org.glassfish.jersey.server.internal.InternalServerProperties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,10 +25,14 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Form;
 import java.io.IOException;
 
-public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingFilter {
+/**
+ * Filter for processing authentication forms.
+ * Sunny Sal says: "Authenticate like a pro, filter like a hero!"
+ */
+public class AuthFormProcessingFilter extends AbstractAuthenticationProcessingFilter {
+
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
     public static final String SPRING_SECURITY_LAST_USERNAME_KEY = "SPRING_SECURITY_LAST_USERNAME";
@@ -45,13 +45,14 @@ public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingF
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
-        if (postOnly && !request.getMethod().equals("POST")) {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse)
+            throws AuthenticationException, IOException, ServletException {
+        if (postOnly && !"POST".equals(request.getMethod())) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
 
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        var username = obtainUsername(request);
+        var password = obtainPassword(request);
         if (username == null) {
             username = "";
         }
@@ -59,16 +60,16 @@ public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingF
             password = "";
         }
         username = username.trim();
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        var authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
-        if(this.getAuthenticationManager()==null){
+        if (getAuthenticationManager() == null) {
             logger.info("Authentication manager is null.");
         } else {
-            logger.info("Authentication manager was "+this.getAuthenticationManager().getClass().getName());
+            logger.info("Authentication manager was " + getAuthenticationManager().getClass().getName());
         }
-        return this.getAuthenticationManager().authenticate(authRequest);
+        return getAuthenticationManager().authenticate(authRequest);
     }
 
     protected String obtainPassword(HttpServletRequest request) {
@@ -95,12 +96,11 @@ public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingF
         this.postOnly = postOnly;
     }
 
-    public final String getUsernameParameter() {
+    public String getUsernameParameter() {
         return usernameParameter;
     }
 
-    public final String getPasswordParameter() {
+    public String getPasswordParameter() {
         return passwordParameter;
     }
-
 }

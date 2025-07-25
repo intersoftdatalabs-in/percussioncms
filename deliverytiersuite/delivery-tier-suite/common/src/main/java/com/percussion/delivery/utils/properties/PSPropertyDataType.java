@@ -47,7 +47,7 @@ public enum PSPropertyDataType {
 
   /**
    * Gets the nominal value of the data type.
-   * @return never <code>null</code> or empty.
+   * @return never null or empty.
    */
   public String getName() {
     return name;
@@ -55,7 +55,7 @@ public enum PSPropertyDataType {
 
   /**
    * The java type that the widget property should be.
-   * @return never <code>null</code>.
+   * @return never null.
    */
   public Class<?> getJavaType() {
     return javaType;
@@ -63,8 +63,8 @@ public enum PSPropertyDataType {
 
   /**
    * Gets the data type from widget property definition.
-   * @param prop never <code>null</code>.
-   * @return never <code>null</code>.
+   * @param prop never null.
+   * @return never null.
    */
   public static PSPropertyDataType fromDefinition(PSPropertyDefinition prop) {
     return parseType(prop.getDatatype());
@@ -72,11 +72,14 @@ public enum PSPropertyDataType {
 
   /**
    * Parse the {@link #getName()} property definition type.
-   * @param name
-   * @return never <code>null</code>.
+   * @param name property type name
+   * @return never null.
    */
   public static PSPropertyDataType parseType(String name) {
-    var n = name.toUpperCase();
+    if (name == null) {
+      throw new IllegalArgumentException("Property type name cannot be null");
+    }
+    var n = name.trim().toUpperCase();
     return valueOf(n);
   }
 }

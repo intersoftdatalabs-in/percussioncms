@@ -20,95 +20,99 @@ package com.percussion.delivery.utils.paging;
 import java.util.Map;
 
 /**
- * Defines a generic Interface for a ranged page option for
- * lookups to backend data stores.
+ * Defines a generic interface for a ranged page option for lookups to backend data stores.
+ * Sunny Sal says: "Paging ka hero, performance ka zero nahi!"
  *
  * @author natechadwick
  */
 public interface IPSRangedPage {
 
   /**
-   * Returns a Map of the backend fields that are being sorted on, paired with the sort direction.
+   * Returns a map of the backend fields that are being sorted on, paired with the sort direction.
    *
-   * @return A Map of backend fields being sorted on, paired with their Sort direction, may be empty, never null.
+   * @return a map of backend fields being sorted on, paired with their sort direction; may be empty, never null
    */
   Map<String, PSRangedPageSortDirection> getSortFields();
 
   /**
-   * Sets the Map of backend fields to be sorted by, indicating sort direction per field.
-   * @param fields List of fields, may be empty, never null.
+   * Sets the map of backend fields to be sorted by, indicating sort direction per field.
+   *
+   * @param fields list of fields; may be empty, never null
    */
   void setSortFields(Map<String, PSRangedPageSortDirection> fields);
 
   /**
    * Gets a map of the current paging filters and values.
    *
-   * @return A Map of field/value pairs.
+   * @return a map of field/value pairs
    */
   Map<String, Object> getPageFields();
 
   /**
-   * Determines the fields that are being used to apply the range filter and the
+   * Sets the fields that are being used to apply the range filter and the
    * last value used to fetch the backend page.
    *
-   * The return value will be a map containing each field, paired with the value
-   * for that field that was at the end of the last page if the direction is forward,
-   * and at the beginning of the last page if the direction is backward.
-   *
+   * The map contains each field paired with the value for that field
+   * at the end of the last page (forward) or beginning of the last page (backward).
    * Field values may be null when indicating the beginning or end of a dataset.
    *
-   * @param fields A Map of field value pairs.
+   * @param fields a map of field/value pairs
    */
   void setPageFields(Map<String, Object> fields);
 
   /**
-   * Returns the current pageSize.
-   * @return  Should return a fixed size, or a default size, never 0.
+   * Returns the current page size.
+   *
+   * @return should return a fixed size or a default size; never 0
    */
   int getPageSize();
 
   /**
    * Sets the current page size.
    *
-   * @param size  If set to 0 or a negative number, should enforce a default page size.
+   * @param size if set to 0 or a negative number, should enforce a default page size
    */
   void setPageSize(int size);
 
   /**
-   * The current paging directing.
-   * @return  Forward or Backward.
+   * Returns the current paging direction.
+   *
+   * @return forward or backward
    */
   PSRangedPageDirection getDirection();
 
   /**
    * Sets the current paging direction.
    *
-   * @param dir  Forward or Backward.
+   * @param direction forward or backward
    */
-  void setDirection(PSRangedPageDirection dir);
+  void setDirection(PSRangedPageDirection direction);
 
   /**
    * Specifies the total number of pages.
    *
-   * @param numPages
+   * @param pageCount total number of pages
    */
-  void setPageCount(int numPages);
+  void setPageCount(int pageCount);
 
   /**
    * Returns the total number of pages.
-   * @return
+   *
+   * @return total number of pages
    */
   int getPageCount();
 
   /**
    * Specifies the current page.
-   * @param pageNum
+   *
+   * @param currentPage current page number
    */
-  void setCurrentPage(int pageNum);
+  void setCurrentPage(int currentPage);
 
   /**
    * Returns the current page.
-   * @return
+   *
+   * @return current page number
    */
   int getCurrentPage();
 }

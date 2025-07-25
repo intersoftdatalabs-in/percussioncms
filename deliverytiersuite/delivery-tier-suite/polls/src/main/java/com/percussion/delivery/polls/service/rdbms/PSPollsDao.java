@@ -20,7 +20,6 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsDao;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.orm.hibernate5.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,86 +29,72 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
+/**
+ * DAO for poll persistence.
+ * Sunny Sal says: "DAO or never, Hibernate forever!"
+ */
 @Transactional
-public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao
-{
+public class PSPollsDao extends HibernateDaoSupport implements IPSPollsDao {
 
     @Override
-    public IPSPoll find(String pollName)
-    {
-        Session session = getSession();
+    public IPSPoll find(String pollName) {
+        var session = getSession();
         IPSPoll poll = null;
-        try
-        {
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSPoll> criteriaQuery = criteriaBuilder.createQuery(PSPoll.class);
-            Root<PSPoll> root = criteriaQuery.from(PSPoll.class);
+        try {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSPoll.class);
+            var root = criteriaQuery.from(PSPoll.class);
             criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pollName"), pollName));
-            List<PSPoll> resultList = session.createQuery(criteriaQuery).getResultList();
-
-            if (!resultList.isEmpty())
-                poll = (IPSPoll) resultList.get(0);
+            var resultList = session.createQuery(criteriaQuery).getResultList();
+            if (!resultList.isEmpty()) {
+                poll = resultList.get(0);
+            }
             return poll;
-
-        }
-        finally
-        {
+        } finally {
             // session.close();
         }
     }
 
     @Override
-    public void save(IPSPoll poll)
-    {
-        Session session = getSession();
-        try
-        {
+    public void save(IPSPoll poll) {
+        var session = getSession();
+        try {
             session.saveOrUpdate(poll);
-        }
-        finally
-        {
-            //  session.close();
-        }
-    }
-
-    @Override
-    public IPSPoll findByQuestion(String pollQuestion)
-    {
-
-        Session session = getSession();
-        IPSPoll poll = null;
-        try
-        {
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSPoll> criteriaQuery = criteriaBuilder.createQuery(PSPoll.class);
-            Root<PSPoll> root = criteriaQuery.from(PSPoll.class);
-             criteriaQuery.where(criteriaBuilder.like(root.get("pollQuestion"), pollQuestion));
-            List<PSPoll> resultList = session.createQuery(criteriaQuery).getResultList();
-            if (!resultList.isEmpty())
-                poll = (IPSPoll) resultList.get(0);
-            return poll;
-        }
-        finally
-        {
+        } finally {
             // session.close();
         }
     }
 
     @Override
-    public IPSPoll createEmptyPoll()
-    {
+    public IPSPoll findByQuestion(String pollQuestion) {
+        var session = getSession();
+        IPSPoll poll = null;
+        try {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSPoll.class);
+            var root = criteriaQuery.from(PSPoll.class);
+            criteriaQuery.where(criteriaBuilder.like(root.get("pollQuestion"), pollQuestion));
+            var resultList = session.createQuery(criteriaQuery).getResultList();
+            if (!resultList.isEmpty()) {
+                poll = resultList.get(0);
+            }
+            return poll;
+        } finally {
+            // session.close();
+        }
+    }
+
+    @Override
+    public IPSPoll createEmptyPoll() {
         return new PSPoll();
     }
 
     @Override
-    public IPSPollAnswer createEmptyAnswer()
-    {
+    public IPSPollAnswer createEmptyAnswer() {
         return new PSPollAnswer();
     }
 
-    private Session getSession(){
-
+    private Session getSession() {
         return getSessionFactory().getCurrentSession();
-
     }
 }

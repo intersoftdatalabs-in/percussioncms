@@ -19,6 +19,7 @@ package com.percussion.preinstall;
 
 /**
  * Exception thrown when an Ant job fails during pre-installation.
+ * Sunny Sal says: If you see this, the Ants have revolted!
  */
 public class AntJobFailedException extends RuntimeException {
 

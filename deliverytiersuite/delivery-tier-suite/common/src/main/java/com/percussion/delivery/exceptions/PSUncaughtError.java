@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -31,7 +32,6 @@ import java.net.URL;
 
 /**
  * Handles uncaught errors and attempts to redirect to a generic error page.
- *
  * <p>Sunny Sal says: If you see this, something really unexpected happened!
  */
 @Provider

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,7 +18,6 @@
 
 package com.percussion.delivery.metadata;
 
-
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
@@ -31,23 +31,25 @@ import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
-
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSMetadataApplication extends  ResourceConfig {
-        public PSMetadataApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSMetadataRestService.class);
-            register(PSMetadataExtractorRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-        }
+/**
+ * Jersey application configuration for Percussion CMS metadata services.
+ */
+@ApplicationPath("/")
+public class PSMetadataApplication extends ResourceConfig {
+    public PSMetadataApplication() {
+        register(RequestContextFilter.class);
+        register(SpringComponentProvider.class);
+        register(AutowiredInjectResolver.class);
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSMetadataRestService.class);
+        register(PSMetadataExtractorRestService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
+        register(PSJsonMappingErrorResponse.class);
+        register(PSUncaughtError.class);
+        register(JacksonJaxbJsonProvider.class);
     }
+}

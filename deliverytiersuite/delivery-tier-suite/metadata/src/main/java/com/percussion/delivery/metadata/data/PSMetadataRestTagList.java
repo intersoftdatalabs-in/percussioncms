@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,23 +19,26 @@ package com.percussion.delivery.metadata.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a list of {@link PSMetadataRestTag} instances.
- *
  */
-public class PSMetadataRestTagList
-{
-    private List<PSMetadataRestTag> properties =
-        new ArrayList<>();
+public class PSMetadataRestTagList {
 
-    public List<PSMetadataRestTag> getProperties()
-    {
+    private List<PSMetadataRestTag> properties = new ArrayList<>();
+
+    public List<PSMetadataRestTag> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<PSMetadataRestTag> properties)
-    {
+    public void setProperties(List<PSMetadataRestTag> properties) {
         this.properties = properties;
+    }
+
+    public Optional<PSMetadataRestTag> findTag(String tagName) {
+        return properties.stream()
+                .filter(t -> t.getTagName().isPresent() && t.getTagName().get().equals(tagName))
+                .findFirst();
     }
 }

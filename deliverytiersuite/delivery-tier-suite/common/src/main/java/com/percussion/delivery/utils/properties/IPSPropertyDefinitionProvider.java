@@ -20,14 +20,24 @@ package com.percussion.delivery.utils.properties;
 import java.util.List;
 
 /**
- * Defines an interface that services that provide configurable
- * properties for editing in the front-end must implement.
+ * Defines an interface for services that provide configurable
+ * properties for editing in the front-end.
  *
  * @author natechadwick
  */
 public interface IPSPropertyDefinitionProvider {
 
+  /**
+   * Returns the property groups for this provider.
+   *
+   * @return list of property group definitions, never null
+   */
   List<PSPropertyGroupDefinition> getPropertyGroups();
 
+  /**
+   * Sets the property groups for this provider.
+   *
+   * @param groups list of property group definitions
+   */
   void setPropertyGroups(List<PSPropertyGroupDefinition> groups);
 }

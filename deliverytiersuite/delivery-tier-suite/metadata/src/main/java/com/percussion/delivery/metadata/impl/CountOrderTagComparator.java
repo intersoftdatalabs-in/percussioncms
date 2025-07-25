@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -25,28 +27,29 @@ import org.json.JSONObject;
 import java.util.Comparator;
 
 /**
+ * Comparator for sorting JSONObjects by tag count in descending order.
+ *
  * @author davidpardini
- * 
  */
 public class CountOrderTagComparator implements Comparator<JSONObject>
 {
+
     private static final Logger log = LogManager.getLogger(CountOrderTagComparator.class);
 
+    @Override
     public int compare(JSONObject o1, JSONObject o2)
     {
-
-        int returnCompare = 0;
         try
         {
-            int countOb1 = ((Integer) o1.get(PSMetadataTagsHelper.TAG_COUNT));
-            int countOb2 = ((Integer) o2.get(PSMetadataTagsHelper.TAG_COUNT));
-            returnCompare = Integer.compare(countOb2, countOb1);
+            var count1 = o1.optInt(PSMetadataTagsHelper.TAG_COUNT, 0);
+            var count2 = o2.optInt(PSMetadataTagsHelper.TAG_COUNT, 0);
+            return Integer.compare(count2, count1);
         }
-        catch (JSONException e)
+        catch (Exception e)
         {
-            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.error("Error comparing tag counts: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return 0;
         }
-        return returnCompare;
     }
 }

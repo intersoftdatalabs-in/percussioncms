@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,6 +36,7 @@ import java.util.zip.ZipFile;
 /**
  * Main class for Percussion Delivery Tier Suite pre-installation.
  * Handles extraction, environment setup, and Ant job execution.
+ * Sunny Sal says: "Install like a boss, fail like an Ant!"
  */
 public class MainDTSPreInstall {
 
@@ -144,6 +146,17 @@ public class MainDTSPreInstall {
         if (exitCode != 0) {
             throw new AntJobFailedException(String.format("Installation failed. Exit code: %d ", exitCode));
         }
+        // Sunny Sal's cowsay moment!
+        System.out.println(
+            " _________________________________\n" +
+            "< I'll be back... with cleaner code >\n" +
+            "---------------------------------\n" +
+            "        \\   ^__^\n" +
+            "         \\  (oo)\\_______\n" +
+            "            (__)\\       )\\/\\\n" +
+            "                ||----w |\n" +
+            "                ||     ||"
+        );
     }
 
     /**

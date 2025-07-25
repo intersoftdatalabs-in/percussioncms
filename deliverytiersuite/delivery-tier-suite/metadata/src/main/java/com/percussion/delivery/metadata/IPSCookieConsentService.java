@@ -15,71 +15,70 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.data.PSCookieConsentQuery;
-
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * 
- * @author chriswright
- *
+ * Service for managing client cookie consent information.
  */
 public interface IPSCookieConsentService {
-    
-    /**
-     * Saves the client cookie consent information.
-     * @param consent the consent object to save.
-     */
-    public void save(Collection<PSCookieConsentQuery> consentQueries);
 
     /**
-     * Saves the client cookie consent information.
-     * @param consent the consent object to save.
+     * Saves client cookie consent information.
+     * @param consentQueries the consent objects to save.
      */
-    public void updateOldSiteName(String oldName, String newName);
-    
+    void save(Collection<PSCookieConsentQuery> consentQueries);
+
     /**
-     * Gets a list of cookie consent entries in the database.
-     * @see {@link #PSCookieConsent}
-     * @return a list of cookie consent entries. May be empty, never <code>null</code>.
+     * Updates site name for all consent entries.
+     * @param oldName previous site name.
+     * @param newName new site name.
      */
-    public Collection<IPSCookieConsent> getAllConsentStats();
-    
+    void updateOldSiteName(String oldName, String newName);
+
     /**
-     * Gets a list of cookie consent entries for site.
-     * @param siteName - the name of the site to get the entries for.
-     * @return a list of cookie consent entries.
+     * Gets all cookie consent entries.
+     * @return a collection of cookie consent entries.
      */
-    public Collection<IPSCookieConsent> getAllConsentStatsForSite(String siteName);
-    
+    Collection<IPSCookieConsent> getAllConsentStats();
+
     /**
-     * Deletes all cookie consent entries from the database.
+     * Gets cookie consent entries for a site.
+     * @param siteName the site name.
+     * @return a collection of cookie consent entries.
      */
-    public void deleteAllCookieConsentEntries() throws Exception;
-    
+    Collection<IPSCookieConsent> getAllConsentStatsForSite(String siteName);
+
+    /**
+     * Deletes all cookie consent entries.
+     * @throws Exception if delete fails.
+     */
+    void deleteAllCookieConsentEntries() throws Exception;
+
     /**
      * Deletes all cookie consent entries for the specified site.
-     * @param siteName - the site in which to delete the entries for.
-     * @throws Exception
+     * @param siteName the site name.
+     * @throws Exception if delete fails.
      */
-    public void deleteCookieConsentEntriesForSite(String siteName) throws Exception;
-    
+    void deleteCookieConsentEntriesForSite(String siteName) throws Exception;
+
     /**
      * Gets cookie consent totals for all sites.
-     *  
-     * @return A map which contains corresponding siteName/cookie totals.
+     * @return map of site name to total.
+     * @throws Exception if query fails.
      */
-    public Map<String, Integer> getAllConsentEntryTotals() throws Exception;
-    
+    Map<String, Integer> getAllConsentEntryTotals() throws Exception;
+
     /**
-     * Gets cookie consent entries / totals for specified site.  Key/value
-     * pair with key being service/cookie name value being total approved.
-     * @param siteName - the name of the site to find entries for.
-     * @return A map which contains key/value pairs for service/cookie name and total entries.
+     * Gets cookie consent totals for a specified site.
+     * @param siteName the site name.
+     * @return map of service name to total.
+     * @throws Exception if query fails.
      */
-    public Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception;
-    
+    Map<String, Integer> getCookieConsentEntryTotalsPerSite(String siteName) throws Exception;
 }

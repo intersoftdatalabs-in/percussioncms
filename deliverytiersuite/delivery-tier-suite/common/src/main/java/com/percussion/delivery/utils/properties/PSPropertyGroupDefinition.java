@@ -47,18 +47,18 @@ public class PSPropertyGroupDefinition {
   private List<PSPropertyDefinition> properties;
 
   /**
-   * When true, the last known state for this property group is expanded.
-   * @return the expanded
+   * Returns true if the last known state for this property group is expanded.
+   *
+   * @return true if expanded
    */
   public boolean isExpanded() {
     return expanded;
   }
 
   /**
-   * When true, indicates that this property group should be displayed expanded. When false
-   * collapsed.
+   * Sets whether this property group should be displayed expanded.
    *
-   * @param expanded the expanded to set
+   * @param expanded true for expanded, false for collapsed
    */
   public void setExpanded(boolean expanded) {
     this.expanded = expanded;
@@ -88,6 +88,12 @@ public class PSPropertyGroupDefinition {
     this.displayName = displayName;
   }
 
+  /**
+   * Returns the list of property definitions for this group.
+   * Never returns null.
+   *
+   * @return list of property definitions
+   */
   public List<PSPropertyDefinition> getProperties() {
     if (properties == null) {
       properties = new ArrayList<>();

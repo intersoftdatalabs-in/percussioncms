@@ -15,80 +15,76 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.soln.p13n.tracking.data;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-
 import com.percussion.soln.p13n.tracking.IVisitorProfileDataService;
 import com.percussion.soln.p13n.tracking.VisitorProfile;
 
+/**
+ * In-memory DAO for visitor profiles.
+ * Sunny Sal says: "Object DAO: memory is cheap, bugs are expensive!"
+ */
 public class VisitorProfileObjectDao implements IVisitorProfileDataService {
 
     private VisitorProfileResourceRepository repository;
 
-
-
+    @Override
     public VisitorProfile find(long visitorId) {
-        VisitorProfile profile = getRepository().getProfileById(visitorId);
-        if (profile != null) {
-            return copyProfile(profile);
-        }
-        return null;
+        var profile = getRepository().getProfileById(visitorId);
+        return profile != null ? copyProfile(profile) : null;
     }
 
+    @Override
     public VisitorProfile findByUserId(String userId) {
-        VisitorProfile profile = getRepository().getProfileByUserId(userId);
-        if (profile != null) {
-            return copyProfile(profile);
-        }
-        return null;
+        var profile = getRepository().getProfileByUserId(userId);
+        return profile != null ? copyProfile(profile) : null;
     }
 
+    @Override
     public VisitorProfile save(VisitorProfile original) {
-        if (original == null) throw new IllegalArgumentException("Cannot save null profile");     
+        if (original == null) throw new IllegalArgumentException("Cannot save null profile");
         if (original.getId() == 0) {
             original.setId(nextProfileId());
         }
-        VisitorProfile profile = copyProfile(original);
-        getRepository().addProfile(profile);    
+        var profile = copyProfile(original);
+        getRepository().addProfile(profile);
         return copyProfile(profile);
     }
-  
 
-    
     private VisitorProfile copyProfile(VisitorProfile profile) {
         if (profile == null) throw new IllegalArgumentException("cannot copy null profile.");
-        //We have to clone the profile so that the changes
-        //are not persistant until save is called.
         return profile.clone();
     }
 
+    @Override
     public VisitorProfile createProfile() {
         return new VisitorProfile(nextProfileId());
     }
-    
 
-    
     private long nextProfileId() {
         return UUID.randomUUID().getMostSignificantBits();
     }
 
-
+    @Override
     public Iterator<VisitorProfile> retrieveProfiles() {
         return getRepository().getProfiles().values().iterator();
     }
 
+    @Override
     public List<VisitorProfile> retrieveTestProfiles() {
-        List<VisitorProfile> r = new LinkedList<VisitorProfile>();
-        for (VisitorProfile p : getRepository().getProfiles().values()) {
+        var r = new LinkedList<VisitorProfile>();
+        for (var p : getRepository().getProfiles().values()) {
             if (p.getLabel() != null) r.add(p);
         }
         return r;
     }
 
+    @Override
     public void delete(VisitorProfile profile) {
         getRepository().deleteProfile(profile);
     }
@@ -103,6 +99,4 @@ public class VisitorProfileObjectDao implements IVisitorProfileDataService {
         }
         return repository;
     }
-    
-    
 }

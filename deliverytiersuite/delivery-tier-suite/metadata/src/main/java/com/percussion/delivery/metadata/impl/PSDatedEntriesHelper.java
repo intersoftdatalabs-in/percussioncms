@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.delivery.metadata.IPSMetadataEntry;
@@ -26,91 +28,58 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.List;
 
 /**
- * This class is responsible for process the dates of the page and return
- * the JSONObject with the entries with their properties.
- * 
+ * Processes metadata entries to produce a list of dated events.
  * @author rafaelsalis
- * 
  */
-public class PSDatedEntriesHelper
-{
-    
-    /**
-     * Constants names for the page properties.
-     */
+public class PSDatedEntriesHelper {
+
     private static final String SUMMARY_PROPERTY_NAME = "dcterms:abstract";
     private static final String START_DATE_PROPERTY_NAME = "perc:start_date";
     private static final String END_DATE_PROPERTY_NAME = "perc:end_date";
-    
-    /**
-     * Constant for the date formater. 
-     */
-    private FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    private final FastDateFormat formatter = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     /**
-     * This method is responsible for return the list with entries with their
-     * properties:
-     * <ul>
-     *  <li>page title</li>
-     *  <li>page summary</li>
-     *  <li>page start date</li>
-     *  <li>page end date</li>
-     *  <li>page url</li>  
-     * </ul>
-     * 
+     * Returns a list of dated events from metadata entries.
      * @param results assumed not <code>null</code>.
      * @return a {@link PSMetadataDatedEntries} object containing the entries.
      * @throws Exception
      */
-    public PSMetadataDatedEntries getDatedEntries(List<IPSMetadataEntry> results) throws Exception
-    {
-        if (results == null)
-            throw new IllegalArgumentException("Results can not be null");
+    public PSMetadataDatedEntries getDatedEntries(List<IPSMetadataEntry> results) throws Exception {
+        if (results == null) {
+            throw new IllegalArgumentException("Results cannot be null");
+        }
 
-        PSMetadataDatedEntries datedListResults = new PSMetadataDatedEntries();
-        
-        try
-        {
-            for (IPSMetadataEntry entryPage : results)
-            {
-                PSMetadataDatedEvent event = new PSMetadataDatedEvent();
+        var datedListResults = new PSMetadataDatedEntries();
+
+        try {
+            for (var entryPage : results) {
+                var event = new PSMetadataDatedEvent();
                 event.setTitle(entryPage.getLinktext());
-                
-                // Strip the site from the url
-                String[] paths = entryPage.getPagepath().split("/"); 
-                String pageUrl = StringUtils.EMPTY;
-                for (int i = 2; i < paths.length; i++)
-                {
-                    pageUrl = pageUrl + "/" + paths[i];
+
+                // Strip the site from the URL
+                var paths = entryPage.getPagepath().split("/");
+                var pageUrl = new StringBuilder();
+                for (int i = 2; i < paths.length; i++) {
+                    pageUrl.append("/").append(paths[i]);
                 }
-                event.setUrl(pageUrl);
-                
-                for (IPSMetadataProperty prop : entryPage.getProperties())
-                {
-                    if (SUMMARY_PROPERTY_NAME.equals(prop.getName()) && !prop.getStringvalue().isEmpty())
-                    {
+                event.setUrl(pageUrl.toString());
+
+                for (var prop : entryPage.getProperties()) {
+                    if (SUMMARY_PROPERTY_NAME.equals(prop.getName()) && !prop.getStringvalue().isEmpty()) {
                         event.setSummary(prop.getStringvalue());
                     }
-                    
-                    if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null)
-                    {
-                            event.setStart(formatter.format(prop.getDatevalue()));
+                    if (START_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
+                        event.setStart(formatter.format(prop.getDatevalue()));
                     }
-                    
-                    if (END_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null)
-                    {
-                            event.setEnd(formatter.format(prop.getDatevalue()));
+                    if (END_DATE_PROPERTY_NAME.equals(prop.getName()) && prop.getDatevalue() != null) {
+                        event.setEnd(formatter.format(prop.getDatevalue()));
                     }
                 }
-                
                 datedListResults.add(event);
             }
             return datedListResults;
-        }
-        catch (Exception e)
-        {
-            throw new Exception("Cannot get the list of entries within a specific range of dates.");
+        } catch (Exception e) {
+            throw new Exception("Cannot get the list of entries within a specific range of dates.", e);
         }
     }
-    
 }

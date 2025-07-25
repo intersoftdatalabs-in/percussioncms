@@ -41,23 +41,17 @@ import org.hibernate.annotations.*;
 
 /**
  * Represents metadata for a published page on the delivery server.
- * 
- * @author erikserating
- * 
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSMetadataEntry")
 @Table(name = "PERC_PAGE_METADATA")
-public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
-{
+public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable {
 
     @Id
     @Column(length = 40)
     @Nationalized
     private String pagepathHash;
 
-    // This column may be marked as unique, but keep in mind that unique
-    // keys greater than 767 characters are not supported on MySQL.
     @Column(length = 2000)
     @Nationalized
     private String pagepath;
@@ -73,7 +67,7 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
     @Basic
     @Nationalized
     private String linktext;
-    
+
     @Basic
     @Nationalized
     private String linktext_lower;
@@ -89,40 +83,21 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,
-            orphanRemoval = true, mappedBy = "entry", targetEntity = PSDbMetadataProperty.class)
+        orphanRemoval = true, mappedBy = "entry", targetEntity = PSDbMetadataProperty.class)
     private Set<PSDbMetadataProperty> properties = new HashSet<>();
 
-    /**
-     * HashCalculator instance used to get the hash of the metadata entry's
-     * pagepath.
-     */
-    private static PSHashCalculator hashCalculator = new PSHashCalculator();
+    private static final PSHashCalculator hashCalculator = new PSHashCalculator();
 
-    public PSDbMetadataEntry()
-    {
+    public PSDbMetadataEntry() {}
 
-    }
-
-    /**
-     * Ctor
-     * 
-     * @param name the file name, cannot be <code>null</code> or empty.
-     * @param folder the folder path of the containing folder without the site
-     *            folder. Cannot be <code>null</code> or empty.
-     * @param pagepath the path of the file including sitefolder. This is used
-     *            as a unique key for the entry. Cannot be <code>null</code> or
-     *            empty.
-     * @param type
-     */
-    public PSDbMetadataEntry(String name, String folder, String pagepath, String type, String site)
-    {
-        if (name == null || name.length() == 0)
+    public PSDbMetadataEntry(String name, String folder, String pagepath, String type, String site) {
+        if (name == null || name.isEmpty())
             throw new IllegalArgumentException("name cannot be null or empty");
-        if (folder == null || folder.length() == 0)
+        if (folder == null || folder.isEmpty())
             throw new IllegalArgumentException("folder cannot be null or empty");
-        if (pagepath == null || pagepath.length() == 0)
+        if (pagepath == null || pagepath.isEmpty())
             throw new IllegalArgumentException("pagepath cannot be null or empty");
-        if (site == null || site.length() == 0)
+        if (site == null || site.isEmpty())
             throw new IllegalArgumentException("site cannot be null or empty");
 
         setName(name);
@@ -132,187 +107,121 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
         setSite(site);
     }
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
+    @Override
+    public String getName() {
         return name;
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
+    @Override
+    public void setName(String name) {
         this.name = name;
     }
 
-    /**
-     * @return the folder
-     */
-    public String getFolder()
-    {
+    @Override
+    public String getFolder() {
         return folder;
     }
 
-    /**
-     * @param folder the folder to set
-     */
-    public void setFolder(String folder)
-    {
+    @Override
+    public void setFolder(String folder) {
         this.folder = folder;
     }
 
-    /**
-     * @return the pagepathHash
-     */
-    public String getPagepathHash()
-    {
+    @Override
+    public String getPagepathHash() {
         return pagepathHash;
     }
 
-    /**
-     * @return the page path
-     */
-    public String getPagepath()
-    {
+    @Override
+    public String getPagepath() {
         return pagepath;
     }
 
-    /**
-     * @param path the pagepath to set
-     */
-    public void setPagepath(String path)
-    {
+    @Override
+    public void setPagepath(String path) {
         this.pagepath = path;
-
-        if (this.pagepath == null)
-            pagepathHash = hashCalculator.calculateHash(StringUtils.EMPTY);
-        else
-            pagepathHash = hashCalculator.calculateHash(this.pagepath);
+        pagepathHash = (this.pagepath == null)
+            ? hashCalculator.calculateHash(StringUtils.EMPTY)
+            : hashCalculator.calculateHash(this.pagepath);
     }
 
-    /**
-     * @return the linktext
-     */
-    public String getLinktext()
-    {
+    @Override
+    public String getLinktext() {
         return linktext;
     }
 
-    /**
-     * @param linktext the linktext to set
-     */
-    public void setLinktext(String linktext)
-    {
+    @Override
+    public void setLinktext(String linktext) {
         this.linktext = linktext == null ? "" : linktext;
         this.linktext_lower = this.linktext.toLowerCase();
     }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
+    @Override
+    public String getType() {
         return type;
     }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
+    @Override
+    public void setType(String type) {
         this.type = type == null ? "" : type;
     }
 
-    /**
-     * @return the site
-     */
-    public String getSite()
-    {
+    @Override
+    public String getSite() {
         return site;
     }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site)
-    {
+    @Override
+    public void setSite(String site) {
         this.site = site;
     }
 
-    /**
-     * @return the properties
-     */
-    public Set<IPSMetadataProperty> getProperties()
-    {
-        if(properties == null)
-            return null;
-        Set<IPSMetadataProperty> results = new HashSet<>(properties.size());
-        for(IPSMetadataProperty p : properties)
-            results.add(p);
+    @Override
+    public Set<IPSMetadataProperty> getProperties() {
+        if (properties == null) return null;
+        var results = new HashSet<IPSMetadataProperty>(properties.size());
+        results.addAll(properties);
         return results;
     }
 
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(Set<IPSMetadataProperty> properties)
-    {
-        if(properties == null)
+    @Override
+    public void setProperties(Set<IPSMetadataProperty> properties) {
+        if (properties == null) {
             this.properties = null;
-        Set<PSDbMetadataProperty> dbprops = new HashSet<>();
-        for(IPSMetadataProperty p : properties)
-        {
-            if(p instanceof PSDbMetadataProperty)
-            {
-                dbprops.add((PSDbMetadataProperty)p);
-            }
-            else
-            {
+            return;
+        }
+        var dbprops = new HashSet<PSDbMetadataProperty>();
+        for (var p : properties) {
+            if (p instanceof PSDbMetadataProperty) {
+                dbprops.add((PSDbMetadataProperty) p);
+            } else {
                 dbprops.add(new PSDbMetadataProperty(p.getName(), p.getValuetype(), p.getValue()));
             }
         }
-            
         this.properties = dbprops;
     }
-    
-    public void clearProperties()
-    {
-        if(properties != null)
-            properties.clear();
-    }
 
-    public void addProperty(IPSMetadataProperty prop)
-    {
-        ((PSDbMetadataProperty)prop).setMetadataEntry(this);
-        this.properties.add((PSDbMetadataProperty)prop);
-    }
-
-    /**
-     * Helper method to return number of properties.
-     * 
-     * @return number of properties.
-     */
-    public int getPropertyCount()
-    {
-        if (properties == null)
-            return 0;
-        return properties.size();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
-    public boolean equals(Object obj)
-    {
+    public void clearProperties() {
+        if (properties != null) properties.clear();
+    }
+
+    @Override
+    public void addProperty(IPSMetadataProperty prop) {
+        ((PSDbMetadataProperty) prop).setMetadataEntry(this);
+        this.properties.add((PSDbMetadataProperty) prop);
+    }
+
+    @Override
+    public int getPropertyCount() {
+        return (properties == null) ? 0 : properties.size();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
         if (obj == null || !getClass().getName().equals(obj.getClass().getName()))
             return false;
-        PSDbMetadataEntry entry = (PSDbMetadataEntry) obj;
+        var entry = (PSDbMetadataEntry) obj;
         return new EqualsBuilder()
             .append(folder, entry.folder)
             .append(linktext, entry.linktext)
@@ -323,14 +232,8 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
             .isEquals();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return new HashCodeBuilder()
             .append(folder)
             .append(linktext)
@@ -339,7 +242,5 @@ public class PSDbMetadataEntry implements IPSMetadataEntry, Serializable
             .append(site)
             .append(type)
             .toHashCode();
-
     }
-
 }

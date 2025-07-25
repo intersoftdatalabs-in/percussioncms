@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.metadata.rdbms.impl;
 
 import com.percussion.delivery.metadata.IPSMetadataEntry;
@@ -65,8 +66,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
-public class PSMetadataQueryService implements IPSMetadataQueryService
-{
+public class PSMetadataQueryService implements IPSMetadataQueryService {
+
     private SessionFactory sessionFactory;
     private PSHashCalculator hashCalculator = new PSHashCalculator();
 
@@ -84,7 +85,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      * Property datatype mappings, loaded by Spring.
      */
     protected PSPropertyDatatypeMappings datatypeMappings;
-    private Integer queryLimit=500;
+    private Integer queryLimit = 500;
 
     /**
      * ctor
@@ -92,11 +93,11 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      * @param datatypeMappings
      * @param queryLimit
      */
-    public PSMetadataQueryService(PSPropertyDatatypeMappings datatypeMappings, Integer queryLimit)
-    {
+    public PSMetadataQueryService(PSPropertyDatatypeMappings datatypeMappings, Integer queryLimit) {
         this.datatypeMappings = datatypeMappings;
         this.queryLimit = queryLimit;
     }
+
     /**
      * "SELECT DISTINCT COUNT(ENTRY_ID), [name],stringvalue\n" +
      * "FROM PERC_PAGE_METADATA_PROPERTIES WHERE\n" +
@@ -107,9 +108,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      * @return
      */
     public List<Object[]> executeCategoryQuery(PSMetadataQuery query) throws PSMalformedMetadataQueryException {
-        List<Object[]> cats = new ArrayList<>();
-        List<PSCriteriaElement> entryCrit = new ArrayList<>();
-        List<PSCriteriaElement> propsCrit = new ArrayList<>();
+        var cats = new ArrayList<Object[]>();
+        var entryCrit = new ArrayList<PSCriteriaElement>();
+        var propsCrit = new ArrayList<PSCriteriaElement>();
         StringBuilder Q3 = null;
         StringBuilder Q4 = null;
 
@@ -135,10 +136,9 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
 
         // Process criteria
         if (query.getCriteria() != null) {
-            PSCriteriaElement el = null;
-            for (String s : query.getCriteria()) {
+            for (var s : query.getCriteria()) {
                 if (!s.isEmpty()) {
-                    el = new PSCriteriaElement(s);
+                    var el = new PSCriteriaElement(s);
                     if (PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(el.getName())) {
                         entryCrit.add(el);
                     } else {
@@ -152,20 +152,20 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         StringBuilder Q4WhereClause = null;
         String clauseTemplate = " e.{0} {1} :{2}";
         int paramIndex = 0;
-        Map<String, Object> paramValues = new HashMap<String, Object>();
-        Map<String, PSCriteriaElement.OPERATION_TYPE> paramOps = new HashMap<String, PSCriteriaElement.OPERATION_TYPE>();
-        for (PSCriteriaElement ce : entryCrit) {
+        var paramValues = new HashMap<String, Object>();
+        var paramOps = new HashMap<String, PSCriteriaElement.OPERATION_TYPE>();
+        for (var ce : entryCrit) {
             if (Q4WhereClause == null) {
                 Q4WhereClause = new StringBuilder(" WHERE ");
-            }else{
+            } else {
                 Q4WhereClause.append(" AND ");
             }
-            String replParam = "pagePropValue" + paramIndex++;
+            var replParam = "pagePropValue" + paramIndex++;
             Q4WhereClause.append(MessageFormat.format(clauseTemplate, ce.getName(), ce.getOperation(), replParam));
             paramValues.put(replParam, ce.getValue());
             paramOps.put(replParam, ce.getOperationType());
         }
-        if(Q4WhereClause != null) {
+        if (Q4WhereClause != null) {
             Q4 = new StringBuilder(" select distinct e.id from PSDbMetadataEntry e ");
             Q4.append(Q4WhereClause);
         }
@@ -173,107 +173,92 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         StringBuilder Q3WhereCaluse = null;
         clauseTemplate = " lower(p.name) = lower(:{3}) and p.{0} {1} :{2}";
 
-        for (PSCriteriaElement ce : propsCrit)
-        {
+        for (var ce : propsCrit) {
             if (Q3WhereCaluse == null) {
                 Q3WhereCaluse = new StringBuilder("WHERE ( ");
             } else {
                 Q3WhereCaluse.append(" OR ");
             }
-            String nameParam = "propName" + paramIndex;
-            String valueParam = "propValue" + paramIndex++;
+            var nameParam = "propName" + paramIndex;
+            var valueParam = "propValue" + paramIndex++;
             Object value = ce.getValue();
-            String valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
+            var valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
 
-            if(valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME))
-            {
-                Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
+            if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
+                var date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
                 value = new Date(date.getTimeInMillis());
             }
 
 
-            if((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
+            if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
                     valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME))
-                    && !ce.getOperation().equals(PSCriteriaElement.OPERATION_TYPE.LIKE.name())){
+                    && !ce.getOperation().equals(PSCriteriaElement.OPERATION_TYPE.LIKE.name())) {
                 Q3WhereCaluse.append(MessageFormat.format(clauseTemplate, PROP_VALUEHASH_COLUMN_NAME, ce.getOperation(), valueParam,
                         nameParam));
-            }else {
+            } else {
                 Q3WhereCaluse.append(MessageFormat.format(clauseTemplate, valueColumn, ce.getOperation(), valueParam,
                         nameParam));
             }
 
-            if(
-                    ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE
-                            && (value instanceof String)
-            ){
-                // Append HQL especial modifier to the end of LIKE
+            if (ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE && (value instanceof String)) {
                 Q3WhereCaluse.append(" " + HQL_ESCAPE + " '" + ESCAPE_CHAR + "'");
                 value = escapeSpecialCharacters((String) value);
             }
 
             paramValues.put(nameParam, ce.getName());
-            if((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
-                    valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME)||
+            if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
+                    valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME) ||
                     valueColumn.equals(PROP_VALUEHASH_COLUMN_NAME)) &&
                     !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.LIKE) &&
-                    !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.IN)){
+                    !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.IN)) {
                 paramValues.put(valueParam, hashCalculator.calculateHash(value.toString()));
-            }else {
+            } else {
                 paramValues.put(valueParam, value);
             }
             paramOps.put(valueParam, ce.getOperationType());
         }
-        if(Q3WhereCaluse != null) {
-            Q3 = new StringBuilder(" select distinct p.entry.id from PSDbMetadataProperty p " );
+        if (Q3WhereCaluse != null) {
+            Q3 = new StringBuilder(" select distinct p.entry.id from PSDbMetadataProperty p ");
             Q3.append(Q3WhereCaluse).append(" )");
-            if(Q4 != null) {
+            if (Q4 != null) {
                 Q3.append(" and p.entry.id in( ").append(Q4).append(" ) ");
             }
         }
 
-        StringBuilder Q2 = new StringBuilder("select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ");
-        if(Q3 != null) {
+        var Q2 = new StringBuilder("select distinct p2.entry.id from PSDbMetadataProperty p2 where p2.entry.id in( ");
+        if (Q3 != null) {
             Q2.append(Q3).append(" )");
-        }else if(Q4 != null){
+        } else if (Q4 != null) {
             Q2.append(Q4).append(" )");
         }
 
-        StringBuilder Q1 = new StringBuilder( "SELECT distinct count(p4.entry.id), p4.name ,p4.stringvalue from PSDbMetadataProperty p4" +
-                " where p4.entry.id in (").append(Q2).append( " )").append("AND p4.name = 'perc:category'  GROUP BY p4.name, p4.stringvalue  ORDER BY p4.stringvalue");
+        var Q1 = new StringBuilder("SELECT distinct count(p4.entry.id), p4.name ,p4.stringvalue from PSDbMetadataProperty p4" +
+                " where p4.entry.id in (").append(Q2).append(" )").append("AND p4.name = 'perc:category'  GROUP BY p4.name, p4.stringvalue  ORDER BY p4.stringvalue");
 
 
-        String hql = Q1.toString();
-        log.debug("{}",hql);
+        var hql = Q1.toString();
+        log.debug("{}", hql);
 
-        try(Session session = getSession()){
+        try (var session = getSession()) {
 
-            Query hq = session.createQuery(hql);
-            log.debug("{}",hq);
-            for (String key : paramValues.keySet())
-            {
-                Object value = paramValues.get(key);
-                PSCriteriaElement.OPERATION_TYPE opType = paramOps.get(key);
-                if(opType == PSCriteriaElement.OPERATION_TYPE.IN)
-                {
+            var hq = session.createQuery(hql);
+            log.debug("{}", hq);
+            for (var key : paramValues.keySet()) {
+                var value = paramValues.get(key);
+                var opType = paramOps.get(key);
+                if (opType == PSCriteriaElement.OPERATION_TYPE.IN) {
                     hq.setParameterList(key,
                             PSMetadataQueryServiceHelper.parseToList(key, value.toString(), datatypeMappings, hashCalculator));
-                }
-                else if (value instanceof Date)
-                {
+                } else if (value instanceof Date) {
                     hq.setTimestamp(key, (Date) value);
-                }
-                else if (value instanceof String)
-                {
+                } else if (value instanceof String) {
                     hq.setString(key, value.toString());
                 }
             }
-            //Returns List of Array with "Count: {} Name {} Cat: {}", c[0], c[1], c[2]
-            // Object[2,"perc:category","/Categories/Color/Blue"
-            // Object[1,"perc:category","/Categories/Color/Red"
             cats = hq.getResultList();
 
         } catch (Exception e) {
-            log.error("Query Failed : {}, Error: {}", query.toString(),e.getMessage());
+            log.error("Query Failed : {}, Error: {}", query.toString(), e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
         return cats;
@@ -286,50 +271,36 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      * com.percussion.metadata.IPSMetadataQueryService#executeQuery(com.percussion
      * .metadata.IPSMetadataQuery)
      */
-     public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query)
-            throws Exception
-    {
+    @Override
+    public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query) throws Exception {
         log.debug("Executing query for metadata entries");
 
-        PSPair<List<IPSMetadataEntry>, Integer>  searchResults = new PSPair<List<IPSMetadataEntry>, Integer>();
-        PSPair<Query, SORTTYPE>  queryInfo = new PSPair<Query, SORTTYPE>();
+        var searchResults = new PSPair<List<IPSMetadataEntry>, Integer>();
+        PSPair<Query, SORTTYPE> queryInfo;
 
-        try(Session session = getSession())
-        {
+        try (var session = getSession()) {
 
-            List<IPSMetadataEntry> results = new ArrayList<IPSMetadataEntry>();
+            var results = new ArrayList<IPSMetadataEntry>();
             Integer totalResults = null;
 
-            if(!isPagingSupported(query))
-            {
+            if (!isPagingSupported(query)) {
                 throw new UnsupportedOperationException("Pagination is not supported for requested sort property");
-            }
-            else
-            {
-                //Get the Count of entries only when the StartIndex is 0, for later pages client should be having the
-                //total count already so no need to get the count again
-                if(query.getStartIndex() == 0 || query.getReturnTotalEntries())
-                {
-                    queryInfo = buildHibernateQuery(session, query,true);
+            } else {
+                if (query.getStartIndex() == 0 || query.getReturnTotalEntries()) {
+                    queryInfo = buildHibernateQuery(session, query, true);
 
-                    Long count = (Long) queryInfo.getFirst().list().get(0);
+                    var count = (Long) queryInfo.getFirst().list().get(0);
                     totalResults = count.intValue();
                 }
 
-                // call the method for second time to get list of objects based on the query
-                queryInfo = new PSPair<Query, SORTTYPE>();
-                queryInfo = buildHibernateQuery(session, query,false);
-                if(queryInfo.getSecond().equals(SORTTYPE.PROPERTY))
-                {
-                    List<Object[]> resultsTmpList = queryInfo.getFirst().list();
-                    for (Object[] o : resultsTmpList)
-                    {
+                queryInfo = buildHibernateQuery(session, query, false);
+                if (queryInfo.getSecond().equals(SORTTYPE.PROPERTY)) {
+                    var resultsTmpList = queryInfo.getFirst().list();
+                    for (var o : resultsTmpList) {
                         results.add((PSDbMetadataEntry) o[0]);
                     }
                     searchResults.setFirst(results);
-                }
-                else if(queryInfo.getSecond().equals(SORTTYPE.METADATA) || queryInfo.getSecond().equals(SORTTYPE.NONE))
-                {
+                } else if (queryInfo.getSecond().equals(SORTTYPE.METADATA) || queryInfo.getSecond().equals(SORTTYPE.NONE)) {
                     results = queryInfo.getFirst().list();
                     searchResults.setFirst(results);
                 }
@@ -367,29 +338,21 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
      */
     @Transactional
     private PSPair<Query, SORTTYPE> buildHibernateQuery(Session sess, PSMetadataQuery rawQuery, boolean isCount)
-            throws PSMalformedMetadataQueryException, HibernateException, ParseException
-    {
-        List<PSCriteriaElement> entryCrit = new ArrayList<>();
-        List<PSCriteriaElement> propsCrit = new ArrayList<>();
-        Map<String, String> sortColumns = new HashMap<>();
+            throws PSMalformedMetadataQueryException, HibernateException, ParseException {
+        var entryCrit = new ArrayList<PSCriteriaElement>();
+        var propsCrit = new ArrayList<PSCriteriaElement>();
+        var sortColumns = new HashMap<String, String>();
 
-        String orderBy = rawQuery.getOrderBy();
-        orderBy= SecureStringUtils.sanitizeStringForSQLStatement(orderBy);
+        var orderBy = SecureStringUtils.sanitizeStringForSQLStatement(rawQuery.getOrderBy());
         String sortColumnName = "";
         SORTTYPE type = SORTTYPE.NONE;
-        //is used for if the sort column is based on the property from the property table
         boolean isSortingOnProperty = false;
-
-        //is used for if the sort column is based on the column name from the parent table
         boolean isSortingOnMatadata = false;
 
-        // Process criteria
-        if (rawQuery.getCriteria() != null)
-        {
-            PSCriteriaElement el = null;
-            for (String s : rawQuery.getCriteria()) {
-                if(!s.isEmpty()){
-                    el = new PSCriteriaElement(s);
+        if (rawQuery.getCriteria() != null) {
+            for (var s : rawQuery.getCriteria()) {
+                if (!s.isEmpty()) {
+                    var el = new PSCriteriaElement(s);
                     if (PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(el.getName())) {
                         entryCrit.add(el);
                     } else {
@@ -399,24 +362,17 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
             }
         }
 
-        StringBuilder queryBuf = new StringBuilder();
-        if(isCount)
-        {
+        var queryBuf = new StringBuilder();
+        if (isCount) {
             queryBuf.append("select count(distinct me) from PSDbMetadataEntry as me");
-        }
-        else
-        {
-            if(!StringUtils.isBlank(orderBy))
-            {
+        } else {
+            if (!StringUtils.isBlank(orderBy)) {
                 isSortingOnMatadata =
                         PSMetadataQueryServiceHelper.ENTRY_PROPERTY_KEYS.contains(
                                 PSMetadataQueryServiceHelper.getSortPropertyName(orderBy));
-                if(isSortingOnMatadata)
-                {
+                if (isSortingOnMatadata) {
                     type = SORTTYPE.METADATA;
-                }
-                else
-                {
+                } else {
                     sortColumnName =
                             PSMetadataQueryServiceHelper.getValueColumnName(
                                     PSMetadataQueryServiceHelper.getSortPropertyName(orderBy), datatypeMappings);
@@ -425,69 +381,44 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
                 }
             }
 
-            // We need the distinct clause to avoid duplicate entries in the
-            // query when multivalue properties are involved (e.g. categories, tags)
-            // SQLSERVER have an issue with the distinct clause when some field
-            // of the "order by" statement are not specified in the "select" statement.
-            // This method was tested using different combinations of "order by"
-            // under SQL server and all were ok.
             queryBuf.append("select distinct me");
-            if(isSortingOnProperty)
-            {
-                if (sortColumnName.equals(PROP_STRINGVALUE_COLUMN_NAME))
-                {
-                    queryBuf.append(", lower(prop.");
-                    queryBuf.append(PROP_STRINGVALUE_COLUMN_NAME);
-                    queryBuf.append(") as sort1 ");
-                }
-                else
-                {
-                    queryBuf.append(", prop.");
-                    queryBuf.append(sortColumnName);
-                    queryBuf.append(" as sort1 ");
+            if (isSortingOnProperty) {
+                if (sortColumnName.equals(PROP_STRINGVALUE_COLUMN_NAME)) {
+                    queryBuf.append(", lower(prop.").append(PROP_STRINGVALUE_COLUMN_NAME).append(") as sort1 ");
+                } else {
+                    queryBuf.append(", prop.").append(sortColumnName).append(" as sort1 ");
                 }
             }
             queryBuf.append(" from PSDbMetadataEntry as me");
-            if(isSortingOnProperty)
-            {
+            if (isSortingOnProperty) {
                 queryBuf.append(" left join me.properties as prop");
             }
         }
 
         for (int i = 0; i < propsCrit.size(); i++)
-            queryBuf.append(" left join me.properties as p").append( i);
+            queryBuf.append(" left join me.properties as p").append(i);
 
-        if (!entryCrit.isEmpty() || ! propsCrit.isEmpty())
+        if (!entryCrit.isEmpty() || !propsCrit.isEmpty())
             queryBuf.append(" where");
 
-        if((isSortingOnProperty))
-        {
-            queryBuf.append(" prop.id.name = ").append("'")
+        if (isSortingOnProperty) {
+            queryBuf.append(" prop.id.name = '")
                     .append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy))
                     .append("'");
         }
         String clauseTemplate = " me.{0} {1} :{2}";
         String inClauseTemplate = " me.{0} {1} (:{2})";
         int paramIndex = 0;
-        Map<String, Object> paramValues = new HashMap<>();
-        Map<String, PSCriteriaElement.OPERATION_TYPE> paramOps = new HashMap<>();
-        boolean needConjunction = false;
-        if(isSortingOnProperty)
-        {
-            needConjunction = true;
-        }
-        for (PSCriteriaElement ce : entryCrit)
-        {
+        var paramValues = new HashMap<String, Object>();
+        var paramOps = new HashMap<String, PSCriteriaElement.OPERATION_TYPE>();
+        boolean needConjunction = isSortingOnProperty;
+        for (var ce : entryCrit) {
             if (needConjunction)
                 queryBuf.append(" and");
             else
                 needConjunction = true;
-            String replParam = "pagePropValue" + paramIndex++;
-            String useClause = clauseTemplate;
-            if(ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.IN)
-            {
-                useClause = inClauseTemplate;
-            }
+            var replParam = "pagePropValue" + paramIndex++;
+            var useClause = ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.IN ? inClauseTemplate : clauseTemplate;
             queryBuf.append(MessageFormat.format(useClause, ce.getName(), ce.getOperation(), replParam));
             paramValues.put(replParam, ce.getValue());
             paramOps.put(replParam, ce.getOperationType());
@@ -496,146 +427,107 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         clauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} :{3}";
         inClauseTemplate = " lower(p{0}.id.name) = lower(:{4}) and p{0}.{1} {2} (:{3})";
 
-        int i=0;
-        for (PSCriteriaElement ce : propsCrit)
-        {
+        int i = 0;
+        for (var ce : propsCrit) {
             if (needConjunction)
                 queryBuf.append(" and");
             else
                 needConjunction = true;
-            String nameParam = "propName" + paramIndex;
-            String valueParam = "propValue" + paramIndex++;
+            var nameParam = "propName" + paramIndex;
+            var valueParam = "propValue" + paramIndex++;
             Object value = ce.getValue();
-            String valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
+            var valueColumn = PSMetadataQueryServiceHelper.getValueColumnName(ce, datatypeMappings);
 
-            if(valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME))
-            {
-                Calendar date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
+            if (valueColumn.equals(PROP_DATEVALUE_COLUMN_NAME)) {
+                var date = DatatypeConverter.parseDate(value.toString().replace(' ', 'T'));
                 value = new Date(date.getTimeInMillis());
             }
 
-            String useClause = clauseTemplate;
-            if(ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.IN)
-            {
-                useClause = inClauseTemplate;
-            }
+            var useClause = ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.IN ? inClauseTemplate : clauseTemplate;
 
-            if((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
+            if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
                     valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME))
-                    && !ce.getOperation().equals(PSCriteriaElement.OPERATION_TYPE.LIKE.name())){
+                    && !ce.getOperation().equals(PSCriteriaElement.OPERATION_TYPE.LIKE.name())) {
                 queryBuf.append(MessageFormat.format(useClause, i++, PROP_VALUEHASH_COLUMN_NAME, ce.getOperation(), valueParam,
                         nameParam));
-            }else {
+            } else {
                 queryBuf.append(MessageFormat.format(useClause, i++, valueColumn, ce.getOperation(), valueParam,
                         nameParam));
             }
 
-            if(
-                    ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE
-                            && (value instanceof String)
-            ){
-                // Append HQL especial modifier to the end of LIKE
+            if (ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE && (value instanceof String)) {
                 queryBuf.append(" " + HQL_ESCAPE + " '" + ESCAPE_CHAR + "'");
                 value = escapeSpecialCharacters((String) value);
             }
 
             paramValues.put(nameParam, ce.getName());
-            if((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
-                    valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME)||
+            if ((valueColumn.equals(PROP_STRINGVALUE_COLUMN_NAME) ||
+                    valueColumn.equals(PROP_TEXTVALUE_COLUMN_NAME) ||
                     valueColumn.equals(PROP_VALUEHASH_COLUMN_NAME)) &&
                     !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.LIKE) &&
-                    !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.IN)){
+                    !ce.getOperationType().equals(PSCriteriaElement.OPERATION_TYPE.IN)) {
                 paramValues.put(valueParam, hashCalculator.calculateHash(value.toString()));
-            }else {
+            } else {
                 paramValues.put(valueParam, value);
             }
             paramOps.put(valueParam, ce.getOperationType());
         }
-        //If the method is getting called only for the entry count, in that case order by doesn't need to be included
-        if(isSortingOnProperty || isSortingOnMatadata)
-        {
-            if(isSortingOnProperty)
-            {
+        if (isSortingOnProperty || isSortingOnMatadata) {
+            if (isSortingOnProperty) {
                 queryBuf.append(" order by sort1 ");
-                //Add the extra order criteria like linktitle, to the current query.
                 sortColumns = getAdditionalSortCriteria(orderBy);
-                if(!sortColumns.isEmpty())
-                {
-                    String orderByFirstOrder = "asc";
-                    if (orderBy.contains(","))
-                    {
-                        orderByFirstOrder = orderBy.substring(0, orderBy.indexOf(","));
-                    }
+                if (!sortColumns.isEmpty()) {
+                    var orderByFirstOrder = orderBy.contains(",") ? orderBy.substring(0, orderBy.indexOf(",")) : "asc";
                     queryBuf.append(PSMetadataQueryServiceHelper.getSortingOrder(orderByFirstOrder));
-
-                    for (Map.Entry<String,String> entry : sortColumns.entrySet())
-                    {
-                         queryBuf.append(", ").append("me.").append(entry.getKey()).append( " " ).append(entry.getValue());
+                    for (var entry : sortColumns.entrySet()) {
+                        queryBuf.append(", ").append("me.").append(entry.getKey()).append(" ").append(entry.getValue());
                     }
                 }
+            } else {
+                queryBuf.append(" order by ").append("me.").append(PSMetadataQueryServiceHelper.getSortPropertyName(orderBy)).append(" ");
             }
-            else
-            {
-                //Make it case insensitive
-                // queryBuf.append(" order by " + "lower(me." + PSMetadataQueryServiceHelper.getSortPropertyName(orderBy) + ") ");
-                queryBuf.append(" order by ").append("me.").append( PSMetadataQueryServiceHelper.getSortPropertyName(orderBy)).append(" ");
-            }
-
-            if(sortColumns.isEmpty())
+            if (sortColumns.isEmpty())
                 queryBuf.append(PSMetadataQueryServiceHelper.getSortingOrder(orderBy));
         }
 
-        log.debug("{}",queryBuf);
+        log.debug("{}", queryBuf);
 
-        Query q = sess.createQuery(queryBuf.toString());
-        int useLimit=queryLimit;
-        //All caller to set a query limit, but they can't allow higher than the server limit.
-        if(rawQuery.getTotalMaxResults() > 0 && rawQuery.getTotalMaxResults() < queryLimit){
+        var q = sess.createQuery(queryBuf.toString());
+        int useLimit = queryLimit;
+        if (rawQuery.getTotalMaxResults() > 0 && rawQuery.getTotalMaxResults() < queryLimit) {
             log.debug("Setting max query limit to client provided value :{}", rawQuery.getTotalMaxResults());
-            useLimit=rawQuery.getTotalMaxResults();
+            useLimit = rawQuery.getTotalMaxResults();
         }
 
         q.setMaxResults(useLimit);
         q.setCacheable(true);
 
-        //If it is not for count then only pagination properties need to be set on the query
-        if(!isCount && rawQuery.getMaxResults() >0 && rawQuery.getMaxResults() <= useLimit)
-        {
-            if(rawQuery.getMaxResults() > 0)
+        if (!isCount && rawQuery.getMaxResults() > 0 && rawQuery.getMaxResults() <= useLimit) {
+            if (rawQuery.getMaxResults() > 0)
                 q.setMaxResults(rawQuery.getMaxResults());
-            if(rawQuery.getStartIndex() >= 0)
+            if (rawQuery.getStartIndex() >= 0)
                 q.setFirstResult(rawQuery.getStartIndex());
         }
-        for (String key : paramValues.keySet())
-        {
-            Object value = paramValues.get(key);
-            PSCriteriaElement.OPERATION_TYPE opType = paramOps.get(key);
-            if(opType == PSCriteriaElement.OPERATION_TYPE.IN)
-            {
+        for (var key : paramValues.keySet()) {
+            var value = paramValues.get(key);
+            var opType = paramOps.get(key);
+            if (opType == PSCriteriaElement.OPERATION_TYPE.IN) {
                 q.setParameterList(key,
                         PSMetadataQueryServiceHelper.parseToList(key, value.toString(), datatypeMappings, hashCalculator));
-            }
-            else if (value instanceof Date)
-            {
+            } else if (value instanceof Date) {
                 q.setTimestamp(key, (Date) value);
-            }
-            else if (value instanceof String)
-            {
+            } else if (value instanceof String) {
                 q.setString(key, value.toString());
             }
         }
 
-        return  getBuildQueryInfo(q, type);
-
+        return getBuildQueryInfo(q, type);
     }
 
-    private String escapeSpecialCharacters(String value)
-    {
-        List<String> specialChars = getCharactersToEscape();
+    private String escapeSpecialCharacters(String value) {
+        var specialChars = getCharactersToEscape();
+        var escapedString = value;
 
-        String escapedString = value;
-
-        // If the value starts or ends with a wildcard, leave those unescaped.
         boolean startsWithWildcard = escapedString.startsWith("%");
         boolean endsWithWildcard = escapedString.endsWith("%");
 
@@ -645,9 +537,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         if (endsWithWildcard)
             escapedString = escapedString.substring(0, escapedString.length() - 1);
 
-        // Escape all special characters
-        for (String specialChar : specialChars)
-        {
+        for (var specialChar : specialChars) {
             escapedString = escapedString.replaceAll(specialChar, ESCAPE_CHAR + specialChar);
         }
 
@@ -660,120 +550,63 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         return escapedString;
     }
 
-    private List<String> getCharactersToEscape()
-    {
-        List<String> specialChars = new ArrayList<String>();
-
-        // Escape the char that is used to escape too, in case it appears in the
-        // string. MUST be escaped first.
+    private List<String> getCharactersToEscape() {
+        var specialChars = new ArrayList<String>();
         specialChars.add(String.valueOf(ESCAPE_CHAR));
-
-        // These are common wildcards for all supported DBs
         specialChars.add("_");
         specialChars.add("%");
 
-        String jdbcProvider = getJdbcProvider();
-        if (StringUtils.isNotBlank(jdbcProvider))
-        {
-            if (jdbcProvider.contains(JDBC_SQLSERVER_DRIVER))
-            {
-                // Characters that are relevant to regex need to be escaped, to
-                // work properly with replaceAll.
+        var jdbcProvider = getJdbcProvider();
+        if (StringUtils.isNotBlank(jdbcProvider)) {
+            if (jdbcProvider.contains(JDBC_SQLSERVER_DRIVER)) {
                 specialChars.add("\\[");
                 specialChars.add("\\]");
                 specialChars.add("\\^");
                 specialChars.add("'");
             }
-            // Derby, ORACLE and MySQL only support escaping "%" and "_"
-            // characters.
         }
         return specialChars;
     }
 
-    /**
-     * Method to obtain the URL string of the JDBC connection. Used to check the
-     * DB provider for delivery server.
-     *
-     * @return URL string of the JDBC connection. Can be empty if there was a
-     *         problem retrieving the information from the session.
-     */
-    private String getJdbcProvider()
-    {
-        // If JDBC provider has already been obtained, don't retrieve it again
-        // from session.
-        if (isNotBlank(jdbcConnectionUrl))
-        {
+    private String getJdbcProvider() {
+        if (isNotBlank(jdbcConnectionUrl)) {
             return jdbcConnectionUrl;
         }
-
-        Connection connection = null;
-        try(Session session = getSession())
-        {
-            connection = ((SessionImpl) session).connection();
+        try (var session = getSession()) {
+            var connection = ((SessionImpl) session).connection();
             jdbcConnectionUrl = connection.getMetaData().getURL();
-        }
-        catch (SQLException | RuntimeException e)
-        {
+        } catch (SQLException | RuntimeException e) {
             log.error("There was an error getting jdbc driver name Error: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return jdbcConnectionUrl;
     }
 
-    /**
-     * Based on the order By option, get the additional fields to add to the order by
-     * sentence in the query
-     * * Ex: orderBy = "dcterms:created desc, linktitle desc" and the method returns linktitle desc
-     * @param orderBy cannot be <code>null</code> or empty
-     * @return sortColums the map of additional fields to be added, may be empty never<code>null</code>
-     */
-    private Map<String, String> getAdditionalSortCriteria(String orderBy)
-    {
-        Map<String, String> hMapColumns = new HashMap<String, String>();
-        if (orderBy.contains(","))
-        {
-            String orderByColumns = orderBy.substring(orderBy.indexOf(",")+1);
-            String[] arrayOrderBy = orderByColumns.split(",");
-
-            for(String orderColumn : arrayOrderBy)
-            {
-                String sortField = PSMetadataQueryServiceHelper.getSortPropertyName(orderColumn.trim());
-                String sortingOrder = PSMetadataQueryServiceHelper.getSortingOrder(orderColumn.trim());
+    private Map<String, String> getAdditionalSortCriteria(String orderBy) {
+        var hMapColumns = new HashMap<String, String>();
+        if (orderBy.contains(",")) {
+            var orderByColumns = orderBy.substring(orderBy.indexOf(",") + 1);
+            var arrayOrderBy = orderByColumns.split(",");
+            for (var orderColumn : arrayOrderBy) {
+                var sortField = PSMetadataQueryServiceHelper.getSortPropertyName(orderColumn.trim());
+                var sortingOrder = PSMetadataQueryServiceHelper.getSortingOrder(orderColumn.trim());
                 hMapColumns.put(sortField, sortingOrder);
             }
         }
         return hMapColumns;
     }
 
-    /**
-     * Based on the sort type which would be by count/by property/by column on the parent table
-     * @param query
-     * @param type sort type
-     * @return
-     */
-    private PSPair<Query, SORTTYPE> getBuildQueryInfo(Query query, SORTTYPE type)
-    {
-        PSPair<Query, SORTTYPE>  queryInfo = new PSPair<Query, SORTTYPE>();
+    private PSPair<Query, SORTTYPE> getBuildQueryInfo(Query query, SORTTYPE type) {
+        var queryInfo = new PSPair<Query, SORTTYPE>();
         queryInfo.setFirst(query);
         queryInfo.setSecond(type);
         return queryInfo;
     }
 
-    /**
-     * if orderby on the query is a clob type then
-     * pagination is not allowed
-     * @param query
-     * @return
-     */
-    private boolean isPagingSupported(PSMetadataQuery query)
-    {
-        //TODO:  It is unclear that this code actually works. How can the column name ever equal the data type?
-
-        boolean isSupported= true;
-        String orderBy =  query.getOrderBy();
-        if(StringUtils.isNotBlank(orderBy))
-        {
+    private boolean isPagingSupported(PSMetadataQuery query) {
+        boolean isSupported = true;
+        var orderBy = query.getOrderBy();
+        if (StringUtils.isNotBlank(orderBy)) {
             isSupported = !PSMetadataQueryServiceHelper.getDatatype(
                     PSMetadataQueryServiceHelper.getSortPropertyName(orderBy), datatypeMappings).toString().equals(PROP_TEXTVALUE_COLUMN_NAME);
         }
@@ -817,8 +650,7 @@ public class PSMetadataQueryService implements IPSMetadataQueryService
         this.queryLimit = limit;
     }
 
-    private Session getSession(){
-
+    private Session getSession() {
         return sessionFactory.openSession();
 
     }

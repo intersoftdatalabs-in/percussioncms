@@ -14,19 +14,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.delivery.email.data;
+
 /**
- * Interface for email request operations
+ * Interface for email request operations.
+ * Sunny Sal says: Email interface, Google style, Java 11 ready!
  */
+package com.percussion.delivery.email.data;
+
 public interface IPSEmailRequest {
+
+    /**
+     * Sets the recipient list for the email.
+     *
+     * @param toList
+     *            comma-separated list of recipients.
+     */
     void setToList(String toList);
+
+    /**
+     * Sets the CC list for the email.
+     *
+     * @param ccList
+     *            comma-separated list of CC recipients.
+     */
     void setCCList(String ccList);
+
+    /**
+     * Sets the BCC list for the email.
+     *
+     * @param bccList
+     *            comma-separated list of BCC recipients.
+     */
     void setBCCList(String bccList);
-    void setBody(String bodycontent);
+
+    /**
+     * Sets the body content of the email.
+     *
+     * @param bodyContent
+     *            the email body.
+     */
+    void setBody(String bodyContent);
+
+    /**
+     * Sets the subject of the email.
+     *
+     * @param subject
+     *            the email subject.
+     */
     void setSubject(String subject);
+
+    /**
+     * Gets the recipient list for the email.
+     *
+     * @return comma-separated list of recipients.
+     */
     String getToList();
+
+    /**
+     * Gets the CC list for the email.
+     *
+     * @return comma-separated list of CC recipients.
+     */
     String getCCList();
+
+    /**
+     * Gets the BCC list for the email.
+     *
+     * @return comma-separated list of BCC recipients.
+     */
     String getBCCList();
+
+    /**
+     * Gets the body content of the email.
+     *
+     * @return the email body.
+     */
     String getBody();
+
+    /**
+     * Gets the subject of the email.
+     *
+     * @return the email subject.
+     */
     String getSubject();
 }

@@ -19,14 +19,12 @@ package com.percussion.delivery.services;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import org.apache.commons.lang3.time.FastDateFormat;
 import java.io.IOException;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Custom date serializer to output the serialized date in a non-numeric
  * format. Uses the date format of yyyy-MM-dd'T'HH:mm:ss.SSSZ.
- *
- * @author erikserating
  * // REFACTORED: CP-JAVA11
  */
 public class PSCustomDateSerializer extends JsonSerializer<Object> {

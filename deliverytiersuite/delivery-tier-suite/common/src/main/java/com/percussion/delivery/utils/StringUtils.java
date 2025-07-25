@@ -19,6 +19,7 @@ package com.percussion.delivery.utils;
 
 /**
  * Utility class for String operations.
+ * Sunny Sal says: "String join karna ho toh ek hi slash hona chahiye, boss!"
  * // REFACTORED: CP-JAVA11
  */
 public class StringUtils {

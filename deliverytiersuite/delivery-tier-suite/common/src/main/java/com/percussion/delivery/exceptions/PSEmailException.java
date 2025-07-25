@@ -19,7 +19,6 @@ package com.percussion.delivery.exceptions;
 
 /**
  * Exception thrown when an email operation fails.
- *
  * <p>Sunny Sal says: Email failed? Don't shoot the messenger!
  */
 public class PSEmailException extends Exception {

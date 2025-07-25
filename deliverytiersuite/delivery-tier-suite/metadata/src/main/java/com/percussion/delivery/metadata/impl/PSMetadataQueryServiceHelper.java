@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,227 +25,126 @@ import com.percussion.delivery.metadata.utils.PSHashCalculator;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
+ * Helper class for metadata query service.
  * @author erikserating
- *
  */
-public abstract class PSMetadataQueryServiceHelper
-{
-    
-    private PSMetadataQueryServiceHelper()
-    {
-        
-    }
-    
-    /**
-     * A set of property keys that are not stored as properties but are instead
-     * columns in the metadata entry table.
-     */
-    public static final Set<String> ENTRY_PROPERTY_KEYS = new HashSet<String>();
-    static
-    {
-        ENTRY_PROPERTY_KEYS.add("folder");
-        ENTRY_PROPERTY_KEYS.add("name");
-        ENTRY_PROPERTY_KEYS.add("type");
-        ENTRY_PROPERTY_KEYS.add("linktext");
-        ENTRY_PROPERTY_KEYS.add("linktext_lower");
-        ENTRY_PROPERTY_KEYS.add("pagepath");
-        ENTRY_PROPERTY_KEYS.add("site");
-    }
-    
-    
-    /**
-     * 2011-01-21T09:36:05
-     */
-    public static FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+public abstract class PSMetadataQueryServiceHelper {
 
-    public static VALUETYPE getDatatype(String name, PSPropertyDatatypeMappings datatypeMappings)
-    {
-          String nameWithOutNamespace;
-          
-          if (name.contains(":"))
-             nameWithOutNamespace = name.split(":")[1];
-          else
-             nameWithOutNamespace = name;
-          
-          return datatypeMappings.getDatatype(nameWithOutNamespace);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List parseToList(String key, String val, PSPropertyDatatypeMappings datatypeMappings, PSHashCalculator hashCalc) throws ParseException
-    {
-       VALUETYPE type = datatypeMappings.getDatatype(key);
-       List results = new ArrayList();
-
-
-       if(type == VALUETYPE.NUMBER)
-       {
-          for(String s : val.split(","))
-          {
-             results.add(new Double(s));
-          }
-       }
-       else if(type == VALUETYPE.DATE)
-       {
-          for(String s : val.split("'"))
-          {
-             if(s.trim().equals(",") || s.trim().equals(""))
-                continue;
-             results.add(dateFormat.parse(s));
-          }
-       }
-       else
-       { //For text / string use value hash if it is a property
-           boolean calcHash = true;
-           if(!key.contains("propValue") && datatypeMappings.getDatatypeMappings().getProperty(key,"").equals("")){
-               calcHash = false;
-           }
-          for(String s : val.split("'"))
-          {
-             if(s.trim().equals(",") || s.trim().equals(""))
-                continue;
-
-             if(calcHash)
-                results.add(hashCalc.calculateHash(s));
-             else
-                 results.add(s);
-          }
-       }
-       return results;  
-    
-    }
+    private PSMetadataQueryServiceHelper() {}
 
     /**
-     * For the provided propertyName it returns the column names that belongs to in the database, default return
-     * column name is stringvalue
-     * @param ce
-     * @param datatypeMappings
-     * @return
+     * Property keys that are columns in the metadata entry table.
      */
-    public static String getValueColumnName(PSCriteriaElement ce, PSPropertyDatatypeMappings datatypeMappings)
-    {
-        String valueColumn = "";
-        VALUETYPE dt = getDatatype(ce.getName(), datatypeMappings);
+    public static final Set<String> ENTRY_PROPERTY_KEYS = Set.of(
+            "folder", "name", "type", "linktext", "linktext_lower", "pagepath", "site"
+    );
 
-        switch(dt)
-        {
-            case DATE:
-                valueColumn = IPSMetadataQueryService.PROP_DATEVALUE_COLUMN_NAME;
-                break;
-            case NUMBER:
-                valueColumn = IPSMetadataQueryService.PROP_NUMBERVALUE_COLUMN_NAME;
-                break;
-            case TEXT:
-                if(ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE)
-                    valueColumn = IPSMetadataQueryService.PROP_TEXTVALUE_COLUMN_NAME;
-                else
-                    valueColumn = IPSMetadataQueryService.PROP_VALUEHASH_COLUMN_NAME;
-                break;
-             default :
-                 if(ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE)
-                     valueColumn = IPSMetadataQueryService.PROP_STRINGVALUE_COLUMN_NAME;
-                 else
-                     valueColumn = IPSMetadataQueryService.PROP_VALUEHASH_COLUMN_NAME;
+    /**
+     * Date format: yyyy-MM-dd'T'HH:mm:ss
+     */
+    public static final FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+
+    public static VALUETYPE getDatatype(String name, PSPropertyDatatypeMappings datatypeMappings) {
+        var nameWithOutNamespace = name.contains(":") ? name.split(":")[1] : name;
+        return datatypeMappings.getDatatype(nameWithOutNamespace);
+    }
+
+    public static List<Object> parseToList(String key, String val, PSPropertyDatatypeMappings datatypeMappings, PSHashCalculator hashCalc) throws ParseException {
+        var type = datatypeMappings.getDatatype(key);
+        var results = new ArrayList<Object>();
+
+        if (type == VALUETYPE.NUMBER) {
+            Arrays.stream(val.split(","))
+                    .map(Double::valueOf)
+                    .forEach(results::add);
+        } else if (type == VALUETYPE.DATE) {
+            Arrays.stream(val.split("'"))
+                    .map(String::trim)
+                    .filter(s -> !s.equals(",") && !s.isEmpty())
+                    .map(s -> {
+                        try {
+                            return dateFormat.parse(s);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .forEach(results::add);
+        } else {
+            boolean calcHash = !key.contains("propValue") && !datatypeMappings.getDatatypeMappings().getProperty(key, "").isEmpty();
+            Arrays.stream(val.split("'"))
+                    .map(String::trim)
+                    .filter(s -> !s.equals(",") && !s.isEmpty())
+                    .forEach(s -> results.add(calcHash ? hashCalc.calculateHash(s) : s));
         }
-        return valueColumn;
+        return results;
     }
 
     /**
-     * For the provided propertyName it returns the column names that belongs to in the database, default return
-     * column name is stringvalue
-     * @param name
-     * @param datatypeMappings
-     * @return
+     * Returns the DB column name for the property.
      */
-    public static String getValueColumnName(String name, PSPropertyDatatypeMappings datatypeMappings)
-    {
-        String valueColumn = "";
-        VALUETYPE dt = getDatatype(name, datatypeMappings);
-
-        switch(dt)
-        {
-            case DATE:
-                valueColumn = IPSMetadataQueryService.PROP_DATEVALUE_COLUMN_NAME;
-                break;
-            case NUMBER:
-                valueColumn = IPSMetadataQueryService.PROP_NUMBERVALUE_COLUMN_NAME;
-                break;
-            case TEXT:
-                    valueColumn = IPSMetadataQueryService.PROP_TEXTVALUE_COLUMN_NAME;
-                    break;
-            default :
-                    valueColumn = IPSMetadataQueryService.PROP_STRINGVALUE_COLUMN_NAME;
-        }
-        return valueColumn;
+    public static String getValueColumnName(PSCriteriaElement ce, PSPropertyDatatypeMappings datatypeMappings) {
+        var dt = getDatatype(ce.getName(), datatypeMappings);
+        return switch (dt) {
+            case DATE -> IPSMetadataQueryService.PROP_DATEVALUE_COLUMN_NAME;
+            case NUMBER -> IPSMetadataQueryService.PROP_NUMBERVALUE_COLUMN_NAME;
+            case TEXT -> ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE
+                    ? IPSMetadataQueryService.PROP_TEXTVALUE_COLUMN_NAME
+                    : IPSMetadataQueryService.PROP_VALUEHASH_COLUMN_NAME;
+            default -> ce.getOperationType() == PSCriteriaElement.OPERATION_TYPE.LIKE
+                    ? IPSMetadataQueryService.PROP_STRINGVALUE_COLUMN_NAME
+                    : IPSMetadataQueryService.PROP_VALUEHASH_COLUMN_NAME;
+        };
     }
-    
+
+    public static String getValueColumnName(String name, PSPropertyDatatypeMappings datatypeMappings) {
+        var dt = getDatatype(name, datatypeMappings);
+        return switch (dt) {
+            case DATE -> IPSMetadataQueryService.PROP_DATEVALUE_COLUMN_NAME;
+            case NUMBER -> IPSMetadataQueryService.PROP_NUMBERVALUE_COLUMN_NAME;
+            case TEXT -> IPSMetadataQueryService.PROP_TEXTVALUE_COLUMN_NAME;
+            default -> IPSMetadataQueryService.PROP_STRINGVALUE_COLUMN_NAME;
+        };
+    }
+
     /**
-     * Returns the sorting order based on the passed in orderby string, if nothing is there 
-     * in the orderby then the default would be asc
-     * @param orderBy
-     * @return
+     * Returns the sorting order based on the passed in orderBy string.
      */
-    public static String getSortingOrder(String orderBy)
-    {
+    public static String getSortingOrder(String orderBy) {
         return orderBy.toLowerCase().endsWith(IPSMetadataQueryService.SORT_ORDER_DESCEND)
-           ? IPSMetadataQueryService.SORT_ORDER_DESCEND 
-           : IPSMetadataQueryService.SORT_ORDER_ASCEND ;
-    }
-    
-    /**
-     * if the orderBy ends with either asc or desc then remove the suffix, trim it and return
-     * the string, other wise just trim the passed in ordey by and return it.
-     * Ex: orderBy = "dcterms:created asc" and the method returns dcterms:created
-     * Ex: orderBy = "dcterms:created asc" and the method returns dcterms:created
-     * @param orderBy cannot be <code>null</code> or empty
-     * @return
-     */
-    public static String getSortPropertyName(String orderBy)
-    {
-        String sortProperty = orderBy;
-        String sortPropertyLowerCase = orderBy.toLowerCase();
-        if(sortPropertyLowerCase.endsWith(IPSMetadataQueryService.SORT_ORDER_ASCEND) || sortPropertyLowerCase.endsWith(IPSMetadataQueryService.SORT_ORDER_DESCEND))
-        {
-            sortProperty = sortProperty.substring(0, sortProperty.indexOf(' ')).trim();
-        }
-        else
-        {
-            sortProperty = sortProperty.trim();
-        }
-        return sortProperty;  
+                ? IPSMetadataQueryService.SORT_ORDER_DESCEND
+                : IPSMetadataQueryService.SORT_ORDER_ASCEND;
     }
 
-public static String getSortingOrderForProperty(String name, String orderBy){
-    	
-        String sortOrder = IPSMetadataQueryService.SORT_ORDER_ASCEND;
-	    
-    	String props[] = orderBy.split(",");
-    	  
-    	for(int i =0;i<props.length;i++){
-    		
-	        String sortProperty = props[i].trim();
-	        String[] pair = sortProperty.split(" ");
-	        
-            if(pair.length>0)
-            	sortProperty = pair[0].trim();
-           
-            	
-            if(sortProperty.equals(name)){
-            	if(pair.length>1){
-        			sortOrder = pair[1].trim();
-            	}
-            	
-        		if(sortOrder.equals(IPSMetadataQueryService.SORT_ORDER_ASCEND) | sortOrder.equals(IPSMetadataQueryService.SORT_ORDER_DESCEND)){
-        			return sortOrder;
-            	}
+    /**
+     * Removes asc/desc suffix from orderBy and returns the property name.
+     */
+    public static String getSortPropertyName(String orderBy) {
+        var sortPropertyLowerCase = orderBy.toLowerCase();
+        if (sortPropertyLowerCase.endsWith(IPSMetadataQueryService.SORT_ORDER_ASCEND) ||
+                sortPropertyLowerCase.endsWith(IPSMetadataQueryService.SORT_ORDER_DESCEND)) {
+            return orderBy.substring(0, orderBy.indexOf(' ')).trim();
+        }
+        return orderBy.trim();
+    }
+
+    public static String getSortingOrderForProperty(String name, String orderBy) {
+        var sortOrder = IPSMetadataQueryService.SORT_ORDER_ASCEND;
+        var props = orderBy.split(",");
+        for (var sortProperty : props) {
+            var pair = sortProperty.trim().split(" ");
+            var propName = pair[0].trim();
+            if (propName.equals(name) && pair.length > 1) {
+                var order = pair[1].trim();
+                if (order.equals(IPSMetadataQueryService.SORT_ORDER_ASCEND) ||
+                        order.equals(IPSMetadataQueryService.SORT_ORDER_DESCEND)) {
+                    return order;
+                }
             }
-	}
-    	
-    	return sortOrder;
+        }
+        return sortOrder;
     }
 }

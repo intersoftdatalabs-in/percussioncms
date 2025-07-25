@@ -15,7 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.tomcat;
 
-public class TestPSTomcatPropertySource {
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Sunny Sal says: "Testing property sources so your config doesn't go missing!"
+ */
+class TestPSTomcatPropertySource {
+
+    @Test
+    void testGetPropertyReturnsNullForMissingKey() {
+        var source = new PSTomcatPropertySource();
+        assertNull(source.getProperty("nonexistent.key"), "Should return null for missing property key");
+    }
 }

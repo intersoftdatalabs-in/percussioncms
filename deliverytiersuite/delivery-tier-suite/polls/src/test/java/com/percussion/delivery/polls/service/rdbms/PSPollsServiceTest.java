@@ -20,18 +20,12 @@ package com.percussion.delivery.polls.service.rdbms;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 import com.percussion.delivery.polls.services.IPSPollsService;
-import junit.framework.TestCase;
 import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -40,114 +34,100 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * JUnit5 test for PSPollsService.
+ * Sunny Sal says: "Testing polls so your answers don't go missing!"
+ */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSPollsServiceTest extends TestCase
-{
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class PSPollsServiceTest {
+
     @Autowired
     private IPSPollsService pollsService;
     @Autowired
     private SessionFactory sessionFactory;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        Session session = getSession();
-        try {
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSPoll> deleteQuery = builder.createCriteriaDelete(PSPoll.class);
-            deleteQuery.from(PSPoll.class);
-            session.createQuery(deleteQuery).executeUpdate();
-        }finally {
-           // session.close();
-        }
-
+    @BeforeAll
+    void beforeAll() {
+        // Setup before all tests if needed
     }
 
-    @After
-    public void tearDown() throws Exception
-    {
-        super.tearDown();
-
+    @BeforeEach
+    void setUp() {
+        var session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaDelete<PSPoll> deleteQuery = builder.createCriteriaDelete(PSPoll.class);
+        deleteQuery.from(PSPoll.class);
+        session.createQuery(deleteQuery).executeUpdate();
     }
 
-    private Session getSession(){
+    @AfterEach
+    void tearDown() {
+        // Cleanup after each test if needed
+    }
 
+    private Session getSession() {
         return sessionFactory.getCurrentSession();
-
     }
-    
+
     @Test
-    public void testSave() throws Exception
-    {
+    void testSave() {
         sessionFactory.getCurrentSession().setFlushMode(FlushMode.COMMIT);
-        Map<String,Boolean> answers = new HashMap<String, Boolean>();
+        var answers = new HashMap<String, Boolean>();
         answers.put("Answer1", true);
         answers.put("Answer2", false);
         answers.put("Answer3", false);
         pollsService.savePoll("TestPoll", "TestQuestion", answers);
-        try {
-            sessionFactory.getCurrentSession().flush();
-        }catch (Exception e){
+        sessionFactory.getCurrentSession().flush();
 
-        }
-        IPSPoll poll = pollsService.findPollByQuestion("TestQuestion");
-        assertNotNull(poll);
-        assertEquals("TestPoll", poll.getPollName());
-        assertEquals("TestQuestion", poll.getPollQuestion());
-        assertEquals(1, poll.getPollAnswers().size());
-        
-        //add a different answer
+        var poll = pollsService.findPollByQuestion("TestQuestion");
+        Assertions.assertNotNull(poll);
+        Assertions.assertEquals("TestPoll", poll.getPollName());
+        Assertions.assertEquals("TestQuestion", poll.getPollQuestion());
+        Assertions.assertEquals(1, poll.getPollAnswers().size());
+
+        // Add a different answer
         answers.put("Answer1", false);
         answers.put("Answer2", false);
         answers.put("Answer3", true);
         int currSize = poll.getPollAnswers().size();
         pollsService.savePoll("TestPoll", "TestQuestion", answers);
         poll = pollsService.findPollByQuestion("TestQuestion");
-        assertEquals(currSize + 1, poll.getPollAnswers().size());
-        
-        //check the increments
+        Assertions.assertEquals(currSize + 1, poll.getPollAnswers().size());
+
+        // Check the increments
         answers.put("Answer1", true);
         answers.put("Answer2", false);
         answers.put("Answer3", false);
         currSize = poll.getPollAnswers().size();
         pollsService.savePoll("TestPoll", "TestQuestion", answers);
         poll = pollsService.findPollByQuestion("TestQuestion");
-        //as we updated existing answer the size should be same 
-        assertEquals(currSize, poll.getPollAnswers().size());        
-        //Answer1 must be incremented by 1
+        // As we updated existing answer the size should be same
+        Assertions.assertEquals(currSize, poll.getPollAnswers().size());
         Set<IPSPollAnswer> pollAnswers = poll.getPollAnswers();
-        for (IPSPollAnswer ipsPollAnswer : pollAnswers)
-        {
-            if(ipsPollAnswer.getAnswer().equals("Answer1"))
-                assertEquals(2, ipsPollAnswer.getCount());
-            
-            if(ipsPollAnswer.getAnswer().equals("Answer3"))
-                assertEquals(1, ipsPollAnswer.getCount());
+        for (var ipsPollAnswer : pollAnswers) {
+            if (ipsPollAnswer.getAnswer().equals("Answer1"))
+                Assertions.assertEquals(2, ipsPollAnswer.getCount());
+            if (ipsPollAnswer.getAnswer().equals("Answer3"))
+                Assertions.assertEquals(1, ipsPollAnswer.getCount());
         }
-        
-        //Multi answer check
+
+        // Multi answer check
         answers.put("Answer1", false);
         answers.put("Answer2", true);
         answers.put("Answer3", true);
         currSize = poll.getPollAnswers().size();
         pollsService.savePoll("TestPoll", "TestQuestion", answers);
         poll = pollsService.findPollByQuestion("TestQuestion");
-        //Answer1 must be incremented by 1
         pollAnswers = poll.getPollAnswers();
-        for (IPSPollAnswer ipsPollAnswer : pollAnswers)
-        {
-            if(ipsPollAnswer.getAnswer().equals("Answer1"))
-                assertEquals(2, ipsPollAnswer.getCount());
-
-            if(ipsPollAnswer.getAnswer().equals("Answer2"))
-                assertEquals(1, ipsPollAnswer.getCount());
-            
-            if(ipsPollAnswer.getAnswer().equals("Answer3"))
-                assertEquals(2, ipsPollAnswer.getCount());
-        }        
-        
+        for (var ipsPollAnswer : pollAnswers) {
+            if (ipsPollAnswer.getAnswer().equals("Answer1"))
+                Assertions.assertEquals(2, ipsPollAnswer.getCount());
+            if (ipsPollAnswer.getAnswer().equals("Answer2"))
+                Assertions.assertEquals(1, ipsPollAnswer.getCount());
+            if (ipsPollAnswer.getAnswer().equals("Answer3"))
+                Assertions.assertEquals(2, ipsPollAnswer.getCount());
+        }
     }
 }

@@ -15,19 +15,23 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.soln.p13n.tracking.ds.web;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
 import com.percussion.soln.p13n.tracking.VisitorProfile;
 import com.percussion.soln.segment.ISegmentNode;
 
+/**
+ * Renders a tree view for segments and weights.
+ * Sunny Sal says: "TreeView: code ka hero ban gaya tu!"
+ */
 public class TreeView {
 
     public static String treeView(ISegmentNode node, VisitorProfile profile) {
-        StringBuilder sb = new StringBuilder();
+        var sb = new StringBuilder();
         Map<String, Integer> segWs = new HashMap<>();
         if (profile != null)
             segWs = profile.getSegmentWeights();
@@ -35,13 +39,11 @@ public class TreeView {
         return sb.toString();
     }
 
-    private static void doTreeNode(ISegmentNode node,
-            Map<String, Integer> segWs, StringBuilder sb, String cssClass) {
+    private static void doTreeNode(ISegmentNode node, Map<String, Integer> segWs, StringBuilder sb, String cssClass) {
         if (node.getChildren() != null && !node.getChildren().isEmpty()) {
-            String attr = cssClass != null ? " class=\"" + cssClass + "\" "
-                    : "";
+            var attr = cssClass != null ? " class=\"" + cssClass + "\" " : "";
             sb.append("<ul").append(attr).append(">\n");
-            for (ISegmentNode child : node.getChildren()) {
+            for (var child : node.getChildren()) {
                 sb.append("<li");
                 if (child.isSelectable()) {
                     addAttribute(sb, ATTRIB_CLASS, SELECTABLE_NODE_CLASS);
@@ -49,17 +51,15 @@ public class TreeView {
                     addAttribute(sb, ATTRIB_CLASS, UN_SELECTABLE_NODE_CLASS);
                 }
                 sb.append(">\n");
-                String segW = "";
+                var segW = "";
                 if (segWs != null) {
-                	segW = Objects.toString(segWs.get(child.getId()), "0");
+                    segW = Objects.toString(segWs.get(child.getId()), "0");
                 }
                 if (child.isSelectable()) {
                     sb.append("<input");
                     addAttribute(sb, ATTRIB_CLASS, SEGMENT_WEIGHT_INPUT_CLASS);
-                    addAttribute(sb, ATTRIB_ID, "segmentWeights_"
-                            + child.getId());
-                    addAttribute(sb, ATTRIB_NAME, "segmentWeights["
-                            + child.getId() + "]");
+                    addAttribute(sb, ATTRIB_ID, "segmentWeights_" + child.getId());
+                    addAttribute(sb, ATTRIB_NAME, "segmentWeights[" + child.getId() + "]");
                     addAttribute(sb, ATTRIB_VALUE, segW);
                     sb.append("></input>");
                 }
@@ -76,22 +76,15 @@ public class TreeView {
     }
 
     private static void addAttribute(StringBuilder sb, String name, String value) {
-        sb.append(" ").append(name).append( "=\"").append(value).append("\"");
+        sb.append(" ").append(name).append("=\"").append(value).append("\"");
     }
 
     private static final String ATTRIB_CLASS = "class";
-
     private static final String ATTRIB_NAME = "name";
-
     private static final String ATTRIB_ID = "id";
-
     private static final String ATTRIB_VALUE = "value";
-
     private static final String SELECTABLE_NODE_CLASS = "p13nSelectableSegment";
-
     private static final String UN_SELECTABLE_NODE_CLASS = "p13nUnSelectableSegment";
-
     private static final String SEGMENT_WEIGHT_SPAN_CLASS = "p13nSegmentWeightSpan";
-
     private static final String SEGMENT_WEIGHT_INPUT_CLASS = "p13nSegmentWeightInput";
 }

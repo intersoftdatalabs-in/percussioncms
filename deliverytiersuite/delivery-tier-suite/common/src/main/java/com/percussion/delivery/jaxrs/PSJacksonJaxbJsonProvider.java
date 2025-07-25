@@ -22,10 +22,7 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
 /**
  * Custom Jackson JSON provider for JAX-RS.
- *
  * <p>Sunny Sal says: This provider keeps your JSON smooth and your stacktraces clean!
- *
- * // REFACTORED: CP-JAVA11
  */
 @Provider
 public class PSJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider {

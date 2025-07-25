@@ -13,7 +13,7 @@ public class FakeRegistrant {
     private String ccNumber;
     private String cvv2;
     private String ccExpires;
-    private String nationalID;
+    private String nationalId;
     private String ups;
     private String occupation;
     private String company;
@@ -323,17 +323,17 @@ public class FakeRegistrant {
     }
 
     /**
-     * @return the nationalID
+     * @return the nationalId
      */
-    public String getNationalID() {
-        return nationalID;
+    public String getNationalId() {
+        return nationalId;
     }
 
     /**
-     * @param nationalID the nationalID to set
+     * @param nationalId the nationalId to set
      */
-    public void setNationalID(String nationalID) {
-        this.nationalID = nationalID;
+    public void setNationalId(String nationalId) {
+        this.nationalId = nationalId;
     }
 
     /**
@@ -477,20 +477,6 @@ public class FakeRegistrant {
     }
 
     /**
-     * @return the latitude
-     */
-    public String getLatitude() {
-        return latitude;
-    }
-
-    /**
-     * @param latitude the latitude to set
-     */
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    /**
      * @return the guid
      */
     public String getGuid() {
@@ -502,6 +488,20 @@ public class FakeRegistrant {
      */
     public void setGuid(String guid) {
         this.guid = guid;
+    }
+
+    /**
+     * @return the latitude
+     */
+    public String getLatitude() {
+        return latitude;
+    }
+
+    /**
+     * @param latitude the latitude to set
+     */
+    public void setLatitude(String latitude) {
+        this.latitude = latitude;
     }
 
     /**

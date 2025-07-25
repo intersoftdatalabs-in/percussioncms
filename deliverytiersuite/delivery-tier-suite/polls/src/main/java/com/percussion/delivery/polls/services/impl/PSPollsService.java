@@ -27,83 +27,73 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-public class PSPollsService implements IPSPollsService 
-{
-	private IPSPollsDao pollsDao;
-	
-	@Autowired
-	public PSPollsService(IPSPollsDao pollsDao)
-	{
-		this.pollsDao = pollsDao;
-	}
-	
-	@Override
-	public IPSPoll findPoll(String pollName) 
-	{
-		return pollsDao.find(pollName);
-	}
+/**
+ * Service for managing polls.
+ * Sunny Sal says: "Service with a smile, poll with a purpose!"
+ */
+public class PSPollsService implements IPSPollsService {
 
-	@Override
-	public void savePoll(String pollName, String pollQuestion, Map<String, Boolean> pollAnswers) 
-	{
-		IPSPoll poll = pollsDao.findByQuestion(pollQuestion);
-		if(poll == null)
-			poll = pollsDao.createEmptyPoll();
-		poll.setPollName(pollName);
-		poll.setPollQuestion(pollQuestion);
-		Set<IPSPollAnswer> dbPollAnswers = poll.getPollAnswers();
-		if(dbPollAnswers == null)
-		{
-			dbPollAnswers = new HashSet<>();
-			updateAnswers(dbPollAnswers, pollAnswers,(PSPoll)poll);
+    private IPSPollsDao pollsDao;
 
-			poll.setPollAnswers(dbPollAnswers);
-		}
-		else
-		{
-		    updateAnswers(dbPollAnswers, pollAnswers,(PSPoll)poll);
-		}
-		pollsDao.save(poll);
-	}
+    @Autowired
+    public PSPollsService(IPSPollsDao pollsDao) {
+        this.pollsDao = pollsDao;
+    }
 
-	/**
-	 *
-	 * @param dbPollAnswers
-	 * @param pollAnswers
-	 * @return
-	 */
-	private void updateAnswers(Set<IPSPollAnswer> dbPollAnswers, Map<String, Boolean> pollAnswers, PSPoll poll)
-    {
-        for (Entry<String, Boolean> pollAnswer : pollAnswers.entrySet())
-        {
-            boolean found = false;
-            for (IPSPollAnswer dbPollAnswer : dbPollAnswers)
-            {
-                if (dbPollAnswer.getAnswer().equalsIgnoreCase(pollAnswer.getKey()))
-                {
-                    if (pollAnswer.getValue())
-                        dbPollAnswer.setCount((dbPollAnswer.getCount() + 1));
-                    found = true;
-                    break;
+    @Override
+    public IPSPoll findPoll(String pollName) {
+        return pollsDao.find(pollName);
+    }
+
+    @Override
+    public void savePoll(String pollName, String pollQuestion, Map<String, Boolean> pollAnswers) {
+        var poll = pollsDao.findByQuestion(pollQuestion);
+        if (poll == null) {
+            poll = pollsDao.createEmptyPoll();
+        }
+        poll.setPollName(pollName);
+        poll.setPollQuestion(pollQuestion);
+        var dbPollAnswers = poll.getPollAnswers();
+        if (dbPollAnswers == null) {
+            dbPollAnswers = new HashSet<>();
+            updateAnswers(dbPollAnswers, pollAnswers, (PSPoll) poll);
+            poll.setPollAnswers(dbPollAnswers);
+        } else {
+            updateAnswers(dbPollAnswers, pollAnswers, (PSPoll) poll);
+        }
+        pollsDao.save(poll);
+    }
+
+    /**
+     * Updates poll answers based on submitted answers.
+     *
+     * @param dbPollAnswers existing poll answers
+     * @param pollAnswers   submitted poll answers
+     * @param poll          poll entity
+     */
+    private void updateAnswers(Set<IPSPollAnswer> dbPollAnswers, Map<String, Boolean> pollAnswers, PSPoll poll) {
+        pollAnswers.forEach((answerText, isSelected) -> {
+            var found = dbPollAnswers.stream()
+                    .filter(dbPollAnswer -> dbPollAnswer.getAnswer().equalsIgnoreCase(answerText))
+                    .findFirst();
+            if (found.isPresent()) {
+                if (isSelected) {
+                    found.get().setCount(found.get().getCount() + 1);
                 }
-            }
-            if (!found && pollAnswer.getValue())
-            {
-                PSPollAnswer newPollAnswer = (PSPollAnswer)pollsDao.createEmptyAnswer();
-                newPollAnswer.setAnswer(pollAnswer.getKey());
+            } else if (isSelected) {
+                var newPollAnswer = (PSPollAnswer) pollsDao.createEmptyAnswer();
+                newPollAnswer.setAnswer(answerText);
                 newPollAnswer.setCount(1);
                 newPollAnswer.setPoll(poll);
                 dbPollAnswers.add(newPollAnswer);
             }
-        }
+        });
     }
 
     @Override
-    public IPSPoll findPollByQuestion(String pollQuestion)
-    {
+    public IPSPoll findPollByQuestion(String pollQuestion) {
         return pollsDao.findByQuestion(pollQuestion);
     }
 }

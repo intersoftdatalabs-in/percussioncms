@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,170 +17,215 @@
  */
 package com.percussion.delivery.metadata.data;
 
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * This class contains the structure of the event information. The object is
- * composed of the properties:
+ * Contains the structure of the event information.
+ * Properties:
  * <ul>
  *  <li>page title</li>
  *  <li>page summary</li>
  *  <li>page start date</li>
  *  <li>page end date</li>
- *  <li>page url</li>
+ *  <li>page URL</li>
  * </ul>
- * 
+ * Use {@link Builder} for construction.
+ *
  * @author rafaelsalis
  */
-public class PSMetadataDatedEvent
-{
-    
+public class PSMetadataDatedEvent {
+
     private String title;
-    
     private String summary;
-    
     private String start;
-    
     private String end;
-    
     private String url;
-    
     private boolean allDay = false;
-    
     private String textColor = StringUtils.EMPTY;
-    
     private String textBackground = StringUtils.EMPTY;
-    
+
+    public PSMetadataDatedEvent() {}
+
+    private PSMetadataDatedEvent(Builder builder) {
+        this.title = builder.title;
+        this.summary = builder.summary;
+        this.start = builder.start;
+        this.end = builder.end;
+        this.url = builder.url;
+        this.allDay = builder.allDay;
+        this.textColor = builder.textColor;
+        this.textBackground = builder.textBackground;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private String title;
+        private String summary;
+        private String start;
+        private String end;
+        private String url;
+        private boolean allDay = false;
+        private String textColor = StringUtils.EMPTY;
+        private String textBackground = StringUtils.EMPTY;
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder summary(String summary) {
+            this.summary = summary;
+            return this;
+        }
+
+        public Builder start(String start) {
+            this.start = start;
+            return this;
+        }
+
+        public Builder end(String end) {
+            this.end = end;
+            return this;
+        }
+
+        public Builder url(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public Builder allDay(boolean allDay) {
+            this.allDay = allDay;
+            return this;
+        }
+
+        public Builder textColor(String textColor) {
+            this.textColor = textColor;
+            return this;
+        }
+
+        public Builder textBackground(String textBackground) {
+            this.textBackground = textBackground;
+            return this;
+        }
+
+        public PSMetadataDatedEvent build() {
+            return new PSMetadataDatedEvent(this);
+        }
+    }
+
     /**
-     * @return the title of the page, never <code>null</code> or empty.
+     * @return the title of the page, never null or empty.
      */
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
     /**
-     * @param title sets the page title, never <code>null</code> or empty.
+     * @param title sets the page title, never null or empty.
      */
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
     /**
-     * @return the page summary, it may be <code>null</code> or empty if
-     * the page summary is unknown. 
+     * @return the page summary, may be null or empty if unknown.
      */
-    public String getSummary()
-    {
-        return summary;
+    public Optional<String> getSummary() {
+        return Optional.ofNullable(summary);
     }
 
     /**
-     * @param summary the page summary to set, may be <code>null</code> or empty.
+     * @param summary the page summary to set, may be null or empty.
      */
-    public void setSummary(String summary)
-    {
+    public void setSummary(String summary) {
         this.summary = summary;
     }
 
     /**
-     * @return the page start date, it may be <code>null</code> or empty if
-     * the page start date is unknown.
+     * @return the page start date, may be null or empty if unknown.
      */
-    public String getStart()
-    {
-        return start;
+    public Optional<String> getStart() {
+        return Optional.ofNullable(start);
     }
 
     /**
-     * @param start sets the page start date, may be <code>null</code> or empty.
+     * @param start sets the page start date, may be null or empty.
      */
-    public void setStart(String start)
-    {
+    public void setStart(String start) {
         this.start = start;
     }
 
     /**
-     * @return the page end date, it may be <code>null</code> or empty if
-     * the page end date is unknown.
+     * @return the page end date, may be null or empty if unknown.
      */
-    public String getEnd()
-    {
-        return end;
+    public Optional<String> getEnd() {
+        return Optional.ofNullable(end);
     }
 
     /**
-     * @param end sets the page end date, may be <code>null</code> or empty.
+     * @param end sets the page end date, may be null or empty.
      */
-    public void setEnd(String end)
-    {
+    public void setEnd(String end) {
         this.end = end;
     }
-    
 
     /**
-     * @return the page url, never <code>null</code> or empty.
+     * @return the page URL, never null or empty.
      */
-    public String getUrl()
-    {
+    public String getUrl() {
         return url;
     }
 
     /**
-     * @param url sets the page url, never <code>null</code> or empty.
+     * @param url sets the page URL, never null or empty.
      */
-    public void setUrl(String url)
-    {
+    public void setUrl(String url) {
         this.url = url;
     }
 
     /**
-     * @return the all day value.
+     * @return true if event is all day.
      */
-    public boolean isAllDay()
-    {
+    public boolean isAllDay() {
         return allDay;
     }
 
     /**
-     * @param allDay sets the all day.
+     * @param allDay sets the all day flag.
      */
-    public void setAllDay(boolean allDay)
-    {
+    public void setAllDay(boolean allDay) {
         this.allDay = allDay;
     }
 
     /**
-     * @return the text color, may be empty but never <code>null</code>.
+     * @return the text color, may be empty but never null.
      */
-    public String getTextColor()
-    {
+    public String getTextColor() {
         return textColor;
     }
 
     /**
-     * @param sets the text color, maybe empty but never <code>null</code>.
+     * @param textColor sets the text color, may be empty but never null.
      */
-    public void setTextColor(String textColor)
-    {
+    public void setTextColor(String textColor) {
         this.textColor = textColor;
     }
 
     /**
-     * @return the text background, may be empty but never <code>null</code>.
+     * @return the text background, may be empty but never null.
      */
-    public String getTextBackground()
-    {
+    public String getTextBackground() {
         return textBackground;
     }
 
     /**
-     * @param sets the text background, maybe empty but never <code>null</code>.
+     * @param textBackground sets the text background, may be empty but never null.
      */
-    public void setTextBackground(String textBackground)
-    {
+    public void setTextBackground(String textBackground) {
         this.textBackground = textBackground;
     }
-
 }

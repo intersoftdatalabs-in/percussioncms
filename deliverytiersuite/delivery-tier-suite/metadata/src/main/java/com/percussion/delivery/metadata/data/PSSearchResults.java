@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,51 +19,59 @@
 package com.percussion.delivery.metadata.data;
 
 import java.util.List;
-
+import java.util.Optional;
 
 /**
- * Represents count for total entries and list of PSDbMetadataEntry objects for requested
- * page number and page size
- * 
+ * Represents the total count of entries and a list of PSMetadataRestEntry objects for the requested
+ * page number and page size.
+ *
  * @author radharanisonnathi
- * 
  */
-public class PSSearchResults
-{
+public class PSSearchResults {
+
     private Integer totalEntries;
     private List<PSMetadataRestEntry> resultEntries;
 
-    public PSSearchResults(){}
-    /**
-     * @return the results
-     */
-    public List<PSMetadataRestEntry> getResults()
-    {
-        return resultEntries;
-    }
+    public PSSearchResults() {}
 
-    /**
-     * @param results the results to set
-     */
-    public void setResults(List<PSMetadataRestEntry> resultEntries)
-    {
+    public PSSearchResults(Integer totalEntries, List<PSMetadataRestEntry> resultEntries) {
+        this.totalEntries = totalEntries;
         this.resultEntries = resultEntries;
     }
-    
+
     /**
-     * @return total entries after the search
+     * Returns the result entries for the search.
+     *
+     * @return the result entries list, may be null.
      */
-    public Integer getTotalEntries()
-    {
-        return totalEntries;
+    public Optional<List<PSMetadataRestEntry>> getResults() {
+        return Optional.ofNullable(resultEntries);
     }
 
     /**
-     * @param total entries to set
+     * Sets the result entries for the search.
+     *
+     * @param resultEntries the result entries to set.
      */
-    public void setTotalEntries(Integer totalEntries)
-    {
+    public void setResults(List<PSMetadataRestEntry> resultEntries) {
+        this.resultEntries = resultEntries;
+    }
+
+    /**
+     * Returns the total number of entries after the search.
+     *
+     * @return total entries, may be null.
+     */
+    public Optional<Integer> getTotalEntries() {
+        return Optional.ofNullable(totalEntries);
+    }
+
+    /**
+     * Sets the total number of entries after the search.
+     *
+     * @param totalEntries total entries to set.
+     */
+    public void setTotalEntries(Integer totalEntries) {
         this.totalEntries = totalEntries;
     }
- 
 }

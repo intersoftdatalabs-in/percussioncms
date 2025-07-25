@@ -14,70 +14,78 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import java.util.Date;
 
 /**
- * Contains information about the tenant, including
- * license and usage counts.
- * 
- * @author natechadwick
- *
+ * Contains information about the tenant, including license and usage counts.
  */
 public interface IPSTenantInfo {
 
-	/***
-	 * Sets the Tenant ID or License Number
-	 * 
-	 * @param id A valid string
- 	 */
-	public void setTenantId(String id);
-	
-	/***
-	 * Returns the Tenant ID
-	 * @return
-	 */
-	public String getTenantId();
-	
-	/***
-	 * Returns a long representing the total number of API Calls made by a tenant to this service. 
-	 * @return
-	 */
-	public long getAPIUsage();
-	
-	/***
-	 * Adds the specified value to the Tenant current API usage counter.
-	 * @param value A number representing API calls made to the service.
-	 */
-	public void addAPIUsage(long value);
-	
-	/***
-	 * Clears the tenant API usage counter.
-	 */
-	public void clearAPIUsage();
-	
-	/***
-	 * Sets the date and time that API Usage counting was reset to 0
-	 * @param start
-	 */
-	public void setAPIUsageStart(Date start);
-	
-	/***
-	 * Returns the Data and Time that usage counting was started for this 
-	 * tenant. 
-	 * 
-	 * @return
-	 */
-	public Date getAPIUsageStart();
-	
-	/***
-	 * Returns the date and time that the License was last authorized.
-	 * @return
-	 */
-	public Date getLastAuthorizationCheckDate();
-	public void setLastAuthorizationCheckDate(Date date);
-	
-	public PSLicenseStatus getLicenseStatus();
-	public void setLicenseStatus(PSLicenseStatus status);
+    /**
+     * Sets the tenant ID or license number.
+     *
+     * @param id a valid string
+     */
+    void setTenantId(String id);
+
+    /**
+     * Returns the tenant ID.
+     *
+     * @return tenant ID
+     */
+    String getTenantId();
+
+    /**
+     * Returns the total number of API calls made by the tenant to this service.
+     *
+     * @return API usage count
+     */
+    long getAPIUsage();
+
+    /**
+     * Adds the specified value to the tenant's current API usage counter.
+     *
+     * @param value number of API calls made to the service
+     */
+    void addAPIUsage(long value);
+
+    /**
+     * Clears the tenant API usage counter.
+     */
+    void clearAPIUsage();
+
+    /**
+     * Sets the date and time that API usage counting was reset to 0.
+     *
+     * @param start start date
+     */
+    void setAPIUsageStart(Date start);
+
+    /**
+     * Returns the date and time that usage counting was started for this tenant.
+     *
+     * @return start date
+     */
+    Date getAPIUsageStart();
+
+    /**
+     * Returns the date and time that the license was last authorized.
+     *
+     * @return last authorization check date
+     */
+    Date getLastAuthorizationCheckDate();
+
+    /**
+     * Sets the date and time that the license was last authorized.
+     *
+     * @param date last authorization check date
+     */
+    void setLastAuthorizationCheckDate(Date date);
+
+    PSLicenseStatus getLicenseStatus();
+
+    void setLicenseStatus(PSLicenseStatus status);
 }

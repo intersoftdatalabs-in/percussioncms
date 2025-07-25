@@ -27,25 +27,17 @@ import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * @author natechadwick
- *
+ * REST API for metadata services.
  */
 public interface IPSMetadataRestService extends IPSRestService {
 
-	/**
+    /**
 	 * Process a metadata query and returns a list of metadata entries.
 	 * <p>
 	 * The metadata query may include a list of criteria, such as
@@ -67,7 +59,7 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSSearchResults get(PSMetadataQuery metadataQuery);
+	PSSearchResults get(PSMetadataQuery metadataQuery);
 
 	/**
 	 * Given a metadata query ({@link PSMetadataQuery}), it gets all pages
@@ -95,13 +87,12 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/tags/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataRestTagList getTags(
-			PSMetadataQuery metadataQuery);
+	PSMetadataRestTagList getTags(PSMetadataQuery metadataQuery);
 
 	@POST
 	@Path("/blog/getCurrent")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataBlogResult getBlog(PSMetadataQuery metadataQuery);
+	PSMetadataBlogResult getBlog(PSMetadataQuery metadataQuery);
 
 	/**
 	 * Given a metadata query ({@link PSMetadataQuery}), it gets all pages
@@ -125,14 +116,12 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/categories/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract List<PSMetadataRestCategory> getCategories(
-			PSMetadataQuery metadataQuery);
+	List<PSMetadataRestCategory> getCategories(PSMetadataQuery metadataQuery);
 
 	@POST
 	@Path("/blogs/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataRestBlogList getBlogs(
-			PSMetadataQuery metadataQuery);
+	PSMetadataRestBlogList getBlogs(PSMetadataQuery metadataQuery);
 
 	/**
 	 * Given a metadata query ({@link PSMetadataQuery}), it gets all pages
@@ -153,8 +142,7 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/dated/get")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMetadataDatedEntries getDatedEntries(
-			PSMetadataQuery metadataQuery);
+	PSMetadataDatedEntries getDatedEntries(PSMetadataQuery metadataQuery);
 
 	/**
 	 * 
@@ -172,7 +160,7 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/delete")
 	@RolesAllowed("deliverymanager")
-	public abstract void delete(Collection<String> pagepaths);
+	void delete(Collection<String> pagePaths);
 
 	/**
 	 * 
@@ -192,18 +180,17 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@GET
 	@Path("/indexedDirectories")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract Set<String> getAllIndexedDirectories();
+	Set<String> getAllIndexedDirectories();
 
 	/**
 	 * @return the indexerService
 	 */
-	public abstract IPSMetadataIndexerService getIndexerService();
+	IPSMetadataIndexerService getIndexerService();
 
 	/**
 	 * @param indexerService the indexerService to set
 	 */
-	public abstract void setIndexerService(
-			IPSMetadataIndexerService indexerService);
+	void setIndexerService(IPSMetadataIndexerService indexerService);
 
 	/**
 	 * Method to update a category in the DTS when it is modified for any of its property.
@@ -216,22 +203,22 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/categories/update/{sitename}/{deliveryserver}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public abstract String updateCategoryInDTS(String category, @PathParam("sitename") String sitename, @PathParam("deliveryserver") String deliveryserver);
+	String updateCategoryInDTS(String category, @PathParam("sitename") String sitename, @PathParam("deliveryserver") String deliveryserver);
 
 	@GET
 	@Path("/visits/status")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract String getVisitServiceStatus();
+	String getVisitServiceStatus();
 
 	@GET
 	@Path("/topblogposts")
 	@Produces(MediaType.APPLICATION_JSON)
-	public abstract List<PSMetadataRestEntry> getTopVisitedBlogPosts(PSVisitQuery visitQuery);
+	List<PSMetadataRestEntry> getTopVisitedBlogPosts(PSVisitQuery visitQuery);
 
 	@POST
 	@Path("/trackblogpost")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public abstract void trackBlogPost(PSVisitRestEntry visitEntry);
+	void trackBlogPost(PSVisitRestEntry visitEntry);
 
 
 
@@ -243,7 +230,7 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@POST
 	@Path("/consent/log")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public abstract void saveCookieConsent(PSCookieConsentQuery consentQuery, @Context HttpServletRequest req);
+	void saveCookieConsent(PSCookieConsentQuery consentQuery, @Context HttpServletRequest req);
 
 
 	/**
@@ -259,8 +246,8 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@Path("/consent/log/{csvFileName}")
 	@Produces({ "text/csv" })
 	@RolesAllowed("deliverymanager")
-	public abstract Response exportAllSiteCookieConsentStats(@PathParam("csvFileName") String csvFileName);
-	
+	Response exportAllSiteCookieConsentStats(@PathParam("csvFileName") String csvFileName);
+
 	   /**
      * Gets all cookie consent entries in .CSV format.
      * 
@@ -274,8 +261,8 @@ public interface IPSMetadataRestService extends IPSRestService {
     @Path("/consent/log/{siteName}/{csvFileName}")
     @Produces({ "text/csv" })
     @RolesAllowed("deliverymanager")
-    public abstract Response exportSiteCookieConsentStats(@PathParam("siteName") String siteName, @PathParam("csvFileName") String csvFileName);
-	
+    Response exportSiteCookieConsentStats(@PathParam("siteName") String siteName, @PathParam("csvFileName") String csvFileName);
+
 	/**
 	 * Gets the total consent entries for all sites.
 	 * @return A key/value pair with sitename/total as pair.
@@ -284,8 +271,8 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@Path("/consent/log/totals")
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("deliverymanager")
-	public abstract Map<String, Integer> getAllCookieConsentTotals();
-	
+	Map<String, Integer> getAllCookieConsentTotals();
+
 	/**
 	 * Returns cookie consent entries per site with totals
 	 * for each service/cookie that was approved by the client.
@@ -298,8 +285,8 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@Path("/consent/log/totals/{siteName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("deliverymanager")
-	public abstract Map<String, Integer> getCookieConsentEntriesPerSite(@PathParam("siteName") String siteName);
-	
+	Map<String, Integer> getCookieConsentEntriesPerSite(@PathParam("siteName") String siteName);
+
 	/**
 	 * Deletes all cookie consent entries from the DB.
 	 * @return HTTP response indicating success or failure
@@ -311,8 +298,8 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@Path("/consent/log")
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("deliverymanager")
-	public abstract Response deleteAllCookieConsentEntries();
-	
+	Response deleteAllCookieConsentEntries();
+
 	/**
 	 * Deletes cookie consent entries for a site.
 	 * @param siteName - the site in which to delete the cookie consent
@@ -326,5 +313,5 @@ public interface IPSMetadataRestService extends IPSRestService {
 	@Path("/consent/log/{siteName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@RolesAllowed("deliverymanager")
-	public abstract Response deleteCookieConsentEntriesForSite(@PathParam("siteName") String siteName);
+	Response deleteCookieConsentEntriesForSite(@PathParam("siteName") String siteName);
 }

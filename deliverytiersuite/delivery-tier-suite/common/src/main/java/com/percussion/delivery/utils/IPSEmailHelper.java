@@ -17,12 +17,13 @@
 package com.percussion.delivery.utils;
 
 /**
- * A common helper class to send emails.
+ * A common helper interface to send emails.
  * // REFACTORED: CP-JAVA11
  */
 public interface IPSEmailHelper {
+
     /**
-     * Sends an email with the details provided in {@link com.percussion.delivery.email.data.IPSEmailRequest}
+     * Sends an email with the details provided in {@link com.percussion.delivery.email.data.IPSEmailRequest}.
      *
      * @param emailRequest The request object that has the details of the email, must not be null.
      * @return The message id of the email sent.

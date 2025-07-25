@@ -10,10 +10,14 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.MultiPartEmail;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * Email helper implementation for sending emails using Apache Commons Email.
+ * Sunny Sal says: "Email bhejna hai toh config sahi hona chahiye, boss!"
  * // REFACTORED: CP-JAVA11
  */
 public class PSEmailHelper implements IPSEmailHelper {
@@ -29,25 +33,25 @@ public class PSEmailHelper implements IPSEmailHelper {
 
     @Override
     public String sendMail(IPSEmailRequest emailRequest) throws PSEmailServiceNotInitializedException, PSEmailException {
-        var commonsMultiPartEmail = createMultiPartEmail();
-        if (commonsMultiPartEmail == null) {
+        var email = createMultiPartEmail();
+        if (email == null) {
             throw new PSEmailServiceNotInitializedException();
         }
-        commonsMultiPartEmail.setDebug(log.isDebugEnabled());
-        addAddresses(emailRequest.getToList(), commonsMultiPartEmail::addTo, "To");
-        addAddresses(emailRequest.getCCList(), commonsMultiPartEmail::addCc, "CC");
-        addAddresses(emailRequest.getBCCList(), commonsMultiPartEmail::addBcc, "BCC");
+        email.setDebug(log.isDebugEnabled());
+        addAddresses(emailRequest.getToList(), email::addTo, "To");
+        addAddresses(emailRequest.getCCList(), email::addCc, "CC");
+        addAddresses(emailRequest.getBCCList(), email::addBcc, "BCC");
         try {
-            commonsMultiPartEmail.setMsg(emailRequest.getBody());
+            email.setMsg(emailRequest.getBody());
         } catch (EmailException e) {
             log.error("Error setting the body: {} for email message. Error: {}", emailRequest.getBody(), e.getMessage());
             throw new PSEmailException(e);
         }
-        commonsMultiPartEmail.setSubject(emailRequest.getSubject());
+        email.setSubject(emailRequest.getSubject());
         try {
-            return commonsMultiPartEmail.send();
+            return email.send();
         } catch (EmailException e) {
-            log.error("Error sending email message. Error: {} Cause: {}", e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "null");
+            log.error("Error sending email message. Error: {} Cause: {}", e.getMessage(), Optional.ofNullable(e.getCause()).map(Throwable::getMessage).orElse("null"));
             logDebugProperties();
             throw new PSEmailException(e);
         }
@@ -55,19 +59,21 @@ public class PSEmailHelper implements IPSEmailHelper {
 
     private void addAddresses(String addressList, EmailAddressAdder adder, String type) {
         if (StringUtils.isNotBlank(addressList)) {
-            var emails = addressList.split(",");
-            for (var email : emails) {
-                try {
-                    adder.add(email.trim());
-                } catch (EmailException e) {
-                    log.error("Error adding address: {} to {}: for email message. Error: {}", email, type, e.getMessage());
-                }
-            }
+            Stream.of(addressList.split(","))
+                    .map(String::trim)
+                    .filter(StringUtils::isNotBlank)
+                    .forEach(email -> {
+                        try {
+                            adder.add(email);
+                        } catch (EmailException e) {
+                            log.error("Error adding address: {} to {}: for email message. Error: {}", email, type, e.getMessage());
+                        }
+                    });
         }
     }
 
     private void logDebugProperties() {
-        log.debug("========== Start Debug Email Properties ================================" );
+        log.debug("========== Start Debug Email Properties ================================");
         log.debug("SMTP User Name: {}", emailProps.getProperty(EMAIL_PROPS_SMTP_USERNAME));
         log.debug("SMTP User Password: {}", emailProps.getProperty(EMAIL_PROPS_SMTP_PASSWORD));
         log.debug("SMTP Host: {}", emailProps.getProperty(EMAIL_PROPS_HOSTNAME));
@@ -81,45 +87,47 @@ public class PSEmailHelper implements IPSEmailHelper {
     }
 
     private MultiPartEmail createMultiPartEmail() {
-        MultiPartEmail commonsMultiPartEmail = null;
         try {
-            var hostProp = emailProps.get(EMAIL_PROPS_HOSTNAME);
-            if (StringUtils.isBlank((String) hostProp)) return null;
-            var portProp = emailProps.get(EMAIL_PROPS_PORT);
-            if (StringUtils.isBlank((String) portProp)) return null;
-            var fromAddrProp = emailProps.get(EMAIL_PROPS_FROM_ADDRESS);
-            if (StringUtils.isBlank((String) fromAddrProp)) return null;
-            var bounceProp = emailProps.get(EMAIL_PROPS_BOUNCE_ADDRESS);
-            if (StringUtils.isBlank((String) bounceProp)) return null;
-            commonsMultiPartEmail = new MultiPartEmail();
-            commonsMultiPartEmail.setCharset(EmailConstants.UTF_8);
-            commonsMultiPartEmail.setHostName((String) hostProp);
-            commonsMultiPartEmail.setSmtpPort(Integer.parseInt((String) portProp));
-            if (!StringUtils.isBlank((String) emailProps.get(EMAIL_PROPS_SMTP_USERNAME))) {
-                commonsMultiPartEmail.setAuthenticator(new DefaultAuthenticator(
-                        (String) emailProps.get(EMAIL_PROPS_SMTP_USERNAME),
-                        (String) emailProps.get(EMAIL_PROPS_SMTP_PASSWORD)));
+            var host = emailProps.getProperty(EMAIL_PROPS_HOSTNAME);
+            var port = emailProps.getProperty(EMAIL_PROPS_PORT);
+            var fromAddr = emailProps.getProperty(EMAIL_PROPS_FROM_ADDRESS);
+            var bounceAddr = emailProps.getProperty(EMAIL_PROPS_BOUNCE_ADDRESS);
+
+            if (Stream.of(host, port, fromAddr, bounceAddr).anyMatch(StringUtils::isBlank)) return null;
+
+            var email = new MultiPartEmail();
+            email.setCharset(EmailConstants.UTF_8);
+            email.setHostName(host);
+            email.setSmtpPort(Integer.parseInt(port));
+
+            var username = emailProps.getProperty(EMAIL_PROPS_SMTP_USERNAME);
+            var password = emailProps.getProperty(EMAIL_PROPS_SMTP_PASSWORD);
+            if (StringUtils.isNotBlank(username)) {
+                email.setAuthenticator(new DefaultAuthenticator(username, password));
             }
-            if (!emailProps.containsKey(EMAIL_PROPS_TLS) || StringUtils.isBlank((String) emailProps.get(EMAIL_PROPS_TLS))) {
-                commonsMultiPartEmail.setTLS(false);
+
+            var tls = emailProps.getProperty(EMAIL_PROPS_TLS);
+            email.setTLS(StringUtils.isBlank(tls) ? false : Boolean.parseBoolean(tls));
+
+            var fromName = emailProps.getProperty(EMAIL_PROPS_FROMNAME);
+            if (StringUtils.isBlank(fromName)) {
+                email.setFrom(fromAddr);
             } else {
-                commonsMultiPartEmail.setTLS(Boolean.parseBoolean((String) emailProps.get(EMAIL_PROPS_TLS)));
+                email.setFrom(fromAddr, fromName);
             }
-            if (!emailProps.containsKey(EMAIL_PROPS_FROMNAME) || StringUtils.isBlank((String) emailProps.get(EMAIL_PROPS_FROMNAME))) {
-                commonsMultiPartEmail.setFrom((String) fromAddrProp);
-            } else {
-                commonsMultiPartEmail.setFrom((String) fromAddrProp, (String) emailProps.get(EMAIL_PROPS_FROMNAME));
+
+            email.setBounceAddress(bounceAddr);
+
+            var sslPort = emailProps.getProperty(EMAIL_PROPS_SSLPORT);
+            if (StringUtils.isNotBlank(sslPort)) {
+                email.setSSL(true);
+                email.setSslSmtpPort(sslPort);
             }
-            commonsMultiPartEmail.setBounceAddress((String) emailProps.get(EMAIL_PROPS_BOUNCE_ADDRESS));
-            if (StringUtils.isNotBlank((String) emailProps.get(EMAIL_PROPS_SSLPORT))) {
-                commonsMultiPartEmail.setSSL(true);
-                commonsMultiPartEmail.setSslSmtpPort((String) emailProps.get(EMAIL_PROPS_SSLPORT));
-            }
-        } catch (EmailException e) {
-            commonsMultiPartEmail = null;
+            return email;
+        } catch (EmailException | NumberFormatException e) {
             log.error("Invalid properties supplied for email client: {}", PSExceptionUtils.getMessageForLog(e));
+            return null;
         }
-        return commonsMultiPartEmail;
     }
 
     @FunctionalInterface

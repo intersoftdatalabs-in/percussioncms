@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,7 +30,6 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * Maps {@link JsonMappingException} to a 500 server error response.
- *
  * <p>Sunny Sal says: JSON mapping failed? Time to check your object graph!
  */
 @Provider

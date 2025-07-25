@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,164 +17,83 @@
  */
 package com.percussion.delivery.metadata.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import java.util.*;
 import javax.servlet.ServletException;
-
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
-import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 
 /**
- * This class is responsible for process the tags list metadata and return
- * return the JSONObject with the list properties with tags and their
- * occurrences.
- * 
+ * Processes tags list metadata and returns a list of tag/count pairs.
  * @author davidpardini
- * 
  */
-public class PSMetadataTagsHelper
-{
+public class PSMetadataTagsHelper {
 
     public static final String REFERENCES = "perc:tags";
-
     public static final String TAG_NAME = "tagName";
-
     public static final String TAG_COUNT = "tagCount";
-
     public static final String PROPERTIES = "properties";
-
     public static final String COUNT_SORT = "count";
 
     /**
-     * This method is responsible for return the list with tags and their
-     * occurrences. First iterate by page and later by PropertyPage.
-     * 
+     * Returns the list of tags and their occurrences.
+     * Iterates by page and then by property.
      * @param results assumed not <code>null</code>.
-     * @param sortOrder
+     * @param sortOrder sort order ("count" for count descending, otherwise alpha).
      * @return List<PSPair<String, Integer>>
      * @throws ServletException
      */
     public List<PSPair<String, Integer>> processTags(List<IPSMetadataEntry> results, String sortOrder)
-            throws ServletException
-    {
-        // Initialize array used for unduplicated tags
-        List<ArrayList<String>> arrayPages = inicializeArray(results);
-
-        Map<String, Integer> tagsMap = new HashMap<>();
-        try
-        {
-            int i = 0;
-            for (IPSMetadataEntry entryPage : results)
-            {
-                for (IPSMetadataProperty prop : entryPage.getProperties())
-                {
-                    if (REFERENCES.equals(prop.getName()) && !prop.getStringvalue().isEmpty())
-                    {
+            throws ServletException {
+        var arrayPages = initializeArray(results);
+        var tagsMap = new HashMap<String, Integer>();
+        try {
+            for (int i = 0; i < results.size(); i++) {
+                var entryPage = results.get(i);
+                for (var prop : entryPage.getProperties()) {
+                    if (REFERENCES.equals(prop.getName()) && !prop.getStringvalue().isEmpty()) {
                         countTags(tagsMap, prop.getStringvalue().trim(), arrayPages.get(i));
                     }
                 }
-                i++;
             }
-
-            List<PSPair<String, Integer>> tagResultList = new ArrayList<>();
-            for (Entry<String, Integer> tagEntry : tagsMap.entrySet())
-            {
-                tagResultList.add(new PSPair<>(tagEntry.getKey(), tagEntry.getValue()));
+            var tagResultList = new ArrayList<PSPair<String, Integer>>();
+            tagsMap.forEach((key, value) -> tagResultList.add(new PSPair<>(key, value)));
+            Comparator<PSPair<String, Integer>> comp = Comparator.comparing(PSPair::getFirst);
+            if (COUNT_SORT.equalsIgnoreCase(sortOrder)) {
+                comp = Comparator.<PSPair<String, Integer>>comparingInt(PSPair::getSecond)
+                        .reversed()
+                        .thenComparing(PSPair::getFirst);
             }
-
-            // SORT BY ..
-            Comparator<PSPair<String, Integer>> comp = new AlphaOrderTagComparator();
-            if (COUNT_SORT.equalsIgnoreCase(sortOrder))
-            {
-                comp = new CountOrderTagComparator();
-            }
-            Collections.sort(tagResultList, comp);
-
+            tagResultList.sort(comp);
             return tagResultList;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
-    class AlphaOrderTagComparator implements Comparator<PSPair<String, Integer>>
-    {
-        public int compare(PSPair<String, Integer> o1, PSPair<String, Integer> o2)
-        {
-            return o1.getFirst().compareTo(o2.getFirst());
-        }
-    }
-
-    class CountOrderTagComparator implements Comparator<PSPair<String, Integer>>
-    {
-        public int compare(PSPair<String, Integer> o1, PSPair<String, Integer> o2)
-        {
-            return o1.getSecond().equals(o2.getSecond()) ? o1.getFirst().compareTo(o2.getFirst()) : o2.getSecond()
-                    .compareTo(o1.getSecond());
+    /**
+     * Counts tags and updates the map.
+     */
+    private void countTags(Map<String, Integer> tagsMap, String stringvalue, ArrayList<String> arrayList) {
+        var tag = stringvalue.trim().toLowerCase();
+        if (tagsMap.containsKey(tag)) {
+            if (!arrayList.contains(tag)) {
+                tagsMap.put(tag, tagsMap.get(tag) + 1);
+            }
+        } else {
+            tagsMap.put(tag, 1);
+            arrayList.add(tag);
         }
     }
 
     /**
-     * This method is responsible for return the maps with the tags and their
-     * occurrences. First split the stringValue parameter with the tags and add
-     * the maps, if the tags already adds 1 to its respective value.
-     * 
-     * @param tagsMap assumed not <code>null</code>.
-     * @param stringvalue assumed not <code>null</code>.
-     * @param arrayList assumed not <code>null</code>.
+     * Initializes the array used for unduplicated tags.
      */
-    private void countTags(Map<String, Integer> tagsMap, String stringvalue, ArrayList<String> arrayList)
-    {
-        String tag = stringvalue.trim().toLowerCase();
-        try
-        {
-            if (tagsMap.containsKey(tag))
-            {
-                if (!arrayList.contains(tag))
-                {
-                    int count = tagsMap.get(tag).intValue();
-                    count++;
-                    tagsMap.put(tag, new Integer(count));
-                }
-            }
-            else
-            {
-                tagsMap.put(tag, new Integer(1));
-                arrayList.add(tag);
-            }
+    private List<ArrayList<String>> initializeArray(List<IPSMetadataEntry> results) {
+        var arrayPages = new ArrayList<ArrayList<String>>();
+        for (int j = 0; j < results.size(); j++) {
+            arrayPages.add(new ArrayList<>());
         }
-        catch (Exception e)
-        {
-        }
-    }
-
-    /**
-     * This method is responsible for return the List with the list of quantity
-     * of pages. Returns a list of arrays that will be used not to have
-     * duplicate tags.
-     * 
-     * @param results assumed not <code>null</code>.
-     * @return List with the list of quantity of pages
-     */
-    private List<ArrayList<String>> inicializeArray(List<IPSMetadataEntry> results)
-    {
-        List<ArrayList<String>> arrayPages = new ArrayList<>();
-
-        for (int j = 0; j < results.size(); j++)
-        {
-            ArrayList<String> array = new ArrayList<>();
-            arrayPages.add(array);
-        }
-
         return arrayPages;
     }
 }

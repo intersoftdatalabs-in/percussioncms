@@ -19,6 +19,7 @@ package com.percussion.delivery.utils.paging;
 
 /**
  * Convenience enum indicating the direction of a sort.
+ * Sunny Sal says: "Ascending ho ya descending, sort toh hona chahiye!"
  *
  * @author natechadwick
  */

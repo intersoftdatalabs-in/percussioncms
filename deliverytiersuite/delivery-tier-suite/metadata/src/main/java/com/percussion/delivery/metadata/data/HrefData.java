@@ -15,32 +15,55 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a hyperlink with a key and URL.
+ */
+@XmlRootElement
 public class HrefData {
 
-    private String key;
-    private String url;
+    private final String key;
+    private final String url;
 
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
+    public HrefData(String key, String url) {
         this.key = key;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
         this.url = url;
     }
 
+    public Optional<String> getKey() {
+        return Optional.ofNullable(key);
+    }
 
+    public Optional<String> getUrl() {
+        return Optional.ofNullable(url);
+    }
 
+    public static Builder builder() {
+        return new Builder();
+    }
 
+    public static class Builder {
+        private String key;
+        private String url;
+
+        public Builder key(String key) {
+            this.key = key;
+            return this;
+        }
+
+        public Builder url(String url) {
+            this.url = url;
+            return this;
+        }
+
+        public HrefData build() {
+            return new HrefData(key, url);
+        }
+    }
 }

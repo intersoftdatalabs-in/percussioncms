@@ -15,99 +15,79 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 /**
- * This interface defines the behavior of an indexer of metadata information
- * from pages. It provides the methods to save/update/delete metadata entries
- * along with its properties.
- * 
- * @author davidpardini
- * 
+ * Indexer for metadata information from pages.
+ * Provides methods to save, update, delete, and listen for metadata changes.
  */
-public interface IPSMetadataIndexerService
-{
+public interface IPSMetadataIndexerService {
+
     /**
-     * Get all the indexed directories and subdirectories present in the index.
-     * 
-     * @return A set of string with the indexed directories and subdirectories.
-     * For example: "/testdir1", "/testdir1/subdir".
+     * Gets all indexed directories and subdirectories.
+     * @return set of indexed directory paths.
      */
-    public Set<String> getAllIndexedDirectories();
-    
+    Set<String> getAllIndexedDirectories();
+
     /**
      * Deletes multiple metadata index entries.
-     * 
-     * @param pagepaths collection of page path strings that identifies the
-     *            index entries. Cannot be <code>null</code> may be empty.
+     * @param pagePaths collection of page path strings to delete.
      */
-    public void delete(Collection<String> entriesToDelete);
-    
+    void delete(Collection<String> pagePaths);
+
     /**
      * Deletes a single metadata entry.
-     * 
-     * @param entryToDelete The pagepath of the metadata entry that
-     * should be deleted. Cannot be <code>null</code> nor empty.
+     * @param pagePath the page path to delete.
      */
-    public void delete(String entryToDelete);
+    void delete(String pagePath);
 
     /**
      * Saves multiple metadata entries.
-     * 
-     * @param entries collection of entries to be saved, cannot be
-     *            <code>null</code>, may be empty.
+     * @param entries collection of entries to save.
      */
-    public void save(Collection<IPSMetadataEntry> entriesToSave);
-    
-    /**
-     * Saves a single metadata entry.
-     * 
-     * @param entry A {@link PSDbMetadataEntry} instance to store
-     * in the database. Cannot be <code>null</code>.
-     */
-    public void save(IPSMetadataEntry entry);
-    
-    /**
-     * Adds a metadata listener to the service.
-     * @param listener cannot be <code>null</code>.
-     */
-    public void addMetadataListener(IPSServiceDataChangeListener listener);
-    
-    /**
-     * Removes a metadata listener to the service.
-     * @param listener cannot be <code>null</code>.
-     */
-    public void removeMetadataListener(IPSServiceDataChangeListener listener);
+    void save(Collection<IPSMetadataEntry> entries);
 
     /**
-     * Deletes all metadata entries from the database, along with their
-     * metadata properties.
+     * Saves a single metadata entry.
+     * @param entry metadata entry to store.
      */
-    public void deleteAllMetadataEntries();
+    void save(IPSMetadataEntry entry);
+
+    /**
+     * Adds a metadata listener to the service.
+     * @param listener listener to add.
+     */
+    void addMetadataListener(IPSServiceDataChangeListener listener);
+
+    /**
+     * Removes a metadata listener from the service.
+     * @param listener listener to remove.
+     */
+    void removeMetadataListener(IPSServiceDataChangeListener listener);
+
+    /**
+     * Deletes all metadata entries and their properties from the database.
+     */
+    void deleteAllMetadataEntries();
 
     /**
      * Returns all metadata entries.
-     * 
-     * @return A list with all metadata entries. Never <code>null</code>,
-     * may be empty.
+     * @return list of all metadata entries.
      */
-    public List<IPSMetadataEntry> getAllEntries();
+    List<IPSMetadataEntry> getAllEntries();
 
     /**
-     * Finds a metadata entry according to the given pagepath.
-     * 
-     * @param pagepath The pagepath of the metadata entry to return.
-     * Cannot be <code>null</code> nor empty.
-     * @return The metadata entry with the pagepath specified.
-     * If no entry is found, null is returned.
+     * Finds a metadata entry by page path.
+     * @param pagePath the page path to search.
+     * @return the metadata entry, or null if not found.
      */
-    public IPSMetadataEntry findEntry(String pagepath);
-
+    IPSMetadataEntry findEntry(String pagePath);
 }

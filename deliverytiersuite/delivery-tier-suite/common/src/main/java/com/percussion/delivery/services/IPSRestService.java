@@ -27,11 +27,8 @@ import javax.ws.rs.core.Response;
 
 /**
  * Defines an interface to be implemented by all public REST services.
- *
  * This interface defines common methods such as retrieving the current version
  * of a service, intended to be consistent between services.
- *
- * @author natechadwick
  * // REFACTORED: CP-JAVA11
  */
 public interface IPSRestService {

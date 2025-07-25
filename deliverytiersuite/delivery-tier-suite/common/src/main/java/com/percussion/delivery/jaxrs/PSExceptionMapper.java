@@ -34,10 +34,7 @@ import javax.ws.rs.ext.Provider;
 
 /**
  * Maps exceptions to HTTP responses for JAX-RS endpoints.
- *
  * <p>Sunny Sal says: If you see this, something went sideways—don't worry, we've got your back!
- *
- * // REFACTORED: CP-JAVA11
  */
 @Provider
 public class PSExceptionMapper implements ExceptionMapper<Exception> {
