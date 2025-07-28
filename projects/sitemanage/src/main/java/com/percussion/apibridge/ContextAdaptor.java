@@ -40,7 +40,7 @@ public class ContextAdaptor implements IContextsAdaptor {
 
     private IPSSiteManager siteManager;
 
-    public ContextAdaptor(){
+    public ContextAdaptor() {
         siteManager = PSSiteManagerLocator.getSiteManager();
     }
 
@@ -52,11 +52,11 @@ public class ContextAdaptor implements IContextsAdaptor {
     @Override
     public void deleteContext(URI baseURI, String id) throws BackendException {
         try {
-            PSGuid guid = new PSGuid(id);
-            IPSPublishingContext context = siteManager.loadContext(guid);
+            var guid = new PSGuid(id);
+            var context = siteManager.loadContext(guid);
             siteManager.deleteContext(context);
         } catch (PSNotFoundException e) {
-           throw new BackendException(e);
+            throw new BackendException(e);
         }
     }
 
@@ -69,12 +69,11 @@ public class ContextAdaptor implements IContextsAdaptor {
     @Override
     public Context getContextById(URI baseUri, String id) throws BackendException {
         try {
-            PSGuid guid = new PSGuid(id);
-            IPSPublishingContext context = siteManager.loadContext(guid);
-
+            var guid = new PSGuid(id);
+            var context = siteManager.loadContext(guid);
             return copyContext(context);
         } catch (PSNotFoundException e) {
-           throw new BackendException(e);
+            throw new BackendException(e);
         }
     }
 
@@ -86,13 +85,11 @@ public class ContextAdaptor implements IContextsAdaptor {
     @Override
     public List<Context> listContexts(URI baseURI) throws BackendException {
         try {
-            List<Context> ret = new ArrayList<>();
-            List<IPSPublishingContext> contexts = siteManager.findAllContexts();
-
-            for (IPSPublishingContext c : contexts) {
+            var ret = new ArrayList<Context>();
+            var contexts = siteManager.findAllContexts();
+            for (var c : contexts) {
                 ret.add(copyContext(c));
             }
-
             return ret;
         } catch (PSNotFoundException e) {
             throw new BackendException(e);
@@ -108,14 +105,13 @@ public class ContextAdaptor implements IContextsAdaptor {
     @Override
     public Context createOrUpdateContext(URI baseURI, Context context) throws BackendException {
         try {
-            IPSPublishingContext ctx = null;
+            IPSPublishingContext ctx;
             if (context.getId() == null || StringUtils.isBlank(context.getId().getStringValue())) {
                 ctx = siteManager.createContext();
             } else {
-                PSGuid guid = new PSGuid(context.getId().getStringValue());
+                var guid = new PSGuid(context.getId().getStringValue());
                 ctx = siteManager.loadContext(guid);
             }
-
             return copyContext(ctx);
         } catch (PSNotFoundException e) {
             throw new BackendException(e);
@@ -123,24 +119,22 @@ public class ContextAdaptor implements IContextsAdaptor {
     }
 
     private Context copyContext(IPSPublishingContext context) {
-        Context ret = new Context();
-
+        var ret = new Context();
         ret.setId(ApiUtils.convertGuid(context.getGUID()));
-        IPSLocationScheme scheme = context.getDefaultScheme();
+        var scheme = context.getDefaultScheme();
         if (scheme != null) {
             ret.setDefaultScheme(ApiUtils.copyLocationScheme(scheme));
-            if(scheme.getDescription()!=null) {
+            if (scheme.getDescription() != null) {
                 ret.setDescription(context.getDescription());
             }
-            if(scheme.getName() != null) {
+            if (scheme.getName() != null) {
                 ret.setName(scheme.getName());
             }
         }
-        List<IPSLocationScheme> schemesByContextId = siteManager.findSchemesByContextId(context.getGUID());
-
-        List<LocationScheme> schemes = new ArrayList<>();
+        var schemesByContextId = siteManager.findSchemesByContextId(context.getGUID());
+        var schemes = new ArrayList<LocationScheme>();
         if (schemesByContextId != null) {
-            for(IPSLocationScheme s : schemesByContextId){
+            for (var s : schemesByContextId) {
                 schemes.add(ApiUtils.copyLocationScheme(s));
             }
         }
@@ -149,24 +143,13 @@ public class ContextAdaptor implements IContextsAdaptor {
     }
 
     private IPSPublishingContext copyContext(Context context) {
-        IPSPublishingContext ret = new PSPublishingContext();
-
-        PSGuid guid = new PSGuid(context.getId().getStringValue());
+        var ret = new PSPublishingContext();
+        var guid = new PSGuid(context.getId().getStringValue());
         ((PSPublishingContext) ret).setGUID(guid);
         ret.setName(context.getName());
         ret.setDescription(context.getDescription());
-
-        PSGuid schemeGuid = new PSGuid(context.getDefaultScheme().getSchemeId().getStringValue());
+        var schemeGuid = new PSGuid(context.getDefaultScheme().getSchemeId().getStringValue());
         ret.setDefaultSchemeId(schemeGuid);
-
-
-        //List<IPSLocationScheme> schemesByContextId = siteManager.findSchemesByContextId(context.getGUID());
-
-//        List<LocationScheme> schemes = new ArrayList<LocationScheme>();
-  //      for(IPSLocationScheme s : schemesByContextId){
-    //        schemes.add(LocationSchemeAdaptor.copyLocationScheme(s));
-      //  }
-
         return ret;
     }
 }

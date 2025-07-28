@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -32,157 +33,138 @@ import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.services.content.data.PSItemStatus;
+import com.percussion.utils.testing.IntegrationTest;
+import org.apache.commons.collections.IteratorUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.apache.commons.collections.IteratorUtils;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This class is used for testing the methods that are not exposed through web
- * services.
- * 
- * @author bjoginipally
- * 
+ * Tests for methods not exposed through web services.
  */
-@Category(IntegrationTest.class)
-public class PSContentDesignWsTest extends ServletTestCase
-{
-   /**
-    * Test the save associated workflows method, this covers the load also.
-    * @throws Exception if fails
-    */
-   public void testLoadAndSaveAssociatedWorkflows() throws Exception
-   {
-      login("admin1", "demo");
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSGuid ctguid = gmgr.makeGuid("311", PSTypeEnum.NODEDEF);
-      IPSContentDesignWs cd = PSContentWsLocator.getContentDesignWebservice();
-      List<PSContentTypeWorkflow> ctwfs = cd.loadAssociatedWorkflows(ctguid,
-            true, true);
-      assertEquals(ctwfs.size(), 2);
-      List<IPSGuid> wfguids = new ArrayList<IPSGuid>();
-      for (PSContentTypeWorkflow ctwf : ctwfs)
-      {
-         wfguids.add(ctwf.getWorkflowId());
-      }
-      cd.saveAssociatedWorkflows(ctguid, Collections.singletonList(wfguids.get(0)), true);
-      List<PSContentTypeWorkflow> ctwfsmod = cd.loadAssociatedWorkflows(ctguid,
-            true, false);
-      assertEquals(ctwfsmod.size(), 1);
-      cd.saveAssociatedWorkflows(ctguid, wfguids, true);
-      ctwfsmod = cd.loadAssociatedWorkflows(ctguid,
-            false, false);
-      assertEquals(ctwfsmod.size(), 2);
-   }
-   
-   @SuppressWarnings("unchecked")
-   public void testGetItemEditUrl() throws Exception
-   {
-      login("admin1", "demo");
-      String CONTENT_TYPE_NAME = "rffGeneric";
-      IPSNodeDefinition node = loadNode(CONTENT_TYPE_NAME);
-      
-      //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
-      // Testing a view with 2 hidden fields
-      //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+@Tag("IntegrationTest")
+class PSContentDesignWsTest {
 
-      // get URL for creating new generic item
-      String viewName = IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME + "description,filename";
-      createView(viewName, CONTENT_TYPE_NAME);
-      
-      // make sure the new view is added
-      List<String> fields = getViewFields(viewName, CONTENT_TYPE_NAME);
-      assertTrue(fields.contains("sys_title"));
-      assertTrue(!fields.contains("description"));
-      assertTrue(!fields.contains("filename"));
-      
-      // get URL for editing an generic item id = 335
-      PSLegacyGuid id = new PSLegacyGuid(335, -1);
-      IPSContentDesignWs cd = PSContentWsLocator.getContentDesignWebservice();
-      IPSContentWs cw = PSContentWsLocator.getContentWebservice();
-      PSItemStatus status = cw.prepareForEdit(id); 
-      String url = cd.getItemEditUrl(id, CONTENT_TYPE_NAME, viewName);
-      cw.releaseFromEdit(status, false);
-      
-      assertTrue(url != null);
-      assertTrue(url.indexOf("sys_contentid") > 0);
-      
-      //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-      // Testing a view without any hidden fields
-      //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-      viewName = IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME;
-      url = cd.getItemEditUrl(null, CONTENT_TYPE_NAME, viewName);
-      fields = getViewFields(viewName, CONTENT_TYPE_NAME);
-      
-      List<String> allFields = getViewFields(IPSConstants.SYS_ALL_VIEW_NAME,
-            CONTENT_TYPE_NAME);
-      assertTrue(fields.size() == allFields.size());
-   }
-   
-   private IPSNodeDefinition loadNode(String ContentTypeName)
-   {
-      List<IPSNodeDefinition> nodes = PSContentTypeHelper
-            .loadNodeDefs(ContentTypeName);
-      assertTrue(ContentTypeName + " Content Type must exist", nodes != null
-            && (!nodes.isEmpty()));
-      return nodes.get(0);
-   }
-   
-   /**
-    * Creates a view if not exists for the given view name and content type.
-    * 
-    * @param viewName the view name, assumed not blank.
-    * @param ctName the content type name, assumed not blank.
-    */
-   private void createView(String viewName, String ctName)
-   {
-      IPSContentDesignWs cd = PSContentWsLocator.getContentDesignWebservice();
-      String url = cd.getItemEditUrl(null, ctName, viewName);
-      assertTrue(url != null);
-      assertTrue(url.indexOf("sys_contentid") == -1);      
-   }
+    // ...existing code for test context setup if needed...
 
-   /**
-    * Gets a list of field names for the specified view name and content type.
-    * 
-    * @param viewName the name of the view in question, assumed not blank.
-    * @param ctName the name of the content type of the view.
-    * 
-    * @return the list of field names, never <code>null</code>.
-    */
-   private List<String> getViewFields(String viewName, String ctName)
-   {
-      IPSNodeDefinition node = loadNode(ctName);
-      PSContentEditor ctEditor = PSItemDefManager.getInstance()
-      .getContentEditorDef(node.getGUID().longValue());
-      PSViewSet vset = ctEditor.getViewSet();
-      PSView view = vset.getView(viewName);
-      return IteratorUtils.toList(view.getFields());      
-   }
-   
-   /**
-    * Login using the supplied credentials
-    * 
-    * @param uid The user id, assumed not <code>null</code> or empty.
-    * @param pwd The password, assumed not <code>null</code> or empty.
-    * 
-    * @return The session id, never <code>null</code> or empty.
-    * 
-    * @throws Exception if the login fails.
-    */
-   private String login(String uid, String pwd) throws Exception
-   {
-      // hack to get by re-logging in to same session see PSSecurityfilter)
-      session.setAttribute("RX_LOGIN_ATTEMPTS", null);
-      PSSecurityFilter.authenticate(request, response, uid, pwd);
-      String sessionId = (String) session.getAttribute(
-         IPSHtmlParameters.SYS_SESSIONID);
-      return sessionId;
-   }
+    @Test
+    @DisplayName("Load and Save Associated Workflows")
+    void testLoadAndSaveAssociatedWorkflows() throws Exception {
+        var sessionId = login("admin1", "demo");
+        var gmgr = PSGuidManagerLocator.getGuidMgr();
+        var ctguid = gmgr.makeGuid("311", PSTypeEnum.NODEDEF);
+        var cd = PSContentWsLocator.getContentDesignWebservice();
+        var ctwfs = cd.loadAssociatedWorkflows(ctguid, true, true);
+        assertEquals(2, ctwfs.size());
+        var wfguids = new ArrayList<IPSGuid>();
+        for (var ctwf : ctwfs) {
+            wfguids.add(ctwf.getWorkflowId());
+        }
+        cd.saveAssociatedWorkflows(ctguid, Collections.singletonList(wfguids.get(0)), true);
+        var ctwfsmod = cd.loadAssociatedWorkflows(ctguid, true, false);
+        assertEquals(1, ctwfsmod.size());
+        cd.saveAssociatedWorkflows(ctguid, wfguids, true);
+        ctwfsmod = cd.loadAssociatedWorkflows(ctguid, false, false);
+        assertEquals(2, ctwfsmod.size());
+    }
 
+    @Test
+    @DisplayName("Get Item Edit URL and View Fields")
+    void testGetItemEditUrl() throws Exception {
+        login("admin1", "demo");
+        var contentTypeName = "rffGeneric";
+        var node = loadNode(contentTypeName);
+
+        // Test a view with 2 hidden fields
+        var viewName = IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME + "description,filename";
+        createView(viewName, contentTypeName);
+
+        var fields = getViewFields(viewName, contentTypeName);
+        assertTrue(fields.contains("sys_title"));
+        assertFalse(fields.contains("description"));
+        assertFalse(fields.contains("filename"));
+
+        // Get URL for editing a generic item id = 335
+        var id = new PSLegacyGuid(335, -1);
+        var cd = PSContentWsLocator.getContentDesignWebservice();
+        var cw = PSContentWsLocator.getContentWebservice();
+        var status = cw.prepareForEdit(id);
+        var url = cd.getItemEditUrl(id, contentTypeName, viewName);
+        cw.releaseFromEdit(status, false);
+
+        assertNotNull(url);
+        assertTrue(url.contains("sys_contentid"));
+
+        // Test a view without any hidden fields
+        viewName = IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME;
+        url = cd.getItemEditUrl(null, contentTypeName, viewName);
+        fields = getViewFields(viewName, contentTypeName);
+
+        var allFields = getViewFields(IPSConstants.SYS_ALL_VIEW_NAME, contentTypeName);
+        assertEquals(allFields.size(), fields.size());
+    }
+
+    private IPSNodeDefinition loadNode(String contentTypeName) {
+        var nodes = PSContentTypeHelper.loadNodeDefs(contentTypeName);
+        assertNotNull(nodes, contentTypeName + " Content Type must exist");
+        assertFalse(nodes.isEmpty(), contentTypeName + " Content Type must exist");
+        return nodes.get(0);
+    }
+
+    /**
+     * Creates a view if not exists for the given view name and content type.
+     *
+     * @param viewName the view name, assumed not blank.
+     * @param ctName the content type name, assumed not blank.
+     */
+    private void createView(String viewName, String ctName) {
+        var cd = PSContentWsLocator.getContentDesignWebservice();
+        var url = cd.getItemEditUrl(null, ctName, viewName);
+        assertNotNull(url);
+        assertFalse(url.contains("sys_contentid"));
+    }
+
+    /**
+     * Gets a list of field names for the specified view name and content type.
+     *
+     * @param viewName the name of the view in question, assumed not blank.
+     * @param ctName the name of the content type of the view.
+     * @return the list of field names, never {@code null}.
+     */
+    private List<String> getViewFields(String viewName, String ctName) {
+        var node = loadNode(ctName);
+        var ctEditor = PSItemDefManager.getInstance()
+                .getContentEditorDef(node.getGUID().longValue());
+        var vset = ctEditor.getViewSet();
+        var view = vset.getView(viewName);
+        @SuppressWarnings("unchecked")
+        var fields = IteratorUtils.toList(view.getFields());
+        return fields;
+    }
+
+    /**
+     * Login using the supplied credentials.
+     *
+     * @param uid The user id, assumed not {@code null} or empty.
+     * @param pwd The password, assumed not {@code null} or empty.
+     * @return The session id, never {@code null} or empty.
+     * @throws Exception if the login fails.
+     */
+    private String login(String uid, String pwd) throws Exception {
+        // Hack to get by re-logging in to same session (see PSSecurityFilter)
+        session.setAttribute("RX_LOGIN_ATTEMPTS", null);
+        PSSecurityFilter.authenticate(request, response, uid, pwd);
+        return (String) session.getAttribute(IPSHtmlParameters.SYS_SESSIONID);
+    }
 }

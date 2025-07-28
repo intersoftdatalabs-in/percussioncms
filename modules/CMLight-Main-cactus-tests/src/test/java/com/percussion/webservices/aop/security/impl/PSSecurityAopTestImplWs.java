@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.webservices.aop.security.impl;
 
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -23,57 +24,49 @@ import com.percussion.webservices.aop.security.data.PSMockDesignObject;
 import java.util.List;
 
 /**
- * Concreate implementation of the AOP test service interfaces. 
+ * Concrete implementation of the AOP test service interfaces.
  */
-public class PSSecurityAopTestImplWs  
-   extends  PSSecurityAopTestImplBase 
-   implements IPSSecurityAopTestImplWs
-{
-   @Override
-   public List<PSMockDesignObject> loadDesignObjects(String name)
-   {
-      return super.loadDesignObjects(name);
-   }
+public class PSSecurityAopTestImplWs
+        extends PSSecurityAopTestImplBase
+        implements IPSSecurityAopTestImplWs {
 
-   @Override
-   public PSMockDesignObject loadDesignObject()
-   {
-      return super.loadDesignObject();
-   }
+    @Override
+    public List<PSMockDesignObject> loadDesignObjects(String name) {
+        return super.loadDesignObjects(name);
+    }
 
-   @Override
-   public List<PSMockDesignObject> findPublicObjects(String name)
-   {
-      return super.findPublicObjects(name);
-   }
+    @Override
+    public PSMockDesignObject loadDesignObject() {
+        return super.loadDesignObject();
+    }
 
-   @Override
-   public void savePublicObjects(String name)
-   {
-      super.savePublicObjects(name);
-   }
+    @Override
+    public List<PSMockDesignObject> findPublicObjects(String name) {
+        return super.findPublicObjects(name);
+    }
 
-   @Override
-   public void deletePublicObjects(String name)
-   {
-      super.deletePublicObjects(name);
-   }
+    @Override
+    public void savePublicObjects(String name) {
+        super.savePublicObjects(name);
+    }
 
-   @Override
-   public PSMockDesignObject loadDesignObjectIgnore()
-   {
-      return super.loadDesignObjectIgnore();
-   }
+    @Override
+    public void deletePublicObjects(String name) {
+        super.deletePublicObjects(name);
+    }
 
-   @Override
-   public List<IPSCatalogSummary> findDesignObjectsPerm(String name)
-   {
-      return super.findDesignObjectsPerm(name);
-   }
+    @Override
+    public PSMockDesignObject loadDesignObjectIgnore() {
+        return super.loadDesignObjectIgnore();
+    }
 
-   @Override
-   public List<PSMockDesignObject> findPublicObjectsCustom(String name)
-   {
-      return super.findPublicObjectsCustom(name);
-   }   
+    @Override
+    public List<IPSCatalogSummary> findDesignObjectsPerm(String name) {
+        return super.findDesignObjectsPerm(name);
+    }
+
+    @Override
+    public List<PSMockDesignObject> findPublicObjectsCustom(String name) {
+        return super.findPublicObjectsCustom(name);
+    }
 }

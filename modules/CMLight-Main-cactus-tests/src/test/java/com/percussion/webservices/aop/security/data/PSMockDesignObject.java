@@ -19,58 +19,44 @@ package com.percussion.webservices.aop.security.data;
 import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.utils.guid.IPSGuid;
+import java.util.Objects;
 
 /**
- * Mock data object for testing
+ * Mock data object for testing.
  */
-public class PSMockDesignObject
-{
-   /**
-    * Get the guid
-    * 
-    * @return The guid, may be <code>null</code>.
-    */
-   public IPSGuid getGuid()
-   {
-      return m_guid;
-   }
-   
-   /**
-    * Set the guid.
-    * 
-    * @param guid The guid, may not be <code>null</code>.
-    */
-   public void setGUID(IPSGuid guid)
-   {
-      if (guid == null)
-         throw new IllegalArgumentException("guid may not be null");
-      
-      m_guid = guid;
-   }
-   
+public class PSMockDesignObject {
 
+    private IPSGuid guid;
 
-   /**
-    * Create a mock object with the guid specified by the supplied acl.
-    * 
-    * @param acl The acl to use, may not be <code>null</code>.
-    * 
-    * @return The object, never <code>null</code>.
-    */
-   public static PSMockDesignObject createMockObject(IPSAcl acl)
-   {
-      if (acl == null)
-         throw new IllegalArgumentException("acl may not be null");
-      
-      PSMockDesignObject obj = new PSMockDesignObject();
-      IPSGuid guid = ((PSAclImpl)acl).getObjectGuid();
-      obj.setGUID(guid);
-      return obj;
-   }
-   
-   /**
-    * This objects guid, may be <code>null</code> if not set.
-    */
-   IPSGuid m_guid;
+    /**
+     * Gets the guid.
+     *
+     * @return The guid, may be {@code null}.
+     */
+    public IPSGuid getGuid() {
+        return guid;
+    }
+
+    /**
+     * Sets the guid.
+     *
+     * @param guid The guid, may not be {@code null}.
+     */
+    public void setGUID(IPSGuid guid) {
+        this.guid = Objects.requireNonNull(guid, "guid may not be null");
+    }
+
+    /**
+     * Creates a mock object with the guid specified by the supplied acl.
+     *
+     * @param acl The acl to use, may not be {@code null}.
+     * @return The object, never {@code null}.
+     */
+    public static PSMockDesignObject createMockObject(IPSAcl acl) {
+        Objects.requireNonNull(acl, "acl may not be null");
+        var obj = new PSMockDesignObject();
+        var guid = ((PSAclImpl) acl).getObjectGuid();
+        obj.setGUID(guid);
+        return obj;
+    }
 }
-

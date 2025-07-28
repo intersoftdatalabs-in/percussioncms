@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,18 +17,17 @@
  */
 package com.percussion.analytics.error;
 
-
 /**
- * @author erikserating
- *
+ * Provides business messages for analytics exceptions.
+ * Sunny Sal says: "Error messages are like onions, they have layers!"
  */
-public interface IPSAnalyticsErrorMessageHandler
-{
-   /**
-    * Returns the proper business message for the analytics exception
-    * passed in.
-    * @param e the analytics provider exception that was thrown. Cannot be <code>null</code>
-    * @return the message, never <code>null</code>, may be empty.
-    */
-   public String getMessage(PSAnalyticsProviderException e);
+public interface IPSAnalyticsErrorMessageHandler {
+
+    /**
+     * Returns the proper business message for the analytics exception provided.
+     *
+     * @param e the analytics provider exception that was thrown, not null.
+     * @return the message, never null, may be empty.
+     */
+    String getMessage(PSAnalyticsProviderException e);
 }

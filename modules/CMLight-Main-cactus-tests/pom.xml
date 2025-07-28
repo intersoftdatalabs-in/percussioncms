@@ -24,9 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Test framework versions -->
-        <junit.version>4.13.2</junit.version>
-        <cactus.version>1.8.1</cactus.version>
-        <servlet.api.version>4.0.1</servlet.api.version>
+        <junit.version>5.10.2</junit.version>
         <spring.version>5.3.23</spring.version>
     </properties>
 
@@ -38,25 +36,17 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Test framework dependencies -->
+        <!-- JUnit 5 Jupiter API and Engine -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.apache.cactus</groupId>
-            <artifactId>cactus.core.framework.uberjar.javaEE.15</artifactId>
-            <version>${cactus.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -74,7 +64,6 @@
             <artifactId>log4j-api</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -86,24 +75,35 @@
         <plugins>
             <!-- Maven Compiler Plugin for Java 11 -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>
                     <release>11</release>
-                    <encoding>UTF-8</encoding>
-                    <fork>true</fork>
-                    <meminitial>1024m</meminitial>
-                    <maxmem>2048m</maxmem>
-                    <compilerArgs>
-                        <arg>--add-opens</arg>
-                        <arg>java.base/java.lang=ALL-UNNAMED</arg>
-                        <arg>--add-opens</arg>
-                        <arg>java.base/java.util=ALL-UNNAMED</arg>
-                    </compilerArgs>
+                    <debug>true</debug>
+                    <debuglevel>lines,vars,source</debuglevel>
                 </configuration>
+            </plugin>
+
+            <!-- Spotless for Google Java Style -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>2.37.0</version>
+                <configuration>
+                    <java>
+                        <googleJavaFormat/>
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Maven Resources Plugin -->
@@ -116,7 +116,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Surefire Plugin for Tests -->
+            <!-- Maven Surefire Plugin for JUnit5 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

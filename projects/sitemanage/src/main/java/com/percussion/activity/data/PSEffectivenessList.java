@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
-
 
 @JsonRootName(value = "Effectiveness")
 public class PSEffectivenessList extends ArrayList<PSEffectiveness> {

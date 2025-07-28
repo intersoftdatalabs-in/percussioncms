@@ -27,102 +27,88 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Tests the {@link PSContentTypeSummaryConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSContentTypeSummaryConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object.
-    *
-    * @throws Exception If the test fails.
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSContentTypeSummary src = createContentTypeSummary(100, "CTSummary");
+public class PSContentTypeSummaryConverterTest extends PSConverterTestBase {
 
-      PSContentTypeSummary target =
-         (PSContentTypeSummary) roundTripConversion(
-               PSContentTypeSummary.class,
-            com.percussion.webservices.content.PSContentTypeSummary.class,
-            src);
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // create the source object
+        var src = createContentTypeSummary(100, "CTSummary");
 
-      // verify the the round-trip object is equal to the source object
-      assertTrue(src.equals(target));
-   }
+        var target = (PSContentTypeSummary) roundTripConversion(
+                PSContentTypeSummary.class,
+                com.percussion.webservices.content.PSContentTypeSummary.class,
+                src);
 
-   /**
-    * Test a list of server object convert to client array, and vice versa.
-    *
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      List<PSContentTypeSummary> srcList =
-         new ArrayList<PSContentTypeSummary>();
-      srcList.add(createContentTypeSummary(100, "CTSummary"));
-      srcList.add(createContentTypeSummary(200, "CTSummary2"));
+        // verify the round-trip object is equal to the source object
+        assertEquals(src, target);
+    }
 
-      List<PSContentTypeSummary> srcList2 = roundTripListConversion(
-            com.percussion.webservices.content.PSContentTypeSummary[].class,
-            srcList);
+    /**
+     * Test a list of server objects convert to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var srcList = new ArrayList<PSContentTypeSummary>();
+        srcList.add(createContentTypeSummary(100, "CTSummary"));
+        srcList.add(createContentTypeSummary(200, "CTSummary2"));
 
-      assertTrue(srcList.equals(srcList2));
-   }
+        var srcList2 = roundTripListConversion(
+                com.percussion.webservices.content.PSContentTypeSummary[].class,
+                srcList);
 
-   private PSContentTypeSummary createContentTypeSummary(int id, String name)
-   {
-      PSContentTypeSummary ct = new PSContentTypeSummary();
-      ct.setGuid(new PSGuid(PSTypeEnum.NODEDEF, id));
-      ct.setName(name);
-      ct.setDescription(name + " Desc");
+        assertEquals(srcList, srcList2);
+    }
 
-      List<PSContentTypeSummaryChild> childList =
-         new ArrayList<PSContentTypeSummaryChild>();
-      childList.add(createSummaryChild(name + "ChildSummary"));
-      childList.add(createSummaryChild(name + "ChildSummary2"));
-      
-      ct.setChildren(childList);
-      ct.setFields(createFieldDesc(name));
-      
-      return ct;
-   }
-   
-   /**
-    * Creates a child summary field, which contains 2 fields.
-    *
-    * @param name the name of the child summary; assumed not <code>null</code>
-    *    or empty.
-    *
-    * @return the created child summary.
-    */
-   private PSContentTypeSummaryChild createSummaryChild(String name)
-   {
-      PSContentTypeSummaryChild src = new PSContentTypeSummaryChild();
+    private PSContentTypeSummary createContentTypeSummary(int id, String name) {
+        var ct = new PSContentTypeSummary();
+        ct.setGuid(new PSGuid(PSTypeEnum.NODEDEF, id));
+        ct.setName(name);
+        ct.setDescription(name + " Desc");
 
-      List<PSFieldDescription> fields = createFieldDesc(name);
-      src.setChildFields(fields);
-      src.setName(name);
+        var childList = new ArrayList<PSContentTypeSummaryChild>();
+        childList.add(createSummaryChild(name + "ChildSummary"));
+        childList.add(createSummaryChild(name + "ChildSummary2"));
 
-      return src;
-   }
+        ct.setChildren(childList);
+        ct.setFields(createFieldDesc(name));
 
-   private List<PSFieldDescription> createFieldDesc(String seed) 
-   {
-      PSFieldDescription field = new PSFieldDescription(seed + "_fld1",
-            PSFieldDescription.PSFieldTypeEnum.TEXT.name());
-      PSFieldDescription field2 = new PSFieldDescription(seed + "_fld2",
-            PSFieldDescription.PSFieldTypeEnum.BINARY.name());
+        return ct;
+    }
 
-      List<PSFieldDescription> fields = new ArrayList<PSFieldDescription>();
-      fields.add(field);
-      fields.add(field2);
+    /**
+     * Creates a child summary field, which contains 2 fields.
+     *
+     * @param name the name of the child summary; assumed not {@code null} or empty.
+     * @return the created child summary.
+     */
+    private PSContentTypeSummaryChild createSummaryChild(String name) {
+        var src = new PSContentTypeSummaryChild();
 
-      return fields;
-   }
-   
+        var fields = createFieldDesc(name);
+        src.setChildFields(fields);
+        src.setName(name);
+
+        return src;
+    }
+
+    private List<PSFieldDescription> createFieldDesc(String seed) {
+        var field = new PSFieldDescription(seed + "_fld1",
+                PSFieldDescription.PSFieldTypeEnum.TEXT.name());
+        var field2 = new PSFieldDescription(seed + "_fld2",
+                PSFieldDescription.PSFieldTypeEnum.BINARY.name());
+
+        var fields = new ArrayList<PSFieldDescription>();
+        fields.add(field);
+        fields.add(field2);
+
+        return fields;
+    }
 }
-

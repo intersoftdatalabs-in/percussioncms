@@ -44,116 +44,64 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    private static IPSContentMgr mgr = null;
 
-   /**
-    * Do the test, the rest of the test methods provide inputs
-    * 
-    * @param testquery the query, assumed never <code>null</code> or empty
-    * @param lang the query language, either "sql" or "xpath"
-    * 
-    * @return the rows of the query result. Not <code>null</code> or empty. 
-    * 
-    * @throws Exception if there's a problem with the query
-    */
    public RowIterator performTest(String testquery, String lang) throws Exception
    {
       mgr = PSContentMgrLocator.getContentMgr();
-      Query q = mgr.createQuery(testquery, lang);
-      QueryResult r = q.execute();
-      RowIterator riter = r.getRows();
-      
-      // System.out.println("size = " + riter.getSize());
+      var q = mgr.createQuery(testquery, lang);
+      var r = q.execute();
+      var riter = r.getRows();
       return riter;
    }
    
-   /**
-    * This is the same as {@link #performTest(String, String)}, in additional,
-    * it will validate the number of rows from the query result.
-    *
-    * @param testquery the query, assumed never <code>null</code> or empty
-    * @param lang the query language, either "sql" or "xpath"
-    * @param numResult the expected number of rows in the query result.
-    * If it is ZERO, then the result set must be empty (or zero row); otherwise
-    * the number of rows of the result set must be equal or more than the 
-    * given number.
-    * 
-    * @return the rows of the query result. Not <code>null</code> or empty. 
-    * 
-    * @throws Exception if there's a problem with the query
-    */
-   public RowIterator performTest(String testquery, String lang, int numResult) 
+   public RowIterator performTest(String testquery, String lang, int numResult)
       throws Exception
    {
-      RowIterator riter = performTest(testquery, lang);
+      var riter = performTest(testquery, lang);
       if (numResult == 0 )
          assertTrue(riter.getSize() == 0);
       else
          assertTrue(riter.getSize() >= numResult);
-      
       return riter;
    }
    
-   /**
-    * Do the test, the rest of the test methods provide inputs.
-    * It expects the result set contain ZERO row.
-    * 
-    * @param testquery the query, assumed never <code>null</code> or empty
-    * @param lang the query language, either "sql" or "xpath"
-    * @throws Exception if there's a problem with the query
-    */
-   public void performTestZeroResults(String testquery, String lang) 
+   public void performTestZeroResults(String testquery, String lang)
    throws Exception
    {
       performTest(testquery, lang, 0);
    }   
    
-   /**
-    * Basic test checks for some results for rffFile, and makes sure that the
-    * requested projection is present.
-    * 
-    * @throws Exception
-    */
    public void testSimpleQuery1() throws Exception
    {
       mgr = PSContentMgrLocator.getContentMgr();
-      Query q = mgr.createQuery("SELECT rx:sys_title FROM rx:rffFile "
+      var q = mgr.createQuery("SELECT rx:sys_title FROM rx:rffFile "
             + "WHERE rx:filename like '%.pdf'", Query.SQL);
 
-      QueryResult r = q.execute();
-      RowIterator riter = r.getRows();
+      var r = q.execute();
+      var riter = r.getRows();
       assertTrue(riter.getSize() > 0);
       
-      // Grab a row and make sure there's a title
-      Row row = riter.nextRow();
+      var row = riter.nextRow();
       assertNotNull(row.getValue("rx:sys_title"));
       
-      // Test grabbing a node
-      NodeIterator niter = r.getNodes();
-      Node node = niter.nextNode();
+      var niter = r.getNodes();
+      var node = niter.nextNode();
       assertNotNull(node);
    }
 
-   /**
-    * Test items belongs to EI community, but it also under CI site folder
-    * 
-    * @throws Exception if an error occurs.
-    */
    public void testCrossSiteItems() throws Exception
    {
       mgr = PSContentMgrLocator.getContentMgr();
-      
-      // get the items under CI site folder, but belongs to EI community
-      Query q = mgr.createQuery("SELECT rx:sys_contentid, rx:sys_folderid, " +
-            "jcr:path, rx:sys_communityid " + 
+      var q = mgr.createQuery("SELECT rx:sys_contentid, rx:sys_folderid, " +
+            "jcr:path, rx:sys_communityid " +
             "FROM nt:base " + 
             "WHERE jcr:path like '//Sites/CorporateInvestments/%' AND " + 
             "rx:sys_communityid = 1002 ORDER BY rx:sys_contentid", Query.SQL);
       
-      QueryResult r = q.execute();
-      RowIterator riter = r.getRows();
+      var r = q.execute();
+      var riter = r.getRows();
       assertTrue(riter.getSize() == 7);
 
-      // validate the 1st and 2nd items
-      Row row = riter.nextRow();
+      var row = riter.nextRow();
       validateCrossSiteRow(row, 442, 538, 1002,
             "//Sites/CorporateInvestments/Images/Icons");
       row = riter.nextRow();
@@ -161,28 +109,20 @@ public class PSContentMgrQueryTest extends ServletTestCase
             "//Sites/CorporateInvestments/Images/Housing");
    }
 
-   /**
-    * Test items have more than one parent folders.
-    * 
-    * @throws Exception if an error occurs.
-    */
    @Ignore("junit.framework.AssertionFailedError: null")
    public void testMultiFolderPaths() throws Exception
    {
       mgr = PSContentMgrLocator.getContentMgr();
-      
-      // get the items under CI site folder, but belongs to EI community
-      Query q = mgr.createQuery("SELECT rx:sys_contentid, rx:sys_folderid, " +
-            "jcr:path, rx:sys_communityid " + 
+      var q = mgr.createQuery("SELECT rx:sys_contentid, rx:sys_folderid, " +
+            "jcr:path, rx:sys_communityid " +
             "FROM nt:base " + 
             "WHERE rx:sys_contentid = 460", Query.SQL);
       
-      QueryResult r = q.execute();
-      RowIterator riter = r.getRows();
+      var r = q.execute();
+      var riter = r.getRows();
       assertTrue(riter.getSize() == 2);
 
-      // validate the 1st and 2nd items
-      Row row = riter.nextRow();
+      var row = riter.nextRow();
       validateCrossSiteRow(row, 460, 446, 1002,
             "//Sites/EnterpriseInvestments/Images/People");
       row = riter.nextRow();
@@ -190,47 +130,25 @@ public class PSContentMgrQueryTest extends ServletTestCase
             "//Sites/CorporateInvestments/Images/People");
    }
 
-
-   /**
-    * Validates the supplied row against the given parameters.
-    * 
-    * @param r the tested row, assumed not <code>null</code>.
-    * @param contentID the expected sys_content id
-    * @param folderID the expected folder id
-    * @param communityID the expected community id
-    * @param folderPath the expected folder path.
-    * 
-    * @throws Exception if error occurs.
-    */
    private void validateCrossSiteRow(Row r, long contentID, long folderID,
          long communityID, String folderPath) throws Exception
    {
-      PSLongValue id = (PSLongValue) r.getValue("rx:sys_contentid");
+      var id = (PSLongValue) r.getValue("rx:sys_contentid");
       assertTrue(id.getLong() == contentID);
       id = (PSLongValue) r.getValue("rx:sys_folderid");
       assertTrue(id.getLong() == folderID);
       id = (PSLongValue) r.getValue("rx:sys_communityid");
       assertTrue(id.getLong() == communityID);
-      PSStringValue path = (PSStringValue) r.getValue("jcr:path");
+      var path = (PSStringValue) r.getValue("jcr:path");
       assertTrue(path.getString().equals(folderPath));
    }
    
-   /**
-    * Skipped test - not sure why
-    * 
-    * @throws Exception
-    */
    public void disabled_testSimpleQuery2() throws Exception
    {
       performTest("SELECT rx:sys_title FROM nt:base "
             + "WHERE rx:displaytitle like '%fund%'", Query.SQL);
    }
 
-   /**
-    * Test date comparison and ordering
-    * 
-    * @throws Exception
-    */
    @Ignore("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
    public void testSimpleQuery3() throws Exception
    {
@@ -240,11 +158,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
             Query.SQL, 250);
    }
 
-   /**
-    * Test path selector
-    * 
-    * @throws Exception
-    */
    public void testSimpleQueryPath1() throws Exception
    {
       performTest("SELECT rx:sys_title FROM rx:rffBrief "
@@ -252,11 +165,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
                   Query.SQL, 1);
    }
 
-   /**
-    * Test another path selector
-    *  
-    * @throws Exception
-    */
    public void testSimpleQueryPath2() throws Exception
    {
       performTest("SELECT rx:sys_title FROM rx:rfffile "
@@ -264,11 +172,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
             Query.SQL, 2);
    }
    
-   /**
-    * Test using a missing property for some content types
-    * 
-    * @throws Exception
-    */
    @Ignore("org.hibernate.exception.SQLGrammarException: could not execute query")
    public void testMissingProp() throws Exception
    {
@@ -277,12 +180,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
             Query.SQL, 37);     
    }
    
-   
-   /**
-    * Test various content status and calculated fields in the projection
-    * 
-    * @throws Exception
-    */
    public void testProjections() throws Exception
    {
       performTest("SELECT jcr:path from rx:rffgeneric", Query.SQL, 108);
@@ -291,11 +188,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
             "from rx:rffgeneric", Query.SQL, 108);
    }
    
-   /**
-    * This test tries to query whole nodes from the repository
-    * 
-    * @throws Exception
-    */
    public void fixme_testNodeResults() throws Exception
    {
       performTest("select * from rx:rffgeneric " +
@@ -304,13 +196,6 @@ public class PSContentMgrQueryTest extends ServletTestCase
       performTest("select * from rx:rffpressrelease", Query.SQL, 20);
    }
    
-   /**
-    * These are tests that grab lob fields for sorting, where clause 
-    * and projection cases. This also tests that the joins are working since
-    * the lob fields are in a separate object.
-    * 
-    * @throws Exception
-    */
    public void fixme_testLobs() throws Exception
    {
       performTest("SELECT jcr:path from rx:rffgeneric " +

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rx.publisher.impl;
 
 import com.google.common.collect.Lists;
@@ -39,25 +41,19 @@ import com.percussion.util.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Testing {@link PSLocationChangeHandler}. Mock services are used for all test
  * cases.
  */
-@Category(IntegrationTest.class)
-public class PSLocationChangeHandlerTest extends ServletTestCase
-{
+@Tag("IntegrationTest")
+public class PSLocationChangeHandlerTest {
    static int EI_SITE_ID = 301;
    static int CI_SITE_ID = 303;
 
@@ -89,8 +85,8 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
 
    FolderProcessor m_folderProcessor;
    
-   @Override
-   protected void setUp()
+   @Test
+   public void setUp()
    {
       PSPublishingJob job = new PSPublishingJob();
       m_handler = new PSLocationChangeHandler(job);
@@ -109,6 +105,7 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
     * 
     * @throws Exception if an error occurs.
     */
+   @Test
    public void testNoUnpublish_NonPaginate() throws Exception
    {
       // [1]      
@@ -229,6 +226,7 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
     * 
     * @throws Exception if an error occurs.
     */
+   @Test
    public void testUnpublish_NonPaginate() throws Exception
    {
       // [1]
@@ -314,6 +312,7 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
     * @throws Exception if an error occurs.
     */
    @SuppressWarnings("unchecked")
+   @Test
    public void testNoUnpublish_Paginate() throws Exception
    {
       // no site item found, no un-publishing
@@ -362,6 +361,7 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
     * @throws Exception if an error occurs.
     */
    @SuppressWarnings("unchecked")
+   @Test
    public void testUnpublish_Paginate() throws Exception
    {
       // different location, same everything else, un-publishing
@@ -421,6 +421,7 @@ public class PSLocationChangeHandlerTest extends ServletTestCase
     * 
     * @throws Exception if an error occurs.
     */
+   @Test
    public void testLargeUnpublish() throws Exception
    {
       List<IPSAssemblyItem> pubItems = createItems(2500);

@@ -24,90 +24,79 @@ import com.percussion.cms.objectstore.PSObjectPermissions;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.experimental.categories.Category;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSActionConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSFolderConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object and vice versa.
-    */
-   public void testConversion() throws Exception
-   {
-      // test with simple folder
-      PSFolder folder = createFolder(10, "folder1", -1, 100);
-      roundTripConvertion(folder);
-      
-      folder = createFolder(11, "folder2", 2, 101);
-      roundTripConvertion(folder);
-   }
+public class PSFolderConverterTest extends PSConverterTestBase {
 
-   /**
-    * Test a list of server object convert to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      // test simple action objects
-      List<PSFolder> srcList = new ArrayList<PSFolder>();
-      srcList.add(createFolder(11, "folder1", -1, 100));
-      srcList.add(createFolder(12, "folder2", 1, 101));
-      
-      List<PSAction> srcList2 = roundTripListConversion(
-            com.percussion.webservices.content.PSFolder[].class, srcList);
+    /**
+     * Tests the conversion from a server to a client object and vice versa.
+     */
+    public void testConversion() throws Exception {
+        // Test with simple folder
+        var folder = createFolder(10, "folder1", -1, 100);
+        roundTripConversionAssert(folder);
 
-      assertTrue(srcList.equals(srcList2));
-   }
+        folder = createFolder(11, "folder2", 2, 101);
+        roundTripConversionAssert(folder);
+    }
 
-   private PSFolder createFolder(int id, String name, int communityId,
-         int displayFormatId)
-   {
-      PSFolder f = new PSFolder(name, id, communityId, 
-            PSObjectPermissions.ACCESS_ADMIN, name);
-      
-      f.setFolderPath("//Folders/Test/" + name);
-      f.setDisplayFormatId(displayFormatId);
-      f.setDisplayFormatName(name + " display format");
-      if (communityId != -1)
-         f.setCommunityName(name + " community");
-      
-      PSObjectAclEntry aclEntry;
-      PSObjectAcl tgtAcls = new PSObjectAcl();
+    /**
+     * Test a list of server object convert to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var srcList = new ArrayList<PSFolder>();
+        srcList.add(createFolder(11, "folder1", -1, 100));
+        srcList.add(createFolder(12, "folder2", 1, 101));
 
-      aclEntry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_USER, 
-            "User " + name, PSObjectAclEntry.ACCESS_READ);
-      tgtAcls.add(aclEntry);
-      aclEntry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE, 
-            "Admin " + name, PSObjectAclEntry.ACCESS_ADMIN);
-      tgtAcls.add(aclEntry);
-      f.setAcl(tgtAcls);
+        var srcList2 = roundTripListConversion(
+                com.percussion.webservices.content.PSFolder[].class, srcList);
 
-      return f;
-   }
-   
-   @SuppressWarnings("unused")
-   private void roundTripConvertion(PSFolder source) throws PSTransformationException
-   {
-      PSFolder target = (PSFolder) roundTripConversion(PSFolder.class,
-            com.percussion.webservices.content.PSFolder.class, source);
+        assertEquals(srcList, srcList2);
+    }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      //System.out.println(PSXmlDocumentBuilder.toString(source.toXml(doc)));
-      //System.out.println(PSXmlDocumentBuilder.toString(target.toXml(doc)));
+    private PSFolder createFolder(int id, String name, int communityId, int displayFormatId) {
+        var f = new PSFolder(name, id, communityId,
+                PSObjectPermissions.ACCESS_ADMIN, name);
 
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equalsFull(target));
-   }
+        f.setFolderPath("//Folders/Test/" + name);
+        f.setDisplayFormatId(displayFormatId);
+        f.setDisplayFormatName(name + " display format");
+        if (communityId != -1)
+            f.setCommunityName(name + " community");
 
+        var tgtAcls = new PSObjectAcl();
+        var aclEntry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_USER,
+                "User " + name, PSObjectAclEntry.ACCESS_READ);
+        tgtAcls.add(aclEntry);
+        aclEntry = new PSObjectAclEntry(PSObjectAclEntry.ACL_ENTRY_TYPE_ROLE,
+                "Admin " + name, PSObjectAclEntry.ACCESS_ADMIN);
+        tgtAcls.add(aclEntry);
+        f.setAcl(tgtAcls);
+
+        return f;
+    }
+
+    private void roundTripConversionAssert(PSFolder source) throws PSTransformationException {
+        var target = (PSFolder) roundTripConversion(PSFolder.class,
+                com.percussion.webservices.content.PSFolder.class, source);
+
+        Document doc = PSXmlDocumentBuilder.createXmlDocument();
+        // Uncomment for debugging:
+        // System.out.println(PSXmlDocumentBuilder.toString(source.toXml(doc)));
+        // System.out.println(PSXmlDocumentBuilder.toString(target.toXml(doc)));
+
+        // Verify the round-trip object is equal to the source object
+        assertTrue(source.equalsFull(target));
+    }
 }
-

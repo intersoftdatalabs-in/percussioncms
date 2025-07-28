@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,46 +21,36 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.system.impl.PSDependencyHelper;
 import com.percussion.utils.guid.IPSGuid;
-
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test case for the {@link PSDependencyHelper}.  This test depends on the  
+ * Test case for the {@link PSDependencyHelper}. This test depends on the
  * FastForward implementation and sample content.
  */
-@Category(IntegrationTest.class)
-public class PSDependencyHelperTest extends ServletTestCase
-{
-   /**
-    * Tests finding various dependencies.
-    * 
-    * @throws Exception if the test fails.
-    */
-   public void testFindDependents() throws Exception
-   {
-      PSDependencyHelper dh = new PSDependencyHelper();
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.WORKFLOW, 4)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.WORKFLOW, 5)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.LOCALE, 1)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.COMMUNITY_DEF, 1001)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.DISPLAY_FORMAT, 0)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.SLOT, 516)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.SITE, 303)).isEmpty());
-      assertTrue(!dh.findDependents(new PSGuid(
-         PSTypeEnum.TEMPLATE, 521)).isEmpty());
-      IPSGuid[] guids = new IPSGuid[2];
-      guids[0] = new PSGuid(PSTypeEnum.TEMPLATE, 521);
-      guids[1] = new PSGuid(PSTypeEnum.NODEDEF, 307);
-      assertTrue(!dh.findDependents(guids).isEmpty());
-   }
-}
+@Tag("IntegrationTest")
+public class PSDependencyHelperTest {
 
+    /**
+     * Tests finding various dependencies.
+     */
+    @Test
+    void testFindDependents() {
+        var dh = new PSDependencyHelper();
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.WORKFLOW, 4)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.WORKFLOW, 5)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.LOCALE, 1)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.DISPLAY_FORMAT, 0)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.SLOT, 516)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.SITE, 303)).isEmpty());
+        assertFalse(dh.findDependents(new PSGuid(PSTypeEnum.TEMPLATE, 521)).isEmpty());
+        IPSGuid[] guids = new IPSGuid[2];
+        guids[0] = new PSGuid(PSTypeEnum.TEMPLATE, 521);
+        guids[1] = new PSGuid(PSTypeEnum.NODEDEF, 307);
+        assertFalse(dh.findDependents(guids).isEmpty());
+    }
+}

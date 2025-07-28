@@ -83,6 +83,9 @@
        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
        <jdk.version>11</jdk.version>
        <java.source.version>11</java.source.version>
+       <java.version>11</java.version>
+       <maven.compiler.source>11</maven.compiler.source>
+       <maven.compiler.target>11</maven.compiler.target>
        <slf4j.version>1.7.26</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
@@ -130,11 +133,8 @@
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-       <java.version>11</java.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <activemq.version>5.16.8</activemq.version><!-- 5.17.x and up require Java 11 -->
@@ -399,59 +399,52 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
-                 <dependencies>
-                     <dependency>
-                         <groupId>org.apache.maven.surefire</groupId>
-                         <artifactId>common-junit48</artifactId>
-                         <version>${maven.surefire.plugin.version}</version>
-                     </dependency>
-                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the VM argument line used when integration tests are run. -->
-                            <!--suppress UnresolvedMavenProperty -->
-                            <argLine>${failsafeArgLine}</argLine>
-
-                            <systemPropertyVariables>
-                                <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                                <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                            </systemPropertyVariables>
-
-                            <systemProperties>
-                                <property>
-                                    <name>javax.xml.parsers.SAXParserFactory</name>
-                                    <value>com.percussion.xml.PSSaxParserFactoryImpl</value>
-                                </property>
-                            </systemProperties>
-                            <skipTests>${skip.unit.tests}</skipTests>
-                            <testFailureIgnore>false</testFailureIgnore>
-                            <groups>com.percussion.utils.testing.UnitTest</groups>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
-                        </configuration>
-                    </execution>
-                </executions>
                 <configuration>
-                     <skipTests>${skip.unit.tests}</skipTests>
-                     <!--suppress UnresolvedMavenProperty -->
+                    <skipTests>${skip.unit.tests}</skipTests>
                     <argLine>${surefireArgLine}</argLine>
-                     <systemPropertyVariables>
-                         <cactus.contextURL>http://localhost:9992/Rhythmyx/</cactus.contextURL>
-                         <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                         <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                     </systemPropertyVariables>
-
-                     <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
+                    <systemPropertyVariables>
+                        <cactus.contextURL>http://localhost:9992/Rhythmyx/</cactus.contextURL>
+                        <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
+                        <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
+                    </systemPropertyVariables>
+                    <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
                     <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
                 </configuration>
-              </plugin>
+            </plugin>
+            <!-- Modern Failsafe plugin for JUnit5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe.plugin.version}</version>
+                <configuration>
+                    <skipTests>${skip.integration.tests}</skipTests>
+                    <argLine>${failsafeArgLine}</argLine>
+                    <systemPropertyVariables>
+                        <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
+                        <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
+                    </systemPropertyVariables>
+                    <excludedGroups>com.percussion.utils.testing.BackloggedTest</excludedGroups>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <linkXRef>true</linkXRef>
+                </configuration>
+            </plugin>
             <!-- Used for integration tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

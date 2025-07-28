@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,79 +25,72 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSSearchConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSSearchConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object as well as a
-    * server array of objects to a client array of objects and back.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSWSSearchRequest source = createSearch(3);
-      
-      PSWSSearchRequest target = (PSWSSearchRequest) roundTripConversion(
-         PSWSSearchRequest.class, 
-         com.percussion.webservices.content.PSSearch.class, 
-         source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-      
-      // create the source array
-      PSWSSearchRequest[] sourceArray = new PSWSSearchRequest[1];
-      sourceArray[0] = source;
-      
-      PSWSSearchRequest[] targetArray = (PSWSSearchRequest[]) roundTripConversion(
-         PSWSSearchRequest[].class, 
-         com.percussion.webservices.content.PSSearch[].class, 
-         sourceArray);
-      
-      // verify the the round-trip array is equal to the source array
-      assertTrue(sourceArray.length == targetArray.length);
-      assertTrue(sourceArray[0].equals(targetArray[0]));
-   }
-   
-   /**
-    * Test a list of server object conversion to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      List<PSWSSearchRequest> sourceList = new ArrayList<PSWSSearchRequest>();
-      sourceList.add(createSearch(2));
-      sourceList.add(createSearch(4));
-      
-      List<PSWSSearchRequest> targetList = roundTripListConversion(
-         com.percussion.webservices.content.PSSearch[].class, sourceList);
+public class PSSearchConverterTest extends PSConverterTestBase {
 
-      assertTrue(sourceList.equals(targetList));
-   }
+    /**
+     * Tests the conversion from a server to a client object as well as a
+     * server array of objects to a client array of objects and back.
+     */
+    public void testConversion() throws Exception {
+        // create the source object
+        var source = createSearch(3);
 
-   /**
-    * Create the search request for testing.
-    * 
-    * @param count the number of search parameters to create, assumed > 0.
-    * @return the new search parameters, never <code>null</code>.
-    * @throws Exception for any error.
-    */
-   private PSWSSearchRequest createSearch(int count) throws Exception
-   {
-      PSWSSearchParams searchParams = 
-         PSSearchParamsConverterTest.createSearchParams(count);
-      
-      PSWSSearchRequest search = new PSWSSearchRequest(searchParams);
-      search.setCaseInsensitiveSearch(false);
-      search.setUseExternalSearchEngine(false);
-      
-      return search;
-   }
+        var target = (PSWSSearchRequest) roundTripConversion(
+                PSWSSearchRequest.class,
+                com.percussion.webservices.content.PSSearch.class,
+                source);
+
+        // verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+
+        // create the source array
+        var sourceArray = new PSWSSearchRequest[]{source};
+
+        var targetArray = (PSWSSearchRequest[]) roundTripConversion(
+                PSWSSearchRequest[].class,
+                com.percussion.webservices.content.PSSearch[].class,
+                sourceArray);
+
+        // verify the round-trip array is equal to the source array
+        assertEquals(sourceArray.length, targetArray.length);
+        assertEquals(sourceArray[0], targetArray[0]);
+    }
+
+    /**
+     * Test a list of server objects convert to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var sourceList = new ArrayList<PSWSSearchRequest>();
+        sourceList.add(createSearch(2));
+        sourceList.add(createSearch(4));
+
+        var targetList = roundTripListConversion(
+                com.percussion.webservices.content.PSSearch[].class, sourceList);
+
+        assertEquals(sourceList, targetList);
+    }
+
+    /**
+     * Create the search request for testing.
+     *
+     * @param count the number of search parameters to create, assumed > 0.
+     * @return the new search request, never {@code null}.
+     * @throws Exception for any error.
+     */
+    private PSWSSearchRequest createSearch(int count) throws Exception {
+        var searchParams = PSSearchParamsConverterTest.createSearchParams(count);
+
+        var search = new PSWSSearchRequest(searchParams);
+        search.setCaseInsensitiveSearch(false);
+        search.setUseExternalSearchEngine(false);
+
+        return search;
+    }
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.editions.IEditionsAdaptor;
@@ -27,31 +29,32 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Adaptor for managing Editions and publishing jobs in Percussion CMS.
+ */
 @PSSiteManageBean
 public class EditionAdaptor implements IEditionsAdaptor {
 
     @Autowired
     private IPSPublishingWs pubWs;
 
-    public EditionAdaptor(){
-        //Default ctor
+    public EditionAdaptor() {
+        // Default constructor
     }
 
-    private IPSGuid getEditionGuidFromId(String id){
+    private IPSGuid getEditionGuidFromId(String id) {
         return PSGuidUtils.makeGuid(Long.parseLong(id), PSTypeEnum.EDITION);
     }
 
     @Override
     public PublishResponse publish(String id) {
-
-       return loadPublishResponseFromStatus(pubWs.getPublishingJobStatus(
-               pubWs.startPublishingJob(
-                       getEditionGuidFromId(id),null)));
+        var jobId = pubWs.startPublishingJob(getEditionGuidFromId(id), null);
+        var status = pubWs.getPublishingJobStatus(jobId);
+        return loadPublishResponseFromStatus(status);
     }
 
-    private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status){
-        PublishResponse ret =  new PublishResponse();
-
+    private PublishResponse loadPublishResponseFromStatus(IPSPublisherJobStatus status) {
+        var ret = new PublishResponse();
         ret.setDelivered(String.valueOf(status.countItemsDelivered()));
         ret.setFailures(String.valueOf(status.countFailedItems()));
         ret.setJobid(status.getJobId());

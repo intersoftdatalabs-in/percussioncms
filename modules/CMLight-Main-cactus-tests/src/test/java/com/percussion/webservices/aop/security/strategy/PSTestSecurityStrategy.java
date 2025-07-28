@@ -14,48 +14,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.webservices.aop.security.strategy;
-
 
 import com.percussion.services.security.PSPermissions;
 
 /**
- * A Test security strategy roughly equivalent to 
- * {@link PSFindSecurityStrategy}, but enforeces the delete permission.
+ * A test security strategy roughly equivalent to
+ * {@link PSFindSecurityStrategy}, but enforces the delete permission.
  */
-public class PSTestSecurityStrategy extends PSCustomSecurityStrategy
-{
-   @Override
-   protected boolean acceptName(String name)
-   {
-      // any method this is on is fine
-      if (name == null);
-      
-      return true;
-   }
+public class PSTestSecurityStrategy extends PSCustomSecurityStrategy {
 
-   @Override
-   protected int getFilterArg()
-   {
-      return -1;
-   }
+    @Override
+    protected boolean acceptName(String name) {
+        // Any method this is on is fine
+        return true;
+    }
 
-   @Override
-   protected PSPermissions getRequiredPermission()
-   {
-      return PSPermissions.DELETE;
-   }
+    @Override
+    protected int getFilterArg() {
+        return -1;
+    }
 
-   @Override
-   protected boolean shouldPostProcess()
-   {
-      return true;
-   }
+    @Override
+    protected PSPermissions getRequiredPermission() {
+        return PSPermissions.DELETE;
+    }
 
-   @Override
-   protected boolean shouldReturnResults()
-   {
-      return true;
-   }
+    @Override
+    protected boolean shouldPostProcess() {
+        return true;
+    }
+
+    @Override
+    protected boolean shouldReturnResults() {
+        return true;
+    }
 }
-

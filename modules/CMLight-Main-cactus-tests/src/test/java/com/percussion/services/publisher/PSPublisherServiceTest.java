@@ -69,6 +69,7 @@ import static com.percussion.rx.publisher.impl.PSPublishingJob.NEXTNUMBER_PUBLIC
  * 
  * @author dougrand
  */
+// REFACTORED: CP-JAVA11
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Category(IntegrationTest.class)
 public class PSPublisherServiceTest extends ServletTestCase
@@ -123,22 +124,22 @@ public class PSPublisherServiceTest extends ServletTestCase
          ps = PSPublisherServiceLocator.getPublisherService();
          try
          {
-            IPSContentList l = ps.loadContentList(TEST_1);
-            List<IPSContentList> cls = new ArrayList<IPSContentList>();
-            while(true)
+            var l = ps.loadContentList(TEST_1);
+            var cls = new ArrayList<IPSContentList>();
+            while (true)
             {
                cls.clear();
                cls.add(l);
-               ps.deleteContentLists(cls);            
+               ps.deleteContentLists(cls);
                l = ps.findContentListByName(TEST_1);
             }
          }
-         catch(Exception e)
+         catch (Exception e)
          {
-            // Expected 
+            // Expected
          }
       }
-      
+
       createTestEdition();
    }
 
@@ -146,12 +147,12 @@ public class PSPublisherServiceTest extends ServletTestCase
    {
       deleteTestEdition();
    }
-   
+
    private void deleteTestEdition()
    {
       try
       {
-         IPSEdition ed = ps.loadEdition(TEST_EDITION_GUID);
+         var ed = ps.loadEdition(TEST_EDITION_GUID);
          ps.deleteEdition(ed);
       }
       catch (PSNotFoundException e)
@@ -159,11 +160,11 @@ public class PSPublisherServiceTest extends ServletTestCase
          // ignore the error if not found
       }
    }
-   
+
    private void createTestEdition()
    {
-      IPSEdition ed = new PSEdition();
-      ((PSEdition) ed).setGUID(TEST_EDITION_GUID);
+      var ed = new PSEdition();
+      ed.setGUID(TEST_EDITION_GUID);
       ed.setComment("one");
       ed.setSiteId(PSGuidUtils.makeGuid(234, PSTypeEnum.SITE));
       ed.setEditionType(PSEditionType.AUTOMATIC);
@@ -172,11 +173,11 @@ public class PSPublisherServiceTest extends ServletTestCase
          ed.setPriority(null);
          fail();
       }
-      catch(Exception e)
+      catch (Exception e)
       {
          ed.setPriority(IPSEdition.Priority.HIGH);
       }
-      
+
       ps.saveEdition(ed);
    }
    
@@ -186,7 +187,7 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test10UnusedContentListFinder()
    {
-      List<IPSContentList> cls = ps.findAllUnusedContentLists();
+      var cls = ps.findAllUnusedContentLists();
       assertNotNull(cls);
       assertTrue(cls.size() >= 0);
    }
@@ -196,14 +197,14 @@ public class PSPublisherServiceTest extends ServletTestCase
     */
    @Test
    public void test20EditionCRUD() throws PSNotFoundException {
-      List<IPSEdition> eds = ps.findAllEditions("");
+      var eds = ps.findAllEditions("");
       assertTrue(eds.size() > 0);
       
       deleteTestEdition();
       
       createTestEdition();
       
-      IPSEdition ed = ps.loadEdition(TEST_EDITION_GUID);
+      var ed = ps.loadEdition(TEST_EDITION_GUID);
       assertNotNull(ed);
       assertEquals(TEST_EDITION_GUID, ed.getGUID());
       assertEquals("one", ed.getComment());
@@ -211,10 +212,9 @@ public class PSPublisherServiceTest extends ServletTestCase
       assertEquals(PSEditionType.AUTOMATIC, ed.getEditionType());
       assertTrue(IPSEdition.Priority.HIGH.equals(ed.getPriority()));
       
-      // Associate two tasks with the edition, then manipulate parameters
-      IPSEditionTaskDef task1 = ps.createEditionTask();
+      var task1 = ps.createEditionTask();
       task1.setEditionId(ed.getGUID());
-      IPSEditionTaskDef task2 = ps.createEditionTask();
+      var task2 = ps.createEditionTask();
       task2.setEditionId(ed.getGUID());
       
       task1.setContinueOnFailure(true);
@@ -230,8 +230,7 @@ public class PSPublisherServiceTest extends ServletTestCase
       task2.setSequence(-2);
       ps.saveEditionTask(task2);
       
-      List<IPSEditionTaskDef> tasks = 
-         ps.loadEditionTasks(ed.getGUID());
+      var tasks = ps.loadEditionTasks(ed.getGUID());
       assertEquals(2, tasks.size());
       
       task1 = ps.findEditionTaskById(task1.getTaskId());
@@ -251,29 +250,25 @@ public class PSPublisherServiceTest extends ServletTestCase
       assertTrue(-1 == task1.getSequence());
       assertTrue(-2 == task2.getSequence());
       
-      // Manipulate one of the tasks and the edition and update
       ed = ps.loadEditionModifiable(ed.getGUID());
       ed.setDisplayTitle("Test edition");
       task1.setSequence(-4);
       ps.saveEdition(ed);
       ps.saveEditionTask(task1);
       
-      // Reload and check the new values
       ed = ps.loadEdition(ed.getGUID());
       task1 = ps.findEditionTaskById(task1.getTaskId());
       
       assertTrue(-4 == task1.getSequence());
       assertEquals("Test edition", ed.getDisplayTitle());
       
-      // check cached and non-cached Edition
-      IPSEdition ed_1 = ps.loadEdition(ed.getGUID());
+      var ed_1 = ps.loadEdition(ed.getGUID());
       assertTrue(ed == ed_1);
       ed_1 = ps.loadEditionModifiable(ed.getGUID());
       assertFalse(ed == ed_1);
-      IPSEdition ed_2 = ps.loadEdition(ed.getGUID());
+      var ed_2 = ps.loadEdition(ed.getGUID());
       assertTrue(ed == ed_2);
       
-      // Delete and make sure that everything is gone
       ps.deleteEdition(ed);
       
       try
@@ -295,24 +290,23 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test30EditionTaskLogging()
    {
-      IPSEditionTaskLog log = ps.createEditionTaskLog();
+      var log = ps.createEditionTaskLog();
       log.setElapsed(123);
       log.setJobId(10001L);
       log.setMessage("Hello world");
       log.setStatus(true);
-      IPSGuid taskId = PSGuidUtils.makeGuid(2002L, PSTypeEnum.EDITION_TASK_DEF);
+      var taskId = PSGuidUtils.makeGuid(2002L, PSTypeEnum.EDITION_TASK_DEF);
       log.setTaskId(taskId);
       ps.saveEditionTaskLog(log);
       
       log = ps.loadEditionTaskLog(log.getReferenceId());
-      assertEquals(new Integer(123), log.getElapsed());
+      assertEquals(Integer.valueOf(123), log.getElapsed());
       assertTrue(10001 == log.getJobId());
       assertEquals("Hello world", log.getMessage());
       assertEquals(taskId, log.getTaskId());
       assertTrue(log.getStatus());
       
-      List<IPSEditionTaskLog> entries = 
-         ps.findEditionTaskLogEntriesByJobId(10001L);
+      var entries = ps.findEditionTaskLogEntriesByJobId(10001L);
       assertNotNull(entries);
       assertTrue(entries.size() > 0);
       
@@ -330,8 +324,7 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test40EditionContentLists()
    {
-      List<IPSEditionContentList> lists = 
-         ps.loadEditionContentLists(new PSGuid(PSTypeEnum.EDITION, 301));
+      var lists = ps.loadEditionContentLists(new PSGuid(PSTypeEnum.EDITION, 301));
       assertNotNull(lists);
       assertTrue(lists.size() > 0);
    }
@@ -342,10 +335,9 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test50CreationAndInsert() throws Exception
    {
-      
-      IPSContentList cl = ps.createContentList(TEST_1);
+      var cl = ps.createContentList(TEST_1);
       setupContentList(cl);
-      List<IPSContentList> cls = new ArrayList<IPSContentList>();
+      var cls = new ArrayList<IPSContentList>();
       cls.add(cl);
       ps.saveContentLists(cls);
    }
@@ -358,30 +350,22 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test60Unpublish() throws Exception
    {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
-      long job = gmgr.createId(NEXTNUMBER_PUBLICATIONS);
-      IPSAssemblyTemplate template = asm.findTemplateByName("rffBnImage");
-      
-      PSDatasourceManager dmgr = (PSDatasourceManager)PSDatasourceMgrLocator.getDatasourceMgr();
-      Session session = dmgr.getHibernateSession();
-      
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var asm = PSAssemblyServiceLocator.getAssemblyService();
+      var job = gmgr.createId(NEXTNUMBER_PUBLICATIONS);
+      var template = asm.findTemplateByName("rffBnImage");
+
+      var dmgr = (PSDatasourceManager) PSDatasourceMgrLocator.getDatasourceMgr();
+      var session = dmgr.getHibernateSession();
+
       cleanupSiteItems(session);
       
-      // We'll pick several content items. One item will be in the right folder
-      // and in the right state - a control.
-      // One will be in the wrong folder
-      // One will be purged
-      // Can temporarily move a content item by hand to an archive state
-      // Items from FF: 342 (control), 343 (wrong folder), 
-      // 11111344 (purged/nonexistent), 345 (archived)
       long ref = 20000;
       
       ps.initPublishingStatus(job, new Date(), TEST_EDITION_GUID);
-      List<IPSPublisherItemStatus> stati = 
-         new ArrayList<IPSPublisherItemStatus>();
+      var stati = new ArrayList<IPSPublisherItemStatus>();
 
-      PSPubItemStatus stat = createPubStatus(job, ref++, 342, template);
+      var stat = createPubStatus(job, ref++, 342, template);
       stat.setFolderId(gmgr.makeGuid(new PSLocator(310)));
       stati.add(stat);
       
@@ -389,7 +373,7 @@ public class PSPublisherServiceTest extends ServletTestCase
       stat.setFolderId(gmgr.makeGuid(new PSLocator(10101)));
       stati.add(stat);
       
-      IPSGuid parent = gmgr.makeGuid(new PSLocator(311));
+      var parent = gmgr.makeGuid(new PSLocator(311));
       stat = createPubStatus(job, ref++, 11111344, template);
       stat.setFolderId(parent);
       stati.add(stat);
@@ -399,21 +383,18 @@ public class PSPublisherServiceTest extends ServletTestCase
       stati.add(stat);
       ps.updatePublishingInfo(stati);
       
-      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      PSComponentSummary sum345 = cms.loadComponentSummary(345);
+      var cms = PSCmsObjectMgrLocator.getObjectManager();
+      var sum345 = cms.loadComponentSummary(345);
       sum345.setContentStateId(7);
       try
       {
          cms.saveComponentSummaries(Collections.singletonList(sum345));
          
-         List<Long> rids = ps.findReferenceIdsToUnpublish(TEST_SITE_GUID, "u");
+         var rids = ps.findReferenceIdsToUnpublish(TEST_SITE_GUID, "u");
          assertTrue(rids.size() > 0);
-         /*
-          * 20002 does not exist and 20003 is Archived. 
-          */
-         assertTrue(rids.contains(new Long(20002)));
-         assertTrue(rids.contains(new Long(20003)));
-         Set<Long> unique = new HashSet<Long>(rids);
+         assertTrue(rids.contains(20002L));
+         assertTrue(rids.contains(20003L));
+         var unique = new HashSet<Long>(rids);
          assertEquals(2, unique.size());
       }
       finally
@@ -432,14 +413,12 @@ public class PSPublisherServiceTest extends ServletTestCase
     */
    private void cleanupSiteItems(Session session)
    {
-      // Cleanup site items garbage from test runs
-      Query q = session
-            .createQuery("delete from PSSiteItem where referenceId > 9999");
+      var q = session.createQuery("delete from PSSiteItem where referenceId > 9999");
       q.executeUpdate();
-   
+
       q = session.createQuery("delete from PSPubItem where referenceId > 9999");
       q.executeUpdate();
-   
+
       q = session.createQuery("delete from PSPubStatus where editionId = "
             + TEST_EDITION);
       q.executeUpdate();
@@ -451,7 +430,7 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test70LoadOneWithParams() throws Exception
    {
-      IPSContentList cl = ps.loadContentList(TEST_1);
+      var cl = ps.loadContentList(TEST_1);
       assertNotNull(cl.getExpanderParams());
       assertNotNull(cl.getGeneratorParams());
       assertTrue(cl.getExpanderParams().size() > 0);
@@ -465,10 +444,10 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test80Update() throws Exception
    {
-      IPSContentList cl = ps.loadContentList(TEST_1);
+      var cl = ps.loadContentList(TEST_1);
       cl.removeExpanderParam("siteid");
       cl.addExpanderParam("fooid", "12010");
-      List<IPSContentList> cls = new ArrayList<IPSContentList>();
+      var cls = new ArrayList<IPSContentList>();
       cls.add(cl);
       ps.saveContentLists(cls);
    }
@@ -479,10 +458,10 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test90ContentListSerialization() throws Exception
    {
-      IPSContentList cl = ps.loadContentList(TEST_1);
-      String ser = cl.toXML();
-      
-      IPSContentList copy = ps.createContentList(TEST_1);
+      var cl = ps.loadContentList(TEST_1);
+      var ser = cl.toXML();
+
+      var copy = ps.createContentList(TEST_1);
       copy.fromXML(ser);
       
       assertEquals(cl, copy);
@@ -494,7 +473,7 @@ public class PSPublisherServiceTest extends ServletTestCase
     */
    private void setupContentList(IPSContentList cl) throws PSFilterException
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
+      var fsvc = PSFilterServiceLocator.getFilterService();
       cl.setDescription("Test description");
       cl.setEditionType(PSEditionType.AUTOMATIC);
       cl.setExpander("sys_SiteTemplateExpander");
@@ -512,8 +491,8 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test92Deletion() throws Exception
    {
-      IPSContentList cl = ps.loadContentList(TEST_1);
-      List<IPSContentList> cls = new ArrayList<IPSContentList>();
+      var cl = ps.loadContentList(TEST_1);
+      var cls = new ArrayList<IPSContentList>();
       cls.add(cl);
       ps.deleteContentLists(cls);
    }
@@ -524,12 +503,12 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test94LoadExisting() throws Exception
    {
-      List<IPSGuid> ids = new ArrayList<IPSGuid>();
-      IPSGuid id = new PSGuid(PSTypeEnum.CONTENT_LIST, 310);
+      var ids = new ArrayList<IPSGuid>();
+      var id = new PSGuid(PSTypeEnum.CONTENT_LIST, 310);
       ids.add(id);
-      List<IPSContentList> cls = ps.loadContentLists(ids);
+      var cls = ps.loadContentLists(ids);
       assertEquals(cls.size(), 1);
-      IPSContentList clist = cls.get(0);
+      var clist = cls.get(0);
       assertEquals("rffEiFullBinary", clist.getName());
       assertNotNull(clist.getExpander());
       assertNotNull(clist.getFilter());
@@ -564,26 +543,25 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void test96SiteItems() throws Exception
    {
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
-      long job1 = gmgr.createId(NEXTNUMBER_PUBLICATIONS);
-      IPSAssemblyTemplate template = asm.findTemplateByName("rffBnImage");
-      
-      PSDatasourceManager dmgr = (PSDatasourceManager)PSDatasourceMgrLocator.getDatasourceMgr();
-      Session session = dmgr.getHibernateSession();
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var asm = PSAssemblyServiceLocator.getAssemblyService();
+      var job1 = gmgr.createId(NEXTNUMBER_PUBLICATIONS);
+      var template = asm.findTemplateByName("rffBnImage");
+
+      var dmgr = (PSDatasourceManager) PSDatasourceMgrLocator.getDatasourceMgr();
+      var session = dmgr.getHibernateSession();
       cleanupSiteItems(session);
    
-      IPSGuid editionguid = gmgr.makeGuid(TEST_EDITION, PSTypeEnum.EDITION);
+      var editionguid = gmgr.makeGuid(TEST_EDITION, PSTypeEnum.EDITION);
       ps.initPublishingStatus(job1, new Date(), editionguid);
       
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       int count = 1000;
-      List<IPSPublisherItemStatus> stati = 
-         new ArrayList<IPSPublisherItemStatus>();
+      var stati = new ArrayList<IPSPublisherItemStatus>();
       sw.start();
-      for(int i = 0; i < count; i++)
+      for (int i = 0; i < count; i++)
       {
-         PSPubItemStatus stat = createPubStatus(job1, i + 10000, i + 300, 
+         var stat = createPubStatus(job1, i + 10000, i + 300,
                template);
          stati.add(stat);
       }
@@ -595,63 +573,57 @@ public class PSPublisherServiceTest extends ServletTestCase
       
       System.out.println("Updating " + count + " pub status items took " + sw);
       
-      Collection<IPSSiteItem> items = 
-         ps.findSiteItems(TEST_SITE_GUID, 0); // TODO: Context should be 1
+      var items = ps.findSiteItems(TEST_SITE_GUID, 0);
       assertNotNull(items);
 
-      List<Long> refIds = ps.findRefIdForJob(job1, null);
+      var refIds = ps.findRefIdForJob(job1, null);
       assertNotNull(refIds);
       assertTrue(refIds.size() > 0);
             
-      IPSGuid guid = new PSLegacyGuid(305, 1);
-      String dummyPath = "/dummypath305";
-      
+      var guid = new PSLegacyGuid(305, 1);
+      var dummyPath = "/dummypath305";
+
       assertEmptyUnpublishInfo(guid, dummyPath, template);
       
-      PSAssemblyWorkItem item = new PSAssemblyWorkItem();
+      var item = new PSAssemblyWorkItem();
       item.setId(guid);
       item.setSiteId(TEST_SITE_GUID);
       item.setTemplate(template);
       item.setDeliveryPath(dummyPath);
       
-      Object[] data = ps.findUnpublishInfoForAssemblyItem(item.getId(), item
+      var data = ps.findUnpublishInfoForAssemblyItem(item.getId(), item
             .getDeliveryContextId(), item.getTemplate().getGUID(), item
             .getSiteId(), null, item.getDeliveryPath());
       assertNotNull(data);
       assertEquals(4, data.length);
-      assertEquals("filesystem", data[0]);  // delivery type name is the 1st one
-      assertTrue((Long)data[1] > 0L);       // reference ID is the 2nd element
-      assertNull(data[2]);                  // unpublishing info is the 3rd 
-      assertEquals(351, data[3]);           // folder ID is the 4th element
-      
-      List<PSSortCriterion> sort = new ArrayList<PSSortCriterion>();
+      assertEquals("filesystem", data[0]);
+      assertTrue((Long) data[1] > 0L);
+      assertNull(data[2]);
+      assertEquals(351, data[3]);
+
+      var sort = new ArrayList<PSSortCriterion>();
       sort.add(new PSSortCriterion("location", true));
       refIds = ps.findRefIdForJob(job1, sort);
       assertNotNull(refIds);
       assertTrue(refIds.size() > 0);
       
-      // Test result data retrieval
-      sw.start();
-      Collection<IPSPubStatus> results = 
-         ps.findPubStatusByEdition(new PSGuid(PSTypeEnum.EDITION, TEST_EDITION));
+      var results = ps.findPubStatusByEdition(new PSGuid(PSTypeEnum.EDITION, TEST_EDITION));
       assertNotNull(results);
       assertTrue(results.size() > 0);
-      IPSPubStatus stat = results.iterator().next();
+      var stat = results.iterator().next();
       assertTrue(stat.getDeliveredCount() > 0);
       assertTrue(stat.getDeliveredCount() > stat.getFailedCount());
       assertTrue(stat.getFailedCount() > 0);
       assertTrue(stat.getRemovedCount() > 0);
       sw.stop();
-      System.out.println("Retrieved status data " + results.size() + 
+      System.out.println("Retrieved status data " + results.size() +
             " elements in " + sw);
 
-      // Test get all status
       results = ps.findAllPubStatus();
       assertNotNull(results);
       assertTrue(results.size() > 0);
       
-      // Check to see if we find the job(s)
-      List<Long> jobids = ps.findExpiredJobs(new Date());
+      var jobids = ps.findExpiredJobs(new Date());
       assertNotNull(jobids);
       assertTrue(jobids.contains(job1));
       
@@ -659,66 +631,43 @@ public class PSPublisherServiceTest extends ServletTestCase
       assertNotNull(jobids);
       assertTrue(jobids.contains(job1));
       
-      for(long jobid : jobids)
+      for (long jobid : jobids)
       {
          ps.purgeJobLog(jobid);
       }
       
-      Date job2Date = new Date();
-      
-      // Initialize a new job with the same edition
+      var job2Date = new Date();
+
       long job2 = gmgr.createId(NEXTNUMBER_PUBLICATIONS);
       ps.initPublishingStatus(job2, job2Date, editionguid);
       
-      // Mark the job as completed
       ps.finishedPublishingStatus(job2, new Date(),
             IPSPubStatus.EndingState.COMPLETED);
       
-      // Find the hidden jobs
       job2Date.setTime(job2Date.getTime() - 100000);
       jobids = ps.findExpiredAndHiddenJobs(job2Date);
       assertNotNull(jobids);
       assertTrue(jobids.contains(job1));
       assertFalse(jobids.contains(job2));
             
-      // Find the expired and hidden jobs
       jobids = ps.findExpiredAndHiddenJobs(new Date());
       assertNotNull(jobids);
       assertTrue(jobids.contains(job1));
       assertTrue(jobids.contains(job2));
       
-      /* Uncomment for more testing on an installation where the
-         CorporateInvestments site has been published */
-      /* items = 
-         ps.findSiteItemsAtLocation(new PSGuid(PSTypeEnum.SITE, 301),
-            "/foo.html");
-      assertNotNull(items);
-      assertTrue(items.size() == 0);
-
-      items = ps.findSiteItemsAtLocation(new PSGuid(PSTypeEnum.SITE, 303),
-            "/index.html");
-      assertNotNull(items);
-
-      assertTrue(items.size() == 1);
-      for (Iterator i = items.iterator(); i.hasNext();)
-      {
-         IPSSiteItem item = (IPSSiteItem) i.next();
-         assertEquals("/index.html", item.getLocation());
-      }  
-      */    
       cleanupSiteItems(session);
    }
    
    private void assertEmptyUnpublishInfo(IPSGuid guid, String dummyPath, IPSAssemblyTemplate template)
    {
-      PSAssemblyWorkItem item = new PSAssemblyWorkItem();
+      var item = new PSAssemblyWorkItem();
       item.setId(guid);
       item.setSiteId(TEST_SITE_GUID);
       item.setPubServerId(TEST_PUB_SERVER_ID);
       item.setTemplate(template);
       item.setDeliveryPath(dummyPath);
       
-      Object[] data = ps.findUnpublishInfoForAssemblyItem(item.getId(), item
+      var data = ps.findUnpublishInfoForAssemblyItem(item.getId(), item
             .getDeliveryContextId(), item.getTemplate().getGUID(), item
             .getSiteId(), item.getPubServerId(), item.getDeliveryPath());
       assertTrue(data == null || data.length == 0);
@@ -732,21 +681,20 @@ public class PSPublisherServiceTest extends ServletTestCase
     * @param templ 
     * @return a new status object
     */
-   private PSPubItemStatus createPubStatus(long job, long ref, 
+   private PSPubItemStatus createPubStatus(long job, long ref,
          int cid, IPSAssemblyTemplate templ)
    {
-      IPSPublisherJobStatus.ItemState s = IPSPublisherJobStatus.ItemState.DELIVERED;
+      var s = IPSPublisherJobStatus.ItemState.DELIVERED;
       String message = null;
-      
-      // Simulate some errors
+
       if (rand.nextInt(25) == 1)
       {
          s = IPSPublisherJobStatus.ItemState.FAILED;
          message = "random failure " + rand.nextInt(5);
-      } 
-          
-      PSPubItemStatus rval = new PSPubItemStatus(ref, job,-1, 1, s);
-      PSAssemblyWorkItem item = new PSAssemblyWorkItem();
+      }
+
+      var rval = new PSPubItemStatus(ref, job, -1, 1, s);
+      var item = new PSAssemblyWorkItem();
       item.setAssemblyUrl("/dummy");
       item.setElapsed(rand.nextInt(1000) + 500);
       item.setId(new PSLegacyGuid(cid, 1));
@@ -793,39 +741,36 @@ public class PSPublisherServiceTest extends ServletTestCase
    @Test
    public void tes98tDeliveryTypes() throws PSNotFoundException {
       IPSDeliveryType ttd = null;
-      
+
       ttd = findDeliveryType("dt1");
-      
+
       while (ttd != null)
       {
          ps.deleteDeliveryType(ttd);
          ttd = findDeliveryType("dt1");
       }
-      
-      IPSDeliveryType type = ps.createDeliveryType();
+
+      var type = ps.createDeliveryType();
       type.setBeanName("abc");
       type.setDescription("abc dt");
       type.setName("dt1");
       type.setUnpublishingRequiresAssembly(false);
       ps.saveDeliveryType(type);
-      
+
       type = ps.loadDeliveryType(type.getGUID());
       assertEquals("abc", type.getBeanName());
       assertEquals("abc dt", type.getDescription());
       assertEquals("dt1", type.getName());
       assertEquals(false, type.isUnpublishingRequiresAssembly());
-      
-      // test cached object
-      IPSDeliveryType type2 = ps.loadDeliveryType(type.getGUID());
+
+      var type2 = ps.loadDeliveryType(type.getGUID());
       assertTrue(type == type2);
 
-      // test none cached object
-      IPSDeliveryType type3 = ps.loadDeliveryTypeModifiable(type.getGUID());
+      var type3 = ps.loadDeliveryTypeModifiable(type.getGUID());
       assertTrue(type != type3);
 
-      // can save none cached object
       ps.saveDeliveryType(type3);
-      
+
       ps.deleteDeliveryType(type);
    }
 }

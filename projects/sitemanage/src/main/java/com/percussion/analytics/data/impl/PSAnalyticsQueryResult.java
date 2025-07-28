@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,234 +19,165 @@ package com.percussion.analytics.data.impl;
 
 import com.percussion.analytics.data.IPSAnalyticsQueryResult;
 import com.percussion.analytics.error.PSAnalyticsQueryResultException;
+import org.apache.commons.lang.StringUtils;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
- * @author erikserating
- *
+ * Java 11 implementation of IPSAnalyticsQueryResult.
+ * Sunny Sal: "Analytics never lies, but it sure can confuse!"
  */
-public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult
-{
-    
-   public PSAnalyticsQueryResult()
-   {
-      
-   }
-   
-   public PSAnalyticsQueryResult(Map<String, Object> vals)
-   {
-      putAll(vals);
-   }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getDataType(java.lang.String)
-    */
-   public DataType getDataType(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      return types.get(key);
-   }
+public class PSAnalyticsQueryResult implements IPSAnalyticsQueryResult {
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getDate(java.lang.String)
-    */
-   public Date getDate(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      DataType type = getDataType(key);
-      if(!hasValue(key))
-         return null;
-      if(type == null)
-         throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
-      if(type != DataType.DATE)
-         throw new PSAnalyticsQueryResultException("Type cannot be converted to a Date");
-      return (Date)values.get(key);
-   }
+    private final Map<String, Object> values = new HashMap<>();
+    private final Map<String, DataType> types = new HashMap<>();
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getFloat(java.lang.String)
-    */
-   public float getFloat(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      DataType type = getDataType(key);
-      if(!hasValue(key))
-         return -1;
-      if(type == null)
-         throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
-      if(type == DataType.STRING || type == DataType.DATE)
-         throw new PSAnalyticsQueryResultException("Type cannot be converted to a Float");
-      if(type == DataType.INT)
-         return ((Integer)values.get(key)).floatValue();
-      if(type == DataType.LONG)
-         return ((Long)values.get(key)).floatValue();
-      return (Float)values.get(key);
-   }
+    public PSAnalyticsQueryResult() {
+        // Default constructor
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getInt(java.lang.String)
-    */
-   public int getInt(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      DataType type = getDataType(key);
-      if(!hasValue(key))
-         return -1;
-      if(type == null)
-         throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
-      if(type == DataType.STRING || type == DataType.DATE)
-         throw new PSAnalyticsQueryResultException("Type cannot be converted to a Integer");
-      if(type == DataType.FLOAT)
-         return ((Float)values.get(key)).intValue();
-      if(type == DataType.LONG)
-         return ((Long)values.get(key)).intValue();
-      return (Integer)values.get(key);
-   }
+    public PSAnalyticsQueryResult(Map<String, Object> vals) {
+        putAll(vals);
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getLong(java.lang.String)
-    */
-   public long getLong(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      DataType type = getDataType(key);
-      if(!hasValue(key))
-         return -1;
-      if(type == null)
-         throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
-      if(type == DataType.STRING)
-         throw new PSAnalyticsQueryResultException("Type cannot be converted to a Long");
-      if(type == DataType.DATE)
-         return ((Date)values.get(key)).getTime(); 
-      if(type == DataType.INT)
-         return ((Integer)values.get(key)).longValue();
-      if(type == DataType.FLOAT)
-         return ((Float)values.get(key)).longValue();
-      return (Long)values.get(key);
-   }
+    @Override
+    public DataType getDataType(String key) {
+        validateKey(key);
+        return types.get(key.toLowerCase());
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#getString(java.lang.String)
-    */
-   public String getString(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      DataType type = getDataType(key);
-      if(values.get(key) == null)
-         return null;
-      if(type == DataType.DATE)
-      {
-         DateFormat df = DateFormat.getInstance();
-         return df.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format((Date)values.get(key));
-      }
-      return values.get(key).toString();
-   }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#hasValue(java.lang.String)
-    */
-   public boolean hasValue(String key)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      return values.get(key.toLowerCase()) != null;
-   }
+    @Override
+    public Date getDate(String key) {
+        validateKey(key);
+        var lowerKey = key.toLowerCase();
+        var type = getDataType(lowerKey);
+        if (!hasValue(lowerKey)) return null;
+        if (type == null) throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
+        if (type != DataType.DATE) throw new PSAnalyticsQueryResultException("Type cannot be converted to a Date");
+        return (Date) values.get(lowerKey);
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.data.IPSAnalyticsQueryResult#keySet()
-    */
-   public Set<String> keySet()
-   {
-      return values.keySet();
-   }
-   
-   /**
-    * Put all items in the passed in map into the query result.
-    * @param values map of key value pairs, cannot be <code>null</code>,
-    * may be empty. 
-    */
-   public void putAll(Map<String, Object> vals)
-   {
-      if(vals == null)
-         throw new IllegalArgumentException("values cannot be null or empty.");
-      for(String key : vals.keySet())
-      {
-         put(key, vals.get(key));
-      }
-   }
-   
-   /**
-    * Put an item in the result set.
-    * @param key the field key that specifies the data to be returned, Cannot
-    * be <code>null</code> or empty. The key is case insensitive.
-    * @param value
-    */
-   public void put(String key, Object value)
-   {
-      if(StringUtils.isBlank(key))
-         throw new IllegalArgumentException("key cannot be null or empty.");
-      key = key.toLowerCase();
-      if(value == null)
-         throw new IllegalArgumentException("Value cannot be null.");
-      if(value.getClass() == String.class)
-      {
-         values.put(key, value);
-         types.put(key, DataType.STRING);
-      }
-      else if(value.getClass() == Date.class)
-      {
-         values.put(key, value);
-         types.put(key, DataType.DATE);
-      }
-      else if(value.getClass() == Float.class)
-      {
-         values.put(key, value);
-         types.put(key, DataType.FLOAT);
-      }
-      else if(value.getClass() == Integer.class)
-      {
-         values.put(key, value);
-         types.put(key, DataType.INT);  
-      }
-      else if(value.getClass() == Long.class)
-      {
-         values.put(key, value);
-         types.put(key, DataType.LONG);
-      }
-      else
-      {
-         throw new PSAnalyticsQueryResultException(
-            "Class type is not supported.");
-      }
-   }   
-   
-   
-   /**
-    * Value map for this query result. Never <code>null</code>, may be empty.
-    */
-   private Map<String, Object> values = new java.util.HashMap<>();
-   
-   /**
-    * Type map for this query result. Never <code>null</code>, may be empty.
-    */
-   private Map<String, DataType> types = 
-      new java.util.HashMap<>();
+    @Override
+    public float getFloat(String key) {
+        validateKey(key);
+        var lowerKey = key.toLowerCase();
+        var type = getDataType(lowerKey);
+        if (!hasValue(lowerKey)) return -1;
+        if (type == null) throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
+        if (type == DataType.STRING || type == DataType.DATE)
+            throw new PSAnalyticsQueryResultException("Type cannot be converted to a Float");
+        if (type == DataType.INT)
+            return ((Integer) values.get(lowerKey)).floatValue();
+        if (type == DataType.LONG)
+            return ((Long) values.get(lowerKey)).floatValue();
+        return (Float) values.get(lowerKey);
+    }
 
+    @Override
+    public int getInt(String key) {
+        validateKey(key);
+        var lowerKey = key.toLowerCase();
+        var type = getDataType(lowerKey);
+        if (!hasValue(lowerKey)) return -1;
+        if (type == null) throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
+        if (type == DataType.STRING || type == DataType.DATE)
+            throw new PSAnalyticsQueryResultException("Type cannot be converted to an Integer");
+        if (type == DataType.FLOAT)
+            return ((Float) values.get(lowerKey)).intValue();
+        if (type == DataType.LONG)
+            return ((Long) values.get(lowerKey)).intValue();
+        return (Integer) values.get(lowerKey);
+    }
+
+    @Override
+    public long getLong(String key) {
+        validateKey(key);
+        var lowerKey = key.toLowerCase();
+        var type = getDataType(lowerKey);
+        if (!hasValue(lowerKey)) return -1;
+        if (type == null) throw new PSAnalyticsQueryResultException("No data type defined for specified field.");
+        if (type == DataType.STRING)
+            throw new PSAnalyticsQueryResultException("Type cannot be converted to a Long");
+        if (type == DataType.DATE)
+            return ((Date) values.get(lowerKey)).getTime();
+        if (type == DataType.INT)
+            return ((Integer) values.get(lowerKey)).longValue();
+        if (type == DataType.FLOAT)
+            return ((Float) values.get(lowerKey)).longValue();
+        return (Long) values.get(lowerKey);
+    }
+
+    @Override
+    public String getString(String key) {
+        validateKey(key);
+        var lowerKey = key.toLowerCase();
+        var type = getDataType(lowerKey);
+        var value = values.get(lowerKey);
+        if (value == null) return null;
+        if (type == DataType.DATE) {
+            var df = DateFormat.getInstance();
+            return df.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL).format((Date) value);
+        }
+        return value.toString();
+    }
+
+    @Override
+    public boolean hasValue(String key) {
+        validateKey(key);
+        return values.get(key.toLowerCase()) != null;
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return values.keySet();
+    }
+
+    /**
+     * Put all items in the passed-in map into the query result.
+     * @param vals map of key-value pairs, cannot be null, may be empty.
+     */
+    public void putAll(Map<String, Object> vals) {
+        Objects.requireNonNull(vals, "values cannot be null.");
+        vals.forEach(this::put);
+    }
+
+    /**
+     * Put an item in the result set.
+     * @param key the field key that specifies the data to be returned, cannot be null or empty. The key is case-insensitive.
+     * @param value the value to store, cannot be null.
+     */
+    public void put(String key, Object value) {
+        validateKey(key);
+        Objects.requireNonNull(value, "Value cannot be null.");
+        var lowerKey = key.toLowerCase();
+        if (value instanceof String) {
+            values.put(lowerKey, value);
+            types.put(lowerKey, DataType.STRING);
+        } else if (value instanceof Date) {
+            values.put(lowerKey, value);
+            types.put(lowerKey, DataType.DATE);
+        } else if (value instanceof Float) {
+            values.put(lowerKey, value);
+            types.put(lowerKey, DataType.FLOAT);
+        } else if (value instanceof Integer) {
+            values.put(lowerKey, value);
+            types.put(lowerKey, DataType.INT);
+        } else if (value instanceof Long) {
+            values.put(lowerKey, value);
+            types.put(lowerKey, DataType.LONG);
+        } else {
+            throw new PSAnalyticsQueryResultException("Class type is not supported: " + value.getClass());
+        }
+    }
+
+    private void validateKey(String key) {
+        if (StringUtils.isBlank(key)) {
+            throw new IllegalArgumentException("key cannot be null or empty.");
+        }
+    }
 }

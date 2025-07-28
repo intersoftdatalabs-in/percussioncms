@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -34,109 +35,79 @@ import java.util.TreeMap;
 
 /**
  * Provider handler for the Google Analytics service.
- * @author erikserating
- *
+ * Sunny Sal: "Google Analytics API is like a Bollywood plot—lots of twists!"
  */
-public class PSGoogleAnalyticsProviderHandler
-         implements
-            IPSAnalyticsProviderHandler
-{
+public class PSGoogleAnalyticsProviderHandler implements IPSAnalyticsProviderHandler {
+
     private static final Logger log = LogManager.getLogger(PSGoogleAnalyticsProviderHandler.class);
-  /* *//* (non-Javadoc)
-    * @see com.percussion.analytics.service.impl.IPSAnalyticsProviderHandler#getProfiles(java.lang.String, java.lang.String)
-    */
-    public Map<String, String> getProfiles(String uid, String password) throws PSAnalyticsProviderException, PSValidationException
-    {
-        Map<String, String> profiles = new LinkedHashMap<>();
-        Map<String, String[]> temp = new TreeMap<>();
+
+    @Override
+    public Map<String, String> getProfiles(String uid, String password)
+            throws PSAnalyticsProviderException, PSValidationException {
+        var profiles = new LinkedHashMap<String, String>();
+        var temp = new TreeMap<String, String[]>();
         try {
-            Analytics analytics = PSGoogleAnalyticsProviderHelper.getInstance()
+            var analytics = PSGoogleAnalyticsProviderHelper.getInstance()
                     .getAnalyticsService(uid, password);
 
-            Accounts accounts =  analytics.management().accounts().list().execute();
+            var accounts = analytics.management().accounts().list().execute();
             if (accounts.getItems().isEmpty()) {
                 log.error("No accounts found");
             } else {
-                List<Account> accountList = accounts.getItems();
-                for (Account localAccountObj : accountList) {
-                    Webproperties webproperties = analytics.management().webproperties().list(localAccountObj.getId()).execute();
+                for (var account : accounts.getItems()) {
+                    var webproperties = analytics.management().webproperties().list(account.getId()).execute();
                     if (!webproperties.getItems().isEmpty()) {
-                        List<Webproperty> webPropertyList = webproperties.getItems();
-                        for (Webproperty localWebProperty : webPropertyList) {
-                            // Query profiles collection.
-                            Profiles profilesObjects = analytics.management().profiles().list(localWebProperty.getAccountId(), localWebProperty.getId()).execute();
+                        for (var webProperty : webproperties.getItems()) {
+                            var profilesObjects = analytics.management().profiles()
+                                    .list(webProperty.getAccountId(), webProperty.getId()).execute();
                             if (!profilesObjects.getItems().isEmpty()) {
-                                List<Profile> profileList = profilesObjects.getItems();
-                                for (Profile localProfileObj : profileList) {
-                                    log.debug("Account ID: " + localProfileObj.getAccountId());
-                                    log.debug("Web Property ID: " + localProfileObj.getWebPropertyId());
-                                    log.debug("Web Property Internal ID: " + localProfileObj.getInternalWebPropertyId());
-                                    log.debug("Profile ID: " + localProfileObj.getId());
-                                    log.debug("Profile Name: " + localProfileObj.getName());
+                                for (var profile : profilesObjects.getItems()) {
+                                    log.debug("Account ID: {}", profile.getAccountId());
+                                    log.debug("Web Property ID: {}", profile.getWebPropertyId());
+                                    log.debug("Web Property Internal ID: {}", profile.getInternalWebPropertyId());
+                                    log.debug("Profile ID: {}", profile.getId());
+                                    log.debug("Profile Name: {}", profile.getName());
 
-
-                                    String pId = localProfileObj.getId();
-                                    String title = localProfileObj.getName();
-                                    String wpId = localProfileObj.getWebPropertyId();
-                                    String displayVal = title + " (" + wpId + ")";
-
-                                    String[] val = {pId + "|" + wpId, displayVal};
-                                    // First we put in treemap with a special key to get the
-                                    // entries to sort by webpropertyId then by display value.
+                                    var pId = profile.getId();
+                                    var title = profile.getName();
+                                    var wpId = profile.getWebPropertyId();
+                                    var displayVal = title + " (" + wpId + ")";
+                                    var val = new String[]{pId + "|" + wpId, displayVal};
                                     temp.put(wpId + "_" + displayVal.toLowerCase(), val);
-
-
                                 }
                             }
                         }
                     }
                 }
             }
-            // Now we add to the linked hash map to get the key/value we want
-            // and we maintain
-            // the desired sorting from the tree map.
-            for (String key : temp.keySet())
-            {
-                String[] v = temp.get(key);
-                profiles.put(v[0], v[1]);
+            // Maintain desired sorting from the tree map.
+            temp.values().forEach(v -> profiles.put(v[0], v[1]));
+        } catch (Exception e) {
+            if (e instanceof PSValidationException) {
+                throw (PSValidationException) e;
             }
-        } catch (Exception e)
-        {
-            if(e instanceof PSValidationException){
-                throw (PSValidationException)e;
-            }
-            throw new PSAnalyticsProviderException("Error occurred while attempting to retrieve profiles: "
-                    + e.getLocalizedMessage(), e);
+            throw new PSAnalyticsProviderException(
+                    "Error occurred while attempting to retrieve profiles: " + e.getLocalizedMessage(), e);
         }
         return profiles;
     }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.service.impl.IPSAnalyticsProviderHandler#testConnection(java.lang.String, java.lang.String)
-    */
-   public void testConnection(String uid, String password) throws PSValidationException, PSAnalyticsProviderException {
-      try
-      {
-         PSGoogleAnalyticsProviderHelper.getInstance().
-                 getAnalyticsService(uid, password);
-         getProfiles(uid, password);
-      }     
-      catch (PSAnalyticsProviderException  e)
-      {
-         if(e.getCauseType() == CAUSETYPE.NO_ANALYTICS_ACCOUNT)
-         {
-            String msg = "No Analytics account found for the specified user.";
-             PSValidationErrorsBuilder builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
-             builder.reject(PSAnalyticsProviderException.CAUSETYPE.INVALID_CREDS.toString(), msg).throwIfInvalid();
+    @Override
+    public void testConnection(String uid, String password)
+            throws PSValidationException, PSAnalyticsProviderException {
+        try {
+            PSGoogleAnalyticsProviderHelper.getInstance().getAnalyticsService(uid, password);
+            getProfiles(uid, password);
+        } catch (PSAnalyticsProviderException e) {
+            if (e.getCauseType() == CAUSETYPE.NO_ANALYTICS_ACCOUNT) {
+                var msg = "No Analytics account found for the specified user.";
+                var builder = new PSValidationErrorsBuilder(this.getClass().getCanonicalName());
+                builder.reject(CAUSETYPE.INVALID_CREDS.toString(), msg).throwIfInvalid();
+            }
+            throw e;
+        }
+    }
 
-         }
-         throw e;
-      }
-   }   
-   
-   @SuppressWarnings("unused")
-   private IPSAnalyticsProviderService providerService;
-
-   
-   
+    @SuppressWarnings("unused")
+    private IPSAnalyticsProviderService providerService;
 }

@@ -53,16 +53,16 @@ public class CommunityAdaptor implements ICommunityAdaptor {
      */
     @Override
     public CommunityList createCommunities(List<String> names) {
-        CommunityList ret=null;
-        ArrayList<Community> communities = new ArrayList<>();
+        CommunityList ret;
+        var communities = new ArrayList<Community>();
 
-        String session = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        String user = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+        var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+        var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-        List<PSCommunity> ps_communities = securityDesignWs.createCommunities(names,session,user);
+        var ps_communities = securityDesignWs.createCommunities(names, session, user);
 
-        for(PSCommunity c : ps_communities){
-           communities.add(ApiUtils.convertPSCommunity(c));
+        for (var c : ps_communities) {
+            communities.add(ApiUtils.convertPSCommunity(c));
         }
 
         ret = new CommunityList(communities);
@@ -72,10 +72,9 @@ public class CommunityAdaptor implements ICommunityAdaptor {
 
     @Override
     public CommunityList findCommunities(String name) {
-
-        List<IPSCatalogSummary> ps_summaries = securityDesignWs.findCommunities(name);
-        ArrayList<Community> communities = new ArrayList<>();
-        for(IPSCatalogSummary s : ps_summaries){
+        var ps_summaries = securityDesignWs.findCommunities(name);
+        var communities = new ArrayList<Community>();
+        for (var s : ps_summaries) {
             communities.add(new Community(s.getGUID().longValue(),
                     ApiUtils.convertGuid(s.getGUID()),
                     s.getName(),
@@ -87,49 +86,41 @@ public class CommunityAdaptor implements ICommunityAdaptor {
 
     @Override
     public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock) throws PSErrorResultsException {
+        var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+        var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-
-        String session = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        String user = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-
-        List<PSCommunity> ps_communities = securityDesignWs.loadCommunities(ApiUtils.convertGuids(ids),lock,overrideLock,session,user);
+        var ps_communities = securityDesignWs.loadCommunities(ApiUtils.convertGuids(ids), lock, overrideLock, session, user);
 
         return ApiUtils.convertPSCommunities(ps_communities);
-
     }
 
     @Override
     public void saveCommunities(CommunityList communities, boolean release) {
+        var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+        var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-        String session = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        String user = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-
-        securityDesignWs.saveCommunities(ApiUtils.convertCommunityList(communities),release,session,user);
+        securityDesignWs.saveCommunities(ApiUtils.convertCommunityList(communities), release, session, user);
     }
 
     @Override
     public void deleteCommunities(GuidList ids, boolean ignoreDependencies) {
+        var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+        var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-        String session = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        String user = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-
-        securityDesignWs.deleteCommunities(ApiUtils.convertGuids(ids),ignoreDependencies,session,user);
+        securityDesignWs.deleteCommunities(ApiUtils.convertGuids(ids), ignoreDependencies, session, user);
     }
 
     @Override
     public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type) throws PSErrorResultsException, RemoteException {
+        var session = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+        var user = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-        CommunityVisibilityList ret = null;
-
-        String session = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
-        String user = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-
-        List<PSCommunityVisibility> ps_visibilities = securityDesignWs.getVisibilityByCommunity(ApiUtils.convertGuids(ids),
-                    ApiUtils.convertObjectTypeEnum(type),
+        var ps_visibilities = securityDesignWs.getVisibilityByCommunity(ApiUtils.convertGuids(ids),
+                ApiUtils.convertObjectTypeEnum(type),
                 session,
                 user);
 
-            return new CommunityVisibilityList(ApiUtils.convertPSCommunityVisibilities(ps_visibilities));
+        return new CommunityVisibilityList(ApiUtils.convertPSCommunityVisibilities(ps_visibilities));
     }
 
     @Override
