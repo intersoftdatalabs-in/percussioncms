@@ -43,10 +43,13 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying TranslationSettings definition for 
@@ -85,33 +88,22 @@ public class PSTranslationSettingsDefDependencyHandler
     * @return <code>null</code> if TranslationSettings don't exist else get
     *         DA TranslationSettings
     */
-   private List<PSAutoTranslation> findTranslationSettingsByLocaleID(
-         String depId)
-   {
-      if (depId == null || depId.trim().length() == 0)
-         throw new IllegalArgumentException(
-               "dependency ID may not be null or empty");
-      List<PSAutoTranslation> xlnList = new ArrayList<PSAutoTranslation>();
-      xlnList = m_svc.loadAutoTranslationsByLocale(depId);
-      return xlnList;
+   private List<PSAutoTranslation> findTranslationSettingsByLocaleID(String depId) {
+      if (StringUtils.isBlank(depId)) {
+         throw new IllegalArgumentException("dependency ID may not be null or empty");
+      }
+      return m_svc.loadAutoTranslationsByLocale(depId);
    }
 
    // see base class
    @Override
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public PSDependency getDependency(PSSecurityToken tok, String id) {
+      if (tok == null || StringUtils.isBlank(id)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      PSDependency dep = null;
-
-      List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(id);
-      if (!xlnList.isEmpty())
-         dep = createDependency(m_def, id, id);
-      return dep;
+      var xlnList = findTranslationSettingsByLocaleID(id);
+      return xlnList.isEmpty() ? null : createDependency(m_def, id, id);
    }
 
    // see base class
@@ -164,36 +156,24 @@ public class PSTranslationSettingsDefDependencyHandler
    
    // see base class
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-         throws PSDeployException
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      List<PSDependency> deps = new ArrayList<PSDependency>();
-      PSLocaleManager m_localeMgr;
-      try
-      {
-         m_localeMgr = PSLocaleManager.getInstance();
-         Iterator<PSLocale> locales = m_localeMgr.getLocales();
-         PSDependency dep = null;
-         while (locales.hasNext())
-         {
-            PSLocale loc = locales.next();
-            String lName = loc.getLanguageString();
-            List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(lName);
-            if (!xlnList.isEmpty())
-            {
-               dep = createDeployableElement(m_def, lName, lName);
-               deps.add(dep);
-            }
-         }
       }
-      catch (PSLocaleException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "could not retrieve locales");
+
+      try {
+         var m_localeMgr = PSLocaleManager.getInstance();
+         return m_localeMgr.getLocales().stream()
+            .map(loc -> {
+               var lName = loc.getLanguageString();
+               var xlnList = findTranslationSettingsByLocaleID(lName);
+               return xlnList.isEmpty() ? null : createDeployableElement(m_def, lName, lName);
+            })
+            .filter(Objects::nonNull)
+            .iterator();
+      } catch (PSLocaleException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "could not retrieve locales");
       }
-      return deps.iterator();
    }
 
    // see base class
@@ -225,25 +205,19 @@ public class PSTranslationSettingsDefDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   private PSDependencyFile getDepFileFromTranslationSettings(
-         List<PSAutoTranslation> xlnList) throws PSDeployException
-   {
-      if (xlnList == null)
-         throw new IllegalArgumentException("depData may not be null");
-      StringBuilder str = new StringBuilder();
-      try
-      {
-         for (PSAutoTranslation xln : xlnList)
-            str.append(xln.toXML()).append(AUTOTRANSLATIONS_DELIM);
-      }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "Unable to generate a dependency file for translation settings");
+   private PSDependencyFile getDepFileFromTranslationSettings(List<PSAutoTranslation> xlnList) throws PSDeployException {
+      if (xlnList == null) {
+         throw new IllegalArgumentException("TranslationSettings may not be null");
       }
 
-      return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML,
-            createXmlFile(str.toString()));
+      try {
+         var str = xlnList.stream()
+            .map(PSAutoTranslation::toXML)
+            .collect(Collectors.joining(AUTOTRANSLATIONS_DELIM));
+         return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(str));
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "Unable to generate a dependency file for translation settings");
+      }
    }
 
    // see base class
@@ -361,17 +335,11 @@ public class PSTranslationSettingsDefDependencyHandler
    @Override
    public boolean doesDependencyExist(PSSecurityToken tok, String id)
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || StringUtils.isBlank(id)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (StringUtils.isBlank(id))
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      if (Integer.parseInt(id) <= 0)
-         return false;
-      
-      List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(id);
-      return (xlnList != null && !xlnList.isEmpty()) ? true : false;
+      return Integer.parseInt(id) > 0 && !findTranslationSettingsByLocaleID(id).isEmpty();
    }
 
    /**
@@ -430,22 +398,22 @@ public class PSTranslationSettingsDefDependencyHandler
     * @throws SAXException
     * @throws IOException
     */
-   private List<PSAutoTranslation> fromXML(String str) throws SAXException,
-         IOException
-   {
-      List<PSAutoTranslation> xlnList = new ArrayList<PSAutoTranslation>();
-      if (StringUtils.isBlank(str))
-         return xlnList;
-
-      String[] xlns = str.split(AUTOTRANSLATIONS_DELIM);
-      int sz = xlns.length;
-      for (int i = 0; i < sz; i++)
-      {
-         PSAutoTranslation at = new PSAutoTranslation();
-         at.fromXML(xlns[i]);
-         xlnList.add(at);
+   private List<PSAutoTranslation> fromXML(String str) throws SAXException, IOException {
+      if (StringUtils.isBlank(str)) {
+         return List.of();
       }
-      return xlnList;
+
+      return Arrays.stream(str.split(AUTOTRANSLATIONS_DELIM))
+         .map(xml -> {
+            var at = new PSAutoTranslation();
+            try {
+               at.fromXML(xml);
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
+            return at;
+         })
+         .collect(Collectors.toList());
    }
 
    /**

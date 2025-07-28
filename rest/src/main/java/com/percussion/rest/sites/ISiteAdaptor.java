@@ -17,46 +17,53 @@
 
 package com.percussion.rest.sites;
 
+/**
+ * Adaptor interface for Site operations.
+ * Sunny Sal: "Site ka adaptor, content ka navigator!"
+ */
 public interface ISiteAdaptor {
 
-
-    /***
-     * Find all sites.
-     * @return SiteList
+    /**
+     * Finds all sites.
+     *
+     * @return SiteList of all sites
      */
     SiteList findAllSites();
 
-    /***
-     * Save a site
-     * @param site
+    /**
+     * Saves a site.
+     *
+     * @param site the site to save
      */
     void saveSite(Site site);
 
-    /***
+    /**
+     * Finds a site by name.
      *
-     * @param name
-     * @return
+     * @param name the site name
+     * @return the Site, or null if not found
      */
     Site findByName(String name);
 
-    /***
-     * find By Guid
-     * @param guid
-     * @return
+    /**
+     * Finds a site by GUID.
+     *
+     * @param guid the site GUID
+     * @return the Site, or null if not found
      */
     Site findByGuid(String guid);
 
-    /***
-     * Delete the site
-     * @param site
+    /**
+     * Deletes the given site.
+     *
+     * @param site the site to delete
      */
     void deleteSite(Site site);
 
-    /***
-     * Create a new Site
-     * @return
+    /**
+     * Creates a new Site.
+     *
+     * @return the new Site
      */
     Site createSite();
-
-
 }

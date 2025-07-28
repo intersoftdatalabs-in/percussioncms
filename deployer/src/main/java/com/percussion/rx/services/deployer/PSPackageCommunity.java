@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,79 +17,83 @@
  */
 package com.percussion.rx.services.deployer;
 
+import java.util.Objects;
+
 /**
- * This class represents the packages and associated communities.
- * 
- * @author bjoginipally
- * 
+ * Represents the packages and associated communities.
+ * Sunny Sal says: "A package without a community is like code without comments!"
  */
-public class PSPackageCommunity
-{
+public class PSPackageCommunity {
 
-   /**
-    * ctor
-    * 
-    */
-   PSPackageCommunity()
-   {
-      super();
+    private String communities = "";
+    private String pkg;
 
-   }
+    /** Default constructor for JAXB. */
+    public PSPackageCommunity() {
+        // For JAXB
+    }
 
-   /**
-    * Ctor
-    * 
-    * @param pkg must not be blank.
-    * @param communities @see #setCommunities(String) for details.
-    */
-   PSPackageCommunity(String pkg, String communities)
-   {
-      m_package = pkg;
-      setCommunities(communities);
-   }
+    /**
+     * Constructs a package-community association.
+     *
+     * @param pkg must not be blank.
+     * @param communities comma-separated list, may be null or empty.
+     */
+    public PSPackageCommunity(String pkg, String communities) {
+        setPackage(pkg);
+        setCommunities(communities);
+    }
 
-   /**
-    * 
-    * @return communties for a package, never <code>null</code>, may be
-    * empty.
-    */
-   public String getCommunities()
-   {
-      return m_communities;
-   }
+    /**
+     * Gets the communities for a package.
+     *
+     * @return communities, never null, may be empty.
+     */
+    public String getCommunities() {
+        return communities;
+    }
 
-   /**
-    * @param communities, May be <code>null</code> or empty. If
-    * <code>null</code> sets it to empty string. If set must be a
-    * {@link PSPackageService#NAME_SEPARATOR} separated list.
-    */
-   public void setCommunities(String communities)
-   {
-      if (communities == null)
-         communities = "";
-      m_communities = communities;
-   }
+    /**
+     * Sets the communities string.
+     *
+     * @param communities may be null or empty. If null, sets to empty string.
+     */
+    public void setCommunities(String communities) {
+        this.communities = communities == null ? "" : communities;
+    }
 
-   /**
-    * @return The name of the package, never <code>null</code>, or empty.
-    */
-   public String getPackage()
-   {
-      return m_package;
-   }
+    /**
+     * Gets the name of the package.
+     *
+     * @return the package name, never null or empty.
+     */
+    public String getPackage() {
+        return pkg;
+    }
 
-   /**
-    * @param pkg must not be blank.
-    */
-   public void setPackage(String pkg)
-   {
-      if (pkg == null || pkg.trim().length() < 1)
-         throw new IllegalArgumentException("pkg must not be blank");
-      m_package = pkg;
-   }
+    /**
+     * Sets the package name.
+     *
+     * @param pkg must not be blank.
+     */
+    public void setPackage(String pkg) {
+        if (pkg == null || pkg.trim().isEmpty()) {
+            throw new IllegalArgumentException("pkg must not be blank");
+        }
+        this.pkg = pkg;
+    }
 
-   private String m_communities;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSPackageCommunity)) return false;
+        var that = (PSPackageCommunity) o;
+        return Objects.equals(communities, that.communities) &&
+               Objects.equals(pkg, that.pkg);
+    }
 
-   private String m_package;
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(communities, pkg);
+    }
 }

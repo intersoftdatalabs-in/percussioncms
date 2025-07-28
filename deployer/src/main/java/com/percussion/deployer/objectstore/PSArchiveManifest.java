@@ -130,17 +130,11 @@ public class PSArchiveManifest  implements IPSDeployComponent
     * @return an Iterator over zero or more <code>PSDependencyFile</code>
     * objects. It will never be <code>null</code>.
     */
-   public Iterator<PSDependencyFile> getFiles()
-   {
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      for (Map.Entry<String, DepFilesIdTypes> entry : m_depMap.entrySet()) {
-         DepFilesIdTypes value = m_depMap.get(entry.getKey());
-         if (value != null && value.m_depFiles != null) {
-            files.addAll(value.m_depFiles);
-         }
-      }
-      
+   public Iterator<PSDependencyFile> getFiles() {
+      var files = m_depMap.values().stream()
+         .filter(value -> value.m_depFiles != null)
+         .flatMap(value -> value.m_depFiles.stream())
+         .toList();
       return files.iterator();
    }
    
@@ -157,13 +151,11 @@ public class PSArchiveManifest  implements IPSDeployComponent
     *
     * @throws IllegalArgumentException If any param is invalid.
     */
-   public boolean hasDependencyFiles(PSDependency dep)
-   {
-      if (dep == null)
-         throw new IllegalArgumentException(DEP_NOT_NULL_MSG);
-
-      DepFilesIdTypes value =  m_depMap.get(dep.getKey());
-      return value != null && value.m_depFiles != null;
+   public boolean hasDependencyFiles(PSDependency dep) {
+      if (dep == null) throw new IllegalArgumentException(DEP_NOT_NULL_MSG);
+      return Optional.ofNullable(m_depMap.get(dep.getKey()))
+         .map(value -> value.m_depFiles != null)
+         .orElse(false);
    }
 
    /**
@@ -262,17 +254,11 @@ public class PSArchiveManifest  implements IPSDeployComponent
     *
     * @throws IllegalArgumentException If any param is invalid.
     */
-   public List<PSDatasourceMap> getDbmsInfoList(PSDependency dep)
-   {
-      if (dep == null)
-         throw new IllegalArgumentException(DEP_NOT_NULL_MSG);
-      
-      List<PSDatasourceMap> infoList = null;
-      DepFilesIdTypes value = m_depMap.get(dep.getKey());
-      if (value != null)
-         infoList = value.m_dbmsInfoList;
-         
-      return infoList;
+   public List<PSDatasourceMap> getDbmsInfoList(PSDependency dep) {
+      if (dep == null) throw new IllegalArgumentException(DEP_NOT_NULL_MSG);
+      return Optional.ofNullable(m_depMap.get(dep.getKey()))
+         .map(value -> value.m_dbmsInfoList)
+         .orElse(Collections.emptyList());
    }
    
 
@@ -288,17 +274,12 @@ public class PSArchiveManifest  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-
-      for (DepFilesIdTypes depChild : m_depMap.values()) {
-         Element depChildXml = depChild.toXml(doc);
-         root.appendChild(depChildXml);
-      }
+   public Element toXml(Document doc) {
+      if (doc == null) throw new IllegalArgumentException("doc may not be null");
+      var root = doc.createElement(XML_NODE_NAME);
+      m_depMap.values().stream()
+         .map(depChild -> depChild.toXml(doc))
+         .forEach(root::appendChild);
       return root;
    }
 

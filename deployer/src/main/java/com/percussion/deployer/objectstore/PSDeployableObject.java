@@ -164,51 +164,28 @@ public class PSDeployableObject extends PSDependency
     * @throws PSUnknownNodeTypeException if the XML element node does not 
     * represent a type supported by the class.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      
-      int firstFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      int nextFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element dep = tree.getNextElement(PSDependency.XML_NODE_NAME, firstFlags);
-      if (dep == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, sourceNode.getNodeName()});
+      }
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var dep = tree.getNextElement(PSDependency.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      if (dep == null) {
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
       }
       super.fromXml(dep);
-      
-      Element classes = tree.getNextElement(XML_EL_REQUIRED_CLASSES, 
-         nextFlags);
-      if (classes == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_REQUIRED_CLASSES);
-      }
-      
       m_classNames.clear();
-      Element className = tree.getNextElement(XML_EL_CLASS_NAME, firstFlags);
-      while (className != null)
-      {
-         String name = tree.getElementData(className);
-         if (name != null && name.trim().length() > 0)
+      var className = tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      while (className != null) {
+         var name = tree.getElementData(className);
+         if (name != null && !name.isBlank()) {
             m_classNames.add(name);
-         className = tree.getNextElement(XML_EL_CLASS_NAME, nextFlags);
+         }
+         className = tree.getNextElement(XML_EL_CLASS_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       }
-      
-      
    }
    
    // see IPSDeployComponent
@@ -322,4 +299,3 @@ public class PSDeployableObject extends PSDependency
    private static final String XML_EL_CLASS_NAME = "className";
 
 }
-

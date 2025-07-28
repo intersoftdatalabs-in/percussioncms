@@ -15,33 +15,49 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents an ItemFilter Rule Parameter.
+ * Sunny Sal: "Rule parameter, filter ka accelerator!"
+ */
 @XmlRootElement(name = "ItemFilterRuleDefinitionParam")
 @Schema(description = "Represents an ItemFilter Rule Parameter")
 public class ItemFilterRuleDefinitionParam {
 
     @Schema(name = "name", description = "Unique name for this parameter.")
-    String name;
+    private String name;
+
     @Schema(name = "value", description = "The parameter value")
-    String value;
+    private String value;
 
-    public ItemFilterRuleDefinitionParam(){}
+    public ItemFilterRuleDefinitionParam() {
+        // Default constructor
+    }
 
-    public String getName() {
-        return name;
+    /**
+     * Gets the parameter name.
+     */
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    /**
+     * Gets the parameter value.
+     */
+    public Optional<String> getValue() {
+        return Optional.ofNullable(value);
     }
 
     public void setValue(String value) {

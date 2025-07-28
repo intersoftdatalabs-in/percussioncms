@@ -344,35 +344,17 @@ public class PSAssemblyServiceHelper
    @SuppressWarnings("unchecked")
    private void catalogSlots()
    {
-      List<IPSCatalogSummary> sumList = null;
-      List<IPSTemplateSlot> allSlots = null;
-      try
-      {
-         sumList = m_assemblySvc.getSummaries(PSTypeEnum.SLOT);
-         if ( sumList != null && sumList.size() != 0)
-         {
-            m_slots = new ArrayList<>();
-            Iterator<IPSCatalogSummary> it = sumList.iterator();
-            List<IPSGuid> slotGuids = new ArrayList<>();
-            while(it.hasNext())
-            {
-               IPSCatalogSummary slot = it.next();
-               slotGuids.add(slot.getGUID());
-            }
-            allSlots = m_assemblySvc.loadSlots(slotGuids);
-            for (IPSTemplateSlot slot : allSlots)
-            {
-                  m_slots.add(slot);
-            }
+      try {
+        var summaries = m_assemblySvc.getSummaries(PSTypeEnum.SLOT);
+        if (summaries != null && !summaries.isEmpty()) {
+            var slotGuids = summaries.stream().map(IPSCatalogSummary::getGUID).toList();
+            m_slots = m_assemblySvc.loadSlots(slotGuids);
+            m_slots.sort(Comparator.comparingLong(slot -> Math.abs(slot.getGUID().longValue())));
         }
-      }
-      catch (PSCatalogException | PSNotFoundException | PSAssemblyException e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-      // sort the collection
-      m_slots.sort(new SlotsComparer());
+    } catch (PSCatalogException | PSNotFoundException | PSAssemblyException e) {
+        log.error(PSExceptionUtils.getMessageForLog(e));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    }
    }
    
    /**
@@ -391,8 +373,6 @@ public class PSAssemblyServiceHelper
    public List<IPSTemplateSlot> getSlots()
    {
       m_slots.clear();
-      m_slots = null;
-      m_slots  = new ArrayList<>();
       catalogSlots();
       return m_slots;
    }

@@ -15,18 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
 /**
- * @author stephenbolton
- * 
+ * Exception thrown when a site is not found.
+ * Sunny Sal: "Site dhoondho, nahi mila? Not found, boss!"
  */
-public class SiteNotFoundException extends RestExceptionBase
-{
-    public SiteNotFoundException()
-    {
+public class SiteNotFoundException extends RestExceptionBase {
+
+    /**
+     * Constructs a SiteNotFoundException with NOT_FOUND status.
+     */
+    public SiteNotFoundException() {
         super(RestErrorCode.SITE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
     }
 }

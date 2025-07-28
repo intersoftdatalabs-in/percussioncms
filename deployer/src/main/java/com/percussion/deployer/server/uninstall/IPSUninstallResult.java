@@ -14,85 +14,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.uninstall;
 
 import com.percussion.utils.guid.IPSGuid;
 
 /**
  * Interface for the uninstall results. Package name and type are required and
- * rest of the data is filled based on the stage at which the failure occurred.
- * 
- * @author bjoginipally
- * 
+ * the rest of the data is filled based on the stage at which the failure occurred.
  */
-public interface IPSUninstallResult
-{
+public interface IPSUninstallResult {
+
    /**
-    * Returns the package guid, may be <code>null</code>, if the supplied
-    * package name does have a corresponding guid.
-    * 
-    * @return IPSGuid of the package may be <code>null</code>.
+    * Returns the package GUID, may be <code>null</code> if the supplied
+    * package name does not have a corresponding GUID.
+    *
+    * @return IPSGuid of the package, may be <code>null</code>.
     */
-   public IPSGuid getPackageGuid();
+   IPSGuid getPackageGuid();
 
    /**
     * Returns the name of the package.
-    * 
-    * @return name of the package, never <code>null</code>.
+    *
+    * @return Name of the package, never <code>null</code>.
     */
-   public String getPackageName();
+   String getPackageName();
 
    /**
     * Returns the type of the result.
-    * 
-    * @return type of the result never <code>null</code>.
+    *
+    * @return Type of the result, never <code>null</code>.
     */
-   public PSUninstallResultType getResultType();
+   PSUninstallResultType getResultType();
 
    /**
     * Returns the message.
-    * 
-    * @return the message of the result, may be <code>null</code> or empty.
+    *
+    * @return The message of the result, may be <code>null</code> or empty.
     */
-   public String getMessage();
+   String getMessage();
 
    /**
     * Exception associated with the result.
-    * 
-    * @return may be <code>null</code>. Incase of no exceptions.
+    *
+    * @return May be <code>null</code> if no exceptions occurred.
     */
-   public Exception getException();
+   Exception getException();
 
    /**
-    * Gets the guid of the object that caused the error.
-    * 
-    * @return IPSGuid object guid object guid may be <code>null</code>.
+    * Gets the GUID of the object that caused the error.
+    *
+    * @return IPSGuid object GUID, may be <code>null</code>.
     */
-   public IPSGuid getObjectGuid();
+   IPSGuid getObjectGuid();
 
    /**
     * Gets the name of the object that caused the error.
-    * 
-    * @return String object name may be <code>null</code>.
+    *
+    * @return String object name, may be <code>null</code>.
     */
-   public String getObjectName();
+   String getObjectName();
 
    /**
     * The uninstall message type enum.
     */
-   public enum PSUninstallResultType
-   {
+   enum PSUninstallResultType {
       SUCCESS(1), INFO(2), WARN(3), ERROR(4);
-      PSUninstallResultType(int type)
-      {
-         m_type = type;
-      }
-      public int getValue()
-      {
-         return m_type;
-      }
-      
-      private int m_type;
-   }
 
+      PSUninstallResultType(int type) {
+         this.type = type;
+      }
+
+      public int getValue() {
+         return type;
+      }
+
+      private final int type;
+   }
 }

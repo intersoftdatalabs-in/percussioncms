@@ -24,6 +24,8 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.Optional;
+
 
 /**
  * Encapsulates a log summary information.
@@ -176,59 +178,49 @@ public class PSLogSummary  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      Element root = doc.createElement(XML_NODE_NAME);
+   public Element toXml(Document doc) {
+      if (doc == null) {
+         throw new IllegalArgumentException("doc may not be null");
+      }
 
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_ID, Integer.toString(m_id));
-      root.setAttribute(XML_ATTR_ARCHIVE_EXIST,
-         (m_archiveExist ? XML_VALUE_TRUE : XML_VALUE_FALSE));
+      root.setAttribute(XML_ATTR_ARCHIVE_EXIST, m_archiveExist ? XML_VALUE_TRUE : XML_VALUE_FALSE);
 
       root.appendChild(m_pkg.toXml(doc));
       root.appendChild(m_archiveSummary.toXml(doc));
 
-      if ( m_detail != null )
-         root.appendChild(m_detail.toXml(doc));
+      Optional.ofNullable(m_detail).ifPresent(detail -> root.appendChild(detail.toXml(doc)));
 
       return root;
    }
 
    // see IPSDeployComponent interface
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      if (sourceNode == null) {
+         throw new IllegalArgumentException("sourceNode may not be null");
       }
-      // get attributes
-      String sAttrValue = PSDeployComponentUtils.getRequiredAttribute(
-         sourceNode, XML_ATTR_ARCHIVE_EXIST);
-      m_archiveExist = sAttrValue.equals(XML_VALUE_TRUE);
-      sAttrValue = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_ID);
-      m_id = Integer.parseInt(sAttrValue);
 
-      // get child elements
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
 
-      Element childEl = PSDeployComponentUtils.getNextRequiredElement(tree,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN,
-         PSDeployableElement.XML_NODE_NAME);
+      var tree = new PSXmlTreeWalker(sourceNode);
+
+      m_archiveExist = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ARCHIVE_EXIST).equals(XML_VALUE_TRUE);
+      m_id = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ID));
+
+      var childEl = PSDeployComponentUtils.getNextRequiredElement(tree, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN, PSDeployableElement.XML_NODE_NAME);
       m_pkg = new PSDeployableElement(childEl);
 
-      childEl = PSDeployComponentUtils.getNextRequiredElement(tree,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS,
-         PSArchiveSummary.XML_NODE_NAME);
+      childEl = PSDeployComponentUtils.getNextRequiredElement(tree, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS, PSArchiveSummary.XML_NODE_NAME);
       m_archiveSummary = new PSArchiveSummary(childEl);
 
-      childEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      if ( childEl != null )
-         m_detail = new PSLogDetail(childEl);
+      childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      m_detail = Optional.ofNullable(childEl).map(PSLogDetail::new).orElse(null);
    }
 
    // see IPSDeployComponent interface

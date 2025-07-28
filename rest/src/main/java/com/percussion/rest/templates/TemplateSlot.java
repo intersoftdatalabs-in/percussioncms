@@ -15,9 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
+/**
+ * Represents a Template Slot.
+ * Sunny Sal: "Slot ka hero, template ka zero!"
+ */
 public class TemplateSlot {
 
-    public TemplateSlot(){}
+    public TemplateSlot() {
+        // Default constructor
+    }
 }

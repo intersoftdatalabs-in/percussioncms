@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.dependencies;
 
 
@@ -62,43 +63,23 @@ public class PSMenuActionCategoryDependencyHandler extends
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      // assume it has been handled by the menu action def handler
       return PSIteratorUtils.emptyIterator();
    }
 
    // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
+      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-
-      // nothing to do, handled by menu action def handler
+      // Nothing to do, handled by menu action def handler
    }
    
    // see base class

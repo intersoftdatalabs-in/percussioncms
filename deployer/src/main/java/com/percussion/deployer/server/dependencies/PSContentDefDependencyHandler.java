@@ -67,7 +67,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Class to handle packaging and deploying a content definition.
@@ -96,73 +99,45 @@ public class PSContentDefDependencyHandler
 
    // see base class
    @SuppressWarnings("unchecked")
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      String csId = dep.getDependencyId();
-      Set<PSDependency> childDeps = new HashSet<>();
-      
-      // get all content type children for this content def
-      List<PSDependency> contentTypeDeps = 
-            getChildDepsFromParentID(CONTENT_TABLE,
-         CONTENTTYPE_ID, CONTENT_ID, csId,
-         PSCEDependencyHandler.DEPENDENCY_TYPE, tok);
-      childDeps.addAll(contentTypeDeps);
-         
-      // get all workflow (Element) children for this content def
-      Set wfDepIds = new HashSet();
-      wfDepIds.addAll(PSDeployComponentUtils.cloneList(getChildIdsFromTable(
-         CONTENT_TABLE, WORKFLOW_ID, CONTENT_ID, csId)));
-      wfDepIds.addAll(PSDeployComponentUtils.cloneList(getChildIdsFromTable(
-         CONTENT_APPROVALS_TABLE, WORKFLOW_ID, CONTENT_ID, csId)));
-      wfDepIds.addAll(PSDeployComponentUtils.cloneList(getChildIdsFromTable(
-         CONTENT_STATUS_HISTORY_TABLE, WORKFLOW_ID, CONTENT_ID, csId)));
-      childDeps.addAll(getDepsFromIds(wfDepIds.iterator(), 
-        PSWorkflowDependencyHandler.DEPENDENCY_TYPE, tok));
-      
-      // get role deps from the adhoc users and content approvals tables
-      Set roleDepIds = new HashSet();
-      roleDepIds.addAll(PSDeployComponentUtils.cloneList(getChildIdsFromTable(
-         CONTENT_ADHOC_USERS_TABLE, ROLE_ID_COL, CONTENT_ID, csId)));
-      roleDepIds.addAll(PSDeployComponentUtils.cloneList(getChildIdsFromTable(
-         CONTENT_APPROVALS_TABLE, ROLE_ID_COL, CONTENT_ID, csId)));
-      childDeps.addAll(getDepsFromIds(roleDepIds.iterator(), 
-         PSRoleDefDependencyHandler.DEPENDENCY_TYPE, tok));
-
-      // walk all relationship configs, and for each non-folder relationship, 
-      // see if there are any child relationships of that type
-      Iterator configs = PSRelationshipCommandHandler.getRelationshipConfigs();
-      while (configs.hasNext())
-      {
-         PSRelationshipConfig config = (PSRelationshipConfig)configs.next();
-         if (!PSRelationshipConfig.CATEGORY_FOLDER.equals(
-            config.getCategory()))
-         {
-            PSDependencyHandler crHandler = getDependencyHandler(
-               PSContentRelationDependencyHandler.DEPENDENCY_TYPE);
-            PSDependency crDep = crHandler.getDependency(tok, 
-               PSPairDependencyId.getPairDependencyId(dep.getDependencyId(),
-                  config.getName()));
-            if (crDep != null)
-            {
-               String isLocal = config.getSystemProperty(
-                  PSRelationshipConfig.RS_ISLOCALDEPENDENCY);
-               if (PSRelationshipConfig.PROPERTY_TRUE.equals(isLocal))
-               {
-                  crDep.setDependencyType(PSDependency.TYPE_LOCAL);
-               }
-               
-               childDeps.add(crDep);
-            }
-         }
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
       }
-         
+
+      var childDeps = new HashSet<PSDependency>();
+      var csId = dep.getDependencyId();
+
+      childDeps.addAll(getChildDepsFromParentID(CONTENT_TABLE, CONTENTTYPE_ID, CONTENT_ID, csId, PSCEDependencyHandler.DEPENDENCY_TYPE, tok));
+
+      var wfDepIds = Stream.of(
+            getChildIdsFromTable(CONTENT_TABLE, WORKFLOW_ID, CONTENT_ID, csId),
+            getChildIdsFromTable(CONTENT_APPROVALS_TABLE, WORKFLOW_ID, CONTENT_ID, csId),
+            getChildIdsFromTable(CONTENT_STATUS_HISTORY_TABLE, WORKFLOW_ID, CONTENT_ID, csId))
+         .flatMap(Iterator::asIterator)
+         .collect(Collectors.toSet());
+      childDeps.addAll(getDepsFromIds(wfDepIds.iterator(), PSWorkflowDependencyHandler.DEPENDENCY_TYPE, tok));
+
+      var roleDepIds = Stream.of(
+            getChildIdsFromTable(CONTENT_ADHOC_USERS_TABLE, ROLE_ID_COL, CONTENT_ID, csId),
+            getChildIdsFromTable(CONTENT_APPROVALS_TABLE, ROLE_ID_COL, CONTENT_ID, csId))
+         .flatMap(Iterator::asIterator)
+         .collect(Collectors.toSet());
+      childDeps.addAll(getDepsFromIds(roleDepIds.iterator(), PSRoleDefDependencyHandler.DEPENDENCY_TYPE, tok));
+
+      PSRelationshipCommandHandler.getRelationshipConfigs().forEachRemaining(config -> {
+         if (!PSRelationshipConfig.CATEGORY_FOLDER.equals(config.getCategory())) {
+            var crHandler = getDependencyHandler(PSContentRelationDependencyHandler.DEPENDENCY_TYPE);
+            var crDep = crHandler.getDependency(tok, PSPairDependencyId.getPairDependencyId(dep.getDependencyId(), config.getName()));
+            Optional.ofNullable(crDep).ifPresent(d -> {
+               if (PSRelationshipConfig.PROPERTY_TRUE.equals(config.getSystemProperty(PSRelationshipConfig.RS_ISLOCALDEPENDENCY))) {
+                  d.setDependencyType(PSDependency.TYPE_LOCAL);
+               }
+               childDeps.add(d);
+            });
+         }
+      });
+
       // add acls
       addAclDependency(tok, PSTypeEnum.LEGACY_CONTENT, dep, childDeps);
       
@@ -180,28 +155,21 @@ public class PSContentDefDependencyHandler
     }
 
    // see base class
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-         throws PSDeployException
-   {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      return getDependencies(tok, CONTENT_TABLE, CONTENT_ID, CONTENT_NAME, 
-         OBJECT_TYPE_FILTER);
+      }
+      return getDependencies(tok, CONTENT_TABLE, CONTENT_ID, CONTENT_NAME, OBJECT_TYPE_FILTER);
    }
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      return getDependency(tok, id, CONTENT_TABLE, CONTENT_ID, CONTENT_NAME, 
-         OBJECT_TYPE_FILTER);
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return getDependency(tok, id, CONTENT_TABLE, CONTENT_ID, CONTENT_NAME, OBJECT_TYPE_FILTER);
    }
 
    /**

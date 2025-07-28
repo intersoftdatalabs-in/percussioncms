@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.acls.UserAccessLevel;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.Optional;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -37,7 +39,7 @@ public class ObjectSummary {
     @Schema(description="The label of this object.  May be null or empty.")
     String label;
     @Schema(description="The description of this object.")
-    String descripion;
+    String description;
     @Schema(description="The type of this Object.  Must be a valid type")
     ObjectTypeEnum type;
     @Schema(description="When true, the object is locked by another user / session")
@@ -65,36 +67,36 @@ public class ObjectSummary {
         this.id = id;
     }
 
-    public Guid getGuid() {
-        return guid;
+    public Optional<Guid> getGuid() {
+        return Optional.ofNullable(guid);
     }
 
     public void setGuid(Guid guid) {
         this.guid = guid;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getLabel() {
-        return label;
+    public Optional<String> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     public void setLabel(String label) {
         this.label = label;
     }
 
-    public String getDescripion() {
-        return descripion;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
-    public void setDescripion(String descripion) {
-        this.descripion = descripion;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public ObjectTypeEnum getType() {
@@ -113,8 +115,8 @@ public class ObjectSummary {
         this.objectLocked = objectLocked;
     }
 
-    public ObjectLockSummary getLockSummary() {
-        return lockSummary;
+    public Optional<ObjectLockSummary> getLockSummary() {
+        return Optional.ofNullable(lockSummary);
     }
 
     public void setLockSummary(ObjectLockSummary lockSummary) {

@@ -74,21 +74,13 @@ public class PSEditionTaskDefDependencyHandler
 
    // see base class
    @Override
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      List<PSDependency> childDeps = new ArrayList<>();
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      // get the extension dependency
-      List<PSDependency> extDeps = getExtensionDependencies(tok, dep);
-      childDeps.addAll(extDeps);      
-
-      return childDeps.iterator();
+      return getExtensionDependencies(tok, dep).iterator();
    }
 
    /**
@@ -98,57 +90,39 @@ public class PSEditionTaskDefDependencyHandler
     * @return the extension child dependencies
     * @throws PSDeployException
     */
-   private List<PSDependency> getExtensionDependencies(
-         PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
-      List<PSDependency> childDeps = new ArrayList<>();
-      List<String> exts = new ArrayList<>();
-      
-      IPSEditionTaskDef task = findEditionTask(dep.getDependencyId());
-      if (task != null)
-         exts.add(task.getExtensionName());
-      
-      Iterator<String> it = exts.iterator();
-      PSDependencyHandler eHandler = 
-         getDependencyHandler(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-      PSDependency tmpDep = null;
-      while (it.hasNext())
-      {
-         String ext = it.next();
-         tmpDep = eHandler.getDependency(tok, ext);
-         if (tmpDep != null)
-         {
-            if (tmpDep.getDependencyType() == PSDependency.TYPE_SHARED)
-            {
-               tmpDep.setIsAssociation(false);
+   private List<PSDependency> getExtensionDependencies(PSSecurityToken tok, PSDependency dep)
+         throws PSDeployException, PSNotFoundException {
+      var task = findEditionTask(dep.getDependencyId());
+      var exts = task != null ? List.of(task.getExtensionName()) : List.of();
+
+      var eHandler = getDependencyHandler(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
+      return exts.stream()
+         .map(ext -> {
+            try {
+               var tmpDep = eHandler.getDependency(tok, ext);
+               if (tmpDep != null && tmpDep.getDependencyType() == PSDependency.TYPE_SHARED) {
+                  tmpDep.setIsAssociation(false);
+               }
+               return tmpDep;
+            } catch (PSDeployException | PSNotFoundException e) {
+               throw new RuntimeException(e);
             }
-            childDeps.add(tmpDep);            
-         }
-      }
-            
-      return childDeps;
+         })
+         .filter(dep -> dep != null)
+         .toList();
    }
    
    // see base class
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-      
-      Set<IPSEditionTaskDef> tasks = findAllEditionTasks();
-      for (IPSEditionTaskDef task : tasks)
-      {
-         deps.add(
-               createDependency(
-                     m_def,
-                     String.valueOf(task.getTaskId().longValue()),
-                     (new PSExtensionRef(task.getExtensionName())).
-                     getExtensionName()));
       }
-      
-      return deps.iterator();
+
+      return findAllEditionTasks().stream()
+         .map(task -> createDependency(m_def, String.valueOf(task.getTaskId().longValue()),
+            new PSExtensionRef(task.getExtensionName()).getExtensionName()))
+         .iterator();
    }
 
    // see base class
@@ -280,15 +254,10 @@ public class PSEditionTaskDefDependencyHandler
     * @return edition tasks as a set, never <code>null</code>, may be
     * empty.
     */
-   private Set<IPSEditionTaskDef> findAllEditionTasks()
-   {
-      Set<IPSEditionTaskDef> tasks = new HashSet<>();
-      
-      List<IPSEdition> editions = m_pubSvc.findAllEditions("");
-      for (IPSEdition edition : editions)
-         tasks.addAll(m_pubSvc.loadEditionTasks(edition.getGUID()));
-              
-      return tasks;
+   private Set<IPSEditionTaskDef> findAllEditionTasks() {
+      return m_pubSvc.findAllEditions("").stream()
+         .flatMap(edition -> m_pubSvc.loadEditionTasks(edition.getGUID()).stream())
+         .collect(Collectors.toSet());
    }
 
    /**

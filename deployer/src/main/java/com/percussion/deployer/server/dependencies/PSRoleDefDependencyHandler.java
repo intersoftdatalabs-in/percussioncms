@@ -80,36 +80,25 @@ public class PSRoleDefDependencyHandler extends com.percussion.deployer.server.d
     }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
+      }
 
-      List roleDeps = new ArrayList();
-      
-      Iterator<String> roles = ms_roleMgr.getRhythmyxRoles().iterator();
-      while (roles.hasNext())
-         roleDeps.add(getRoleDep(roles.next()));
-            
-      return roleDeps.iterator();
+      return ms_roleMgr.getRhythmyxRoles().stream()
+            .map(this::getRoleDep)
+            .iterator();
    }
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      PSDependency roleDep = null;
-         
-      if (doesDependencyExist(tok, id))
-         roleDep = getRoleDep(id);
-         
-      return roleDep;
+      return doesDependencyExist(tok, id) ? getRoleDep(id) : null;
    }
    
    // see base class

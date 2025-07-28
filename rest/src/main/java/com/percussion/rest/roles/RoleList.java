@@ -25,7 +25,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for Role objects.
+ * Sunny Sal: "Role list ka boss!"
+ */
 @XmlRootElement(name = "RoleList")
 @ArraySchema(schema = @Schema(implementation = Role.class))
 @XmlSeeAlso(Role.class)
@@ -33,7 +36,8 @@ public class RoleList extends ArrayList<Role> {
     public RoleList(Collection<? extends Role> c) {
         super(c);
     }
-    public RoleList(){
-        //noop
+
+    public RoleList() {
+        super();
     }
 }

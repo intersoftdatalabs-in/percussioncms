@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.client.PSDeploymentManager;
@@ -56,8 +57,7 @@ import java.util.Set;
  * validation.
  */
 @SuppressWarnings(value={"unchecked"})
-public class PSDependencyValidator 
-{
+public class PSDependencyValidator {
    /**
     * Construct a dependency validator will all required parameters.
     * 
@@ -176,144 +176,72 @@ public class PSDependencyValidator
     * 
     * @throws PSDeployException if there are any errors.
     */
-   private void validateDependency(PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      // immediately defer validation of local deps of a referenced deployable
-      // element so that if the same dependency occurs elsewhere within the
-      // tree, it is validated first since we won't re-validate the same 
-      // dependency twice.
-      if (dep instanceof PSDeployableElement)
-      {
-         // save local dependencies
-         Iterator locals = dep.getDependencies(PSDependency.TYPE_LOCAL);
-         if (locals != null)
-         {
-            while (locals.hasNext())
-            {
-               PSDependency local = (PSDependency)locals.next();
-               m_localDeps.add(local);
-            }
+   private void validateDependency(PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (dep instanceof PSDeployableElement) {
+         var locals = dep.getDependencies(PSDependency.TYPE_LOCAL);
+         if (locals != null) {
+            locals.forEachRemaining(local -> m_localDeps.add(local));
          }
          return;
       }
-      
-      PSIdMap idMap = m_ctx.getIdMap();
-      IPSJobHandle jobHandle = m_ctx.getJobHandle();
-      PSDependencyTreeContext treeCtx = m_ctx.getCurrentTreeCtx();
-      PSDependencyManager depMgr = PSDependencyManager.getInstance();
-      
+
+      var idMap = m_ctx.getIdMap();
+      var jobHandle = m_ctx.getJobHandle();
+      var treeCtx = m_ctx.getCurrentTreeCtx();
+      var depMgr = PSDependencyManager.getInstance();
+
       if (jobHandle != null)
          depMgr.updateJobStatus(dep, jobHandle);
-      int type = dep.getDependencyType();
-      PSDependencyContext depCtx = treeCtx.getDependencyCtx(dep);
-      boolean reallyIncluded = depCtx.isIncluded();
-      String depKey = dep.getKey();
-      
-      if (depCtx == null)
-      {
-         // must have been added, so this is a bug
-         throw new RuntimeException("Dependency " + depKey + 
-            " not found in treeCtx");
-      }
-      
-      boolean doValidate = reallyIncluded;
-      boolean didValidate = false;
-            
-      // If a dependency appears in multiple places in the package, we don't 
-      // need to re-validate if its already been done
-      if (m_validatedDeps.contains(depKey))
-         doValidate = false;
-         
-      // if validating for this package and has already been validated for 
-      // another package, use that.
-      if (doValidate && m_ctx.alreadyValidated(dep))
-      {
-         addPreviousResults(dep, reallyIncluded);
-         
-         // add to this package's validated list
-         m_validatedDeps.add(depKey);
-      }
-      else if (doValidate && !jobHandle.isCancelled())
-      {
-         PSDependency tgtDep = depMgr.getActualDependency(m_tok, dep, idMap);
-         boolean exists = (tgtDep != null);
 
-         ResourceBundle bundle = PSDeploymentManager.getBundle();
-            
-         if (type == PSDependency.TYPE_SERVER || 
-            type == PSDependency.TYPE_SYSTEM)
-         {
-            // just validate it exists
-            if (!exists)
-            {
-               // add error
-               PSValidationResult result = new PSValidationResult(dep, true, 
-                  bundle.getString("validationMsgDoesNotExist"), false);
+      var type = dep.getDependencyType();
+      var depCtx = treeCtx.getDependencyCtx(dep);
+      var reallyIncluded = depCtx.isIncluded();
+      var depKey = dep.getKey();
+
+      if (depCtx == null) {
+         throw new RuntimeException("Dependency " + depKey + " not found in treeCtx");
+      }
+
+      var doValidate = reallyIncluded && !m_validatedDeps.contains(depKey);
+
+      if (doValidate && m_ctx.alreadyValidated(dep)) {
+         addPreviousResults(dep, reallyIncluded);
+         m_validatedDeps.add(depKey);
+      } else if (doValidate && !jobHandle.isCancelled()) {
+         var tgtDep = depMgr.getActualDependency(m_tok, dep, idMap);
+         var exists = tgtDep != null;
+
+         var bundle = PSDeploymentManager.getBundle();
+
+         if (type == PSDependency.TYPE_SERVER || type == PSDependency.TYPE_SYSTEM) {
+            if (!exists) {
+               var result = new PSValidationResult(dep, true, bundle.getString("validationMsgDoesNotExist"), false);
                m_results.addResult(result);
             }
-            
-            didValidate = true;
-         }
-         else
-         {
-            // (1) Don't validate included auto dependencies as they aren't really
-            //     in the package either. 
-            // (2) Some dependency types are never overwritten by design.
-            // (3) Skip validating ACLs of any design objects since the 
-            //     design objects have or will be validated. Validating ACL
-            //     of the design object is not necessary.
-            
-            if (PSAclDefDependencyHandler.DEPENDENCY_TYPE.equals(dep
-                  .getObjectType()))
-            {
-               if (ms_log.isDebugEnabled())
-               {
-                  if (dep.getParentDependency() == null)
-                     ms_log.debug("Skip validating ACL.");
-                  else
-                     ms_log.debug("Skip validating ACL for "
-                           + dep.getParentDependency().toString()
-                           + " dependency.");
+         } else {
+            if (PSAclDefDependencyHandler.DEPENDENCY_TYPE.equals(dep.getObjectType())) {
+               if (ms_log.isDebugEnabled()) {
+                  ms_log.debug("Skip validating ACL for {}", dep.getParentDependency());
                }
                return;
             }
-            
-            PSDependencyHandler handler = depMgr.getDependencyHandler(dep);
-            if (reallyIncluded && !dep.isAutoDependency()
-                  && handler.overwritesOnInstall())
-            {
-               if (exists && reallyIncluded)
-               {
-                  // see if existing dependency is installed as part of a
-                  // different package
+
+            var handler = depMgr.getDependencyHandler(dep);
+            if (reallyIncluded && !dep.isAutoDependency() && handler.overwritesOnInstall()) {
+               if (exists && reallyIncluded) {
                   checkExistingDependency(dep, tgtDep, depMgr, bundle);
                }
-
-               didValidate = true;
-            }
-            else if (!reallyIncluded && !exists)
-            {
+            } else if (!reallyIncluded && !exists) {
                if (!dep.isAssociation())
                   addMissingDependencyResult(dep);
-               
-               didValidate = true;
             }
 
-            if (didValidate && !jobHandle.isCancelled())
-            {
-               // add to this package's validated list
-               m_validatedDeps.add(dep.getKey());
-
-               // really validate, so add to context list
-               m_ctx.addValidatedDependency(dep);
-            }
+            m_validatedDeps.add(dep.getKey());
+            m_ctx.addValidatedDependency(dep);
          }
       }
-      
-      // now validate children - don't do this if current dependency is not a
-      // local dependency
-      if (type == PSDependency.TYPE_LOCAL)   
-      {
+
+      if (type == PSDependency.TYPE_LOCAL) {
          validateChildDependencies(dep);
       }
    }

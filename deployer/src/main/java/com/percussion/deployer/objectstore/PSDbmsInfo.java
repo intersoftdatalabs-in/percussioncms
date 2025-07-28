@@ -37,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Class to encapsulate information regarding a database connection including
@@ -403,25 +404,18 @@ public class PSDbmsInfo implements IPSDeployComponent
     *  See {@link IPSDeployComponent#toXml(Document)} for more info.
     * 
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-
-      if (getConnectionInfo() != null)
-         PSXmlDocumentBuilder.addElement(doc, root, DATASOURCE_XML_ELEMENT,
-               getConnectionInfo().getDataSource());
+   public Element toXml(Document doc) {
+      if (doc == null) throw new IllegalArgumentException("doc may not be null");
+      var root = doc.createElement(XML_NODE_NAME);
+      Optional.ofNullable(getConnectionInfo()).ifPresent(info ->
+          PSXmlDocumentBuilder.addElement(doc, root, DATASOURCE_XML_ELEMENT, info.getDataSource()));
       PSXmlDocumentBuilder.addElement(doc, root, DRIVER_XML_ELEMENT, m_driver);
       PSXmlDocumentBuilder.addElement(doc, root, SERVER_XML_ELEMENT, m_server);
-      PSXmlDocumentBuilder.addElement(doc, root, DATABASE_XML_ELEMENT,
-            m_database);
+      PSXmlDocumentBuilder.addElement(doc, root, DATABASE_XML_ELEMENT, m_database);
       PSXmlDocumentBuilder.addElement(doc, root, ORIGIN_XML_ELEMENT, m_origin);
       PSXmlDocumentBuilder.addElement(doc, root, UID_XML_ELEMENT, m_uid);
       PSXmlDocumentBuilder.addElement(doc, root, PASSWORD_XML_ELEMENT, m_pw);
-      PSXmlDocumentBuilder.addElement(doc, root, PASSWORD_ENCRYPTED_XML_ELEMENT,Boolean.toString(passwordEncrypted));
-
+      PSXmlDocumentBuilder.addElement(doc, root, PASSWORD_ENCRYPTED_XML_ELEMENT, Boolean.toString(passwordEncrypted));
       return root;
    }
 
@@ -432,51 +426,22 @@ public class PSDbmsInfo implements IPSDeployComponent
     * signature.
     */
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args =
-         {XML_NODE_NAME, sourceNode.getNodeName()};
-         throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+          var args = new Object[]{XML_NODE_NAME, sourceNode.getNodeName()};
+          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-
-      String datasource = tree.getElementData(DATASOURCE_XML_ELEMENT);
-      if ( datasource == null )
-      {
-         PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-         datasource = dbmsHelper.findADataSource();
-      }
-
-      m_connInfo = new PSDbmsConnectionInfo(datasource);
-      m_driver = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-            DRIVER_XML_ELEMENT, true);
-      m_server = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-            SERVER_XML_ELEMENT, true);
-      m_database = PSDeployComponentUtils.getRequiredElement(tree,
-            XML_NODE_NAME, DATABASE_XML_ELEMENT, false);
-      m_origin = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-            ORIGIN_XML_ELEMENT, false);
-      m_uid = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-            UID_XML_ELEMENT, false);
-      m_pw = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-            PASSWORD_XML_ELEMENT, false);
-      String temp = null;
-      try {
-            temp = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME,
-                 PASSWORD_ENCRYPTED_XML_ELEMENT, false);
-      }catch(PSUnknownNodeTypeException e){
-         //If this element is not found in tree, then we have to treat it as pwd is encrypted.
-      }
-      if(temp == null || temp.equalsIgnoreCase("null") || temp.equalsIgnoreCase("")){
-         passwordEncrypted = true; //If we persisted the xml we can assume it was encrypted on generation.
-      }else{
-         passwordEncrypted = Boolean.parseBoolean(temp);
-      }
+      var tree = new PSXmlTreeWalker(sourceNode);
+      m_connInfo = new PSDbmsConnectionInfo(Optional.ofNullable(tree.getElementData(DATASOURCE_XML_ELEMENT))
+          .orElseGet(() -> PSDbmsHelper.getInstance().findADataSource()));
+      m_driver = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, DRIVER_XML_ELEMENT, true);
+      m_server = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, SERVER_XML_ELEMENT, true);
+      m_database = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, DATABASE_XML_ELEMENT, false);
+      m_origin = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, ORIGIN_XML_ELEMENT, false);
+      m_uid = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, UID_XML_ELEMENT, false);
+      m_pw = PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, PASSWORD_XML_ELEMENT, false);
+      passwordEncrypted = Optional.ofNullable(tree.getElementData(PASSWORD_ENCRYPTED_XML_ELEMENT))
+          .map(Boolean::parseBoolean).orElse(true);
    }
 
    /**
@@ -580,7 +545,7 @@ public class PSDbmsInfo implements IPSDeployComponent
    }
 
    /**
-    * Decrypts the supplied password if it is non-&lt;code>null&lt;/code> and
+    * Decrypts the supplied password if it is non-&lt;code-null&lt;/code> and
     * not empty.
     * 
     * @param uid The user id, may be &lt;code>null&lt;/code> or empty.

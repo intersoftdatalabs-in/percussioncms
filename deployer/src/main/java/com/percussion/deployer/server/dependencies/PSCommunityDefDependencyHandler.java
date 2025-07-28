@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Class to handle packaging and deploying a community definition.
@@ -96,25 +97,15 @@ public class PSCommunityDefDependencyHandler
    // see base class
    public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      String parentId = dep.getDependencyId();
+      var parentId = dep.getDependencyId();
 
-      // get Component child dependencies
-      List<PSDependency> childDeps =
-      getChildDepsFromParentID(COMM_CP_TABLE,
-         COMM_CP_ID, COMMUNITY_ID, parentId,
-         PSComponentDependencyHandler.DEPENDENCY_TYPE, tok);
-
-
-      // get the roles child dependencies
-      List<PSDependency> roleDeps = getRoleChildDeps(tok, parentId);
-      childDeps.addAll(roleDeps);
+      var childDeps = new ArrayList<PSDependency>();
+      childDeps.addAll(getChildDepsFromParentID(COMM_CP_TABLE, COMM_CP_ID, COMMUNITY_ID, parentId, PSComponentDependencyHandler.DEPENDENCY_TYPE, tok));
+      childDeps.addAll(getRoleChildDeps(tok, parentId));
 
       return childDeps.iterator();
    }
@@ -130,22 +121,16 @@ public class PSCommunityDefDependencyHandler
     */
    private List<PSDependency> getRoleChildDeps(PSSecurityToken tok, String parentId)
            throws PSDeployException, PSNotFoundException {
-      List<PSDependency> roleDeps = new ArrayList<>();
+      var roleDeps = new ArrayList<PSDependency>();
 
-      Iterator ids = getChildIdsFromTable(COMM_RL_TABLE, COMM_RL_ID,
-         COMMUNITY_ID, parentId);
-      if (ids.hasNext())
-      {
-         PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-         PSJdbcSelectFilter filter;
-         filter = dbmsHelper.getFilterInFromIds(ids, ROLE_ID);
-         PSJdbcTableData idData;
-         idData = dbmsHelper.catalogTableData(ROLE_TABLE, null, filter);
+      var ids = getChildIdsFromTable(COMM_RL_TABLE, COMM_RL_ID, COMMUNITY_ID, parentId);
+      if (ids.hasNext()) {
+         var dbmsHelper = PSDbmsHelper.getInstance();
+         var filter = dbmsHelper.getFilterInFromIds(ids, ROLE_ID);
+         var idData = dbmsHelper.catalogTableData(ROLE_TABLE, null, filter);
 
-         Iterator names = getIdsFromTableData(idData, ROLE_TABLE, ROLE_NAME);
-
-         roleDeps = getDepsFromIds(names,
-            PSRoleDefDependencyHandler.DEPENDENCY_TYPE, tok, -1);
+         var names = getIdsFromTableData(idData, ROLE_TABLE, ROLE_NAME);
+         roleDeps.addAll(getDepsFromIds(names, PSRoleDefDependencyHandler.DEPENDENCY_TYPE, tok, -1));
       }
 
       return roleDeps;
@@ -155,25 +140,20 @@ public class PSCommunityDefDependencyHandler
    public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
          throws PSDeployException
    {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      return getDependencies(tok, COMMUNITY_TABLE, COMMUNITY_ID,
-         COMMUNITY_NAME);
+      }
+      return getDependencies(tok, COMMUNITY_TABLE, COMMUNITY_ID, COMMUNITY_NAME);
    }
 
    // see base class
    public PSDependency getDependency(PSSecurityToken tok, String id)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      return getDependency(tok, id, COMMUNITY_TABLE, COMMUNITY_ID,
-         COMMUNITY_NAME);
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return getDependency(tok, id, COMMUNITY_TABLE, COMMUNITY_ID, COMMUNITY_NAME);
    }
 
    /**
@@ -192,7 +172,7 @@ public class PSCommunityDefDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
+   public Iterator<String> getChildTypes()
    {
       return m_childTypes.iterator();
    }
@@ -207,49 +187,28 @@ public class PSCommunityDefDependencyHandler
    public void reserveNewId(PSDependency dep, PSIdMap idMap)
       throws PSDeployException
    {
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      if (idMap == null)
-         throw new IllegalArgumentException("idMap may not be null");
-
+      if (dep == null || idMap == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
       reserveNewId(dep, idMap, NEXTNUMBER_ID, DEPENDENCY_TYPE);
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      PSDependencyData depData;
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      // get the first dep data for the content object of itself
-      depData = getDepDataFromTable(dep, COMMUNITY_TABLE, COMMUNITY_ID, true);
-      files.add(getDepFileFromDepData(depData));
-
-      // get the component relationship data
-      depData = getDepDataFromTable(dep, COMM_CP_TABLE, COMMUNITY_ID, false);
-      if (depData != null)
-         files.add(getDepFileFromDepData(depData));
-
-
-      // get the Role relationship data
-      depData = getDepDataFromTable(dep, COMM_RL_TABLE, COMMUNITY_ID, false);
-      if (depData != null)
-      {
-         depData = convertRoleIdToRoleName(depData);
-         files.add(getDepFileFromDepData(depData));
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
       }
+
+      var files = new ArrayList<PSDependencyFile>();
+      files.add(getDepFileFromDepData(getDepDataFromTable(dep, COMMUNITY_TABLE, COMMUNITY_ID, true)));
+
+      var depData = getDepDataFromTable(dep, COMM_CP_TABLE, COMMUNITY_ID, false);
+      Optional.ofNullable(depData).ifPresent(data -> files.add(getDepFileFromDepData(data)));
+
+      depData = getDepDataFromTable(dep, COMM_RL_TABLE, COMMUNITY_ID, false);
+      Optional.ofNullable(depData).ifPresent(data -> files.add(getDepFileFromDepData(convertRoleIdToRoleName(data))));
 
       return files.iterator();
    }

@@ -20,7 +20,6 @@ import com.percussion.deployer.client.IPSDeployConstants;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -50,25 +49,24 @@ public class PSSlotDependencyHandler extends PSElementDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-               PSSlotDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSSlotDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
 
    // see base class
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;   
+   @Override
+   public String getType() {
+      return DEPENDENCY_TYPE;
    }
    
    
@@ -90,9 +88,5 @@ public class PSSlotDependencyHandler extends PSElementDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List<String> ms_childTypes = new ArrayList<>();
-   static
-   {
-      ms_childTypes.add(PSSlotDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSSlotDefDependencyHandler.DEPENDENCY_TYPE);
 }

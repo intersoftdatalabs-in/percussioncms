@@ -24,14 +24,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
-
+import java.util.Objects;
 
 @XmlRootElement(name = "ContextList")
 @XmlSeeAlso(Context.class)
-@ArraySchema(schema=@Schema(implementation = Context.class))
+@ArraySchema(schema = @Schema(implementation = Context.class))
 public class ContextList extends ArrayList<Context> {
     public ContextList(Collection<? extends Context> c) {
         super(c);
     }
-    public ContextList(){}
+    public ContextList() {}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ContextList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "ContextList" + super.toString();
+    }
 }

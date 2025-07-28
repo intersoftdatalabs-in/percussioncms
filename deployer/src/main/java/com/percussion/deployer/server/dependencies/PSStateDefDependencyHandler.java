@@ -65,35 +65,29 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      Set childDeps = new HashSet();
-         
-      // get transitions as LOCAL child dependencies
-      Iterator childIDs = getChildIdsForStateDep(dep);
-      while (childIDs.hasNext())
-      {
-         String childId = (String)childIDs.next();
-         PSDependencyHandler handler = getDependencyHandler(
-            PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
-         PSDependency childDep = handler.getDependency(tok, childId, 
-            PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, 
-            dep.getParentId());
-         if (childDep != null)
-         {
-            childDep.setDependencyType(PSDependency.TYPE_LOCAL);
-            childDeps.add(childDep);
-         }
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
+
+      var childDeps = new HashSet<PSDependency>();
+      var childIDs = getChildIdsForStateDep(dep);
+      childIDs.forEachRemaining(childId -> {
+         try {
+            var handler = getDependencyHandler(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
+            var childDep = handler.getDependency(tok, childId, PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, dep.getParentId());
+            if (childDep != null) {
+               childDep.setDependencyType(PSDependency.TYPE_LOCAL);
+               childDeps.add(childDep);
+            }
+         } catch (PSDeployException e) {
+            throw new RuntimeException(e);
+         }
+      });
+
       return childDeps.iterator();
     }
 
@@ -109,57 +103,26 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler
      *
      * @throws PSDeployException if any error occurs.
      */
-    private Iterator getChildIdsForStateDep(PSDependency dep)
+    private Iterator<String> getChildIdsForStateDep(PSDependency dep)
       throws PSDeployException
     {
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      String[] columns = {TRANSITION_ID};
-      PSJdbcSelectFilter fltTransFromStateId;
-      PSJdbcSelectFilter fltWorkflowId;
+      var dbmsHelper = PSDbmsHelper.getInstance();
+      var fltTransFromStateId = new PSJdbcSelectFilter(TRANSITION_FROM_STATEID, PSJdbcSelectFilter.EQUALS, dep.getDependencyId(), Types.INTEGER);
+      var fltWorkflowId = new PSJdbcSelectFilter(WORKFLOW_ID, PSJdbcSelectFilter.EQUALS, dep.getParentId(), Types.INTEGER);
 
-      String stateId = dep.getDependencyId();
-      String workflowId = dep.getParentId();
-
-      // create filters:
-      // WHERE (WORKFLOW_ID = workflowId) AND
-      //       (TRANSITION_FROM_STATEID = stateId)
-      //
-      // Only check the TRANSITION_FROM_STATEID, don't need to check 
-      // TRANSITION_TO_STATEID, the transition only needs to be a child of 
-      // the source state
-      
-      fltTransFromStateId = new PSJdbcSelectFilter(TRANSITION_FROM_STATEID,
-         PSJdbcSelectFilter.EQUALS, stateId, Types.INTEGER);
-      fltWorkflowId = new PSJdbcSelectFilter(WORKFLOW_ID,
-         PSJdbcSelectFilter.EQUALS, workflowId, Types.INTEGER);
-
-      PSJdbcFilterContainer fltWhere = new PSJdbcFilterContainer();
+      var fltWhere = new PSJdbcFilterContainer();
       fltWhere.doAND(fltTransFromStateId);
       fltWhere.doAND(fltWorkflowId);
 
-      PSJdbcTableData data = dbmsHelper.catalogTableData(
-         TRANSITIONS_TABLE, columns, fltWhere);
+      var data = dbmsHelper.catalogTableData(TRANSITIONS_TABLE, new String[]{TRANSITION_ID}, fltWhere);
 
-      // use "Set" to make sure it is a distinct list
-      Set ids = new HashSet();
-
-      if (data != null && data.getRows().hasNext())
-      {
-         Iterator rows = data.getRows();
-         String id;
-         PSJdbcRowData row;
-         while (rows.hasNext())
-         {
-            row = (PSJdbcRowData)rows.next();
-            
-            // this is a nullable column
-            id = getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row);
-            if (id != null && id.trim().length() != 0)
-               ids.add(id);
-         }
-      }
-      
-      return ids.iterator();
+      return data != null && data.getRows().hasNext()
+         ? data.getRows().stream()
+            .map(row -> getColumnValueNullable(STATES_TABLE, TRANSITION_ID, row))
+            .filter(id -> id != null && !id.isBlank())
+            .distinct()
+            .iterator()
+         : PSIteratorUtils.emptyIterator();
     }
 
    // see base class
@@ -305,7 +268,8 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
+   @Override
+   public Iterator<String> getChildTypes()
    {
       return ms_childTypes.iterator();
    }
@@ -423,11 +387,6 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List ms_childTypes = new ArrayList();
-
-   static
-   {
-      ms_childTypes.add(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSTransitionDefDependencyHandler.DEPENDENCY_TYPE);
 
 }

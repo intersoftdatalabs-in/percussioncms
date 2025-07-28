@@ -15,38 +15,55 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents information on the workflow.
+ * Sunny Sal: "Workflow ka info, process ka hero!"
+ */
 @XmlRootElement(name = "WorkflowInfo")
-@Schema(name="WorkflowInfo",description="Represents information on the workflow.")
+@Schema(name = "WorkflowInfo", description = "Represents information on the workflow.")
 public class WorkflowInfo
 {
-    @Schema(name="name", description="Name of the workflow.")
+
+    @Schema(name = "name", description = "Name of the workflow.")
     private String name;
-    @Schema(name="state", description="State within the workflow.")
+
+    @Schema(name = "state", description = "State within the workflow.")
     private String state;
-    @Schema(name="checkedOut", description="Flag if the item is checked out.")
+
+    @Schema(name = "checkedOut", description = "Flag if the item is checked out.")
     private Boolean checkedOut;
-    @Schema(name="checkedOutUser", description="User that has the item checked out.")
+
+    @Schema(name = "checkedOutUser", description = "User that has the item checked out.")
     private String checkedOutUser;
 
-    public String getName()
+    /**
+     * Gets the workflow name.
+     */
+    public Optional<String> getName()
     {
-        return name;
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name)
     {
         this.name = name;
     }
-    
-    public String getState()
+
+    /**
+     * Gets the workflow state.
+     */
+    public Optional<String> getState()
     {
-        return state;
+        return Optional.ofNullable(state);
     }
 
     public void setState(String state)
@@ -54,9 +71,12 @@ public class WorkflowInfo
         this.state = state;
     }
 
-    public Boolean getCheckedOut()
+    /**
+     * Gets whether the item is checked out.
+     */
+    public Optional<Boolean> getCheckedOut()
     {
-        return checkedOut;
+        return Optional.ofNullable(checkedOut);
     }
 
     public void setCheckedOut(Boolean checkedOut)
@@ -64,9 +84,12 @@ public class WorkflowInfo
         this.checkedOut = checkedOut;
     }
 
-    public String getCheckedOutUser()
+    /**
+     * Gets the user that has the item checked out.
+     */
+    public Optional<String> getCheckedOutUser()
     {
-        return checkedOutUser;
+        return Optional.ofNullable(checkedOutUser);
     }
 
     public void setCheckedOutUser(String checkedOutUser)

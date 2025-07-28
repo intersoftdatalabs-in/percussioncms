@@ -72,28 +72,27 @@ public class PSConfigDefGenerator
    {
       if(desc == null)
          throw new IllegalArgumentException("descriptor cannot be null.");
-      PSDeploymentHandler dh = PSDeploymentHandler.getInstance();
-      PSDependencyManager dm = (PSDependencyManager) dh.getDependencyManager();
-      
-      String packageName = desc.getName();
-      Iterator<? extends PSDependency> it = desc.getPackages();
-      StringBuilder sb = new StringBuilder();
+      var dh = PSDeploymentHandler.getInstance();
+      var dm = (PSDependencyManager) dh.getDependencyManager();
+      var packageName = desc.getName();
+      var it = desc.getPackages();
+      var sb = new StringBuilder();
       sb.append(ms_fragments.get("XMLHEAD"));
       while(it.hasNext())
       {
-         PSDependency el = it.next();
+         var el = it.next();
          if(el.getObjectType().equals("Custom"))
          {
-            Iterator<PSDependency> children = el.getDependencies();
+            var children = el.getDependencies();
             if(children.hasNext())
                el = children.next();
          }
-         String oName = el.getDisplayName();
-         PSTypeEnum typeEnum  = dm.getGuidType(el.getObjectType());
+         var oName = el.getDisplayName();
+         var typeEnum  = dm.getGuidType(el.getObjectType());
          if(typeEnum == null)
             continue;
-         String oType = typeEnum.toString();
-         String frag = getFragment(oName, oType, packageName);
+         var oType = typeEnum.toString();
+         var frag = getFragment(oName, oType, packageName);
          if(frag != null)
             sb.append(frag);
       }
@@ -144,7 +143,7 @@ public class PSConfigDefGenerator
     */
    private void parseFragmentFile() throws IOException
    {
-      String raw = getFragementFileContents();
+      var raw = getFragementFileContents();
       ms_fragments = PSParseFragments.parseContent(raw);
    }
    
@@ -155,27 +154,16 @@ public class PSConfigDefGenerator
     */
    public String getFragementFileContents() throws IOException
    {
-      InputStream in = null;
-      try
-      {
-         in = getClass().getResourceAsStream(FRAGMENT_FILE);
-         StringBuilder out = new StringBuilder();
-         byte[] b = new byte[4096];
-         for (int n; (n = in.read(b)) != -1;) 
-         {
-             out.append(new String(b, 0, n));
+      try (var in = getClass().getResourceAsStream(FRAGMENT_FILE)) {
+         var out = new StringBuilder();
+         var b = new byte[4096];
+         int n;
+         while ((n = in.read(b)) != -1) {
+            out.append(new String(b, 0, n));
          }
          return out.toString();
-
-      }      
-      finally
-      {
-         if(in != null)
-         {
-            in.close();
-         }
-      }      
-   }   
+      }
+   }
    
    
    /**

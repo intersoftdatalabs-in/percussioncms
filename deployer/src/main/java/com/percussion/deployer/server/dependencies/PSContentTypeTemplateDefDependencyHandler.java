@@ -73,130 +73,75 @@ public class PSContentTypeTemplateDefDependencyHandler
    // ctID is a PSGuid for a ContentType
    // parentType is the TEMPLATE
    // parentID  is the template ID ( PSGuid )
-   public PSDependency getDependency(PSSecurityToken tok, String ctID, 
-         String parentID, String parentName )
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String ctID, String parentID, String parentName) throws PSDeployException {
+      if (tok == null || ctID == null || ctID.isBlank() || parentID == null || parentID.isBlank() || parentName == null || parentName.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (ctID == null || ctID.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
+      var templateGuid = parseGuid(parentID, PSTypeEnum.TEMPLATE);
+      var ctypeGuid = parseGuid(ctID, PSTypeEnum.NODEDEF);
 
-      if (parentName == null || parentName.trim().length() == 0)
-         throw new IllegalArgumentException("parentType may not be null or empty");
-      
-      if (parentID == null || parentID.trim().length() == 0)
-         throw new IllegalArgumentException("parentID may not be null or empty");
-      
-      // template ids are GUIDs, make sure the id is a guid.
-      long templateGuid = -1;
-      long ctypeGuidVal = -1;
-      PSGuid ctypeGuid = null;
-      PSGuid tmpGuid   = null;
-      try {
-         templateGuid = Long.parseLong(parentID);
-         tmpGuid      = new PSGuid(PSTypeEnum.TEMPLATE, templateGuid);
-      }
-      catch ( NumberFormatException ne)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "ContentTypeTemplate Definition was expecting a long value: "
-                     + parentID);
-      }
-      // parse the ContentType GUID
-      try {
-         ctypeGuidVal = Long.parseLong(ctID);
-         ctypeGuid = new PSGuid(PSTypeEnum.NODEDEF, ctypeGuidVal);
-      }
-      catch ( NumberFormatException ne)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "ContentTypeTemplate Definition was expecting a long value: "
-                     + ctID);
-      }
-      
-      // Now build the dependency
-      PSDependency dep = null;
-      IPSContentMgr contentMgr = PSContentMgrLocator.getContentMgr();
+      var contentMgr = PSContentMgrLocator.getContentMgr();
       List<IPSNodeDefinition> nodeDefs;
-      try
-      {
+      try {
          nodeDefs = contentMgr.findAllItemNodeDefinitions();
+      } catch (RepositoryException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "RepositoryException occurred");
       }
-      catch (RepositoryException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-               "RepositoryException occurred");
+
+      var def = nodeDefs.stream()
+         .filter(nodeDef -> nodeDef.getGUID().equals(ctypeGuid))
+         .findFirst()
+         .orElse(null);
+
+      if (def != null) {
+         var dep = createDependency(m_def, String.valueOf(templateGuid.longValue()), def.getName());
+         dep.setDependencyType(PSDependency.TYPE_LOCAL);
+         return dep;
       }
-      Iterator<IPSNodeDefinition> it = nodeDefs.iterator();
-      IPSNodeDefinition def = null;
-      while ( it.hasNext() )
-      {
-         def = it.next();
-         if ( def.getGUID().equals(ctypeGuid) )
-         {
-            break;
-         }
+      return null;
+   }
+
+   private PSGuid parseGuid(String id, PSTypeEnum type) throws PSDeployException {
+      try {
+         var guidValue = Long.parseLong(id);
+         return new PSGuid(type, guidValue);
+      } catch (NumberFormatException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "Expected a long value: " + id);
       }
-      if ( def != null )
-      {
-         // This dependency contains a template guid as ID and ContentType
-         // i.e. NodeDef as the name.
-         // so that when installing the dependency, the PSAssemblyService can 
-         // locate template and PSContentMgr service can locate the contentType
-         // by name
-         dep = createDependency(m_def, ""+tmpGuid.longValue(), def.getName());
-         if ( dep != null )
-            dep.setDependencyType(PSDependency.TYPE_LOCAL);
-      }
-      return dep;
    }
 
    //see base class
    // Empty Implementation
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
          throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      List<PSDependency> childDeps = new ArrayList<>();
-      
-      return childDeps.iterator();
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return List.<PSDependency>of().iterator();
    }
  
    // see base class
    // Empty Implementation
+   @Override
    public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
-   {    
-      List<PSDependency> deps = new ArrayList<>();
-      return deps.iterator();
+   {
+      return List.<PSDependency>of().iterator();
    }
 
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-
-      // pack the data into the files
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      files.add(getEmptyDepFile());
-      return files.iterator();
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return List.of(getEmptyDepFile()).iterator();
    }
 
    /**
@@ -215,56 +160,22 @@ public class PSContentTypeTemplateDefDependencyHandler
    }
    
    // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+   @Override
+   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
          throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-
-      // retrieve dependency info
-      // template ids are GUIDs, make sure the id is a guid.
-      long templateGuid = -1;
-      PSGuid tmpGuid   = null;
+      var templateGuid = parseGuid(dep.getDependencyId(), PSTypeEnum.TEMPLATE);
+      var contentMgr = PSContentMgrLocator.getContentMgr();
       try {
-         templateGuid = Long.parseLong(dep.getDependencyId());
-         tmpGuid      = new PSGuid(PSTypeEnum.TEMPLATE, templateGuid);
-      }
-      catch ( NumberFormatException ne)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "ContentTypeTemplate Definition was expecting a long value: "
-                     + dep.getDependencyId());
-      }
-      
-      
-      IPSContentMgr contentMgr = PSContentMgrLocator.getContentMgr();
-      try
-      {
-         IPSNodeDefinition nodeDef = contentMgr.findNodeDefinitionByName(dep
-               .getDisplayName());
-         nodeDef.addVariantGuid(tmpGuid);
-         List<IPSNodeDefinition> newList = new ArrayList<>();
-         newList.add(nodeDef);
-         contentMgr.saveNodeDefinitions(newList);
-      }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "Repository Exception occurred while installing a dependency " +
-               dep.getDisplayName() + ". Error was " + e.getLocalizedMessage());
+         var nodeDef = contentMgr.findNodeDefinitionByName(dep.getDisplayName());
+         nodeDef.addVariantGuid(templateGuid);
+         contentMgr.saveNodeDefinitions(List.of(nodeDef));
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "Error installing dependency: " + e.getLocalizedMessage());
       }
    }
 

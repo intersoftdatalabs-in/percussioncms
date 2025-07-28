@@ -69,38 +69,31 @@ public abstract class PSAppPolicySetting  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   protected Element toXml(Document doc, String xmlNodeName)
-   {
-      if (doc == null)
+   protected Element toXml(Document doc, String xmlNodeName) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(xmlNodeName);
-      if ( useSetting() )
-         root.setAttribute(XML_ATTR_USE_SETTING, XML_ATTR_TRUE);
-      else
-         root.setAttribute(XML_ATTR_USE_SETTING, XML_ATTR_FALSE);
-
+      var root = doc.createElement(xmlNodeName);
+      root.setAttribute(XML_ATTR_USE_SETTING, useSetting() ? XML_ATTR_TRUE : XML_ATTR_FALSE);
       return root;
    }
 
    // see IPSDeployComponent interface
-   protected void fromXml(Element sourceNode, String xmlNodeName)
-      throws PSUnknownNodeTypeException
-   {
-       if (sourceNode == null)
+   protected void fromXml(Element sourceNode, String xmlNodeName) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!xmlNodeName.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { xmlNodeName, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      String sEnableFlag = PSDeployComponentUtils.getRequiredAttribute(
-         sourceNode, XML_ATTR_USE_SETTING);
+      if (!xmlNodeName.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{xmlNodeName, sourceNode.getNodeName()}
+         );
+      }
 
-      setUseSetting(sEnableFlag.equals(XML_ATTR_TRUE));
+      var sEnableFlag = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_USE_SETTING);
+      setUseSetting(XML_ATTR_TRUE.equals(sEnableFlag));
   }
 
    // See IPSDeployComponent interface

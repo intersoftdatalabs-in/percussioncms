@@ -22,6 +22,8 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
 @XmlRootElement(name = "Guid")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -54,8 +56,8 @@ public class Guid {
     private
     long longValue;
 
-    public String getUntypedString() {
-        return untypedString;
+    public Optional<String> getUntypedString() {
+        return Optional.ofNullable(untypedString);
     }
 
     public void setUntypedString(String untypedString) {
@@ -94,8 +96,8 @@ public class Guid {
         this.longValue = longValue;
     }
 
-    public String getStringValue() {
-        return stringValue;
+    public Optional<String> getStringValue() {
+        return Optional.ofNullable(stringValue);
     }
 
     public void setStringValue(String stringValue) {
@@ -104,18 +106,19 @@ public class Guid {
 
     public Guid(){}
 
-    /***
-     * Initializes a Guid from a guid string
-     * @param guid
+    /**
+     * Initializes a Guid from a guid string.
+     * @param guid the guid string, must not be null
      */
     public Guid(String guid){
-        PSGuid temp = new PSGuid(guid);
+        Objects.requireNonNull(guid, "guid must not be null");
+        var temp = new PSGuid(guid);
 
-        this.setStringValue(temp.toString());
-        this.setHostId(temp.getHostId());
-        this.setLongValue(temp.longValue());
-        this.setType(temp.getType());
-        this.setUuid(temp.getUUID());
-        this.setUntypedString(temp.toStringUntyped());
+        setStringValue(temp.toString());
+        setHostId(temp.getHostId());
+        setLongValue(temp.longValue());
+        setType(temp.getType());
+        setUuid(temp.getUUID());
+        setUntypedString(temp.toStringUntyped());
     }
 }

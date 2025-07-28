@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a system def override from a shared 
@@ -88,38 +89,37 @@ public class PSSystemDefElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or 
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      // get all shared groups
-      List deps = new ArrayList();
-      PSDependency dep;
-      
-      dep = getDependency(tok, APP_FLOW_ID);
-      if (dep != null)
-         deps.add(dep);
-                  
-      dep = getDependency(tok, CMD_SHEETS_ID);
-      if (dep != null)
-         deps.add(dep);
-                  
-      return deps.iterator();      
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
+         throw new IllegalArgumentException("tok may not be null");
+      }
+
+      var deps = List.of(
+         getDependency(tok, APP_FLOW_ID),
+         getDependency(tok, CMD_SHEETS_ID)
+      ).stream().filter(dep -> dep != null).collect(Collectors.toList());
+
+      return deps.iterator();
    }
    
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;
    }
    
    // see base class
-   public boolean doesDependencyExist(PSSecurityToken tok, String id) 
+   @Override
+   public boolean doesDependencyExist(PSSecurityToken tok, String id)
       throws PSDeployException
    {
       if (tok == null)
@@ -132,24 +132,24 @@ public class PSSystemDefElementDependencyHandler
    }
    
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id) 
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-         
-      PSDependency dep = null;
-      PSContentEditorSharedDef sharedDef = getSharedDef();
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (id.equals(APP_FLOW_ID) && sharedDef.getApplicationFlow() != null) 
-         dep = createDependency(m_def, APP_FLOW_ID, APP_FLOW_NAME);
-      else if (id.equals(CMD_SHEETS_ID) && sharedDef.getStylesheetSet() != null)
-         dep = createDependency(m_def, CMD_SHEETS_ID, CMD_SHEETS_NAME);
-      
-      return dep;
+      var sharedDef = getSharedDef();
+      return switch (id) {
+         case APP_FLOW_ID -> sharedDef.getApplicationFlow() != null
+            ? createDependency(m_def, APP_FLOW_ID, APP_FLOW_NAME)
+            : null;
+         case CMD_SHEETS_ID -> sharedDef.getStylesheetSet() != null
+            ? createDependency(m_def, CMD_SHEETS_ID, CMD_SHEETS_NAME)
+            : null;
+         default -> null;
+      };
    }
    
    // see base class
@@ -180,73 +180,43 @@ public class PSSystemDefElementDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-         
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      
-      List files = new ArrayList();         
-      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
-      
-      // figure out which file it's from and get it
-      String id = dep.getDependencyId();
-      Element srcEl = null;
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      
-      File defFile = null;
-      File[] defFiles = os.getContentEditorSharedDefFiles();
-      if (defFiles != null)
-      {
-         for (int i = 0; i < defFiles.length; i++) 
-         {
-            PSContentEditorSharedDef def;
-            try 
-            {
-               def = os.getContentEditorSharedDef(defFiles[i].getName());
-            }
-            catch (Exception e) 
-            {
-               throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-                  e.getLocalizedMessage());
-            }
-            
-            if (id.equals(APP_FLOW_ID) && def.getApplicationFlow() != null) 
-            {
-               srcEl = def.getApplicationFlow().toXml(doc);
-               defFile = defFiles[i];
-               break;
-            }
-            else if (id.equals(CMD_SHEETS_ID) && def.getStylesheetSet() != null)
-            {
-               srcEl = def.getStylesheetSet().toXml(doc);
-               defFile = defFiles[i];
-               break;
-            }
-         }
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
 
-      if (srcEl == null)
-      {
-         Object[] args = {dep.getObjectTypeName(), dep.getDependencyId(), 
-               dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, 
-            args);
-      }
-      
-      
-      PSXmlDocumentBuilder.replaceRoot(doc, srcEl);
-      File docFile = createXmlFile(doc);
-      files.add(new PSDependencyFile(PSDependencyFile.TYPE_SHARED_GROUP_XML, 
-         docFile, defFile));
-            
-      return files.iterator();
+      var os = PSServerXmlObjectStore.getInstance();
+      var defFiles = os.getContentEditorSharedDefFiles();
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
+
+      var file = List.of(defFiles).stream()
+         .map(defFile -> {
+            try {
+               var def = os.getContentEditorSharedDef(defFile.getName());
+               return switch (dep.getDependencyId()) {
+                  case APP_FLOW_ID -> def.getApplicationFlow() != null
+                     ? def.getApplicationFlow().toXml(doc)
+                     : null;
+                  case CMD_SHEETS_ID -> def.getStylesheetSet() != null
+                     ? def.getStylesheetSet().toXml(doc)
+                     : null;
+                  default -> null;
+               };
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
+         })
+         .filter(srcEl -> srcEl != null)
+         .findFirst()
+         .orElseThrow(() -> new PSDeployException(
+            IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+            new Object[]{dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()}
+         ));
+
+      PSXmlDocumentBuilder.replaceRoot(doc, file);
+      var docFile = createXmlFile(doc);
+      return List.of(new PSDependencyFile(PSDependencyFile.TYPE_SHARED_GROUP_XML, docFile)).iterator();
    }
 
    // see base class

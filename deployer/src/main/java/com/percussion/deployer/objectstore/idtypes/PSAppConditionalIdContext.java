@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -216,18 +217,15 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_TYPE, TYPE_ENUM[m_type]);
       root.appendChild(m_cond.toXml(doc));
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-         root.appendChild(parent.toXml(doc));
-
+      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
       return root;
 
    }
@@ -238,61 +236,53 @@ public class PSAppConditionalIdContext extends PSApplicationIdContext
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      String strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_TYPE);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
+
+      var strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
       m_type = -1;
-      for (int i = 0; i < TYPE_ENUM.length && m_type == -1; i++)
-      {
-         if (TYPE_ENUM[i].equals(strType))
+      for (var i = 0; i < TYPE_ENUM.length && m_type == -1; i++) {
+         if (TYPE_ENUM[i].equals(strType)) {
             m_type = i;
+         }
       }
-      if (!validateType(m_type))
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_TYPE, strType};
+      if (!validateType(m_type)) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_TYPE, strType}
+         );
       }
 
-
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element condEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (condEl == null)
-      {
-         Object[] args = {XML_NODE_NAME, "null", "null"};
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var condEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      if (condEl == null) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+            new Object[]{XML_NODE_NAME, "null", "null"}
+         );
       }
 
-      String condNodeName = condEl.getNodeName();
-      if (condNodeName.equals(PSConditional.ms_NodeType))
-         m_cond = new PSConditional(condEl, null, null);
-      else if (condNodeName.equals(PSWhereClause.ms_NodeType))
-         m_cond = new PSWhereClause(condEl, null, null);
-      else
-      {
-         Object[] args = {PSConditional.ms_NodeType, condEl.getNodeName()};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      switch (condEl.getNodeName()) {
+         case PSConditional.ms_NodeType -> m_cond = new PSConditional(condEl, null, null);
+         case PSWhereClause.ms_NodeType -> m_cond = new PSWhereClause(condEl, null, null);
+         default -> throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{PSConditional.ms_NodeType, condEl.getNodeName()}
+         );
       }
-      m_origCond = (PSConditional)m_cond.clone();
+      m_origCond = (PSConditional) m_cond.clone();
 
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      if (ctxEl != null)
-         setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
    }
 
    // see IPSDeployComponent interface

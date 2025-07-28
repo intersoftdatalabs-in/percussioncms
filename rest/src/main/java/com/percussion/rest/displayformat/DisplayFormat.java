@@ -22,16 +22,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a Display Format in Percussion CMS.
+ */
 @XmlRootElement(name = "DisplayFormat")
-@Schema(description="Represents a DisplayFormat.")
-public class DisplayFormat{
+@Schema(description = "Represents a DisplayFormat.")
+public class DisplayFormat {
 
-    @Schema(description="The global unique id for this item.")
+    @Schema(description = "The global unique id for this item.")
     private Guid guid;
 
-    @Schema(description="The name of this Display Format")
+    @Schema(description = "The name of this Display Format")
     private String name;
+
     private String label;
     private boolean validForRelatedContent;
     private String sortedColumnNames;
@@ -44,44 +50,46 @@ public class DisplayFormat{
     private DisplayFormatPropertyList properties;
     private DisplayFormatColumnList columns;
     private String internalName;
-    private Map<Guid,String> allowedCommunities;
+    private Map<Guid, String> allowedCommunities;
     private String description;
     private String displayName;
 
-    public String getDescription() {
-        return description;
+    public DisplayFormat() {}
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Optional<String> getDisplayName() {
+        return Optional.ofNullable(displayName);
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    public Guid getGuid() {
-        return guid;
+    public Optional<Guid> getGuid() {
+        return Optional.ofNullable(guid);
     }
 
     public void setGuid(Guid guid) {
         this.guid = guid;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getLabel() {
-        return label;
+    public Optional<String> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     public void setLabel(String label) {
@@ -96,8 +104,8 @@ public class DisplayFormat{
         this.validForRelatedContent = validForRelatedContent;
     }
 
-    public String getSortedColumnNames() {
-        return sortedColumnNames;
+    public Optional<String> getSortedColumnNames() {
+        return Optional.ofNullable(sortedColumnNames);
     }
 
     public void setSortedColumnNames(String sortedColumnNames) {
@@ -136,8 +144,8 @@ public class DisplayFormat{
         this.validForFolder = validForFolder;
     }
 
-    public String getInvalidFolderFieldNames() {
-        return invalidFolderFieldNames;
+    public Optional<String> getInvalidFolderFieldNames() {
+        return Optional.ofNullable(invalidFolderFieldNames);
     }
 
     public void setInvalidFolderFieldNames(String invalidFolderFieldNames) {
@@ -152,39 +160,89 @@ public class DisplayFormat{
         this.displayId = displayId;
     }
 
-    public DisplayFormatPropertyList getProperties() {
-        return properties;
+    public Optional<DisplayFormatPropertyList> getProperties() {
+        return Optional.ofNullable(properties);
     }
 
     public void setProperties(DisplayFormatPropertyList properties) {
         this.properties = properties;
     }
 
-    public DisplayFormatColumnList getColumns() {
-        return columns;
+    public Optional<DisplayFormatColumnList> getColumns() {
+        return Optional.ofNullable(columns);
     }
 
     public void setColumns(DisplayFormatColumnList columns) {
         this.columns = columns;
     }
 
-    public String getInternalName() {
-        return internalName;
+    public Optional<String> getInternalName() {
+        return Optional.ofNullable(internalName);
     }
 
     public void setInternalName(String internalName) {
         this.internalName = internalName;
     }
 
-    public Map<Guid, String> getAllowedCommunities() {
-        return allowedCommunities;
+    public Optional<Map<Guid, String>> getAllowedCommunities() {
+        return Optional.ofNullable(allowedCommunities);
     }
 
     public void setAllowedCommunities(Map<Guid, String> allowedCommunities) {
         this.allowedCommunities = allowedCommunities;
     }
 
-    public DisplayFormat (){
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DisplayFormat)) return false;
+        var that = (DisplayFormat) o;
+        return validForRelatedContent == that.validForRelatedContent &&
+                ascendingSort == that.ascendingSort &&
+                descendingSort == that.descendingSort &&
+                validForViewsAndSearches == that.validForViewsAndSearches &&
+                validForFolder == that.validForFolder &&
+                displayId == that.displayId &&
+                Objects.equals(guid, that.guid) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(label, that.label) &&
+                Objects.equals(sortedColumnNames, that.sortedColumnNames) &&
+                Objects.equals(invalidFolderFieldNames, that.invalidFolderFieldNames) &&
+                Objects.equals(properties, that.properties) &&
+                Objects.equals(columns, that.columns) &&
+                Objects.equals(internalName, that.internalName) &&
+                Objects.equals(allowedCommunities, that.allowedCommunities) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(displayName, that.displayName);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(guid, name, label, validForRelatedContent, sortedColumnNames, ascendingSort, descendingSort,
+                validForViewsAndSearches, validForFolder, invalidFolderFieldNames, displayId, properties, columns,
+                internalName, allowedCommunities, description, displayName);
+    }
+
+    @Override
+    public String toString() {
+        return "DisplayFormat{" +
+                "guid=" + guid +
+                ", name='" + name + '\'' +
+                ", label='" + label + '\'' +
+                ", validForRelatedContent=" + validForRelatedContent +
+                ", sortedColumnNames='" + sortedColumnNames + '\'' +
+                ", ascendingSort=" + ascendingSort +
+                ", descendingSort=" + descendingSort +
+                ", validForViewsAndSearches=" + validForViewsAndSearches +
+                ", validForFolder=" + validForFolder +
+                ", invalidFolderFieldNames='" + invalidFolderFieldNames + '\'' +
+                ", displayId=" + displayId +
+                ", properties=" + properties +
+                ", columns=" + columns +
+                ", internalName='" + internalName + '\'' +
+                ", allowedCommunities=" + allowedCommunities +
+                ", description='" + description + '\'' +
+                ", displayName='" + displayName + '\'' +
+                '}';
+    }
 }

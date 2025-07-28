@@ -17,6 +17,12 @@
 
 package com.percussion.rest.actions;
 
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * Represents a UI context for an action menu.
+ */
 public class UIContext {
 
     private int id;
@@ -24,7 +30,7 @@ public class UIContext {
     private String displayName;
     private String description;
 
-    public UIContext (){}
+    public UIContext() {}
 
     public int getId() {
         return id;
@@ -34,27 +40,53 @@ public class UIContext {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Optional<String> getDisplayName() {
+        return Optional.ofNullable(displayName);
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UIContext)) return false;
+        var that = (UIContext) o;
+        return id == that.id
+                && Objects.equals(name, that.name)
+                && Objects.equals(displayName, that.displayName)
+                && Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, displayName, description);
+    }
+
+    @Override
+    public String toString() {
+        return "UIContext{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

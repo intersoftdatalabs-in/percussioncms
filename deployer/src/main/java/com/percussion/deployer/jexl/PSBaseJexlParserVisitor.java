@@ -731,10 +731,9 @@ private static final Logger log = LogManager
    }
    
    @Override
-   protected Object visit(ASTContinue node, Object data)
-   {
+   protected Object visit(ASTContinue node, Object data) {
        log.debug("Visiting ASTContinue");
-       return doVisit(node,data);
+       return doVisit(node, data);
    }
    
    /**
@@ -744,7 +743,7 @@ private static final Logger log = LogManager
     * @param arg1 the original expression node or script node
     * @return the original expression node
     */
-   protected abstract Object doVisit(SimpleNode arg0, Object arg1);
+   protected abstract Object doVisit(SimpleNode node, Object parent);
 
 
 }

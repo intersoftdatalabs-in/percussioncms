@@ -82,8 +82,7 @@ public class PSIdMap implements IPSDeployComponent
     * @return iterator over zero or more <code>PSIdMapping</code> objects,
     * never <code>null</code>.
     */
-   public Iterator getMappings()
-   {
+   public Iterator<PSIdMapping> getMappings() {
       return m_mappingList.iterator();
    }
 
@@ -170,27 +169,13 @@ public class PSIdMap implements IPSDeployComponent
             "parentType may not be null or empty");
       }
       
-      Iterator mappings = m_mappingList.iterator();
-      PSIdMapping result = null;
-      while (mappings.hasNext() && result == null)
-      {
-         PSIdMapping mapping = (PSIdMapping) mappings.next();
-         if ( sourceId.equals(mapping.getSourceId()) &&
-            objectType.equals(mapping.getObjectType()) )
-         {
-            if (parentId != null)
-            {
-               if ( parentId.equals(mapping.getSourceParentId()) &&
-                  parentType.equals(mapping.getParentType()))
-               {
-                  result = mapping;
-               }
-            }
-            else
-               result = mapping;
-         }
-      }
-      return result;
+      return m_mappingList.stream()
+         .filter(mapping -> sourceId.equals(mapping.getSourceId()) &&
+                            objectType.equals(mapping.getObjectType()) &&
+                            (parentId == null || (parentId.equals(mapping.getSourceParentId()) &&
+                                                  parentType.equals(mapping.getParentType()))))
+         .findFirst()
+         .orElse(null);
    }
 
    
@@ -289,7 +274,7 @@ public class PSIdMap implements IPSDeployComponent
    public void addMapping(PSIdMapping mapping)
    {
       if ( mapping == null )
-         throw new IllegalArgumentException("mappinge may not be null");
+         throw new IllegalArgumentException("mapping may not be null");
 
       m_mappingList.add(mapping);
    }
@@ -308,13 +293,13 @@ public class PSIdMap implements IPSDeployComponent
    public void removeMapping(PSIdMapping mapping)
    {
       if ( mapping == null )
-         throw new IllegalArgumentException("mappinge may not be null");
+         throw new IllegalArgumentException("mapping may not be null");
 
-      mapping = getMapping(mapping.getSourceId(), mapping.getObjectType(), 
-         mapping.getSourceParentId(), mapping.getParentType());
-      
-      if(mapping != null)
-         m_mappingList.remove(mapping);
+      var existingMapping = getMapping(mapping.getSourceId(), mapping.getObjectType(),
+                                        mapping.getSourceParentId(), mapping.getParentType());
+      if (existingMapping != null) {
+          m_mappingList.remove(existingMapping);
+      }
    }
    
    /**
@@ -570,15 +555,10 @@ public class PSIdMap implements IPSDeployComponent
       if (doc == null)
          throw new IllegalArgumentException("doc should not be null");
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_SRC_SERVER, m_sourceServer);
 
-      Iterator list = m_mappingList.iterator();
-      while ( list.hasNext() )
-      {
-         PSIdMapping mapping = (PSIdMapping) list.next();
-         root.appendChild(mapping.toXml(doc));
-      }
+      m_mappingList.forEach(mapping -> root.appendChild(mapping.toXml(doc)));
       return root;
    }
 
@@ -680,7 +660,7 @@ public class PSIdMap implements IPSDeployComponent
     * Containing a list of <code>PSIdMapping</code> objects. It will never be
     * <code>null</code>, may be empty.
     */
-   private List m_mappingList = new ArrayList();
+   private List<PSIdMapping> m_mappingList = new ArrayList<>();
 
    /**
     * flags to walk to a child node of a XML tree

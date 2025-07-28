@@ -70,11 +70,8 @@ public class Pair {
 
     /**
      * Gets the value of the pvalue1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the pvalue1, may be null
      */
     public String getPvalue1() {
         return pvalue1;
@@ -82,11 +79,8 @@ public class Pair {
 
     /**
      * Sets the value of the pvalue1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the pvalue1 to set, may be null
      */
     public void setPvalue1(String value) {
         this.pvalue1 = value;
@@ -94,11 +88,8 @@ public class Pair {
 
     /**
      * Gets the value of the pvalue2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the pvalue2, may be null
      */
     public String getPvalue2() {
         return pvalue2;
@@ -106,11 +97,8 @@ public class Pair {
 
     /**
      * Sets the value of the pvalue2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the pvalue2 to set, may be null
      */
     public void setPvalue2(String value) {
         this.pvalue2 = value;
@@ -118,11 +106,8 @@ public class Pair {
 
     /**
      * Gets the value of the value1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the value1, may be null
      */
     public String getValue1() {
         return value1;
@@ -130,11 +115,8 @@ public class Pair {
 
     /**
      * Sets the value of the value1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the value1 to set, may be null
      */
     public void setValue1(String value) {
         this.value1 = value;
@@ -142,11 +124,8 @@ public class Pair {
 
     /**
      * Gets the value of the value2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the value2, may be null
      */
     public String getValue2() {
         return value2;
@@ -154,14 +133,10 @@ public class Pair {
 
     /**
      * Sets the value of the value2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the value2 to set, may be null
      */
     public void setValue2(String value) {
         this.value2 = value;
     }
-
 }

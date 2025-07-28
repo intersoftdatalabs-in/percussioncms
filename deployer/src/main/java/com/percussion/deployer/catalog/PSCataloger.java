@@ -221,14 +221,10 @@ public class PSCataloger
          
       if(requestProps != null && !requestProps.isEmpty())
       {
-         Iterator props = requestProps.entrySet().iterator();
-         while(props.hasNext())
-         {
-            Map.Entry entry = (Map.Entry)props.next();
-            PSXmlDocumentBuilder.addElement(   reqDoc, root,
-               (String)entry.getKey(), (String)entry.getValue());            
-         }
-      }      
+         requestProps.entrySet().stream()
+            .map(entry -> Map.entry((String) entry.getKey(), (String) entry.getValue()))
+            .forEach(entry -> PSXmlDocumentBuilder.addElement(reqDoc, root, entry.getKey(), entry.getValue()));
+      }
       return reqDoc;
    }
    
@@ -292,24 +288,21 @@ public class PSCataloger
     */
    public static final String TYPE_REQ_USER_DEP = "UserDependencies";   
 
-   public static List<String> ms_supportedReqTypes = new ArrayList<String>();
-   static 
-   {
-      ms_supportedReqTypes.add(TYPE_REQ_ARCHIVES);
-      ms_supportedReqTypes.add(TYPE_REQ_DATASOURCES);
-      ms_supportedReqTypes.add(TYPE_REQ_CUSTOM_TYPES);            
-      ms_supportedReqTypes.add(TYPE_REQ_DEPLOY_TYPES);
-      ms_supportedReqTypes.add(TYPE_REQ_DESCRIPTORS);
-      ms_supportedReqTypes.add(TYPE_REQ_LITERAL_ID_TYPES);      
-      ms_supportedReqTypes.add(TYPE_REQ_TYPE_OBJECTS);            
-      ms_supportedReqTypes.add(TYPE_REQ_PACKAGELOGS);                  
-      ms_supportedReqTypes.add(TYPE_REQ_USER_DEP);
-   }
-   
+   public static List<String> ms_supportedReqTypes = List.of(
+      TYPE_REQ_ARCHIVES,
+      TYPE_REQ_DATASOURCES,
+      TYPE_REQ_CUSTOM_TYPES,
+      TYPE_REQ_DEPLOY_TYPES,
+      TYPE_REQ_DESCRIPTORS,
+      TYPE_REQ_LITERAL_ID_TYPES,
+      TYPE_REQ_TYPE_OBJECTS,
+      TYPE_REQ_PACKAGELOGS,
+      TYPE_REQ_USER_DEP
+   );
+
    /**
     * The connection to deployment server that to be cataloged for requests. 
     * Initialized in the constructor and never modified after that.
     */
    private PSDeploymentServerConnection m_conn;
 }
-

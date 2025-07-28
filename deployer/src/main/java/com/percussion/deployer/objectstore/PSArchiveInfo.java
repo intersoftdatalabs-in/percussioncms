@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Contains all high level info describing an archive file.
@@ -309,71 +310,39 @@ public class PSArchiveInfo implements IPSDeployComponent
     * signature.
     */
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
+      if (sourceNode == null) throw new IllegalArgumentException("sourceNode may not be null");
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
 
-      m_archiveRef = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_ARCHIVE_REF);
-      m_serverName = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_SERVER_NAME);
-      m_userName = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_USER_NAME);
-      m_category = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_CATEGORY);
-      if (sourceNode.getAttribute(XML_ATTR_EDITABLE).equalsIgnoreCase("true"))
-      {
-         setEditable(true);
-      }
-      else
-      {
-         setEditable(false);
-      }
-      String created = sourceNode.getAttribute(XML_ATTR_CREATED);
-      m_created = created == null || created.equals("-1") 
-         ? (new Date()).getTime()
-         : (new Long(created)).longValue();  
-               
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+      m_archiveRef = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ARCHIVE_REF);
+      m_serverName = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_SERVER_NAME);
+      m_userName = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_USER_NAME);
+      m_category = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_CATEGORY);
+      m_editable = "true".equalsIgnoreCase(sourceNode.getAttribute(XML_ATTR_EDITABLE));
+      m_created = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_CREATED))
+         .filter(created -> !created.equals("-1"))
+         .map(Long::valueOf)
+         .orElseGet(() -> new Date().getTime());
 
-      Element serverInfoEl = tree.getNextElement(PSFormatVersion.NODE_TYPE,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (serverInfoEl == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSFormatVersion.NODE_TYPE);
-      }
-
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var serverInfoEl = Optional.ofNullable(tree.getNextElement(PSFormatVersion.NODE_TYPE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSFormatVersion.NODE_TYPE
+         ));
       m_serverInfo = PSFormatVersion.createFromXml(serverInfoEl);
 
-      if (m_serverInfo == null)
-      {
-         Object[] args = {XML_NODE_NAME, PSFormatVersion.NODE_TYPE, "unknown"};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-      }
-
-      tree.setCurrent(sourceNode);
-      Element repositoryEl = tree.getNextElement(PSDbmsInfo.XML_NODE_NAME,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (repositoryEl == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDbmsInfo.XML_NODE_NAME);
-      }
+      var repositoryEl = Optional.ofNullable(tree.getNextElement(PSDbmsInfo.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDbmsInfo.XML_NODE_NAME
+         ));
       m_repository = new PSDbmsInfo(repositoryEl);
 
-      tree.setCurrent(sourceNode);
-      Element detailEl = tree.getNextElement(PSArchiveDetail.XML_NODE_NAME,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (detailEl != null)
-         m_detail = new PSArchiveDetail(detailEl);
+      var detailEl = tree.getNextElement(PSArchiveDetail.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      m_detail = Optional.ofNullable(detailEl).map(PSArchiveDetail::new).orElse(null);
    }
 
 
@@ -423,16 +392,16 @@ public class PSArchiveInfo implements IPSDeployComponent
    public boolean equals(Object o) {
       if (this == o) return true;
       if (!(o instanceof PSArchiveInfo)) return false;
-      PSArchiveInfo that = (PSArchiveInfo) o;
+      var that = (PSArchiveInfo) o;
       return m_editable == that.m_editable &&
-              m_created == that.m_created &&
-              m_archiveRef.equals(that.m_archiveRef) &&
-              Objects.equals(m_serverName, that.m_serverName) &&
-              Objects.equals(m_serverInfo, that.m_serverInfo) &&
-              Objects.equals(m_userName, that.m_userName) &&
-              Objects.equals(m_detail, that.m_detail) &&
-              Objects.equals(m_repository, that.m_repository) &&
-              Objects.equals(m_category, that.m_category);
+             m_created == that.m_created &&
+             Objects.equals(m_archiveRef, that.m_archiveRef) &&
+             Objects.equals(m_serverName, that.m_serverName) &&
+             Objects.equals(m_serverInfo, that.m_serverInfo) &&
+             Objects.equals(m_userName, that.m_userName) &&
+             Objects.equals(m_detail, that.m_detail) &&
+             Objects.equals(m_repository, that.m_repository) &&
+             Objects.equals(m_category, that.m_category);
    }
 
    @Override

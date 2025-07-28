@@ -20,46 +20,29 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents an Action Menu property.
+ */
 @XmlRootElement(name = "ActionMenuProperty")
 @Schema(description = "Represents an Action Menu property")
 public class ActionMenuProperty {
 
-    @Schema(description="The action to which this property belongs.")
+    @Schema(description = "The action to which this property belongs.")
     private int actionId;
 
-    @Schema(description="The name of the property")
+    @Schema(description = "The name of the property")
     private String name;
-    @Schema(description="The value of the property")
+
+    @Schema(description = "The value of the property")
     private String value;
-    @Schema(description="The description of the property")
+
+    @Schema(description = "The description of the property")
     private String description;
 
-    public ActionMenuProperty(){}
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public ActionMenuProperty() {}
 
     public int getActionId() {
         return actionId;
@@ -67,5 +50,55 @@ public class ActionMenuProperty {
 
     public void setActionId(int actionId) {
         this.actionId = actionId;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Optional<String> getValue() {
+        return Optional.ofNullable(value);
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ActionMenuProperty)) return false;
+        var that = (ActionMenuProperty) o;
+        return actionId == that.actionId &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(actionId, name, value, description);
+    }
+
+    @Override
+    public String toString() {
+        return "ActionMenuProperty{" +
+                "actionId=" + actionId +
+                ", name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.folders;
 
 import com.percussion.error.PSExceptionUtils;
@@ -55,25 +57,35 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@PSSiteManageBean(value="restFoldersResource")
+/**
+ * REST resource for Folder and Section operations.
+ * Sunny Sal: "Folders ka resource, operations ka force!"
+ */
+@PSSiteManageBean(value = "restFoldersResource")
 @Path("/folders")
 @XmlRootElement
 @Tag(name = "Folders", description = "Folder and Section operations")
-public class FoldersResource
-{
-    private Pattern p = Pattern.compile("^\\/?([^\\/]+)(\\/(.*?))??(\\/([^\\/]+))?$");
+public class FoldersResource {
+
+    private final Pattern p = Pattern.compile("^\\/?([^\\/]+)(\\/(.*?))??(\\/([^\\/]+))?$");
     private static final Logger log = LogManager.getLogger(FoldersResource.class);
 
-    private IFolderAdaptor folderAdaptor;
+    private final IFolderAdaptor folderAdaptor;
 
     @Context
     private UriInfo uriInfo;
 
     @Autowired
-    public FoldersResource(IFolderAdaptor adaptor){
+    public FoldersResource(IFolderAdaptor adaptor) {
         this.folderAdaptor = adaptor;
     }
-    
+
+    /**
+     * Get the specified folder by it's guid
+     *
+     * @param guid the guid of the folder
+     * @return the folder with the specified guid
+     */
     @GET
     @Path("/{guid}")
     @Produces(
@@ -96,8 +108,14 @@ public class FoldersResource
             throw new WebApplicationException(e);
         }
     }
-    
-    
+
+
+    /**
+     * Retrieve folder by Path
+     *
+     * @param path the path from the site to the folder
+     * @return the folder at the specified path
+     */
     @GET
     @Path("/by-path/{folderpath:.+}")
     @Produces(
@@ -143,11 +161,10 @@ public class FoldersResource
 
     /**
      * Update or create the folder
-     * 
-     * @param folder The folder to create or update.
      *
+     * @param folder The folder to create or update.
+     * @param path the path from the site to the folder
      * @return The updated or created folder representation.
-     * 
      */
     @PUT
     @Path("/by-path/{folderpath:.+}")
@@ -208,6 +225,12 @@ public class FoldersResource
         }
     }
 
+    /**
+     * Delete a folder item below root of site
+     *
+     * @param itempath the path to the item
+     * @return status of the delete operation
+     */
     @DELETE
     @Path("/item/{itempath:.+}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -242,7 +265,13 @@ public class FoldersResource
         }
     }
 
-
+    /**
+     * Delete a folder below root of site
+     *
+     * @param path the path from the site to the folder
+     * @param includeSubFolders boolean to delete subfolders along with the folder
+     * @return status of the delete operation
+     */
     @DELETE
     @Path("/by-path/{folderpath:.+}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -285,7 +314,13 @@ public class FoldersResource
             throw new WebApplicationException("Folder not found",404);
         }
     }
-    
+
+    /**
+     * Moves the specified item in the MoveFolderItem request to the target path.
+     *
+     * @param moveRequest the request containing item and target folder paths
+     * @return status of the move operation
+     */
     @POST
     @Path("/move/item")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -307,7 +342,12 @@ public class FoldersResource
         }
     }
 
-
+    /**
+     * Moves the specified Folder in the MoveFolderItem request to the target path.
+     *
+     * @param moveRequest the request containing source and target folder paths
+     * @return status of the move operation
+     */
     @POST
     @Path("/move/folder")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -330,6 +370,12 @@ public class FoldersResource
         }
     }
 
+    /**
+     * Copies the specified item in the CopyFolderItemRequest request to the target path.
+     *
+     * @param request the request containing item and target folder paths
+     * @return status of the copy operation
+     */
     @POST
     @Path("/copy/item")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -354,6 +400,12 @@ public class FoldersResource
         }
     }
 
+    /**
+     * Moves the specified Folder in the CopyFolderItem request to the target path.
+     *
+     * @param request the request containing source and target folder paths
+     * @return status of the copy operation
+     */
     @POST
     @Path("/copy/folder")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -380,6 +432,13 @@ public class FoldersResource
         }
     }
 
+    /**
+     * Rename the specified Folder.
+     *
+     * @param path the path to the folder
+     * @param newName the new name for the folder
+     * @return the renamed folder
+     */
     @POST
     @Path("/rename/{folderPath:.+}/{name}")
     @Consumes(MediaType.APPLICATION_JSON)
