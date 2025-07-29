@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,22 +27,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
+/**
+ * Represents a list of region CSS objects.
+ */
 @XmlRootElement(name = "RegionCssList")
-public class PSRegionCssList extends PSAbstractDataObject
-{
+public class PSRegionCssList extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
-    
+
     private List<PSRegionCSS> regions = new ArrayList<>();
-    
-    public List<PSRegionCSS> getRegions()
-    {
+
+    public List<PSRegionCSS> getRegions() {
         return regions;
     }
-    
-    public void setRegions(List<PSRegionCSS> regionList)
-    {
+
+    public void setRegions(List<PSRegionCSS> regionList) {
         notNull(regionList);
-        
         regions = regionList;
     }
 }

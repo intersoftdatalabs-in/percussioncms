@@ -42,83 +42,63 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 
 /**
- * This is a workflow action that gets executed by the aging agent, Gets the locator from the supplied workflow context 
- * and calls the {@link IPSSitePublishService#publish(String, PubType, String, boolean, String)} to do the actual work.
- * Uses the type as PubType.TAKEDOWN_NOW.
- *
+ * Workflow action executed by the aging agent.
+ * Gets the locator from the workflow context and calls the publish service with PubType.TAKEDOWN_NOW.
  */
-public class PSAutoUnPublishItem extends PSDefaultExtension implements
-      IPSWorkflowAction
-{
+public class PSAutoUnPublishItem extends PSDefaultExtension implements IPSWorkflowAction {
 
-   /*
-    * //see base class method for details
-    */
-   @Override
-   public void init(IPSExtensionDef def, File codeRoot)
-      throws PSExtensionException
-   {
-      super.init(def, codeRoot);
-      PSSpringWebApplicationContextUtils.injectDependencies(this);
-   }
+    private IPSSitePublishService sitePublishService;
+    private IPSIdMapper idMapper;
+    private IPSDataItemSummaryService itemSummaryService;
+    private static final Logger log = LogManager.getLogger(PSAutoUnPublishItem.class);
 
-   /*
-    * //see base class method for details
-    */
-   public void performAction(IPSWorkFlowContext arg0, IPSRequestContext arg1)
-      throws PSExtensionProcessingException
-   {
-      try {
-         PSLocator loc = new PSLocator(arg0.getContentID(), arg0
-                 .getBaseRevisionNum());
-         String cguid = idMapper.getString(loc);
-         PSWebserviceUtils.setUserName("rxserver");
-         IPSItemSummary sum = itemSummaryService.find(cguid);
-         sitePublishService.publish(null, PubType.TAKEDOWN_NOW, cguid, sum.isResource(), null);
-      } catch (PSDataServiceException | IPSPubServerService.PSPubServerServiceException | IPSItemWorkflowService.PSItemWorkflowServiceException | IPSItemService.PSItemServiceException | PSNotFoundException e) {
-         log.error("Error un publishing content id: {} Error: {}", arg0.getContentID(),e.getMessage());
-         throw new PSExtensionProcessingException(e.getMessage(),e);
-      }
-   }
-   
-   //Services getters and setters used by spring to inject
-   public IPSDataItemSummaryService getItemSummaryService()
-   {
-      return itemSummaryService;
-   }
+    @Override
+    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+        super.init(def, codeRoot);
+        PSSpringWebApplicationContextUtils.injectDependencies(this);
+    }
 
-   public void setItemSummaryService(IPSDataItemSummaryService itemSummaryService)
-   {
-      this.itemSummaryService = itemSummaryService;
-   }
+    @Override
+    public void performAction(IPSWorkFlowContext ctx, IPSRequestContext req)
+            throws PSExtensionProcessingException {
+        try {
+            var loc = new PSLocator(ctx.getContentID(), ctx.getBaseRevisionNum());
+            var cguid = idMapper.getString(loc);
+            PSWebserviceUtils.setUserName("rxserver");
+            var sum = itemSummaryService.find(cguid);
+            sitePublishService.publish(null, PubType.TAKEDOWN_NOW, cguid, sum.isResource(), null);
+        } catch (PSDataServiceException |
+                 IPSPubServerService.PSPubServerServiceException |
+                 IPSItemWorkflowService.PSItemWorkflowServiceException |
+                 IPSItemService.PSItemServiceException |
+                 PSNotFoundException e) {
+            log.error("Error unpublishing content id: {} Error: {}", ctx.getContentID(), e.getMessage());
+            throw new PSExtensionProcessingException(e.getMessage(), e);
+        }
+    }
 
-   public IPSSitePublishService getSitePublishService()
-   {
-      return sitePublishService;
-   }
+    // Dependency injection setters/getters
+    public IPSDataItemSummaryService getItemSummaryService() {
+        return itemSummaryService;
+    }
 
-   public void setSitePublishService(IPSSitePublishService sitePublishService)
-   {
-      this.sitePublishService = sitePublishService;
-   }
+    public void setItemSummaryService(IPSDataItemSummaryService itemSummaryService) {
+        this.itemSummaryService = itemSummaryService;
+    }
 
-   public IPSIdMapper getIdMapper()
-   {
-      return idMapper;
-   }
+    public IPSSitePublishService getSitePublishService() {
+        return sitePublishService;
+    }
 
-   public void setIdMapper(IPSIdMapper idMapper)
-   {
-      this.idMapper = idMapper;
-   }
+    public void setSitePublishService(IPSSitePublishService sitePublishService) {
+        this.sitePublishService = sitePublishService;
+    }
 
-   private static final Logger log = LogManager.getLogger(PSAutoUnPublishItem.class);
+    public IPSIdMapper getIdMapper() {
+        return idMapper;
+    }
 
-   //Services used
-   private IPSSitePublishService sitePublishService;
-
-   private IPSIdMapper idMapper;
-
-   private IPSDataItemSummaryService itemSummaryService;
-
+    public void setIdMapper(IPSIdMapper idMapper) {
+        this.idMapper = idMapper;
+    }
 }

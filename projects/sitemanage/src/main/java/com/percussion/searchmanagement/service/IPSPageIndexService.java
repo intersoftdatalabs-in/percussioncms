@@ -22,16 +22,15 @@ import java.util.Set;
 
 /**
  * Provides search indexing support for pages.
- *  
- * @author peterfrontiero
  */
 public interface IPSPageIndexService {
-    
+
     /**
-     * Indexes the specified pages and/or templates.  Templates are not indexed directly.  Instead, all pages which use
-     * the templates are indexed.
-     * 
-     * @param set of content id's to index.  May not be <code>null</code>.
+     * Indexes the specified pages and/or templates. Templates are not indexed directly.
+     * Instead, all pages which use the templates are indexed.
+     *
+     * @param ids set of content IDs to index. May not be {@code null}.
+     * @throws PSValidationException if validation fails
      */
-    public void index(Set<Integer> ids) throws PSValidationException;
+    void index(Set<Integer> ids) throws PSValidationException;
 }

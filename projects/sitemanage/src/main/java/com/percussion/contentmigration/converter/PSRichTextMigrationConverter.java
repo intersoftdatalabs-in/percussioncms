@@ -22,31 +22,26 @@ import com.percussion.contentmigration.converters.IPSContentMigrationConverter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSRichTextMigrationConverter implements IPSContentMigrationConverter
-{
+public class PSRichTextMigrationConverter implements IPSContentMigrationConverter {
 
     private static final String WIDGET_DEF = "percRichText";
     private static final String WIDGET_FIELD_TEXT = "text";
     private static final String WIDGET_CONTENT_TYPE = "percRichTextAsset";
 
     @Override
-    public String getWidgetDefId()
-    {
+    public String getWidgetDefId() {
         return WIDGET_DEF;
     }
 
     @Override
-    public Map<String, Object> convert(String source)
-    {
-        Map<String, Object> fields = new HashMap<>();
+    public Map<String, Object> convert(String source) {
+        var fields = new HashMap<String, Object>();
         fields.put(WIDGET_FIELD_TEXT, source);
         return fields;
     }
 
     @Override
-    public String getWidgetContentType()
-    {
+    public String getWidgetContentType() {
         return WIDGET_CONTENT_TYPE;
     }
-
 }

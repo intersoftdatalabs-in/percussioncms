@@ -24,20 +24,16 @@ import java.util.Objects;
  * Represents a node in the region tree.
  * Currently a node is either a region or template code.
  * @author adamgent
- *
  */
-public abstract class PSRegionNode extends PSAbstractDataObject
-{
-    
-    
+public abstract class PSRegionNode extends PSAbstractDataObject {
+
     private static final long serialVersionUID = 1L;
-    
+
     private PSRegionOwnerType ownerType;
-    
-    
+
     /**
      * Visitor pattern to avoid casting.
-     * @param visitor visitor.
+     * @param visitor the visitor.
      */
     public abstract void accept(IPSRegionNodeVisitor visitor);
 
@@ -45,26 +41,23 @@ public abstract class PSRegionNode extends PSAbstractDataObject
      * TODO Not sure if this is needed really.
      * Ideally merged region should extend this class but it does not.
      */
-    public PSRegionOwnerType getOwnerType()
-    {
+    public PSRegionOwnerType getOwnerType() {
         return ownerType;
     }
 
-    public void setOwnerType(PSRegionOwnerType ownerType)
-    {
+    public void setOwnerType(PSRegionOwnerType ownerType) {
         this.ownerType = ownerType;
     }
 
-    
-    public static enum PSRegionOwnerType {
-        PAGE, TEMPLATE;
+    public enum PSRegionOwnerType {
+        PAGE, TEMPLATE
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSRegionNode)) return false;
-        PSRegionNode that = (PSRegionNode) o;
+        var that = (PSRegionNode) o;
         return getOwnerType() == that.getOwnerType();
     }
 
@@ -75,9 +68,8 @@ public abstract class PSRegionNode extends PSAbstractDataObject
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionNode{");
-        sb.append("ownerType=").append(ownerType);
-        sb.append('}');
-        return sb.toString();
+        return "PSRegionNode{" +
+                "ownerType=" + ownerType +
+                '}';
     }
 }

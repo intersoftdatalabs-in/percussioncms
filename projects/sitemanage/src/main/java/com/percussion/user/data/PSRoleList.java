@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * 
- */
 package com.percussion.user.data;
 
 import java.util.ArrayList;
@@ -31,41 +27,33 @@ import com.percussion.share.data.PSAbstractDataObject;
 /**
  * A list of roles.
  * <p>
- * Some tools have problems serializing a list of strings hence
- * this wrapping object.
- * 
+ * Some tools have problems serializing a list of strings, hence this wrapping object.
+ * </p>
  * @author adamgent
  * @author DavidBenua
- * 
  */
 @XmlRootElement(name = "RoleList")
 @JsonRootName("RoleList")
-public class PSRoleList extends PSAbstractDataObject
-{
+public class PSRoleList extends PSAbstractDataObject {
 
     private static final long serialVersionUID = 1L;
-    private List<String> roles; 
-    
-    public PSRoleList()
-    {
+    private List<String> roles;
+
+    public PSRoleList() {
         roles = new ArrayList<>();
     }
 
     /**
-     * @return the roles
+     * Gets the roles.
      */
-    public List<String> getRoles()
-    {
+    public List<String> getRoles() {
         return roles;
     }
 
     /**
-     * @param roles the roles to set
+     * Sets the roles.
      */
-    public void setRoles(List<String> roles)
-    {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
-    
-    
 }

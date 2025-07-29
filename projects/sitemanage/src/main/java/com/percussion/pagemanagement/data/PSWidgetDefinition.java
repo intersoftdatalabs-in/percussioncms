@@ -27,152 +27,15 @@ package com.percussion.pagemanagement.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractPersistantObject;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.*;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="WidgetPrefs" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;choice maxOccurs="unbounded" minOccurs="0">
- *                   &lt;element name="Icon">
- *                     &lt;complexType>
- *                       &lt;simpleContent>
- *                         &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">
- *                           &lt;attribute name="mode">
- *                             &lt;simpleType>
- *                               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *                                 &lt;enumeration value="base64"/>
- *                               &lt;/restriction>
- *                             &lt;/simpleType>
- *                           &lt;/attribute>
- *                           &lt;attribute name="type" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                         &lt;/extension>
- *                       &lt;/simpleContent>
- *                     &lt;/complexType>
- *                   &lt;/element>
- *                 &lt;/choice>
- *                 &lt;attribute name="contenttype_name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="title" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="title_url" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="description" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="author" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="author_email" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="screenshot" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="thumbnail" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="preferred_editor_height" type="{http://www.w3.org/2001/XMLSchema}integer" />
- *                 &lt;attribute name="preferred_editor_width" type="{http://www.w3.org/2001/XMLSchema}integer" />
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="Resource" maxOccurs="unbounded" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;attribute name="href" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="type" use="required">
- *                   &lt;simpleType>
- *                     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *                       &lt;enumeration value="css"/>
- *                       &lt;enumeration value="javascript"/>
- *                     &lt;/restriction>
- *                   &lt;/simpleType>
- *                 &lt;/attribute>
- *                 &lt;attribute name="placement">
- *                   &lt;simpleType>
- *                     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *                       &lt;enumeration value="body-begin"/>
- *                       &lt;enumeration value="body-end"/>
- *                       &lt;enumeration value="head"/>
- *                     &lt;/restriction>
- *                   &lt;/simpleType>
- *                 &lt;/attribute>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="UserPref" maxOccurs="unbounded" minOccurs="0">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="EnumValue" maxOccurs="unbounded" minOccurs="0">
- *                     &lt;complexType>
- *                       &lt;complexContent>
- *                         &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                           &lt;attribute name="value" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                           &lt;attribute name="display_value" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                         &lt;/restriction>
- *                       &lt;/complexContent>
- *                     &lt;/complexType>
- *                   &lt;/element>
- *                 &lt;/sequence>
- *                 &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="display_name" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="default_value" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="datatype" default="string">
- *                   &lt;simpleType>
- *                     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *                       &lt;enumeration value="string"/>
- *                       &lt;enumeration value="hidden"/>
- *                       &lt;enumeration value="bool"/>
- *                       &lt;enumeration value="enum"/>
- *                       &lt;enumeration value="list"/>
- *                       &lt;enumeration value="number"/>
- *                     &lt;/restriction>
- *                   &lt;/simpleType>
- *                 &lt;/attribute>
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *         &lt;element name="Content" maxOccurs="unbounded">
- *           &lt;complexType>
- *             &lt;simpleContent>
- *               &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">
- *                 &lt;attribute name="type" default="html">
- *                   &lt;simpleType>
- *                     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *                       &lt;enumeration value="html"/>
- *                       &lt;enumeration value="velocity"/>
- *                     &lt;/restriction>
- *                   &lt;/simpleType>
- *                 &lt;/attribute>
- *                 &lt;attribute name="href" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="view" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="preferred_height" type="{http://www.w3.org/2001/XMLSchema}integer" />
- *                 &lt;attribute name="preferred_width" type="{http://www.w3.org/2001/XMLSchema}integer" />
- *               &lt;/extension>
- *             &lt;/simpleContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * Represents a widget definition, including preferences, resources, and content.
+ * Generated from JAXB schema, modernized for Java 11 and Google Java Style.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -186,210 +49,87 @@ import java.util.List;
     "content"
 })
 @XmlRootElement(name = "Widget")
-@JsonRootName( "Widget")
+@JsonRootName("Widget")
 public class PSWidgetDefinition extends PSAbstractPersistantObject {
 
     private static final long serialVersionUID = 3560553163599331699L;
-    
+
     private String id;
 
     @Override
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-
     @XmlElement(name = "WidgetPrefs")
-    protected PSWidgetDefinition.WidgetPrefs widgetPrefs;
+    protected WidgetPrefs widgetPrefs;
     @XmlElement(name = "Resource")
-    protected List<PSWidgetDefinition.Resource> resource;
+    protected List<Resource> resource;
     @XmlElement(name = "DnDPref")
-    protected List<PSWidgetDefinition.DnDPref> dnDPref;
+    protected List<DnDPref> dnDPref;
     @XmlElement(name = "UserPref")
-    protected List<PSWidgetDefinition.UserPref> userPref;
+    protected List<UserPref> userPref;
     @XmlElement(name = "CssPref")
-    protected List<PSWidgetDefinition.CssPref> cssPref;
+    protected List<CssPref> cssPref;
     @XmlElement(name = "Content", required = true)
-    protected PSWidgetDefinition.Content content;
+    protected Content content;
     @XmlElement(name = "Code", required = true)
-    protected PSWidgetDefinition.Code code;
+    protected Code code;
 
-    /**
-     * Gets the value of the widgetPrefs property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PSWidgetDefinition.WidgetPrefs }
-     *     
-     */
-    public PSWidgetDefinition.WidgetPrefs getWidgetPrefs() {
-        return widgetPrefs;
+    public Optional<WidgetPrefs> getWidgetPrefs() {
+        return Optional.ofNullable(widgetPrefs);
     }
 
-    /**
-     * Sets the value of the widgetPrefs property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PSWidgetDefinition.WidgetPrefs }
-     *     
-     */
-    public void setWidgetPrefs(PSWidgetDefinition.WidgetPrefs value) {
+    public void setWidgetPrefs(WidgetPrefs value) {
         this.widgetPrefs = value;
     }
 
-    /**
-     * Gets the value of the resource property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the resource property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getResource().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link PSWidgetDefinition.Resource }
-     * @return never <code>null</code>.
-     * 
-     * 
-     */
-    public List<PSWidgetDefinition.Resource> getResource() {
+    public List<Resource> getResource() {
         if (resource == null) {
             resource = new ArrayList<>();
         }
-        return this.resource;
+        return resource;
     }
 
-    /**
-     * Gets the value of the dnDPref property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the dnDPref property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getDnDPref().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link PSWidgetDefinition.DnDPref }
-     * @return never <code>null</code>.
-     * 
-     * 
-     */
-    public List<PSWidgetDefinition.DnDPref> getDnDPref() {
+    public List<DnDPref> getDnDPref() {
         if (dnDPref == null) {
             dnDPref = new ArrayList<>();
         }
-        return this.dnDPref;
+        return dnDPref;
     }
 
-    /**
-     * Gets the value of the userPref property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the userPref property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getUserPref().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link PSWidgetDefinition.UserPref }
-     * @return never <code>null</code>.
-     * 
-     * 
-     */
-    public List<PSWidgetDefinition.UserPref> getUserPref() {
+    public List<UserPref> getUserPref() {
         if (userPref == null) {
             userPref = new ArrayList<>();
         }
-        return this.userPref;
+        return userPref;
     }
-    
-    
 
-    public List<PSWidgetDefinition.CssPref> getCssPref()
-    {
+    public List<CssPref> getCssPref() {
         if (cssPref == null) {
             cssPref = new ArrayList<>();
         }
         return cssPref;
     }
 
-    /**
-     * Gets the value of the content property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PSWidgetDefinition.Content }
-     *     
-     */
-    public PSWidgetDefinition.Content getContent() {
-        return content;
+    public Optional<Content> getContent() {
+        return Optional.ofNullable(content);
     }
 
-    /**
-     * Sets the value of the content property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PSWidgetDefinition.Content }
-     *     
-     */
-    public void setContent(PSWidgetDefinition.Content value) {
+    public void setContent(Content value) {
         this.content = value;
     }
 
-    /**
-     * Gets the value of the code property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PSWidgetDefinition.Code }
-     *     
-     */
-    public PSWidgetDefinition.Code getCode() {
-        return code;
+    public Optional<Code> getCode() {
+        return Optional.ofNullable(code);
     }
 
-    /**
-     * Sets the value of the code property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PSWidgetDefinition.Code }
-     *     
-     */
-    public void setCode(PSWidgetDefinition.Code value) {
+    public void setCode(Code value) {
         this.code = value;
     }
 
@@ -849,130 +589,6 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
      * &lt;complexType>
      *   &lt;complexContent>
      *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;attribute name="href" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *       &lt;attribute name="type" use="required">
-     *         &lt;simpleType>
-     *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
-     *             &lt;enumeration value="css"/>
-     *             &lt;enumeration value="javascript"/>
-     *           &lt;/restriction>
-     *         &lt;/simpleType>
-     *       &lt;/attribute>
-     *       &lt;attribute name="placement" default="head">
-     *         &lt;simpleType>
-     *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
-     *             &lt;enumeration value="before-html  "/>
-     *             &lt;enumeration value="body-begin"/>
-     *             &lt;enumeration value="body-end"/>
-     *             &lt;enumeration value="head"/>
-     *           &lt;/restriction>
-     *         &lt;/simpleType>
-     *       &lt;/attribute>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
-    @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "")
-    public static class Resource {
-
-        @XmlAttribute(required = true)
-        protected String href;
-        @XmlAttribute(required = true)
-        protected String type;
-        @XmlAttribute
-        protected String placement;
-
-        /**
-         * Gets the value of the href property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getHref() {
-            return href;
-        }
-
-        /**
-         * Sets the value of the href property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setHref(String value) {
-            this.href = value;
-        }
-
-        /**
-         * Gets the value of the type property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getType() {
-            return type;
-        }
-
-        /**
-         * Sets the value of the type property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setType(String value) {
-            this.type = value;
-        }
-
-        /**
-         * Gets the value of the placement property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
-        public String getPlacement() {
-            if (placement == null) {
-                return "head";
-            }
-            return placement;
-        }
-
-        /**
-         * Sets the value of the placement property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
-        public void setPlacement(String value) {
-            this.placement = value;
-        }
-
-    }
-
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
      *       &lt;sequence>
      *         &lt;element name="EnumValue" maxOccurs="unbounded" minOccurs="0">
      *           &lt;complexType>
@@ -1015,7 +631,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
     public abstract static class AbstractUserPref {
 
         @XmlElement(name = "EnumValue")
-        protected List<PSWidgetDefinition.AbstractUserPref.EnumValue> enumValue;
+        protected List<EnumValue> enumValue;
         @XmlAttribute(required = true)
         protected String name;
         @XmlAttribute(name = "display_name")
@@ -1050,7 +666,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
          * 
          * 
          */
-        public List<PSWidgetDefinition.AbstractUserPref.EnumValue> getEnumValue() {
+        public List<EnumValue> getEnumValue() {
             if (enumValue == null) {
                 enumValue = new ArrayList<>();
             }
@@ -1317,7 +933,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
     public static class WidgetPrefs {
 
         @XmlElement(name = "Icon")
-        protected List<PSWidgetDefinition.WidgetPrefs.Icon> icon;
+        protected List<Icon> icon;
         @XmlAttribute(name = "contenttype_name")
         protected String contenttypeName;
         @XmlAttribute(name = "category")
@@ -1370,7 +986,7 @@ public class PSWidgetDefinition extends PSAbstractPersistantObject {
          * 
          * 
          */
-        public List<PSWidgetDefinition.WidgetPrefs.Icon> getIcon() {
+        public List<Icon> getIcon() {
             if (icon == null) {
                 icon = new ArrayList<>();
             }

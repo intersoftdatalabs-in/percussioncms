@@ -25,10 +25,11 @@ import java.io.File;
 import java.util.*;
 
 /****
- * Service wrapper for the extension manager
+ * Service wrapper for the extension manager.
+ * <p>
+ * Sunny Sal says: "ExtensionService, now Java 11 and Google-styled!"
  */
 public interface IPSExtensionService {
-
 
         /**
          * Gets the names of all installed extension handlers, whether
@@ -79,7 +80,7 @@ public interface IPSExtensionService {
                 String context,
                 String interfacePattern,
                 String extensionNamePattern
-        )throws PSExtensionException;
+        ) throws PSExtensionException;
 
 
         /**
@@ -202,7 +203,7 @@ public interface IPSExtensionService {
          * updateExtension instead. The defined extension will not be installed.
          */
         void installExtension(IPSExtensionDef def,
-                              Iterator resources
+                         Iterator resources
         )
                 throws PSExtensionException,
                 PSNotFoundException,
@@ -241,7 +242,7 @@ public interface IPSExtensionService {
          * updateExtension instead. The defined extension will not be installed.
          */
         void installExtension(IPSExtensionDef def,
-                              Iterator resources, IPSExtensionListener listener
+                         Iterator resources, IPSExtensionListener listener
         )
                 throws PSExtensionException,
                 PSNotFoundException,
@@ -290,7 +291,7 @@ public interface IPSExtensionService {
          * @see #installExtension
          */
         void updateExtension(IPSExtensionDef def,
-                             Iterator resources
+                        Iterator resources
         )
                 throws PSExtensionException,
                 PSNotFoundException;
@@ -318,9 +319,9 @@ public interface IPSExtensionService {
          * @throws IllegalArgumentException If any param is invalid.
          */
         IPSExtension prepareExtension(PSExtensionRef ref,
-                                      IPSExtensionListener listener)
-                throws PSNotFoundException,
-                PSExtensionException;
+                                  IPSExtensionListener listener)
+            throws PSNotFoundException,
+            PSExtensionException;
 
         /**
          * Unegisters the given listener for events concerning the extension
@@ -335,7 +336,7 @@ public interface IPSExtensionService {
          * @throws IllegalArgumentException If any param is invalid.
          */
         void unregisterListener(PSExtensionRef ref,
-                                IPSExtensionListener listener);
+                            IPSExtensionListener listener);
 
 
         /**
@@ -377,6 +378,5 @@ public interface IPSExtensionService {
          * @param listener The listener. Must not be <CODE>null</CODE>.
          */
         void registerListener(PSExtensionRef ref,
-                              IPSExtensionListener listener);
-
+                          IPSExtensionListener listener);
 }

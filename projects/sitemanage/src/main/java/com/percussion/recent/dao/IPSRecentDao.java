@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,15 +23,47 @@ import com.percussion.share.dao.IPSGenericDao;
 
 import java.util.List;
 
+/**
+ * DAO interface for managing recent items.
+ */
 public interface IPSRecentDao {
-    @SuppressWarnings("unchecked")
-    public List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
 
-    public void saveAll(List<PSRecent> recentList);
+    /**
+     * Finds recent items for the given user, site, and type.
+     *
+     * @param user the user name, may be null
+     * @param siteName the site name, may be null
+     * @param type the recent type, may be null
+     * @return list of recent items, never null
+     */
+    List<PSRecent> find(String user, String siteName, PSRecent.RecentType type);
 
-    public void delete(PSRecent recent);
+    /**
+     * Saves all recent items in the list.
+     *
+     * @param recentList the list of recent items to save, not null
+     */
+    void saveAll(List<PSRecent> recentList);
 
-    public void deleteAll(List<PSRecent> recentList);
+    /**
+     * Deletes the given recent item.
+     *
+     * @param recent the recent item to delete, not null
+     */
+    void delete(PSRecent recent);
 
-    public void save(PSRecent recent) throws IPSGenericDao.SaveException;
+    /**
+     * Deletes all recent items in the list.
+     *
+     * @param recentList the list of recent items to delete, not null
+     */
+    void deleteAll(List<PSRecent> recentList);
+
+    /**
+     * Saves the given recent item.
+     *
+     * @param recent the recent item to save, not null
+     * @throws IPSGenericDao.SaveException if the save fails
+     */
+    void save(PSRecent recent) throws IPSGenericDao.SaveException;
 }

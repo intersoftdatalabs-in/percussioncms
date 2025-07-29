@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,21 +20,15 @@ package com.percussion.share.dao.impl;
 import com.percussion.webservices.PSErrorsException;
 
 /**
- * 
  * Wraps a legacy web service exception.
- * 
  * @see PSErrorResultsExceptionDecorator
- * @author adamgent
- *
  */
-public class PSErrorsExceptionDecorator extends PSExceptionDecorator
-{
+public class PSErrorsExceptionDecorator extends PSExceptionDecorator {
     private static final long serialVersionUID = 1L;
 
-    public PSErrorsExceptionDecorator(PSErrorsException e)
-    {
-        if (e.getErrors() != null &&  ! e.getErrors().isEmpty()) {
-            Object error = e.getErrors().entrySet().iterator().next().getValue();
+    public PSErrorsExceptionDecorator(PSErrorsException e) {
+        if (e.getErrors() != null && !e.getErrors().isEmpty()) {
+            var error = e.getErrors().entrySet().iterator().next().getValue();
             if (error instanceof Throwable) {
                 wrap(e);
                 return;
@@ -41,6 +36,4 @@ public class PSErrorsExceptionDecorator extends PSExceptionDecorator
         }
         wrap(e);
     }
-    
 }
-

@@ -14,44 +14,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-
 import com.percussion.share.data.IPSFolderPath;
 
 /**
  * This is used to create a site.
  */
-@XmlRootElement(name="Site")
+@XmlRootElement(name = "Site")
 public class PSSite extends PSSiteSummary implements IPSFolderPath {
-    
 
     private static final long serialVersionUID = -7271778081863112592L;
-    
+
     @NotBlank
     @NotNull
     private String label;
-    
+
     private String description;
-    
-    private String defaultFileExtention = "html";
-    
+
+    private String defaultFileExtension = "html";
+
     @NotBlank
     @NotNull
     private String homePageTitle;
-    
+
     @NotBlank
     @NotNull
     private String navigationTitle;
-    
+
     @NotBlank
     @NotNull
     private String baseTemplateName;
-    
+
     @NotBlank
     @NotNull
     private String templateName;
@@ -72,69 +71,84 @@ public class PSSite extends PSSiteSummary implements IPSFolderPath {
     }
 
     @Override
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * @param defaultFileExtention default file extension used when creating a new page.
+     * @deprecated Use {@link #setDefaultFileExtension(String)} instead.
      */
     @Override
-    public void setDefaultFileExtention(String defaultFileExtention)
-    {
-        this.defaultFileExtention = defaultFileExtention;
+    @Deprecated
+    public void setDefaultFileExtention(String defaultFileExtention) {
+        this.defaultFileExtension = defaultFileExtention;
+    }
+
+    /**
+     * @deprecated Use {@link #getDefaultFileExtension()} instead.
+     */
+    @Override
+    @Deprecated
+    public String getDefaultFileExtention() {
+        return defaultFileExtension;
+    }
+
+    /**
+     * Sets the default file extension used when creating a new page.
+     *
+     * @param defaultFileExtension the default file extension
+     */
+    public void setDefaultFileExtension(String defaultFileExtension) {
+        this.defaultFileExtension = defaultFileExtension;
     }
 
     /**
      * Gets the default file extension.
-     * 
+     *
      * @return the default file extension used when creating a new page.
      */
-    @Override
-    public String getDefaultFileExtention()
-    {
-        return defaultFileExtention;
+    public String getDefaultFileExtension() {
+        return defaultFileExtension;
     }
 
-    public String getHomePageTitle()
-    {
+    public String getHomePageTitle() {
         return homePageTitle;
     }
 
-    public void setHomePageTitle(String homePageTitle)
-    {
+    public void setHomePageTitle(String homePageTitle) {
         this.homePageTitle = homePageTitle;
     }
 
-    public String getNavigationTitle()
-    {
+    public String getNavigationTitle() {
         return navigationTitle;
     }
 
-    public void setNavigationTitle(String navigationTitle)
-    {
+    public void setNavigationTitle(String navigationTitle) {
         this.navigationTitle = navigationTitle;
     }
 
-    public String getBaseTemplateName()
-    {
+    public String getBaseTemplateName() {
         return baseTemplateName;
     }
 
-    public void setBaseTemplateName(String baseTemplateName)
-    {
+    public void setBaseTemplateName(String baseTemplateName) {
         this.baseTemplateName = baseTemplateName;
     }
 
-    public String getTemplateName()
-    {
+    public String getTemplateName() {
         return templateName;
     }
 
-    public void setTemplateName(String templateName)
-    {
+    public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
+    /**
+     * Gets the description as Optional.
+     *
+     * @return Optional description.
+     */
+    public Optional<String> getDescriptionOptional() {
+        return Optional.ofNullable(description);
+    }
 }

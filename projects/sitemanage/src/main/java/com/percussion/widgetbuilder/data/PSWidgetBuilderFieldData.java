@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,69 +18,57 @@
 package com.percussion.widgetbuilder.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
 /**
- * Represents a single widget field definition
- * 
- * @author JaySeletz
- *
+ * Represents a single widget field definition.
  */
-@XmlRootElement(name="WidgetBuilderFieldData")
-public class PSWidgetBuilderFieldData extends PSAbstractDataObject
-{
+@XmlRootElement(name = "WidgetBuilderFieldData")
+public class PSWidgetBuilderFieldData extends PSAbstractDataObject {
 
-    String name;
-    String label;
-    String type;
-    
-    
-    public PSWidgetBuilderFieldData()
-    {
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private String label;
+    private String type;
+
+    public PSWidgetBuilderFieldData() {
+        // Default constructor
     }
-    
-    
-    public String getName()
-    {
+
+    public String getName() {
         return name;
     }
 
-
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
-
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
 
-
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
-
-    public void setType(String type)
-    {
+    /**
+     * Set the type of the field. Must be a valid FieldType.
+     *
+     * @param type the type string
+     * @throws IllegalArgumentException if type is not valid
+     */
+    public void setType(String type) {
         FieldType.valueOf(type);
         this.type = type;
     }
 
-
-    public enum FieldType
-    {
+    public enum FieldType {
         TEXT,
         TEXT_AREA,
         DATE,
@@ -89,25 +78,26 @@ public class PSWidgetBuilderFieldData extends PSAbstractDataObject
         IMAGE,
         IMAGE_LINK,
         PAGE,
-        PAGE_LINK;
+        PAGE_LINK
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSWidgetBuilderFieldData{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", label='").append(label).append('\'');
-        sb.append(", type='").append(type).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "PSWidgetBuilderFieldData{" +
+                "name='" + name + '\'' +
+                ", label='" + label + '\'' +
+                ", type='" + type + '\'' +
+                '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSWidgetBuilderFieldData)) return false;
-        PSWidgetBuilderFieldData that = (PSWidgetBuilderFieldData) o;
-        return Objects.equals(getName(), that.getName()) && Objects.equals(getLabel(), that.getLabel()) && Objects.equals(getType(), that.getType());
+        var that = (PSWidgetBuilderFieldData) o;
+        return Objects.equals(getName(), that.getName())
+                && Objects.equals(getLabel(), that.getLabel())
+                && Objects.equals(getType(), that.getType());
     }
 
     @Override

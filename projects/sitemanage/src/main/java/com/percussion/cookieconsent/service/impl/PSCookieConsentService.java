@@ -56,17 +56,18 @@ import static com.percussion.share.service.exception.PSParameterValidationUtils.
 @Path("/consent")
 @PSSiteManageBean("cookieConsentService")
 public class PSCookieConsentService implements IPSCookieConsentService {
-    
+
     private static final Logger log = LogManager.getLogger(PSCookieConsentService.class);
-    
+
     private static final String DTS_URL = "/perc-metadata-services/metadata/consent/log";
-    
     private static final String TOTAL_ENTRIES_URL = DTS_URL + "/totals";
+
     @Autowired
     @Lazy
     private IPSPubServerService pubServerService;
+
     /**
-     * The delivery service initialized by constructor, never <code>null</code>.
+     * The delivery service initialized by constructor, never {@code null}.
      */
     IPSDeliveryInfoService deliveryService;
 
@@ -74,7 +75,7 @@ public class PSCookieConsentService implements IPSCookieConsentService {
     public PSCookieConsentService(IPSDeliveryInfoService deliveryService) {
         this.deliveryService = deliveryService;
     }
-    
+
     @Override
     @GET
     @Path("log/{csvFileName}")
@@ -82,63 +83,57 @@ public class PSCookieConsentService implements IPSCookieConsentService {
     public String exportCookieConsentData(@PathParam("csvFileName") String csvFileName) {
         return exportCookieConsentData(null, csvFileName);
     }
-    
+
     @Override
     @GET
     @Path("log/{siteName}/{csvFileName}")
     @Produces({"text/csv"})
-    public String exportCookieConsentData(@PathParam("siteName") String siteName, 
-            @PathParam("csvFileName") String csvFileName) {
-       try {
-           rejectIfBlank("exportCookieConsentData", "csvFileName", csvFileName);
+    public String exportCookieConsentData(@PathParam("siteName") String siteName,
+                                         @PathParam("csvFileName") String csvFileName) {
+        try {
+            rejectIfBlank("exportCookieConsentData", "csvFileName", csvFileName);
 
-           String fullPath = null;
+            var fullPath = siteName == null
+                    ? DTS_URL + "/" + csvFileName
+                    : DTS_URL + "/" + siteName + "/" + csvFileName;
 
-           if (siteName == null) {
-               fullPath = DTS_URL + "/" + csvFileName;
-           } else {
-               fullPath = DTS_URL + "/" + siteName + "/" + csvFileName;
-           }
+            var deliveryServer = findServer(siteName);
 
-           PSDeliveryInfo deliveryServer = findServer(siteName);
+            if (deliveryServer == null) {
+                throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
+            }
 
-           if (deliveryServer == null) {
-               throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
-           }
+            var deliveryClient = new PSDeliveryClient();
+            var response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
+                    fullPath, HttpMethodType.GET, true));
 
-           PSDeliveryClient deliveryClient = new PSDeliveryClient();
+            if (response != null) {
+                log.debug(response);
+            }
 
-           String response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
-                   fullPath, HttpMethodType.GET, true));
-
-           if (response != null) {
-               log.debug(response);
-           }
-
-           return response;
-       } catch (PSValidationException | IPSPubServerService.PSPubServerServiceException | PSNotFoundException e) {
-           log.error(PSExceptionUtils.getMessageForLog(e));
-           throw new WebApplicationException(e.getMessage());
-       }
+            return response;
+        } catch (PSValidationException | IPSPubServerService.PSPubServerServiceException | PSNotFoundException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            throw new WebApplicationException(e.getMessage());
+        }
     }
-    
+
     @Override
     @GET
     @Path("log/totals/{siteName}")
     @Produces(MediaType.APPLICATION_JSON)
     public String getCookieConsentForSite(@PathParam("siteName") String siteName) {
         try {
-            rejectIfBlank("getcookieConsentForSite", "siteName", siteName);
+            rejectIfBlank("getCookieConsentForSite", "siteName", siteName);
 
-            PSDeliveryInfo deliveryServer = findServer(siteName);
+            var deliveryServer = findServer(siteName);
 
             if (deliveryServer == null) {
                 throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
             }
 
-            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-
-            String response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
+            var deliveryClient = new PSDeliveryClient();
+            var response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
                     TOTAL_ENTRIES_URL + "/" + siteName, HttpMethodType.GET, true));
 
             if (response != null) {
@@ -152,111 +147,108 @@ public class PSCookieConsentService implements IPSCookieConsentService {
             throw new WebApplicationException(e.getMessage());
         }
     }
-    
+
     @Override
     @GET
     @Path("/log/totals")
     @Produces(MediaType.APPLICATION_JSON)
     public String getAllCookieConsentTotals() {
-        PSDeliveryInfo deliveryServer = findServer();
-        
+        var deliveryServer = findServer();
+
         if (deliveryServer == null) {
             throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
         }
-        
-        PSDeliveryClient deliveryClient = new PSDeliveryClient();
-        
-        String response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
+
+        var deliveryClient = new PSDeliveryClient();
+        var response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
                 TOTAL_ENTRIES_URL, HttpMethodType.GET, true));
-        
+
         if (response != null) {
             log.debug(SecureStringUtils.stripAllLineBreaks(response));
         }
-        
+
         return response;
     }
-    
 
     @Override
     @DELETE
     @Path("/log")
     @Consumes(MediaType.APPLICATION_JSON)
     public void deleteAllCookieConsentEntries() {
-        String currentUser = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+        var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
         log.info("All cookie consent entries are being deleted by: {}", currentUser);
-        
-        PSDeliveryInfo deliveryServer = findServer();
-        
+
+        var deliveryServer = findServer();
+
         if (deliveryServer == null) {
             throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
         }
-        
-        PSDeliveryClient deliveryClient = new PSDeliveryClient();
-        
-        String response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
+
+        var deliveryClient = new PSDeliveryClient();
+        var response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
                 DTS_URL, HttpMethodType.DELETE, true));
-        
+
         if (response != null) {
             log.debug(SecureStringUtils.stripAllLineBreaks(response));
         }
     }
-    
+
     @Override
     @DELETE
     @Path("/log/{siteName}")
     @Consumes(MediaType.APPLICATION_JSON)
     public void deleteCookieConsentEntriesForSite(@PathParam("siteName") String siteName) {
-      try {
-          String currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+        try {
+            var currentUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
 
-          log.info("Cookie consent entries for site: {} are being deleted by: {}",
-                  siteName, currentUser);
+            log.info("Cookie consent entries for site: {} are being deleted by: {}", siteName, currentUser);
 
-          PSDeliveryInfo deliveryServer = findServer(siteName);
+            var deliveryServer = findServer(siteName);
 
-          if (deliveryServer == null) {
-              throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
-          }
+            if (deliveryServer == null) {
+                throw new WebApplicationException("Cannot find service of: " + PSDeliveryInfo.SERVICE_INDEXER);
+            }
 
-          PSDeliveryClient deliveryClient = new PSDeliveryClient();
+            var deliveryClient = new PSDeliveryClient();
+            var response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
+                    DTS_URL + "/" + siteName, HttpMethodType.DELETE, true));
 
-          String response = deliveryClient.getString(new PSDeliveryActionOptions(deliveryServer,
-                  DTS_URL + "/" + siteName, HttpMethodType.DELETE, true));
-
-          if (response != null) {
-              log.debug(SecureStringUtils.stripAllLineBreaks(response));
-          }
-      } catch (IPSPubServerService.PSPubServerServiceException | PSNotFoundException e) {
-         throw new WebApplicationException(e);
-      }
+            if (response != null) {
+                log.debug(SecureStringUtils.stripAllLineBreaks(response));
+            }
+        } catch (IPSPubServerService.PSPubServerServiceException | PSNotFoundException e) {
+            throw new WebApplicationException(e);
+        }
     }
-    
+
     /**
      * Finds a server with the meta data service.
-     * 
-     * @return the server, it may be <code>null</code> if cannot find the
-     *         server.
+     *
+     * @param site the site name, may be null
+     * @return the server, or {@code null} if not found
      */
-    private PSDeliveryInfo findServer(String site) throws IPSPubServerService.PSPubServerServiceException, PSNotFoundException {
-        String adminURl= pubServerService.getDefaultAdminURL(site);
-        PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER,null,adminURl);
+    private PSDeliveryInfo findServer(String site)
+            throws IPSPubServerService.PSPubServerServiceException, PSNotFoundException {
+        var adminUrl = pubServerService.getDefaultAdminURL(site);
+        var server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER, null, adminUrl);
 
         if (server == null) {
-            log.debug("Cannot find server with service of: {}" , PSDeliveryInfo.SERVICE_INDEXER);
+            log.debug("Cannot find server with service of: {}", PSDeliveryInfo.SERVICE_INDEXER);
         }
 
         return server;
     }
-    private PSDeliveryInfo findServer()
-    {
-        //String adminURl= pubServerService.getDefaultAdminURL(site);
-        //PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER,null,adminURl);
-        PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-        if (server == null) {
-            log.debug("Cannot find server with service of: {}" , PSDeliveryInfo.SERVICE_INDEXER);
-        }
 
+    /**
+     * Finds a server with the meta data service (no site context).
+     *
+     * @return the server, or {@code null} if not found
+     */
+    private PSDeliveryInfo findServer() {
+        var server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
+        if (server == null) {
+            log.debug("Cannot find server with service of: {}", PSDeliveryInfo.SERVICE_INDEXER);
+        }
         return server;
     }
-    
 }

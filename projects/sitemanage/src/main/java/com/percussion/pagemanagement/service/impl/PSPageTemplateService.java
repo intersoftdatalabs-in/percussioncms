@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -39,33 +40,29 @@ import org.springframework.stereotype.Component;
  */
 @Component("pageTemplateService")
 @Lazy
-public class PSPageTemplateService implements IPSPageTemplateService
-{
+public class PSPageTemplateService implements IPSPageTemplateService {
     private IPSPageDao pageDao;
     private IPSTemplateDao templateDao;
-    
+
     @Autowired
-    public PSPageTemplateService(IPSPageDao pageDao, IPSTemplateDao templateDao)
-    {
+    public PSPageTemplateService(IPSPageDao pageDao, IPSTemplateDao templateDao) {
         this.pageDao = pageDao;
         this.templateDao = templateDao;
     }
-    
+
     @Override
     public void changeTemplate(String pageId, String templateId) throws PSDataServiceException {
         isTrue(isNotBlank(pageId), "pageId may not be blank");
         isTrue(isNotBlank(templateId), "templateId may not be blank");
-        
-        PSPage page = pageDao.find(pageId);
-        PSTemplate template = templateDao.find(templateId);
 
-        if(page == null)
-        {
+        var page = pageDao.find(pageId);
+        var template = templateDao.find(templateId);
+
+        if (page == null) {
             throw new PSDataServiceException("The page you have selected doesn't exist in the system. Please refresh and try again.");
         }
-        
-        if(template == null)
-        {
+
+        if (template == null) {
             throw new PSDataServiceException("The template you have selected doesn't exist in the system. Please refresh and try again.");
         }
         page.setTemplateId(templateId);
@@ -75,8 +72,6 @@ public class PSPageTemplateService implements IPSPageTemplateService
 
     @Override
     public List<Integer> findPageIdsByTemplate(String templateId) throws IPSPageService.PSPageException {
-        List<Integer> pageIds = pageDao.getPageIdsByFieldNameAndValue(FIELD_NAME_TEMPLATE_ID, templateId);
-        return pageIds;
+        return pageDao.getPageIdsByFieldNameAndValue(FIELD_NAME_TEMPLATE_ID, templateId);
     }
-
 }

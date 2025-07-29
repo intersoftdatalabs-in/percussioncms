@@ -15,21 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * List wrapper for site blog properties.
+ */
 @XmlRootElement(name = "SiteBlogProperties")
-@ArraySchema(schema=@Schema(implementation = PSSiteBlogProperties.class))
+@ArraySchema(schema = @Schema(implementation = PSSiteBlogProperties.class))
 @JsonRootName("SiteBlogProperties")
 public class PSSiteBlogPropertiesList extends ArrayList<PSSiteBlogProperties> {
+    private static final long serialVersionUID = 1L;
+
     public PSSiteBlogPropertiesList(Collection<? extends PSSiteBlogProperties> c) {
         super(c);
     }

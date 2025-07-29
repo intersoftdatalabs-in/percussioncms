@@ -46,12 +46,12 @@ public class PSStartDateFilterRule implements IPSItemFilterRule
     @Override
     public List<IPSFilterItem> filter(List<IPSFilterItem> items, Map<String, String> params) throws PSFilterException
     {
-        List<IPSFilterItem> allowedStartDateItems = new ArrayList<>();
-        IPSCmsObjectMgr cmMgr = PSCmsObjectMgrLocator.getObjectManager();;
-        for(IPSFilterItem item : items)
+        var allowedStartDateItems = new ArrayList<IPSFilterItem>();
+        var cmMgr = PSCmsObjectMgrLocator.getObjectManager();
+        for (var item : items)
         {
-            PSComponentSummary summary = cmMgr.loadComponentSummary(item.getItemId().getUUID());            
-            if(isPublishable(summary))     
+            var summary = cmMgr.loadComponentSummary(item.getItemId().getUUID());
+            if (isPublishable(summary))
             {
                 allowedStartDateItems.add(item);
             }

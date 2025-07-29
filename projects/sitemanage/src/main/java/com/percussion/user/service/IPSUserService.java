@@ -33,10 +33,11 @@ import net.sf.oval.constraint.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
+import java.util.Optional; // Java 11 Optional
 
 /**
  * The user data service is responsible for managing users and 
- * there role associations.
+ * their role associations.
  * <p>
  * A User is required to be in at least one role.
  * 

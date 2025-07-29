@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,8 +37,12 @@ import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
+ * Hibernate implementation of {@link IPSCategoryDao}.
+ * Provides methods to delete categories and retrieve page IDs by category.
+ *
  * @author chriswright
  */
 @Transactional
@@ -46,7 +52,7 @@ public class PSCategoryDao implements IPSCategoryDao {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Session getSession(){
+    private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
 
@@ -59,7 +65,7 @@ public class PSCategoryDao implements IPSCategoryDao {
     private static final Logger log = LogManager.getLogger(PSCategoryDao.class);
 
     private PSCategoryDao() {
-
+        // For Spring
     }
 
     /**
@@ -67,24 +73,19 @@ public class PSCategoryDao implements IPSCategoryDao {
      */
     @Override
     public void delete(Set<String> ids, List<IPSGuid> pageIds) {
-        log.info("Ids to delete are: {}" , ids);
-        Session session = getSession();
-        String query = null;
-        Query q = null;
+        log.info("Category IDs to delete: {}", ids);
+        var session = getSession();
         try {
-            for (String id : ids) {
-                query = "DELETE FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
-                q = session.createQuery(query);
-                q.setParameter("id", "%" + id + "%");
-                int result = q.executeUpdate();
-                log.info("The result is: {}" , result);
-            }
+            ids.forEach(id -> {
+                var queryStr = "DELETE FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
+                var query = session.createQuery(queryStr);
+                query.setParameter("id", "%" + id + "%");
+                int result = query.executeUpdate();
+                log.info("Deleted {} records for category ID: {}", result, id);
+            });
         } catch (HibernateException e) {
-            log.error(
-                    "There was an error deleting page categories from the database.",
-                    e);
+            log.error("Error deleting page categories from the database.", e);
         }
-
         contentRepository.evict(pageIds);
     }
 
@@ -93,25 +94,26 @@ public class PSCategoryDao implements IPSCategoryDao {
      */
     @Override
     public List<Integer> getPageIdsFromCategoryIds(Set<String> ids) {
-        log.info("IDs to grab are: {}" , ids);
-        List<IPSGuid> guids = new ArrayList<>();
-        List<Integer> pageIds = new ArrayList<>();
-        Session session = getSession();
-        String query = null;
-        Query q = null;
-        for (String id : ids) {
-            query = "SELECT DISTINCT id FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
-            q = session.createQuery(query);
-            q.setParameter("id", "%" + id + "%");
+        log.info("Category IDs to retrieve page IDs for: {}", ids);
+        var session = getSession();
+        var pageIds = new ArrayList<Integer>();
+        for (var id : ids) {
+            var queryStr = "SELECT DISTINCT id FROM PSCategoryEntity WHERE pageCategoriesTree LIKE :id";
+            var query = session.createQuery(queryStr);
+            query.setParameter("id", "%" + id + "%");
             try {
-                pageIds = q.list();
+                var result = query.list();
+                if (result != null) {
+                    pageIds.addAll(result.stream()
+                            .filter(Integer.class::isInstance)
+                            .map(Integer.class::cast)
+                            .collect(Collectors.toList()));
+                }
             } catch (HibernateException e) {
-                log.error("Error executing category query to get page IDs.", e);
+                log.error("Error executing category query to get page IDs for category ID {}.", id, e);
             }
         }
-        log.info("The page IDs returned from the category IDs were: {}" , pageIds);
+        log.info("Page IDs returned from the category IDs: {}", pageIds);
         return pageIds;
     }
-
-
 }

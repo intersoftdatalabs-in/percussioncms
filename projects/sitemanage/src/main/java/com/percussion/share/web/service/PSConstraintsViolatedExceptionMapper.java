@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,51 +24,52 @@ import com.percussion.util.PSSiteManageBean;
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.exception.ConstraintsViolatedException;
-import org.springframework.stereotype.Component;
 
 import javax.ws.rs.PathParam;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 
+/**
+ * Maps {@link ConstraintsViolatedException} to a serializable error object.
+ * Sunny Sal says: "Constraints violated? Let's keep it civil and informative."
+ */
 @Provider
 @PSSiteManageBean("constraintsViolatedExceptionMapper")
-public class PSConstraintsViolatedExceptionMapper extends PSAbstractExceptionMapper<ConstraintsViolatedException> implements ExceptionMapper<ConstraintsViolatedException> {
+public class PSConstraintsViolatedExceptionMapper
+        extends PSAbstractExceptionMapper<ConstraintsViolatedException>
+        implements ExceptionMapper<ConstraintsViolatedException> {
 
     @Override
     protected PSValidationErrors createErrors(ConstraintsViolatedException exception) {
-        PSValidationErrors ve = new PSValidationErrors();
+        var ve = new PSValidationErrors();
         convert(ve, exception);
         return ve;
     }
 
     protected void convert(PSValidationErrors ve, ConstraintsViolatedException ce) {
-        // TODO get the method name correctly through annotations or what not.
+        // TODO: Get the method name correctly through annotations or other means.
         ve.setMethodName(ce.getLocalizedMessage());
-        ConstraintViolation[] violations = ce.getConstraintViolations();
-        for (ConstraintViolation cv : violations) {
-            ve.getFieldErrors().add(convert(cv));
-        }
-
+        var violations = ce.getConstraintViolations();
+        Arrays.stream(violations)
+                .map(this::convert)
+                .forEach(ve.getFieldErrors()::add);
     }
 
     protected PSFieldError convert(ConstraintViolation cv) {
-        PSFieldError oew = new PSFieldError();
-        oew.setCode(cv.getErrorCode());
-        oew.setDefaultMessage(cv.getMessage());
-        if (cv.getContext() instanceof MethodParameterContext) {
-            MethodParameterContext context = (MethodParameterContext) cv.getContext();
-            Annotation[][] paramA = context.getMethod().getParameterAnnotations();
-            Annotation[] anots = paramA[context.getParameterIndex()];
-            for (Annotation anot : anots) {
-                if (anot.annotationType() == PathParam.class) {
-                    PathParam pp = (PathParam) anot;
-                    oew.setField(pp.value());
-                }
-            }
+        var fieldError = new PSFieldError();
+        fieldError.setCode(cv.getErrorCode());
+        fieldError.setDefaultMessage(cv.getMessage());
+        if (cv.getContext() instanceof MethodParameterContext context) {
+            var paramAnnotations = context.getMethod().getParameterAnnotations();
+            var annotations = paramAnnotations[context.getParameterIndex()];
+            Arrays.stream(annotations)
+                    .filter(anot -> anot.annotationType() == PathParam.class)
+                    .findFirst()
+                    .ifPresent(anot -> fieldError.setField(((PathParam) anot).value()));
         }
-        oew.setRejectedValue(cv.getInvalidValue());
-        return oew;
+        fieldError.setRejectedValue(cv.getInvalidValue());
+        return fieldError;
     }
-
 }

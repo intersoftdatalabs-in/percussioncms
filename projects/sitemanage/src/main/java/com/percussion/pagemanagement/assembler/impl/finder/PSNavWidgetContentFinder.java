@@ -30,36 +30,37 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The navigation widget content finder looks up a related navigation node 
- * (navon or navtree) for a specified item. The navigation node and the given 
- * item are under the same folder. The navigation node can be accessed from  
- * "$nav.self" binding of the returned assembly item. The navigation node 
- * implements IPSProxyNode. In addition, the binding of "$nav.root" is 
+ * The navigation widget content finder looks up a related navigation node
+ * (navon or navtree) for a specified item. The navigation node and the given
+ * item are under the same folder. The navigation node can be accessed from
+ * "$nav.self" binding of the returned assembly item. The navigation node
+ * implements IPSProxyNode. In addition, the binding of "$nav.root" is
  * the root of the navigation.
  * <p>
  * All navigation nodes, from the related node to the root of the navigation
  * are filtered by the item filter, which is specified in the given item.
- * 
+ *
  * @author YuBingChen
  */
 @Transactional(readOnly = true, noRollbackFor = Exception.class)
-public class PSNavWidgetContentFinder extends PSWidgetContentFinder
-{
+public class PSNavWidgetContentFinder extends PSWidgetContentFinder {
+
     @Override
     public List<IPSAssemblyItem> find(IPSAssemblyItem sourceItem,
-            PSWidgetInstance widget, Map<String, Object> params)
-            throws RepositoryException, PSAssemblyException
-    {
-        IPSAssemblyItem item = PSNavFinderUtils.findItem(sourceItem, null);
-        if (item == null)
+                                      PSWidgetInstance widget,
+                                      Map<String, Object> params)
+            throws RepositoryException, PSAssemblyException {
+        var item = PSNavFinderUtils.findItem(sourceItem, null);
+        if (item == null) {
             return Collections.emptyList();
-        return Collections.singletonList(item);
-    }       
+        }
+        return List.of(item);
+    }
 
+    @Override
     protected Set<ContentItem> getContentItems(
-            IPSAssemblyItem item, PSWidgetInstance widget, Map<String, Object> params)
-    {
-        // this is not used, do nothing
+            IPSAssemblyItem item, PSWidgetInstance widget, Map<String, Object> params) {
+        // Not used for navigation widgets
         return null;
     }
 }

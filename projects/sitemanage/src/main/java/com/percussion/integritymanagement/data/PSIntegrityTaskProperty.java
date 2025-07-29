@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,27 +18,20 @@
 package com.percussion.integritymanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Objects;
 
+/**
+ * Represents a property for an integrity task.
+ */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSIntegrityTaskProperty")
 @Table(name = "PSX_INTEGRITY_TASK_PROPERTIES")
-public class PSIntegrityTaskProperty extends PSAbstractDataObject
-{
-
-    /**
-    * 
-    */
+public class PSIntegrityTaskProperty extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -45,7 +39,7 @@ public class PSIntegrityTaskProperty extends PSAbstractDataObject
     private long taskPropertyId = -1L;
 
     @Basic
-    @Column(name = "TASKID", insertable = false,updatable = false)
+    @Column(name = "TASKID", insertable = false, updatable = false)
     private long taskId;
 
     @Basic
@@ -57,97 +51,83 @@ public class PSIntegrityTaskProperty extends PSAbstractDataObject
     private String value;
 
     /**
-     * The default constructor.
+     * Default constructor.
      */
-    public PSIntegrityTaskProperty()
-    {
+    public PSIntegrityTaskProperty() {
+        // Default constructor for JPA
     }
-    
-    public PSIntegrityTaskProperty(String name, String value)
-    {
+
+    public PSIntegrityTaskProperty(String name, String value) {
         setName(name);
         setValue(value);
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (!(obj instanceof PSIntegrityTaskProperty)) {
             return false;
         }
-
-        // use "name" & "value" should be enough to avoid same pair more than
-        // once to make sure the property names are unique within a PSPubServer
-        PSIntegrityTaskProperty b = (PSIntegrityTaskProperty) obj;
-        return new EqualsBuilder().append(name, b.name).append(value, b.value).isEquals();
+        var other = (PSIntegrityTaskProperty) obj;
+        return Objects.equals(name, other.name) && Objects.equals(value, other.value);
     }
 
     @Override
-    public int hashCode()
-    {
-        // use "name" should be enough to avoid same pair more than once to make
-        // sure the property names are unique within a PSPubServer
-        return new HashCodeBuilder().append(name).toHashCode();
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     /**
-     * Get the property name
-     * 
-     * @return Returns the property name, never <code>null</code> or empty
+     * Gets the property name.
+     *
+     * @return the property name, never null or empty
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
-     * @param name The name to set, never <code>null</code> or empty
+     * Sets the property name.
+     *
+     * @param name the name to set, never null or empty
      */
-    public void setName(String name)
-    {
-        if (StringUtils.isBlank(name))
-        {
+    public void setName(String name) {
+        if (StringUtils.isBlank(name)) {
             throw new IllegalArgumentException("name may not be null or empty");
         }
         this.name = name;
     }
 
     /**
-     * Get the value
-     * 
-     * @return Returns the value, may be <code>null</code> or empty.
+     * Gets the value.
+     *
+     * @return the value, may be null or empty
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
-     * @param value The value to set.
+     * Sets the value.
+     *
+     * @param value the value to set
      */
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
 
-    public long getTaskPropertyId()
-    {
+    public long getTaskPropertyId() {
         return taskPropertyId;
     }
 
-    public void setTaskPropertyId(long taskPropertyId)
-    {
+    public void setTaskPropertyId(long taskPropertyId) {
         this.taskPropertyId = taskPropertyId;
     }
 
-    public long getTaskId()
-    {
+    public long getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(long taskId)
-    {
+    public void setTaskId(long taskId) {
         this.taskId = taskId;
     }
-
 }

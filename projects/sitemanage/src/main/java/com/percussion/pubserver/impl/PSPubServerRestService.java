@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -51,6 +52,7 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
+ * REST endpoint for managing publishing servers.
  * @author leonardohildt
  * @author ignacioerro
  */
@@ -61,9 +63,7 @@ public class PSPubServerRestService
 {
     private static final Logger log = LogManager.getLogger(PSPubServerRestService.class);
 
-    private IPSPubServerService service;
-    private PSDeliveryInfoService psDeliveryInfoService;
-    private List<PSDeliveryInfo> psDeliveryInfoServiceList;
+    private final IPSPubServerService service;
 
     @Autowired
     public PSPubServerRestService(IPSPubServerService service)
@@ -72,19 +72,12 @@ public class PSPubServerRestService
     }
 
     /**
-     * Load the server information based on the server name as the parameter.
-     *
-     * @param siteId the id of the site of which it is going to retrieve
-     *            the information from. Cannot be empty or <code>null</code>
-     * @param serverId The id of the server.
-     * @return a <code>PSPublishServerInfo</code> object.
+     * Loads the server information based on the server name as the parameter.
      */
     @GET
     @Path("/{siteId}/{serverId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPublishServerInfo getPubServer(@PathParam("siteId")
-                                                    String siteId, @PathParam("serverId")
-                                                    String serverId)
+    public PSPublishServerInfo getPubServer(@PathParam("siteId") String siteId, @PathParam("serverId") String serverId)
     {
         try {
             return service.getPubServer(siteId, serverId);
@@ -95,11 +88,13 @@ public class PSPubServerRestService
         }
     }
 
+    /**
+     * Gets all publishing servers for a site.
+     */
     @GET
     @Path("/{siteId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public List<PSPublishServerInfo> getServers(@PathParam("siteId")
-                                                        String siteId)
+    public List<PSPublishServerInfo> getServers(@PathParam("siteId") String siteId)
     {
         try {
             return new PSPublishServerInfoList(service.getPubServerList(siteId));
@@ -111,31 +106,23 @@ public class PSPubServerRestService
     }
 
     /**
-     * Creates a new server with the name provided.
-     *
-     * @param siteId the id of the site to be created
-     * @param serverName The name of the pub server
-     * @param pubServerInfo the <code>PSPublishServer</code> object containing the
-     *      *            server information to add to that server. Must not be empty or
-     *      *            <code>null</code>
-     * @return a <code>PSPublishServerInfo</code> object never empty or
-     *         <code>null</code>
+     * Creates a new publishing server.
      */
     @POST
     @Path("/{siteId}/{serverName:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPublishServerInfo createPubServer(@PathParam("siteId")
-                                                       String siteId, @PathParam("serverName")
-                                                       String serverName, PSPublishServerInfo pubServerInfo) throws PSValidationException,WebApplicationException
+    public PSPublishServerInfo createPubServer(@PathParam("siteId") String siteId,
+                                               @PathParam("serverName") String serverName,
+                                               PSPublishServerInfo pubServerInfo) throws PSValidationException, WebApplicationException
     {
         try {
             PSParameterValidationUtils.rejectIfBlank("create", "siteId", siteId);
             PSParameterValidationUtils.rejectIfBlank("create", "serverName", serverName);
             return service.createPubServer(siteId, serverName, pubServerInfo);
-        }catch(PSParametersValidationException ps){
+        } catch (PSParametersValidationException ps) {
             log.error(ps.getMessage());
-            log.debug(ps.getMessage(),ps);
+            log.debug(ps.getMessage(), ps);
             throw ps;
         } catch (PSNotFoundException | IPSPubServerService.PSPubServerServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -145,29 +132,22 @@ public class PSPubServerRestService
     }
 
     /**
-     * Updates a new server with the name and data provided.
-     *
-     * @param siteId the id of the site
-     * @param serverId The id of the pub server.
-     * @param pubServerInfo the <code>PSPublishServerInfo</code> object to be updated
-     * @return a <code>PSPublishServerInfo</code> object never empty or
-     *         <code>null</code>
+     * Updates an existing publishing server.
      */
     @PUT
     @Path("/{siteId}/{serverId:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPublishServerInfo updatePubServer(@PathParam("siteId")
-                                                       String siteId, @PathParam("serverId")
-                                                       String serverId, PSPublishServerInfo pubServerInfo) throws PSParametersValidationException {
+    public PSPublishServerInfo updatePubServer(@PathParam("siteId") String siteId,
+                                               @PathParam("serverId") String serverId,
+                                               PSPublishServerInfo pubServerInfo) throws PSParametersValidationException {
         try {
             PSParameterValidationUtils.rejectIfBlank("update", "siteId", siteId);
             PSParameterValidationUtils.rejectIfBlank("update", "serverId", serverId);
-
             return service.updatePubServer(siteId, serverId, pubServerInfo);
-        }catch(PSParametersValidationException ps){
+        } catch (PSParametersValidationException ps) {
             log.error(ps.getMessage());
-            log.debug(ps.getMessage(),ps);
+            log.debug(ps.getMessage(), ps);
             throw ps;
         } catch (PSDataServiceException | PSNotFoundException | IPSPubServerService.PSPubServerServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -177,23 +157,17 @@ public class PSPubServerRestService
     }
 
     /**
-     * Deletes the server with the name provided
-     *
-     * @param siteId the id of the site. Never <code>null</code>
-     * @param serverId the id of the server. Never <code>null</code>
-     * @return a list of servers updated
+     * Deletes a publishing server.
      */
     @DELETE
     @Path("/{siteId}/{serverId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public List<PSPublishServerInfo> deleteServer(@PathParam("siteId")
-                                                          String siteId, @PathParam("serverId")
-                                                          String serverId)
+    public List<PSPublishServerInfo> deleteServer(@PathParam("siteId") String siteId,
+                                                  @PathParam("serverId") String serverId)
     {
         try {
             PSParameterValidationUtils.rejectIfBlank("delete", "siteName", siteId);
             PSParameterValidationUtils.rejectIfBlank("delete", "serverId", serverId);
-
             return new PSPublishServerInfoList(service.deleteServer(siteId, serverId));
         } catch (IPSPubServerService.PSPubServerServiceException | PSDataServiceException | PSNotFoundException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -202,15 +176,16 @@ public class PSPubServerRestService
         }
     }
 
+    /**
+     * Stops a publishing job.
+     */
     @POST
     @Path("/stopPublishing/{jobId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public void stopPublishing(@PathParam("jobId")
-                                       String jobId)
+    public void stopPublishing(@PathParam("jobId") String jobId)
     {
         try {
             PSParameterValidationUtils.rejectIfBlank("delete", "jobId", jobId);
-
             service.stopPublishing(jobId);
         } catch (PSValidationException | IPSPubServerService.PSPubServerServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -220,10 +195,7 @@ public class PSPubServerRestService
     }
 
     /**
-     * Get information about drivers availability
-     *
-     * @return a <code>String</code> of the JSON object from a
-     *         <code>Map<String, Boolean></code> (DriverName,available).
+     * Gets information about available drivers.
      */
     @GET
     @Path("/availableDrivers")
@@ -234,43 +206,39 @@ public class PSPubServerRestService
     }
 
     /**
-     * Get EC2 Bucket Regions
-     *
-     * @return a List of <code>Region</code> of the JSON object.
+     * Gets available EC2 bucket regions.
      */
     @GET
     @Path("/availableRegions")
     @Produces(MediaType.TEXT_PLAIN)
     public String getAvailableRegions()
     {
-        Regions[] regions =  Regions.values();
-        if(regions !=null){
-            String[] regionNames = new String[regions.length];
-            for (int i=0;i<regions.length;i++){
-                Regions region =regions[i];
-                regionNames[i] = region.getName();
+        var regions = Regions.values();
+        if (regions != null) {
+            var regionNames = new String[regions.length];
+            for (int i = 0; i < regions.length; i++) {
+                regionNames[i] = regions[i].getName();
             }
-            return  JSONArray.fromObject(regionNames).toString();
+            return JSONArray.fromObject(regionNames).toString();
         }
-        return  null;
+        return null;
     }
 
-
+    /**
+     * Gets available publishing servers for a given type.
+     */
     @GET
     @Path("/availablePublishingServer/{publishServerType}")
     @Produces(MediaType.TEXT_PLAIN)
     public String getAvailablePublishingServer(@PathParam("publishServerType") String publishServer) {
-        psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-        List<String> serverList = psDeliveryInfoService.getAdminUrls(publishServer);
+        var psDeliveryInfoService = (PSDeliveryInfoService) PSDeliveryInfoServiceLocator.getDeliveryInfoService();
+        var serverList = psDeliveryInfoService.getAdminUrls(publishServer);
         serverList.add(IPSPubServerService.DEFAULT_DTS);
-
         return JSONArray.fromObject(serverList.toArray()).toString();
-
     }
+
     /**
-     * Get if EC2 instance
-     *
-     * @return a boolean true, if EC2 instance else false
+     * Checks if the current instance is an EC2 instance.
      */
     @GET
     @Path("/isEC2Instance")
@@ -281,34 +249,31 @@ public class PSPubServerRestService
     }
 
     /**
-     * Determine if the default publish server that belongs to a site is
-     * modified or not.
-     *
-     * @param siteId The id of the site that contains the publish server.
-     * @return <code>true</code> if the default server was modified by the user.
+     * Determines if the default publish server for a site is modified.
      */
     @GET
     @Path("/isDefaultServerModified/{siteId}")
     @Produces(MediaType.TEXT_PLAIN)
-    public Boolean isDefaultServerModified(@PathParam("siteId")
-                                                   String siteId)
+    public Boolean isDefaultServerModified(@PathParam("siteId") String siteId)
     {
         return service.isDefaultServerModified(siteId);
     }
 
+    /**
+     * Gets the default folder location for a publishing server.
+     */
     @GET
     @Path("/defaultFolderLocation/{siteId}/{publishType}/{driver}/{serverType}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getDefaultFolderLocation(@PathParam("siteId")
-                                                   String siteId, @PathParam("publishType")
-                                                   String publishType, @PathParam("driver")
-                                                   String driver, @PathParam("serverType") String serverType)
+    public String getDefaultFolderLocation(@PathParam("siteId") String siteId,
+                                           @PathParam("publishType") String publishType,
+                                           @PathParam("driver") String driver,
+                                           @PathParam("serverType") String serverType)
     {
         try {
             PSParameterValidationUtils.rejectIfBlank("defaultFolderLocation", "siteId", siteId);
             PSParameterValidationUtils.rejectIfBlank("defaultFolderLocation", "publishType", publishType);
             PSParameterValidationUtils.rejectIfBlank("defaultFolderLocation", "driver", driver);
-
             return service.getDefaultFolderLocation(siteId, publishType, driver, serverType);
         } catch (PSValidationException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -317,12 +282,14 @@ public class PSPubServerRestService
         }
     }
 
+    /**
+     * Gets all available delivery servers.
+     */
     @GET
     @Path("/availableDeliveryServers")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getAvailableDeliveryServers(){
+    public String getAvailableDeliveryServers() {
         IPSDeliveryInfoService svc = PSDeliveryInfoServiceLocator.getDeliveryInfoService();
-
         return JSONObject.fromObject(svc.findAll()).toString();
     }
 }

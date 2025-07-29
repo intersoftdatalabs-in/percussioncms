@@ -15,33 +15,31 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service;
-
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract base class for site templates.
+ */
 public abstract class Template {
 
     private List<String> siteIds = new ArrayList<>();
 
-    public List<String> getSiteIds()
-    {
+    public List<String> getSiteIds() {
         return siteIds;
     }
 
-    public void setSiteIds(List<String> siteIds)
-    {
+    public void setSiteIds(List<String> siteIds) {
         this.siteIds = siteIds;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("Template{");
-        sb.append("siteIds=").append(siteIds);
-        sb.append('}');
-        return sb.toString();
+        return "Template{" +
+                "siteIds=" + siteIds +
+                '}';
     }
 }

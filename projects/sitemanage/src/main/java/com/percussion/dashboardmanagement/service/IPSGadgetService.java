@@ -24,15 +24,47 @@ import com.percussion.share.service.exception.PSDataServiceException;
 
 import java.util.List;
 
-public interface IPSGadgetService extends IPSDataService<PSGadget,PSGadget, String> {
+/**
+ * Service for managing gadgets.
+ * <p>
+ * Sunny Sal says: "Gadgets, now Java 11 and Google-styled!"
+ */
+public interface IPSGadgetService extends IPSDataService<PSGadget, PSGadget, String> {
 
+    /**
+     * Saves a gadget.
+     *
+     * @param gadget the gadget to save
+     * @return the saved gadget
+     */
     PSGadget save(PSGadget gadget);
-    List<PSGadget> findAll();
-    PSGadget find(String id);
-    void delete(String id);
-    
-    public static class PSGadgetServiceException extends PSDataServiceException {
 
+    /**
+     * Finds all gadgets.
+     *
+     * @return list of all gadgets
+     */
+    List<PSGadget> findAll();
+
+    /**
+     * Finds a gadget by id.
+     *
+     * @param id the gadget id
+     * @return the gadget
+     */
+    PSGadget find(String id);
+
+    /**
+     * Deletes a gadget by id.
+     *
+     * @param id the gadget id
+     */
+    void delete(String id);
+
+    /**
+     * Exception for gadget service errors.
+     */
+    class PSGadgetServiceException extends PSDataServiceException {
         private static final long serialVersionUID = 1L;
 
         public PSGadgetServiceException(String message) {
@@ -46,11 +78,12 @@ public interface IPSGadgetService extends IPSDataService<PSGadget,PSGadget, Stri
         public PSGadgetServiceException(Throwable cause) {
             super(cause);
         }
-
     }
-    
-    public static class PSGadgetNotFoundException extends PSGadgetServiceException implements IPSNotFoundException {
 
+    /**
+     * Exception for gadget not found scenarios.
+     */
+    class PSGadgetNotFoundException extends PSGadgetServiceException implements IPSNotFoundException {
         private static final long serialVersionUID = 1L;
 
         public PSGadgetNotFoundException(String message) {
@@ -64,7 +97,5 @@ public interface IPSGadgetService extends IPSDataService<PSGadget,PSGadget, Stri
         public PSGadgetNotFoundException(Throwable cause) {
             super(cause);
         }
-
     }
-
 }

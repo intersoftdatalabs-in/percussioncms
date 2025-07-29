@@ -15,50 +15,44 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
-public class PSFileDownloadJob
-{
-    String file;
+/**
+ * Represents a file download job with file path, URL, and asset creation flag.
+ */
+public class PSFileDownloadJob {
+    private String file;
+    private String url;
+    private Boolean createAsset;
 
-    String url;
-
-    Boolean createAsset;
-
-    protected PSFileDownloadJob(String file, String url, Boolean createAsset)
-    {
+    protected PSFileDownloadJob(String file, String url, Boolean createAsset) {
         this.file = file;
         this.url = url;
         this.createAsset = createAsset;
     }
 
-    public String getFile()
-    {
+    public String getFile() {
         return file;
     }
 
-    public void setFile(String file)
-    {
+    public void setFile(String file) {
         this.file = file;
     }
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url)
-    {
+    public void setUrl(String url) {
         this.url = url;
     }
 
-    public Boolean getCreateAsset()
-    {
+    public Boolean getCreateAsset() {
         return createAsset;
     }
 
-    public void setCreateAsset(Boolean createAsset)
-    {
+    public void setCreateAsset(Boolean createAsset) {
         this.createAsset = createAsset;
     }
 }

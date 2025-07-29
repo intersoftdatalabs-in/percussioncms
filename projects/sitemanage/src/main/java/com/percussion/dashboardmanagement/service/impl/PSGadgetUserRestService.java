@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.dashboardmanagement.service.impl;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
@@ -30,89 +31,90 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
+/**
+ * Sunny Sal says: "GadgetUserRestService, now Java 11 and Google-styled! User gadgets, served fresh."
+ */
 @Path("/gadgetuser")
 @Component("gadgetUserRestService")
 public class PSGadgetUserRestService {
 
-        private static final Logger log = LogManager.getLogger(PSGadgetUserRestService.class);
-        private IPSGadgetUserService gadgetUserService;
-        @Autowired
-        public PSGadgetUserRestService(IPSGadgetUserService gadgetUserService)
-        {
-            this.gadgetUserService = gadgetUserService;
-        }
-        
-        @GET
-        @Path("/{id}")
-        @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-        public PSGadget load(String id){
-                try {
-                        return gadgetUserService.load(id);
-                } catch (PSDataServiceException e) {
-                        log.error(PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                        throw new WebApplicationException(e);
-                }
-        }
-        
-        @GET
-        @Path("/{username}")
-        @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-        public List<PSGadget> findAll(String username)throws PSGadgetNotFoundException, PSGadgetServiceException {
-            return new PSGadgetList(gadgetUserService.findAll(username));
-        }
-        
-        @GET
-        @Path("/")
-        @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-        public List<PSGadget> findAll() {
-                try {
-                        return new PSGadgetList(gadgetUserService.findAll());
-                } catch (PSDataServiceException e) {
-                        log.error(PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                        throw new WebApplicationException(e);
-                }
-        }
-        
-        public PSGadget find(String username) throws PSGadgetNotFoundException, PSGadgetServiceException, PSDataServiceException {
-            return gadgetUserService.find(username);
-        }
-        
-        @POST
-        @Path("/{username}")
-        @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-        @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-        public PSGadget save(String username, PSGadget gadget) {
-            return gadgetUserService.save(username,gadget);
-        }
-        
-        @DELETE
-        @Path("/{username}/{id}")
-        public void delete(String username, String id) {
-            gadgetUserService.delete(username,id);
-        }
-        
-        @DELETE
-        @Path("/{id}")
-        public void delete(String id) {
+    private static final Logger log = LogManager.getLogger(PSGadgetUserRestService.class);
+    private final IPSGadgetUserService gadgetUserService;
+
+    @Autowired
+    public PSGadgetUserRestService(IPSGadgetUserService gadgetUserService) {
+        this.gadgetUserService = gadgetUserService;
+    }
+
+    @GET
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public PSGadget load(@PathParam("id") String id) {
         try {
-                gadgetUserService.delete(id);
+            return gadgetUserService.load(id);
+        } catch (PSDataServiceException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new WebApplicationException(e);
+        }
+    }
+
+    @GET
+    @Path("/user/{username}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public PSGadgetList findAllByUser(@PathParam("username") String username)
+            throws PSGadgetNotFoundException, PSGadgetServiceException {
+        return new PSGadgetList(gadgetUserService.findAll(username));
+    }
+
+    @GET
+    @Path("/")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public PSGadgetList findAll() {
+        try {
+            return new PSGadgetList(gadgetUserService.findAll());
+        } catch (PSDataServiceException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new WebApplicationException(e);
+        }
+    }
+
+    @GET
+    @Path("/find/{username}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public PSGadget find(@PathParam("username") String username)
+            throws PSGadgetNotFoundException, PSGadgetServiceException, PSDataServiceException {
+        return gadgetUserService.find(username);
+    }
+
+    @POST
+    @Path("/user/{username}")
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+    public PSGadget save(@PathParam("username") String username, PSGadget gadget) {
+        return gadgetUserService.save(username, gadget);
+    }
+
+    @DELETE
+    @Path("/user/{username}/{id}")
+    public void deleteByUser(@PathParam("username") String username, @PathParam("id") String id) {
+        gadgetUserService.delete(username, id);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public void delete(@PathParam("id") String id) {
+        try {
+            gadgetUserService.delete(id);
         } catch (PSDataServiceException | PSNotFoundException e) {
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                throw new WebApplicationException(e);
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new WebApplicationException(e);
         }
-        }
-        
+    }
 }

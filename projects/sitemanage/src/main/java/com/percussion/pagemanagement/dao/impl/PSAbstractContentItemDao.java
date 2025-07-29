@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -34,91 +35,90 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
 
+/**
+ * Abstract DAO for content items, providing generic CRUD operations.
+ * @param <T> the type of item summary.
+ */
+public abstract class PSAbstractContentItemDao<T extends IPSItemSummary> implements IPSGenericDao<T, String> {
 
-public abstract class PSAbstractContentItemDao<T extends IPSItemSummary> implements IPSGenericDao<T, String>
-{
-    
-    private IPSContentItemDao contentItemDao;
-    
-    private IPSIdMapper idMapper;
+    private final IPSContentItemDao contentItemDao;
+    private final IPSIdMapper idMapper;
 
     protected abstract String getType();
-    
+
     protected abstract T createObject();
-    
+
     protected abstract void convertToObject(PSContentItem contentItem, T object);
-    
+
     protected abstract void convertToItem(T page, PSContentItem contentItem);
-    
-    protected void postItemSave(@SuppressWarnings("unused") T object, 
-            @SuppressWarnings("unused") PSContentItem contentItem) throws SaveException, LoadException {
+
+    /**
+     * Hook for subclasses to perform actions after saving an item.
+     */
+    protected void postItemSave(@SuppressWarnings("unused") T object,
+                                @SuppressWarnings("unused") PSContentItem contentItem)
+            throws SaveException, LoadException {
+        // No-op by default.
     }
 
-    public PSAbstractContentItemDao(IPSContentItemDao contentItemDao, IPSIdMapper idMapper)
-    {
-        super();
+    public PSAbstractContentItemDao(IPSContentItemDao contentItemDao, IPSIdMapper idMapper) {
         this.contentItemDao = contentItemDao;
         this.idMapper = idMapper;
     }
 
-    protected final IPSContentItemDao getContentItemDao()
-    {
+    protected final IPSContentItemDao getContentItemDao() {
         return contentItemDao;
     }
 
-
+    @Override
     public void delete(String id) throws PSDataServiceException {
         find(id);
         contentItemDao.delete(id);
     }
 
-    public List<T> findAll() throws PSDataServiceException
-    {
-        
-        Collection<Integer> ids = getContentItemDao().findAllItemIdsByType(getType());
-        List<T> results = new ArrayList<>();
-        for (Integer id : ids)
-        {
-            PSLegacyGuid guid = new PSLegacyGuid(id, -1);
-            String sid = idMapper.getString(guid);
+    @Override
+    public List<T> findAll() throws PSDataServiceException {
+        var ids = getContentItemDao().findAllItemIdsByType(getType());
+        var results = new ArrayList<T>();
+        for (var id : ids) {
+            var guid = new PSLegacyGuid(id, -1);
+            var sid = idMapper.getString(guid);
             results.add(find(sid));
         }
         return results;
     }
 
-    public T find(String id) throws PSDataServiceException
-    {
+    @Override
+    public T find(String id) throws PSDataServiceException {
         notNull(id, "id");
-        PSContentItem contentItem = contentItemDao.find(id);
-        if (contentItem == null) {return null;}
-
+        var contentItem = contentItemDao.find(id);
+        if (contentItem == null) {
+            return null;
+        }
         return getObjectFromContentItem(contentItem);
     }
-    
+
     /**
      * Converts the specified content item to the generic object.
-     * 
-     * @param contentItem the Content Item, not <code>null</code>.
-     * 
-     * @return the generic object, not <code>null</code>.
+     *
+     * @param contentItem the Content Item, not {@code null}.
+     * @return the generic object, not {@code null}.
      */
-    protected T getObjectFromContentItem(PSContentItem contentItem)
-    {
+    protected T getObjectFromContentItem(PSContentItem contentItem) {
         notNull(contentItem, "contentItem");
-        
-        isTrue( isNotBlank(contentItem.getId()), "contentItem#getId() is blank");
-        T object = createObject();
+        isTrue(isNotBlank(contentItem.getId()), "contentItem#getId() is blank");
+        var object = createObject();
         object.setType(getType());
         object.setId(contentItem.getId());
         object.setFolderPaths(contentItem.getFolderPaths());
         object.setCategory(contentItem.getCategory());
         convertToObject(contentItem, object);
-        return object;        
+        return object;
     }
 
-
+    @Override
     public T save(T object) throws PSDataServiceException {
-        PSContentItem item = new PSContentItem();
+        var item = new PSContentItem();
         item.setId(object.getId());
         item.setType(getType());
         item.setFolderPaths(object.getFolderPaths());
@@ -130,18 +130,20 @@ public abstract class PSAbstractContentItemDao<T extends IPSItemSummary> impleme
         postItemSave(object, item);
         return find(item.getId());
     }
-    
+
+    /**
+     * Gets the first folder path from the content item, or null if none.
+     */
     protected String getFolderPath(PSContentItem contentItem) {
-        List<String> paths = contentItem.getFolderPaths();
-        if (paths != null && ! paths.isEmpty()){ return paths.get(0);}
+        var paths = contentItem.getFolderPaths();
+        if (paths != null && !paths.isEmpty()) {
+            return paths.get(0);
+        }
         return null;
     }
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
-
     private static final Logger log = LogManager.getLogger(PSAbstractContentItemDao.class);
-    
-
 }

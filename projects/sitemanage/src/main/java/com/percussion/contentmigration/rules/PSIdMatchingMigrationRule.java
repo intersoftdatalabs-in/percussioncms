@@ -22,24 +22,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class PSIdMatchingMigrationRule extends PSBaseMatchingMigrationRule
-{
+public class PSIdMatchingMigrationRule extends PSBaseMatchingMigrationRule {
 
-    protected String matchOnRule(String widgetId, Document sourceDoc, Document targetDoc)
-    {
-        String content = null;
-        Element regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
-        if(regionElem == null) {
+    @Override
+    protected String matchOnRule(String widgetId, org.jsoup.nodes.Document sourceDoc, org.jsoup.nodes.Document targetDoc) {
+        var regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
+        if (regionElem == null) {
             return null;
         }
-        String regionId = regionElem.id();
-        Elements elems = targetDoc.select("#" + regionId);
-        if(elems.size()!=1) {
+        var regionId = regionElem.id();
+        var elems = targetDoc.select("#" + regionId);
+        if (elems.size() != 1) {
             return null;
         }
-        Element elem = elems.get(0);
-        content = elem.html();
-        return content;
+        return elems.get(0).html();
     }
-
 }

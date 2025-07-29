@@ -40,85 +40,90 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * Helper class to create new theme folder while importing an external site
- * from URL.
- * @author federicoromanelli
- * 
+ * Helper class to retrieve theme information for a site.
+ * Sunny Sal says: "Theme fetchers fetch, but only if the site exists!"
  */
 @Component("themeTemplateHelper")
 @Lazy
-public class PSThemeTemplateHelper extends PSImportHelper
-{
-    
-    private final String STATUS_MESSAGE = "retrieving theme information";
-    
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.IPSSiteImportHelper#process(PSPageContent, PSSiteImportCtx)
-     */    
+public class PSThemeTemplateHelper extends PSImportHelper {
+
+    private static final Logger log = LogManager.getLogger(PSThemeTemplateHelper.class);
+    private static final String STATUS_MESSAGE = "retrieving theme information";
+
+    public static final String helperCategory = "Theme";
+    public static final String themeFetchCategory = "Theme Fetch";
+
+    private IPSThemeService themeService;
+    private String themesRootDirectory;
+    private IPSSiteImportLogger logger;
+    private IPSTemplateService templateService;
+    private IPSiteDao siteDao;
+    private PSSiteContentDao siteContentDao;
+
+    @Autowired
+    public PSThemeTemplateHelper(IPSThemeService themeService, IPSiteDao siteDao, IPSPageService pageService,
+                                 IPSTemplateService templateService, PSSiteContentDao siteContentDao) {
+        this.themeService = themeService;
+        this.siteDao = siteDao;
+        this.templateService = templateService;
+        this.siteContentDao = siteContentDao;
+    }
+
+    public String getThemesRootDirectory() {
+        return themesRootDirectory;
+    }
+
+    @Value("${rxdeploydir}/web_resources/themes")
+    public void setThemesRootDirectory(String themesRootDirectory) {
+        this.themesRootDirectory = themesRootDirectory;
+    }
+
     @Override
     public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException, PSDataServiceException {
         startTimer();
-        if(context.isCanceled())
-        {
+        if (context.isCanceled()) {
             return;
         }
-        
+
         logger = context.getLogger();
         PSThemeSummary themeSummary = null;
         String templateId = null;
-        String siteName = context.getSite().getName();
-        PSSiteSummary siteSummary = siteDao.findSummary(siteName);
-        
+        var siteName = context.getSite().getName();
+        var siteSummary = siteDao.findSummary(siteName);
+
         PSPage homePage = null;
-        if (siteSummary != null)
-        {
-            try
-            {
+        if (siteSummary != null) {
+            try {
                 homePage = siteContentDao.getHomePage(siteSummary);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.debug("PSThemeTemplateHelper: Couldn't find home page for site " + siteName);
                 logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + themeFetchCategory,
-                    "Unable to determine theme folder to use, unable to find home page for site " + siteName);
-                
-                throw new PSSiteImportException("Couldn't find home page for site" + siteName, e);
+                        "Unable to determine theme folder to use, unable to find home page for site " + siteName);
+                throw new PSSiteImportException("Couldn't find home page for site " + siteName, e);
             }
             templateId = homePage.getTemplateId();
-        }
-        else
-        {
+        } else {
             log.debug("PSThemeTemplateHelper: Couldn't find site " + siteName);
             logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + themeFetchCategory,
                     "Unable to determine theme folder to use, unable to find site " + siteName);
-            
-            throw new PSSiteImportException("Couldn't find site" + siteName);
+            throw new PSSiteImportException("Couldn't find site " + siteName);
         }
-        
-        if (templateId != null)
-        {
-            PSTemplate templateObj = templateService.load(templateId);
-            if (templateObj != null)
-            {
-                if (templateObj.getTheme() != null)
-                {
+
+        if (templateId != null) {
+            var templateObj = templateService.load(templateId);
+            if (templateObj != null) {
+                if (templateObj.getTheme() != null) {
                     themeSummary = themeService.find(templateObj.getTheme());
-                }
-                else
-                {
+                } else {
                     log.debug("PSThemeTemplateHelper: Couldn't find theme associated to home template");
                     logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + themeFetchCategory,
-                        "Unable to determine theme folder to use, template might not have a theme associated");
-                    
+                            "Unable to determine theme folder to use, template might not have a theme associated");
                     throw new PSSiteImportException("Couldn't find theme associated to home template");
                 }
-            }
-            else
-            {
+            } else {
                 log.debug("PSThemeTemplateHelper: Couldn't find template associated to home page");
                 logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + themeFetchCategory,
                         "Unable to determine theme folder to use, unable to find template associated to home page");
-                
                 throw new PSSiteImportException("Couldn't find template associated to home page");
             }
         }
@@ -127,54 +132,13 @@ public class PSThemeTemplateHelper extends PSImportHelper
         endTimer();
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.IPSSiteImportHelper#rollback(PSPageContent, PSSiteImportCtx)
-     */  
     @Override
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
-    {
+    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
         // No rollback needed, nothing was created by the helper
     }
-    
-    private static final Logger log = LogManager.getLogger(PSThemeTemplateHelper.class);
-    
-    private IPSThemeService themeService;
-    private String themesRootDirectory;
-    private IPSSiteImportLogger logger;
-    private IPSTemplateService templateService;
-    private IPSiteDao siteDao;
-    private PSSiteContentDao siteContentDao;
-       
-    public static final String helperCategory = "Theme";
-    
-    // Categories used for theme helper logger
-    public static final String themeFetchCategory = "Theme Fetch";
-
-    public String getThemesRootDirectory()
-    {
-        return themesRootDirectory;
-    }
-
-    @Value("${rxdeploydir}/web_resources/themes")
-    public void setThemesRootDirectory(String themesRootDirectory)
-    {
-        this.themesRootDirectory = themesRootDirectory;
-    }
-
-    @Autowired
-    public PSThemeTemplateHelper(IPSThemeService themeService, IPSiteDao siteDao, IPSPageService pageService,
-            IPSTemplateService templateService, PSSiteContentDao siteContentDao)
-    {
-        this.themeService = themeService;
-        this.siteDao = siteDao;
-        this.templateService = templateService;
-        this.siteContentDao = siteContentDao;
-    }
 
     @Override
-    public String getHelperMessage()
-    {
+    public String getHelperMessage() {
         return STATUS_MESSAGE;
-    }  
-    
+    }
 }

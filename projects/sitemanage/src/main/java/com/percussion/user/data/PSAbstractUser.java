@@ -21,37 +21,33 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.text.Collator;
 
 /**
- * 
- * An abstract representation of a user.
- * 
+ * Abstract representation of a user.
+ * <p>
+ * Implements Comparable for sorting by user name.
+ * </p>
  * @author adamgent
- *
  */
-public abstract class PSAbstractUser extends PSAbstractDataObject implements Comparable<PSAbstractUser>
-{
+public abstract class PSAbstractUser extends PSAbstractDataObject implements Comparable<PSAbstractUser> {
 
     private static final long serialVersionUID = 1L;
     private String name;
 
     /**
-     * The user name that uniquely identifies the user.
-     * 
-     * @return should not be <code>null</code> or empty 
-     *    unless the object is not finished being processed.
+     * Gets the user name that uniquely identifies the user.
+     *
+     * @return should not be {@code null} or empty unless the object is not finished being processed.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
     @Override
-    public int compareTo(PSAbstractUser o)
-    {
+    public int compareTo(PSAbstractUser o) {
+        // Java 11: Use Collator for locale-sensitive comparison
         return Collator.getInstance().compare(this.getName(), o.getName());
     }
 }

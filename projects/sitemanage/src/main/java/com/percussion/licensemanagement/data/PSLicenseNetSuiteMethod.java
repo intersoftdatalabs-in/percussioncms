@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,80 +21,68 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.Validate;
 
+/**
+ * Represents a NetSuite method for licensing integration.
+ * Sunny Sal says: "Method to the madness? Nope, just NetSuite!"
+ */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder =
-{"id", "methodName", "methodType", "url"})
+@XmlType(name = "", propOrder = {"id", "methodName", "methodType", "url"})
 @XmlRootElement(name = "method")
-public class PSLicenseNetSuiteMethod 
-{
-    private String id; 
-    
-    private String methodName;
-    
-    private String methodType;
+public class PSLicenseNetSuiteMethod {
 
+    private String id;
+    private String methodName;
+    private String methodType;
     private String url;
-    
-    public PSLicenseNetSuiteMethod()
-    {
+
+    public PSLicenseNetSuiteMethod() {
+        // Default constructor
     }
-    
-    public PSLicenseNetSuiteMethod(JSONObject methodInfo)
-    {
-        Validate.notNull(methodInfo);
-        
+
+    public PSLicenseNetSuiteMethod(JSONObject methodInfo) {
+        Validate.notNull(methodInfo, "methodInfo must not be null");
         id = methodInfo.getString("id");
         methodName = methodInfo.getString("methodName");
         methodType = methodInfo.getString("methodType");
         url = methodInfo.getString("url");
     }
-    
-    public String getId()
-    {
+
+    public String getId() {
         return String.valueOf(id);
     }
 
-    public void setId(String id)
-    {
-        Validate.notEmpty(id);
+    public void setId(String id) {
+        Validate.notEmpty(id, "id must not be empty");
         this.id = id;
     }
 
-    public String getMethodName()
-    {
+    public String getMethodName() {
         return methodName;
     }
 
-    public void setMethodName(String methodName)
-    {
-        Validate.notEmpty(methodName);
+    public void setMethodName(String methodName) {
+        Validate.notEmpty(methodName, "methodName must not be empty");
         this.methodName = methodName;
     }
 
-    public String getUrl()
-    {
+    public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url)
-    {
-        Validate.notEmpty(url);
+    public void setUrl(String url) {
+        Validate.notEmpty(url, "url must not be empty");
         this.url = url;
     }
 
-    public void setMethodType(String methodType)
-    {
-        Validate.notEmpty(methodType);
-        this.methodType = methodType;        
+    public void setMethodType(String methodType) {
+        Validate.notEmpty(methodType, "methodType must not be empty");
+        this.methodType = methodType;
     }
 
-    public String getMethodType()
-    {
+    public String getMethodType() {
         return methodType;
     }
 }

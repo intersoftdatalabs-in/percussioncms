@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
 import static org.apache.commons.lang.Validate.notNull;
@@ -24,14 +25,7 @@ import com.percussion.utils.tools.PSCopyStream;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.AbstractMap;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -124,62 +118,45 @@ public class PSJcrNodeMap extends AbstractMap<String, Object>
     public Object get(Object key)
     {
         notNull(key, "key");
-        String k  = StringUtils.removeStart((String)key, JCR_PREFIX);
+        var k = StringUtils.removeStart((String) key, JCR_PREFIX);
         if (override.containsKey(k)) return override.get(k);
         return getNodePropertyValue(k);
     }
-    
+
     private Object getNodePropertyValue(String k) {
-        Property p = getNodeProperty(k);
-        try
-        {
+        var p = getNodeProperty(k);
+        try {
             if (p == null) return null;
-            /*
-             * TODO probably should base64 encode binaries
-             */
-            if (p.getType() == PropertyType.BINARY)
-            {
-                if (!allowBinary)
-                {
+            if (p.getType() == PropertyType.BINARY) {
+                if (!allowBinary) {
                     return "";
-                }
-                else
-                {
-                    PSPurgableTempFile ptf = new PSPurgableTempFile("tmp", null, null);
-                    try(FileOutputStream fos = new FileOutputStream(ptf)) {
+                } else {
+                    var ptf = new PSPurgableTempFile("tmp", null, null);
+                    try (var fos = new FileOutputStream(ptf)) {
                         PSCopyStream.copyStream(p.getStream(), fos);
                     }
-
                     return ptf;
                 }
             }
-            if(p instanceof PSMultiProperty)
-            {
-               List<String> multiValues = new ArrayList<>();
-               Value[] values = p.getValues();
-               for(Value value : values)
-               {
-                  multiValues.add(value.getString());
-               }
-               return multiValues;
+            if (p instanceof PSMultiProperty) {
+                var multiValues = new ArrayList<String>();
+                var values = p.getValues();
+                for (var value : values) {
+                    multiValues.add(value.getString());
+                }
+                return multiValues;
             }
-            
             return p.getString();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private Property getNodeProperty(String k) {
-        try
-        {
+        try {
             if (node.hasProperty(k))
                 return node.getProperty(k);
-        }
-        catch (RepositoryException e)
-        {
+        } catch (RepositoryException e) {
             throw new RuntimeException(e);
         }
         return null;
@@ -189,13 +166,12 @@ public class PSJcrNodeMap extends AbstractMap<String, Object>
     public Object put(String key, Object value)
     {
         notNull(key, "key");
-        String k = StringUtils.removeStart(key, JCR_PREFIX);
+        var k = StringUtils.removeStart(key, JCR_PREFIX);
         return override.put(k, value);
     }
 
     @Override
-    public Set<java.util.Map.Entry<String, Object>> entrySet()
-    {
+    public Set<Map.Entry<String, Object>> entrySet() {
         return new PSPropertySet(node);
     }
 

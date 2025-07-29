@@ -67,20 +67,18 @@ import static org.apache.commons.lang.Validate.notNull;
  * 
  */
 @PSSiteManageBean("legacyLinkGenerator")
-public class PSLegacyLinkGenerator
-{
+public class PSLegacyLinkGenerator {
+
     private static final String IMAGE_ASSET_CONTENTTYPE = "percImageAsset";
     private PSLocationUtils locationUtils;
     private IPSSiteManager siteManager;
     private IPSIdMapper idMapper;
     private IPSContentDesignWs contentDesignWs;
     private IPSAssemblyService assemblyService;
-    
-    
+
     @Autowired
     public PSLegacyLinkGenerator(IPSAssemblyService assemblyService, IPSContentDesignWs contentDesignWs,
-            IPSIdMapper idMapper, IPSSiteManager siteManager)
-    {
+                                 IPSIdMapper idMapper, IPSSiteManager siteManager) {
         super();
         this.assemblyService = assemblyService;
         this.contentDesignWs = contentDesignWs;
@@ -88,8 +86,7 @@ public class PSLegacyLinkGenerator
         this.siteManager = siteManager;
     }
 
-    protected PSLocationUtils getLocationUtils()
-    {
+    protected PSLocationUtils getLocationUtils() {
         if (locationUtils == null) {
             locationUtils = new PSLocationUtils();
         }
@@ -99,16 +96,15 @@ public class PSLegacyLinkGenerator
     /**
      * Generates logical link using the legacy location generator.
      * <strong>This should only be used for preview links</strong>
-     * @param l never <code>null</code>.
-     * @return never <code>null</code> or empty.
+     * @param l never {@code null}.
+     * @return never {@code null} or empty.
      */
     public String generate(PSLegacyLink l) throws PSBeanValidationException {
         PSBeanValidationUtils.getValidationErrorsOrFailIfInvalid(l);
-        String url = getLocationUtils().generate(l.getLegacyTemplate(), l.getNode(), l.getFolderPath(), l.getFilter(),
+        var url = getLocationUtils().generate(l.getLegacyTemplate(), l.getNode(), l.getFolderPath(), l.getFilter(),
                 l.getSiteId(), l.getContext());
         url = unescapeXml(url);
-        if (l.getContext().intValue() != 0) 
-        {
+        if (l.getContext().intValue() != 0) {
             /*
              * We should only be using the legacy link generator for preview urls.
              */
@@ -410,4 +406,3 @@ public class PSLegacyLinkGenerator
 
     private static final Logger log = LogManager.getLogger(PSLegacyLinkGenerator.class);
 }
-

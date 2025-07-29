@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.theme.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -49,14 +49,9 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfNull;
 import static org.apache.commons.lang.Validate.notEmpty;
@@ -567,8 +562,8 @@ public class PSThemeService implements IPSThemeService
      */
     private List<PSRichTextCustomStyle> getCustomStyles()
     {
-        List<PSRichTextCustomStyle> rtStyles = new ArrayList<>();
-        if(richTextStylesFile == null)
+        var rtStyles = new ArrayList<PSRichTextCustomStyle>();
+        if (richTextStylesFile == null)
         {
             try
             {
@@ -577,33 +572,31 @@ public class PSThemeService implements IPSThemeService
             catch(IllegalArgumentException ie)
             {
                 log.error("PercRichTextCustomStyles.properties file does not exist under rx_resources\\css folder, " +
-                		"custom formats for rich text editors will be blank.", ie);
+                        "custom formats for rich text editors will be blank.", ie);
             }
         }
         //If the file doesn't exist return empty styles list
-        if(richTextStylesFile == null)
+        if (richTextStylesFile == null)
             return rtStyles;
         
         //Load the file if not loaded or modified after the last load
-        if(richTextStylesLastModified == null || richTextStylesFile.lastModified() > richTextStylesLastModified)
+        if (richTextStylesLastModified == null || richTextStylesFile.lastModified() > richTextStylesLastModified)
         {
-            Properties props = new Properties();
-            try
-            {
-                try(FileInputStream fis = new FileInputStream(richTextStylesFile)) {
-                    props.load(fis);
-                }
+            var props = new Properties();
+            try (var fis = new FileInputStream(richTextStylesFile)) {
+                props.load(fis);
 
                 richTextStylesLastModified = richTextStylesFile.lastModified();
-                for(Entry<Object,Object> prop : props.entrySet())
-                {
-                    PSRichTextCustomStyle rtStyle = new PSRichTextCustomStyle();
-                    rtStyle.setClassName((String) prop.getKey());
-                    rtStyle.setClassLabel((String) prop.getValue());
-                    rtStyles.add(rtStyle);
-                    rtCustomStyles.clear();
-                    rtCustomStyles.addAll(rtStyles);
-                }
+                rtStyles = props.entrySet().stream()
+                        .map(prop -> {
+                            var rtStyle = new PSRichTextCustomStyle();
+                            rtStyle.setClassName((String) prop.getKey());
+                            rtStyle.setClassLabel((String) prop.getValue());
+                            return rtStyle;
+                        })
+                        .collect(Collectors.toCollection(ArrayList::new));
+                rtCustomStyles.clear();
+                rtCustomStyles.addAll(rtStyles);
             }
             catch (FileNotFoundException e)
             {
@@ -620,13 +613,8 @@ public class PSThemeService implements IPSThemeService
         {
             rtStyles.addAll(rtCustomStyles);
         }
-        class CustomComparator implements Comparator<PSRichTextCustomStyle> {
-            @Override
-            public int compare(PSRichTextCustomStyle o1, PSRichTextCustomStyle o2) {
-                return o1.getClassLabel().compareTo(o2.getClassLabel());
-            }
-        }
-        Collections.sort(rtStyles, new CustomComparator());
+        // Java 11: Use Comparator.comparing for sorting
+        rtStyles.sort(Comparator.comparing(PSRichTextCustomStyle::getClassLabel));
         return rtStyles;
     }
 

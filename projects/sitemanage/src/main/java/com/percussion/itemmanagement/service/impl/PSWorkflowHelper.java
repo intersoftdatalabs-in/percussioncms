@@ -64,7 +64,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.percussion.itemmanagement.service.IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE;
 import static com.percussion.itemmanagement.service.IPSItemWorkflowService.TRANSITION_TRIGGER_LIVE;
@@ -258,26 +260,25 @@ public class PSWorkflowHelper implements IPSWorkflowHelper
     @Override
     public PSItemStateTransition getTransitions(String id) throws PSValidationException {
         rejectIfBlank("getTransitions", "id", id);
-      
-        IPSItemEntry item = getItemEntry(id);
+
+        var item = getItemEntry(id);
         int wfId = item.getWorkflowAppId();
 
-        // -1 can be used for a workflow on certain types of items that are not workflowed - like cm1 style templates.
         if(wfId > 0) {
-            List<String> userRoles = getUserRoles();
-            PSWorkflow wf = getWorkflow(wfId);
-            Set<Integer> userRoleIds = wf.getRoleIds(userRoles);
+            var userRoles = getUserRoles();
+            var wf = getWorkflow(wfId);
+            var userRoleIds = wf.getRoleIds(userRoles);
 
             int stateId = item.getContentStateId();
-            List<String> triggers = new ArrayList<>();
-            PSState state = getState(id);
-            for (PSTransition t : state.getTransitions()) {
+            var triggers = new ArrayList<String>();
+            var state = getState(id);
+            for (var t : state.getTransitions()) {
                 if (isAllowedTransition(t, userRoleIds)) {
                     triggers.add(t.getTrigger());
                 }
             }
 
-            PSItemStateTransition trans = new PSItemStateTransition();
+            var trans = new PSItemStateTransition();
             trans.setItemId(id);
             trans.setStateId("" + stateId);
             trans.setStateName(state.getName());
@@ -645,27 +646,21 @@ public class PSWorkflowHelper implements IPSWorkflowHelper
 
     @Override
     public boolean isApproveAvailableToCurrentUser(String itemId) throws PSValidationException {
-        PSItemStateTransition stateTrans = getTransitions(itemId);
-        List<String> trans = stateTrans.getTransitionTriggers();
-        for (String tran : trans)
-        {
-            if(tran.equalsIgnoreCase(WF_TRIGGER_APPROVE)) {
-                return true;
-            }
-        }
-        return false;
+        var stateTrans = getTransitions(itemId);
+        var trans = stateTrans.getTransitionTriggers();
+        return trans.stream().anyMatch(tran -> tran.equalsIgnoreCase(WF_TRIGGER_APPROVE));
     }
     
     @Override
     public List<String> getStagingRoles(int workflowId) throws IPSGenericDao.LoadException {
-    	List<String> roleNames = new ArrayList<>();
-    	PSMetadata md = metadataService.find(IPSSteppedWorkflowService.METADATA_STAGING_ROLES_KEY_PREFIX + workflowId);
-    	if(md != null)
-    	{
-            String temp = md.getData();
+        var roleNames = new ArrayList<String>();
+        var md = metadataService.find(IPSSteppedWorkflowService.METADATA_STAGING_ROLES_KEY_PREFIX + workflowId);
+        if(md != null)
+        {
+            var temp = md.getData();
             roleNames.addAll(Arrays.asList(temp.split(IPSSteppedWorkflowService.METADATA_STAGING_ROLES_VALUE_SEPARATOR)));
-    	}
-    	return roleNames;
+        }
+        return roleNames;
     }
 
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -39,22 +40,20 @@ import javax.ws.rs.core.MediaType;
 @Path("/siteArchitecture")
 @Component("siteArchitectureDataRestService")
 @Lazy
-public class PSSiteArchitectureDataRestService
-{
+public class PSSiteArchitectureDataRestService {
+    private static final Logger log = LogManager.getLogger(PSSiteArchitectureDataRestService.class);
+
     private final IPSSiteArchitectureDataService ds;
 
     @Autowired
-    public PSSiteArchitectureDataRestService(IPSSiteArchitectureDataService ds)
-    {
+    public PSSiteArchitectureDataRestService(IPSSiteArchitectureDataService ds) {
         this.ds = ds;
     }
-    
+
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSSiteArchitecture find(@PathParam("id")
-    String id)
-    {
+    public PSSiteArchitecture find(@PathParam("id") String id) {
         try {
             return ds.find(id);
         } catch (DataServiceLoadException | IPSDataService.DataServiceNotFoundException | PSValidationException e) {
@@ -63,6 +62,4 @@ public class PSSiteArchitectureDataRestService
             throw new WebApplicationException();
         }
     }
-
-    private static final Logger log = LogManager.getLogger(PSSiteArchitectureDataRestService.class);
 }

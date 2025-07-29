@@ -19,100 +19,75 @@ package com.percussion.pagemanagement.data;
 import net.sf.oval.constraint.AssertValid;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
+import java.util.*;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * 
  * A data object to represent widgets associated to a region.
- * 
  * @see PSRegionWidgets
  * @author adamgent
- *
  */
 public abstract class PSRegionWidgetAssociations implements Serializable {
 
-    @AssertValid()
+    @AssertValid
     private Set<PSRegionWidgets> regionWidgetAssociations = new HashSet<>();
 
-    protected PSRegionWidgetAssociations()
-    {
+    protected PSRegionWidgetAssociations() {
         super();
     }
 
-
     /**
      * Represents a map of region to a list of widget items.
-     * 
-     * @return region-widgets assocation.
+     * @return region-widgets association.
      */
-    @AssertValid()
+    @AssertValid
     @XmlElementWrapper(name = "regionWidgetAssociations")
     @XmlElement(name = "regionWidget")
-    public Set<PSRegionWidgets> getRegionWidgetAssociations()
-    {
+    public Set<PSRegionWidgets> getRegionWidgetAssociations() {
         return regionWidgetAssociations;
     }
 
-    public void setRegionWidgetAssociations(Set<PSRegionWidgets> widgetRegions)
-    {
+    public void setRegionWidgetAssociations(Set<PSRegionWidgets> widgetRegions) {
         if (widgetRegions == null) return;
-        this.regionWidgetAssociations = new HashSet<> (widgetRegions);
+        this.regionWidgetAssociations = new HashSet<>(widgetRegions);
     }
 
-    
     public Map<String, List<PSWidgetItem>> getRegionWidgetsMap() {
-        Map<String, List<PSWidgetItem>> map = new HashMap<>();
-        Collection<PSRegionWidgets> regionWidgets = getRegionWidgetAssociations();
+        var map = new HashMap<String, List<PSWidgetItem>>();
+        var regionWidgets = getRegionWidgetAssociations();
         if (regionWidgets != null) {
-            for (PSRegionWidgets w : regionWidgets) {
+            for (var w : regionWidgets) {
                 map.put(w.getRegionId(), w.getWidgetItems());
             }
         }
         return map;
     }
-    
+
     public void setRegionWidgets(String regionId, List<PSWidgetItem> widgetItems) {
         notEmpty(regionId, "regionId");
         notNull(widgetItems, "widgetItems");
-        PSRegionWidgets a = getRegion(regionId);
-        if ( a != null) {
-            /*
-             * We have to remove a from the set because we are modifying it.
-             * You have to be really careful with sets when modifying what it contains.
-             */
+        var a = getRegion(regionId);
+        if (a != null) {
+            // We have to remove a from the set because we are modifying it.
+            // You have to be really careful with sets when modifying what it contains.
             getRegionWidgetAssociations().remove(a);
-        }
-        else if ( a == null) {
+        } else {
             a = new PSRegionWidgets();
         }
         a.setRegionId(regionId);
         a.setWidgetItems(widgetItems);
         getRegionWidgetAssociations().add(a);
-        
-        
     }
-    
+
     public PSRegionWidgets getRegion(String regionId) {
-        Collection<PSRegionWidgets> regionWidgets = getRegionWidgetAssociations();
+        var regionWidgets = getRegionWidgetAssociations();
         if (regionWidgets == null) return null;
-        for(PSRegionWidgets w: regionWidgets) {
+        for (var w : regionWidgets) {
             if (StringUtils.equals(w.getRegionId(), regionId)) {
                 return w;
             }
@@ -120,12 +95,11 @@ public abstract class PSRegionWidgetAssociations implements Serializable {
         return null;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSRegionWidgetAssociations)) return false;
-        PSRegionWidgetAssociations that = (PSRegionWidgetAssociations) o;
+        var that = (PSRegionWidgetAssociations) o;
         return Objects.equals(getRegionWidgetAssociations(), that.getRegionWidgetAssociations());
     }
 
@@ -136,25 +110,17 @@ public abstract class PSRegionWidgetAssociations implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionWidgetAssociations{");
-        sb.append("regionWidgetAssociations=").append(regionWidgetAssociations);
-        sb.append('}');
-        return sb.toString();
+        return "PSRegionWidgetAssociations{" +
+                "regionWidgetAssociations=" + regionWidgetAssociations +
+                '}';
     }
 
     @Override
-    public PSRegionWidgetAssociations clone()
-    {
-        try
-        {
+    public PSRegionWidgetAssociations clone() {
+        try {
             return (PSRegionWidgetAssociations) BeanUtils.cloneBean(this);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException("Cannot clone", e);
         }
     }
-    
-
-
 }

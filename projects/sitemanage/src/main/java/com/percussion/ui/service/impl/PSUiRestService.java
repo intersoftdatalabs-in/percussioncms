@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.ui.service.impl;
 
 import com.percussion.ui.data.PSSimpleDisplayFormat;
@@ -29,35 +30,32 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
- * @author erikserating
+ * REST service for UI display formats.
  *
+ * @author erikserating
  */
 @Path("/uicomps")
 @Component("uiRestService")
 @Lazy
-public class PSUiRestService
-{
-    
+public class PSUiRestService {
     private IPSUiService service;
+
     @Autowired
-    public PSUiRestService(IPSUiService service)
-    {
+    public PSUiRestService(IPSUiService service) {
         this.service = service;
     }
-    
+
     @GET
     @Path("/displayformat/id/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSSimpleDisplayFormat getDisplayFormat(@PathParam("id") int id)
-    {
+    public PSSimpleDisplayFormat getDisplayFormat(@PathParam("id") int id) {
         return service.getDisplayFormat(id);
     }
 
     @GET
     @Path("/displayformat/name/{name:.*}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSSimpleDisplayFormat getDisplayFormatByName(@PathParam("name") String name)
-    {
+    public PSSimpleDisplayFormat getDisplayFormatByName(@PathParam("name") String name) {
         return service.getDisplayFormatByName(name);
     }
 }

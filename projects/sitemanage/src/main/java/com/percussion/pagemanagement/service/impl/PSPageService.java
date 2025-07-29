@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.assetmanagement.data.PSReportFailedToRunException;
@@ -137,9 +138,8 @@ import static org.apache.commons.lang.Validate.notNull;
  */
 @Component("pageService")
 @Lazy
-public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String> implements IPSPageService
-{
-    
+public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String> implements IPSPageService {
+
     private final IPSPageDao pageDao;
     
     /**
@@ -220,9 +220,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
                          IPSWidgetService widgetService, IPSItemWorkflowService itemWorkflowService, IPSPublishingWs publishingWs,
                          IPSPageDaoHelper pageDaoHelper, IPSContentItemDao contentItemDao, @Qualifier("templateDao") IPSTemplateDao templateDao,
                          IPSiteDao siteDao, IPSPageTemplateService pageTemplateService, IPSRecycleService recycleService,
-                         IPSDataItemSummaryService dataItemSummaryService)
-             
-    {
+                         IPSDataItemSummaryService dataItemSummaryService) {
         super(pageDao);
         this.pageDaoHelper = pageDaoHelper;
         this.folderHelperWs = folderHelperWs;
@@ -251,11 +249,10 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
      */
     @Override
     public void delete(String id) throws PSValidationException {
-        List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(id));
-        if((sites != null) && (sites.size() > 1))
-        { 
-           PSSiteCopyUtils.throwCopySiteMessageIfNotAllowed(sites.get(0).getName(), "delete", 
-                                                          PSSiteCopyUtils.CAN_NOT_DELETE_PAGE);
+        var sites = publishingWs.getItemSites(idMapper.getGuid(id));
+        if (sites != null && sites.size() > 1) {
+            PSSiteCopyUtils.throwCopySiteMessageIfNotAllowed(sites.get(0).getName(), "delete",
+                    PSSiteCopyUtils.CAN_NOT_DELETE_PAGE);
         }
         delete(id, false);
     }
@@ -268,42 +265,37 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
      *    Copies a page given its ID. Returns ID of copied page
      */
     public String copy(String id, String targetFolder, boolean addToRecent) throws PSDataServiceException, IPSPathService.PSPathNotFoundServiceException {
-        PSPage page;
-        page = load(id);
-        String path = page.getFolderPath();
+        var page = load(id);
+        var path = page.getFolderPath();
 
         //Allow for copying to new folder
-        if(targetFolder != null)
+        if (targetFolder != null)
             path = targetFolder;
 
-        String base = page.getName();
-        IPSGuid guid = idMapper.getGuid(id);
-        String suffix = "copy";
+        var base = page.getName();
+        var guid = idMapper.getGuid(id);
+        var suffix = "copy";
 
-        String newName = folderHelperWs.getUniqueNameInFolder(path, base, suffix, 1, true);
-        
-        ArrayList<IPSGuid> guids = new ArrayList<>();
+        var newName = folderHelperWs.getUniqueNameInFolder(path, base, suffix, 1, true);
+
+        var guids = new ArrayList<IPSGuid>();
         guids.add(guid);
-        ArrayList<String> paths = new ArrayList<>();
+        var paths = new ArrayList<String>();
         paths.add(path);
         
         List<PSCoreItem> items;
-        try
-        {
-            items = contentWs.newCopies(guids, paths, PSRelationshipConfig.TYPE_NEW_COPY,false, true);
-        }
-        catch (Exception ae)
-        {
-            String msg = "Failed to copy page  \"" + base + "\".";
-            log.error("{} Error: {}", msg,
-                    PSExceptionUtils.getMessageForLog(ae));
+        try {
+            items = contentWs.newCopies(guids, paths, PSRelationshipConfig.TYPE_NEW_COPY, false, true);
+        } catch (Exception ae) {
+            var msg = "Failed to copy page  \"" + base + "\".";
+            log.error("{} Error: {}", msg, PSExceptionUtils.getMessageForLog(ae));
             return null;
         }
 
-        PSCoreItem newPageCoreItem = items.get(0);
-        
-        PSLocator locator = (PSLocator)newPageCoreItem.getLocator();
-        String newPageId = idMapper.getString(locator);
+        var newPageCoreItem = items.get(0);
+
+        var locator = (PSLocator) newPageCoreItem.getLocator();
+        var newPageId = idMapper.getString(locator);
 
         try {
             itemWorkflowService.checkOut(newPageId);
@@ -311,11 +303,11 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
             log.warn(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-        PSPage newPage = load(newPageId);
+        var newPage = load(newPageId);
         newPage.setName(newName);
         newPage.setWorkflowId(page.getWorkflowId());
         save(newPage);
-        if(addToRecent)
+        if (addToRecent)
             recentService.addRecentItem(newPage.getId());
 
         try {
@@ -323,19 +315,19 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
         } catch (PSItemWorkflowServiceException e) {
             log.warn(PSExceptionUtils.getMessageForLog(e));
         }
-        log.debug("newPageId: {}",newPageId);
-        
-        String pagePath = newPage.getFolderPath();
+        log.debug("newPageId: {}", newPageId);
+
+        var pagePath = newPage.getFolderPath();
         pagePath += "/" + newName;
         
         //second parameter is a list of widgets not to remove.
         widgetAssetRelationshipService.removeAssetWidgetRelationships(newPageId, Collections.emptyList());
         widgetAssetRelationshipService.copyAssetWidgetRelationships(id, newPageId);
         
-        PSTemplate pageTemplate = templateDao.find(page.getTemplateId());
-        if (pageTemplate.getType() != null && pageTemplate.getType().equals(UNASSIGNED.toString())){
-            IPSPageImportQueue pageQueue = getPageImportQueue(); 
-            PSSiteSummary siteSummary = siteDao.findByPath(pagePath);
+        var pageTemplate = templateDao.find(page.getTemplateId());
+        if (pageTemplate.getType() != null && pageTemplate.getType().equals(UNASSIGNED.toString())) {
+            var pageQueue = getPageImportQueue();
+            var siteSummary = siteDao.findByPath(pagePath);
             pageQueue.dirtySiteQueue(siteSummary.getSiteId());
         }
         return pagePath;
@@ -358,25 +350,23 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
     @Override
     public void delete(String id, boolean force, boolean purgeItem) throws PSValidationException {
         PSValidationErrorsBuilder builder = validateParameters("delete").rejectIfBlank("id", id).throwIfInvalid();
-        List<IPSSite> sites = publishingWs.getItemSites(idMapper.getGuid(id));
-        if((sites != null) && (sites.size() > 1))
-        {
+        var sites = publishingWs.getItemSites(idMapper.getGuid(id));
+        if (sites != null && sites.size() > 1) {
             PSSiteCopyUtils.throwCopySiteMessageIfNotAllowed(sites.get(0).getName(), "delete",
                     PSSiteCopyUtils.CAN_NOT_DELETE_PAGE);
         }
-        try
-        {
+        try {
             String currentUser = (String) PSRequestInfoBase.getRequestInfo(PSRequestInfoBase.KEY_USER);
             StringBuilder purgeItemPaths = new StringBuilder();
             if (purgeItem) {
                 IPSItemSummary summ = dataItemSummaryService.find(id, RECYCLED_TYPE);
                 //CMS-9013 : if the site has been deleted and the page is still in recycle bin somehow (might be bad data due to copy site).
                 //folder path is empty so do not process the folder-path. Also, the purgeItemPaths variable is only used for logging purpose.
-                if(summ.getFolderPaths() != null && !summ.getFolderPaths().isEmpty()){
+                if (summ.getFolderPaths() != null && !summ.getFolderPaths().isEmpty()) {
                     purgeItemPaths.append(summ.getFolderPaths().get(0).replaceFirst("//Folders/\\$System\\$", ""));
                     purgeItemPaths.append("/");
                     purgeItemPaths.append(summ.getName());
-                }else{
+                } else {
                     log.debug("FolderPath not found for Page: '{}'. Seems Site for Page : '{}' has been deleted. Page being sent for purging by user: {}",
                             summ.getName(), summ.getName(),  currentUser);
                 }
@@ -387,8 +377,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
             // when an item is being purged the page object won't be loaded properly
             // at the moment as it is in the recycle bin and is not being looked up
             // via a RecycledContent relationship.  Skip for this use case.
-            if (!force && !purgeItem)
-            {
+            if (!force && !purgeItem) {
                 validateForDelete(page, builder);
             }
 
@@ -403,8 +392,7 @@ public class PSPageService extends PSAbstractDataService<PSPage, PSPage, String>
                 log.info("Page: '{}' has been recycled by: {}",page.getFolderPath() + '/' + page.getName(),  currentUser);
             }
         }
-        catch (PSItemWorkflowServiceException | PSNotFoundException | PSDataServiceException e)
-        {
+        catch (PSItemWorkflowServiceException | PSNotFoundException | PSDataServiceException e) {
             log.error("Page: {} not found for delete. Error: {}",id,e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }

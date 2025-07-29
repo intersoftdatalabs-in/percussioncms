@@ -141,21 +141,21 @@ public class PSAntEditionTask implements IPSEditionTask
         notEmpty(getRootDirectory(), "Root directory not set");
         notNull(params, "Params should not be empty");
 
-        String file = params.get("ant_file");
+        var file = params.get("ant_file");
         notEmpty(file, "ant_file");
 
-        IPSAntService service = getAntService();
-        AntScript a = new AntScript();
-        
+        var service = getAntService();
+        var a = new AntScript();
+
         IPSPubServer pubServer = null;
-        String root  = EMPTY;
+        var root = EMPTY;
         try
-        {           
+        {
             pubServer = pubServerMgr.findPubServer(edition.getPubServerId());
-            PSPubServerProperty folderProperty = pubServer.getProperty(pubServerMgr.PUBLISH_FOLDER_PROPERTY);
+            var folderProperty = pubServer.getProperty(pubServerMgr.PUBLISH_FOLDER_PROPERTY);
             if (folderProperty != null)
             {
-               root = folderProperty.getValue();
+                root = folderProperty.getValue();
             }
         }
         catch(Exception e)
@@ -167,9 +167,9 @@ public class PSAntEditionTask implements IPSEditionTask
         }
 
         if(pubServer != null) {
-            String siteRootTemp = prepareSiteRootTemp(jobId, edition.getName(), site, pubServer, root);
+            var siteRootTemp = prepareSiteRootTemp(jobId, edition.getName(), site, pubServer, root);
 
-            Map<String, String> props = new HashMap<>();
+            var props = new HashMap<String, String>();
             props.put("perc.site.name", site.getName());
             props.put("perc.site.baseUrl", site.getBaseUrl());
             props.put("perc.site.cmsFolderPath", site.getFolderRoot());
@@ -191,20 +191,20 @@ public class PSAntEditionTask implements IPSEditionTask
                 preparePublishConfigFiles(props, site, pubServer.getServerId());
             }
 
-            for (Map.Entry<String, String> p : params.entrySet()) {
+            for (var p : params.entrySet()) {
                 props.put("perc." + p.getKey(), p.getValue());
             }
 
             a.setBlocking(true);
-            File f = new File(new File(getAntScriptDirectory()), file);
+            var f = new File(new File(getAntScriptDirectory()), file);
             isTrue(f.isFile(), "Ant file: " + f + " does not exist");
             a.setFile(f.getPath());
             a.setProperties(props);
 
-            List<BuildListener> listeners = new ArrayList<>();
+            var listeners = new ArrayList<BuildListener>();
 
             // Pass the siteRootTemp if the site will be published on FTP or SFTP
-            String deliveryType = pubServer.getPublishType();
+            var deliveryType = pubServer.getPublishType();
             if (isFilesystemType(deliveryType)) {
                 listeners.add(new AntEditionTaskListener(site.getName(), edition.getName(), null, pubServer));
             } else {
@@ -377,7 +377,7 @@ public class PSAntEditionTask implements IPSEditionTask
      */
     private void prepareFtpProperties(Map<String, String> props, IPSSite site, IPSPubServer pubServer)
     {
-        String deliveryType = pubServer.getPublishType();
+        var deliveryType = pubServer.getPublishType();
         if (isFilesystemType(deliveryType))
         {
             return;
@@ -386,13 +386,9 @@ public class PSAntEditionTask implements IPSEditionTask
         props.put("perc.ftp.username", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_USER_ID_PROPERTY, ""));
         props.put("perc.ftp.password", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY, ""));
         props.put("perc.ftp.serverAddress", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_SERVER_IP_PROPERTY, ""));
-
         props.put("perc.ftp.sourceDir", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY, ""));
-
         props.put("perc.ftp.remoteDir", getRemoteDir(pubServer));
 
-        // If the publish type is Local don't set any properties, otherwise
-        // try to execute the targets
         if (isFtpType(deliveryType))
         {
             props.put("perc.publishingFtp.set", Boolean.TRUE.toString());
@@ -405,29 +401,26 @@ public class PSAntEditionTask implements IPSEditionTask
             props.put("perc.ftp.useFtps", Boolean.TRUE.toString());
             props.put("perc.ftp.port", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PORT_PROPERTY, "23"));
         }
-
         else if (isSftpType(deliveryType))
         {
             props.put("perc.publishSecureFtp.set", Boolean.TRUE.toString());
             props.put("perc.ftp.port", pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PORT_PROPERTY, "22"));
         }
 
-        // We first try to use the key from the delivery handler.
-        PSSFtpDeliveryHandler sftpDeliveryHandler = (PSSFtpDeliveryHandler) PSBaseServiceLocator.getBean("sys_sftp");
-        String serverPrivateKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY, "");
+        var sftpDeliveryHandler = (PSSFtpDeliveryHandler) PSBaseServiceLocator.getBean("sys_sftp");
+        var serverPrivateKey = pubServer.getPropertyValue(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY, "");
         if (!isBlank(sftpDeliveryHandler.getPrivateKeyFilePath()))
         {
             props.put("perc.publishSecureFtp.private_key", sftpDeliveryHandler.getPrivateKeyFilePath());
         }
-        // if the property is not set in the delivery handler, use the site one
         else if (isNotBlank(serverPrivateKey))
         {
-            String filePath = PSSFtpDeliveryHandler.getSshKeysDir() + serverPrivateKey;
+            var filePath = PSSFtpDeliveryHandler.getSshKeysDir() + serverPrivateKey;
             props.put("perc.publishSecureFtp.private_key", filePath);
         }
         else if (site.getPrivateKey() != null)
         {
-            String filePath = PSSFtpDeliveryHandler.getSshKeysDir() + site.getPrivateKey();
+            var filePath = PSSFtpDeliveryHandler.getSshKeysDir() + site.getPrivateKey();
             props.put("perc.publishSecureFtp.private_key", filePath);
         }
     }
@@ -570,21 +563,21 @@ public class PSAntEditionTask implements IPSEditionTask
                     if (this.temporaytPath != null)
                     {
                         FileUtils.deleteQuietly(new File(this.temporaytPath));
-                        log.info("Finish deleting temporary folder '" + this.temporaytPath + "'.");
+                        log.info("Finish deleting temporary folder '{}'.", this.temporaytPath);
                     }
                 }
                 catch (IOException e)
                 {
-                    // if the published date could not be updated, the next time
+                    // If the published date could not be updated, the next time
                     // we will try to republish the config files
                 }
             }
             else
             {
-                log.error("Failed to copy files for edition '" + editionName + "'.", event.getException());
+                log.error("Failed to copy files for edition '{}'.", editionName, event.getException());
             }
 
-            log.info("Finish copying files for edition '" + editionName + "'.");
+            log.info("Finish copying files for edition '{}'.", editionName);
         }
 
         @Override

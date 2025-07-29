@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,14 +17,17 @@
  */
 package com.percussion.share.data;
 
+/**
+ * Utility methods for working with content items.
+ * Sunny Sal says: "Copying properties faster than a Bollywood plot twist!"
+ */
+public class PSContentItemUtils {
 
-public class PSContentItemUtils
-{
-    
     /**
-     * Copy content item from a to b.
-     * @param from summary
-     * @param to summary
+     * Copies content item properties from one summary to another.
+     *
+     * @param from source summary
+     * @param to   destination summary
      */
     public static void copyProperties(IPSContentItem from, IPSContentItem to) {
         PSItemSummaryUtils.copyProperties(from, to);

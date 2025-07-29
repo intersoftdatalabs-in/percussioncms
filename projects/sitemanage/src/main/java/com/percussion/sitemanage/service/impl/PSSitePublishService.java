@@ -245,16 +245,16 @@ public class PSSitePublishService implements IPSSitePublishService
         return publish(siteName, type, null, false, server);
     }
 	
-	private void approveRelatedItems(String siteName, String server,String itemsToApprove) throws PSDataServiceException, IPSItemWorkflowService.PSItemWorkflowServiceException, PSNotFoundException {
-        JSONArray arr = new JSONArray(itemsToApprove);
-        List<Integer> listForApproval = new ArrayList<>();
+	private void approveRelatedItems(String siteName, String server, String itemsToApprove) throws PSDataServiceException, IPSItemWorkflowService.PSItemWorkflowServiceException, PSNotFoundException {
+        var arr = new JSONArray(itemsToApprove);
+        var listForApproval = new ArrayList<Integer>();
         for(int i = 0; i < arr.length(); i++){
-            String id = (String)arr.get(i);
-            Guid guid = new Guid(id);
+            var id = (String)arr.get(i);
+            var guid = new Guid(id);
             if(guid != null)
-                listForApproval.add(Integer.valueOf(guid.getUuid()));
+                listForApproval.add(guid.getUuid());
         }
-        for (Integer contentId : listForApproval) {
+        for (var contentId : listForApproval) {
             itemWorkflowService.performApproveTransition(idMapper.getGuid(new PSLocator(contentId)).toString(), false, null);
         }
     }
@@ -485,7 +485,7 @@ public class PSSitePublishService implements IPSSitePublishService
         for (PSSiteSummary site : siteDao.findAllSummaries())
         {
             PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, site.getSiteId());
-            PSPubServer pubServer = type.equals(PubType.STAGE_NOW) || type.equals(PubType.REMOVE_FROM_STAGING_NOW)?
+            PSPubServer pubServer = type.equals(PubType.STAGE_NOW) || type.equals(PubType.REMOVE_FROM_STAGING_NOW?
             		pubServerService.getStagingPubServer(siteGuid):
             		pubServerService.getDefaultPubServer(siteGuid);
             if(pubServer == null)
@@ -673,11 +673,11 @@ public class PSSitePublishService implements IPSSitePublishService
         if (!(sum.isPage() || sum.isResource()))
         {
             return false;
-        }        
+        }
         boolean result = false;
         if(sum.isPage())
         {
-        	List<IPSSite> sites = pubWs.getItemSites(idMapper.getGuid(sum.getId()));
+            var sites = pubWs.getItemSites(idMapper.getGuid(sum.getId()));
             if(pubServerService.getStagingPubServer(sites.get(0).getGUID()) != null)
             {
                 result = true;
@@ -685,16 +685,11 @@ public class PSSitePublishService implements IPSSitePublishService
         }
         else if(sum.isResource())
         {
-        	List<PSSiteSummary> sites = siteDao.findAllSummaries();
-            for (PSSiteSummary siteSum : sites) 
-            {
-                PSGuid siteGuid = new PSGuid(PSTypeEnum.SITE, siteSum.getSiteId());
-                if(pubServerService.getStagingPubServer(siteGuid) != null)
-                {
-                    result = true;
-                    break;
-                }
-            }
+            var sites = siteDao.findAllSummaries();
+            result = sites.stream().anyMatch(siteSum -> {
+                var siteGuid = new PSGuid(PSTypeEnum.SITE, siteSum.getSiteId());
+                return pubServerService.getStagingPubServer(siteGuid) != null;
+            });
         }
         return result;
     }
@@ -902,48 +897,42 @@ public class PSSitePublishService implements IPSSitePublishService
     }
 
     private PSPagedItemList getPagedItems(int startIndex, int pageSize, List<Integer> changedContent) throws PSDataServiceException {
-        List<IPSItemEntry> allItemEntries = cmsObjectMgr.findItemEntries(changedContent, new CompareItemEntry());
+        var allItemEntries = cmsObjectMgr.findItemEntries(changedContent, new CompareItemEntry());
 
         int realStartIndex = startIndex < 1 ? 1 : startIndex;
         Integer maxItems = pageSize < 1 ? null : pageSize;
-        PSPagedObjectList<IPSItemEntry> pageGroup = PSPagedObjectList.getPage(allItemEntries, realStartIndex,
-                maxItems);
+        var pageGroup = PSPagedObjectList.getPage(allItemEntries, realStartIndex, maxItems);
 
-        // Convert items to PSPathItem objects
-        List<IPSItemEntry> pagedItemEntries = pageGroup.getChildrenInPage();
+        var pagedItemEntries = pageGroup.getChildrenInPage();
         Integer resultingStartIndex = pageGroup.getStartIndex();
 
-        // Get page of Path Items
-        List<PSPathItem> itemsInPage = new ArrayList<>();
-        for (IPSItemEntry pageEntry : pagedItemEntries)
+        var itemsInPage = new ArrayList<PSPathItem>();
+        for (var pageEntry : pagedItemEntries)
         {
-            // Get path for each page entry.
-            IPSGuid myGuid = PSGuidUtils
-                    .makeGuid(Long.valueOf(pageEntry.getContentId()), PSTypeEnum.LEGACY_CONTENT);
-            String id = myGuid.toString();
-            String[] pagePaths = contentWs.findFolderPaths(myGuid);
+            var myGuid = PSGuidUtils.makeGuid(Long.valueOf(pageEntry.getContentId()), PSTypeEnum.LEGACY_CONTENT);
+            var id = myGuid.toString();
+            var pagePaths = contentWs.findFolderPaths(myGuid);
             String path = "";
             if (pagePaths != null && pagePaths.length > 0)
             {
                 path = PSPathUtils.getFinderPath(pagePaths[0] + "/" + pageEntry.getName());
             }
 
-            // Create path item and set name and path to it.
-            IPSItemSummary sum = itemSummaryService.find(myGuid.toString());
-            PSPathItem pathItem = new PSPathItem();
+            var sum = itemSummaryService.find(myGuid.toString());
+            var pathItem = new PSPathItem();
             PSItemSummaryUtils.copyProperties(sum, pathItem);
-            
-			try {
+
+            try {
                 if (workflowHelper.isPage(id)) {
-                    PSPage page = pageService.find(id);
+                    var page = pageService.find(id);
                     pathItem.setName(page.getLinkTitle());
                 } else {
                     pathItem.setName(sum.getName());
                 }
-            }catch (PSNotFoundException e) {
-                    log.error("Error setting path for item in incremental queue with id: " + id, e);
-                    continue;
-			}
+            } catch (PSNotFoundException e) {
+                log.error("Error setting path for item in incremental queue with id: " + id, e);
+                continue;
+            }
 
             pathItem.setPath(path);
             pathItem.setRelatedObject(pageEntry);
@@ -952,14 +941,11 @@ public class PSSitePublishService implements IPSSitePublishService
             itemsInPage.add(pathItem);
         }
 
-        PSDisplayPropertiesCriteria criteria = new PSDisplayPropertiesCriteria(itemsInPage, null);
+        var criteria = new PSDisplayPropertiesCriteria(itemsInPage, null);
         criteria.setDisplayFormatRequired(false);
         listViewHelper.fillDisplayProperties(criteria);
 
-        // Create Paged Item List
-        PSPagedItemList pagesByTemplatePagedList = new PSPagedItemList(itemsInPage, allItemEntries.size(),
-                resultingStartIndex);
-        return pagesByTemplatePagedList;
+        return new PSPagedItemList(itemsInPage, allItemEntries.size(), resultingStartIndex);
     }
 
     private List<Integer> getChangedContentIds(String siteName, String serverName) throws IPSPubServerService.PSPubServerServiceException, PSSitePublishException {

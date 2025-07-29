@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 import com.percussion.assetmanagement.service.IPSAssetService;
@@ -38,138 +39,139 @@ import java.util.Set;
 /**
  * Generates a logical link to:
  * <ul>
- * <li> {@link PSPage} </li>
- * <li> {@link PSRenderAsset} </li>
- * <li>file with a given resource uniqueId.</li>
- * <li>folder with a given resource uniqueId.</li>
+ *   <li>{@link PSPage}</li>
+ *   <li>{@link PSRenderAsset}</li>
+ *   <li>File with a given resource uniqueId.</li>
+ *   <li>Folder with a given resource uniqueId.</li>
  * </ul>
- * 
- * In most cases this link is a URL that may or may not be
- * a complete url ( host and port info).
- * 
- * @author adamgent
+ * In most cases, this link is a URL that may or may not be a complete URL (host and port info).
  *
+ * @author adamgent
  */
-public interface IPSRenderLinkService
-{
+public interface IPSRenderLinkService {
+
     /**
      * Renders a link for the item using the default resource definition for its type.
-     * @param context never <code>null</code>.
-     * @param linkableItem never <code>null</code>.
-     * @return never <code>null</code>.
+     *
+     * @param context      never {@code null}
+     * @param linkableItem never {@code null}
+     * @return never {@code null}
      */
-    public PSRenderLink renderLink(PSRenderLinkContext context, IPSLinkableItem linkableItem) throws PSDataServiceException;
-    
-    
+    PSRenderLink renderLink(PSRenderLinkContext context, IPSLinkableItem linkableItem) throws PSDataServiceException;
+
     /**
      * Renders a link for an item using the given resource definition.
-     * @param context never <code>null</code>.
-     * @param linkableItem never <code>null</code>.
-     * @param resourceDefinitionId never <code>null</code>, empty, or blank.
-     * @return never <code>null</code>.
+     *
+     * @param context             never {@code null}
+     * @param linkableItem        never {@code null}
+     * @param resourceDefinitionId never {@code null}, empty, or blank
+     * @return never {@code null}
      */
-    public PSRenderLink renderLink(PSRenderLinkContext context, IPSLinkableItem linkableItem, String resourceDefinitionId) throws PSDataServiceException;
-    
+    PSRenderLink renderLink(PSRenderLinkContext context, IPSLinkableItem linkableItem, String resourceDefinitionId) throws PSDataServiceException;
+
     /**
-     * Renders a link to the region CSS file of specified theme.
-     * @param context the link context, not <code>null</code>.
-     * @param themeName the theme name, not blank.
-     * @param isEdit if it is <code>true</code>, then the current context is in edit mode
-     * @param editType the edited item type.
-     * 
-     * @return the link, never <code>null</code>.
+     * Renders a link to the region CSS file of the specified theme.
+     *
+     * @param context   the link context, not {@code null}
+     * @param themeName the theme name, not blank
+     * @param isEdit    if {@code true}, then the current context is in edit mode
+     * @param editType  the edited item type
+     * @return the link, never {@code null}
      */
-    public PSRenderLink renderLinkThemeRegionCSS(PSRenderLinkContext context, String themeName, 
-            boolean isEdit, EditType editType) throws IPSDataService.PSThemeNotFoundException, PSValidationException, IPSResourceDefinitionService.PSResourceDefinitionInvalidIdException;
-    
+    PSRenderLink renderLinkThemeRegionCSS(
+            PSRenderLinkContext context,
+            String themeName,
+            boolean isEdit,
+            EditType editType
+    ) throws IPSDataService.PSThemeNotFoundException, PSValidationException, IPSResourceDefinitionService.PSResourceDefinitionInvalidIdException;
+
     /**
      * Renders a link to a file or folder.
-     * @param context
-     * @param resourceDefinitionId Must be the id of a file or folder resource, never <code>null</code>, empty, or blank.
-     * @return never <code>null</code>.
+     *
+     * @param context             never {@code null}
+     * @param resourceDefinitionId must be the id of a file or folder resource, never {@code null}, empty, or blank
+     * @return never {@code null}
      */
-    public PSRenderLink renderLink(PSRenderLinkContext context, String resourceDefinitionId) throws PSDataServiceException;
-    
+    PSRenderLink renderLink(PSRenderLinkContext context, String resourceDefinitionId) throws PSDataServiceException;
+
     /**
-     * All Javascript links from the resource definitions that match the the supplied widget definitions in order based on the resources dependency,
-     * all Javascript links percSystem resource definition file is always added. 
-     *  
-     * 
-     * @param context never <code>null</code>.
-     * @param widgetDefIds set of widget definitions whose JavaScript  resource definitions needs to be returned.
-     * @return javascript links in correct order, never <code>null</code> but maybe empty.
+     * All JavaScript links from the resource definitions that match the supplied widget definitions in order based on the resources dependency.
+     * All JavaScript links from percSystem resource definition file are always added.
+     *
+     * @param context      never {@code null}
+     * @param widgetDefIds set of widget definitions whose JavaScript resource definitions need to be returned
+     * @return JavaScript links in correct order, never {@code null} but may be empty
      */
-    public List<PSRenderLink> renderJavascriptLinks(PSRenderLinkContext context, Set<String> widgetDefIds) throws PSDataServiceException;
-    
+    List<PSRenderLink> renderJavascriptLinks(PSRenderLinkContext context, Set<String> widgetDefIds) throws PSDataServiceException;
+
     /**
-     * All CSS links from the resource definitions that match the the supplied widget definitions in order based on the resources dependency,
-     * all CSS links percSystem resource definition file is always added.      
-     *  
-     * @param context never <code>null</code>.
-     * @param widgetDefIds set of widget definitions whose css  resource definitions needs to be returned.
-     * @return css links in correct order, never <code>null</code> but maybe empty.
+     * All CSS links from the resource definitions that match the supplied widget definitions in order based on the resources dependency.
+     * All CSS links from percSystem resource definition file are always added.
+     *
+     * @param context      never {@code null}
+     * @param widgetDefIds set of widget definitions whose CSS resource definitions need to be returned
+     * @return CSS links in correct order, never {@code null} but may be empty
      */
-    public List<PSRenderLink> renderCssLinks(PSRenderLinkContext context, Set<String> widgetDefIds) throws PSDataServiceException;
-    
+    List<PSRenderLink> renderCssLinks(PSRenderLinkContext context, Set<String> widgetDefIds) throws PSDataServiceException;
+
     /**
      * Renders a preview link to a file.
-     * @param pageId Must be the id of a file, never <code>null</code>, empty, or blank.
-     * @return never <code>null</code>.
+     *
+     * @param pageId must be the id of a file, never {@code null}, empty, or blank
+     * @return never {@code null}
      */
-    public PSInlineRenderLink renderPreviewPageLink(String pageId);
-    
+    PSInlineRenderLink renderPreviewPageLink(String pageId);
+
     /**
      * The same as {@link #renderPreviewPageLink(String)}, but this has option of the rendering type.
-     * @param pageId the page ID, not blank.
-     * @param renderType this is the rendered type, "html", "xml" or "database". It is default to "html".
-     * @return the link to a page, never blank.
+     *
+     * @param pageId     the page ID, not blank
+     * @param renderType this is the rendered type, "html", "xml" or "database". It defaults to "html"
+     * @return the link to a page, never blank
      */
-    public PSInlineRenderLink renderPreviewPageLink(String pageId, String renderType) throws PSDataServiceException;
-    
+    PSInlineRenderLink renderPreviewPageLink(String pageId, String renderType) throws PSDataServiceException;
+
     /**
      * Creates a preview image link.
-     * See {@link PSInlineLinkRequest} for what properties
-     * must be set.
-     * @param inlineLinkRequest a valid renderLinkRequest, never <code>null</code>.
-     * @return never <code>null</code>.
+     * See {@link PSInlineLinkRequest} for what properties must be set.
+     *
+     * @param inlineLinkRequest a valid renderLinkRequest, never {@code null}
+     * @return never {@code null}
      * @see PSInlineLinkRequest
      */
-    public PSInlineRenderLink renderPreviewResourceLink(PSInlineLinkRequest inlineLinkRequest) throws PSDataServiceException;
-    
-    
+    PSInlineRenderLink renderPreviewResourceLink(PSInlineLinkRequest inlineLinkRequest) throws PSDataServiceException;
+
     /**
-     * Resolves what the folder path should be for link generation for the given item
-     * and the given related paths. The path is guaranteed to be one of the paths
-     * that the item has ({@link IPSItemSummary#getFolderPaths()}). 
-     * 
-     * @param item
-     * @param paths can be sites, pages or other items, maybe null.
-     * @return maybe <code>null</code> if a folder path cannot be resolved from the inputs.
+     * Resolves what the folder path should be for link generation for the given item and the given related paths.
+     * The path is guaranteed to be one of the paths that the item has ({@link IPSItemSummary#getFolderPaths()}).
+     *
+     * @param item  the item
+     * @param paths can be sites, pages or other items, may be null
+     * @return may be {@code null} if a folder path cannot be resolved from the inputs
      */
-    public String resolveFolderPath(IPSItemSummary item, IPSFolderPath ... paths);
-    
+    String resolveFolderPath(IPSItemSummary item, IPSFolderPath... paths);
+
     /**
-     *  
-     * @param item
-     * @return maybe <code>null</code> if a folder path cannot be resolved from the inputs.
+     * Resolves the folder path for the given item.
+     *
+     * @param item the item
+     * @return may be {@code null} if a folder path cannot be resolved from the inputs
      * @see #resolveFolderPath(IPSItemSummary, IPSFolderPath...)
      */
-    public String resolveFolderPath(IPSItemSummary item);
-    
+    String resolveFolderPath(IPSItemSummary item);
+
     /**
-     * Resolves the asset resource definition in order 
-     * of the given parameters. If all the parameters are
-     * <code>null</code> an {@link IllegalArgumentException} will
-     * be thrown.
-     * 
-     * @param resourceDefinitionId fully qualified maybe <code>null</code>.
-     * @param legacyTemplate assembly template maybe <code>null</code>.
-     * @param contentType maybe <code>null</code>.
-     * @return never <code>null</code>.
+     * Resolves the asset resource definition in order of the given parameters.
+     * If all the parameters are {@code null}, an {@link IllegalArgumentException} will be thrown.
+     *
+     * @param resourceDefinitionId fully qualified, may be {@code null}
+     * @param legacyTemplate       assembly template, may be {@code null}
+     * @param contentType          may be {@code null}
+     * @return never {@code null}
      */
-    public PSAssetResource resolveResourceDefinition(
-            String resourceDefinitionId,  
+    PSAssetResource resolveResourceDefinition(
+            String resourceDefinitionId,
             String legacyTemplate,
-            String contentType) throws PSDataServiceException;
-    
+            String contentType
+    ) throws PSDataServiceException;
 }

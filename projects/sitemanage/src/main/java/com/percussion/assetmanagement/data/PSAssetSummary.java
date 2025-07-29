@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
 
+/**
+ * Summary representation of an asset.
+ */
 @XmlRootElement(name = "AssetSummary")
-public class PSAssetSummary extends PSDataItemSummary implements IPSItemSummary
-{
+public class PSAssetSummary extends PSDataItemSummary implements IPSItemSummary {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 8746257239286031092L;
 
+    // No additional fields; serves as a type marker for asset summaries.
 }

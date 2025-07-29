@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,27 +22,30 @@ import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.error.PSSiteImportException;
 
 /**
- * @author LucasPiccoli
- *
+ * Service for importing sites and cataloged pages.
  */
-public interface IPSSiteImportService
-{
+public interface IPSSiteImportService {
 
-    public PSSiteImportCtx importSiteFromUrl(PSSite site, String userAgent) throws PSSiteImportException;
-    
     /**
-     * Imports a cataloged page
-     * 
-     * @param site the imported site, not <code>null</code>. 
-     * @param pageId the cataloged page, not blank.
-     * @param userAgent the user agent that was used to import the site, not blank.
-     * @param context the import context. This is used through out the whole import process. 
-     * This is also used to cancel the import process by {@link PSSiteImportCtx#setCanceled(boolean)}.
-     * 
-     * @return the import context, not <code>null</code>.
-     * 
+     * Imports a site from a URL.
+     *
+     * @param site the site to import, not null.
+     * @param userAgent the user agent string, not null.
+     * @return the import context, not null.
      * @throws PSSiteImportException if an error occurs.
      */
-    public PSSiteImportCtx importCatalogedPage(PSSite site, String pageId, String userAgent, PSSiteImportCtx context) throws PSSiteImportException;
+    PSSiteImportCtx importSiteFromUrl(PSSite site, String userAgent) throws PSSiteImportException;
 
+    /**
+     * Imports a cataloged page.
+     *
+     * @param site the imported site, not null.
+     * @param pageId the cataloged page, not blank.
+     * @param userAgent the user agent used to import the site, not blank.
+     * @param context the import context, not null.
+     * @return the import context, not null.
+     * @throws PSSiteImportException if an error occurs.
+     */
+    PSSiteImportCtx importCatalogedPage(PSSite site, String pageId, String userAgent, PSSiteImportCtx context)
+            throws PSSiteImportException;
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,16 +19,17 @@
 package com.percussion.share;
 
 /**
- * This file contains various constants that are used across sitemanage
- * project. It serves as a registry.
+ * Registry of constants used across the sitemanage project.
+ * Sunny Sal says: "Constants are like good habits—keep them consistent!"
  */
-public interface IPSSitemanageConstants
-{
-   /**
-    * Constant for site content type used to compare against itemSummary type property 
-    */
-    public static final String SITE_CONTENTTYPE = "site";
-public static final String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
-public static final String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
-}
+public interface IPSSitemanageConstants {
 
+    /** Content type for sites, used to compare against itemSummary type property. */
+    String SITE_CONTENTTYPE = "site";
+
+    /** Name for the plain base template. */
+    String PLAIN_BASE_TEMPLATE_NAME = "perc.base.plain";
+
+    /** Name for the unassigned template. */
+    String UNASSIGNED_TEMPLATE_NAME = "Unassigned";
+}

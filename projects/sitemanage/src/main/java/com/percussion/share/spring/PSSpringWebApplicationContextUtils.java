@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,64 +24,58 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
- * 
  * Utilities for Spring {@link WebApplicationContext}s.
- * 
- * @author adamgent
+ * <br>
+ * Sunny Sal says: "Inject dependencies, not caffeine!"
  *
+ * @author adamgent
  */
-public class PSSpringWebApplicationContextUtils
-{
+public class PSSpringWebApplicationContextUtils {
+
     private static WebApplicationContext webApplicationContext;
 
     /**
      * Gets the default web application context.
      * Use of this method should be avoided as it couples code to this class.
+     *
      * @return default web application context.
      */
-    public static WebApplicationContext getWebApplicationContext()
-    {
+    public static WebApplicationContext getWebApplicationContext() {
         return webApplicationContext;
     }
 
-    protected static void setWebApplicationContext(WebApplicationContext context)
-    {
+    protected static void setWebApplicationContext(WebApplicationContext context) {
         webApplicationContext = context;
     }
 
-
     /**
-     * This will autowire objects using the objects getters and setters. It will
-     * not work if your object uses constructor based wiring.
-     * @param bean never <code>null</code>.
+     * Autowires objects using their getters and setters.
+     * Will not work if your object uses constructor-based wiring.
+     *
+     * @param bean never {@code null}
      */
-    public static void injectDependencies(Object bean)
-    {
-        try
-        {
+    public static void injectDependencies(Object bean) {
+        try {
             logAutoWire(bean);
-            AutowireCapableBeanFactory beanFactory = getWebApplicationContext().getAutowireCapableBeanFactory();
-
-            beanFactory.autowireBeanProperties(bean, AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT, false);
+            var beanFactory = getWebApplicationContext().getAutowireCapableBeanFactory();
+            beanFactory.autowireBeanProperties(
+                    bean, AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT, false);
             beanFactory.initializeBean(bean, bean.getClass().getName());
-        }
-        catch (Exception e)
-        {
-            String errMsg = "Fail to auto inject bean: " + bean.toString();
+        } catch (Exception e) {
+            var errMsg = "Failed to auto-inject bean: " + bean;
             log.error(errMsg, e);
             throw new RuntimeException(errMsg, e);
         }
     }
 
-    private static void logAutoWire(Object bean)
-    {
-        if (log.isDebugEnabled())
-            log.debug("Autowiring bean: " + bean);
+    private static void logAutoWire(Object bean) {
+        if (log.isDebugEnabled()) {
+            log.debug("Autowiring bean: {}", bean);
+        }
     }
 
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
-
 }

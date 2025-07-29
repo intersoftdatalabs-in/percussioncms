@@ -56,21 +56,13 @@ import static org.apache.commons.lang.Validate.notNull;
  * @author adamgent
  * @see PSSerialRegionsAssembler
  */
-public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler
-{
-    
-    /**
-     * @see #isWaitTillFinished()
-     */
+public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler {
+
     private boolean waitTillFinished = false;
 
-
-    public PSConcurrentRegionsAssembler()
-    {
+    public PSConcurrentRegionsAssembler() {
         super();
     }
-
-
 
     /**
      * {@inheritDoc}
@@ -78,58 +70,48 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler
     @SuppressWarnings("unchecked")
     @Override
     public void assembleRegions(
-            IPSRegionAssembler regionAssembler, 
-            IPSAssemblyItem assemblyItem, 
+            IPSRegionAssembler regionAssembler,
+            IPSAssemblyItem assemblyItem,
             PSPageAssemblyContext context,
-            Collection<PSMergedRegion> mergedRegions)
-    {
-        StopWatch sw = new StopWatch(getClass().getSimpleName()+"#assembleRegions");
-        List<RegionResultsCallable> calls = new ArrayList<>();
-        List<PSMergedRegion> mrList = new ArrayList<>(mergedRegions);
+            Collection<PSMergedRegion> mergedRegions) {
+        var sw = new StopWatch(getClass().getSimpleName() + "#assembleRegions");
+        var calls = new ArrayList<RegionResultsCallable>();
+        var mrList = new ArrayList<>(mergedRegions);
         sw.start("cloneRequest");
-        for(PSMergedRegion mr : mergedRegions) {
+        for (var mr : mergedRegions) {
             notNull(mr, "Merged Region");
-            RegionResultsCallable c = new RegionResultsCallable(PSRequestInfo.getRequestInfoMap(), regionAssembler, assemblyItem, context, mr);
+            var c = new RegionResultsCallable(PSRequestInfo.getRequestInfoMap(), regionAssembler, assemblyItem, context, mr);
             calls.add(c);
         }
-        
-        ExecutorService executorService = Executors.newFixedThreadPool(3);
-        try
-        {
-            
+
+        var executorService = Executors.newFixedThreadPool(3);
+        try {
             int i = 0;
             List<Future<List<PSRegionResult>>> results;
             if (isWaitTillFinished()) {
                 results = executorService.invokeAll(calls);
-            }
-            else {
+            } else {
                 results = new ArrayList<>();
-                for(RegionResultsCallable c : calls) {
-                    Future<List<PSRegionResult>> f = executorService.submit(c);
+                for (var c : calls) {
+                    var f = executorService.submit(c);
                     results.add(f);
                 }
             }
-            for(Future<List<PSRegionResult>> f : results) {
-                PSMergedRegion mr = mrList.get(i);
-                List<PSRegionResult> regions = new FutureList<>(f);
+            for (var f : results) {
+                var mr = mrList.get(i);
+                var regions = new FutureList<>(f);
                 context.getRegions().put(mr.getRegionId(), regions);
                 ++i;
             }
             sw.stop();
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-
-        }
-        finally {
+        } finally {
             executorService.shutdown();
-
-            log.debug("{}",sw.prettyPrint());
-
+            log.debug("{}", sw.prettyPrint());
         }
     }
-    
+
     /**
      * Callable that will delegate to the region assembler.
      * @author adamgent
@@ -308,4 +290,3 @@ public class PSConcurrentRegionsAssembler implements IPSRegionsAssembler
     private static final Logger log = LogManager.getLogger(PSConcurrentRegionsAssembler.class);
 
 }
-

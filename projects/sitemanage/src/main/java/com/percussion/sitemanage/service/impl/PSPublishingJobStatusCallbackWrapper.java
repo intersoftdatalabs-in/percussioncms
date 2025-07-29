@@ -18,31 +18,26 @@ package com.percussion.sitemanage.service.impl;
 
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.rx.publisher.IPSPublishingJobStatusCallback;
+import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.Validate;
-
 /**
- * @author JaySeletz
- *
+ * Wraps multiple publishing job status callbacks and notifies all.
  */
-public class PSPublishingJobStatusCallbackWrapper implements IPSPublishingJobStatusCallback
-{
-    private List<IPSPublishingJobStatusCallback> callBacks = new ArrayList<>();
-    
+public class PSPublishingJobStatusCallbackWrapper implements IPSPublishingJobStatusCallback {
+
+    private final List<IPSPublishingJobStatusCallback> callBacks = new ArrayList<>();
+
     @Override
-    public void notifyStatus(IPSPublisherJobStatus status)
-    {
-        for (IPSPublishingJobStatusCallback callBack : callBacks)
-        {
+    public void notifyStatus(IPSPublisherJobStatus status) {
+        for (var callBack : callBacks) {
             callBack.notifyStatus(status);
         }
     }
 
-    public void addCallBack(IPSPublishingJobStatusCallback callBack)
-    {
+    public void addCallBack(IPSPublishingJobStatusCallback callBack) {
         Validate.notNull(callBack);
         callBacks.add(callBack);
     }

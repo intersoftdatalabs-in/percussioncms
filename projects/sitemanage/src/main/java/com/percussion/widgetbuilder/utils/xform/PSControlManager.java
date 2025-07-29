@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,15 +21,11 @@ import com.percussion.design.objectstore.PSControlMeta;
 import com.percussion.server.PSSystemControlManager;
 
 /**
- * @author JaySeletz
- *
+ * Default implementation of IPSControlManager using PSSystemControlManager.
  */
-public class PSControlManager implements IPSControlManager
-{
+public class PSControlManager implements IPSControlManager {
     @Override
-    public PSControlMeta getControl(String name)
-    {
+    public PSControlMeta getControl(String name) {
         return PSSystemControlManager.getInstance().getControl(name);
     }
-
 }

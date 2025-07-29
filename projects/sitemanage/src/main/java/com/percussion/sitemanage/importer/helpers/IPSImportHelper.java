@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,56 +26,40 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.error.PSTemplateImportException;
 
 /**
- * IPSImportHelper - Common interface for all site import helpers
- * 
- * @author LucasPiccoli
- * 
+ * Common interface for all site import helpers.
+ * Sunny Sal says: "Helpers help, but interfaces keep them honest!"
  */
-public interface IPSImportHelper
-{
+public interface IPSImportHelper {
 
-    public static final String COMMENTED_OUT_ELEMENT = "Comment Out Managed Element";
+    String COMMENTED_OUT_ELEMENT = "Comment Out Managed Element";
+    String COMMENTED_JS_REFERENCE_FROM_HEAD = "Remove JQuery from <head> Element";
+    String COMMENTED_JS_REFERENCE_FROM_BODY = "Remove JQuery from <body> Element";
 
-    public static final String COMMENTED_JS_REFERENCE_FROM_HEAD = "Remove JQuery from <head> Element";
-
-    public static final String COMMENTED_JS_REFERENCE_FROM_BODY = "Remove JQuery from <body> Element";
-    
     /**
      * Processes the content of the imported page.
-     * 
-     * @param pageContent The parsed content of the imported page to be
-     *            processed by the helper.
-     * @param context The context object containing logger, site data and common
-     *            information to be shared among all helpers.
-     * @throws PSSiteImportException When any kind of unexpected error occurs
-     *             processing the pageContent through the helper.
+     *
+     * @param pageContent The parsed content of the imported page to be processed by the helper.
+     * @param context The context object containing logger, site data and common information to be shared among all helpers.
+     * @throws PSSiteImportException When any kind of unexpected error occurs processing the pageContent through the helper.
      */
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException, PSDataServiceException;
+    void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException, PSDataServiceException;
 
     /**
-     * Call this method to undo all the operations done by the helper in its
-     * process method. If any unexpected error occurs processing pageContent
-     * from a mandatory helper, then rollback is called to undo all the
-     * operations done by process method.
-     * 
-     * @param pageContent The parsed content of the imported page needed to
-     *            rollback the helper processing.
-     * @param context The context object containing logger, site data and common
-     *            information to be shared among all helpers.
+     * Undo all the operations done by the helper in its process method.
+     * If any unexpected error occurs processing pageContent from a mandatory helper,
+     * then rollback is called to undo all the operations done by process method.
+     *
+     * @param pageContent The parsed content of the imported page needed to rollback the helper processing.
+     * @param context The context object containing logger, site data and common information to be shared among all helpers.
      */
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) throws PSDataServiceException;
-    
+    void rollback(PSPageContent pageContent, PSSiteImportCtx context) throws PSDataServiceException;
+
     /**
-     * This method gets import status message from the helper implementing this
-     * interface. This message will be displayed to the user in import dialog,
-     * to show how steps in the import process are being executed and the
-     * overall progress made.
-     * 
-     * @param statusMessagePrefix A prefix to attach to the beginning of the
-     *            status message. For example: "Importing site:",
-     *            "Importing template:".
+     * Gets import status message from the helper implementing this interface.
+     * This message will be displayed to the user in import dialog, to show how steps in the import process are being executed and the overall progress made.
+     *
+     * @param statusMessagePrefix A prefix to attach to the beginning of the status message.
      * @return the generated status message.
      */
-    public String getStatusMessage(String statusMessagePrefix);
-
+    String getStatusMessage(String statusMessagePrefix);
 }

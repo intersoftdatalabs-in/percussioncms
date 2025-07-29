@@ -21,42 +21,45 @@ import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="MigrateResponse")
-public class PSMigrateContentResponse
-{
+/**
+ * Response object for content migration.
+ */
+@XmlRootElement(name = "MigrateResponse")
+public class PSMigrateContentResponse {
     private PSMigrateResponseStatus status;
     private String message;
     private Map<String, String> errors;
-    PSMigrateContentResponse()
-    {
-        
+
+    /** Default constructor. */
+    public PSMigrateContentResponse() {
     }
-    public String getMessage()
-    {
+
+    public String getMessage() {
         return message;
     }
-    public void setMessage(String message)
-    {
+
+    public void setMessage(String message) {
         this.message = message;
     }
-    public PSMigrateResponseStatus getStatus()
-    {
+
+    public PSMigrateResponseStatus getStatus() {
         return status;
     }
-    public void setStatus(PSMigrateResponseStatus status)
-    {
+
+    public void setStatus(PSMigrateResponseStatus status) {
         this.status = status;
     }
-    public Map<String, String> getErrors()
-    {
+
+    public Map<String, String> getErrors() {
         return errors;
     }
-    public void setErrors(Map<String, String> errors)
-    {
+
+    public void setErrors(Map<String, String> errors) {
         this.errors = errors;
     }
-    public static enum PSMigrateResponseStatus
-    {
+
+    /** Status of the migration response. */
+    public enum PSMigrateResponseStatus {
         SUCCESS, ERROR
-    }    
+    }
 }

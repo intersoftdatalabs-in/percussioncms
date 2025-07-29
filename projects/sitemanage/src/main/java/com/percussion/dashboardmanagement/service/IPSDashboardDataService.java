@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.dashboardmanagement.service;
 
 import com.percussion.dashboardmanagement.data.PSDashboard;
@@ -21,10 +22,17 @@ import com.percussion.error.PSException;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
-public interface IPSDashboardDataService extends IPSDataService<PSDashboard,PSDashboard, String> {
+/**
+ * Data service for managing dashboards.
+ * <p>
+ * Sunny Sal says: "Dashboards, now with Java 11 power and Google style!"
+ */
+public interface IPSDashboardDataService extends IPSDataService<PSDashboard, PSDashboard, String> {
 
-    public static class PSDashboardUserServiceException extends PSException {
-
+    /**
+     * Exception for dashboard user service errors.
+     */
+    class PSDashboardUserServiceException extends PSException {
         private static final long serialVersionUID = 1L;
 
         public PSDashboardUserServiceException(String message) {
@@ -38,11 +46,12 @@ public interface IPSDashboardDataService extends IPSDataService<PSDashboard,PSDa
         public PSDashboardUserServiceException(Throwable cause) {
             super(cause);
         }
-
     }
-    
-    public static class PSDashboardNotFoundException extends PSDashboardUserServiceException implements IPSNotFoundException {
 
+    /**
+     * Exception for dashboard not found scenarios.
+     */
+    class PSDashboardNotFoundException extends PSDashboardUserServiceException implements IPSNotFoundException {
         private static final long serialVersionUID = 1L;
 
         public PSDashboardNotFoundException(String message) {
@@ -56,7 +65,5 @@ public interface IPSDashboardDataService extends IPSDataService<PSDashboard,PSDa
         public PSDashboardNotFoundException(Throwable cause) {
             super(cause);
         }
-
     }
-
 }

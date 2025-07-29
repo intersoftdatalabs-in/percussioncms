@@ -15,49 +15,45 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.share.extension;
 
-import java.util.Properties;
-
 import com.percussion.error.PSExceptionUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.cache.PSAutotuneCache;
 import com.percussion.server.cache.PSAutotuneCacheLocator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Properties;
 
 /**
- * Startup process to auto tune the ehcache.xml.<br/><br/>
+ * Startup process to auto tune the ehcache.xml.
  * {@link com.percussion.server.cache.PSAutotuneCache}
- * 
- * @author chriswright
  *
+ * @author chriswright
  */
 public class PSAutotuneCacheStartup implements IPSStartupProcess {
-    
-    private static final Logger log = LogManager
-            .getLogger(PSAutotuneCacheStartup.class.getName());
+
+    private static final Logger log = LogManager.getLogger(PSAutotuneCacheStartup.class);
 
     @Override
     public void doStartupWork(Properties startupProps) {
-
-        if (!"true".equalsIgnoreCase(startupProps.getProperty(getPropName()))) {
-            log.info("{} is set to false or missing from startup properties file. Nothing to run.",getPropName());
+        var propName = getPropName();
+        if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
+            log.info("{} is set to false or missing from startup properties file. Nothing to run.", propName);
             return;
         }
 
         try {
-            PSAutotuneCache cache = PSAutotuneCacheLocator.getAutotuneCache();
+            var cache = PSAutotuneCacheLocator.getAutotuneCache();
             cache.updateEhcache();
-        }
-        catch (Exception e) {
-            log.error("Error updating ehcache.xml file. Error: {}",
-                    PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("Error updating ehcache.xml file. Error: {}", PSExceptionUtils.getMessageForLog(e));
         }
 
-        log.info("{} has completed.",getPropName() );
+        log.info("{} has completed.", propName);
     }
 
     @Override
@@ -68,5 +64,4 @@ public class PSAutotuneCacheStartup implements IPSStartupProcess {
     static String getPropName() {
         return PSAutotuneCacheStartup.class.getSimpleName();
     }
-
 }

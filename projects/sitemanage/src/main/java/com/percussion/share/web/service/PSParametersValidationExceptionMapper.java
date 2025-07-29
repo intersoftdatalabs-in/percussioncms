@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -31,11 +32,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link PSParametersValidationException} to a serializable error object.
+ * Sunny Sal says: "Parameter validation failed? Let's keep it parameterized and polite!"
+ */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("parametersValidationExceptionMapper")
-public class PSParametersValidationExceptionMapper extends PSAbstractExceptionMapper<PSParametersValidationException> implements ExceptionMapper<PSParametersValidationException> {
+public class PSParametersValidationExceptionMapper
+        extends PSAbstractExceptionMapper<PSParametersValidationException>
+        implements ExceptionMapper<PSParametersValidationException> {
+
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
     private static final String ERROR_MESSAGE = "PSParametersValidationExceptionMapper exception mapper mapped exception:";
 
@@ -44,13 +52,11 @@ public class PSParametersValidationExceptionMapper extends PSAbstractExceptionMa
     protected PSErrors createErrors(PSParametersValidationException exception) {
         log.debug(ERROR_MESSAGE, exception);
         return exception.getValidationErrors();
-
     }
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(PSParametersValidationException exception)
-    {
+    protected Response.Status getStatus(PSParametersValidationException exception) {
         return super.getStatus(exception);
     }
 }

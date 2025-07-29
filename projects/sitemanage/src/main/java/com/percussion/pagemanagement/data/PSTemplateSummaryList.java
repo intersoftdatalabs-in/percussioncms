@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -25,12 +26,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSTemplateSummary.
+ */
 @XmlRootElement(name = "TemplateSummary")
-@ArraySchema(schema=@Schema(implementation =PSTemplateSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSTemplateSummary.class))
 @JsonRootName("TemplateSummary")
 public class PSTemplateSummaryList extends ArrayList<PSTemplateSummary> {
-    public PSTemplateSummaryList(Collection<PSTemplateSummary> c) {
+    public PSTemplateSummaryList() {
+        super();
+    }
+
+    public PSTemplateSummaryList(Collection<? extends PSTemplateSummary> c) {
         super(c);
     }
 }

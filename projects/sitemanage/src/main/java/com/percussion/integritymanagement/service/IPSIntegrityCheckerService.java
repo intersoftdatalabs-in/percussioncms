@@ -15,25 +15,74 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.integritymanagement.service;
 
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
 import com.percussion.integritymanagement.data.PSIntegrityStatus.Status;
-import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 
 import java.util.List;
 
-public interface IPSIntegrityCheckerService
-{
-    public String start(IntegrityTaskType type) throws PSDataServiceException;
-    public void stop() throws PSDataServiceException;
-    public PSIntegrityStatus getStatus(String token) throws PSDataServiceException;
-    public List<PSIntegrityStatus> getHistory() throws PSDataServiceException;
-    public List<PSIntegrityStatus> getHistory(Status status) throws PSDataServiceException;
-    public void delete(String token) throws PSDataServiceException;
-    public static enum IntegrityTaskType {
-        all, dts, cm1;
-    };    
+/**
+ * Service interface for integrity checker operations.
+ */
+public interface IPSIntegrityCheckerService {
 
+    /**
+     * Starts the integrity check process for the given task type.
+     *
+     * @param type the integrity task type
+     * @return the token for the started process
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    String start(IntegrityTaskType type) throws PSDataServiceException;
+
+    /**
+     * Stops the currently running integrity check.
+     *
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    void stop() throws PSDataServiceException;
+
+    /**
+     * Gets the status for the given token.
+     *
+     * @param token the token
+     * @return the integrity status
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    PSIntegrityStatus getStatus(String token) throws PSDataServiceException;
+
+    /**
+     * Gets the history of all integrity checks.
+     *
+     * @return list of integrity statuses
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    List<PSIntegrityStatus> getHistory() throws PSDataServiceException;
+
+    /**
+     * Gets the history of integrity checks filtered by status.
+     *
+     * @param status the status to filter by
+     * @return list of integrity statuses
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    List<PSIntegrityStatus> getHistory(Status status) throws PSDataServiceException;
+
+    /**
+     * Deletes the integrity status for the given token.
+     *
+     * @param token the token
+     * @throws PSDataServiceException if not authorized or environment is unsupported
+     */
+    void delete(String token) throws PSDataServiceException;
+
+    /**
+     * Types of integrity tasks.
+     */
+    enum IntegrityTaskType {
+        all, dts, cm1
+    }
 }

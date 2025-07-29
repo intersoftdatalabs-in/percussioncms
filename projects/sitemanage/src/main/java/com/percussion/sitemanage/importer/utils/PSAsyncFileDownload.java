@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
 import com.percussion.queue.impl.PSPageImportQueue;
@@ -29,110 +30,81 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles asynchronous file downloads with a configurable thread pool.
+ */
+public class PSAsyncFileDownload {
 
+    private boolean complete = false;
+    private static final Logger log = LogManager.getLogger(PSPageImportQueue.class);
+    private final List<PSPair<Boolean, String>> results = new ArrayList<>();
+    private final List<PSFileDownloadJob> jobs = new ArrayList<>();
+    private static final int MAX_THREADS = 6;
+    private final Map<String, Object> requestMap;
 
-public class PSAsyncFileDownload
-{
-
-    
-    // ================= Begin Main Class ==========================================
-    private boolean m_complete = false;
-
-    private static final Logger m_log = LogManager.getLogger(PSPageImportQueue.class);
-
-    private List<PSPair<Boolean, String>> results = new ArrayList<>();
-
-    private List<PSFileDownloadJob> jobs = new ArrayList<>();
-
-    private Integer MAX_THREADS = 6;
-
-    private Map<String, Object> m_requestMap;
-
-    public boolean hasCompleted()
-    {
-        return m_complete;
+    public boolean hasCompleted() {
+        return complete;
     }
 
-
-    public PSAsyncFileDownload(Map<String, Object> requestMap)
-    {
-        this.m_requestMap = requestMap;
-    }
-    
-    public void addDownload(String filePath, String url, boolean createAsset)
-    {
-        PSFileDownloadJob job = new PSFileDownloadJob(filePath, url, createAsset);
-        jobs.add(job);
+    public PSAsyncFileDownload(Map<String, Object> requestMap) {
+        this.requestMap = requestMap;
     }
 
-    public void download()
-    {
+    public void addDownload(String filePath, String url, boolean createAsset) {
+        jobs.add(new PSFileDownloadJob(filePath, url, createAsset));
+    }
 
-        this.setRequestInfo(this.m_requestMap);
-        Iterator<PSFileDownloadJob> i = jobs.iterator();
-        ArrayList<PSFileDownLoadJobRunner> runningJobs = new ArrayList<>();
-        List<Thread> threads = new ArrayList<>();
-        while (i.hasNext())
-        {
-            if (runningJobs.size() < MAX_THREADS)
-            {
-            	PSFileDownloadJob job = i.next();
-                final Map<String, Object> requestInfoMap = PSRequestInfo.copyRequestInfoMap();
-                PSRequest request = (PSRequest) requestInfoMap.get(PSRequestInfo.KEY_PSREQUEST);
+    public void download() {
+        setRequestInfo(this.requestMap);
+        var i = jobs.iterator();
+        var runningJobs = new ArrayList<PSFileDownLoadJobRunner>();
+        var threads = new ArrayList<Thread>();
+        while (i.hasNext()) {
+            if (runningJobs.size() < MAX_THREADS) {
+                var job = i.next();
+                final var requestInfoMap = PSRequestInfo.copyRequestInfoMap();
+                var request = (PSRequest) requestInfoMap.get(PSRequestInfo.KEY_PSREQUEST);
                 requestInfoMap.put(PSRequestInfo.KEY_PSREQUEST, request.cloneRequest());
-                PSFileDownLoadJobRunner download = new PSFileDownLoadJobRunner(job, requestInfoMap);
-                Thread t = new Thread(download);
+                var download = new PSFileDownLoadJobRunner(job, requestInfoMap);
+                var t = new Thread(download);
                 t.setDaemon(true);
                 t.start();
                 runningJobs.add(download);
                 threads.add(t);
-                
-                if(runningJobs.size() == MAX_THREADS || !i.hasNext())
-                {
-                    for (Thread thread : threads)
-                    {
-                        try
-                        {
+
+                if (runningJobs.size() == MAX_THREADS || !i.hasNext()) {
+                    for (var thread : threads) {
+                        try {
                             thread.join();
-                        }
-                        catch (InterruptedException e)
-                        {
+                        } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                         }
                     }
                     threads.clear();
-                    
-                    for (PSFileDownLoadJobRunner runningJob : runningJobs )
-                    {
+                    for (var runningJob : runningJobs) {
                         results.addAll(runningJob.getResults());
                     }
                     runningJobs.clear();
                 }
-                    
-            }
-            else
-            {
-            	try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
+            } else {
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-				}
+                }
             }
-            
-        }    
+        }
+        complete = true;
     }
 
-    public void setRequestInfo(Map<String, Object> requestInfoMap)
-    {
-        if (PSRequestInfo.isInited())
-        {
+    public void setRequestInfo(Map<String, Object> requestInfoMap) {
+        if (PSRequestInfo.isInited()) {
             PSRequestInfo.resetRequestInfo();
         }
         PSRequestInfo.initRequestInfo(requestInfoMap);
     }
 
-    public List<PSPair<Boolean, String>> getResults()
-    {
+    public List<PSPair<Boolean, String>> getResults() {
         return results;
     }
 }

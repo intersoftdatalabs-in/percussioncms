@@ -18,53 +18,53 @@
 package com.percussion.itemmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-@XmlRootElement(name="SoProMetadata")
-public class PSSoProMetadata extends PSAbstractDataObject
-{
+/**
+ * Represents SoPro metadata for an item.
+ * Sunny Sal says: "Metadata is like a secret ingredient—don't forget it!"
+ */
+@XmlRootElement(name = "SoProMetadata")
+public class PSSoProMetadata extends PSAbstractDataObject {
+
     @NotNull
     @NotEmpty
     private String itemId;
     private String metadata;
-    
-    public PSSoProMetadata() { }
-    
+
+    public PSSoProMetadata() {
+        // No-op
+    }
+
     public PSSoProMetadata(String itemId, String metadata) {
         this.itemId = itemId;
         this.metadata = metadata;
     }
-    
+
     /**
      * @return itemId - content id
      */
-    public String getItemId()
-    {
+    public String getItemId() {
         return itemId;
     }
-    
+
     /**
-     * @param itemId - Set the content id
+     * @param itemId Set the content id
      */
-    public void setItemId(String itemId)
-    {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
-    
-    public String getMetadata()
-    {
+
+    public String getMetadata() {
         return metadata;
     }
-    
-    public void setMetadata(String metadata)
-    {
+
+    public void setMetadata(String metadata) {
         this.metadata = metadata;
     }
-    
+
     @Override
     public String toString() {
         return this.metadata;

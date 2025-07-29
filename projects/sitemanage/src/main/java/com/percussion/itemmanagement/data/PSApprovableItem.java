@@ -21,56 +21,52 @@ import com.percussion.share.data.PSItemProperties;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
- * @author leonardohildt
- * 
+ * Represents an item that can be approved in a bulk approval operation.
  */
 @XmlRootElement(name = "ApprovableItem")
-public class PSApprovableItem extends PSItemProperties
-{
+public class PSApprovableItem extends PSItemProperties {
 
     private static final long serialVersionUID = 1L;
 
     private Boolean approve = false;
-
     private String approvalStatus;
-
     private String approvalMessage;
 
-    public PSApprovableItem()
-    {
+    public PSApprovableItem() {
+        // Default constructor for serialization
     }
 
-    public Boolean isApprove()
-    {
+    /**
+     * Indicates whether the item should be approved.
+     *
+     * @return true if the item should be approved, false otherwise.
+     */
+    public Boolean getApprove() {
         return approve;
     }
 
     /**
-     * @param approve indicates whether the item should be approve or not.
+     * Sets whether the item should be approved.
+     *
+     * @param approve true to approve, false otherwise.
      */
-    public void setApprove(Boolean approve)
-    {
+    public void setApprove(Boolean approve) {
         this.approve = approve;
     }
 
-    public String getApprovalStatus()
-    {
+    public String getApprovalStatus() {
         return approvalStatus;
     }
 
-    public void setApprovalStatus(String approvalStatus)
-    {
+    public void setApprovalStatus(String approvalStatus) {
         this.approvalStatus = approvalStatus;
     }
 
-    public String getApprovalMessage()
-    {
+    public String getApprovalMessage() {
         return approvalMessage;
     }
 
-    public void setApprovalMessage(String approvalMessage)
-    {
+    public void setApprovalMessage(String approvalMessage) {
         this.approvalMessage = approvalMessage;
     }
 }

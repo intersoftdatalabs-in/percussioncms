@@ -21,34 +21,29 @@ import com.percussion.pathmanagement.data.PSPathItem;
 import java.util.Comparator;
 
 /**
- * PathItem sorter to case insensitive sort alpha ascending.
+ * Comparator for {@link PSPathItem} that sorts by name, case-insensitive, ascending.
+ * Thread-safe singleton.
  */
-public class PSPathItemComparator implements Comparator<PSPathItem>
-{
-    private static PSPathItemComparator instance;
-    
-    /**
-     */
-    private PSPathItemComparator()
-    {
-        
-    }
-    
-    public static Comparator<PSPathItem> getInstance()
-    {
-        if (instance == null)
-            instance = new PSPathItemComparator();
-        
-        return instance;
+public final class PSPathItemComparator implements Comparator<PSPathItem> {
+
+    private static final PSPathItemComparator INSTANCE = new PSPathItemComparator();
+
+    private PSPathItemComparator() {
+        // Singleton: prevent instantiation
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+    /**
+     * Returns the singleton instance of this comparator.
      */
-    public int compare(PSPathItem a, PSPathItem b)
-    {
-        return a.getName().compareToIgnoreCase(b.getName());
+    public static Comparator<PSPathItem> getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    public int compare(PSPathItem a, PSPathItem b) {
+        // Null-safe comparison, but names should not be null in practice
+        var nameA = a != null && a.getName() != null ? a.getName() : "";
+        var nameB = b != null && b.getName() != null ? b.getName() : "";
+        return nameA.compareToIgnoreCase(nameB);
     }
 }

@@ -48,16 +48,14 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * An adapter to the Template expander extension point in cm system
+ * An adapter to the Template expander extension point in the CMS system
  * which makes it easier to implement template expanders.
-
+ *
  * {@link #createTemplateCache()}.
  * @author adamgent
  * @param <CACHE> template cache
- *
  */
-public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTemplateExpander
-{
+public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTemplateExpander {
 
     private static final Logger log = LogManager.getLogger(PSAbstractTemplateExpanderAdapter.class);
 
@@ -96,44 +94,36 @@ public abstract class PSAbstractTemplateExpanderAdapter<CACHE> implements IPSTem
     
     @Override
     public List<PSContentListItem> expand(QueryResult results, Map<String, String> parameters,
-            Map<Integer, PSComponentSummary> summaryMap) throws PSPublisherException
-    {
+            Map<Integer, PSComponentSummary> summaryMap) throws PSPublisherException {
         notNull(results, "results");
         notEmpty(parameters, "parameters");
-        List<PSContentListItem> contentListItems = new ArrayList<>();
-        IPSGuid siteId = getSiteId(parameters);
-        int context = getContext(parameters);
-        
+        var contentListItems = new ArrayList<PSContentListItem>();
+        var siteId = getSiteId(parameters);
+        var context = getContext(parameters);
 
-        try
-        {
-
-            RowIterator riter = results.getRows();
-            CACHE cache = createTemplateCache();
-            while (riter.hasNext())
-            {
-                Row r = riter.nextRow();
-                IPSGuid contentId = getContentItemGuid(r, summaryMap);
-                IPSGuid folderId = getFolderGuid(r);
-                IPSGuid templateId=null;
+        try {
+            var riter = results.getRows();
+            var cache = createTemplateCache();
+            while (riter.hasNext()) {
+                var r = riter.nextRow();
+                var contentId = getContentItemGuid(r, summaryMap);
+                var folderId = getFolderGuid(r);
+                IPSGuid templateId = null;
                 try {
                     templateId = getTemplateId(parameters, cache);
                 } catch (PSDataServiceException | PSAssemblyException e) {
                     log.error(PSExceptionUtils.getMessageForLog(e));
                     log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                    //Continue processing
+                    // Continue processing
                 }
                 if (templateId != null) {
-                    PSContentListItem item = createContentListItem(contentId, folderId, templateId, siteId, context);
-                    List<PSContentListItem> items = expandContentListItem(item, parameters);
+                    var item = createContentListItem(contentId, folderId, templateId, siteId, context);
+                    var items = expandContentListItem(item, parameters);
                     noNullElements(items, "contentListItems from expander");
                     contentListItems.addAll(items);
                 }
-                
             }
-        }
-        catch (RepositoryException | PSDataServiceException e)
-        {
+        } catch (RepositoryException | PSDataServiceException e) {
             throw new PSPublisherException(IPSPublisherServiceErrors.RUNTIME_ERROR, e, e.getLocalizedMessage());
         }
 

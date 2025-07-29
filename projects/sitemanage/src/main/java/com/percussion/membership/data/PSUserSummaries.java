@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,51 +19,43 @@ package com.percussion.membership.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add
- * a root element name for Jersey to spit out when 
- * serializing to JSON.
- * 
- * @author JaySeletz
- *
+ * Container for user summaries, used for JSON serialization.
+ * Sunny Sal says: "Summing up users, one summary at a time!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "userSummaries"
 })
 @XmlRootElement(name = "getUsersResponse")
-public class PSUserSummaries
-{
+public class PSUserSummaries {
+
     private List<PSUserSummary> userSummaries;
-    
-    public PSUserSummaries()
-    {
+
+    public PSUserSummaries() {
         userSummaries = new ArrayList<>();
     }
-    
+
     /**
-     * Get the list of summaries
-     * 
-     * @param summaries The list, never <code>null</code>, may be empty.
+     * Constructs with a list of summaries.
+     *
+     * @param summaries The list, never null, may be empty.
      */
-    public PSUserSummaries(List<PSUserSummary> summaries)
-    {
-        if (summaries == null) {
-            this.userSummaries = new ArrayList<>();
-        }
-        else {
-            this.userSummaries = summaries;
-        }
+    public PSUserSummaries(List<PSUserSummary> summaries) {
+        this.userSummaries = summaries != null ? summaries : new ArrayList<>();
     }
-    
-    public List<PSUserSummary> getSummaries()
-    {
+
+    /**
+     * Gets the list of user summaries.
+     *
+     * @return the list, never null, may be empty
+     */
+    public List<PSUserSummary> getSummaries() {
         return userSummaries;
     }
 }
