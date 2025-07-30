@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.proxyconfig.loader;
 
 import com.percussion.proxyconfig.data.PSProxyConfig;
@@ -23,272 +24,210 @@ import com.percussion.proxyconfig.service.impl.ProxyConfig.Protocols;
 import com.percussion.proxyconfig.service.impl.ProxyConfigurations;
 import com.percussion.share.dao.PSSerializerUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Santiago M. Murchio
- *
+ * Tests for {@link PSProxyConfigLoader}.
+ * Sunny Sal says: "Proxy configs, assemble!"
  */
-public class PSProxyConfigLoaderTest
-{
+public class PSProxyConfigLoaderTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
     private String rxdeploydir;
 
-    @Before
-    public void setup() throws IOException {
-
+    @BeforeEach
+    void setup() throws IOException {
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", tempDir.toFile().getAbsolutePath());
     }
 
-    @After
-    public void teardown(){
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
-    }
-
-    @Test
-    public void testGetProxyConfigurations_ConfigFileDoesNotExist() throws Exception
-    {
-        PSProxyConfigLoader loader = getProxyConfigLoader("fileDoesNotExist.xml");
-
-        assertTrue("The list of proxy configurations should not be null.", loader.getProxyConfigurations() != null);
-        assertTrue("The list of proxy configurations should be empty.", loader.getProxyConfigurations().isEmpty());
+    @AfterEach
+    void teardown() {
+        if (rxdeploydir != null) {
+            System.setProperty("rxdeploydir", rxdeploydir);
+        }
     }
 
     @Test
-    public void testGetProxyConfigurations_NoDeliveryServers() throws Exception
-    {
-        PSProxyConfigLoader loader = getProxyConfigLoader("ProxyConfigTest_Empty.xml");
-
-        assertTrue("The list of proxy configurations should not be null.", loader.getProxyConfigurations() != null);
-        assertTrue("The list of proxy configurations should be empty.", loader.getProxyConfigurations().isEmpty());
-    }
-    
-    @Test
-    public void testGetProxyConfigurations_SomeDeliveryServers() throws Exception
-    {
-        PSProxyConfigLoader loader = getProxyConfigLoader("ProxyConfigTest_ThreeProxies.xml");
-
-        assertTrue("The list of proxy configurations should not be null.", loader.getProxyConfigurations() != null);
-        assertTrue("The list of proxy configurations should have 3 elements.",
-                loader.getProxyConfigurations().size() == 3);
-
-        List<String> protocols1 = new ArrayList<String>();
-        protocols1.add("HTTP");
-        protocols1.add("HTTPS");
-        PSProxyConfig proxy1 = new PSProxyConfig("localhost", "1531", "admin1", "demo", protocols1);
-        
-        List<String> protocols2 = new ArrayList<String>();
-        protocols2.add("LDAP");
-        PSProxyConfig proxy2 = new PSProxyConfig("percussion.com", "1531", "admin2", "demo", protocols2);
-
-        List<String> protocols3 = new ArrayList<String>();
-        protocols3.add("LDAPS");
-        PSProxyConfig proxy3 = new PSProxyConfig("google.com", "1622", "admin2", "demo", protocols3);
-        
-        assertTrue("The list of proxies should contain the proxy 1", loader.getProxyConfigurations().contains(proxy1));
-        assertTrue("The list of proxies should contain the proxy 2", loader.getProxyConfigurations().contains(proxy2));
-        assertTrue("The list of proxies should contain the proxy 3", loader.getProxyConfigurations().contains(proxy3));
-    }
-    
-    @Test
-    @Ignore("TODO: Fix me. Test is failing on build server after change: 202c39871bbb51429e6cde1f3c08e8fe9145d139")
-    public void testConvertToEncryptedPassword() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_ThreeProxies.xml"));
-
-        @SuppressWarnings("unused")
-        PSProxyConfigLoader loader = new PSProxyConfigLoader(tempConfigFile);
-
-        // Original config file should have its passwords encrypted
-        InputStream in2 = new FileInputStream(tempConfigFile);
-        ProxyConfigurations config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
-
-        assertTrue("The proxy configurations list should have 3 elements", config.getConfigs().size() == 3);
-
-        ProxyConfig proxy1 = config.getConfigs().get(0);
-        Protocols protocolsProxy1 = proxy1.getProtocols();
-        assertTrue("Proxy 1: password should be encrypted", proxy1.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 1: host should be localhost", proxy1.getHost().equals("localhost"));
-        assertTrue("Proxy 1: user should be 'admin1'", proxy1.getUser().equals("admin1"));
-        assertTrue("Proxy 1: protocols should contain 'HTTP'", protocolsProxy1.getProtocols().contains("HTTP"));
-        assertTrue("Proxy 1: protocols should contain 'HTTPS'", protocolsProxy1.getProtocols().contains("HTTPS"));        
-        assertTrue("Proxy 1: protocols should contain 2 elements", protocolsProxy1.getProtocols().size() == 2);        
-        
-        ProxyConfig proxy2 = config.getConfigs().get(1);
-        Protocols protocolsProxy2 = proxy2.getProtocols();
-        assertTrue("Proxy 2: password should be encrypted", proxy2.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 2: host should be 'percussion.com'", proxy2.getHost().equals("percussion.com"));
-        assertTrue("Proxy 2: user should be 'admin2'", proxy2.getUser().equals("admin2"));
-        assertTrue("Proxy 2: protocols should contain 'LDAP'", protocolsProxy2.getProtocols().contains("LDAP"));
-        assertTrue("Proxy 2: protocols should contain 1 element", protocolsProxy2.getProtocols().size() == 1);        
-        
-        ProxyConfig proxy3 = config.getConfigs().get(2);
-        Protocols protocolsProxy3 = proxy3.getProtocols();
-        assertTrue("Proxy 3: password should be encrypted", proxy3.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 3: host should be 'google.com'", proxy3.getHost().equals("google.com"));
-        assertTrue("Proxy 3: user should be 'admin2'", proxy3.getUser().equals("admin2"));
-        assertTrue("Proxy 3: protocols should contain 'LDAPS'", protocolsProxy3.getProtocols().contains("LDAPS"));
-        assertTrue("Proxy 3: protocols should contain 1 element", protocolsProxy3.getProtocols().size() == 1);        
-        
-    }
-    
-    @Test
-    @Ignore("TODO: Fix me.  Test is failing on CI server")
-    public void testLoadAlreadyEncryptedConfigFile() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_EncryptedPassword.xml"));
-        
-        // Start delivery info loader with encrypted passwords
-        @SuppressWarnings("unused")
-        PSProxyConfigLoader loader = new PSProxyConfigLoader(tempConfigFile);
-        
-        // Original config file should have its passwords encrypted
-        InputStream in2 = new FileInputStream(tempConfigFile);
-        ProxyConfigurations config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
-        
-        assertTrue("The proxy configurations list should have 2 elements", config.getConfigs().size() == 2);
-
-        ProxyConfig proxy1 = config.getConfigs().get(0);
-        Protocols protocolsProxy1 = proxy1.getProtocols();
-        assertTrue("Proxy 1: password should be encrypted", proxy1.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 1: host should be localhost", proxy1.getHost().equals("localhost"));
-        assertTrue("Proxy 1: user should be 'admin1'", proxy1.getUser().equals("admin1"));
-        assertTrue("Proxy 1: password should be '7cf3be70d83a6948'",
-                proxy1.getPassword().getValue().equals("7cf3be70d83a6948"));
-        assertTrue("Proxy 1: protocols should contain 'HTTP'", protocolsProxy1.getProtocols().contains("HTTP"));
-        assertTrue("Proxy 1: protocols should contain 'HTTPS'", protocolsProxy1.getProtocols().contains("HTTPS"));        
-        assertTrue("Proxy 1: protocols should contain 2 elements", protocolsProxy1.getProtocols().size() == 2);        
-        
-        ProxyConfig proxy2 = config.getConfigs().get(1);
-        Protocols protocolsProxy2 = proxy2.getProtocols();
-        assertTrue("Proxy 2: password should be encrypted", proxy2.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 2: host should be 'percussion.com'", proxy2.getHost().equals("percussion.com"));
-        assertTrue("Proxy 2: user should be 'admin2'", proxy2.getUser().equals("admin2"));
-        assertTrue("Proxy 2: password should be '7cf3be70d83a6948'",
-                proxy2.getPassword().getValue().equals("7cf3be70d83a6948"));
-        assertTrue("Proxy 2: protocols should contain 'LDAP'", protocolsProxy2.getProtocols().contains("LDAP"));
-        assertTrue("Proxy 2: protocols should contain 1 element", protocolsProxy2.getProtocols().size() == 1);        
-        
-    }
-    
-    @Test
-    @Ignore("TODO: Fix me.  Test is failing on CI server")
-    public void testLoadMixedPasswordsConfigFile() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("ProxyConfigTest_MixedPasswords.xml"));
-        
-        @SuppressWarnings("unused")
-        PSProxyConfigLoader loader = new PSProxyConfigLoader(tempConfigFile);
-        
-        InputStream in2 = new FileInputStream(tempConfigFile);
-        ProxyConfigurations config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
-        
-        assertTrue("The proxy configurations list should have 2 elements", config.getConfigs().size() == 2);
-
-        ProxyConfig proxy1 = config.getConfigs().get(0);
-        Protocols protocolsProxy1 = proxy1.getProtocols();
-        assertTrue("Proxy 1: password should be encrypted", proxy1.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 1: host should be localhost", proxy1.getHost().equals("localhost"));
-        assertTrue("Proxy 1: user should be 'admin1'", proxy1.getUser().equals("admin1"));
-        assertTrue("Proxy 1: password should be '7cf3be70d83a6948'",
-                proxy1.getPassword().getValue().equals("7cf3be70d83a6948"));
-        assertTrue("Proxy 1: protocols should contain 'HTTP'", protocolsProxy1.getProtocols().contains("HTTP"));
-        assertTrue("Proxy 1: protocols should contain 'HTTPS'", protocolsProxy1.getProtocols().contains("HTTPS"));        
-        assertTrue("Proxy 1: protocols should contain 2 elements", protocolsProxy1.getProtocols().size() == 2);        
-        
-        ProxyConfig proxy2 = config.getConfigs().get(1);
-        Protocols protocolsProxy2 = proxy2.getProtocols();
-        assertTrue("Proxy 2: password should be encrypted", proxy2.getPassword().isEncrypted() == true);
-        assertTrue("Proxy 2: host should be 'percussion.com'", proxy2.getHost().equals("percussion.com"));
-        assertTrue("Proxy 2: user should be 'admin2'", proxy2.getUser().equals("admin2"));
-        assertTrue("Proxy 2: protocols should contain 'LDAP'", protocolsProxy2.getProtocols().contains("LDAP"));
-        assertTrue("Proxy 2: protocols should contain 1 element", protocolsProxy2.getProtocols().size() == 1);        
+    void testGetProxyConfigurations_ConfigFileDoesNotExist() {
+        var loader = getProxyConfigLoader("fileDoesNotExist.xml");
+        assertNotNull(loader.getProxyConfigurations(), "The list of proxy configurations should not be null.");
+        assertTrue(loader.getProxyConfigurations().isEmpty(), "The list of proxy configurations should be empty.");
     }
 
     @Test
-    public void testPasswordsMustBeDecrypted() throws Exception
-    {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_EncryptedPassword.xml"));
-        
-        PSProxyConfigLoader loader = new PSProxyConfigLoader(tempConfigFile);
-        
-        assertTrue("The list of proxy configurations should not be null.", loader.getProxyConfigurations() != null);
-        assertTrue("The list of proxy configurations should have 2 elements.",
-                loader.getProxyConfigurations().size() == 2);
-        
-        List<String> protocols1 = new ArrayList<String>();
-        protocols1.add("HTTP");
-        protocols1.add("HTTPS");
-        PSProxyConfig proxy1 = new PSProxyConfig("localhost", "1531", "admin1", "demo", protocols1);
-        
-        List<String> protocols2 = new ArrayList<String>();
-        protocols2.add("LDAP");
-        PSProxyConfig proxy2 = new PSProxyConfig("percussion.com", "1531", "admin2", "demo", protocols2);
-
-        assertTrue("The list of proxies should contain the proxy 1", loader.getProxyConfigurations().contains(proxy1));
-        assertTrue("The list of proxies should contain the proxy 2", loader.getProxyConfigurations().contains(proxy2));
+    void testGetProxyConfigurations_NoDeliveryServers() {
+        var loader = getProxyConfigLoader("ProxyConfigTest_Empty.xml");
+        assertNotNull(loader.getProxyConfigurations(), "The list of proxy configurations should not be null.");
+        assertTrue(loader.getProxyConfigurations().isEmpty(), "The list of proxy configurations should be empty.");
     }
-    
-    /**
-     * @param configFile
-     * @return The proxy configuration loader class
-     */
-    private PSProxyConfigLoader getProxyConfigLoader(String configFile)
-    {
-        try
-        {
-            URL url = this.getClass().getResource(configFile);
-            if(url == null)
-            {
+
+    @Test
+    void testGetProxyConfigurations_SomeDeliveryServers() {
+        var loader = getProxyConfigLoader("ProxyConfigTest_ThreeProxies.xml");
+        assertNotNull(loader.getProxyConfigurations(), "The list of proxy configurations should not be null.");
+        assertEquals(3, loader.getProxyConfigurations().size(), "The list of proxy configurations should have 3 elements.");
+
+        var protocols1 = List.of("HTTP", "HTTPS");
+        var proxy1 = new PSProxyConfig("localhost", "1531", "admin1", "demo", protocols1);
+
+        var protocols2 = List.of("LDAP");
+        var proxy2 = new PSProxyConfig("percussion.com", "1531", "admin2", "demo", protocols2);
+
+        var protocols3 = List.of("LDAPS");
+        var proxy3 = new PSProxyConfig("google.com", "1622", "admin2", "demo", protocols3);
+
+        assertTrue(loader.getProxyConfigurations().contains(proxy1), "The list of proxies should contain the proxy 1");
+        assertTrue(loader.getProxyConfigurations().contains(proxy2), "The list of proxies should contain the proxy 2");
+        assertTrue(loader.getProxyConfigurations().contains(proxy3), "The list of proxies should contain the proxy 3");
+    }
+
+    @Test
+    @Disabled("TODO: Fix me. Test is failing on build server after change: 202c39871bbb51429e6cde1f3c08e8fe9145d139")
+    void testConvertToEncryptedPassword() throws Exception {
+        var tempConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_ThreeProxies.xml"));
+        new PSProxyConfigLoader(tempConfigFile);
+
+        try (var in2 = new FileInputStream(tempConfigFile)) {
+            var config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
+            assertEquals(3, config.getConfigs().size(), "The proxy configurations list should have 3 elements");
+
+            var proxy1 = config.getConfigs().get(0);
+            var protocolsProxy1 = proxy1.getProtocols();
+            assertTrue(proxy1.getPassword().isEncrypted(), "Proxy 1: password should be encrypted");
+            assertEquals("localhost", proxy1.getHost(), "Proxy 1: host should be localhost");
+            assertEquals("admin1", proxy1.getUser(), "Proxy 1: user should be 'admin1'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTP"), "Proxy 1: protocols should contain 'HTTP'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTPS"), "Proxy 1: protocols should contain 'HTTPS'");
+            assertEquals(2, protocolsProxy1.getProtocols().size(), "Proxy 1: protocols should contain 2 elements");
+
+            var proxy2 = config.getConfigs().get(1);
+            var protocolsProxy2 = proxy2.getProtocols();
+            assertTrue(proxy2.getPassword().isEncrypted(), "Proxy 2: password should be encrypted");
+            assertEquals("percussion.com", proxy2.getHost(), "Proxy 2: host should be 'percussion.com'");
+            assertEquals("admin2", proxy2.getUser(), "Proxy 2: user should be 'admin2'");
+            assertTrue(protocolsProxy2.getProtocols().contains("LDAP"), "Proxy 2: protocols should contain 'LDAP'");
+            assertEquals(1, protocolsProxy2.getProtocols().size(), "Proxy 2: protocols should contain 1 element");
+
+            var proxy3 = config.getConfigs().get(2);
+            var protocolsProxy3 = proxy3.getProtocols();
+            assertTrue(proxy3.getPassword().isEncrypted(), "Proxy 3: password should be encrypted");
+            assertEquals("google.com", proxy3.getHost(), "Proxy 3: host should be 'google.com'");
+            assertEquals("admin2", proxy3.getUser(), "Proxy 3: user should be 'admin2'");
+            assertTrue(protocolsProxy3.getProtocols().contains("LDAPS"), "Proxy 3: protocols should contain 'LDAPS'");
+            assertEquals(1, protocolsProxy3.getProtocols().size(), "Proxy 3: protocols should contain 1 element");
+        }
+    }
+
+    @Test
+    @Disabled("TODO: Fix me.  Test is failing on CI server")
+    void testLoadAlreadyEncryptedConfigFile() throws Exception {
+        var tempConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_EncryptedPassword.xml"));
+        new PSProxyConfigLoader(tempConfigFile);
+
+        try (var in2 = new FileInputStream(tempConfigFile)) {
+            var config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
+            assertEquals(2, config.getConfigs().size(), "The proxy configurations list should have 2 elements");
+
+            var proxy1 = config.getConfigs().get(0);
+            var protocolsProxy1 = proxy1.getProtocols();
+            assertTrue(proxy1.getPassword().isEncrypted(), "Proxy 1: password should be encrypted");
+            assertEquals("localhost", proxy1.getHost(), "Proxy 1: host should be localhost");
+            assertEquals("admin1", proxy1.getUser(), "Proxy 1: user should be 'admin1'");
+            assertEquals("7cf3be70d83a6948", proxy1.getPassword().getValue(), "Proxy 1: password should be '7cf3be70d83a6948'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTP"), "Proxy 1: protocols should contain 'HTTP'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTPS"), "Proxy 1: protocols should contain 'HTTPS'");
+            assertEquals(2, protocolsProxy1.getProtocols().size(), "Proxy 1: protocols should contain 2 elements");
+
+            var proxy2 = config.getConfigs().get(1);
+            var protocolsProxy2 = proxy2.getProtocols();
+            assertTrue(proxy2.getPassword().isEncrypted(), "Proxy 2: password should be encrypted");
+            assertEquals("percussion.com", proxy2.getHost(), "Proxy 2: host should be 'percussion.com'");
+            assertEquals("admin2", proxy2.getUser(), "Proxy 2: user should be 'admin2'");
+            assertEquals("7cf3be70d83a6948", proxy2.getPassword().getValue(), "Proxy 2: password should be '7cf3be70d83a6948'");
+            assertTrue(protocolsProxy2.getProtocols().contains("LDAP"), "Proxy 2: protocols should contain 'LDAP'");
+            assertEquals(1, protocolsProxy2.getProtocols().size(), "Proxy 2: protocols should contain 1 element");
+        }
+    }
+
+    @Test
+    @Disabled("TODO: Fix me.  Test is failing on CI server")
+    void testLoadMixedPasswordsConfigFile() throws Exception {
+        var tempConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_MixedPasswords.xml"));
+        new PSProxyConfigLoader(tempConfigFile);
+
+        try (var in2 = new FileInputStream(tempConfigFile)) {
+            var config = PSSerializerUtils.unmarshalWithValidation(in2, ProxyConfigurations.class);
+            assertEquals(2, config.getConfigs().size(), "The proxy configurations list should have 2 elements");
+
+            var proxy1 = config.getConfigs().get(0);
+            var protocolsProxy1 = proxy1.getProtocols();
+            assertTrue(proxy1.getPassword().isEncrypted(), "Proxy 1: password should be encrypted");
+            assertEquals("localhost", proxy1.getHost(), "Proxy 1: host should be localhost");
+            assertEquals("admin1", proxy1.getUser(), "Proxy 1: user should be 'admin1'");
+            assertEquals("7cf3be70d83a6948", proxy1.getPassword().getValue(), "Proxy 1: password should be '7cf3be70d83a6948'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTP"), "Proxy 1: protocols should contain 'HTTP'");
+            assertTrue(protocolsProxy1.getProtocols().contains("HTTPS"), "Proxy 1: protocols should contain 'HTTPS'");
+            assertEquals(2, protocolsProxy1.getProtocols().size(), "Proxy 1: protocols should contain 2 elements");
+
+            var proxy2 = config.getConfigs().get(1);
+            var protocolsProxy2 = proxy2.getProtocols();
+            assertTrue(proxy2.getPassword().isEncrypted(), "Proxy 2: password should be encrypted");
+            assertEquals("percussion.com", proxy2.getHost(), "Proxy 2: host should be 'percussion.com'");
+            assertEquals("admin2", proxy2.getUser(), "Proxy 2: user should be 'admin2'");
+            assertTrue(protocolsProxy2.getProtocols().contains("LDAP"), "Proxy 2: protocols should contain 'LDAP'");
+            assertEquals(1, protocolsProxy2.getProtocols().size(), "Proxy 2: protocols should contain 1 element");
+        }
+    }
+
+    @Test
+    void testPasswordsMustBeDecrypted() throws Exception {
+        var tempConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_EncryptedPassword.xml"));
+        var loader = new PSProxyConfigLoader(tempConfigFile);
+
+        assertNotNull(loader.getProxyConfigurations(), "The list of proxy configurations should not be null.");
+        assertEquals(2, loader.getProxyConfigurations().size(), "The list of proxy configurations should have 2 elements.");
+
+        var protocols1 = List.of("HTTP", "HTTPS");
+        var proxy1 = new PSProxyConfig("localhost", "1531", "admin1", "demo", protocols1);
+
+        var protocols2 = List.of("LDAP");
+        var proxy2 = new PSProxyConfig("percussion.com", "1531", "admin2", "demo", protocols2);
+
+        assertTrue(loader.getProxyConfigurations().contains(proxy1), "The list of proxies should contain the proxy 1");
+        assertTrue(loader.getProxyConfigurations().contains(proxy2), "The list of proxies should contain the proxy 2");
+    }
+
+    private PSProxyConfigLoader getProxyConfigLoader(String configFile) {
+        try {
+            URL url = getClass().getResource(configFile);
+            if (url == null) {
                 return new PSProxyConfigLoader(new File(configFile));
-            }
-            else
-            {
+            } else {
                 return new PSProxyConfigLoader(new File(url.toURI()));
             }
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             fail("Could not load Proxy configuration file " + configFile);
             return null;
         }
     }
-    
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
-    {
-        File tempConfigFile = File.createTempFile("ProxyConfigurations", ".xml");
-        OutputStream out = new FileOutputStream(tempConfigFile);
-        InputStream in = baseConfigFile;
-        
-        IOUtils.copy(in, out);
-        
+
+    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws IOException {
+        var tempConfigFile = File.createTempFile("ProxyConfigurations", ".xml");
+        try (var out = new FileOutputStream(tempConfigFile); var in = baseConfigFile) {
+            IOUtils.copy(in, out);
+        }
         return tempConfigFile;
     }
-    
 }

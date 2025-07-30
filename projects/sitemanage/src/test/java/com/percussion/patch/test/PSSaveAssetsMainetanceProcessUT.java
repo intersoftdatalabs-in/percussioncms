@@ -15,23 +15,29 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.patch.test;
 
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * Unit test for verifying anchor tag rel attributes for managed links.
+ * Sunny Sal says: "Testing links is like checking pizza toppings—don't let anything suspicious slip through!"
+ */
 public class PSSaveAssetsMainetanceProcessUT {
 
     @Test
-    public void testTarget(){
-        Document doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
-        Elements targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
+    void testTarget() {
+        var doc = Jsoup.parseBodyFragment("<p>This is <a href=\"#\" target=\"_blank\"/>");
+        var targetAnchors = doc.select(IPSManagedLinkService.A_HREF + "a[target=\"_blank\"]"
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
         assertFalse(targetAnchors.isEmpty());
@@ -41,6 +47,5 @@ public class PSSaveAssetsMainetanceProcessUT {
                 + ":not(a[rel=\"noopener noreferrer\"])");
 
         assertTrue(targetAnchors.isEmpty());
-
     }
 }

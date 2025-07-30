@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,11 +22,10 @@ import static com.percussion.pagemanagement.parser.PSTemplateRegionParser.parse;
 
 import static java.util.Arrays.asList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.*;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetDropCriteria;
@@ -60,71 +60,49 @@ import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestClient> {
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestClient>
-{
     private static PSTestSiteData testSiteData;
-        
-    private static final String WIDGET_REGION_HTML = "<div class=\"perc-region\" id=\"container\">"
-       + "<div>CODE</div>"
-       + "<div class=\"perc-region\" id=\"my-widget-region\">"
-       + "#region('my-widget-region' '<div>' '<span>' '</span>' '</div>')"
-       + "</div>"
-       + "</div>";
 
-    @BeforeClass
-    public static void setUp() throws Exception
-    {
+    private static final String WIDGET_REGION_HTML = "<div class=\"perc-region\" id=\"container\">"
+            + "<div>CODE</div>"
+            + "<div class=\"perc-region\" id=\"my-widget-region\">"
+            + "#region('my-widget-region' '<div>' '<span>' '</span>' '</div>')"
+            + "</div>"
+            + "</div>";
+
+    @BeforeAll
+    static void setUpAll() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
     }
 
-    PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<String>()
-    {
+    PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<String>() {
 
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             getPageRestClient().delete(id);
         }
     };
 
-    PSTestDataCleaner<String> templateCleaner = new PSTestDataCleaner<String>()
-    {
+    PSTestDataCleaner<String> templateCleaner = new PSTestDataCleaner<String>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             getTemplateClient().deleteTemplate(id);
         }
     };
 
-    PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<String>()
-    {
+    PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<String>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             restClient.delete(id);
         }
     };
 
-    PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<String>()
-    {
+    PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<String>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
             criteria.setPath(id);
             criteria.setSkipItems(SkipItemsType.NO);
@@ -140,19 +118,17 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Override
-    protected PSAssetServiceRestClient getRestClient(String url)
-    {
+    protected PSAssetServiceRestClient getRestClient(String url) {
         return new PSAssetServiceRestClient(url);
     }
 
     @Test
-    public void test010AssetCreation() throws Exception
-    {
-        PSAsset asset = new PSAsset();
+    void test010AssetCreation() throws Exception {
+        var asset = new PSAsset();
         asset.getFields().put("sys_title", "MyAsset");
         asset.setType("percRawHtmlAsset");
         asset.getFields().put("html", "TestHTML");
-        asset.setFolderPaths(asList("//Folders"));
+        asset.setFolderPaths(List.of("//Folders"));
         asset = restClient.save(asset);
         assertNotNull(asset);
         assertNotNull(asset.getId());
@@ -160,8 +136,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test020AssetEditUrl() throws Exception
-    {
+    void test020AssetEditUrl() throws Exception {
         PSAsset asset = new PSAsset();
         asset.getFields().put("sys_title", "MyTestAsset");
         asset.setType("percRawHtmlAsset");
@@ -173,16 +148,14 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test030GetAssetEditors() throws Exception
-    {
+    void test030GetAssetEditors() throws Exception {
         List<PSAssetEditor> assetEditors = getAssetEditUrlRestClient().getAssetEditors();
 
         // Verify we found editors
         assertFalse(assetEditors.isEmpty());
 
         // Loop through List and make sure data was returned.
-        for (PSAssetEditor assetEditor : assetEditors)
-        {
+        for (PSAssetEditor assetEditor : assetEditors) {
             assertTrue(StringUtils.isNotBlank(assetEditor.getIcon()));
             assertTrue(StringUtils.isNotBlank(assetEditor.getTitle()));
             assertTrue(StringUtils.isNotBlank(assetEditor.getUrl()));
@@ -191,11 +164,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test040CreateAssetWidgetRelationship() throws Exception
-    {
+    void test040CreateAssetWidgetRelationship() throws Exception {
         String pageId = null;
         String templateId = testSiteData.template1.getId();
-        
+
         String folderPath = testSiteData.site1.getFolderPath();
         PSPage pageNew = new PSPage();
         pageNew.setName("testPageNew11");
@@ -221,8 +193,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test050GetContentEditCriteria() throws Exception
-    {
+    void test050GetContentEditCriteria() throws Exception {
         String templateId = testSiteData.template1.getId();
 
         PSPage pageNew = new PSPage();
@@ -277,8 +248,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test060GetWidgetAssetCriteria() throws Exception
-    {
+    void test060GetWidgetAssetCriteria() throws Exception {
         String template1Id = testSiteData.template1.getId();
         String template2Id = testSiteData.template2.getId();
 
@@ -343,8 +313,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     @Test
-    public void test070AddAssetToFolder() throws Exception
-    {
+    void test070AddAssetToFolder() throws Exception {
         String pageId = null;
         String templateId = testSiteData.template1.getId();
 
@@ -375,54 +344,41 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         assertEquals(1, items.size());
         assertEquals(pageId, items.get(0).getId());
 
-        try
-        {
+        try {
             restClient.addAssetToFolder(null, folderItem.getId());
             fail("Rest client should have thrown exception");
-        }
-        catch (RestClientException re)
-        {
+        } catch (RestClientException re) {
             /*
              * TODO should adding an asset to a folder throw a 500?
              */
             assertEquals(500, re.getStatus());
         }
 
-        try
-        {
+        try {
             restClient.addAssetToFolder(pageId, null);
             fail("Rest client should have thrown exception");
-        }
-        catch (RestClientException re)
-        {
+        } catch (RestClientException re) {
             assertEquals(500, re.getStatus());
         }
 
-        try
-        {
+        try {
             restClient.addAssetToFolder("", folderItem.getId());
             fail("Rest client should have thrown exception");
-        }
-        catch (RestClientException re)
-        {
+        } catch (RestClientException re) {
             assertEquals(500, re.getStatus());
         }
 
-        try
-        {
+        try {
             restClient.addAssetToFolder(pageId, "");
             fail("Rest client should have thrown exception");
-        }
-        catch (RestClientException re)
-        {
+        } catch (RestClientException re) {
             assertEquals(500, re.getStatus());
         }
 
     }
 
     @Test
-    public void test080DeleteAsset() throws Exception
-    {
+    void test080DeleteAsset() throws Exception {
         restClient.switchCommunity(1002);
 
         PSAsset asset = restClient.createAsset("testAsset", null);
@@ -438,13 +394,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("author1", "demo");
 
         // should not have access to item
-        try
-        {
+        try {
             restClient.delete(id);
             fail("Current user should not be authorized to delete asset: " + id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteNotAuthorized"));
         }
 
@@ -452,13 +405,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("admin1", "demo");
 
         // should have access to item
-        try
-        {
+        try {
             restClient.delete(id);
             assetCleaner.remove(id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Current user should be authorized to delete asset: " + id);
         }
 
@@ -474,13 +424,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.createAssetWidgetRelationship(awRel);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             restClient.delete(id);
             fail("Should not be able to delete asset: " + id + ".  It is used by a template");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteTemplates"));
         }
 
@@ -501,13 +448,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             restClient.delete(id);
             fail("Should not be able to delete asset: " + id + ".  It is used by an approved page");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteApprovedPages"));
         }
 
@@ -515,13 +459,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.checkOut(pageId);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             restClient.delete(id);
             fail("Should not be able to delete asset: " + id + ".  It is used by an approved page");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteApprovedPages"));
         }
 
@@ -529,14 +470,11 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.clearAssetWidgetRelationship(awRel);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             restClient.delete(id);
             fail("Should not be able to delete asset: " + id + ".  It is used by an non-tip revison page in quick "
                     + "edit");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteApprovedPages"));
         }
 
@@ -544,20 +482,16 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // should be able to delete asset
-        try
-        {
+        try {
             restClient.delete(id);
             assetCleaner.remove(id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Asset: " + id + " should have been deleted");
         }
     }
 
     @Test
-    public void test090ForceDeleteAsset() throws Exception
-    {
+    void test090ForceDeleteAsset() throws Exception {
         restClient.switchCommunity(1002);
 
         PSAsset asset = restClient.createAsset("testAsset", null);
@@ -571,13 +505,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.createAssetWidgetRelationship(awRel);
 
         // force delete
-        try
-        {
+        try {
             restClient.forceDelete(id);
             assetCleaner.remove(id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Asset: " + id + " should have been deleted");
         }
 
@@ -600,24 +531,20 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         getItemWorkflowServiceRestClient().transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // force delete
-        try
-        {
+        try {
             restClient.forceDelete(id);
             assetCleaner.remove(id);
 
             getItemWorkflowServiceRestClient().checkOut(pageId);
 
             restClient.clearAssetWidgetRelationship(awRel);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Asset: " + id + " should have been deleted");
         }
     }
 
     @Test
-    public void test100ValidateDelete() throws Exception
-    {
+    void test100ValidateDelete() throws Exception {
         restClient.switchCommunity(1002);
 
         PSAsset asset = restClient.createAsset("testAsset", null);
@@ -633,13 +560,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("author1", "demo");
 
         // should not have access to item
-        try
-        {
+        try {
             assertNotNull(restClient.validateDelete(id));
             fail("Current user should not be authorized to delete asset: " + id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteNotAuthorized"));
         }
 
@@ -647,14 +571,11 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("admin1", "demo");
 
         // should have access to item
-        try
-        {
+        try {
             assertNotNull(restClient.validateDelete(id));
             restClient.delete(id);
             assetCleaner.remove(id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Current user should be authorized to delete asset: " + id);
         }
 
@@ -670,13 +591,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.createAssetWidgetRelationship(awRel);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             assertNotNull(restClient.validateDelete(id));
             fail("Should not be able to delete asset: " + id + ".  It is used by a template");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteTemplates"));
         }
 
@@ -697,13 +615,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // should not be able to delete asset
-        try
-        {
+        try {
             assertNotNull(restClient.validateDelete(id));
             fail("Should not be able to delete asset: " + id + ".  It is used by an approved page");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("asset.deleteApprovedPages"));
         }
 
@@ -712,8 +627,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE);
 
         // should be able to delete asset
-        try
-        {
+        try {
             assertNotNull(restClient.validateDelete(id));
             restClient.forceDelete(id);
             assetCleaner.remove(id);
@@ -721,16 +635,13 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
             getItemWorkflowServiceRestClient().checkOut(pageId);
 
             restClient.clearAssetWidgetRelationship(awRel);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Asset: " + id + " should have been deleted");
         }
     }
 
     @Test
-    public void test110RemoveResource() throws Exception
-    {
+    void test110RemoveResource() throws Exception {
         restClient.switchCommunity(1002);
 
         String site1Path = testSiteData.site1.getFolderPath();
@@ -748,13 +659,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("author1", "demo");
 
         // should not have access to item
-        try
-        {
+        try {
             restClient.remove(id, site1Path);
             fail("Current user should not be authorized to remove resource: " + id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("resource.removeNotAuthorized"));
         }
 
@@ -762,12 +670,9 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.login("admin1", "demo");
 
         // should have access to item
-        try
-        {
+        try {
             restClient.remove(id, site1Path);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Current user should be authorized to remove resource: " + id);
         }
 
@@ -781,12 +686,9 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         restClient.createAssetWidgetRelationship(awRel);
 
         // should be able to remove resource
-        try
-        {
+        try {
             restClient.remove(id, site1Path);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Should able to remove resource: " + id + ".  It is used by a template");
         }
 
@@ -807,13 +709,10 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // should not be able to remove asset
-        try
-        {
+        try {
             restClient.remove(id, site1Path);
             fail("Should not be able to remove resource: " + id + ".  It is used by an approved page");
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             assertTrue(e.getStatus() == 400 && e.getResponseBody().contains("resource.removeApprovedPages"));
         }
 
@@ -822,23 +721,19 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         wfClient.transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_ARCHIVE);
 
         // should be able to remove resource
-        try
-        {
+        try {
             restClient.remove(id, site1Path);
 
             getItemWorkflowServiceRestClient().checkOut(pageId);
 
             restClient.clearAssetWidgetRelationship(awRel);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Resource: " + id + " should have been removed");
         }
     }
 
     @Test
-    public void test120ForceRemoveResource() throws Exception
-    {
+    void test120ForceRemoveResource() throws Exception {
         restClient.switchCommunity(1002);
 
         String site1Path = testSiteData.site1.getFolderPath();
@@ -860,21 +755,17 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         getItemWorkflowServiceRestClient().transition(pageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
 
         // force remove
-        try
-        {
+        try {
             restClient.forceRemove(id, site1Path);
             assetCleaner.remove(id);
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             fail("Resource: " + id + " should have been removed");
         }
     }
 
     @Ignore("Not ready yet. Ignore it to fix the build.")
     @Test
-    public void test130GetForms() throws Exception
-    {
+    void test130GetForms() throws Exception {
         restClient.switchCommunity(1002);
 
         // get current number of forms
@@ -905,11 +796,9 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
 
         boolean foundForm1 = false;
         Iterator<PSFormSummary> iter = forms.iterator();
-        while (iter.hasNext())
-        {
+        while (iter.hasNext()) {
             String id = iter.next().getId();
-            if (form1Id.equals(id))
-            {
+            if (form1Id.equals(id)) {
                 foundForm1 = true;
                 break;
             }
@@ -936,16 +825,13 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         foundForm1 = false;
         boolean foundForm2 = false;
         iter = forms.iterator();
-        while (iter.hasNext())
-        {
+        while (iter.hasNext()) {
             String id = iter.next().getId();
-            if (form1Id.equals(id))
-            {
+            if (form1Id.equals(id)) {
                 foundForm1 = true;
             }
 
-            if (form2Id.equals(id))
-            {
+            if (form2Id.equals(id)) {
                 foundForm2 = true;
             }
         }
@@ -961,16 +847,13 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         foundForm1 = false;
         foundForm2 = false;
         iter = forms.iterator();
-        while (iter.hasNext())
-        {
+        while (iter.hasNext()) {
             String id = iter.next().getId();
-            if (form1Id.equals(id))
-            {
+            if (form1Id.equals(id)) {
                 foundForm1 = true;
             }
 
-            if (form2Id.equals(id))
-            {
+            if (form2Id.equals(id)) {
                 foundForm2 = true;
             }
         }
@@ -978,23 +861,20 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         assertTrue(foundForm2);
     }
 
-    @After
-    public void tearDown()
-    {
+    @AfterEach
+    void tearDown() {
         assetCleaner.clean();
         pageCleaner.clean();
         templateCleaner.clean();
         folderCleaner.clean();
     }
 
-    @AfterClass
-    public static void cleanup() throws Exception
-    {
+    @AfterAll
+    static void cleanup() throws Exception {
         testSiteData.tearDown();
     }
 
-    private void validateWithProperty(String pageId, PSWidgetItem wi, String templateId) throws Exception
-    {
+    private void validateWithProperty(String pageId, PSWidgetItem wi, String templateId) throws Exception {
         PSPage page = getPageRestClient().load(pageId);
         page.getRegionBranches().setRegionWidgets("Test", asList(wi));
         getPageRestClient().save(page);
@@ -1008,8 +888,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
     }
 
     private void validateGetAssetEditUrls(String parentId, String parentType, PSWidgetItem widget, String assetId)
-            throws Exception
-    {
+            throws Exception {
         // generate the create request url
         PSAssetEditUrlRequest req = new PSAssetEditUrlRequest();
         req.setParentId(parentId);
@@ -1018,8 +897,7 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         PSContentEditCriteria editCriteria = getAssetEditUrlRestClient().getContentEditCriteria(req);
         String createUrl = editCriteria.getUrl();
         assertFalse(StringUtils.isBlank(createUrl));
-        if (!editCriteria.getProducesResource())
-        {
+        if (!editCriteria.getProducesResource()) {
             assertFalse(StringUtils.isBlank(editCriteria.getContentName()));
         }
         String hiddenProp = null;
@@ -1047,73 +925,59 @@ public class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestCli
         String url = editCriteria.getUrl();
         assertFalse(StringUtils.isBlank(url));
         validateUrl(url, hiddenProp, false);
-        if (!editCriteria.getProducesResource())
-        {
+        if (!editCriteria.getProducesResource()) {
             assertFalse(StringUtils.isNotBlank(editCriteria.getContentName()));
         }
 
     }
 
-    private void validateUrl(String url, String hiddenProp, boolean isCreate)
-    {
-        if (hiddenProp == null)
-        {
+    private void validateUrl(String url, String hiddenProp, boolean isCreate) {
+        if (hiddenProp == null) {
             assertTrue(url.indexOf("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME) != -1);
-        }
-        else
-        {
+        } else {
             assertTrue(url.indexOf("sys_view=" + IPSConstants.SYS_HIDDEN_FIELDS_VIEW_NAME + hiddenProp) != -1);
         }
 
-        if (isCreate)
-        {
+        if (isCreate) {
             assertTrue(url.indexOf("sys_revision") == -1);
             assertTrue(url.indexOf("sys_contentid") == -1);
-        }
-        else
-        {
+        } else {
             assertTrue(url.indexOf("sys_revision") != -1);
             assertTrue(url.indexOf("sys_contentid") != -1);
         }
     }
 
-    private PSPageRestClient getPageRestClient() throws Exception
-    {
+    private PSPageRestClient getPageRestClient() throws Exception {
         PSPageRestClient client = new PSPageRestClient(baseUrl);
         setupClient(client);
         return client;
     }
 
-    private PSTemplateServiceClient getTemplateClient() throws Exception
-    {
+    private PSTemplateServiceClient getTemplateClient() throws Exception {
         PSTemplateServiceClient client = new PSTemplateServiceClient(baseUrl);
         setupClient(client);
         return client;
     }
 
-    private PSAssetServiceRestClient getAssetEditUrlRestClient() throws Exception
-    {
+    private PSAssetServiceRestClient getAssetEditUrlRestClient() throws Exception {
         PSAssetServiceRestClient client = new PSAssetServiceRestClient(baseUrl);
         setupClient(client);
         return client;
     }
 
-    private PSWidgetRestClient getWidgetClient() throws Exception
-    {
+    private PSWidgetRestClient getWidgetClient() throws Exception {
         PSWidgetRestClient client = new PSWidgetRestClient(baseUrl);
         setupClient(client);
         return client;
     }
 
-    private PSPathServiceRestClient getPathServiceRestClient() throws Exception
-    {
+    private PSPathServiceRestClient getPathServiceRestClient() throws Exception {
         PSPathServiceRestClient client = new PSPathServiceRestClient(baseUrl);
         setupClient(client);
         return client;
     }
 
-    private PSItemWorkflowServiceRestClient getItemWorkflowServiceRestClient() throws Exception
-    {
+    private PSItemWorkflowServiceRestClient getItemWorkflowServiceRestClient() throws Exception {
         PSItemWorkflowServiceRestClient client = new PSItemWorkflowServiceRestClient(baseUrl);
         setupClient(client);
         return client;

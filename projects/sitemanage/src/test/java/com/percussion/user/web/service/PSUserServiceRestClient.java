@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,111 +23,112 @@ import com.percussion.user.data.*;
 import com.percussion.user.service.IPSUserService;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Objects;
 
-public class PSUserServiceRestClient extends PSObjectRestClient implements IPSUserService
-{
+/**
+ * REST client for user service.
+ * Modernized for Java 11 and Google Java Style.
+ */
+public class PSUserServiceRestClient extends PSObjectRestClient implements IPSUserService {
 
     private String path = "/Rhythmyx/services/user/user";
-    
-    
-    public String getPath()
-    {
+
+    public String getPath() {
         return path;
     }
 
-    public void setPath(String path)
-    {
+    public void setPath(final String path) {
         this.path = path;
     }
 
-    public PSUser create(PSUser user) throws PSDataServiceException
-    {
+    @Override
+    public PSUser create(final PSUser user) throws PSDataServiceException {
         return postObjectToPath(concatPath(getPath(), "create"), user, PSUser.class);
     }
 
     @Override
-    public void delete(String name)
-    {
+    public void delete(final String name) {
         super.delete(concatPath(getPath(), "delete", name));
     }
 
-    public PSUser find(String name) throws PSDataServiceException
-    {
+    @Override
+    public PSUser find(final String name) throws PSDataServiceException {
         return getObjectFromPath(concatPath(getPath(), "find", name), PSUser.class);
     }
-    
-    public List<PSExternalUser> findUsersFromDirectoryService(String query) throws PSDirectoryServiceException
-    {
+
+    @Override
+    public List<PSExternalUser> findUsersFromDirectoryService(final String query)
+            throws PSDirectoryServiceException {
         return getObjectsFromPath(concatPath(getPath(), "external/find", query), PSExternalUser.class);
     }
 
-    public List<PSImportedUser> importDirectoryUsers(PSImportUsers importUsers) throws PSDirectoryServiceException
-    {
+    @Override
+    public List<PSImportedUser> importDirectoryUsers(final PSImportUsers importUsers)
+            throws PSDirectoryServiceException {
         return postObjectToPathAndGetObjects(concatPath(getPath(), "import"), importUsers, PSImportedUser.class);
     }
 
-    public PSDirectoryServiceStatus checkDirectoryService()
-    {
+    @Override
+    public PSDirectoryServiceStatus checkDirectoryService() {
         return getObjectFromPath(concatPath(getPath(), "external/status"), PSDirectoryServiceStatus.class);
     }
 
-    public PSRoleList getRoles()
-    {
+    @Override
+    public PSRoleList getRoles() {
         return getObjectFromPath(concatPath(getPath(), "roles"), PSRoleList.class);
     }
 
-    public PSUserList getUsers() throws PSDataServiceException
-    {
+    @Override
+    public PSUserList getUsers() throws PSDataServiceException {
         return getObjectFromPath(concatPath(getPath(), "users"), PSUserList.class);
     }
-    
-    public PSUserList getUsersByRole(String roleName)
-    {
+
+    @Override
+    public PSUserList getUsersByRole(final String roleName) {
         return getObjectFromPath(concatPath(getPath(), "usersByRole", roleName), PSUserList.class);
     }
 
-    public PSUser update(PSUser user) throws PSDataServiceException
-    {
-        return postObjectToPath(concatPath(getPath(),"update"), user, PSUser.class);
-    }
-    
-    public PSUser changePassword(PSUser user)
-    {
-        return putObjectToPath(concatPath(getPath(),"changepw"), user, PSUser.class);
+    @Override
+    public PSUser update(final PSUser user) throws PSDataServiceException {
+        return postObjectToPath(concatPath(getPath(), "update"), user, PSUser.class);
     }
 
-    public PSCurrentUser getCurrentUser()
-    {
+    @Override
+    public PSUser changePassword(final PSUser user) {
+        return putObjectToPath(concatPath(getPath(), "changepw"), user, PSUser.class);
+    }
+
+    @Override
+    public PSCurrentUser getCurrentUser() {
         return getObjectFromPath(concatPath(getPath(), "current"), PSCurrentUser.class);
     }
 
-    public PSAccessLevel getAccessLevel(PSAccessLevelRequest request)
-    {
-        return postObjectToPath(concatPath(getPath(),"accessLevel"), request, PSAccessLevel.class);
+    @Override
+    public PSAccessLevel getAccessLevel(final PSAccessLevelRequest request) {
+        return postObjectToPath(concatPath(getPath(), "accessLevel"), request, PSAccessLevel.class);
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.user.service.IPSUserService#isAdminUser(java.lang.String)
+
+    /**
+     * Not supported: check if user is admin.
      */
     @Override
-    public boolean isAdminUser(String userName)
-    {
-        throw new UnsupportedOperationException("Checking if current user have Admin role is not yet supported");
+    public boolean isAdminUser(final String userName) {
+        throw new UnsupportedOperationException(
+                "Checking if current user has Admin role is not yet supported");
     }
 
     @Override
-    public PSUserList getUserNames(String nameFilter)
-    {
+    public PSUserList getUserNames(final String nameFilter) {
         return getObjectFromPath(concatPath(getPath(), "users/names", nameFilter), PSUserList.class);
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.user.service.IPSUserService#isDesignUser(java.lang.String)
+    /**
+     * Not supported: check if user is design user.
      */
     @Override
-    public boolean isDesignUser(String userName)
-    {
-        throw new UnsupportedOperationException("Checking if current user has Design role is not yet supported");
+    public boolean isDesignUser(final String userName) {
+        throw new UnsupportedOperationException(
+                "Checking if current user has Design role is not yet supported");
     }
-
 }

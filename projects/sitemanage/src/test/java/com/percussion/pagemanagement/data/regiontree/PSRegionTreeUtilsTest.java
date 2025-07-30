@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,8 +19,7 @@ package com.percussion.pagemanagement.data.regiontree;
 
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getEmptyWidgetRegions;
 import static com.percussion.pagemanagement.data.PSRegionTreeUtils.getWidgetRegions;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.data.PSRegion;
 import com.percussion.pagemanagement.data.PSRegionTree;
@@ -30,23 +30,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author Santiago M. Murchio
- *
+ * Tests for PSRegionTreeUtils.
+ * Sunny Sal says: "Regions tested, Bollywood style!"
  */
-public class PSRegionTreeUtilsTest
-{
-    
+public class PSRegionTreeUtilsTest {
+
     private static final String TEMPLATE_CASE_1_PLAIN = "template_case1_plain.xml";
     private static final String TEMPLATE_CASE_2_BOX = "template_case2_box.xml";
     private static final String TEMPLATE_CASE_3_CUSTOM_BOX = "template_case2_custom_box.xml";
     private static final String TEMPLATE_EMPTY_REGION_CASE_1_BOX = "template_emptyRegion_case1_box.xml";
     private static final String TEMPLATE_EMPTY_REGION_CASE_2_CUSTOM_BOX = "template_emptyRegion_case2_custom_box.xml";
-    
+
     private static final String REGION_CONTAINER = "container";
     private static final String REGION_HEADER = "header";
     private static final String REGION_LEFT_SIDE_BAR = "leftsidebar";
@@ -60,35 +59,27 @@ public class PSRegionTreeUtilsTest
     private static final String REGION_TEMP_5 = "temp-region-5";
     private static final String REGION_TEMP_6 = "temp-region-6";
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception
-    {
+    @BeforeEach
+    public void setUp() {
+        // No-op for now.
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception
-    {
+    @AfterEach
+    public void tearDown() {
+        // No-op for now.
     }
-    
+
     @Test
-    public void testGetWidgetRegions_case1plainTemplateOnlyContainer()
-    {
-        List<String> expected = new ArrayList<String>();
+    public void testGetWidgetRegions_case1plainTemplateOnlyContainer() {
+        var expected = new ArrayList<String>();
         expected.add(REGION_CONTAINER);
 
         testRegionSet(expected, getWidgetRegions(getTestRegionTree(TEMPLATE_CASE_1_PLAIN)));
     }
 
     @Test
-    public void testGetWidgetRegions_case2Box()
-    {
-        List<String> expected = new ArrayList<String>();
+    public void testGetWidgetRegions_case2Box() {
+        var expected = new ArrayList<String>();
         expected.add(REGION_HEADER);
         expected.add(REGION_CONTENT);
         expected.add(REGION_FOOTER);
@@ -99,9 +90,8 @@ public class PSRegionTreeUtilsTest
     }
 
     @Test
-    public void testGetWidgetRegions_case3CustomBox()
-    {
-        List<String> expected = new ArrayList<String>();
+    public void testGetWidgetRegions_case3CustomBox() {
+        var expected = new ArrayList<String>();
         expected.add(REGION_LEFT_SIDE_BAR);
         expected.add(REGION_RIGHT_SIDE_BAR);
         expected.add(REGION_TEMP_1);
@@ -115,9 +105,8 @@ public class PSRegionTreeUtilsTest
     }
 
     @Test
-    public void testGetEmptyRegions_case1Box() 
-    {
-        List<String> expected = new ArrayList<String>();
+    public void testGetEmptyRegions_case1Box() {
+        var expected = new ArrayList<String>();
         expected.add(REGION_LEFT_SIDE_BAR);
         expected.add(REGION_RIGHT_SIDE_BAR);
         expected.add(REGION_FOOTER);
@@ -127,9 +116,8 @@ public class PSRegionTreeUtilsTest
     }
 
     @Test
-    public void testGetEmptyRegions_case2CustomBox() 
-    {
-        List<String> expected = new ArrayList<String>();
+    public void testGetEmptyRegions_case2CustomBox() {
+        var expected = new ArrayList<String>();
         expected.add(REGION_LEFT_SIDE_BAR);
         expected.add(REGION_TEMP_2);
         expected.add(REGION_TEMP_4);
@@ -137,33 +125,24 @@ public class PSRegionTreeUtilsTest
 
         testRegionSet(expected, getEmptyWidgetRegions(getTestRegionTree(TEMPLATE_EMPTY_REGION_CASE_2_CUSTOM_BOX)));
     }
-    
+
     /**
-     * Tests that the list of regions has all the regions ids present in the
-     * expected list.
-     * 
-     * @param expected {@link List}<{@link String}> holding the expected region
-     *            ids.
-     * @param actual {@link List}<{@link PSRegion}> holding the regions whose
-     *            ids we want to check.
+     * Tests that the list of regions has all the region ids present in the expected list.
+     *
+     * @param expected List<String> holding the expected region ids.
+     * @param actual Set<PSRegion> holding the regions whose ids we want to check.
      */
-    private void testRegionSet(List<String> expected, Set<PSRegion> actual)
-    {
+    private void testRegionSet(List<String> expected, Set<PSRegion> actual) {
         assertNotNull(actual);
-        assertTrue(
-                "The size of the actual set is wrong. [Expected = " + expected.size() + ", Actual = " + actual.size()
-                        + "]", actual.size() == expected.size());
-        for (PSRegion region : actual)
-        {
-            assertTrue("Region " + region.getRegionId() + " should be in the list of expected regions. [" + expected
-                    + "]", expected.contains(region.getRegionId()));
+        assertEquals(expected.size(), actual.size(), "The size of the actual set is wrong.");
+        for (var region : actual) {
+            assertTrue(expected.contains(region.getRegionId()),
+                    "Region " + region.getRegionId() + " should be in the list of expected regions. [" + expected + "]");
         }
     }
 
-    private PSRegionTree getTestRegionTree(String templateName)
-    {
-        String xmlContent = PSTestUtils.resourceToString(getClass(), templateName);
+    private PSRegionTree getTestRegionTree(String templateName) {
+        var xmlContent = PSTestUtils.resourceToString(getClass(), templateName);
         return PSSerializerUtils.unmarshal(xmlContent, PSRegionTree.class);
     }
-   
 }

@@ -14,114 +14,95 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
-
-import static org.junit.Assert.*;
 
 import com.percussion.sitemanage.importer.IPSConnectivity;
 import com.percussion.sitemanage.importer.helpers.PSHelperTestUtils;
-
-import java.io.IOException;
-
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test the fact that {@link PSHtmlRetriever} class relies on specific text in the IOException thrown by JSoup.  This
- * test verifies that for the know case where we expect that text, we interpret the exception correctly.
- * This will fail if a newer version of JSoup is introduced and the exception text changes or is handled 
- * differently.
- * 
- * @author JaySeletz
- *
+ * Test that {@link PSHtmlRetriever} relies on specific text in the IOException thrown by JSoup.
+ * This verifies that for the known case where we expect that text, we interpret the exception correctly.
+ * This will fail if a newer version of JSoup is introduced and the exception text changes or is handled differently.
  */
-public class PSHtmlRetrieverTest
-{
+class PSHtmlRetrieverTest {
+
     @Test
-    @Ignore
-    public void testHtml() throws Exception
-    {
-        String url = "http://samples.percussion.com/";
-        PSHtmlRetriever ret = new PSHtmlRetriever(new PSTestConn(url));
-        Document doc = ret.getHtmlDocument();
-        assertNotNull(doc);        
+    @Disabled("Integration test - requires network access")
+    void testHtml() throws Exception {
+        var url = "http://samples.percussion.com/";
+        var ret = new PSHtmlRetriever(new PSTestConn(url));
+        var doc = ret.getHtmlDocument();
+        assertNotNull(doc);
     }
-    
+
     @Test
-    @Ignore
-    public void test404() throws Exception
-    {
-        boolean didThrow = false;
-        String url = "http://samples.percussion.com/foo";
-        PSHtmlRetriever ret = new PSHtmlRetriever(new PSTestConn(url));
-        try
-        {
+    @Disabled("Integration test - requires network access")
+    void test404() throws Exception {
+        var didThrow = false;
+        var url = "http://samples.percussion.com/foo";
+        var ret = new PSHtmlRetriever(new PSTestConn(url));
+        try {
             ret.getHtmlDocument();
             fail("Expected IOException to be thrown");
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             didThrow = true;
         }
-        
         assertTrue(didThrow);
     }
-    
+
     @Test
-    @Ignore
-    public void testNonHtmlContent() throws Exception
-    {
-        String url = "http://samples.percussion.com/assets/snow.jpg";
-        PSHtmlRetriever ret = new PSHtmlRetriever(new PSTestConn(url));
-        Document doc = ret.getHtmlDocument();
-        assertNull(doc); 
-        
+    @Disabled("Integration test - requires network access")
+    void testNonHtmlContent() throws Exception {
+        var url = "http://samples.percussion.com/assets/snow.jpg";
+        var ret = new PSHtmlRetriever(new PSTestConn(url));
+        var doc = ret.getHtmlDocument();
+        assertNull(doc);
+
         // make sure it's really there
-        PSTestConn testConnectivity = new PSTestConn(url);
-        Connection connection = testConnectivity.getConnection();
+        var testConnectivity = new PSTestConn(url);
+        var connection = testConnectivity.getConnection();
         connection.ignoreContentType(true);
         doc = connection.get();
         assertNotNull(doc);
     }
-    
-    private class PSTestConn implements IPSConnectivity
-    {
-        Connection mi_conn;
-        
-        private PSTestConn(String url)
-        {
-            mi_conn = Jsoup.connect(url);
-            mi_conn.ignoreContentType(false);
-            mi_conn.followRedirects(false);
-            mi_conn.userAgent(PSHelperTestUtils.USER_AGENT);  
 
-        }
-        
-        @Override
-        public Document get() throws IOException
-        {
-            return mi_conn.get();
+    private static class PSTestConn implements IPSConnectivity {
+        private final Connection miConn;
+
+        private PSTestConn(String url) {
+            miConn = Jsoup.connect(url);
+            miConn.ignoreContentType(false);
+            miConn.followRedirects(false);
+            miConn.userAgent(PSHelperTestUtils.USER_AGENT);
         }
 
         @Override
-        public int getResponseStatusCode()
-        {
-            return mi_conn.response().statusCode();
+        public Document get() throws IOException {
+            return miConn.get();
         }
 
         @Override
-        public String getResponseUrl()
-        {
-            return mi_conn.response().url().toString();
+        public int getResponseStatusCode() {
+            return miConn.response().statusCode();
         }
-        
-        public Connection getConnection()
-        {
-            return mi_conn;
+
+        @Override
+        public String getResponseUrl() {
+            return miConn.response().url().toString();
+        }
+
+        public Connection getConnection() {
+            return miConn;
         }
     }
 }

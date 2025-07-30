@@ -16,10 +16,7 @@
  */
 package com.percussion.sitemanage.web.service;
 
-
-import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.data.PSPage;
@@ -49,391 +46,249 @@ import com.percussion.sitemanage.service.impl.PSSiteSectionService;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 /**
- * Junit test case to test service {@link PSSiteSectionService}.
- * 
- * @author Santiago M. Murchio
- * 
+ * JUnit test case to test service {@link PSSiteSectionService}.
+ * // REFACTORED: CP-JAVA11
+ * @author Santiago M. Murchio (modernized by Sunny Sal)
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestClient> 
-{
+public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestClient> {
+
     private static PSTestSiteData testSiteData;
     private static PSTemplateSummary renameTemplate;
-
-    /**
-     * counter used to create unique section names
-     */
-    private static int section_counter = 0;
-
-
+    private static int sectionCounter = 0;
     static PSSiteTemplateRestClient siteTemplateRestClient;
     static PSTemplateServiceClient templateRestClient;
-    
- 
-    @BeforeClass
+
+    @BeforeAll
     public static void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
         renameTemplate = testSiteData.createTemplate("TestTemplateRename");
         testSiteData.assignTemplatesToSite(testSiteData.site1.getId(), renameTemplate.getId());
-        // template will be cleaned with site
         testSiteData.getTemplateCleaner().remove("TestTemplateRename");
-        
         siteTemplateRestClient = new PSSiteTemplateRestClient();
         templateRestClient = new PSTemplateServiceClient(baseUrl);
         setupClient(siteTemplateRestClient);
         setupClient(templateRestClient);
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDown() throws Exception {
         testSiteData.tearDown();
     }
-    
-    /**
-     * Creates a site with a large number of site sections.  Can be tweaked to adjust number of sections at first level and then 
-     * number of sub sections.  
-     * 
-     * BEWARE that the {@link #tearDown()} method will delete the site, so comment that out
-     * before running this test.  Also, the test is ignored, so you need to switch the annotations.  
-     * 
-     * DO NOT checkin these changes!! (feel free to make improvements)
-     */
-    @Ignore @Test
-    public void test10CreateLargeNavigationTree()
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
-        
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
-        assertTrue(root != null);
-        assertTrue("There is no section yet", root.getChildIds().isEmpty());
-        
-        List<PSSiteSection> children = createSubSections(site.getFolderPath(), templateId, 30, 0);
-        
-        for (PSSiteSection child : children)
-        {
+
+    @Test
+    @Disabled("Ignored by default. Uncomment to run large navigation tree test.")
+    public void test10CreateLargeNavigationTree() {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
+        assertNotNull(root);
+        assertTrue(root.getChildIds().isEmpty());
+
+        var children = createSubSections(site.getFolderPath(), templateId, 30, 0);
+        for (var child : children) {
             createSubSections(child.getFolderPath(), templateId, 5, 1);
         }
-        
     }
-    
-    private List<PSSiteSection> createSubSections(String parentPath, String templateId, int numSections, int numLevels)
-    {
-        List<PSSiteSection> childSections = new ArrayList<PSSiteSection>();
-        for (int i = 0; i < numSections; i++)
-        {
-            PSSiteSection childSection = createSection(parentPath, templateId, null);
+
+    private List<PSSiteSection> createSubSections(String parentPath, String templateId, int numSections, int numLevels) {
+        var childSections = new ArrayList<PSSiteSection>();
+        for (int i = 0; i < numSections; i++) {
+            var childSection = createSection(parentPath, templateId, null);
             childSections.add(childSection);
             System.out.println("Created section " + childSection.getTitle());
         }
-        
-        if (numLevels > 0)
-        {
+        if (numLevels > 0) {
             numLevels--;
-            for (PSSiteSection section : childSections)
-            {
+            for (var section : childSections) {
                 createSubSections(section.getFolderPath(), templateId, numSections, numLevels);
             }
         }
-        
         return childSections;
-        
-        
     }
-    
+
     @Test
-    public void test20SiteSection() throws Exception 
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
-        
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
-        assertTrue(root != null);
-        assertTrue("There is no section yet", root.getChildIds().isEmpty());
-        
-        // testing create()
-        PSSiteSection section = createSection(site.getFolderPath(), templateId, null);
-        assertTrue("A section is created", section != null);
-        
-        // testing loadRoot()
-        root = client.loadRoot(site.getName());
-        assertTrue("There is one child section under root", root.getChildIds().size() == 1);
+    @Order(20)
+    public void test20SiteSection() throws Exception {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
+        assertNotNull(root);
+        assertTrue(root.getChildIds().isEmpty());
 
-        // test loadChildSections()
-        String linkTitle = section.getTitle();
-        List<PSSiteSection> sections = client.loadChildSections(root);
-        assertTrue("Loaded 1 child section", sections.size() == 1);
-        assertTrue(sections.get(0).getTitle().equals(linkTitle));
+        var section = createSection(site.getFolderPath(), templateId, null);
+        assertNotNull(section);
 
-        PSSiteSection section2 = createSection(site.getFolderPath(), templateId, null);
         root = client.loadRoot(site.getName());
-        assertTrue("There is two child section under root", root.getChildIds().size() == 2);
+        assertEquals(1, root.getChildIds().size());
+
+        var linkTitle = section.getTitle();
+        var sections = client.loadChildSections(root);
+        assertEquals(1, sections.size());
+        assertEquals(linkTitle, sections.get(0).getTitle());
+
+        var section2 = createSection(site.getFolderPath(), templateId, null);
+        root = client.loadRoot(site.getName());
+        assertEquals(2, root.getChildIds().size());
         sections = client.loadChildSections(root);
-        assertTrue("Loaded 2 child section", sections.size() == 2);
+        assertEquals(2, sections.size());
 
-        // test loadTree()
-        PSSectionNode tree = client.loadTree(site.getName());
-        assertEquals("There is a root under the tree", tree.getTitle(), root.getTitle());
-        assertTrue("There is 2 child sections under tree", tree.getChildNodes().size() == 2);
+        var tree = client.loadTree(site.getName());
+        assertEquals(root.getTitle(), tree.getTitle());
+        assertEquals(2, tree.getChildNodes().size());
 
-        // test move()
         moveSectionTest(site.getName(), client, templateId);
-        
-        // test update()
         updateSectionTest(section, client);
-        
-        // test delete section
+
         client.delete(sections.get(0).getId());
         testSiteData.removeSectionFromCleaner(sections.get(0));
-        
+
         root = client.loadRoot(site.getName());
         sections = client.loadChildSections(root);
-        assertTrue("Loaded 1 child section", sections.size() == 1);
-        
-        // create a child section
-        PSSiteSection childSection = createSection(section2.getFolderPath(), templateId, null);
+        assertEquals(1, sections.size());
+
+        var childSection = createSection(section2.getFolderPath(), templateId, null);
         childSection = client.get(childSection.getId());
-        // delete both section2 and childSection
         client.delete(section2.getId());
         testSiteData.removeSectionFromCleaner(childSection);
         testSiteData.removeSectionFromCleaner(section2);
-        
-        try
-        {
-            client.get(childSection.getId());
-            fail("Child section should have deleted by now.");
-        }
-        catch (Exception e)
-        {
-            // child section is deleted.
-        }
-        
-        // test replace landing page
+
+        assertThrows(Exception.class, () -> client.get(childSection.getId()));
+
         replaceLandingPageTest(site.getFolderPath(), client, templateId);
     }
 
-    @SuppressWarnings("unused")
     @Test
-    public void test30MoveSectionLinkTest()
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
+    @Order(30)
+    public void test30MoveSectionLinkTest() {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
 
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
+        var section1 = createSection(site.getFolderPath(), templateId, null);
+        var section2 = createSection(site.getFolderPath(), templateId, null);
+        var section3 = createSection(site.getFolderPath(), templateId, null);
 
-        PSSiteSection section1 = createSection(site.getFolderPath(), templateId, null);
-        PSSiteSection section2 = createSection(site.getFolderPath(), templateId, null);
-        PSSiteSection section3 = createSection(site.getFolderPath(), templateId, null);
+        var section = testSiteData.createSectionLink(section2.getId(), section2.getId());
+        assertNull(section2.getDisplayTitlePath());
 
-        PSSiteSection section = testSiteData.createSectionLink(section2.getId(), section2.getId());
+        var expectedDisplayPath = "/" + root.getTitle() + "/" + section2.getTitle();
+        assertEquals(expectedDisplayPath, section.getDisplayTitlePath());
 
-        // validate the display title path
-        assertTrue(section2.getDisplayTitlePath() == null);
-        
-        String expectedDisplayPath = "/" + root.getTitle() + "/" + section2.getTitle();
-        assertTrue(section.getDisplayTitlePath().equals(expectedDisplayPath));
-        
-        // try to move the section link same level as actual section
-        PSMoveSiteSection req1 = new PSMoveSiteSection();
+        var req1 = new PSMoveSiteSection();
         req1.setSourceId(section.getId());
         req1.setTargetId(root.getId());
-        String expectedMessage = "Section and a link to it or duplicate section links at the same level are not allowed";
-        try
-        {
+        var expectedMessage = "Section and a link to it or duplicate section links at the same level are not allowed";
+        var ex = assertThrows(DataRestClientException.class, () -> client.move(req1));
+        assertEquals(expectedMessage, ex.getMessage());
 
-            PSSiteSection root1 = client.move(req1);
-            assertTrue(root1.getChildIds().size() == 1);
-            fail("Should have gotten an exception");
-        }
-        catch (DataRestClientException rest)
-        {
-            assertEquals(expectedMessage, rest.getMessage());
-        }
-
-        // move section link to the different section
         root = client.loadRoot(site.getName());
-        PSMoveSiteSection req = new PSMoveSiteSection();
+        var req = new PSMoveSiteSection();
         req.setSourceId(section.getId());
         req.setTargetId(section3.getId());
         req.setTargetIndex(-1);
-        PSSiteSection newRoot = client.move(req);
-        assertTrue(newRoot.getChildIds().size() == 1);
+        var newRoot = client.move(req);
+        assertEquals(1, newRoot.getChildIds().size());
     }
- 
+
     @Test
-    public void test40CreateSectionLink_navTreeElement()
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
+    @Order(40)
+    public void test40CreateSectionLink_navTreeElement() {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
+        var section2 = createSection(site.getFolderPath(), templateId, null);
 
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
-        PSSiteSection section2 = createSection(site.getFolderPath(), templateId, null);
-
-        try 
-        {
-            testSiteData.createSectionLink(root.getId(), section2.getId());
-            fail("PSSiteSectionException should have been thrown.");
-        }
-        catch(DataRestClientException e)
-        {
-            assertTrue(true);
-        }
-        catch(Exception e)
-        {
-            fail("A 500 response should have been thrown.");
-        }
+        assertThrows(DataRestClientException.class, () -> testSiteData.createSectionLink(root.getId(), section2.getId()));
     }
-    
+
     @Test
-    @SuppressWarnings("unused")
-    public void test50UpdateSectionLink_navTreeElement()
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
+    @Order(50)
+    public void test50UpdateSectionLink_navTreeElement() {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
+        var section2 = createSection(site.getFolderPath(), templateId, null);
 
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
-        PSSiteSection section2 = createSection(site.getFolderPath(), templateId, null);
+        var section = testSiteData.createSectionLink(section2.getId(), section2.getId());
 
-        PSSiteSection section = testSiteData.createSectionLink(section2.getId(), section2.getId());
-
-        PSUpdateSectionLink updateRequest = new PSUpdateSectionLink();
+        var updateRequest = new PSUpdateSectionLink();
         updateRequest.setNewSectionId(root.getId());
         updateRequest.setOldSectionId(section2.getId());
-        updateRequest.setParentSectionId(section2.getId());        
-        
-        try 
-        {
-            testSiteData.updateSectionLink(updateRequest);
-            fail("PSSiteSectionException should have been thrown.");
-        }
-        catch(DataRestClientException e)
-        {
-            assertTrue(true);
-        }
-        catch(Exception e)
-        {
-            fail("A 500 response should have been thrown.");
-        }
-    }
-    
-    @Test
-    public void test60BlogSection()
-    {
-        PSSite site = testSiteData.site1;
-        String templateId = testSiteData.template1.getId();
+        updateRequest.setParentSectionId(section2.getId());
 
-        PSSiteSectionRestClient client = testSiteData.getSectionClient();
-        PSSiteSection root = client.loadRoot(site.getName());
-        
-        assertTrue(root != null);
-        
-        // blog templates IDs
+        assertThrows(DataRestClientException.class, () -> testSiteData.updateSectionLink(updateRequest));
+    }
+
+    @Test
+    @Order(60)
+    public void test60BlogSection() {
+        var site = testSiteData.site1;
+        var templateId = testSiteData.template1.getId();
+        var client = testSiteData.getSectionClient();
+        var root = client.loadRoot(site.getName());
+        assertNotNull(root);
+
         String blogIndexTempId = null;
-        
-        try 
-        {   
-            // testing create()
-            PSSiteSection section = createSection(site.getFolderPath(), templateId, null);
-            
-            // create a second child section at level 1
-            PSSiteSection sectionLevel1 = createSection(site.getFolderPath(), templateId, null);
-            
-            // create a child section at level 2
-            PSSiteSection sectionLevel2 = createSection(section.getFolderPath(), templateId, null);
-              
-            // create a child section at level 3
-            PSSiteSection sectionLevel3 = createSection(sectionLevel2.getFolderPath(), templateId, null);
-   
-            // create a blog template
+        try {
+            var section = createSection(site.getFolderPath(), templateId, null);
+            var sectionLevel1 = createSection(site.getFolderPath(), templateId, null);
+            var sectionLevel2 = createSection(section.getFolderPath(), templateId, null);
+            var sectionLevel3 = createSection(sectionLevel2.getFolderPath(), templateId, null);
+
             blogIndexTempId = createBlogTemplate("test", templateId, site.getId());
-            
-            // create a blog section
-            PSSiteSection blogSection = createSection(sectionLevel3.getFolderPath(), templateId, blogIndexTempId);
-            
-            // check if it is a blog section
-            assertTrue(blogSection.getSectionType() == PSSectionTypeEnum.blog);
-                                  
-            // check blogs per site
-            List<PSSiteBlogProperties> blogs = client.getBlogsForSite(site.getName());
-            assertTrue("Loaded 1 blog", blogs.size() == 1);
-            
-            // create a child section at level 4
-            PSSiteSection sectionLevel41 = createSection(sectionLevel3.getFolderPath(), templateId, null);
-            
-            // create another child section at level 4
-            PSSiteSection sectionLevel42 = createSection(sectionLevel3.getFolderPath(), templateId, null);
-            
-            // create a blog section
-            PSSiteSection blogSection2 = createSection(sectionLevel42.getFolderPath(), templateId, blogIndexTempId);
-            
-            // check if it is a blog section
-            assertTrue(blogSection.getSectionType() == PSSectionTypeEnum.blog);
-                                  
-            // check blogs per site
+            var blogSection = createSection(sectionLevel3.getFolderPath(), templateId, blogIndexTempId);
+            assertEquals(PSSectionTypeEnum.blog, blogSection.getSectionType());
+
+            var blogs = client.getBlogsForSite(site.getName());
+            assertEquals(1, blogs.size());
+
+            var sectionLevel41 = createSection(sectionLevel3.getFolderPath(), templateId, null);
+            var sectionLevel42 = createSection(sectionLevel3.getFolderPath(), templateId, null);
+            var blogSection2 = createSection(sectionLevel42.getFolderPath(), templateId, blogIndexTempId);
+            assertEquals(PSSectionTypeEnum.blog, blogSection.getSectionType());
+
             blogs = client.getBlogsForSite(site.getName());
-            assertTrue("Loaded 2 blogs", blogs.size() == 2);
-            
-            // delete all created sections
+            assertEquals(2, blogs.size());
+
             client.delete(blogSection2.getId());
             client.delete(sectionLevel42.getId());
             client.delete(sectionLevel41.getId());
             client.delete(blogSection.getId());
-            
             client.delete(sectionLevel3.getId());
             client.delete(sectionLevel2.getId());
             client.delete(sectionLevel1.getId());
             client.delete(section.getId());
-           
+
             testSiteData.removeSectionFromCleaner(blogSection2);
             testSiteData.removeSectionFromCleaner(sectionLevel42);
             testSiteData.removeSectionFromCleaner(sectionLevel41);
             testSiteData.removeSectionFromCleaner(blogSection);
-            
             testSiteData.removeSectionFromCleaner(sectionLevel3);
             testSiteData.removeSectionFromCleaner(sectionLevel2);
             testSiteData.removeSectionFromCleaner(sectionLevel1);
             testSiteData.removeSectionFromCleaner(section);
-        }
-        catch(DataRestClientException e)
-        {
+        } catch (DataRestClientException e) {
             assertTrue(true);
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             fail("A 500 response should have been thrown.");
         }
     }
 
-    /**
-     * Creates a site section under the root of the specified site.
-     * 
-     * @param parentFolder the parent folder, assumed not blank.
-     * @param templateId the template ID for creating landing page of the section,
-     * assumed not <code>null</code>.
-     * @param blogPostTemplateId may be <code>null</code> to indicate a regular section.
-     * 
-     * @return the created site section, never <code>null</code>.
-     */
-    private PSSiteSection createSection(String parentFolder, String templateId, String blogPostTemplateId)
-    {
-        String name = "Section_" + section_counter++ + "_" + System.currentTimeMillis() / 1000;
-        String linkTitle = name + " navon title";
-
-        PSCreateSiteSection req = new PSCreateSiteSection();
+    private PSSiteSection createSection(String parentFolder, String templateId, String blogPostTemplateId) {
+        var name = "Section_" + sectionCounter++ + "_" + System.currentTimeMillis() / 1000;
+        var linkTitle = name + " navon title";
+        var req = new PSCreateSiteSection();
         req.setFolderPath(parentFolder);
         req.setPageName(name);
         req.setPageTitle(name + " title");
@@ -441,343 +296,212 @@ public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestCl
         req.setPageLinkTitle(linkTitle);
         req.setPageUrlIdentifier(name);
         req.setCopyTemplates(true);
-        
-        if (blogPostTemplateId != null)
-        {
-            // create a blog
+        if (blogPostTemplateId != null) {
             req.setSectionType(PSSectionTypeEnum.blog);
             req.setBlogPostTemplateId(blogPostTemplateId);
         }
-        
-        PSSiteSection section = testSiteData.createSection(req);
-
-        return section;
+        return testSiteData.createSection(req);
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
-     */
     @Override
-    protected PSSiteSectionRestClient getRestClient(String baseUrl)
-    {
-        if (restClient == null)
-        {
+    protected PSSiteSectionRestClient getRestClient(String baseUrl) {
+        if (restClient == null) {
             restClient = new PSSiteSectionRestClient(baseUrl);
         }
         return restClient;
     }
 
-    /**
-     * Tests move sections to different location.
-     * 
-     * @param siteName the site name, assumed not blank.
-     * @param client the REST client, assumed not <code>null</code>.
-     * @param templateId the template to use for creating sections.
-     */
-    private void  moveSectionTest(String siteName, PSSiteSectionRestClient client, String templateId)
-    {
-        PSSiteSection root = client.loadRoot(siteName);
-        List<String> childIds = root.getChildIds();
+    private void moveSectionTest(String siteName, PSSiteSectionRestClient client, String templateId) {
+        var root = client.loadRoot(siteName);
+        var childIds = root.getChildIds();
+        assertEquals(2, childIds.size());
+        var id0 = childIds.get(0);
+        var id1 = childIds.get(1);
 
-        assertTrue(childIds.size() == 2);
-        
-        String id_0 = childIds.get(0);
-        String id_1 = childIds.get(1);
-        
-        // re-order child nodes
-        PSMoveSiteSection req = new PSMoveSiteSection();
-        req.setSourceId(id_0);
+        var req = new PSMoveSiteSection();
+        req.setSourceId(id0);
         req.setSourceParentId(root.getId());
         req.setTargetId(root.getId());
         req.setTargetIndex(-1);
 
-        PSSiteSection newRoot = client.move(req);
-        
+        var newRoot = client.move(req);
         childIds = newRoot.getChildIds();
-        assertEquals(id_0, childIds.get(1));
-        assertEquals(id_1, childIds.get(0));
-     
-        // add another node
-        PSSiteSection section_3 = createSection(root.getFolderPath(), templateId, null);
+        assertEquals(id0, childIds.get(1));
+        assertEquals(id1, childIds.get(0));
+
+        var section3 = createSection(root.getFolderPath(), templateId, null);
         root = client.loadRoot(siteName);
-        assertTrue(root.getChildIds().size() == 3);
-        
-        // re-order again
-        req.setSourceId(section_3.getId());
+        assertEquals(3, root.getChildIds().size());
+
+        req.setSourceId(section3.getId());
         req.setTargetIndex(1);
         newRoot = client.move(req);
         childIds = newRoot.getChildIds();
-        assertEquals(section_3.getId(), childIds.get(1));
-        
-        // move node to different parent
-        req.setSourceId(section_3.getId());
-        req.setTargetId(id_0);
+        assertEquals(section3.getId(), childIds.get(1));
+
+        req.setSourceId(section3.getId());
+        req.setTargetId(id0);
         req.setTargetIndex(-1);
-        
-        PSSiteSection section_0 = client.move(req);
 
-        // don't need to clean up the moved section
-        // because it will be removed/cleaned up by its parent
-        testSiteData.removeSectionFromCleaner(section_3);
+        var section0 = client.move(req);
+        testSiteData.removeSectionFromCleaner(section3);
 
-        // validating the move
-        assertTrue(section_0.getChildIds().size() == 1);
-        
-        section_0 = client.get(id_0);
-        assertTrue(section_0.getChildIds().size() == 1);
-        
+        assertEquals(1, section0.getChildIds().size());
+        section0 = client.get(id0);
+        assertEquals(1, section0.getChildIds().size());
         root = client.loadRoot(siteName);
-        assertTrue(root.getChildIds().size() == 2);
+        assertEquals(2, root.getChildIds().size());
     }
-    
-    /**
-     * Tests update section operation.
-     * 
-     * @param section to be updated section, assumed not <code>null</code>.
-     * @param client the REST client, assumed not <code>null</code>.
-     */
-    private void updateSectionTest(PSSiteSection section, PSSiteSectionRestClient client)
-    {
-        PSSiteSectionProperties properties = client.getSectionProperties(section.getId());
-        assertTrue(properties.getFolderPermission().getAccessLevel() == PSFolderPermission.Access.WRITE);
-        
-        String title = section.getTitle();
-        String newTitle = title + "-New" + System.currentTimeMillis();
-        String folderName = getFolderNameFromPath(section.getFolderPath());
-        String newFolderName = folderName + "-New" + System.currentTimeMillis();
-        
-        // update section's title and folder name
-        PSSiteSectionProperties updateReq = new PSSiteSectionProperties();
+
+    private void updateSectionTest(PSSiteSection section, PSSiteSectionRestClient client) {
+        var properties = client.getSectionProperties(section.getId());
+        assertEquals(PSFolderPermission.Access.WRITE, properties.getFolderPermission().getAccessLevel());
+
+        var title = section.getTitle();
+        var newTitle = title + "-New" + System.currentTimeMillis();
+        var folderName = getFolderNameFromPath(section.getFolderPath());
+        var newFolderName = folderName + "-New" + System.currentTimeMillis();
+
+        var updateReq = new PSSiteSectionProperties();
         updateReq.setId(section.getId());
         updateReq.setTitle(newTitle);
         updateReq.setFolderName(newFolderName);
-        PSFolderPermission permission = new PSFolderPermission();
+        var permission = new PSFolderPermission();
         permission.setAccessLevel(PSFolderPermission.Access.READ);
-        List<Principal> writeUsers = new ArrayList<Principal>();
-        Principal writer = new Principal();
+        var writeUsers = new ArrayList<Principal>();
+        var writer = new Principal();
         writer.setName("writer");
         writer.setType(PrincipalType.USER);
         writeUsers.add(writer);
         permission.setWritePrincipals(writeUsers);
-        List<Principal> adminUsers = new ArrayList<Principal>();
-        Principal admin = new Principal();
+        var adminUsers = new ArrayList<Principal>();
+        var admin = new Principal();
         admin.setName("admin");
         admin.setType(PrincipalType.USER);
         adminUsers.add(admin);
         permission.setAdminPrincipals(adminUsers);
-        List<Principal> readUsers = new ArrayList<Principal>();
-        Principal reader = new Principal();
+        var readUsers = new ArrayList<Principal>();
+        var reader = new Principal();
         reader.setName("reader");
         reader.setType(PrincipalType.USER);
         readUsers.add(reader);
         permission.setReadPrincipals(readUsers);
         updateReq.setFolderPermission(permission);
-        
+
         section = client.update(updateReq);
-    
+
         assertEquals(newTitle, section.getTitle());
         assertEquals(newFolderName, getFolderNameFromPath(section.getFolderPath()));
 
         properties = client.getSectionProperties(section.getId());
-        PSFolderPermission propsPerm = properties.getFolderPermission();
-        assertTrue(propsPerm.getAccessLevel() == PSFolderPermission.Access.READ);
-        assertTrue(propsPerm.getAdminPrincipals().size() == 1 
-                && propsPerm.getAdminPrincipals().get(0).equals(admin));
-        assertTrue(propsPerm.getWritePrincipals().size() == 1 
-                && propsPerm.getWritePrincipals().get(0).equals(writer));
-        assertTrue(propsPerm.getReadPrincipals().size() == 1 
-                && propsPerm.getReadPrincipals().get(0).equals(reader));
+        var propsPerm = properties.getFolderPermission();
+        assertEquals(PSFolderPermission.Access.READ, propsPerm.getAccessLevel());
+        assertEquals(1, propsPerm.getAdminPrincipals().size());
+        assertEquals(admin, propsPerm.getAdminPrincipals().get(0));
+        assertEquals(1, propsPerm.getWritePrincipals().size());
+        assertEquals(writer, propsPerm.getWritePrincipals().get(0));
+        assertEquals(1, propsPerm.getReadPrincipals().size());
+        assertEquals(reader, propsPerm.getReadPrincipals().get(0));
 
-        // undo above changes
         updateReq.setTitle(title);
         updateReq.setFolderName(folderName);
         updateReq.setFolderPermission(new PSFolderPermission());
         client.update(updateReq);
     }
 
-    private String getFolderNameFromPath(String path)
-    {
+    private String getFolderNameFromPath(String path) {
         int i = path.lastIndexOf("/");
-        return path.substring(i+1); //, folderName.length());
+        return path.substring(i + 1);
     }
 
-
-    /**
-     * Tests replacing a landing page.
-     * 
-     * @param siteFolder the site folder path, assumed not blank.
-     * @param client the REST client, assumed not <code>null</code>.
-     * @param templateId the template to use for creating sections and pages.
-     * 
-     * @throws Exception if an error occurs creating a page.
-     */
     private void replaceLandingPageTest(String siteFolder, PSSiteSectionRestClient client, String templateId)
-        throws Exception
-    {
+            throws Exception {
         replaceLandingPageSameFolderTest(siteFolder, client, templateId);
         replaceLandingPageDifferentFolderTest(siteFolder, client, templateId);
     }
-    
-    /**
-     * Tests replacing a landing page with a page in the same folder.
-     * 
-     * @param siteFolder the site folder path, assumed not blank.
-     * @param client the REST client, assumed not <code>null</code>.
-     * @param templateId the template to use for creating sections and pages.
-     * 
-     * @throws Exception if an error occurs creating a page.
-     */
+
     private void replaceLandingPageSameFolderTest(String siteFolder, PSSiteSectionRestClient client, String templateId)
-        throws Exception
-    {
-        // create a section
-        PSSiteSection section = createSection(siteFolder, templateId, null);
-        String sectionFolderPath = section.getFolderPath();
-                       
-        // create new landing page
-        String newLandingPageId = testSiteData.createPage("New-Landing-Page", sectionFolderPath, templateId);
+            throws Exception {
+        var section = createSection(siteFolder, templateId, null);
+        var sectionFolderPath = section.getFolderPath();
+        var newLandingPageId = testSiteData.createPage("New-Landing-Page", sectionFolderPath, templateId);
         testSiteData.getPageCleaner().remove(sectionFolderPath + "/New-Landing-Page");
-        
-        // replace landing page
         testReplaceLandingPage(section, newLandingPageId, client);
     }
-    
-    /**
-     * Tests replacing a landing page with a page in a different folder.
-     * 
-     * @param siteFolder the site folder path, assumed not blank.
-     * @param client the REST client, assumed not <code>null</code>.
-     * @param templateId the template to use for creating sections and pages.
-     * 
-     * @throws Exception if an error occurs creating the page.
-     */
+
     private void replaceLandingPageDifferentFolderTest(String siteFolder, PSSiteSectionRestClient client,
-            String templateId) throws Exception
-    {
-        // create new landing page
-        String newLandingPageId = testSiteData.createPage("New-Landing-Page", siteFolder, templateId);
+            String templateId) throws Exception {
+        var newLandingPageId = testSiteData.createPage("New-Landing-Page", siteFolder, templateId);
         testSiteData.getPageCleaner().remove(siteFolder + "/New-Landing-Page");
-        
-        // workflow to PENDING
         testSiteData.getWorkflowClient().transition(newLandingPageId, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-        
-        // create a section
-        PSSiteSection section = createSection(siteFolder, templateId, null);
-        
-        // figure out landing page path
+
+        var section = createSection(siteFolder, templateId, null);
         int index = section.getFolderPath().lastIndexOf('/');
-        String ldPageName = section.getFolderPath().substring(index+1);
-        String landingPagePath = section.getFolderPath().replaceAll("//Sites", PSPathUtils.SITES_FINDER_ROOT) + "/"
-              + ldPageName;
-        
-        // transition old landing page to "Pending"
-        PSItemProperties itemProps = testSiteData.getPathRestClient().findItemProperties(landingPagePath);
-        assertTrue(itemProps.getStatus().equals("Draft"));
+        var ldPageName = section.getFolderPath().substring(index + 1);
+        var landingPagePath = section.getFolderPath().replaceAll("//Sites", PSPathUtils.SITES_FINDER_ROOT) + "/"
+                + ldPageName;
+
+        var itemProps = testSiteData.getPathRestClient().findItemProperties(landingPagePath);
+        assertEquals("Draft", itemProps.getStatus());
         testSiteData.getWorkflowClient().transition(itemProps.getId(), IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
         itemProps = testSiteData.getPathRestClient().findItemProperties(landingPagePath);
-        assertTrue(itemProps.getStatus().equals("Pending"));
-        
-        // replace landing page
+        assertEquals("Pending", itemProps.getStatus());
+
         testReplaceLandingPage(section, newLandingPageId, client);
-        
-        // After replace landing page, the state of new landing page should be from "Pending" to "Quick Edit"
+
         itemProps = testSiteData.getPathRestClient().findItemProperties(landingPagePath);
-        assertTrue(itemProps.getStatus().equals("Quick Edit"));
-        
-        // After replace landing page, the state of old landing page should be from "Pending" to "Quick Edit"
+        assertEquals("Quick Edit", itemProps.getStatus());
+
         itemProps = testSiteData.getPathRestClient().findItemProperties(landingPagePath + "-1");
-        assertTrue(itemProps.getStatus().equals("Quick Edit"));
+        assertEquals("Quick Edit", itemProps.getStatus());
     }
-    
-    /**
-     * Tests replacing a landing page with the specified page.
-     * 
-     * @param section assumed not null.
-     * @param newLandingPageId assumed not blank.
-     * @param client the REST client, assumed not <code>null</code>.
-     */
-    private void testReplaceLandingPage(PSSiteSection section, String newLandingPageId, 
-            PSSiteSectionRestClient client)
-    {
-        // get the section properties
-        PSSiteSectionProperties sectionProps = client.getSectionProperties(section.getId());
-        String sectionFolderName = sectionProps.getFolderName();
-        
-        // replace the landing page
-        PSReplaceLandingPage req = new PSReplaceLandingPage();
+
+    private void testReplaceLandingPage(PSSiteSection section, String newLandingPageId, PSSiteSectionRestClient client) {
+        var sectionProps = client.getSectionProperties(section.getId());
+        var sectionFolderName = sectionProps.getFolderName();
+
+        var req = new PSReplaceLandingPage();
         req.setNewLandingPageId(newLandingPageId);
         req.setSectionId(section.getId());
-        PSReplaceLandingPage resp = client.replaceLandingPage(req);
-        
-        // check the response
+        var resp = client.replaceLandingPage(req);
+
         assertEquals(sectionFolderName, resp.getNewLandingPageName());
         assertEquals(sectionFolderName + "-1", resp.getOldLandingPageName());
-        
-        // check the page
-        PSPage nlp = testSiteData.getPageRestClient().get(newLandingPageId);
+
+        var nlp = testSiteData.getPageRestClient().get(newLandingPageId);
         assertEquals(sectionFolderName, nlp.getName());
         assertEquals(section.getTitle(), nlp.getLinkTitle());
         assertEquals(section.getFolderPath(), nlp.getFolderPath());
     }
-    
-    /**
-     * Creates and saves a template based on the specified blog name and source template.  The name of the template will
-     * use the following convention: {blog name} - {source template name} - (n).  The increment will be added if
-     * necessary to ensure a unique name under the specified site.  It will start at 2.
-     * 
-     * @param name of the blog.
-     * @param srcId source template.
-     * @param siteId destination site.
-     * 
-     * @return id of the new template.
-     * @throws Exception 
-     */
-    private String createBlogTemplate(String name, String srcId, String siteId) throws Exception
-    {
-       PSTemplate tempId = null;
-       
-       PSTemplateSummary tempSrc = templateRestClient.loadTemplate(srcId);
-       if (tempSrc != null)
-       {
-          String templateName = name.replaceAll("[\\\\\\\\|/<>?\":*#;% ]", "");
-          String tempBaseName = templateName + "-" + tempSrc.getName();
-          String tempName = tempBaseName;
 
-          boolean tempExists = false;
-          int i = 2;
-
-          List<PSTemplateSummary> siteTemps = siteTemplateRestClient.findTemplatesBySite(siteId);
-
-          while (!tempExists)
-          {
-             for (PSTemplateSummary siteTempSum : siteTemps)
-             {
-                if (siteTempSum.getName().equals(tempName))
-                {
-                   tempExists = true;
-                   break;
+    private String createBlogTemplate(String name, String srcId, String siteId) throws Exception {
+        PSTemplate tempId = null;
+        var tempSrc = templateRestClient.loadTemplate(srcId);
+        if (tempSrc != null) {
+            var templateName = name.replaceAll("[\\\\\\\\|/<>?\":*#;% ]", "");
+            var tempBaseName = templateName + "-" + tempSrc.getName();
+            var tempName = tempBaseName;
+            boolean tempExists = false;
+            int i = 2;
+            var siteTemps = siteTemplateRestClient.findTemplatesBySite(siteId);
+            while (!tempExists) {
+                for (var siteTempSum : siteTemps) {
+                    if (siteTempSum.getName().equals(tempName)) {
+                        tempExists = true;
+                        break;
+                    }
                 }
-             }
-
-             if (tempExists)
-             {
-                tempName = tempBaseName + "-" + i++;
-                tempExists = false;
-             }
-             else
-             {
-                break;
-             }
-          }
-
-          tempId = templateRestClient.createTemplate(tempName, srcId);
-       }
-      
-       //FB: NP_NULL_ON_SOME_PATH NC 1-17-16
-       if(tempId != null)
-    	   return tempId.getId();
-       
-       return null;
+                if (tempExists) {
+                    tempName = tempBaseName + "-" + i++;
+                    tempExists = false;
+                } else {
+                    break;
+                }
+            }
+            tempId = templateRestClient.createTemplate(tempName, srcId);
+        }
+        if (tempId != null)
+            return tempId.getId();
+        return null;
     }
-    
 }

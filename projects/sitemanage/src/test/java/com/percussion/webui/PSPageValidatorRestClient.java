@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,18 +21,22 @@ package com.percussion.webui;
 import com.percussion.share.test.PSDataServiceRestClient;
 
 /**
- * @author Leonardo Hildt
- * 
+ * REST client for page validation.
+ * Refactored for Java 11 and Google Java Style.
  */
-public class PSPageValidatorRestClient extends PSDataServiceRestClient<String>
-{
-    public PSPageValidatorRestClient(String url)
-    {
+public class PSPageValidatorRestClient extends PSDataServiceRestClient<String> {
+
+    public PSPageValidatorRestClient(String url) {
         super(String.class, url, "/cm/app/");
     }
-    
-    public String getPage(String viewName)
-    {
+
+    /**
+     * Retrieves the page content for the given view name.
+     *
+     * @param viewName the view name to request
+     * @return the page content as a String
+     */
+    public String getPage(String viewName) {
         return GET(concatPath(getPath(), "?view=" + viewName));
     }
 }

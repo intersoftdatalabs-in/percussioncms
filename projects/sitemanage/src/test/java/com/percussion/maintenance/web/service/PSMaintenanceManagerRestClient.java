@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,64 +25,49 @@ import java.util.Map;
 import javax.ws.rs.core.Response.Status;
 
 /**
- * @author JaySeletz
- *
+ * REST client for maintenance manager service.
+ * Sunny Sal says: "Maintenance mode: Java 11 style!"
  */
-public class PSMaintenanceManagerRestClient extends PSObjectRestClient
-{
+public class PSMaintenanceManagerRestClient extends PSObjectRestClient {
     private String path = "/Rhythmyx/services/maintenance/manager/";
 
-    public PSMaintenanceManagerRestClient(String baseUrl)
-    {
+    public PSMaintenanceManagerRestClient(String baseUrl) {
         super(baseUrl);
     }
-    
+
     /**
-     * Determine if maintenance work has failed.  May be called regardless of whether work is in progress.
-     * 
-     * @param clearErrors <code>true</code> to clear errors if found, <code>false</code> otherwise
-     * @return <code>true</code> if a maintenance process has failed, <code>false</code> if not.
+     * Determine if maintenance work has failed. May be called regardless of whether work is in progress.
+     *
+     * @param clearErrors true to clear errors if found, false otherwise
+     * @return true if a maintenance process has failed, false if not.
      */
-    public boolean hasFailures(boolean clearErrors)
-    {
-        Map<String, String> params = new HashMap<String, String>();
+    public boolean hasFailures(boolean clearErrors) {
+        var params = new HashMap<String, String>();
         params.put("clearErrors", Boolean.toString(clearErrors));
-        
-        try
-        {
+
+        try {
             GET(concatPath(path, "status/process"), params.entrySet());
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus())))
                 return true;
-            
             throw e;
         }
-        
         return false;
-        
     }
-    
+
     /**
      * Determine if maintenance work is in progress.
-     * 
-     * @return <code>true</code> if so, <code>false</code> if not.
+     *
+     * @return true if so, false if not.
      */
-    public boolean isWorkInProgress()
-    {
-        try
-        {
+    public boolean isWorkInProgress() {
+        try {
             GET(concatPath(path, "status/server"));
-        }
-        catch (RestClientException e)
-        {
+        } catch (RestClientException e) {
             if (Status.CONFLICT.equals(Status.fromStatusCode(e.getStatus())))
                 return true;
-            
             throw e;
         }
-        
         return false;
     }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,18 +21,16 @@ package com.percussion.sitemanage.importer.theme;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSURLConverterTest
-{
+class PSURLConverterTest {
+
     private IPSSiteImportLogger logger = new PSSiteImportLogger(PSLogObjectType.SITE);
 
     private static final String BASE_URL = "http://generic:9980";
@@ -41,241 +40,195 @@ public class PSURLConverterTest
     private static final String THEME_URL = "/web_resources/themes/" + THEME_NAME;
     private static final String ASSETS_PATH = "/Assets/uploads/" + THEME_NAME;
 
-    @Before
-    public void init() throws IOException {
+    @BeforeEach
+    void init() throws IOException {
         ABSOLUTE_THEME_PATH = Paths.get("c:/themePath/" + THEME_NAME).toFile().getCanonicalPath();
     }
 
     @Test
-    public void testUrlConverter_WithEmptyValues()
-    {
-        String remoteUrl = "";
+    void testUrlConverter_WithEmptyValues() {
+        String remoteUrl;
         String baseUrl = "";
         String siteName = "";
         String absoluteThemePath = "";
         String link = "";
-        PSURLConverter urlConverter = null;
+        PSURLConverter urlConverter;
 
-        // Empty baseUrl, link, siteName, themePath and themeName
         urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
 
         siteName = "generic";
-        // Empty baseUrl, link, themePath and themeName
         urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
-        
-        absoluteThemePath = "c:/themePath/";
-        // Empty baseUrl, link, siteName and themeName
-        urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
-        remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
 
-        // Empty baseUrl and link
+        absoluteThemePath = "c:/themePath/";
         urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
+
+        urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
+        remoteUrl = urlConverter.getFullUrl(link);
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
 
         baseUrl = "http://generic:9980/folder1/folder2/cssFile.css";
-        // Empty link
         urlConverter = new PSURLConverter(baseUrl, siteName, absoluteThemePath, "", logger);
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
     }
 
     @Test
-    public void testUrlConverter_RelativeCurrentPath()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
+    void testUrlConverter_RelativeCurrentPath() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
 
-        // Relative to the current path
         urlConverter = new PSURLConverter(BASE_URL + "/folder1/folder2/", SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
         link = "images/ExampleImage.png";
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, BASE_URL + "/folder1/folder2/" + "images/ExampleImage.png");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/folder1/folder2/images/ExampleImage.png");
-        assertEquals((ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/folder1/folder2/images/ExampleImage.png").replace("/", File.separator),
+        assertEquals(BASE_URL + "/folder1/folder2/" + "images/ExampleImage.png", remoteUrl);
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/folder1/folder2/images/ExampleImage.png", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/folder1/folder2/images/ExampleImage.png").replace("/", File.separator),
                 urlConverter.getFileSystemPath(remoteUrl));
     }
 
     @Test
-    public void testUrlConverter_RelativeHost()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
+    void testUrlConverter_RelativeHost() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
 
-        // Relative to host
         urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
         link = "/backgroundImages/ExampleBackGround1.png";
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, BASE_URL + "/backgroundImages/ExampleBackGround1.png");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/backgroundImages/ExampleBackGround1.png");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), (ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/backgroundImages/ExampleBackGround1.png").replace("/",File.separator));
-    }
-
-    @Test
-    public void testUrlConverter_RelativeUsingDots()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
-
-        // Relative using ../
-        urlConverter = new PSURLConverter(BASE_URL + "/folder1/folder2/", SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        link = "../textures/texture1.jpg";
-        remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, BASE_URL + "/folder1" + "/textures/texture1.jpg");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/folder1/textures/texture1.jpg");
-        assertEquals((ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/folder1/textures/texture1.jpg").replace("/",File.separator),
+        assertEquals(BASE_URL + "/backgroundImages/ExampleBackGround1.png", remoteUrl);
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/backgroundImages/ExampleBackGround1.png", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/backgroundImages/ExampleBackGround1.png").replace("/", File.separator),
                 urlConverter.getFileSystemPath(remoteUrl));
     }
 
     @Test
-    public void testUrlConverter_FixUrlUsingDots()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
+    void testUrlConverter_RelativeUsingDots() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
 
-        // http://generic:9980/../textures/texture1.jpg should be converted to
-        // http://generic:9980/textures/texture1.jpg
+        urlConverter = new PSURLConverter(BASE_URL + "/folder1/folder2/", SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        link = "../textures/texture1.jpg";
+        remoteUrl = urlConverter.getFullUrl(link);
+        assertEquals(BASE_URL + "/folder1" + "/textures/texture1.jpg", remoteUrl);
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/folder1/textures/texture1.jpg", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/folder1/textures/texture1.jpg").replace("/", File.separator),
+                urlConverter.getFileSystemPath(remoteUrl));
+    }
+
+    @Test
+    void testUrlConverter_FixUrlUsingDots() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
+
         urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
         link = "../textures/texture1.jpg";
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, BASE_URL + "/textures/texture1.jpg");
+        assertEquals(BASE_URL + "/textures/texture1.jpg", remoteUrl);
     }
 
     @Test
-    public void testUrlConverter_BinaryImage()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
+    void testUrlConverter_BinaryImage() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
 
-        // Binary Image
         urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
         link = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARMA...";
         remoteUrl = urlConverter.getFullUrl(link);
-        assertEquals(remoteUrl, "");
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), "");
-        assertEquals(urlConverter.getFileSystemPath(remoteUrl), "");
+        assertEquals("", remoteUrl);
+        assertEquals("", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals("", urlConverter.getFileSystemPath(remoteUrl));
     }
 
     @Test
-    public void testUrlConverter_AbsoluteUrlWithSameHost()
-    {
-        String remoteUrl = "";
-        String link = "";
-        PSURLConverter urlConverter = null;
+    void testUrlConverter_AbsoluteUrlWithSameHost() {
+        String remoteUrl;
+        String link;
+        PSURLConverter urlConverter;
 
-        // Absolute Url
         urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
         link = BASE_URL + "/images/srpr/logo3w.png";
         remoteUrl = urlConverter.getFullUrl(link);
         assertFalse(remoteUrl.isEmpty());
-        assertEquals(urlConverter.convertToThemeLink(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/images/srpr/logo3w.png");
-        assertEquals((ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/images/srpr/logo3w.png").replace("/",File.separator),
-                urlConverter.getFileSystemPath(remoteUrl) );
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/images/srpr/logo3w.png", urlConverter.convertToThemeLink(remoteUrl));
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/images/srpr/logo3w.png").replace("/", File.separator),
+                urlConverter.getFileSystemPath(remoteUrl));
     }
 
     @Test
-    public void testGetFileSystemPathForCss_cssEndedFile()
-    {
+    void testGetFileSystemPathForCss_cssEndedFile() {
         String remoteUrl = BASE_URL + "/folder1/textures/texture1.css";
-
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals((ABSOLUTE_THEME_PATH
-                        + "/import/" + SITE_NAME + "/folder1/textures/texture1.css").replace("/",File.separator),
-                urlConverter.getFileSystemPathForCss(remoteUrl) );
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/folder1/textures/texture1.css").replace("/", File.separator),
+                urlConverter.getFileSystemPathForCss(remoteUrl));
     }
 
     @Test
-    public void testGetFileSystemPathForCss_otherSuffix()
-    {
+    void testGetFileSystemPathForCss_otherSuffix() {
         String remoteUrl = BASE_URL + "/folder1/textures/texture1.cfm";
-
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals(urlConverter.getFileSystemPathForCss(remoteUrl), (ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/folder1/textures/texture1.cfm.css").replace("/",File.separator));
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/folder1/textures/texture1.cfm.css").replace("/", File.separator),
+                urlConverter.getFileSystemPathForCss(remoteUrl));
     }
 
     @Test
-    public void testConvertToThemeLinkForCss_cssEndedFile()
-    {
+    void testConvertToThemeLinkForCss_cssEndedFile() {
         String remoteUrl = BASE_URL + "/folder1/textures/texture1.css";
-
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals(urlConverter.convertToThemeLinkForCss(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/folder1/textures/texture1.css");
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/folder1/textures/texture1.css", urlConverter.convertToThemeLinkForCss(remoteUrl));
     }
 
     @Test
-    public void testConvertToThemeLinkForCss_otherSuffix()
-    {
+    void testConvertToThemeLinkForCss_otherSuffix() {
         String remoteUrl = BASE_URL + "/folder1/textures/texture1.cfm";
-
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals(urlConverter.convertToThemeLinkForCss(remoteUrl), THEME_URL
-                + "/import/" + SITE_NAME + "/folder1/textures/texture1.cfm.css");
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals(THEME_URL + "/import/" + SITE_NAME + "/folder1/textures/texture1.cfm.css", urlConverter.convertToThemeLinkForCss(remoteUrl));
     }
 
     @Test
-    public void testGetFileSystemPathForImg_cssEndedFile() throws Exception
-    {
+    void testGetFileSystemPathForImg_cssEndedFile() {
         String remoteUrl = BASE_URL + "/homepage/2011/047.jpg";
-
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals(urlConverter.getCmsFolderPathForImageAsset(remoteUrl, THEME_NAME),
-                ASSETS_PATH + "/import/" + SITE_NAME + "/homepage/2011/047.jpg");
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals(ASSETS_PATH + "/import/" + SITE_NAME + "/homepage/2011/047.jpg", urlConverter.getCmsFolderPathForImageAsset(remoteUrl, THEME_NAME));
     }
 
     @Test
-    public void testConvertCssResourceWithParamenters()
-    {
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        
+    void testConvertCssResourceWithParamenters() {
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+
         String remoteUrl1 = BASE_URL + "/min/?f=/includes/templates/freetemplate2/css/stylesheet1.css&1327766570";
         String remoteUrl2 = BASE_URL + "/?css=_stylesheets/print.v.1317061408";
-        
-        assertEquals((ABSOLUTE_THEME_PATH
-                + "/import/" + SITE_NAME + "/generic_1.css").replace("/",File.separator),
+
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/generic_1.css").replace("/", File.separator),
                 urlConverter.getFileSystemPathForCss(remoteUrl1));
-        assertEquals((ABSOLUTE_THEME_PATH
-                        + "/import/" + SITE_NAME + "/generic_2.css").replace("/",File.separator),
-                urlConverter.getFileSystemPathForCss(remoteUrl2) );
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/generic_2.css").replace("/", File.separator),
+                urlConverter.getFileSystemPathForCss(remoteUrl2));
     }
-    
+
     @Test
-    public void testConvertResourceWithInvalidCharacters()
-    {
+    void testConvertResourceWithInvalidCharacters() {
         String remoteUrlWithColon = "http://generic:9980/media%3a/js/site-min.js";
-        
-        PSURLConverter urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
-        assertEquals((ABSOLUTE_THEME_PATH
-                        + "/import/" + SITE_NAME + "/media-/js/site-min.js".toLowerCase()).replace("/", File.separator),
+        var urlConverter = new PSURLConverter(BASE_URL, SITE_NAME, ABSOLUTE_THEME_PATH, THEME_URL, logger);
+        assertEquals((ABSOLUTE_THEME_PATH + "/import/" + SITE_NAME + "/media-/js/site-min.js".toLowerCase()).replace("/", File.separator),
                 urlConverter.getFileSystemPath(remoteUrlWithColon));
     }
 }

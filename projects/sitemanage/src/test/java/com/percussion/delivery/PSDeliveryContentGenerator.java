@@ -135,11 +135,11 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
             @Override
             public List<PSDeliveryInfo> findAll()
             {
-                PSDeliveryInfo ds = new PSDeliveryInfo(serverUrl);
+                var ds = new PSDeliveryInfo(serverUrl);
                 ds.setUsername(username);
                 ds.setPassword(password);
 
-                ArrayList<PSDeliveryInfo> list = new ArrayList<PSDeliveryInfo>();
+                var list = new ArrayList<PSDeliveryInfo>();
                 list.add(ds);
 
                 return list;
@@ -147,22 +147,19 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
             @Override
             public PSDeliveryInfo findByService(String service)
             {
-                List<PSDeliveryInfo> servers = findAll();
+                var servers = findAll();
                 return servers.isEmpty() ? null : servers.get(0);
             }
             @Override
             public String findBaseByServerType(String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
             @Override
             public String findBaseByServerName(String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
             @Override
             public PSDeliveryInfo findByService(String service, String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
 
@@ -174,12 +171,11 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
             @Override
             public PSDeliveryInfo findByURL(String arg0) throws MalformedURLException
             {
-                // TODO Auto-generated method stub
                 return null;
             }
         };
 
-        // As the page service is not needed here, it's stubed.
+        // As the page service is not needed here, it's stubbed.
         commentService = new PSCommentsService(deliveryInfoService, getPageServiceStub(), getFolderHelperStub(),
                 getSiteDaoStub());
 
@@ -231,17 +227,14 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
             }
             @Override
             public String findBaseByServerType(String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
             @Override
             public String findBaseByServerName(String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
             @Override
             public PSDeliveryInfo findByService(String service, String type) {
-                // TODO Auto-generated method stub
                 return null;
             }
 
@@ -253,12 +246,11 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
             @Override
             public PSDeliveryInfo findByURL(String arg0) throws MalformedURLException
             {
-                // TODO Auto-generated method stub
                 return null;
             }
         };
 
-        // As the page service is not needed here, it's stubed.
+        // As the page service is not needed here, it's stubbed.
         commentService = new PSCommentsService(deliveryInfoService, getPageServiceStub(), getFolderHelperStub(),
                 getSiteDaoStub());
 
@@ -896,7 +888,7 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
     {
         Validate.notNull(pagePath);
 
-        String[] tmp = pagePath.split("/");
+        var tmp = pagePath.split("/");
 
         if (tmp == null || tmp.length < 2)
             throw new RuntimeException("Pagepath is invalid");
@@ -966,8 +958,6 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
      */
     public void generateComments()
     {
-        // Load XML data in case this method is called directly from another
-        // class.
         if (!loadXmlData())
             return;
 
@@ -976,12 +966,12 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
         {
             log.info("Generating comments service content");
 
-            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-            PSDeliveryInfo server = new PSDeliveryInfo(serverUrl, username, password);
+            var deliveryClient = new PSDeliveryClient();
+            var server = new PSDeliveryInfo(serverUrl, username, password);
             server.setAdminUrl(serverUrl);
             server.setAllowSelfSignedCertificate(true);
 
-            for (Comments allComments : content.getCommentService().getComments())
+            for (var allComments : content.getCommentService().getComments())
             {
                 createComments(deliveryClient, server, allComments);
             }
@@ -994,8 +984,6 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
      */
     public void generateMembershipAccounts()
     {
-        // Load XML data in case this method is called directly from another
-        // class.
         if (!loadXmlData())
             return;
 
@@ -1004,12 +992,12 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
         {
             log.info("Generating membership service content");
 
-            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-            PSDeliveryInfo server = new PSDeliveryInfo(serverUrl, username, password);
+            var deliveryClient = new PSDeliveryClient();
+            var server = new PSDeliveryInfo(serverUrl, username, password);
             server.setAdminUrl(serverUrl);
             server.setAllowSelfSignedCertificate(true);
 
-            for (Memberships memberships : content.getMembershipService().getMemberships())
+            for (var memberships : content.getMembershipService().getMemberships())
             {
                 createMemberships(deliveryClient, server, memberships);
             }
@@ -1030,16 +1018,14 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
      */
     private void createComments(PSDeliveryClient deliveryClient, PSDeliveryInfo server, Comments allComments)
     {
-        int realCount = allComments.getCount();
-        int count = realCount <= 0 ? 1: realCount;
+        var realCount = allComments.getCount();
+        var count = realCount <= 0 ? 1: realCount;
 
-        for (int i=1; i<=count; i++)
+        for (var i = 1; i <= count; i++)
         {
-            for (Comment comment : allComments.getComment())
+            for (var comment : allComments.getComment())
             {
-                // Create a list of key/value pairs to send with a POST method and
-                // add a comment.
-                List<NameValuePair> values = new ArrayList<NameValuePair>();
+                var values = new ArrayList<NameValuePair>();
 
                 values.add(new NameValuePair("site", getSiteName(allComments.getPagePath())));
                 values.add(new NameValuePair("pagepath", getRelativePagePath(allComments.getPagePath())));
@@ -1082,11 +1068,9 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
      */
     private void createMemberships(PSDeliveryClient deliveryClient, PSDeliveryInfo server, Memberships memberships)
     {
-        for (Membership membership : memberships.getMembership())
+        for (var membership : memberships.getMembership())
         {
-            // Create a list of key/value pairs (JSON) to send with a POST method and
-            // register a membership account.
-            JSONObject registerObject = new JSONObject();
+            var registerObject = new JSONObject();
             registerObject.put("email", membership.getEmailAddress());
             registerObject.put("password",membership.getPassword());
             registerObject.put("confirmationRequired",membership.isConfirmationRequired());
@@ -1250,18 +1234,13 @@ public class PSDeliveryContentGenerator extends PSGenericContentGenerator<Delive
      */
     private boolean commentPresentInXml(Comments comments, PSComment psComment)
     {
-        for (Comment com : comments.getComment())
-        {
-            // Compare each comment's field.
-            if (StringUtils.startsWith(psComment.getCommentText(), com.getBody()) &&
-                    StringUtils.startsWith(psComment.getUserEmail(), com.getEmail()) &&
-                    StringUtils.startsWith(psComment.getCommentTitle(), com.getTitle()) &&
-                    StringUtils.startsWith(psComment.getUserLinkUrl(), com.getUrl()) &&
-                    StringUtils.startsWith(psComment.getUserName(), com.getUsername()))
-                return true;
-        }
-
-        return false;
+        return comments.getComment().stream().anyMatch(com ->
+            StringUtils.startsWith(psComment.getCommentText(), com.getBody()) &&
+            StringUtils.startsWith(psComment.getUserEmail(), com.getEmail()) &&
+            StringUtils.startsWith(psComment.getCommentTitle(), com.getTitle()) &&
+            StringUtils.startsWith(psComment.getUserLinkUrl(), com.getUrl()) &&
+            StringUtils.startsWith(psComment.getUserName(), com.getUsername())
+        );
     }
 
     /**

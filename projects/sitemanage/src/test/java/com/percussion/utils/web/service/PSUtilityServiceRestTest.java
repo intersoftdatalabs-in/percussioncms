@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,51 +18,47 @@
 
 package com.percussion.utils.web.service;
 
-
-import static org.junit.Assert.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.utils.service.impl.PSUtilityRestService;
+import java.util.HashMap;
+import java.util.Map;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient>
-{
+/**
+ * Integration tests for the utility REST service.
+ * Refactored for Java 11 and JUnit5.
+ */
+public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient> {
 
     private static PSUtilityRestClient utilityTestClient;
 
-    
-    protected PSUtilityRestClient getRestClient(String baseUrl)
-    {
+    @Override
+    protected PSUtilityRestClient getRestClient(String baseUrl) {
         return utilityTestClient = new PSUtilityRestClient(baseUrl);
     }
- 
-    @BeforeClass
-    public static void setUp() throws Exception
-    {
-         
+
+    @BeforeAll
+    public static void setUp() {
+        // No-op, placeholder for future setup if needed.
     }
 
     @Test
-    public void encryptDecryptUrlTest()
-    {
-        String defaultKey = "D6ZX#23GGS$";
+    public void encryptDecryptUrlTest() {
+        var defaultKey = "D6ZX#23GGS$";
+        var stringToBeEncrypted = "http://yahoo.com";
 
-        String stringTobeEncrypted = "http://yahoo.com";
-
-        Map<String, String> map = new HashMap<String, String>();
+        var map = new HashMap<String, String>();
         map.put(PSUtilityRestService.KEY_KEY, defaultKey);
-        map.put(PSUtilityRestService.STRING_KEY, stringTobeEncrypted);
-        PSMapWrapper mapWrapper = new PSMapWrapper();
+        map.put(PSUtilityRestService.STRING_KEY, stringToBeEncrypted);
+        var mapWrapper = new PSMapWrapper();
         mapWrapper.setEntries(map);
 
-        PSMapWrapper mw = utilityTestClient.encryptString(mapWrapper);
-        
+        var mw = utilityTestClient.encryptString(mapWrapper);
+
         map.clear();
         map.put(PSUtilityRestService.KEY_KEY, defaultKey);
         map.put(PSUtilityRestService.STRING_KEY, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
@@ -70,8 +67,6 @@ public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient
 
         mw = utilityTestClient.decryptString(mapWrapper);
 
-        assertEquals(stringTobeEncrypted, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
-
+        assertEquals(stringToBeEncrypted, mw.getEntries().get(PSUtilityRestService.STRING_KEY));
     }
-    
 }

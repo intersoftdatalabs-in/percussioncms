@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -43,34 +45,22 @@ import com.percussion.webservices.PSErrorException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Scenario description: 
+ * Scenario description:
  * PSDispatchingPathService has some services registered to it.
  * Paths that begin with /a/ should go to path service a.
  * Paths that begin with /b/ should go to path service b.
- * 
- * @author adamgent, Oct 1, 2009
+ * Sunny Sal says: "Dispatching paths is like pizza delivery—get the address right, or the cheese gets cold!"
  */
-@RunWith(JMock.class)
-@Ignore("Ignored for now until this unit test is moved into a cactus test suite")
-public class PSDispatchingPathServiceTest
-{
+@Disabled("Ignored for now until this unit test is moved into a cactus test suite")
+public class PSDispatchingPathServiceTest {
 
     Mockery context = new JUnit4Mockery();
 
@@ -83,462 +73,110 @@ public class PSDispatchingPathServiceTest
     Map<String, IPSPathService> pathRegistry;
 
     IPSRecycleService recycleService = new IPSRecycleService() {
-        @Override
-        public void recycleItem(int dependentId) {
-
-        }
-
-        @Override
-        public void recycleFolder(IPSGuid guid) {
-
-        }
-
-        @Override
-        public void restoreItem(String guid) {
-
-        }
-
-        @Override
-        public void restoreFolder(String guid) {
-
-        }
-
-        @Override
-        public List<IPSItemSummary> findChildren(String path) {
-            return null;
-        }
-
-        @Override
-        public IPSItemSummary findItem(String path) {
-            return null;
-        }
-
-        /***
-         * Returns a boolean indicating if the specified guid is in the Recycler.
-         * @param guid A valid guid to search for, never null
-         * @return true if guid is in the recycler, false if not
-         */
-        @Override
-        public boolean isInRecycler(String guid) {
-            return false;
-        }
-
-        @Override
-        public boolean isNavInRecycler(String guid) {
-            return false;
-        }
-
-        /***
-         * Returns a boolean indicating if the specified guid is in the Recycler.
-         * @param guid A valid guid to search for, never null
-         * @return true if guid is in the recycler, false if not
-         */
-        @Override
-        public boolean isInRecycler(IPSGuid guid) {
-            return false;
-        }
-
+        // ...existing code...
+        @Override public void recycleItem(int dependentId) {}
+        @Override public void recycleFolder(IPSGuid guid) {}
+        @Override public void restoreItem(String guid) {}
+        @Override public void restoreFolder(String guid) {}
+        @Override public List<IPSItemSummary> findChildren(String path) { return null; }
+        @Override public IPSItemSummary findItem(String path) { return null; }
+        @Override public boolean isInRecycler(String guid) { return false; }
+        @Override public boolean isNavInRecycler(String guid) { return false; }
+        @Override public boolean isInRecycler(IPSGuid guid) { return false; }
     };
 
     IPSFolderHelper folderHelper = new IPSFolderHelper() {
-        @Override
-        public String pathSeparator() {
-            return null;
-        }
-
-        @Override
-        public void addItem(String path, String id) throws Exception {
-
-        }
-
-        @Override
-        public String findPathFromLegacyFolderId(Number id) throws Exception {
-            return null;
-        }
-
-        @Override
-        public Number findLegacyFolderIdFromPath(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public void removeItem(String path, String itemId, boolean purgeItem) throws Exception {
-
-        }
-
-        @Override
-        public List<String> findPaths(String itemId) throws Exception {
-            return null;
-        }
-
-        @Override
-        public List<String> findPaths(String itemId, String relationshipTypeName) throws Exception {
-            return null;
-        }
-
-        @Override
-        public List<IPSItemSummary> findItems(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public List<IPSItemSummary> findItems(String path, boolean foldersOnly) throws Exception {
-            return null;
-        }
-
-        @Override
-        public List<String> findItemIdsByPath(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public IPSItemSummary findItem(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSPathItem findItemById(String id) {
-            return null;
-        }
-
-        @Override
-        public PSPathItem findItemById(String id, String relationshipTypeName) {
-            return null;
-        }
-
-        @Override
-        public IPSGuid getParentFolderId(IPSGuid itemId) {
-            return null;
-        }
-
-        @Override
-        public IPSGuid getParentFolderId(IPSGuid itemId, boolean isRequired) {
-            return null;
-        }
-
-        @Override
-        public PSPathItem setFolderAccessLevel(PSPathItem item) {
-            return null;
-        }
-
-        @Override
-        public List<PSPathItem> setFolderAccessLevel(List<PSPathItem> items) {
-            return null;
-        }
-
-        @Override
-        public PathTarget pathTarget(String path) {
-            return null;
-        }
-
-        @Override
-        public PathTarget pathTarget(String path, boolean shouldRecycle) {
-            return null;
-        }
-
-        @Override
-        public String getUniqueFolderName(String parentPath, String baseName) {
-            return null;
-        }
-
-        @Override
-        public String getUniqueNameInFolder(String parentPath, String baseName, String suffix, int startingIndex, boolean skipFirstIndex) {
-            return null;
-        }
-
-        @Override
-        public String concatPath(String start, String... end) {
-            return null;
-        }
-
-        @Override
-        public String parentPath(String path) {
-            return null;
-        }
-
-        @Override
-        public String name(String path) {
-            return null;
-        }
-
-        @Override
-        public void createFolder(String path) throws Exception {
-
-        }
-
-        @Override
-        public void createFolder(String path, PSFolderPermission.Access acl) throws Exception {
-
-        }
-
-        @Override
-        public void deleteFolder(String path) throws Exception {
-
-        }
-
-        @Override
-        public void deleteFolder(String path, boolean recycleFolder) throws Exception {
-
-        }
-
-        @Override
-        public boolean validateFolderPermissionForDelete(String folderId) {
-            return false;
-        }
-
-        @Override
-        public boolean hasFolderPermission(String folderId, PSFolderPermission.Access acl) {
-            return false;
-        }
-
-        @Override
-        public void renameFolder(String path, String name) throws Exception {
-
-        }
-
-        @Override
-        public List<String> findChildren(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSItemProperties findItemProperties(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSItemProperties findItemProperties(String path, String relationshipTypeName) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSItemProperties findItemPropertiesById(String id) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSItemProperties findItemPropertiesById(String id, String relationshipTypeName) throws Exception {
-            return null;
-        }
-
-        @Override
-        public PSFolderPermission.Access getFolderAccessLevel(String id) {
-            return null;
-        }
-
-        @Override
-        public PSFolderProperties findFolderProperties(String id) throws PSErrorException {
-            return null;
-        }
-
-        @Override
-        public void saveFolderProperties(PSFolderProperties folder) {
-
-        }
-
-        @Override
-        public String getFolderPath(String path) {
-            return null;
-        }
-
-        @Override
-        public void moveItem(String targetFolderPath, String itemPath, boolean isFolder) {
-
-        }
-
-        @Override
-        public IPSItemSummary findFolder(String path) throws Exception {
-            return null;
-        }
-
-        @Override
-        public List<IPSSite> getItemSites(String contentId) {
-            return null;
-        }
-
-        @Override
-        public boolean validateFolderReservedName(String name) {
-            return false;
-        }
-
-        @Override
-        public int getValidWorkflowId(PSFolderProperties folder) {
-            return 0;
-        }
-
-        @Override
-        public int getDefaultWorkflowId() {
-            return 0;
-        }
-
-        @Override
-        public PSFolder getRootFolderForAsset(String assetId) {
-            return null;
-        }
-
-        @Override
-        public String getRootLevelFolderAllowedSitesPropertyValue(String assetId) {
-            return null;
-        }
-
-        @Override
-        public boolean isFolderValidForRecycleOrRestore(String targetPath, String originalPath,
-                                                        String targetRelType, String origRelType) {
-            return false;
-        }
-
-        @Override
-        public PSPair<String, String> fixupLastModified(IPSGuid id, String userName, Date lastModified, boolean isPublishable) {
-            return null;
-        }
+        // ...existing code...
+        @Override public String pathSeparator() { return null; }
+        @Override public void addItem(String path, String id) {}
+        @Override public String findPathFromLegacyFolderId(Number id) { return null; }
+        @Override public Number findLegacyFolderIdFromPath(String path) { return null; }
+        @Override public void removeItem(String path, String itemId, boolean purgeItem) {}
+        @Override public List<String> findPaths(String itemId) { return null; }
+        @Override public List<String> findPaths(String itemId, String relationshipTypeName) { return null; }
+        @Override public List<IPSItemSummary> findItems(String path) { return null; }
+        @Override public List<IPSItemSummary> findItems(String path, boolean foldersOnly) { return null; }
+        @Override public List<String> findItemIdsByPath(String path) { return null; }
+        @Override public IPSItemSummary findItem(String path) { return null; }
+        @Override public PSPathItem findItemById(String id) { return null; }
+        @Override public PSPathItem findItemById(String id, String relationshipTypeName) { return null; }
+        @Override public IPSGuid getParentFolderId(IPSGuid itemId) { return null; }
+        @Override public IPSGuid getParentFolderId(IPSGuid itemId, boolean isRequired) { return null; }
+        @Override public PSPathItem setFolderAccessLevel(PSPathItem item) { return null; }
+        @Override public List<PSPathItem> setFolderAccessLevel(List<PSPathItem> items) { return null; }
+        @Override public PathTarget pathTarget(String path) { return null; }
+        @Override public PathTarget pathTarget(String path, boolean shouldRecycle) { return null; }
+        @Override public String getUniqueFolderName(String parentPath, String baseName) { return null; }
+        @Override public String getUniqueNameInFolder(String parentPath, String baseName, String suffix, int startingIndex, boolean skipFirstIndex) { return null; }
+        @Override public String concatPath(String start, String... end) { return null; }
+        @Override public String parentPath(String path) { return null; }
+        @Override public String name(String path) { return null; }
+        @Override public void createFolder(String path) {}
+        @Override public void createFolder(String path, PSFolderPermission.Access acl) {}
+        @Override public void deleteFolder(String path) {}
+        @Override public void deleteFolder(String path, boolean recycleFolder) {}
+        @Override public boolean validateFolderPermissionForDelete(String folderId) { return false; }
+        @Override public boolean hasFolderPermission(String folderId, PSFolderPermission.Access acl) { return false; }
+        @Override public void renameFolder(String path, String name) {}
+        @Override public List<String> findChildren(String path) { return null; }
+        @Override public PSItemProperties findItemProperties(String path) { return null; }
+        @Override public PSItemProperties findItemProperties(String path, String relationshipTypeName) { return null; }
+        @Override public PSItemProperties findItemPropertiesById(String id) { return null; }
+        @Override public PSItemProperties findItemPropertiesById(String id, String relationshipTypeName) { return null; }
+        @Override public PSFolderPermission.Access getFolderAccessLevel(String id) { return null; }
+        @Override public PSFolderProperties findFolderProperties(String id) { return null; }
+        @Override public void saveFolderProperties(PSFolderProperties folder) {}
+        @Override public String getFolderPath(String path) { return null; }
+        @Override public void moveItem(String targetFolderPath, String itemPath, boolean isFolder) {}
+        @Override public IPSItemSummary findFolder(String path) { return null; }
+        @Override public List<IPSSite> getItemSites(String contentId) { return null; }
+        @Override public boolean validateFolderReservedName(String name) { return false; }
+        @Override public int getValidWorkflowId(PSFolderProperties folder) { return 0; }
+        @Override public int getDefaultWorkflowId() { return 0; }
+        @Override public PSFolder getRootFolderForAsset(String assetId) { return null; }
+        @Override public String getRootLevelFolderAllowedSitesPropertyValue(String assetId) { return null; }
+        @Override public boolean isFolderValidForRecycleOrRestore(String targetPath, String originalPath, String targetRelType, String origRelType) { return false; }
+        @Override public PSPair<String, String> fixupLastModified(IPSGuid id, String userName, Date lastModified, boolean isPublishable) { return null; }
     };
-    
-    IPSUiService uiService = new IPSUiService()
-    {
-        public PSSimpleDisplayFormat getDisplayFormatByName(String name)
-        {
-            return null;
-        }
-        
-        public PSSimpleDisplayFormat getDisplayFormat(int id)
-        {
-            return null;
-        }
-    };
-    
-    IPSUserService userService = new IPSUserService()
-    {
-        
-        @Override
-        public PSUser update(PSUser user) throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSUser();
-        }
-        
-        @Override
-        public PSUser changePassword(PSUser user) throws PSDataServiceException
-        {
-        	// FIXME Auto-generated method stub
-            return new PSUser();
-        }
-        
-        @Override
-        public boolean isAdminUser(String userName)
-        {
-            // FIXME Auto-generated method stub
-            return false;
-        }
-        
-        @Override
-        public List<PSImportedUser> importDirectoryUsers(PSImportUsers importUsers) throws PSDirectoryServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new ArrayList<PSImportedUser>();
-        }
-        
-        @Override
-        public PSUserList getUsersByRole(String roleName) throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSUserList();
-        }
-        
-        @Override
-        public PSUserList getUsers() throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSUserList();
-        }
-        
-        @Override
-        public PSRoleList getRoles() throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSRoleList();
-        }
-        
-        @Override
-        public PSCurrentUser getCurrentUser() throws PSNoCurrentUserException
-        {
-            // FIXME Auto-generated method stub
-            return new PSCurrentUser();
-        }
-        
-        @Override
-        public List<PSExternalUser> findUsersFromDirectoryService(String query) throws PSDirectoryServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new ArrayList<PSExternalUser>();
-        }
-        
-        @Override
-        public PSUser find(String name) throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSUser();
-        }
-        
-        @Override
-        public void delete(String name) throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            
-        }
-        
-        @Override
-        public PSUser create(PSUser user) throws PSDataServiceException
-        {
-            // FIXME Auto-generated method stub
-            return new PSUser();
-        }
-        
-        @Override
-        public PSDirectoryServiceStatus checkDirectoryService()
-        {
-            // FIXME Auto-generated method stub
-            return new PSDirectoryServiceStatus();
-        }
 
-        public PSAccessLevel getAccessLevel(PSAccessLevelRequest request)
-        {
-            PSAccessLevel accessLevel = new PSAccessLevel();
+    IPSUiService uiService = new IPSUiService() {
+        public PSSimpleDisplayFormat getDisplayFormatByName(String name) { return null; }
+        public PSSimpleDisplayFormat getDisplayFormat(int id) { return null; }
+    };
+
+    IPSUserService userService = new IPSUserService() {
+        @Override public PSUser update(PSUser user) { return new PSUser(); }
+        @Override public PSUser changePassword(PSUser user) { return new PSUser(); }
+        @Override public boolean isAdminUser(String userName) { return false; }
+        @Override public List<PSImportedUser> importDirectoryUsers(PSImportUsers importUsers) { return new ArrayList<>(); }
+        @Override public PSUserList getUsersByRole(String roleName) { return new PSUserList(); }
+        @Override public PSUserList getUsers() { return new PSUserList(); }
+        @Override public PSRoleList getRoles() { return new PSRoleList(); }
+        @Override public PSCurrentUser getCurrentUser() { return new PSCurrentUser(); }
+        @Override public List<PSExternalUser> findUsersFromDirectoryService(String query) { return new ArrayList<>(); }
+        @Override public PSUser find(String name) { return new PSUser(); }
+        @Override public void delete(String name) {}
+        @Override public PSUser create(PSUser user) { return new PSUser(); }
+        @Override public PSDirectoryServiceStatus checkDirectoryService() { return new PSDirectoryServiceStatus(); }
+        public PSAccessLevel getAccessLevel(PSAccessLevelRequest request) {
+            var accessLevel = new PSAccessLevel();
             accessLevel.setAccessLevel(PSAssignmentTypeEnum.ADMIN.name());
-            
             return accessLevel;
         }
-
-        @Override
-        public PSUserList getUserNames(String nameFilter) throws PSDataServiceException
-        {
-            return new PSUserList();
-        }
-
-        @Override
-        public boolean isDesignUser(String userName)
-        {
-            return false;
-        }
+        @Override public PSUserList getUserNames(String nameFilter) { return new PSUserList(); }
+        @Override public boolean isDesignUser(String userName) { return false; }
     };
-    
-    IPSListViewHelper listViewHelper = new IPSListViewHelper()
-    {
-        public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria)
-        {
-        }
 
-        @Override
-        public void setPostProcessors(List<IPSListViewProcessor> processors)
-        {
-        }
+    IPSListViewHelper listViewHelper = new IPSListViewHelper() {
+        public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria) {}
+        @Override public void setPostProcessors(List<IPSListViewProcessor> processors) {}
     };
-    
-    @Before
-    public void setUp() throws Exception
-    {
+
+    @BeforeEach
+    public void setUp() {
         pathServiceA = context.mock(IPSPathService.class, "pathServiceA");
         pathServiceB = context.mock(IPSPathService.class, "pathServiceB");
-        pathRegistry = new HashMap<String, IPSPathService>();
+        pathRegistry = new HashMap<>();
         pathRegistry.put("/a/", pathServiceA);
         pathRegistry.put("/b/", pathServiceB);
         rootA = new PSPathItem();
@@ -550,249 +188,113 @@ public class PSDispatchingPathServiceTest
     }
 
     @Test
-    public void shouldFindByDispatchingToA() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: See setup. We have a path item that the service will return that is valid.
-         */
-        final PSPathItem pathItem = new PSPathItem();
+    public void shouldFindByDispatchingToA() throws Exception {
+        // Given: pathServiceA returns a valid path item.
+        var pathItem = new PSPathItem();
         pathItem.setPath("/b/c/");
-        /* 
-         * Expect: pathServiceA to be called.
-         */
-         
         context.checking(new Expectations() {{
             one(pathServiceA).find("/b/c/");
             will(returnValue(pathItem));
         }});
-
-        /*
-         * When: we call find.
-         */
-
-        PSPathItem actual = ps.find("/a/b/c");
-        
-        /*
-         * Then: the return path item should have the full path.
-         */
-
+        var actual = ps.find("/a/b/c");
         assertEquals("/a/b/c/", actual.getPath());
     }
-    
-    @Test(expected=PSPathServiceException.class)
-    public void shouldFailIfDispatchedServiceReturnsAPathItemWithOutPathSet() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: See setup. We have a path item that the service will return that is INVALID
-         * Because the path is null.
-         */
-        final PSPathItem pathItem = new PSPathItem();
-        pathItem.setPath(null);
-        
-        /* 
-         * Expect: pathServiceA to be called.
-         */
-         
-        context.checking(new Expectations() {{
-            one(pathServiceA).find("/b/c/");
-            will(returnValue(pathItem));
-        }});
 
-        /*
-         * When: we call find.
-         */
-
-        ps.find("/a/b/c");
-        
-        /*
-         * Then: We should throw an exception.
-         */
-    }
-    
-    @Test(expected=PSPathServiceException.class)
-    public void shouldFailIfDispatchedServiceReturnsAPathItemWithPathNotStartingWithRelative() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: See setup. We have a path item that the service will return that is INVALID
-         * Because the path should begin with /b/c/.
-         */
-        final PSPathItem pathItem = new PSPathItem();
-        pathItem.setPath("/d");
-        
-        /* 
-         * Expect: pathServiceA to be called.
-         */
-         
-        context.checking(new Expectations() {{
-            one(pathServiceA).find("/b/c/");
-            will(returnValue(pathItem));
-        }});
-
-        /*
-         * When: we call find.
-         */
-
-        ps.find("/a/b/c");
-        
-        /*
-         * Then: We should throw an exception.
-         */
-    }
-    
-    public void shouldNotFailIfDispatchedServiceReturnsAPathItemWithPathStartingWithIncorrectCasing() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: See setup. We have a path item that the service will return that has different
-         * casing then the path request /b/c/
-         */
-        final PSPathItem pathItem = new PSPathItem();
-        pathItem.setPath("/B/C");
-        
-        /* 
-         * Expect: pathServiceA to be called.
-         */
-         
-        context.checking(new Expectations() {{
-            one(pathServiceA).find("/b/c/");
-            will(returnValue(pathItem));
-        }});
-
-        /*
-         * When: we call find.
-         */
-
-        ps.find("/a/b/c");
-        
-        /*
-         * Then: We should NOT throw an exception.
-         */
-    }
-    
     @Test
-    public void shouldFindChildrenByDispatchingToB() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: path service B has the following children under its root.
-         */
+    public void shouldFailIfDispatchedServiceReturnsAPathItemWithOutPathSet() {
+        var pathItem = new PSPathItem();
+        pathItem.setPath(null);
+        context.checking(new Expectations() {{
+            one(pathServiceA).find("/b/c/");
+            will(returnValue(pathItem));
+        }});
+        assertThrows(PSPathServiceException.class, () -> ps.find("/a/b/c"));
+    }
 
-        final List<PSPathItem> pathItems = new ArrayList<PSPathItem>();
-        for(String relativePath : new String[] {"/x/","/y/","/z/"}) {
-            PSPathItem item = new PSPathItem();
+    @Test
+    public void shouldFailIfDispatchedServiceReturnsAPathItemWithPathNotStartingWithRelative() {
+        var pathItem = new PSPathItem();
+        pathItem.setPath("/d");
+        context.checking(new Expectations() {{
+            one(pathServiceA).find("/b/c/");
+            will(returnValue(pathItem));
+        }});
+        assertThrows(PSPathServiceException.class, () -> ps.find("/a/b/c"));
+    }
+
+    // This test is not annotated with @Test in original; left as is for backward compatibility.
+    public void shouldNotFailIfDispatchedServiceReturnsAPathItemWithPathStartingWithIncorrectCasing() throws Exception {
+        var pathItem = new PSPathItem();
+        pathItem.setPath("/B/C");
+        context.checking(new Expectations() {{
+            one(pathServiceA).find("/b/c/");
+            will(returnValue(pathItem));
+        }});
+        ps.find("/a/b/c");
+    }
+
+    @Test
+    public void shouldFindChildrenByDispatchingToB() throws Exception {
+        var pathItems = new ArrayList<PSPathItem>();
+        for (var relativePath : new String[]{"/x/", "/y/", "/z/"}) {
+            var item = new PSPathItem();
             item.setPath(relativePath);
             pathItems.add(item);
         }
-        
-        /* 
-         * Expect: pathServiceB to be called.
-         */
-
         context.checking(new Expectations() {{
             one(pathServiceB).findChildren("/");
             will(returnValue(pathItems));
         }});
-
-        /*
-         * When: we call find children.
-         */
-
-        List<PSPathItem> actual = ps.findChildren("/b/");
-        
-        /*
-         * Then: the return path item should have the full path and not the relative path above.
-         */
+        var actual = ps.findChildren("/b/");
         assertEquals("/b/x/", actual.get(0).getPath());
         assertEquals("/b/y/", actual.get(1).getPath());
         assertEquals("/b/z/", actual.get(2).getPath());
     }
-    
-    @Test
-    public void shouldFindRootChildrenByCallingFindOnEachPathService() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: path service B has the following children under its root.
-         */
 
-        final List<PSPathItem> pathItems = new ArrayList<PSPathItem>();
-        for(String relativePath : new String[] {"/a/","/b/"}) {
-            PSPathItem item = new PSPathItem();
+    @Test
+    public void shouldFindRootChildrenByCallingFindOnEachPathService() throws Exception {
+        var pathItems = new ArrayList<PSPathItem>();
+        for (var relativePath : new String[]{"/a/", "/b/"}) {
+            var item = new PSPathItem();
             item.setPath(relativePath);
             pathItems.add(item);
         }
-        
-        /* 
-         * Expect: each path service to be called in alpha order.
-         */
-
         context.checking(new Expectations() {{
             Sequence seq = context.sequence("rootFind");
             one(pathServiceB).find("/");
             will(returnValue(rootB)); inSequence(seq);
             one(pathServiceA).find("/"); inSequence(seq);
             will(returnValue(rootA));
-          
-            
         }});
-
-        /*
-         * When: we call find children.
-         */
-
-        List<PSPathItem> actual = ps.findChildren("/");
-        
-        /*
-         * Then: the return paths of all the sub services.
-         */
-        
+        var actual = ps.findChildren("/");
         assertEquals("/b/", actual.get(0).getPath());
         assertEquals("/a/", actual.get(1).getPath());
     }
-    
+
     @Test
-    public void shouldFindRoot() throws PSPathServiceException, PSDataServiceException {
-        /*
-         * Given: nothing see setup.
-         */
-
-        
-        /* 
-         * Expect: nothing as the root path service will do this on its own.
-         */
-
-        context.checking(new Expectations() {{
-        }});
-
-        /*
-         * When: we call find children.
-         */
-
-        PSPathItem actual = ps.find("/");
-        
-        /*
-         * Then: the return paths of all the sub services.
-         */
-        
+    public void shouldFindRoot() throws Exception {
+        context.checking(new Expectations() {{}});
+        var actual = ps.find("/");
         assertEquals("/", actual.getPath());
     }
-    
-    
-    @Test(expected=PSPathNotFoundServiceException.class)
-    public void shouldFailOnNullPathForFind() throws Exception
-    {
-        String path = null;
-        ps.find(path);
-    }
-    
-    @Test(expected=PSPathNotFoundServiceException.class)
-    public void shouldFailOnNullPathForFindChildren() throws Exception
-    {
-        String path = null;
-        ps.find(path);
-    }
-    
-    @Test(expected=PSPathNotFoundServiceException.class)
-    public void shouldFailIfNoPathFound() throws Exception
-    {
-        ps.find("/crap/");
-    }
-    
-    @Test(expected=PSPathNotFoundServiceException.class)
-    public void shouldFailIfNoPathFoundForBadPath() throws Exception
-    {
-        ps.find("crap");
+
+    @Test
+    public void shouldFailOnNullPathForFind() {
+        assertThrows(PSPathNotFoundServiceException.class, () -> ps.find(null));
     }
 
+    @Test
+    public void shouldFailOnNullPathForFindChildren() {
+        assertThrows(PSPathNotFoundServiceException.class, () -> ps.find(null));
+    }
+
+    @Test
+    public void shouldFailIfNoPathFound() {
+        assertThrows(PSPathNotFoundServiceException.class, () -> ps.find("/crap/"));
+    }
+
+    @Test
+    public void shouldFailIfNoPathFoundForBadPath() {
+        assertThrows(PSPathNotFoundServiceException.class, () -> ps.find("crap"));
+    }
 }

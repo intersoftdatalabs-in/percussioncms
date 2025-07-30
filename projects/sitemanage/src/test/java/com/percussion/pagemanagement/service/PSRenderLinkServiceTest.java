@@ -56,7 +56,6 @@ public class PSRenderLinkServiceTest extends PSServletTestCase
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
         fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
 
@@ -64,36 +63,36 @@ public class PSRenderLinkServiceTest extends PSServletTestCase
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
-        
+
         if (regionCssFile != null && regionCssFile.exists())
         {
             regionCssFile.delete();
             regionCssFile = null;
         }
     }
-    
+
     public void testRenderLinkRegionCSS() throws IOException, PSDataServiceException {
-        PSTemplate template = fixture.getTemplateService().load(fixture.template1.getId());
-        String themeName = template.getTheme();
-        PSPublicLinkContext context = new PSPublicLinkContext(fixture.site1);
-        PSRenderLink regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
+        var template = fixture.getTemplateService().load(fixture.template1.getId());
+        var themeName = template.getTheme();
+        var context = new PSPublicLinkContext(fixture.site1);
+        var regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
         assertNotNull(regionCss.toString());
-        
-        PSThemeSummary summary = themeService.find(themeName);
-        
+
+        var summary = themeService.find(themeName);
+
         removeRegionCssFile(summary);
         regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
         assertTrue(StringUtils.isBlank(regionCss.toString()));
-        
+
         copyThemeCssToRegionCssFile(summary);
         regionCss = renderLinkService.renderLinkThemeRegionCSS(context, template.getTheme(), false, EditType.PAGE);
         assertTrue(regionCss.toString().endsWith(PSThemeService.THEME_REGION_CSS_PATH));
         assertTrue(regionCss.toString().startsWith("/web_resources"));
-        
-        PSAssemblyRenderLinkContext assembContext = new PSAssemblyRenderLinkContext();
+
+        var assembContext = new PSAssemblyRenderLinkContext();
         assembContext.setSite(fixture.site1);
         regionCss = renderLinkService.renderLinkThemeRegionCSS(assembContext, template.getTheme(), false, EditType.PAGE);
-        assertTrue(regionCss.toString().indexOf(PSThemeService.THEME_REGION_CSS_PATH + "?time=") != -1);
+        assertTrue(regionCss.toString().contains(PSThemeService.THEME_REGION_CSS_PATH + "?time="));
         assertTrue(regionCss.toString().startsWith("/Rhythmyx/web_resources"));
     }
     

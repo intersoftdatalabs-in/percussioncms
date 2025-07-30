@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,175 +18,138 @@
 
 package com.percussion.share.dao;
 
+import com.percussion.share.service.exception.PSExtractHTMLException;
+import com.percussion.utils.testing.IntegrationTest;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.helpers.IOUtils;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.experimental.categories.Category;
+
 import java.io.InputStream;
 import java.util.UUID;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.helpers.IOUtils;
-import org.junit.Test;
-
-import com.percussion.share.service.exception.PSExtractHTMLException;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Testing {@link PSHtmlUtils}. This test has to be run within server environment
- * because it is rely on PSServer.getRxDir() to load tidy property file.
+ * Tests for {@link PSHtmlUtils}.
+ * Sunny Sal: "HTML utils, Java 11, and tag ka hero!"
+ * This test must run in a server environment because it relies on PSServer.getRxDir() to load tidy property file.
  */
 @Category(IntegrationTest.class)
-public class PSHtmlUtilsTest extends ServletTestCase
-{
+@Tag("integration")
+public class PSHtmlUtilsTest {
 
-	private final static String MISSING_P_TAG = "<div> <p>Hello</div>";
+    private static final String MISSING_P_TAG = "<div> <p>Hello</div>";
+    // Could this be moved to a separate html file in a testing resources location?
+    private static final String VALID_HTML = "<html><head> <title>peter</title> </header> <body> <link rel=\"canonical\" href=\"/myparentfolder\" /> <div> <p>Hello</div> </body></html>";
+    private static final String VALID_HTML_NO_CANONICAL = "<html><head> <title>peter</title> </header> <body>  <div> <p>Hello</div> </body></html>";
 
-	//Could this be moved to a separate html file in a testing resources location?
-	private final static String VALID_HTML = "<html><head> <title>peter</title> </header> <body> <link rel=\"canonical\" href=\"/myparentfolder\" /> <div> <p>Hello</div> </body></html>";
-	private final static String VALID_HTML_NO_CANONICAL = "<html><head> <title>peter</title> </header> <body>  <div> <p>Hello</div> </body></html>";
+    @Test
+    void testExtractionNegative() throws Exception {
+        var html = PSHtmlUtils.extractHtml("unknownTag", MISSING_P_TAG, null, true);
+        assertTrue(StringUtils.isBlank(html));
 
-	public void testExtraction_Negative() throws Exception
-	{
-		String html = PSHtmlUtils.extractHtml("unknownTag", MISSING_P_TAG, null, true);
-		assertTrue(StringUtils.isBlank(html));
+        Exception thrown = assertThrows(PSExtractHTMLException.class, () ->
+                PSHtmlUtils.extractHtml("foo (2)", MISSING_P_TAG, null, true));
+        // Bad input (or bad selector)
+        System.out.println(thrown.getMessage());
+    }
 
-		try
-		{
-			PSHtmlUtils.extractHtml("foo (2)", MISSING_P_TAG, null, true);
-			assertTrue(false);
-		}
-		catch (PSExtractHTMLException e)
-		{
-			// Bad input (or bad selector)
-			System.out.println(e.getMessage());
-		}
-	}
+    @Test
+    void testExtract() throws Exception {
+        var html = PSHtmlUtils.extractHtml("div", MISSING_P_TAG, null, true);
+        assertTrue(html.contains("<div>"));
+        assertTrue(html.contains("</div>"));
+        assertTrue(html.contains("<p>"));
+        assertTrue(html.contains("</p>"));
 
-	public void testExtract() throws Exception
-	{
-		String html = PSHtmlUtils.extractHtml("div", MISSING_P_TAG, null, true);
-		assertTrue(html.contains("<div>"));
-		assertTrue(html.contains("</div>"));
-		assertTrue(html.contains("<p>"));
-		assertTrue(html.contains("</p>"));
+        html = PSHtmlUtils.extractHtml("div", MISSING_P_TAG, null, false);
+        assertFalse(html.contains("<div>"));
+        assertFalse(html.contains("</div>"));
+        assertTrue(html.contains("<p>"));
+        assertTrue(html.contains("</p>"));
 
-		html = PSHtmlUtils.extractHtml("div", MISSING_P_TAG, null, false);
-		assertFalse(html.contains("<div>"));
-		assertFalse(html.contains("</div>"));
-		assertTrue(html.contains("<p>"));
-		assertTrue(html.contains("</p>"));
+        html = PSHtmlUtils.extractHtml("body", VALID_HTML, null, false);
+        assertTrue(html.contains("Hello"));
+        assertFalse(html.contains("<body>"));
+        assertFalse(html.contains("</body>"));
+        assertFalse(html.contains("peter"));
 
-		html = PSHtmlUtils.extractHtml("body", VALID_HTML, null, false);
-		assertTrue(html.contains("Hello"));
-		assertFalse(html.contains("<body>"));
-		assertFalse(html.contains("</body>"));
-		assertFalse(html.contains("peter"));
+        html = PSHtmlUtils.extractHtml("body", VALID_HTML, null, true);
+        assertTrue(html.contains("<body>"));
+        assertTrue(html.contains("</body>"));
+        assertTrue(html.contains("Hello"));
+        assertFalse(html.contains("peter"));
+    }
 
-		html = PSHtmlUtils.extractHtml("body", VALID_HTML, null, true);
-		assertTrue(html.contains("<body>"));
-		assertTrue(html.contains("</body>"));
-		assertTrue(html.contains("Hello"));
-		assertFalse(html.contains("peter"));
-	}
+    /**
+     * Test against some real site home pages.
+     */
+    @Test
+    void testHtmlFile() throws Exception {
+        System.out.println("Testing home_bst.html....");
+        validateHtmlFile("home_bst.html");
 
-	/**
-	 * Test against some real site home pages.
-	 * 
-	 * @throws Exception
-	 */
-	public void testHtmlFile() throws Exception
-	{
+        System.out.println("Testing home_cc.html....");
+        validateHtmlFile("home_cc.html");
 
-		System.out.println("Testing home_bst.html....");
-		validateHtmlFile("home_bst.html");
+        System.out.println("Testing home_sw.html....");
+        validateHtmlFile("home_sw.html");
 
-		System.out.println("Testing home_cc.html....");
-		validateHtmlFile("home_cc.html");
+        System.out.println("Testing home_ws.html....");
+        validateHtmlFile("home_ws.html");
 
-		System.out.println("Testing home_sw.html....");
-		validateHtmlFile("home_sw.html");
+        Exception thrown = assertThrows(Exception.class, () -> {
+            System.out.println("Testing home_w.html....");
+            validateHtmlFile("home_w.html");
+        });
+        // tidy fail on "unknown" tag -- <MACRO_PREVIEWMENUITEM>
+        // this can be "fixed" by add "macro_previewmenuitem" into "new-empty-tags" properties
+        System.out.println("Expecting tidy fail on \"home_w.html\".");
+    }
 
-		System.out.println("Testing home_ws.html...."); 
-		validateHtmlFile("home_ws.html");
+    /**
+     * Validates the specified HTML file.
+     *
+     * @param name the name of the HTML file, assumed not empty.
+     */
+    private void validateHtmlFile(String name) throws Exception {
+        try (InputStream in = this.getClass().getResourceAsStream(name)) {
+            var htmlSource = IOUtils.toString(in);
+            var html = PSHtmlUtils.extractHtml("body", htmlSource, name, true);
+            assertTrue(html.contains("<body"));
 
-		try
-		{
-			System.out.println("Testing home_w.html....");
-			validateHtmlFile("home_w.html"); 
-			assertTrue(false);
-		}
-		catch (Exception e)
-		{
-			// tidy fail on "unknown" tag -- <MACRO_PREVIEWMENUITEM>
-			// this can be "fixed" by add "macro_previewmenuitem" into "new-empty-tags" properties
-			System.out.println("Expecting tidy fail on \"home_w.html\".");
-		}
+            html = PSHtmlUtils.extractHtml("body", htmlSource, name, false);
+            assertFalse(html.contains("<body"));
+        }
+    }
 
-	}
+    /**
+     * Test two sample htmls, one that contains a canonical link and one that does not.
+     * Additionally test something that is not html.
+     */
+    @Test
+    void testCheckLinkCanonicalElement() {
+        assertTrue(PSHtmlUtils.checkLinkCanonicalElement(VALID_HTML));
+        assertFalse(PSHtmlUtils.checkLinkCanonicalElement(VALID_HTML_NO_CANONICAL));
+        assertFalse(PSHtmlUtils.checkLinkCanonicalElement(UUID.randomUUID().toString()));
+    }
 
-	/**
-	 * Validates the specified HTML file.
-	 * 
-	 * @param name the name of the HTML file, assumed not empty.
-	 * 
-	 * @throws Exception if an error occurs.
-	 */
-	private void validateHtmlFile(String name) throws Exception
-	{
-		InputStream in = null;
+    /**
+     * Test stripping of canonical element from a sample html, ensure it changes and equals a non-canonical version of the html.
+     * Try stripping a canonical element from a sample html and a random string that do not contain canonical elements. Ensure they are unchanged.
+     */
+    @Test
+    void testStripLinkCanonicalElement() {
+        var strippedHtml = PSHtmlUtils.stripLinkCanonicalElement(VALID_HTML);
+        assertEquals(VALID_HTML_NO_CANONICAL, strippedHtml);
+        assertNotEquals(VALID_HTML, strippedHtml);
 
-		try
-		{
-			in = this.getClass().getResourceAsStream(name);
-			String htmlSource = IOUtils.toString(in);
+        var unchangedHtmlString = PSHtmlUtils.stripLinkCanonicalElement(VALID_HTML_NO_CANONICAL);
+        assertEquals(VALID_HTML_NO_CANONICAL, unchangedHtmlString);
 
-			String html = PSHtmlUtils.extractHtml("body", htmlSource, name, true);
-			assertTrue(html.contains("<body"));
-
-			html = PSHtmlUtils.extractHtml("body", htmlSource, name, false);
-			assertFalse(html.contains("<body"));
-		}
-		finally
-		{
-			in.close();
-		}
-	}
-
-
-	/**
-	 * Test two sample htmls, one that contains a canonical link and one that does not.
-	 * Additionally test something that is not html.
-	 * 
-	 */
-	@Test
-	public void testCheckLinkCanonicalElementTest(){
-
-		assertTrue(PSHtmlUtils.checkLinkCanonicalElement(VALID_HTML));
-
-		assertFalse(PSHtmlUtils.checkLinkCanonicalElement(VALID_HTML_NO_CANONICAL));
-
-		assertFalse(PSHtmlUtils.checkLinkCanonicalElement(UUID.randomUUID().toString()));
-	}
-
-	/**
-	 * Test stripping of canonical element from a sample html, ensure it changes and equals a non-canonical version of the html.
-	 * 
-	 *  Try stripping a canonical element from a sample html and a random string that do not contain canonical elements.  Ensure they are unchanged.
-	 * 
-	 */
-	@Test
-	public void testStripLinkCanonicalElementTest() {
-
-		String strippedHtml = PSHtmlUtils.stripLinkCanonicalElement(VALID_HTML);
-		assertEquals(VALID_HTML_NO_CANONICAL, strippedHtml);
-		assertFalse(strippedHtml.equals(VALID_HTML));
-
-		String unchangedHtmlString = PSHtmlUtils.stripLinkCanonicalElement(VALID_HTML_NO_CANONICAL);
-		assertEquals(VALID_HTML_NO_CANONICAL, unchangedHtmlString);
-
-		String unchangedString = UUID.randomUUID().toString();
-		assertEquals(unchangedString, PSHtmlUtils.stripLinkCanonicalElement(unchangedString));
-
-	}
-
-
+        var unchangedString = UUID.randomUUID().toString();
+        assertEquals(unchangedString, PSHtmlUtils.stripLinkCanonicalElement(unchangedString));
+    }
 }
