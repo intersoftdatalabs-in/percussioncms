@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.rx.jsf.PSEditableNodeContainer;
@@ -51,15 +53,16 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
    }
 
    @Override
+   /**
+    * Gets the child nodes for all delivery types.
+    * @return list of child nodes
+    */
+   @Override
    public List<? extends PSNodeBase> getChildren() throws PSNotFoundException {
-      if (m_children == null)
-      {               
-         List<IPSDeliveryType> dtypes = getAllDeliveryTypes();
-         
-         PSDeliveryTypeNode node;
-         for (IPSDeliveryType dtype : dtypes)
-         {
-            node = new PSDeliveryTypeNode(dtype);
+      if (m_children == null) {
+         var dtypes = getAllDeliveryTypes();
+         for (var dtype : dtypes) {
+            var node = new PSDeliveryTypeNode(dtype);
             addNode(node);
          }
       }
@@ -70,43 +73,44 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
     * @return all Delivery Types in ascending order. Never <code>null</code>
     * may be empty.
     */
-   private List<IPSDeliveryType> getAllDeliveryTypes()
-   {
-      IPSPublisherService psvc = getPublisherService();
-      List<IPSDeliveryType> dtypes = psvc.findAllDeliveryTypes();
-
-      Collections.sort(dtypes, new Comparator<IPSDeliveryType>() {
-      public int compare(IPSDeliveryType o1, IPSDeliveryType o2)
-      {
-         return o1.getName().compareToIgnoreCase(o2.getName());
-      }});
-
+   /**
+    * Gets all Delivery Types in ascending order.
+    * @return sorted list of delivery types
+    */
+   private List<IPSDeliveryType> getAllDeliveryTypes() {
+      var psvc = getPublisherService();
+      var dtypes = psvc.findAllDeliveryTypes();
+      dtypes.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
       return dtypes;
    }
 
    // see base
    @Override
-   protected boolean findObjectByName(String name)
-   {
-      IPSPublisherService pub = getPublisherService();
-      try
-      {
+   /**
+    * Finds a delivery type by name.
+    * @param name delivery type name
+    * @return true if found, false otherwise
+    */
+   @Override
+   protected boolean findObjectByName(String name) {
+      var pub = getPublisherService();
+      try {
          pub.loadDeliveryType(name);
          return true;
-      }
-      catch (PSNotFoundException e)
-      {
+      } catch (PSNotFoundException e) {
          return false;
       }
    }
 
    @Override
-   public Set<Object> getAllNames()
-   {
-      final Set<Object> names = new HashSet<>();
-      for (final IPSDeliveryType dtype :
-            getPublisherService().findAllDeliveryTypes())
-      {
+   /**
+    * Gets all delivery type names.
+    * @return set of names
+    */
+   @Override
+   public Set<Object> getAllNames() {
+      var names = new HashSet<>();
+      for (var dtype : getPublisherService().findAllDeliveryTypes()) {
          names.add(dtype.getName());
       }
       return names;
@@ -116,8 +120,11 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
     * Convenience method to access publisher service.
     * @return the publisher service object. Not <code>null</code>.
     */
-   private IPSPublisherService getPublisherService()
-   {
+   /**
+    * Gets the publisher service.
+    * @return publisher service, never null
+    */
+   private IPSPublisherService getPublisherService() {
       return PSPublisherServiceLocator.getPublisherService();
    }
    
@@ -126,23 +133,33 @@ public class PSDeliveryTypeContainerNode extends PSEditableNodeContainer
     * @return the perform action for the Delivery Type node, which will 
     * navigate to the editor.
     */
+   /**
+    * Creates a new Delivery Type and adds it to the tree.
+    * @return perform action for the new node
+    */
    public String create() throws PSNotFoundException {
-      IPSDeliveryType dtype = getPublisherService().createDeliveryType();
+      var dtype = getPublisherService().createDeliveryType();
       dtype.setName(getUniqueName("DeliveryType", false));
       getPublisherService().saveDeliveryType(dtype);
-      PSDeliveryTypeNode node = new PSDeliveryTypeNode(dtype);
+      var node = new PSDeliveryTypeNode(dtype);
       return node.editNewNode(this, node);
    }
 
    @Override
-   public String returnToListView()
-   {
+   /**
+    * Returns to the delivery type list view.
+    */
+   @Override
+   public String returnToListView() {
       return DELIVERY_TYPE_LIST;
    }
 
    @Override
-   public String getHelpTopic()
-   {
+   /**
+    * Gets the help topic for this node.
+    */
+   @Override
+   public String getHelpTopic() {
       return "DeliveryTypeList";
    }
 

@@ -26,23 +26,22 @@ import java.util.Map;
  * This interface defines the behavior of an extractor of metadata information
  * from pages. It provides two overloads of the 'process' method, one to process
  * files in the file system, and another one to read from a Reader object.
- * 
+ *
  * @author miltonpividori
- * 
  */
-public interface IPSMetadataExtractorService
-{
-  
+public interface IPSMetadataExtractorService {
     /**
      * Process a page content represented by the Reader parameter. Pagepath is given
      * as a parameter, and site and folder are generated from it.
-     * 
+     *
      * @param sourceToScan A Reader object representing the page content to be
-     * processed to extract metadata information from.
-     * @param pagepath The pagepath of the page. Site and folder are generated
-     * from it.
+     *                     processed to extract metadata information from.
+     * @param pagepath     The pagepath of the page. Site and folder are generated
+     *                     from it.
+     * @param mimeType     The MIME type of the content.
+     * @param additional   Additional parameters for extraction.
      * @return A PSMetadataEntry with the extracted metadata from the Reader
-     * object. Never <code>null</code>.
+     *         object. Never <code>null</code>.
      */
-    public abstract PSMetadataEntry process(Reader sourceToScan, String mimeType, String pagepath, Map<String,Object> additional);
+    PSMetadataEntry process(Reader sourceToScan, String mimeType, String pagepath, Map<String, Object> additional);
 }

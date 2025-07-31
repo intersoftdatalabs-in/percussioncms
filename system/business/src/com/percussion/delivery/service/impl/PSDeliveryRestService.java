@@ -22,6 +22,7 @@ import javax.ws.rs.Path;
  * @author peterfrontiero
  *
  */
+// REFACTORED: CP-JAVA11
 @Path("/delivery")
 public class PSDeliveryRestService
 {

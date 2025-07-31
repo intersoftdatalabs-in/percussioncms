@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,11 +17,27 @@
  */
 package com.percussion.share.data;
 
-public interface IPSFolderPath
-{
-    
-    public String getFolderPath();
-    
-    public void setFolderPath(String path);
+/**
+ * Java 11 refactored: Interface for folder path data objects.
+ * <p>
+ * Implementations must be immutable and thread-safe.
+ * <p>
+ * <b>Contract:</b> The folder path must never be {@code null} or empty.
+ *
+ * @author adamgent
+ */
+public interface IPSFolderPath {
+    /**
+     * Gets the folder path.
+     *
+     * @return the folder path, never {@code null} or empty
+     */
+    String getFolderPath();
 
+    /**
+     * Sets the folder path.
+     *
+     * @param path the folder path, never {@code null} or empty
+     */
+    void setFolderPath(String path);
 }

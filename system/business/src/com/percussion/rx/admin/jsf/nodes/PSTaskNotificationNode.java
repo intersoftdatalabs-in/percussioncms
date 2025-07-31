@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.admin.jsf.nodes;
 
 import static com.percussion.utils.string.PSStringUtils.notBlank;
@@ -29,174 +30,159 @@ import com.percussion.services.schedule.data.PSNotificationTemplate;
  * 
  * @author Andriy Palamarchuk
  */
-public class PSTaskNotificationNode extends PSEditableNode
-{
-   /**
-    * Creates new node for the specified notification template.
-    * @param notification the notification template.
-    * Not <code>null</code>.
-    */
-   public PSTaskNotificationNode(
-         PSNotificationTemplate notification)
-   {
-      super(getNotificationLabel(notification), notification.getId());
-      m_notification = notification;
-   }
+public class PSTaskNotificationNode extends PSEditableNode {
+    /**
+     * Creates new node for the specified notification template.
+     *
+     * @param notification
+     *            the notification template. Not <code>null</code>.
+     */
+    public PSTaskNotificationNode(PSNotificationTemplate notification) {
+        super(getNotificationLabel(notification), notification.getId());
+        m_notification = notification;
+    }
 
-   @Override
-   public String copy()
-   {
-      // not implemented
-      return null;
-   }
+    @Override
+    public String copy() {
+        // not implemented
+        return null;
+    }
 
-   @Override
-   public String delete()
-   {
-      getSchedulingService().deleteNotificationTemplate(
-            getNotification().getId());
-      remove();
-      return navigateToList();
-   }
+    @Override
+    public String delete() {
+        getSchedulingService().deleteNotificationTemplate(getNotification().getId());
+        remove();
+        return navigateToList();
+    }
 
-   /**
-    * Saves the changes to the node.
-    * @return the "save" string. Never <code>null</code>.
-    */
-   public String save()
-   {
-      getSchedulingService().saveNotificationTemplate(getNotification());
-      setTitle(getNotification().getName());
-      
-      return gotoParentNode();
-   }
+    /**
+     * Saves the changes to the node.
+     *
+     * @return the "save" string. Never <code>null</code>.
+     */
+    public String save() {
+        getSchedulingService().saveNotificationTemplate(getNotification());
+        setTitle(getNotification().getName());
 
-   @Override
-   public String cancel() 
-   {
-      m_notification =
-         getSchedulingService().findNotificationTemplateById(
-               m_notification.getId());
+        return gotoParentNode();
+    }
 
-      return gotoParentNode();
-   }
+    @Override
+    public String cancel() {
+        m_notification = getSchedulingService().findNotificationTemplateById(m_notification.getId());
 
-   @Override
-   public String navigateToList()
-   {
-      return getCategoryKey();
-   }
+        return gotoParentNode();
+    }
 
-   @Override
-   protected String getCategoryKey()
-   {
-      return "admin-timed-event-notifications";
-   }
+    @Override
+    public String navigateToList() {
+        return getCategoryKey();
+    }
 
-   @Override
-   protected String getOutcomePrefix()
-   {
-      return "admin-";
-   }
+    @Override
+    protected String getCategoryKey() {
+        return "admin-timed-event-notifications";
+    }
 
-   /**
-    * Provides current scheduling service.
-    * @return the scheduling service. Not <code>null</code>.
-    */
-   private IPSSchedulingService getSchedulingService()
-   {
-      return PSSchedulingServiceLocator.getSchedulingService();
-   }
+    @Override
+    protected String getOutcomePrefix() {
+        return "admin-";
+    }
 
-   /**
-    * Retrieves notification template label.
-    * For use in the constructor, so the constructor will be able to validate
-    * the notification template variable before the super constructor is called.
-    * @param notificationTemplate the notification template
-    * to request the label from.
-    * If <code>null</code> the method throws
-    * <code>IllegalArgumentException</code>.
-    * @return the notification template label. Never <code>null</code> or blank.
-    */
-   private static String getNotificationLabel(
-         PSNotificationTemplate notificationTemplate)
-   {
-      notNull(notificationTemplate);
-      return notificationTemplate.getName();
-   }
+    /**
+     * Provides current scheduling service.
+     *
+     * @return the scheduling service. Not <code>null</code>.
+     */
+    private IPSSchedulingService getSchedulingService() {
+        return PSSchedulingServiceLocator.getSchedulingService();
+    }
 
-   /**
-    * The notification this field presents.
-    * @return the notification template. Never <code>null</code>.
-    */
-   public PSNotificationTemplate getNotification()
-   {
-      return m_notification;
-   }
-   
-   /**
-    * The notification template name.
-    * @return the notification template name. Not <code>null</code> or empty.
-    */
-   public String getName()
-   {
-      return getNotification().getName();
-   }
-   
-   /**
-    * @param name the new name. Not <code>null</code> or blank.
-    * @see #getName()
-    */
-   public void setName(String name)
-   {
-      notBlank(name);
-      getNotification().setName(name);
-   }
-   
-   /**
-    * The notification template.
-    * @return the notification template. Can be <code>null</code> or empty.
-    */
-   public String getTemplate()
-   {
-      return getNotification().getTemplate();
-   }
-   
-   /**
-    * @param template the new template value. Can be null or empty. 
-    * @see #getTemplate()
-    */
-   public void setTemplate(String template)
-   {
-      getNotification().setTemplate(template);
-   }
+    /**
+     * Retrieves notification template label. For use in the constructor, so the
+     * constructor will be able to validate the notification template variable
+     * before the super constructor is called.
+     *
+     * @param notificationTemplate
+     *            the notification template to request the label from. If
+     *            <code>null</code> the method throws
+     *            <code>IllegalArgumentException</code>.
+     * @return the notification template label. Never <code>null</code> or blank.
+     */
+    private static String getNotificationLabel(PSNotificationTemplate notificationTemplate) {
+        notNull(notificationTemplate);
+        return notificationTemplate.getName();
+    }
 
-   /**
-    * @return the notification subject, maybe <code>null</code> or empty.
-    */
-   public String getSubject()
-   {
-      return getNotification().getSubject();
-   }
-   
-   /**
-    * @param sub the new subject, never <code>null</code> or empty. 
-    * @see #getSubject()
-    */
-   public void setSubject(String sub)
-   {
-      getNotification().setSubject(sub);
-   }
+    /**
+     * The notification this field presents.
+     *
+     * @return the notification template. Never <code>null</code>.
+     */
+    public PSNotificationTemplate getNotification() {
+        return m_notification;
+    }
 
-   
-   @Override
-   public String getHelpTopic()
-   {
-      return "TaskNotificationEditor";
-   }
-   
-   /**
-    * @see #getNotification()
-    */
-   private PSNotificationTemplate m_notification;
+    /**
+     * The notification template name.
+     *
+     * @return the notification template name. Not <code>null</code> or empty.
+     */
+    public String getName() {
+        return getNotification().getName();
+    }
+
+    /**
+     * @param name
+     *            the new name. Not <code>null</code> or blank.
+     * @see #getName()
+     */
+    public void setName(String name) {
+        notBlank(name);
+        getNotification().setName(name);
+    }
+
+    /**
+     * The notification template.
+     *
+     * @return the notification template. Can be <code>null</code> or empty.
+     */
+    public String getTemplate() {
+        return getNotification().getTemplate();
+    }
+
+    /**
+     * @param template
+     *            the new template value. Can be null or empty.
+     * @see #getTemplate()
+     */
+    public void setTemplate(String template) {
+        getNotification().setTemplate(template);
+    }
+
+    /**
+     * @return the notification subject, maybe <code>null</code> or empty.
+     */
+    public String getSubject() {
+        return getNotification().getSubject();
+    }
+
+    /**
+     * @param sub
+     *            the new subject, never <code>null</code> or empty.
+     * @see #getSubject()
+     */
+    public void setSubject(String sub) {
+        getNotification().setSubject(sub);
+    }
+
+    @Override
+    public String getHelpTopic() {
+        return "TaskNotificationEditor";
+    }
+
+    /**
+     * @see #getNotification()
+     */
+    private PSNotificationTemplate m_notification;
 }

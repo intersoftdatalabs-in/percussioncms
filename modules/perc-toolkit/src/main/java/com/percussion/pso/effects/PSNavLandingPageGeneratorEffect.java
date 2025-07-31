@@ -335,12 +335,12 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 					}
 				  
 					//add the NavOn Landing Page link
-		            try{
+					try{
 					createNavOnLandingPageRelationship(req, info.getDependent(), lpLoc, landingSlot);
-		            }catch(Exception e){
-		            	result.setError(e.getLocalizedMessage());
-		            }
-			         
+					}catch(Exception e){
+						result.setError(e.getLocalizedMessage());
+					}
+					 
 					log.debug("Landing page generation complete.");
 					result.setSuccess();
 				}else{
@@ -370,97 +370,97 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 	private PSLocator createLandingPage(IPSRequestContext req, PSComponentSummary folder, PSComponentSummary navon, int communityId) throws Exception{
 	
 		   boolean changeCommunity = false;
-	       String savedCommunity = null;
-	       PSNavConfig config = null;
-	       PSLocator lpLoc=null;
-	       
+		   String savedCommunity = null;
+		   PSNavConfig config = null;
+		   PSLocator lpLoc=null;
+		   
 		try{
 		  config = PSNavConfig.getInstance(req);
 		  
 		  if (communityId != req.getSecurityToken().getCommunityId())
-          { // the user is in a different community from the parent navon
-            // we have to temporarily switch communities to save the new item
-              changeCommunity = true;
-              savedCommunity = PSNavUtil.getSessionCommunity(req);
-              log.debug("Changing communities, old id was {} new id is {} ", savedCommunity, communityId);
-              PSNavUtil.setSessionCommunity(req, communityId);
-          }
+		  { // the user is in a different community from the parent navon
+			// we have to temporarily switch communities to save the new item
+			  changeCommunity = true;
+			  savedCommunity = PSNavUtil.getSessionCommunity(req);
+			  log.debug("Changing communities, old id was {} new id is {} ", savedCommunity, communityId);
+			  PSNavUtil.setSessionCommunity(req, communityId);
+		  }
 			
 		  
 		 //Create the Landing Page type 
 		   PSItemDefManager defMgr = PSItemDefManager.getInstance();
-           String folderName = folder.getName();
-           log.debug("adding new Landing Page to folder {}", folderName);
+		   String folderName = folder.getName();
+		   log.debug("adding new Landing Page to folder {}", folderName);
 
-           m_contentTypeId = defMgr.contentTypeNameToId(m_defaultContentType);
-           
-           PSItemDefinition lpDef = defMgr.getItemDef(m_contentTypeId, communityId);
-           if (lpDef == null)
-           {
-               String errmsg = "Unable to find Itemdef for type {0} in community {1}. ";
-               Object[] args = new Object[2];
-               args[0] = config.getNavonTypeIds().get(0);
-               args[1] = communityId;
-               String sb = MessageFormat.format(errmsg, args);
-               log.error(sb);
-               throw new PSNavException(sb);
-           }
+		   m_contentTypeId = defMgr.contentTypeNameToId(m_defaultContentType);
+		   
+		   PSItemDefinition lpDef = defMgr.getItemDef(m_contentTypeId, communityId);
+		   if (lpDef == null)
+		   {
+			   String errmsg = "Unable to find Itemdef for type {0} in community {1}. ";
+			   Object[] args = new Object[2];
+			   args[0] = config.getNavonTypeIds().get(0);
+			   args[1] = communityId;
+			   String sb = MessageFormat.format(errmsg, args);
+			   log.error(sb);
+			   throw new PSNavException(sb);
+		   }
 
-           PSServerItem lp = new PSServerItem(lpDef, null, req.getSecurityToken());
+		   PSServerItem lp = new PSServerItem(lpDef, null, req.getSecurityToken());
 
-           IPSFieldValue titleValue = new PSTextValue(makeLPTitle(req, folder,m_defaultLandingTitleTemplate));
-           log.debug("New Landing Page name is {}" , titleValue.getValueAsString());
-           setFieldValue(lp, "sys_title", titleValue);
+		   IPSFieldValue titleValue = new PSTextValue(makeLPTitle(req, folder,m_defaultLandingTitleTemplate));
+		   log.debug("New Landing Page name is {}" , titleValue.getValueAsString());
+		   setFieldValue(lp, "sys_title", titleValue);
 
-           IPSFieldValue displaytitleValue = new PSTextValue(makeLPTitle(req, folder,m_defaultLandingDisplayTitleFormat));
-           setFieldValue(lp, m_defaultLandingDisplayTitleField, displaytitleValue);
+		   IPSFieldValue displaytitleValue = new PSTextValue(makeLPTitle(req, folder,m_defaultLandingDisplayTitleFormat));
+		   setFieldValue(lp, m_defaultLandingDisplayTitleField, displaytitleValue);
 
-           setFieldValue(lp, "sys_contentstartdate", new PSDateValue(new Date()));
-           log.debug("Landing Page community id {}" , communityId);
-           setFieldValue(lp, "sys_communityid", new PSTextValue(String.valueOf(communityId)));
-           
-           //Set the required fields with the configured default values
-           if(m_defaultLandingRequiredFields != null && m_defaultLandingRequiredValues != null)
-           {
-        	   int i=0;
-        	   for(String fld_name : m_defaultLandingRequiredFields){
-        		   setFieldValue(lp, fld_name, new PSTextValue(m_defaultLandingRequiredValues[i]));        				   
-        		   i++;
-		       }
-        	   
-           }else{
-        	   log.debug("No required fields configured, skipping them.");
-           }
-           
-           
-           log.debug("before new Landing Page save");
-           lp.save(req.getSecurityToken());
-           log.debug("after save");
+		   setFieldValue(lp, "sys_contentstartdate", new PSDateValue(new Date()));
+		   log.debug("Landing Page community id {}" , communityId);
+		   setFieldValue(lp, "sys_communityid", new PSTextValue(String.valueOf(communityId)));
+		   
+		   //Set the required fields with the configured default values
+		   if(m_defaultLandingRequiredFields != null && m_defaultLandingRequiredValues != null)
+		   {
+			   int i=0;
+			   for(String fld_name : m_defaultLandingRequiredFields){
+				   setFieldValue(lp, fld_name, new PSTextValue(m_defaultLandingRequiredValues[i]));        				   
+				   i++;
+			   }
+			   
+		   }else{
+			   log.debug("No required fields configured, skipping them.");
+		   }
+		   
+		   
+		   log.debug("before new Landing Page save");
+		   lp.save(req.getSecurityToken());
+		   log.debug("after save");
 
-           int contentId = lp.getContentId();
-           log.debug("new content id is {}" , contentId);
-           int revision = lp.getRevision();
-           log.debug("new revision is {}" , revision);
-           lpLoc = new PSLocator(contentId, revision);
-           
-           checkInItem(req, lpLoc);
+		   int contentId = lp.getContentId();
+		   log.debug("new content id is {}" , contentId);
+		   int revision = lp.getRevision();
+		   log.debug("new revision is {}" , revision);
+		   lpLoc = new PSLocator(contentId, revision);
+		   
+		   checkInItem(req, lpLoc);
 
-           //Get the relationship proxy.
-           PSNavProxyFactory pf = PSNavProxyFactory.getInstance(req);
-           PSRelationshipProcessor relProxy = pf.getRelProxy();
-           
-           //add the relationship to to the folder.
-           relProxy.add(PSRelationshipConfig.TYPE_FOLDER_CONTENT, Collections.singletonList(lpLoc),
-                 folder.getCurrentLocator());
-         
-         
-         //Restore community
-         if (changeCommunity)
-         { // we changed communities, so we have to go back
-             PSNavUtil.setSessionCommunity(req, savedCommunity);
-             log.debug("Restored community to {}" , savedCommunity);
-         }
-         
+		   //Get the relationship proxy.
+		   PSNavProxyFactory pf = PSNavProxyFactory.getInstance(req);
+		   PSRelationshipProcessor relProxy = pf.getRelProxy();
+		   
+		   //add the relationship to to the folder.
+		   relProxy.add(PSRelationshipConfig.TYPE_FOLDER_CONTENT, Collections.singletonList(lpLoc),
+				 folder.getCurrentLocator());
+		 
+		 
+		 //Restore community
+		 if (changeCommunity)
+		 { // we changed communities, so we have to go back
+			 PSNavUtil.setSessionCommunity(req, savedCommunity);
+			 log.debug("Restored community to {}" , savedCommunity);
+		 }
+		 
 		} catch (Exception e) {
 			log.error("Error generating Landing Page Error: {}", PSExceptionUtils.getMessageForLog(e));
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -482,46 +482,46 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 			PSComponentSummary navon, PSLocator lp, String landingSlotName) throws PSNavException{
 			
 		  if (req == null)
-	        {
-	            throw new IllegalArgumentException("req must not be null");
-	        }
-	        if (navon == null)
-	        {
-	            throw new IllegalArgumentException("navon must not be null");
-	        }
-	        if (lp == null)
-	        {
-	            throw new IllegalArgumentException("landing page must not be null");
-	        }
-	        
-	        log.debug("adding Landing Page to LandingPage Slot ");
-	        PSNavConfig config = PSNavConfig.getInstance(req);
-	        
-	        PSRelationshipConfig aaConfig = config.getAaRelConfig();
-	        
-	        IPSAssemblyService asWs = PSAssemblyServiceLocator.getAssemblyService();
-	        
-	        IPSTemplateSlot lpSlot=null;
+			{
+				throw new IllegalArgumentException("req must not be null");
+			}
+			if (navon == null)
+			{
+				throw new IllegalArgumentException("navon must not be null");
+			}
+			if (lp == null)
+			{
+				throw new IllegalArgumentException("landing page must not be null");
+			}
+			
+			log.debug("adding Landing Page to LandingPage Slot ");
+			PSNavConfig config = PSNavConfig.getInstance(req);
+			
+			PSRelationshipConfig aaConfig = config.getAaRelConfig();
+			
+			IPSAssemblyService asWs = PSAssemblyServiceLocator.getAssemblyService();
+			
+			IPSTemplateSlot lpSlot=null;
 			try {
 				lpSlot = asWs.findSlotByName(landingSlotName);
 			} catch (PSAssemblyException e1) {
 				log.debug("An exception occurred while looking up the landing page slot: {}", landingSlotName,e1);
 				throw new PSNavException(e1);
 			}
-	        
 			
-	        if(lpSlot == null){
-	        	log.debug("Unable to locate the LandingPage slot: {}" , landingSlotName);
-	        	throw new PSNavException("Unable to locate the LandingPage slot:" + landingSlotName);
-	        }
-	        log.debug("LandingPage slot is {} {}",lpSlot, landingSlotName);
-	        Collection<PSPair<IPSGuid, IPSGuid>> slotTempsAndCTs = lpSlot.getSlotAssociations();
-	        
-	        IPSAssemblyTemplate t;
-	        if(slotTempsAndCTs == null || slotTempsAndCTs.isEmpty()){
-	        	throw new PSNavException("Unable to locate a default template for the landing page" + landingSlotName );
-	        }else{
-	        	IPSGuid templateGUID = null;
+			
+			if(lpSlot == null){
+				log.debug("Unable to locate the LandingPage slot: {}" , landingSlotName);
+				throw new PSNavException("Unable to locate the LandingPage slot:" + landingSlotName);
+			}
+			log.debug("LandingPage slot is {} {}",lpSlot, landingSlotName);
+			Collection<PSPair<IPSGuid, IPSGuid>> slotTempsAndCTs = lpSlot.getSlotAssociations();
+			
+			IPSAssemblyTemplate t;
+			if(slotTempsAndCTs == null || slotTempsAndCTs.isEmpty()){
+				throw new PSNavException("Unable to locate a default template for the landing page" + landingSlotName );
+			}else{
+				IPSGuid templateGUID = null;
 
 				for (PSPair<IPSGuid, IPSGuid> p : slotTempsAndCTs) {
 					if (m_contentTypeId == p.getFirst().getUUID()) {
@@ -529,55 +529,55 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 						break;
 					}
 				}
-	        	
-	        	t = asWs.findTemplate(templateGUID);
-	        }
-	        
-	        
-	        log.debug("LP link template {} {}" , t.getName() , t);
+				
+				t = asWs.findTemplate(templateGUID);
+			}
+			
+			
+			log.debug("LP link template {} {}" , t.getName() , t);
 
-	        PSLocator childLoc = (PSLocator) lp.clone();
-	        
-	        //Dependent of slot relationships are revisionless
-	        childLoc.setRevision(-1);
-	        try
-	        {
-	            PSAaRelationship aaRel = new PSAaRelationship(navon.getCurrentLocator(), childLoc, lpSlot, t);
-	            PSNavProxyFactory pf = PSNavProxyFactory.getInstance(req);
-	            PSActiveAssemblyProcessorProxy aaProxy = pf.getAaProxy();
+			PSLocator childLoc = (PSLocator) lp.clone();
+			
+			//Dependent of slot relationships are revisionless
+			childLoc.setRevision(-1);
+			try
+			{
+				PSAaRelationship aaRel = new PSAaRelationship(navon.getCurrentLocator(), childLoc, lpSlot, t);
+				PSNavProxyFactory pf = PSNavProxyFactory.getInstance(req);
+				PSActiveAssemblyProcessorProxy aaProxy = pf.getAaProxy();
 
-	            // aaProxy.validateAaRelationship(aaRel);
-	            PSAaRelationshipList aaList = new PSAaRelationshipList();
-	            log.debug("add to list " + aaList.toString());
-	            aaList.add(aaRel);
+				// aaProxy.validateAaRelationship(aaRel);
+				PSAaRelationshipList aaList = new PSAaRelationshipList();
+				log.debug("add to list " + aaList.toString());
+				aaList.add(aaRel);
 
-	            aaProxy.addSlotRelationships(aaList, -1);
-	            log.debug("Landing Page added to slot for NavOn: {}", navon.getName());
+				aaProxy.addSlotRelationships(aaList, -1);
+				log.debug("Landing Page added to slot for NavOn: {}", navon.getName());
 
-	        }
-	        catch (PSCmsException e)
-	        {
-	            throw new PSNavException("Error adding Landing Page to NavOn slot for NavOn" + navon.getContentId(), e);
-	        }
+			}
+			catch (PSCmsException e)
+			{
+				throw new PSNavException("Error adding Landing Page to NavOn slot for NavOn" + navon.getContentId(), e);
+			}
 		
 		
 	}
 
 
 	private static String makeLPTitle(final IPSRequestContext req, final PSComponentSummary folder, String template)
-    {
-        String pattern = template;
-        if (pattern == null || pattern.trim().length() == 0)
-        {
-            return folder.getName() + "-LP";
-        }
+	{
+		String pattern = template;
+		if (pattern == null || pattern.trim().length() == 0)
+		{
+			return folder.getName() + "-LP";
+		}
 
-        Object[] parray = new Object[2];
-        parray[0] = folder.getName();
-        parray[1] = folder.getTipLocator().getPart(PSLocator.KEY_ID);
+		Object[] parray = new Object[2];
+		parray[0] = folder.getName();
+		parray[1] = folder.getTipLocator().getPart(PSLocator.KEY_ID);
 
-        return MessageFormat.format(pattern, parray);
-    }
+		return MessageFormat.format(pattern, parray);
+	}
 
 
 	/***
@@ -599,74 +599,75 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 	 }
 	 
 	 /**
-	     * Helper method to set a field value for a content item. Nothing happens if
-	     * the specified field by name does not exist in the item.
-	     * 
-	     * @param item server item object must not be <code>null</code>.
-	     * @param fieldName name of the field to set, must not be <code>null</code>
-	     *            or empty.
-	     * @param fieldValue value of the field to set, may be <code>null</code> or
-	     *            empty.
-	     */
-	    private static void setFieldValue(PSServerItem item, String fieldName, IPSFieldValue fieldValue)
-	    {
-	    	//TODO:  Make this method public in NavFolderUtils so this method instance can be removed. 
-	        if (item == null)
-	        {
-	            throw new IllegalArgumentException("item must not be null");
-	        }
-	        if (fieldName == null || fieldName.length() < 1)
-	        {
-	            throw new IllegalArgumentException("fieldName must not be null or empty");
-	        }
-	        PSItemField field = item.getFieldByName(fieldName);
-	        if (field == null)
-	        {
-	            log.warn("Field " + fieldName + " not found ");
-	            return;
-	        }
-	        field.clearValues();
-	        field.addValue(fieldValue);
-	    }
-	    
-	    /**
-	     * Helper method to checkin and item specified by its locator. Makes an
-	     * internal request to the content editor URL with appropriate htmnl
-	     * parameters.
-	     * 
-	     * @param req request context object, must not be <code>null</code>.
-	     * @param loc locator of the item to checkin, must nor be <code>null</code>.
-	     * @throws PSNavException if it fails to check the item in.
-	     */
-	    public static void checkInItem(IPSRequestContext req, PSLocator loc) throws PSNavException
-	    {
-	    	
-	    	//TODO: Expose this method in PSNavFolderUtils so it can be removed here. 
-	        if (req == null)
-	        {
-	            throw new IllegalArgumentException("req must not be null");
-	        }
-	        if (loc == null)
-	        {
-	            throw new IllegalArgumentException("loc must not be null");
-	        }
-	        PSItemDefManager defMgr = PSItemDefManager.getInstance();
-	        try
-	        {
-	            PSItemDefinition itemDef = defMgr.getItemDef(loc, req.getSecurityToken());
-	            String editorURL = itemDef.getEditorUrl();
-	            Map pMap = new HashMap();
-	            pMap.put(IPSHtmlParameters.SYS_COMMAND, "workflow");
-	            pMap.put("WFAction", "CheckIn");
-	            pMap.put(IPSHtmlParameters.SYS_CONTENTID, loc.getPart(PSLocator.KEY_ID));
-	            pMap.put(IPSHtmlParameters.SYS_REVISION, loc.getPart(PSLocator.KEY_REVISION));
-	            IPSInternalRequest ir = req.getInternalRequest(editorURL, pMap, false);
-	            ir.performUpdate();
-	        }
-	        catch (Exception ex)
-	        {
-	            throw new PSNavException(ex);
-	        }
-	    }
+		 * Helper method to set a field value for a content item. Nothing happens if
+		 * the specified field by name does not exist in the item.
+		 * 
+		 * @param item server item object must not be <code>null</code>.
+		 * @param fieldName name of the field to set, must not be <code>null</code>
+		 *            or empty.
+		 * @param fieldValue value of the field to set, may be <code>null</code> or
+		 *            empty.
+		 */
+		private static void setFieldValue(PSServerItem item, String fieldName, IPSFieldValue fieldValue)
+		{
+			//TODO:  Make this method public in NavFolderUtils so this method instance can be removed. 
+			if (item == null)
+			{
+				throw new IllegalArgumentException("item must not be null");
+			}
+			if (fieldName == null || fieldName.length() < 1)
+			{
+				throw new IllegalArgumentException("fieldName must not be null or empty");
+			}
+			PSItemField field = item.getFieldByName(fieldName);
+			if (field == null)
+			{
+				log.warn("Field " + fieldName + " not found ");
+				return;
+			}
+			field.clearValues();
+			field.addValue(fieldValue);
+		}
+		
+		/**
+		 * Helper method to checkin and item specified by its locator. Makes an
+		 * internal request to the content editor URL with appropriate htmnl
+		 * parameters.
+		 * 
+		 * @param req request context object, must not be <code>null</code>.
+		 * @param loc locator of the item to checkin, must nor be <code>null</code>.
+		 * @throws PSNavException if it fails to check the item in.
+		 */
+		public static void checkInItem(IPSRequestContext req, PSLocator loc) throws PSNavException
+		{
+			
+			//TODO: Expose this method in PSNavFolderUtils so it can be removed here. 
+			if (req == null)
+			{
+				throw new IllegalArgumentException("req must not be null");
+			}
+			if (loc == null)
+			{
+				throw new IllegalArgumentException("loc must not be null");
+			}
+			PSItemDefManager defMgr = PSItemDefManager.getInstance();
+			try
+			{
+				PSItemDefinition itemDef = defMgr.getItemDef(loc, req.getSecurityToken());
+				String editorURL = itemDef.getEditorUrl();
+			Map<String, Object> pMap = new HashMap<>();
+			pMap.put(IPSHtmlParameters.SYS_COMMAND, "workflow");
+			pMap.put("WFAction", "CheckIn");
+			pMap.put(IPSHtmlParameters.SYS_CONTENTID, loc.getPart(PSLocator.KEY_ID));
+			pMap.put(IPSHtmlParameters.SYS_REVISION, loc.getPart(PSLocator.KEY_REVISION));
+				IPSInternalRequest ir = req.getInternalRequest(editorURL, pMap, false);
+				ir.performUpdate();
+			}
+			catch (Exception ex)
+			{
+			// TODO: PSNavException(Exception) is deprecated. Replace with recommended alternative if available.
+			throw new PSNavException(ex);
+			}
+		}
 
 }

@@ -129,7 +129,7 @@ public interface IPSSearchResultRow
     * @return set of column names in the row. Never <code>null</code> may be
     *         empty.
     */
-   Set getColumnNames();
+   Set<String> getColumnNames();
 
    /**
     * Get map of column values for the row. The key in the map is the name of
@@ -138,5 +138,5 @@ public interface IPSSearchResultRow
     * @return map of column values as descibed above, never <code>null</code>
     *         may be empty.
     */
-   Map getColumnValueMap();
+   Map<String, Object> getColumnValueMap();
 }

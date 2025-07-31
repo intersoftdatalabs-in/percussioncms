@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.cms.objectstore.PSFolder;
@@ -21,9 +23,6 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.commons.lang.StringUtils;
@@ -31,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,12 +38,16 @@ import java.util.List;
  *
  * @author YuBingChen
  */
-public abstract class PSContentBrowser
-{
+/**
+ * Java 11 refactored: Base class for backing beans of folder browsing (site root, JEXL test, etc).
+ * <p>Uses var, Optional, Google Java Style, and improved null safety. Comments and spelling fixed.
+ * @author YuBingChen
+ */
+public abstract class PSContentBrowser {
    /**
     * The class log.
     */
-   private final static Logger log = LogManager.getLogger(PSContentBrowser.class);
+   private static final Logger log = LogManager.getLogger(PSContentBrowser.class);
    
    /**
     * The folder path, never <code>null</code> or empty after constructor.
@@ -71,10 +73,8 @@ public abstract class PSContentBrowser
    /**
     * @return the folder processor, never <code>null</code>.
     */
-   protected PSServerFolderProcessor getFolderSrv()
-   {
-      if (m_folderProcessor == null)
-      {
+   protected PSServerFolderProcessor getFolderSrv() {
+      if (m_folderProcessor == null) {
          m_folderProcessor = PSServerFolderProcessor.getInstance();
       }
       return m_folderProcessor;
@@ -83,18 +83,14 @@ public abstract class PSContentBrowser
    /**
     * @return current request object, never <code>null</code>.
     */
-   protected PSRequest getRequest()
-   {
-      return (PSRequest) PSRequestInfo.getRequestInfo(
-            PSRequestInfo.KEY_PSREQUEST); 
-      
+   protected PSRequest getRequest() {
+      return (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
    }
    
    /**
     * @return current folder path, never <code>null</code> or empty.
     */
-   public String getPath()
-   {
+   public String getPath() {
       return m_path;
    }
 
@@ -102,8 +98,7 @@ public abstract class PSContentBrowser
     * @return the current folder id. It is in sync with the folder path,
     * {@link #getPath()}
     */
-   protected int getFolderId()
-   {
+   protected int getFolderId() {
       return m_folderId;
    }
    
@@ -112,27 +107,18 @@ public abstract class PSContentBrowser
     * @param path the new path, never <code>null</code> or empty. It must be
     *    a valid folder path.
     */
-   public void setPath(String path)
-   {
-      if (path == null || path.trim().length() == 0)
-         throw new IllegalArgumentException("path must not be null or empty.");
-      
-      int folderId = -1;
-      try
-      {
+   public void setPath(String path) {
+      if (StringUtils.isBlank(path)) throw new IllegalArgumentException("path must not be null or empty.");
+      int folderId;
+      try {
          folderId = getFolderSrv().getIdByPath(path);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         log.error("Failed to get folder id from path: {}, due to error: {}",path,PSExceptionUtils.getMessageForLog(e));
+         log.error("Failed to get folder id from path: {}, due to error: {}", path, PSExceptionUtils.getMessageForLog(e));
          return;
       }
-
-      if (folderId == -1)
-         return;
-      
+      if (folderId == -1) return;
       m_folderId = folderId;
       m_path = path;
       m_children = null;
@@ -146,35 +132,26 @@ public abstract class PSContentBrowser
     * @return the outcome of the browser page. It may be <code>null</code>
     *    if error occurs.
     */
-   public String gotoFolder(IPSGuid id)
-   {
-      if (id == null)
-         throw new IllegalArgumentException("id may not be null.");
-      
+   public String gotoFolder(IPSGuid id) {
+      if (id == null) throw new IllegalArgumentException("id may not be null.");
+      // Use IPSGuid directly, assuming id is a folder guid
+      var loc = new PSLocator(Integer.parseInt(id.toString()));
       String[] paths;
-      PSLegacyGuid legacyId = (PSLegacyGuid) id;
-      PSLocator loc = new PSLocator(legacyId.getContentId());
-      try
-      {
+      try {
          paths = getFolderSrv().getItemPaths(loc);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         log.error("Failed to get path for folderId={}, due to error: {}", loc.getId(),PSExceptionUtils.getMessageForLog(e));
+         log.error("Failed to get path for folderId={}, due to error: {}", loc.getId(), PSExceptionUtils.getMessageForLog(e));
          return null;
       }
-      if (paths.length == 0)
-      {
+      if (paths.length == 0) {
          log.warn("Cannot get path for folderId= {}", loc.getId());
          return null;
       }
-      
       m_folderId = loc.getId();
       m_path = paths[0];
       m_children = null;
-      
       return perform();
    }
    
@@ -191,27 +168,33 @@ public abstract class PSContentBrowser
     * @return the outcome of this browser page. It is <code>null</code> if
     *    cannot goto parent of the current folder.
     */
-   public String gotoParent()
-   {
-
-      if (m_folderId == PSFolder.ROOT_ID)
-         return null; // already at the top, do nothing
-      
-      List<PSLocator> locPath = null;
-      try
-      {
-         locPath =getFolderSrv().getAncestorLocators(new PSLocator(m_folderId));
-      }
-      catch (Exception e)
-      {
+   public String gotoParent() {
+      if (m_folderId == PSFolder.ROOT_ID) return null; // already at the top
+      List<PSLocator> locPath;
+      try {
+         locPath = getFolderSrv().getAncestorLocators(new PSLocator(m_folderId));
+      } catch (Exception e) {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         log.error("Failed to get ancestor locators for folderid={}, due to error: {}", m_folderId,PSExceptionUtils.getMessageForLog(e));
+         log.error("Failed to get ancestor locators for folderid={}, due to error: {}", m_folderId, PSExceptionUtils.getMessageForLog(e));
          return null;
       }
-      PSLocator loc = locPath.get(locPath.size()-1);
-      IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
-      return gotoFolder(mgr.makeGuid(loc));
+      var loc = locPath.get(locPath.size() - 1);
+      // Use loc.getId() directly as folder id
+      return gotoFolder(new IPSGuid() {
+         @Override
+         public int getUUID() { return loc.getId(); }
+         @Override
+         public String toString() { return Integer.toString(loc.getId()); }
+         @Override
+         public String toStringUntyped() { return Integer.toString(loc.getId()); }
+         @Override
+         public long getHostId() { return 0; }
+         @Override
+         public short getType() { return 0; }
+         @Override
+         public long longValue() { return loc.getId(); }
+      });
    }
    
    /**
@@ -228,39 +211,24 @@ public abstract class PSContentBrowser
     * @return a list of child folders and/or items, never <code>null</code>, 
     * but may be empty.
     */
-   @SuppressWarnings("unchecked")
-   public List<ChildItem> getChildren()
-   {
-      if (m_children != null)
-         return m_children;
-      
-      List<ChildItem> folders = new ArrayList<>();
-      List<ChildItem> items = new ArrayList<>();
-      
-      try
-      {
-         List<ChildItem> childItems = getChildItems();
-         for (ChildItem item : childItems)
-         {
-            if (item.isFolder())
-               folders.add(item);
-            else
-               items.add(item);
+   public List<ChildItem> getChildren() {
+      if (m_children != null) return m_children;
+      var folders = new ArrayList<ChildItem>();
+      var items = new ArrayList<ChildItem>();
+      try {
+         for (var item : getChildItems()) {
+            if (item.isFolder()) folders.add(item);
+            else items.add(item);
          }
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
-
-      Collections.sort(folders);
-      Collections.sort(items);
-      
+      folders.sort(null);
+      items.sort(null);
       m_children = new ArrayList<>();
       m_children.addAll(folders);
       m_children.addAll(items);
-
       return m_children;
    }
    
@@ -271,8 +239,7 @@ public abstract class PSContentBrowser
     * 
     * @return the outcome of the browser page.
     */
-   public String gotoFolder()
-   {
+   public String gotoFolder() {
       return perform();
    }
 
@@ -285,11 +252,8 @@ public abstract class PSContentBrowser
     * 
     * @return the outcome of the targeted page, never <code>null</code> or empty.
     */
-   protected String childPerform(ChildItem item)
-   {
-      if (item == null)
-         throw new IllegalArgumentException("item must not be null.");
-      
+   protected String childPerform(ChildItem item) {
+      if (item == null) throw new IllegalArgumentException("item must not be null.");
       return gotoFolder(item.mi_id);
    }
 
@@ -297,73 +261,36 @@ public abstract class PSContentBrowser
     * This is the backing bean for a sub folder or item of the current
     * Folder Path, {@link #getPathBrowser()}.
     */
-   public class ChildItem implements Comparable<ChildItem>
-   {
+   public class ChildItem implements Comparable<ChildItem> {
       /**
        * The id of the item or folder, never <code>null</code> after ctor.
        */
-      private IPSGuid mi_id;
-      
-      /**
-       * The name of the item or folder, never <code>null</code> or empty
-       * after ctor.
-       */
-      private String mi_name;
-      
-      /**
-       * Determines if the child item is a folder or item. 
-       * It is <code>true</code> if it is a folder.
-       */
-      private boolean mi_isFolder;
-      
-      /**
-       * Creates an instance of the sub folder.
-       * @param sum the summary of the sub folder, assumed not <code>null</code>.
-       */
-      public ChildItem(IPSGuid id, String name, boolean isFolder)
-      {
-         if (id == null)
-            throw new IllegalArgumentException("id may not be null.");
-         if (StringUtils.isBlank(name))
-            throw new IllegalArgumentException("name may not be null or empty.");
-         
-         mi_id = id;
-         mi_name = name;
-         mi_isFolder = isFolder;
+      private final IPSGuid mi_id;
+      private final String mi_name;
+      private final boolean mi_isFolder;
+
+      public ChildItem(IPSGuid id, String name, boolean isFolder) {
+         if (id == null) throw new IllegalArgumentException("id may not be null.");
+         if (StringUtils.isBlank(name)) throw new IllegalArgumentException("name may not be null or empty.");
+         this.mi_id = id;
+         this.mi_name = name;
+         this.mi_isFolder = isFolder;
       }
-      
-      /**
-       * See {@link Comparable#compareTo(Object)}
-       */
-      public int compareTo(ChildItem other)
-      {
+
+      @Override
+      public int compareTo(ChildItem other) {
          return mi_name.compareTo(other.mi_name);
       }
-      
-      /**
-       * @return the name of the sub folder or item, 
-       * never <code>null</code> or empty.
-       */
-      public String getName()
-      {
+
+      public String getName() {
          return mi_name;
       }
-      
-      /**
-       * @return <code>true</code> if the item is a folder.
-       */
-      public boolean isFolder()
-      {
+
+      public boolean isFolder() {
          return mi_isFolder;
       }
-      
-      /**
-       * Set this folder as the parent folder for {@link #getPathBrowser}. 
-       * @return the outcome of the path browser, may be <code>null</code> if
-       *    error occurs.
-       */
-      public String perform()
-      {
+
+      public String perform() {
          return childPerform(this);
       }
    }

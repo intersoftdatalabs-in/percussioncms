@@ -42,6 +42,7 @@ import java.util.Optional;
  * 
  * @author adamgent
  */
+// REFACTORED: CP-JAVA11
 public class PSContextLoader extends ContextLoader {
 
     /**
@@ -82,7 +83,7 @@ public class PSContextLoader extends ContextLoader {
 
         log.info("Initializing Root Web Application Context");
 
-        var rxDir = PathUtils.getRxDir(null);
+        java.io.File rxDir = PathUtils.getRxDir(null);
         PSServer.setRxDir(rxDir);
         PSEntityResolver.setResolutionHome(rxDir);
 
@@ -92,7 +93,7 @@ public class PSContextLoader extends ContextLoader {
 
         PSServletUtils.initialize(servletContext);
 
-        var context = super.initWebApplicationContext(servletContext);
+        WebApplicationContext context = super.initWebApplicationContext(servletContext);
         log.info("Finished loading spring");
         return context;
     }

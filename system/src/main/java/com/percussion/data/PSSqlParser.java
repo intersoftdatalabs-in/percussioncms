@@ -88,7 +88,7 @@ public class PSSqlParser {
      if (sql == null)
       throw new IllegalArgumentException("sql may not be null");
      
-     List replValues = parseNativeStatement(sql, null);
+     List<IPSReplacementValue> replValues = parseNativeStatement(sql, null);
      IPSReplacementValue[] ret = new IPSReplacementValue[replValues.size()];
      replValues.toArray(ret);
      return ret;
@@ -167,9 +167,9 @@ public class PSSqlParser {
    * @return The list of replacement values created, never <code>null</code>,
    *         may be empty.
    */
-  private static List parseNativeStatement(String sql, PSStatementBlock block)
+  private static List<IPSReplacementValue> parseNativeStatement(String sql, PSStatementBlock block)
   {
-     List replValList = new ArrayList();
+     List<IPSReplacementValue> replValList = new ArrayList<>();
      int start, end;
      String field = null;
      IPSReplacementValue value;

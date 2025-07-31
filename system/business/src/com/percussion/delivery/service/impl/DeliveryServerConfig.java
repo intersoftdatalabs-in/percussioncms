@@ -57,6 +57,7 @@ import javax.xml.bind.annotation.XmlType;
     "deliveryServer"
 })
 @XmlRootElement(name = "DeliveryServerConfig")
+// REFACTORED: CP-JAVA11
 public class DeliveryServerConfig {
 
     @XmlElement(name = "DeliveryServer")

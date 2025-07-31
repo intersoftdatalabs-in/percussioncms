@@ -17,24 +17,16 @@
 
 package com.percussion.delivery.metadata;
 
-public interface IPSMetadataProperty
-{
+public interface IPSMetadataProperty {
 
-   /**
-    * @return the name
-    */
-   public String getName();
+    String getName();
 
-   /**
-    * @param name the name to set
-    */
-   public void setName(String name);
+    void setName(String name);
 
-   /**
-    * Returns the untyped value.
-    * 
-    * @return May be <code>null</code>.
-    */
-   public String getValue();
-
+    /**
+     * Returns the untyped value.
+     *
+     * @return May be <code>null</code>.
+     */
+    String getValue();
 }

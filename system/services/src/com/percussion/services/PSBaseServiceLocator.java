@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -140,13 +141,13 @@ public class PSBaseServiceLocator {
             PSContainerUtilsFactory.getConfigurationContextInstance().load();
             ms_logger.info("Initializing Base Service Locator");
 
-            var ctx = new XmlWebApplicationContext();
+            XmlWebApplicationContext ctx = new XmlWebApplicationContext();
             ctx.setServletContext(servletCtx);
 
-            var sysConfigDir = PSServletUtils.getSpringConfigPath();
-            var configFiles = buildConfigFilesList(sysConfigDir);
+            String sysConfigDir = PSServletUtils.getSpringConfigPath();
+            List<String> configFiles = buildConfigFilesList(sysConfigDir);
 
-            var files = configFiles.toArray(String[]::new);
+            String[] files = configFiles.toArray(new String[0]);
             ctx.setConfigLocations(files);
             ms_context = ctx;
 
@@ -157,15 +158,19 @@ public class PSBaseServiceLocator {
             ms_logger.info("Loading cataloger bean configurations");
             configFiles.clear();
             configFiles.add(sysConfigDir + "/" + PSServletUtils.CATALOGER_BEANS_FILE_NAME);
-            var childCtx = initChildCtx(ctx, configFiles);
-            childCtx.ifPresent(c -> ms_context = c);
+            Optional<XmlWebApplicationContext> childCtx = initChildCtx(ctx, configFiles);
+            if (childCtx.isPresent()) {
+                ms_context = childCtx.get();
+            }
 
             // try loading user configs as child context
-            var userConfigFiles = getUserConfigFiles();
+            List<String> userConfigFiles = getUserConfigFiles();
             if (!userConfigFiles.isEmpty()) {
                 ms_logger.info("Loading user defined bean configurations");
                 childCtx = initChildCtx(ctx, userConfigFiles);
-                childCtx.ifPresent(c -> ms_context = c);
+                if (childCtx.isPresent()) {
+                    ms_context = childCtx.get();
+                }
             }
 
             isInitialized = true;
@@ -212,8 +217,8 @@ public class PSBaseServiceLocator {
     private static Optional<XmlWebApplicationContext> initChildCtx(
         XmlWebApplicationContext parentCtx, List<String> configFiles) {
         try {
-            var files = configFiles.toArray(String[]::new);
-            var ctx = new XmlWebApplicationContext();
+            String[] files = configFiles.toArray(new String[0]);
+            XmlWebApplicationContext ctx = new XmlWebApplicationContext();
             ctx.setParent(ms_context);
             ctx.setServletContext(parentCtx.getServletContext());
             ctx.setConfigLocations(files);
@@ -236,7 +241,7 @@ public class PSBaseServiceLocator {
     public static synchronized void initCtx(String[] files)
             throws PSMissingBeanConfigurationException {
         if (ms_context == null) {
-            var fixedFiles = PSOsTool.isUnixPlatform()
+            String[] fixedFiles = PSOsTool.isUnixPlatform()
                 ? Arrays.stream(files)
                     .map(file -> "/" + file)
                     .toArray(String[]::new)
@@ -315,10 +320,10 @@ public class PSBaseServiceLocator {
      *         never <code>null</code>, may be empty.
      */
     private static List<String> getUserConfigFiles() {
-        var userConfigPath = PSServletUtils.getUserSpringConfigPath();
-        var userConfigDir = PSServletUtils.getUserSpringConfigDir();
+        String userConfigPath = PSServletUtils.getUserSpringConfigPath();
+        File userConfigDir = PSServletUtils.getUserSpringConfigDir();
 
-        var files = userConfigDir.listFiles();
+        File[] files = userConfigDir.listFiles();
         if (files == null) {
             return new ArrayList<>();
         }
@@ -340,16 +345,16 @@ public class PSBaseServiceLocator {
 
         contextLock.writeLock().lock();
         try {
-            // Process contexts in reverse order
-            for (var i = ms_ctxList.size() - 1; i >= 0; i--) {
-                var ctx = ms_ctxList.get(i);
+            for (int i = ms_ctxList.size() - 1; i >= 0; i--) {
+                ConfigurableApplicationContext ctx = ms_ctxList.get(i);
                 if (ctx != null) {
-                    Optional.ofNullable(ctx.getParent())
-                        .filter(ConfigurableApplicationContext.class::isInstance)
-                        .map(ConfigurableApplicationContext.class::cast)
-                        .filter(ConfigurableApplicationContext::isActive)
-                        .ifPresent(ConfigurableApplicationContext::close);
-
+                    ApplicationContext parent = ctx.getParent();
+                    if (parent instanceof ConfigurableApplicationContext) {
+                        ConfigurableApplicationContext parentCtx = (ConfigurableApplicationContext) parent;
+                        if (parentCtx.isActive()) {
+                            parentCtx.close();
+                        }
+                    }
                     if (ctx.isActive()) {
                         ctx.close();
                     }
@@ -377,7 +382,7 @@ public class PSBaseServiceLocator {
             throw new IllegalArgumentException("beanName may not be null or empty");
         }
 
-        var ctx = getCtx();
+        ApplicationContext ctx = getCtx();
         Objects.requireNonNull(ctx, "Application Context cannot be null");
 
         try {
@@ -413,59 +418,13 @@ public class PSBaseServiceLocator {
                 ms_setNamingContextBuilder = true;
             }
 
-            Optional.ofNullable(System.getProperty("rxdeploydir"))
-                .filter(dir -> !dir.isEmpty())
-                .ifPresentOrElse(dir -> loadFileConfig(), PSBaseServiceLocator::loadGenerated);
+            String rxDeployDir = System.getProperty("rxdeploydir");
+            if (rxDeployDir != null && !rxDeployDir.isEmpty()) {
+                loadFileConfig();
+            } else {
+                loadGenerated();
+            }
 
             isInitialized = true;
             return ms_context;
-        } catch (NamingException e) {
-            throw new PSMissingBeanConfigurationException("Failed to initialize naming context", e);
-        } finally {
-            initializing = false;
-            contextLock.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Load the file-based configuration for development/testing environments.
-     */
-    private static void loadFileConfig() {
-        ms_logger.info("Loading file configuration");
-
-        var files = ms_fileconfig.listFiles();
-        if (files == null) {
-            ms_logger.warn("No configuration files found in {}", ms_fileconfig.getAbsolutePath());
-            return;
-        }
-
-        var springFiles = Arrays.stream(files)
-            .filter(File::isFile)
-            .filter(file -> file.getName().endsWith(".xml"))
-            .map(File::getAbsolutePath)
-            .toArray(String[]::new);
-
-        try {
-            initCtx(springFiles);
-        } catch (PSMissingBeanConfigurationException e) {
-            ms_logger.error("Failed to load file configuration: {}",
-                PSExceptionUtils.getMessageForLog(e));
-            throw new RuntimeException("Configuration loading failed", e);
-        }
-    }
-
-    /**
-     * Load the generated configuration for runtime environments.
-     */
-    private static void loadGenerated() {
-        ms_logger.info("Loading generated configuration");
-
-        try {
-            initCtx(new String[]{ms_generatedFileConfig});
-        } catch (PSMissingBeanConfigurationException e) {
-            ms_logger.error("Failed to load generated configuration: {}",
-                PSExceptionUtils.getMessageForLog(e));
-            throw new RuntimeException("Configuration loading failed", e);
-        }
-    }
-}
+        } catch

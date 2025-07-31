@@ -21,7 +21,6 @@ import com.percussion.security.xml.PSCatalogResolver;
 import com.percussion.server.PSServer;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -36,7 +35,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.StringTokenizer;
 
@@ -44,8 +42,8 @@ import java.util.StringTokenizer;
  * Class used for caching style sheet in the form of <code>Templates</code>
  * object. If the style sheet file is modified, it's cached with new file.
  **/
-public class PSCachedStylesheet
-{
+// REFACTORED: CP-JAVA11
+public class PSCachedStylesheet {
 
    /**
     * Constructor for initializing all variables.
@@ -60,34 +58,33 @@ public class PSCachedStylesheet
     * be found or instantiated.
     **/
    public PSCachedStylesheet(URL ssUrl)
-      throws IOException, TransformerFactoryConfigurationError
-    {
-      if(ssUrl == null)
-         throw new IllegalArgumentException("Url to cache can not be null");
+         throws IOException, TransformerFactoryConfigurationError {
+      if (ssUrl == null) {
+         throw new IllegalArgumentException("URL to cache cannot be null");
+      }
 
-      // Fix the URL if it is file relative to make it be relative to the
-      // root
-      if (ssUrl.getProtocol().equals("file") && ssUrl.getFile().startsWith("/") == false)
-      {
-         String rxFile = PSServer.getRxFile(ssUrl.getFile());
+      // Fix the URL if it is file-relative to make it relative to the root
+      if ("file".equals(ssUrl.getProtocol()) && !ssUrl.getFile().startsWith("/")) {
+         var rxFile = PSServer.getRxFile(ssUrl.getFile());
          ssUrl = new URL("file", ssUrl.getHost(), rxFile);
       }
-      
+
       m_ssUrl = ssUrl;
       m_cachedTime = 0;
       m_ssTemplate = null;
       m_listener = new PSTransformErrorListener();
 
-       m_transformFactory =  TransformerFactory.newInstance();
+      m_transformFactory = TransformerFactory.newInstance();
 
-      PSCatalogResolver cr = new PSCatalogResolver();
+      var cr = new PSCatalogResolver();
       cr.setInternalRequestURIResolver(new PSInternalRequestURIResolver());
       m_transformFactory.setURIResolver(cr);
 
-      if("file".equalsIgnoreCase(m_ssUrl.getProtocol()))
-         m_ssFile = new File(m_ssUrl.getFile());        
-      else
+      if ("file".equalsIgnoreCase(m_ssUrl.getProtocol())) {
+         m_ssFile = new File(m_ssUrl.getFile());
+      } else {
          m_ssFile = null;
+      }
    }
    /**
     * Convienience method for {@link #getStylesheetTemplate(String)}
@@ -118,63 +115,53 @@ public class PSCachedStylesheet
     * created because of parser errors in style sheet.
     */
    public Templates getStylesheetTemplate(String encoding)
-      throws IOException, SAXException, TransformerConfigurationException
-   {
+         throws IOException, SAXException, TransformerConfigurationException {
       encoding = encoding == null ? "UTF-8" : encoding;
-      // we can calculate modified time on files, so see if it changed
-      if ( (m_ssTemplate == null) || (!m_lastEncoding.equals(encoding)) ||
-           ((m_ssFile != null) && (m_ssFile.lastModified() > m_cachedTime)) )
-      {
-         synchronized(this)
-         {
-            if ((m_ssFile != null) && (m_ssFile.lastModified() > m_cachedTime) ||
-               (!m_lastEncoding.equals(encoding)))
-            {
+      // We can calculate modified time on files, so see if it changed
+      if ((m_ssTemplate == null) || (!m_lastEncoding.equals(encoding)) ||
+              ((m_ssFile != null) && (m_ssFile.lastModified() > m_cachedTime))) {
+         synchronized (this) {
+            if ((m_ssFile != null && m_ssFile.lastModified() > m_cachedTime)
+                    || (!m_lastEncoding.equals(encoding))) {
                m_ssTemplate = null;
-               m_cachedTime = m_ssFile.lastModified();
+               if (m_ssFile != null) {
+                  m_cachedTime = m_ssFile.lastModified();
+               }
             }
-            if (m_ssTemplate == null)
-            {
-               Logger l = LogManager.getLogger(getClass());
+            if (m_ssTemplate == null) {
+               var l = LogManager.getLogger(getClass());
                Document doc = null;
-               try
-               {
-                  //Reason for using DOMSource is creating document using
-                  //PSXMLDocumentBuilder is giving better error message than
-                  //using StreamSource with inputstream of stylesheet URL.
-
-                  try(InputStream urlStream = m_ssUrl.openStream()) {
+               try {
+                  // Reason for using DOMSource is creating document using
+                  // PSXMLDocumentBuilder is giving better error message than
+                  // using StreamSource with inputstream of stylesheet URL.
+                  try (var urlStream = m_ssUrl.openStream()) {
                      PSXmlDocumentBuilder.setInternalRequestURIResolver(new PSInternalRequestURIResolver());
                      doc = PSXmlDocumentBuilder.createXmlDocument(
-                             new InputSource(urlStream),
-                             false);
+                             new InputSource(urlStream), false);
                   }
 
-               if(encoding.trim().length() > 0)
-               {
-                  // override char encoding
-                  m_lastEncoding = encoding;
-                  overrideXSLCharacterEncoding(doc, encoding);
-               }
-                  PSCatalogResolver cr = new PSCatalogResolver();
+                  if (!encoding.trim().isEmpty()) {
+                     // Override char encoding
+                     m_lastEncoding = encoding;
+                     overrideXSLCharacterEncoding(doc, encoding);
+                  }
+                  var cr = new PSCatalogResolver();
                   cr.setInternalRequestURIResolver(new PSInternalRequestURIResolver());
                   m_transformFactory.setURIResolver(cr);
                   m_transformFactory.setErrorListener(m_listener);
 
                   m_ssTemplate =
-                     m_transformFactory.newTemplates(
-                        new DOMSource(doc, m_ssUrl.toString()));
-               }
-               catch (SAXException | IOException| TransformerConfigurationException e)
-               {
-                  l.error("Error loading: {} Error: {}" , m_ssUrl,
+                          m_transformFactory.newTemplates(
+                                  new DOMSource(doc, m_ssUrl.toString()));
+               } catch (SAXException | IOException | TransformerConfigurationException e) {
+                  l.error("Error loading: {} Error: {}", m_ssUrl,
                           PSExceptionUtils.getMessageForLog(e));
                   throw e;
                }
             }
          }
       }
-
       return m_ssTemplate;
    }
 

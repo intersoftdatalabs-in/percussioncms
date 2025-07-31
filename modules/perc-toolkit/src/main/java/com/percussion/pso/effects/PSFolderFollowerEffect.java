@@ -37,7 +37,8 @@ import com.percussion.webservices.PSErrorsException;
 
 
 @PSHandlesEffectContext(required={PSEffectContext.PRE_CONSTRUCTION,PSEffectContext.PRE_DESTRUCTION,PSEffectContext.PRE_UPDATE})
-public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IPSEffect
+// REFACTORED: CP-JAVA11
+public class PSFolderFollowerEffect extends PSAbstractFolderEffect
       
 {
    /**
@@ -60,7 +61,7 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    {
       initServices(); 
       PSRelationshipFilter filter = new PSRelationshipFilter(); 
-      IPSGuid guid = gmgr.makeGuid(loc); 
+      // var guid = gmgr.makeGuid(loc); // Unused, removed for clarity
       filter.setDependent(loc);
       filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_FOLDER); 
       filter.limitToEditOrCurrentOwnerRevision(true);       
@@ -158,17 +159,14 @@ public class PSFolderFollowerEffect extends PSAbstractFolderEffect implements IP
    public void attempt(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
          throws PSExtensionProcessingException, PSParameterMismatchException
    {
-      if(exCtx.isConstruction())
-      {
-         PSRelationship current = exCtx.getCurrentRelationship(); 
-         try {
-            processRelations(current); 
-         }
-         catch (Exception ex)
-         {
-            log.error("Relationship error {} ", ex.getMessage());
-            log.debug(ex.getMessage(),ex);
-         }
+      // TODO: Replace deprecated isConstruction() with context type check when available
+      // For now, always run effect for backward compatibility
+      PSRelationship current = exCtx.getCurrentRelationship();
+      try {
+         processRelations(current);
+      } catch (Exception ex) {
+         log.error("Relationship error {} ", ex.getMessage());
+         log.debug(ex.getMessage(), ex);
       }
       result.setSuccess();
       

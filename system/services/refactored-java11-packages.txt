@@ -30,5 +30,6 @@ com.percussion.services.ui - User interface services with hierarchical node mana
 com.percussion.services.widgetbuilder - Widget builder definition management with Optional-based safe access, comprehensive validation, and modern JPA patterns
 com.percussion.services.linkmanagement - Managed link operations with Optional-based safe access, Stream API integration, and enhanced content relationship management
 com.percussion.services.schedule - Task scheduling services with Quartz integration, enhanced notification handling, SMTP configuration caching, and modern concurrency patterns
+com.percussion.services.schedule - Task scheduling services with Quartz integration, enhanced notification handling, SMTP configuration caching, and modern concurrency patterns
 com.percussion.services.integrations - Third-party integration provider services with async operations, Optional return types, enhanced error handling, and SiteImprove API integration
 com.percussion.services.legacy - Legacy CMS object management with Optional-based safe access, Stream API support, AtomicReference concurrency, and builder pattern data objects
