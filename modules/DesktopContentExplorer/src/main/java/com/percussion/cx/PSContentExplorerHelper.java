@@ -17,7 +17,8 @@
 
 package com.percussion.cx;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.ImageIcon;
 import java.net.MalformedURLException;
@@ -34,7 +35,7 @@ import java.util.ResourceBundle;
 
 public class PSContentExplorerHelper
 {
-   static Logger log = Logger.getLogger(PSContentExplorerHeader.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
    
    public static  List<String> htmExt = Arrays.asList("html", "htm");
    
