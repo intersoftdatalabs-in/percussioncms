@@ -21,8 +21,8 @@ import com.percussion.utils.jsr170.PSCollectionRangeIterator;
 
 import java.util.Collection;
 
-import javax.jcr.query.Row;
-import javax.jcr.query.RowIterator;
+import javax.jcr.query.Row; // TODO: JAVAX-11
+import javax.jcr.query.RowIterator; // TODO: JAVAX-11
 
 /**
  * Implementation of a JSR-170 row iterator

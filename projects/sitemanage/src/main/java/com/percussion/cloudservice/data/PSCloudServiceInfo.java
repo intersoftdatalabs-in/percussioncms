@@ -17,7 +17,7 @@
 
 package com.percussion.cloudservice.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "CloudServiceInfo")
 public class PSCloudServiceInfo

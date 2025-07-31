@@ -20,7 +20,7 @@ package com.percussion.rest.itemfilter;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Set;
 
 @XmlRootElement(name = "ItemFilter")

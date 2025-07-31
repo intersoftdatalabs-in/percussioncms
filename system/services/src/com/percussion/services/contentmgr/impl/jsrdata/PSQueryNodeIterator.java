@@ -28,9 +28,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.NodeIterator; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 /**
  * Implementation of a node iterator for use in queries

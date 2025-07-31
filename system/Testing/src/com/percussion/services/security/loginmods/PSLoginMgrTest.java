@@ -26,10 +26,10 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.callback.Callback; // TODO: JAVAX-11
+import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
+import javax.security.auth.callback.UnsupportedCallbackException; // TODO: JAVAX-11
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

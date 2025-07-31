@@ -31,7 +31,7 @@ import com.percussion.utils.types.PSPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;

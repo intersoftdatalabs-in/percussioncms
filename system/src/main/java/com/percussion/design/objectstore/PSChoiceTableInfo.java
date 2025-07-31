@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

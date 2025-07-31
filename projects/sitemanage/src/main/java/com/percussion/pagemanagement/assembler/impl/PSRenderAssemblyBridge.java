@@ -51,7 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

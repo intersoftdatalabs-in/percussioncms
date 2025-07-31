@@ -23,10 +23,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.SocketFactory; // TODO: JAVAX-11
+import javax.net.ssl.SSLContext; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
 
 import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;

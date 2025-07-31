@@ -17,7 +17,7 @@
 
 package com.percussion.sitemanage.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.percussion.share.data.PSAbstractDataObject;
 

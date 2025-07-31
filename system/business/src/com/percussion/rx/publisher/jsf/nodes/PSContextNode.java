@@ -41,8 +41,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.faces.model.SelectItem;
-import javax.jcr.RepositoryException;
+import jakarta.faces.model.SelectItem;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;

@@ -41,10 +41,10 @@ package com.percussion.widgets.image.extensions;
       import org.apache.logging.log4j.Logger;
       import org.w3c.dom.Document;
 
-      import javax.jcr.Node;
-      import javax.jcr.PathNotFoundException;
-      import javax.jcr.RepositoryException;
-      import javax.jcr.ValueFormatException;
+      import javax.jcr.Node; // TODO: JAVAX-11
+      import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
+      import javax.jcr.RepositoryException; // TODO: JAVAX-11
+      import javax.jcr.ValueFormatException; // TODO: JAVAX-11
       import java.io.ByteArrayOutputStream;
       import java.io.File;
       import java.io.IOException;

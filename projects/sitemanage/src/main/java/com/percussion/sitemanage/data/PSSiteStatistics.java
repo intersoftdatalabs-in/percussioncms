@@ -18,7 +18,7 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "statistics")
 public class PSSiteStatistics extends PSAbstractDataObject

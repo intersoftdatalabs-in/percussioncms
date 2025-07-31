@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * A request object used for getting the content activity data from the rest service. 

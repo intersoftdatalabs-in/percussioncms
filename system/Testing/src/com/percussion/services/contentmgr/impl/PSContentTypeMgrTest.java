@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.Test;

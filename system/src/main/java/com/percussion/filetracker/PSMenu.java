@@ -17,7 +17,7 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 
 /**
  * This class deals with PSAction objects rather than Action objects. PSAction

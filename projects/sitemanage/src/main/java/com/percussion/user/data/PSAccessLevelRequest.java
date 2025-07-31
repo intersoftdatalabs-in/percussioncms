@@ -19,7 +19,7 @@ package com.percussion.user.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotEmpty;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Encapsulates a request for the access level, see {@link PSAccessLevel}, of the current user for a given content type

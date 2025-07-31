@@ -37,7 +37,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; // TODO: JAVAX-11
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

@@ -17,8 +17,8 @@
 
 package com.percussion.filetracker;
 
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
+import javax.swing.event.MenuEvent; // TODO: JAVAX-11
+import javax.swing.event.MenuListener; // TODO: JAVAX-11
 
 /**
  * A simple menu listener adapter class implmenting MenuListener interface.

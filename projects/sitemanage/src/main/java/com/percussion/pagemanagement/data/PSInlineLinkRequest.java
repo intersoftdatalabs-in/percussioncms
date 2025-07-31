@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;

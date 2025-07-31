@@ -92,8 +92,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

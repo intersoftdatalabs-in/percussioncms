@@ -18,8 +18,8 @@
 package com.percussion.filetracker;
 
 
-import javax.swing.*;
-import javax.swing.text.Keymap;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.text.Keymap; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -20,7 +20,7 @@ import net.sf.oval.constraint.NotNull;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Represents both a physical file location and logical link (url).

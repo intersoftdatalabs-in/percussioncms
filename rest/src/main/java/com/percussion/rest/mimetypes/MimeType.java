@@ -20,7 +20,7 @@ package com.percussion.rest.mimetypes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /***
  * Represents a Mime Type registered on the system.

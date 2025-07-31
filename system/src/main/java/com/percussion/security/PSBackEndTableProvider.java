@@ -25,8 +25,8 @@ import com.percussion.design.objectstore.PSSubject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.callback.CallbackHandler;
-import javax.servlet.http.HttpServletRequest;
+import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
+import jakarta.servlet.http.HttpServletRequest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

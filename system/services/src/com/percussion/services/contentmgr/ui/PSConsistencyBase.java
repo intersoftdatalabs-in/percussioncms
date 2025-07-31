@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 

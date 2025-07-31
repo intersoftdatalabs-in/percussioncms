@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
 
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;

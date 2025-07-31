@@ -20,7 +20,7 @@ import com.percussion.extension.IPSExtension;
 
 import java.util.Map;
 
-import javax.jcr.query.QueryResult;
+import javax.jcr.query.QueryResult; // TODO: JAVAX-11
 
 /**
  * A generator creates a candidate list of content guids to be published.

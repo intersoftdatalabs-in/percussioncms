@@ -22,7 +22,7 @@ import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang.StringUtils;
 

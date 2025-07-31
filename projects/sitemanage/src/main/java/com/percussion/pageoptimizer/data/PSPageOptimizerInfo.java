@@ -19,7 +19,7 @@ package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServiceInfo;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "PageOptimizerInfo")
 public class PSPageOptimizerInfo extends PSCloudServiceInfo
