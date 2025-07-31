@@ -17,9 +17,9 @@
 
 package com.percussion.security;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.KeyGenerator; // TODO: JAVAX-11
+import javax.crypto.SecretKey; // TODO: JAVAX-11
+import javax.crypto.spec.SecretKeySpec; // TODO: JAVAX-11
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.logging.log4j.LogManager;

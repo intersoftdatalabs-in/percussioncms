@@ -17,7 +17,7 @@
 
 package com.percussion.guitools;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.util.Map;

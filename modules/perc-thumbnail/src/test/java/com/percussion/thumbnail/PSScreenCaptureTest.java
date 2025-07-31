@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; // TODO: JAVAX-11
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

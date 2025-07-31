@@ -19,7 +19,7 @@ package com.percussion.delivery.metadata.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;

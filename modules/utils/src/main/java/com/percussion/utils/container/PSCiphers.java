@@ -17,8 +17,8 @@
 
 package com.percussion.utils.container;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLContext; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;

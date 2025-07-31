@@ -22,7 +22,7 @@ import javax.help.DefaultHelpBroker;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;

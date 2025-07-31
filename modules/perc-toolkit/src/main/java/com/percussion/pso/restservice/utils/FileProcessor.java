@@ -25,7 +25,7 @@ import com.percussion.util.PSPurgableTempFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; // TODO: JAVAX-11
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

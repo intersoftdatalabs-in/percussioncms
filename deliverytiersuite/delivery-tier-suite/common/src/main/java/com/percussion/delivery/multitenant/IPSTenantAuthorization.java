@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.multitenant;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 /**
  * Handle authorization of a tenant id.

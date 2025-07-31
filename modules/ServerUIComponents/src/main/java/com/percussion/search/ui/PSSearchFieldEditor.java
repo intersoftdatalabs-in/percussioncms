@@ -46,12 +46,12 @@ import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.border.Border; // TODO: JAVAX-11
+import javax.swing.event.DocumentEvent; // TODO: JAVAX-11
+import javax.swing.event.DocumentListener; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

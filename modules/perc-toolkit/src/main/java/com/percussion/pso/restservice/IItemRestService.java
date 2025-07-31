@@ -21,8 +21,8 @@ import com.percussion.pso.restservice.model.Item;
 import com.percussion.pso.restservice.model.Items;
 import com.percussion.pso.restservice.model.results.PagedResult;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 
 /**
  */

@@ -27,7 +27,7 @@ import com.percussion.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.xml.namespace.QName;
+import javax.xml.namespace.QName; // TODO: JAVAX-11
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -17,7 +17,7 @@
 
 package com.percussion.guitools;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;

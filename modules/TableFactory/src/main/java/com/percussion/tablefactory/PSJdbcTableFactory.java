@@ -34,11 +34,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -28,8 +28,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;

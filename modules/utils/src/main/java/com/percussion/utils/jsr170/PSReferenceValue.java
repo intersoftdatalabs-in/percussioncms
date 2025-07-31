@@ -16,10 +16,10 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.Node;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

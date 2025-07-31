@@ -21,7 +21,7 @@ import com.percussion.security.IPSDecryptor;
 import com.percussion.security.IPSEncryptor;
 import com.percussion.security.IPSSecretKey;
 
-import javax.crypto.SecretKey;
+import javax.crypto.SecretKey; // TODO: JAVAX-11
 
 /**
  * The PSDESKey class is used to store the specified key as a DES key.

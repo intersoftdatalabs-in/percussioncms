@@ -15,7 +15,7 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.event.TreeSelectionListener;
+import javax.swing.event.TreeSelectionListener; // TODO: JAVAX-11
 import java.awt.event.MouseListener;
 
 /**

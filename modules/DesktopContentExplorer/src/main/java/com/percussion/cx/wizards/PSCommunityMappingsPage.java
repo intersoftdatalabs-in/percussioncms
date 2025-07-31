@@ -23,15 +23,15 @@ import com.percussion.guitools.PSPropertyPanel;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.wizard.PSWizardPanel;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableModel;
+import javax.swing.DefaultCellEditor; // TODO: JAVAX-11
+import javax.swing.JComboBox; // TODO: JAVAX-11
+import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.JScrollPane; // TODO: JAVAX-11
+import javax.swing.JTable; // TODO: JAVAX-11
+import javax.swing.JTextField; // TODO: JAVAX-11
+import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
+import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
+import javax.swing.table.TableModel; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

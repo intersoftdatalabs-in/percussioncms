@@ -27,9 +27,9 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Collection;

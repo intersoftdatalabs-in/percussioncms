@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

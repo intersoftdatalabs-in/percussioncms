@@ -22,8 +22,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

@@ -21,11 +21,11 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFactory;
-import javax.jcr.ValueFormatException;
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFactory; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
 
 import org.apache.jackrabbit.value.ValueFactoryImpl;
 

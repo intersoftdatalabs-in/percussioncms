@@ -16,7 +16,7 @@
  */
 package com.percussion.cx.guitools;
 
-import javax.swing.JLabel;
+import javax.swing.JLabel; // TODO: JAVAX-11
 import java.awt.Component;
 import java.util.ResourceBundle;
 

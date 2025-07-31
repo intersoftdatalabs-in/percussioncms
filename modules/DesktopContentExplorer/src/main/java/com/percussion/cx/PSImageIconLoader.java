@@ -19,9 +19,9 @@ package com.percussion.cx;
 import com.percussion.util.IOTools;
 import org.apache.log4j.Logger;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.UIManager;
+import javax.swing.Icon; // TODO: JAVAX-11
+import javax.swing.ImageIcon; // TODO: JAVAX-11
+import javax.swing.UIManager; // TODO: JAVAX-11
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 

@@ -107,7 +107,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.security.auth.login.LoginException;
+import javax.security.auth.login.LoginException; // TODO: JAVAX-11
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;

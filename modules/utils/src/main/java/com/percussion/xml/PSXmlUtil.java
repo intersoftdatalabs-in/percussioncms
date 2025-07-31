@@ -20,11 +20,11 @@ package com.percussion.xml;
 import com.percussion.security.xml.PSCatalogResolver;
 import org.w3c.dom.Node;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
 import java.io.StringWriter;
 
 public class PSXmlUtil {

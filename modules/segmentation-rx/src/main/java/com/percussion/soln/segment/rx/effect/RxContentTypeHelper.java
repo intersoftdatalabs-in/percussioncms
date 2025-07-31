@@ -21,7 +21,7 @@ import static java.util.Arrays.*;
 
 import java.util.List;
 
-import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.services.catalog.PSTypeEnum;

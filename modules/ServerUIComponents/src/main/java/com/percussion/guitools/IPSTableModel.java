@@ -17,7 +17,7 @@
  
 package com.percussion.guitools;
 
-import javax.swing.table.TableModel;
+import javax.swing.table.TableModel; // TODO: JAVAX-11
 import java.util.Iterator;
 
 /**
