@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Optional;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @Category(IntegrationTest.class)
@@ -100,26 +101,23 @@ public class PSPageServiceTest extends PSServletTestCase
     @Test
     public void test100FindPagesByTemplateId() throws Exception
     {
-        String templateId = fixture.template1.getId();
-        
-        // no pages should be using the template
-        Collection<Integer> pageIds = pageDaoHelper.findPageIdsByTemplate(templateId);
+        var templateId = fixture.template1.getId();
+
+        var pageIds = pageDaoHelper.findPageIdsByTemplate(templateId);
         assertTrue(pageIds.isEmpty());
-        
-        String siteFolderPath = fixture.site1.getFolderPath();
-        
-        // create some pages using the template
-        String page1Id = createPage("Page1", "Page 1", templateId, siteFolderPath, "TestLink", "testurl.file", "","");
+
+        var siteFolderPath = fixture.site1.getFolderPath();
+
+        var page1Id = createPage("Page1", "Page 1", templateId, siteFolderPath, "TestLink", "testurl.file", "","");
         assertNotNull(page1Id);
-        
-        String page2Id = createPage("Page2", "Page 2", templateId, siteFolderPath, "TestLink", "testurl.file", "","");
+
+        var page2Id = createPage("Page2", "Page 2", templateId, siteFolderPath, "TestLink", "testurl.file", "","");
         assertNotNull(page2Id);
-        
-        // find the page
-        PSPage page1 = pageService.find(page1Id);
+
+        var page1 = pageService.find(page1Id);
         assertNotNull(page1);
         assertEquals("Page1", page1.getName());
-        
+
         pageService.findPagesByTemplate(templateId, 1, 5, "name", "asc", null);
         
     }

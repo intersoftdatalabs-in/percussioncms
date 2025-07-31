@@ -19,7 +19,8 @@ package com.percussion.delivery.feeds.data;
 import java.util.Optional;
 
 /**
- * Interface for feed descriptors.
+ * Contract for feed descriptors.
+ * All methods return Optional for null safety.
  */
 public interface IPSFeedDescriptor {
     Optional<String> getName();

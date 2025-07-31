@@ -1,4 +1,9 @@
 // REFACTORED: CP-JAVA11
+
+/*
+ * Copyright 1999-2023 Percussion Software, Inc.
+ * All rights reserved.
+ */
 package com.percussion.delivery.feeds.services;
 
 import com.percussion.delivery.feeds.PSFeedGenerator;

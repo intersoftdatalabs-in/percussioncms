@@ -18,11 +18,13 @@
 /**
  * MCAPIServiceSoap.java
  *
- * This file was auto-generated from WSDL
- * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
+ * Sunny Sal here! This interface defines the SOAP operations for MasterCalendar API.
+ * Refactored for Java 11 and Google Java Style.
  */
 
 package service.web.api.ems.dea;
+
+// REFACTORED: CP-JAVA11
 
 public interface MCAPIServiceSoap extends java.rmi.Remote {
     public java.lang.String getEvents(java.lang.String userName, java.lang.String password, java.util.Calendar startDate, java.util.Calendar endDate, java.lang.String eventName, java.lang.String location, int[] calendars, int[] eventTypes, java.lang.String udqAnswer) throws java.rmi.RemoteException;

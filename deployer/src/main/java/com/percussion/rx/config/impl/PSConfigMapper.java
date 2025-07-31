@@ -560,25 +560,13 @@ public class PSConfigMapper
     * @return the place-holder. It may be <code>null</code> if the given string
     * does not contain one place-holder.
     */
-   private static String getSimplePlaceholder(String origValue)
-   {
-      if (StringUtils.isBlank(origValue))
-         return null;
-      
-      String trimed = origValue.trim();
-      if ((!trimed.startsWith(PREFIX)) || (!trimed.endsWith(SUFFIX)))
-         return null;
-
-      String sub = trimed.substring(PREFIX.length());
-      if (sub.indexOf(PREFIX) != -1)
-         return null;
-      
-      int index = sub.indexOf(SUFFIX);
-      if (index == -1)
-         return null;
-      
-      trimed = sub.substring(0, index);
-      return trimed.trim();
+   private static String getSimplePlaceholder(String origValue) {
+      if (StringUtils.isBlank(origValue)) return null;
+      var trimmed = origValue.trim();
+      if (!trimmed.startsWith(PREFIX) || !trimmed.endsWith(SUFFIX)) return null;
+      var sub = trimmed.substring(0, trimmed.length() - SUFFIX.length());
+      if (sub.indexOf(PREFIX) != -1) return null;
+      return sub.trim();
    }
    
    /**
@@ -679,15 +667,12 @@ public class PSConfigMapper
          throw new IllegalArgumentException("origValue may not be null.");
       if (props == null)
          throw new IllegalArgumentException("props may not be null.");
-      
       if ((!origValue.startsWith(PREFIX)) || (!origValue.endsWith(SUFFIX)))
          return null;
-
-      String sub = origValue.substring(PREFIX.length());
+      var sub = origValue.substring(PREFIX.length());
       if (sub.indexOf(PREFIX) != -1)
          return null;
-      
-      PSPair<Object, Boolean> r = replaceOneValue(sub, props, isDelta);
+      var r = replaceOneValue(sub, props, isDelta);
       if (!r.getSecond())
          r.setFirst(origValue);
       return r;

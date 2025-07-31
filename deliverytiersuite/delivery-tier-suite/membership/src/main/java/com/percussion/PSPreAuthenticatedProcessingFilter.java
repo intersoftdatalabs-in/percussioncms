@@ -31,8 +31,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter  {
-
+/**
+ * Pre-authenticated filter for Percussion CMS.
+ * Sunny Sal: "Security so tight, even your mom can't log in without a token!"
+ */
+public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
 
     public PSPreAuthenticatedProcessingFilter() {
         setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
@@ -52,30 +55,28 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
             AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedAuthenticationToken> {
         @Override
         public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {
-            // create container for pre-auth data
             Principal principal = request.getUserPrincipal();
-            if(principal == null || !principal.getClass().isAssignableFrom( MemoryUser.class)) {
-                String userName = request.getHeader("tomcat-user");
-                String password = request.getHeader("tomcat-password");
-                if(userName != null && userName.equalsIgnoreCase("ps_manager")){
-                    List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+            if (principal == null || !MemoryUser.class.isAssignableFrom(principal.getClass())) {
+                var userName = request.getHeader("tomcat-user");
+                var password = request.getHeader("tomcat-password");
+                if (userName != null && userName.equalsIgnoreCase("ps_manager")) {
+                    var grantedAuthorities = new ArrayList<GrantedAuthority>();
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_deliverymanager"));
-                    return new PreAuthenticatedAuthenticationToken(userName,password,grantedAuthorities);
-                }else{
-                    return new PreAuthenticatedAuthenticationToken("ANONYMOUS","N/A");
+                    return new PreAuthenticatedAuthenticationToken(userName, password, grantedAuthorities);
+                } else {
+                    return new PreAuthenticatedAuthenticationToken("ANONYMOUS", "N/A");
                 }
-            }else{
-                MemoryUser memoryUser = (MemoryUser) principal;
-                List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-                Iterator roles = memoryUser.getRoles();
-                while (roles.hasNext()){
-                    MemoryRole role = (MemoryRole) roles.next();
-                    String roleName = "ROLE_" + role.getName();
+            } else {
+                var memoryUser = (MemoryUser) principal;
+                var grantedAuthorities = new ArrayList<GrantedAuthority>();
+                var roles = memoryUser.getRoles();
+                while (roles.hasNext()) {
+                    var role = (MemoryRole) roles.next();
+                    var roleName = "ROLE_" + role.getName();
                     grantedAuthorities.add(new SimpleGrantedAuthority(roleName));
                 }
-                return new PreAuthenticatedAuthenticationToken(memoryUser.getName(),memoryUser.getPassword(),grantedAuthorities);
+                return new PreAuthenticatedAuthenticationToken(memoryUser.getName(), memoryUser.getPassword(), grantedAuthorities);
             }
         }
     }
-
 }

@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -56,8 +58,7 @@ import java.util.regex.Pattern;
 @SuppressFBWarnings("UNSAFE_HASH_EQUALS")
 @Repository
 @Scope("singleton")
-public class PSMetadataDao implements IPSMetadataDao
-{
+public class PSMetadataDao implements IPSMetadataDao {
 
     private SessionFactory sessionFactory;
 
@@ -66,35 +67,25 @@ public class PSMetadataDao implements IPSMetadataDao
         this.sessionFactory = sessionFactory;
     }
 
-    /**
-     * Logger for this class.
-     */
     private static final Logger log = LogManager.getLogger(PSMetadataDao.class);
-
-
     private static final PSHashCalculator hashCalculator = new PSHashCalculator();
-
     private final Pattern patternToGetDirectoryFromPagepath = Pattern.compile("(.+)/[^/]+");
 
-
-
-    public void delete(Collection<String> pagepaths)
-    {
+    @Override
+    public void delete(Collection<String> pagepaths) {
         Validate.notNull(pagepaths, "pagepaths cannot be null.");
-
-        Collection<String> pagepathHashes = getPagepathHashes(pagepaths);
-
+        var pagepathHashes = getPagepathHashes(pagepaths);
 
         Transaction tx = null;
-        try (Session session = getSession()){
-            String hql = "delete from PSDbMetadataEntry  where pagepathHash in (:paths)";
+        try (var session = getSession()) {
+            var hql = "delete from PSDbMetadataEntry where pagepathHash in (:paths)";
             tx = session.beginTransaction();
-            Query q = session.createQuery(hql);
-            q.setParameterList("paths",pagepathHashes);
+            var q = session.createQuery(hql);
+            q.setParameterList("paths", pagepathHashes);
             q.executeUpdate();
             tx.commit();
-        }catch(Exception e){
-            if(tx != null && tx.isActive()) {
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -102,23 +93,20 @@ public class PSMetadataDao implements IPSMetadataDao
         }
     }
 
-    public boolean delete(String pagepath)
-    {
+    @Override
+    public boolean delete(String pagepath) {
         Validate.notEmpty(pagepath, "pagepath cannot be null or empty.");
+        var entry = (PSDbMetadataEntry) findEntry(pagepath);
 
-        PSDbMetadataEntry entry = (PSDbMetadataEntry)findEntry(pagepath);
-
-
-        if (entry != null)
-        {
+        if (entry != null) {
             Transaction tx = null;
-            try(Session session = getSession()) {
+            try (var session = getSession()) {
                 tx = session.beginTransaction();
                 session.delete(entry);
                 tx.commit();
                 return true;
-            }catch(Exception e){
-                if(tx !=null && tx.isActive()){
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
                     tx.rollback();
                 }
                 log.error(PSExceptionUtils.getMessageForLog(e));
@@ -126,114 +114,94 @@ public class PSMetadataDao implements IPSMetadataDao
             }
         }
         return false;
-
     }
 
     @Override
     public void deleteBySite(String prevSiteName, String newSiteName) {
         Validate.notEmpty(prevSiteName, "prevSiteName cannot be null or empty.");
         Validate.notEmpty(newSiteName, "newSiteName cannot be null or empty.");
-
         log.debug("Removing entries for site: {}", prevSiteName);
 
-
         Transaction tx = null;
-        try (Session session = getSession()) {
+        try (var session = getSession()) {
             tx = session.beginTransaction();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSDbMetadataEntry> deleteQuery = builder.createCriteriaDelete(PSDbMetadataEntry.class);
-            Root<PSDbMetadataEntry> root = deleteQuery.from(PSDbMetadataEntry.class);
+            var builder = session.getCriteriaBuilder();
+            var deleteQuery = builder.createCriteriaDelete(PSDbMetadataEntry.class);
+            var root = deleteQuery.from(PSDbMetadataEntry.class);
             deleteQuery.where(builder.like(root.get("site"), prevSiteName));
             session.createQuery(deleteQuery).executeUpdate();
             tx.commit();
-        }catch(Exception e){
-            if(tx !=null && tx.isActive()){
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
         }
     }
 
-
-    public void deleteAllMetadataEntries()
-    {
-
+    @Override
+    public void deleteAllMetadataEntries() {
         Transaction tx = null;
-        try(Session session = getSession()) {
-
-            tx=session.beginTransaction();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
-            CriteriaDelete<PSDbMetadataProperty> deleteQuery = builder.createCriteriaDelete(PSDbMetadataProperty.class);
+        try (var session = getSession()) {
+            tx = session.beginTransaction();
+            var builder = session.getCriteriaBuilder();
+            var deleteQuery = builder.createCriteriaDelete(PSDbMetadataProperty.class);
             deleteQuery.from(PSDbMetadataProperty.class);
             session.createQuery(deleteQuery).executeUpdate();
 
-            CriteriaBuilder builder2 = session.getCriteriaBuilder();
-            CriteriaDelete<PSDbMetadataEntry> deleteQuery2 = builder2.createCriteriaDelete(PSDbMetadataEntry.class);
+            var builder2 = session.getCriteriaBuilder();
+            var deleteQuery2 = builder2.createCriteriaDelete(PSDbMetadataEntry.class);
             deleteQuery2.from(PSDbMetadataEntry.class);
             session.createQuery(deleteQuery2).executeUpdate();
             tx.commit();
-
-        }catch(Exception e){
-            if(tx !=null && tx.isActive()){
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
         }
     }
 
-   public IPSMetadataEntry findEntry(String pagepath)
-    {
+    @Override
+    public IPSMetadataEntry findEntry(String pagepath) {
         Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
-
-        try (Session session = getSession()){
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSDbMetadataEntry> criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
+        try (var session = getSession()) {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
             criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), pagepath));
-            List<PSDbMetadataEntry> resultList = session.createQuery(criteriaQuery).getResultList();
-            if (!resultList.isEmpty())
-                return (IPSMetadataEntry) resultList.get(0);
-            else
-                return null;
+            var resultList = session.createQuery(criteriaQuery).getResultList();
+            return resultList.isEmpty() ? null : resultList.get(0);
         }
-
     }
 
-   public List<IPSMetadataEntry> getAllEntries()
-    {
-        try( Session session = getSession()) {
+    @Override
+    public List<IPSMetadataEntry> getAllEntries() {
+        try (var session = getSession()) {
             session.setHibernateFlushMode(FlushMode.MANUAL);
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<PSDbMetadataEntry> criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
-            List<PSDbMetadataEntry> result = session.createQuery(criteriaQuery).getResultList();
-            List<IPSMetadataEntry> entries = new ArrayList<>();
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(PSDbMetadataEntry.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
+            var result = session.createQuery(criteriaQuery).getResultList();
+            var entries = new ArrayList<IPSMetadataEntry>();
             if (result != null) {
-                for (PSDbMetadataEntry e : result)
-                    entries.add(e);
+                entries.addAll(result);
             }
-
             return entries;
         }
-
     }
 
-   public void save(Collection<IPSMetadataEntry> entries)
-    {
+    @Override
+    public void save(Collection<IPSMetadataEntry> entries) {
         Validate.notNull(entries, "entries cannot be null");
-
-        if (entries.isEmpty())
-            return;
-
+        if (entries.isEmpty()) return;
 
         Transaction tx = null;
-        try(Session session = getSession()) {
-            Collection<PSDbMetadataEntry> dbEntries = convertRestEntriesToDb(entries);
+        try (var session = getSession()) {
+            var dbEntries = convertRestEntriesToDb(entries);
             session.setHibernateFlushMode(FlushMode.ALWAYS);
-            // Save entries
-            int i = 0;
-            for (PSDbMetadataEntry entry : dbEntries) {
-                tx  = session.beginTransaction();
+            for (var entry : dbEntries) {
+                tx = session.beginTransaction();
                 try {
                     session.saveOrUpdate(entry);
                     tx.commit();
@@ -242,222 +210,158 @@ public class PSMetadataDao implements IPSMetadataDao
                     tx.commit();
                 }
             }
-        } catch(Exception e){
-            if(tx !=null && tx.isActive()){
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
         }
-
     }
 
-    public void save(IPSMetadataEntry entry)
-    {
+    @Override
+    public void save(IPSMetadataEntry entry) {
         Validate.notNull(entry, "entry cannot be null");
-
         save(Lists.newArrayList(entry));
-
     }
 
-
-    public boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries)
-    {
-        PSDbMetadataEntry existing;
-
-        for (PSDbMetadataEntry entry : this.convertRestEntriesToDb(entries))
-        {
-            existing = (PSDbMetadataEntry)findEntry(entry.getPagepath());
-            if (existing != null)
-            {
-                if (isEntryDirty(existing, entry))
-                    return true;
+    @Override
+    public boolean hasDirtyEntries(Collection<IPSMetadataEntry> entries) {
+        for (var entry : convertRestEntriesToDb(entries)) {
+            var existing = (PSDbMetadataEntry) findEntry(entry.getPagepath());
+            if (existing != null && isEntryDirty(existing, entry)) {
+                return true;
             }
         }
-
         return false;
     }
 
-
-    public Set<String> getAllIndexedDirectories()
-    {
-
-
-        try ( Session session = getSession()) {
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-            CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
-            Root<PSDbMetadataEntry> root = criteriaQuery.from(PSDbMetadataEntry.class);
+    @Override
+    public Set<String> getAllIndexedDirectories() {
+        try (var session = getSession()) {
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaQuery = criteriaBuilder.createQuery(String.class);
+            var root = criteriaQuery.from(PSDbMetadataEntry.class);
             criteriaQuery.select(root.get("pagepath"));
-            List<String> resultList = session.createQuery(criteriaQuery).getResultList();
+            var resultList = session.createQuery(criteriaQuery).getResultList();
 
-            // TODO Instead of using a Pattern and regular expressions here, we may
-            // use
-            // the Derby built-in regular expression functionality if this is too
-            // slow.
-            Matcher matcher;
-            Set<String> indexedDirectories = new HashSet<>();
-
-            for (String dataEntry : resultList) {
-                matcher = patternToGetDirectoryFromPagepath.matcher(dataEntry);
-                matcher.find();
-                indexedDirectories.add(matcher.group(1));
+            var indexedDirectories = new HashSet<String>();
+            for (var dataEntry : resultList) {
+                var matcher = patternToGetDirectoryFromPagepath.matcher(dataEntry);
+                if (matcher.find()) {
+                    indexedDirectories.add(matcher.group(1));
+                }
             }
-
             return indexedDirectories;
         }
     }
 
-   // @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED)
-    public List<String> getAllSites()
-    {
-        List<String> msgFromList = null;
-        try(Session session=getSession()) {
-
-            Criteria criteria = session.createCriteria(PSDbMetadataEntry.class);
+    @Override
+    public List<String> getAllSites() {
+        try (var session = getSession()) {
+            var criteria = session.createCriteria(PSDbMetadataEntry.class);
             criteria.setProjection(Projections.distinct(Projections.property("site")));
-            msgFromList = criteria.list();
+            return criteria.list();
         }
-        return msgFromList;
     }
 
-    private Collection<String> getPagepathHashes(Collection<String> pagepaths)
-    {
-        List<String> pagepathHashes = new ArrayList<>();
-
-        for (String pp : pagepaths)
-        {
-            pagepathHashes.add(hashCalculator.calculateHash(pp));
-        }
-
+    private Collection<String> getPagepathHashes(Collection<String> pagepaths) {
+        var pagepathHashes = new ArrayList<String>();
+        pagepaths.forEach(pp -> pagepathHashes.add(hashCalculator.calculateHash(pp)));
         return pagepathHashes;
     }
 
-
-
     /**
-     * Determine if the entries are "dirty", in other words the field
-     * values differ.
+     * Determine if the entries are "dirty", in other words the field values differ.
      * @param existing assumed not <code>null</code>.
      * @param entry assumed not <code>null</code>.
      * @return <code>true</code> if dirty.
      */
-    private boolean isEntryDirty(PSDbMetadataEntry existing, PSDbMetadataEntry entry)
-    {
-        if(!existing.equals(entry))
-            return true;
+    private boolean isEntryDirty(PSDbMetadataEntry existing, PSDbMetadataEntry entry) {
+        if (!existing.equals(entry)) return true;
         int count1 = existing.getPropertyCount();
         int count2 = entry.getPropertyCount();
-        if((count1 != count2) || (count1 + count2 == 0))
-            return true;
-        if(existing.getPropertyCount() + entry.getPropertyCount() == 0)
-            return false;
-        Set<IPSMetadataProperty> props1 = existing.getProperties();
-        Set<IPSMetadataProperty> props2 = entry.getProperties();
+        if ((count1 != count2) || (count1 + count2 == 0)) return true;
+        if (existing.getPropertyCount() + entry.getPropertyCount() == 0) return false;
+        var props1 = existing.getProperties();
+        var props2 = entry.getProperties();
 
-        Map<Object, IPSMetadataProperty> propMap = new HashMap<>();
-        for(IPSMetadataProperty p : props2)
-            propMap.put(((PSDbMetadataProperty)p).getId(), p);
-        for(IPSMetadataProperty prop : props1)
-        {
-
-            String hash1 = ((PSDbMetadataProperty)prop).getHash();
-            IPSMetadataProperty p2 = propMap.get(((PSDbMetadataProperty)prop).getId());
-            if(p2 == null)
-                return true;
-            String hash2 = ((PSDbMetadataProperty)p2).getHash();
-            if(!hash1.equals(hash2))
-                return true;
-
+        var propMap = new HashMap<Object, IPSMetadataProperty>();
+        props2.forEach(p -> propMap.put(((PSDbMetadataProperty) p).getId(), p));
+        for (var prop : props1) {
+            var hash1 = ((PSDbMetadataProperty) prop).getHash();
+            var p2 = propMap.get(((PSDbMetadataProperty) prop).getId());
+            if (p2 == null) return true;
+            var hash2 = ((PSDbMetadataProperty) p2).getHash();
+            if (!hash1.equals(hash2)) return true;
         }
         return false;
     }
 
-
     /**
-     * Converts a database-agnostic collection of metadata entries to Hibernate
-     * specific ones.
+     * Converts a database-agnostic collection of metadata entries to Hibernate specific ones.
      *
-     * @param entries A list of database-agnostic metadata entry objects. Cannot
-     * be <code>null</code>, may be empty.
-     * @return A list of database specific metadata entry objects. Never <code>null</code>,
-     * may be empty.
+     * @param entries A list of database-agnostic metadata entry objects. Cannot be <code>null</code>, may be empty.
+     * @return A list of database specific metadata entry objects. Never <code>null</code>, may be empty.
      */
-    private Collection<PSDbMetadataEntry> convertRestEntriesToDb(Collection<IPSMetadataEntry> entries)
-    {
+    private Collection<PSDbMetadataEntry> convertRestEntriesToDb(Collection<IPSMetadataEntry> entries) {
         Validate.notNull(entries, "list of metadata entries cannot be null");
-        Collection<PSDbMetadataEntry> result = new ArrayList<>();
-
-        for (IPSMetadataEntry metadataEntry : entries)
-        {
+        var result = new ArrayList<PSDbMetadataEntry>();
+        for (var metadataEntry : entries) {
             IPSMetadataEntry dbMetadataEntry = null;
-            if(metadataEntry.getPagepath() == null){
+            if (metadataEntry.getPagepath() == null) {
                 dbMetadataEntry = new PSDbMetadataEntry();
-            }else {
+            } else {
                 dbMetadataEntry = findEntry(metadataEntry.getPagepath());
             }
-            if(dbMetadataEntry == null){
+            if (dbMetadataEntry == null) {
                 dbMetadataEntry = new PSDbMetadataEntry();
-            }else {
+            } else {
                 dbMetadataEntry.clearProperties();
             }
-
-            if (!(metadataEntry instanceof PSDbMetadataEntry))
-            {
-
+            if (!(metadataEntry instanceof PSDbMetadataEntry)) {
                 dbMetadataEntry.setFolder(metadataEntry.getFolder());
                 dbMetadataEntry.setLinktext(metadataEntry.getLinktext());
                 dbMetadataEntry.setName(metadataEntry.getName());
                 dbMetadataEntry.setPagepath(metadataEntry.getPagepath());
                 dbMetadataEntry.setSite(metadataEntry.getSite());
                 dbMetadataEntry.setType(metadataEntry.getType());
-                PSDbMetadataProperty prop = null;
-                for (IPSMetadataProperty metadataProperty : metadataEntry.getProperties())
-                {
-                    if (metadataProperty instanceof PSDbMetadataProperty)
-                    {
+                for (var metadataProperty : metadataEntry.getProperties()) {
+                    PSDbMetadataProperty prop;
+                    if (metadataProperty instanceof PSDbMetadataProperty) {
                         prop = (PSDbMetadataProperty) metadataProperty;
-                    }
-                    else
-                    {
+                    } else {
                         prop = new PSDbMetadataProperty(metadataProperty.getName(), metadataProperty.getValuetype(),
                                 metadataProperty.getValue());
                     }
                     dbMetadataEntry.addProperty(prop);
                 }
+            } else {
+                dbMetadataEntry = (PSDbMetadataEntry) metadataEntry;
             }
-            else
-            {
-                dbMetadataEntry = (PSDbMetadataEntry)metadataEntry;
-            }
-
-          result.add((PSDbMetadataEntry)dbMetadataEntry);
+            result.add((PSDbMetadataEntry) dbMetadataEntry);
         }
-
         return result;
     }
 
     @Override
     public int updateByCategoryProperty(String oldCategoryName, String newCategoryName) {
-
         int updatedRows = 0;
-
-        if(oldCategoryName == null || newCategoryName == null)
+        if (oldCategoryName == null || newCategoryName == null)
             throw new IllegalArgumentException("Old and New Category Names are required");
 
-        ;
         Transaction tx = null;
-        try (Session session = getSession()) {
+        try (var session = getSession()) {
             tx = session.beginTransaction();
-            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-
-            CriteriaUpdate<PSDbMetadataProperty> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(PSDbMetadataProperty.class);
-            Root<PSDbMetadataProperty> employeeRoot = criteriaUpdate.from(PSDbMetadataProperty.class);
+            var criteriaBuilder = session.getCriteriaBuilder();
+            var criteriaUpdate = criteriaBuilder.createCriteriaUpdate(PSDbMetadataProperty.class);
+            var employeeRoot = criteriaUpdate.from(PSDbMetadataProperty.class);
             criteriaUpdate.set(employeeRoot.get("stringvalue"), newCategoryName).where(
                     criteriaBuilder.and(criteriaBuilder.equal(employeeRoot.get("stringvalue"), oldCategoryName),
                             criteriaBuilder.equal(employeeRoot.get("name"), "perc:category")));
             updatedRows = session.createQuery(criteriaUpdate).executeUpdate();
             tx.commit();
-        }catch(Exception e){
-            if(tx !=null && tx.isActive()){
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -466,8 +370,7 @@ public class PSMetadataDao implements IPSMetadataDao
         return updatedRows;
     }
 
-    private Session getSession(){
-
+    private Session getSession() {
         return sessionFactory.openSession();
 
     }

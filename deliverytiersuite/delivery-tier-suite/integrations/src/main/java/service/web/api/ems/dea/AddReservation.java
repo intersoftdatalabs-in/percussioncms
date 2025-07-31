@@ -1,4 +1,5 @@
-
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -28,31 +29,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="GroupID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EventName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="StatusID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for AddReservation.
+ * Immutable, builder-based, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -67,220 +45,107 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "statusID"
 })
 @XmlRootElement(name = "AddReservation")
-public class AddReservation {
-
+public final class AddReservation {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
     @XmlElement(name = "GroupID")
-    protected int groupID;
+    private final int groupID;
     @XmlElement(name = "RoomID")
-    protected int roomID;
+    private final int roomID;
     @XmlElement(name = "BookingDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
+    private final XMLGregorianCalendar bookingDate;
     @XmlElement(name = "StartTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startTime;
+    private final XMLGregorianCalendar startTime;
     @XmlElement(name = "EndTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endTime;
+    private final XMLGregorianCalendar endTime;
     @XmlElement(name = "EventName")
-    protected String eventName;
+    private final String eventName;
     @XmlElement(name = "StatusID")
-    protected int statusID;
+    private final int statusID;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private AddReservation(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.groupID = builder.groupID;
+        this.roomID = builder.roomID;
+        this.bookingDate = builder.bookingDate;
+        this.startTime = builder.startTime;
+        this.endTime = builder.endTime;
+        this.eventName = builder.eventName;
+        this.statusID = builder.statusID;
     }
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
-    }
+    public java.util.Optional<String> getUserName() { return java.util.Optional.ofNullable(userName); }
+    public java.util.Optional<String> getPassword() { return java.util.Optional.ofNullable(password); }
+    public int getGroupID() { return groupID; }
+    public int getRoomID() { return roomID; }
+    public XMLGregorianCalendar getBookingDate() { return bookingDate; }
+    public XMLGregorianCalendar getStartTime() { return startTime; }
+    public XMLGregorianCalendar getEndTime() { return endTime; }
+    public java.util.Optional<String> getEventName() { return java.util.Optional.ofNullable(eventName); }
+    public int getStatusID() { return statusID; }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Builder for AddReservation.
      */
-    public String getPassword() {
-        return password;
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int groupID;
+        private int roomID;
+        private XMLGregorianCalendar bookingDate;
+        private XMLGregorianCalendar startTime;
+        private XMLGregorianCalendar endTime;
+        private String eventName;
+        private int statusID;
+        public Builder userName(String userName) { this.userName = userName; return this; }
+        public Builder password(String password) { this.password = password; return this; }
+        public Builder groupID(int groupID) { this.groupID = groupID; return this; }
+        public Builder roomID(int roomID) { this.roomID = roomID; return this; }
+        public Builder bookingDate(XMLGregorianCalendar bookingDate) { this.bookingDate = bookingDate; return this; }
+        public Builder startTime(XMLGregorianCalendar startTime) { this.startTime = startTime; return this; }
+        public Builder endTime(XMLGregorianCalendar endTime) { this.endTime = endTime; return this; }
+        public Builder eventName(String eventName) { this.eventName = eventName; return this; }
+        public Builder statusID(int statusID) { this.statusID = statusID; return this; }
+        public AddReservation build() { return new AddReservation(this); }
     }
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddReservation that = (AddReservation) o;
+        return groupID == that.groupID &&
+                roomID == that.roomID &&
+                statusID == that.statusID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(bookingDate, that.bookingDate) &&
+                java.util.Objects.equals(startTime, that.startTime) &&
+                java.util.Objects.equals(endTime, that.endTime) &&
+                java.util.Objects.equals(eventName, that.eventName);
     }
-
-    /**
-     * Gets the value of the groupID property.
-     * 
-     */
-    public int getGroupID() {
-        return groupID;
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, groupID, roomID, bookingDate, startTime, endTime, eventName, statusID);
     }
-
-    /**
-     * Sets the value of the groupID property.
-     * 
-     */
-    public void setGroupID(int value) {
-        this.groupID = value;
+    @Override
+    public String toString() {
+        return "AddReservation{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", groupID=" + groupID +
+                ", roomID=" + roomID +
+                ", bookingDate=" + bookingDate +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", eventName='" + eventName + '\'' +
+                ", statusID=" + statusID +
+                '}';
     }
-
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
-    public int getRoomID() {
-        return roomID;
-    }
-
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
-
-    /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
-    }
-
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
-
-    /**
-     * Gets the value of the startTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartTime() {
-        return startTime;
-    }
-
-    /**
-     * Sets the value of the startTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setStartTime(XMLGregorianCalendar value) {
-        this.startTime = value;
-    }
-
-    /**
-     * Gets the value of the endTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndTime() {
-        return endTime;
-    }
-
-    /**
-     * Sets the value of the endTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setEndTime(XMLGregorianCalendar value) {
-        this.endTime = value;
-    }
-
-    /**
-     * Gets the value of the eventName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEventName() {
-        return eventName;
-    }
-
-    /**
-     * Sets the value of the eventName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEventName(String value) {
-        this.eventName = value;
-    }
-
-    /**
-     * Gets the value of the statusID property.
-     * 
-     */
-    public int getStatusID() {
-        return statusID;
-    }
-
-    /**
-     * Sets the value of the statusID property.
-     * 
-     */
-    public void setStatusID(int value) {
-        this.statusID = value;
-    }
-
 }

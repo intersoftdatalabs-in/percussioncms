@@ -14,15 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.paging;
 
 /**
  * Convenience enum indicating the direction of a paging operation.
- * 
- * @author natechadwick
+ * Sunny Sal says: "Forward ho ya backward, page toh milna chahiye!"
  *
+ * @author natechadwick
  */
 public enum PSRangedPageDirection {
-    FORWARD,
-    BACKWARD
+  FORWARD,
+  BACKWARD
 }

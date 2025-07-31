@@ -65,8 +65,7 @@ import java.util.List;
  */
 @Path("/webresources")
 @Component("webResourcesRestService")
-public class PSWebResourcesRestService
-{
+public class PSWebResourcesRestService {
 
     private static final Logger log = LogManager.getLogger(PSWebResourcesRestService.class);
 
@@ -95,19 +94,15 @@ public class PSWebResourcesRestService
     @GET
     @Path("/{path:.*}")
     @Produces("application/octect-stream")
-    public Response fileDownload(@PathParam("path") String path)
-    {
+    public Response fileDownload(@PathParam("path") String path) {
         try {
             if (!checkUserPermission()) {
                 return buildForbiddenResponse();
             }
-
-            File itemContent = fileSystemService.getFile(path);
-
+            var itemContent = fileSystemService.getFile(path);
             if (!itemContent.exists() || itemContent.isDirectory()) {
                 return Response.status(Status.NOT_FOUND).build();
             }
-
             return Response.ok(itemContent)
                     .header("Content-Disposition", "attachment; ")
                     .header("Content-Length", itemContent.length())
@@ -118,7 +113,7 @@ public class PSWebResourcesRestService
             throw new WebApplicationException(e);
         }
     }
-    
+
     /**
      * Handles the deletion of a file, using the filesystem service, and returns
      * the response accordingly.
@@ -131,13 +126,11 @@ public class PSWebResourcesRestService
     @DELETE
     @Path("/{path:.*}")
     @Produces("application/octect-stream")
-    public Response deleteFile(@PathParam("path") String path)
-    {
+    public Response deleteFile(@PathParam("path") String path) {
         try {
             if (!checkUserPermission()) {
                 return buildForbiddenResponse();
             }
-
             try {
                 fileSystemService.deleteFile(path);
                 return Response.ok().build();
@@ -168,73 +161,35 @@ public class PSWebResourcesRestService
     @Path("/uploadFile")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_HTML)
-    public Response uploadFile(MultipartBody multipartBody)
-    {
+    public Response uploadFile(MultipartBody multipartBody) {
         try {
             if (!checkUserPermission()) {
                 return buildForbiddenResponse();
             }
-
-            String response = "";
-
+            var response = "";
             try {
-                List<Attachment> attachments = multipartBody.getAllAttachments();
-                if (attachments == null || attachments.size() == 0) {
-                    /*
-                     * FIXME the jquery.form.js plugin does not understand another
-                     * response (if the browser is IE). We have no choice but to return
-                     * a 200 http response. It is the only way for us to handle the
-                     * response on the client if the browser is IE. For more detail see
-                     * perc_upload_theme_file_dialog.js.
-                     */
+                var attachments = multipartBody.getAllAttachments();
+                if (attachments == null || attachments.isEmpty()) {
                     return Response.ok().entity("An error occurred when uploading the file.").build();
                 }
-
-                /*
-                 * In the attachments we have the path and the content. We use the
-                 * content-disposition header to find out if the attachment is the
-                 * path or the content.
-                 */
                 String path = "";
                 InputStream pageContent = null;
-                for (Attachment attachment : attachments) {
+                for (var attachment : attachments) {
                     if (UPLOAD_THEME_FILE_PATH.equals(attachment.getHeader("content-disposition"))) {
-                        /*
-                         * The path will be encoded because of non-ascii characters,
-                         * in method perc_upload_theme_file_dialog.js#uploadFile
-                         */
                         path = IOUtils.toString(attachment.getDataHandler().getInputStream(), PSCharSets.rxJavaEnc());
                         path = getDecodedPath(path);
                     } else {
                         pageContent = attachment.getDataHandler().getInputStream();
                     }
                 }
-
-                // throw error if the path was not found
                 if (StringUtils.isBlank(path)) {
-                    /*
-                     * FIXME the jquery.form.js plugin does not understand another
-                     * response (if the browser is IE). We have no choice but to return
-                     * a 200 http response. It is the only way for us to handle the
-                     * response on the client if the browser is IE. For more detail see
-                     * perc_upload_theme_file_dialog.js.
-                     */
                     return Response.ok().entity("An error occurred when uploading the file.").build();
                 }
-
                 fileSystemService.fileUpload(path, pageContent);
             } catch (PSFileOperationException | IOException e) {
-                /*
-                 * FIXME the jquery.form.js plugin does not understand another
-                 * response (if the browser is IE). We have no choice but to return
-                 * a 200 http response. It is the only way for us to handle the
-                 * response on the client if the browser is IE. For more detail see
-                 * perc_upload_theme_file_dialog.js.
-                 */
                 response = e.getMessage();
                 return Response.ok().entity(response).build();
             }
-
             return Response.ok().entity(response).build();
         } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -242,7 +197,7 @@ public class PSWebResourcesRestService
             throw new WebApplicationException(e);
         }
     }
-    
+
     /**
      * Handles the validation request for a file in the given path. It uses the
      * file system service validation method.
@@ -256,37 +211,22 @@ public class PSWebResourcesRestService
     @GET
     @Path("/validateFileUpload/{path:.*}")
     @Produces("application/octect-stream")
-    public Response validateFileUpload(@PathParam("path") String path)
-    {
+    public Response validateFileUpload(@PathParam("path") String path) {
         try {
             if (!checkUserPermission()) {
                 return buildForbiddenResponse();
             }
-
-            String response = "";
-
+            var response = "";
             try {
-                /*
-                 * The path will be encoded because of non-ascii characters, in
-                 * method
-                 * perc_upload_theme_file_dialog.js#checkElementWithSameNameOrUpload
-                 */
-                String decodedPath = getDecodedPath(path);
+                var decodedPath = getDecodedPath(path);
                 fileSystemService.validateFileUpload(decodedPath);
             } catch (PSFileAlreadyExistsException e) {
                 response = e.getMessage();
                 return Response.ok().entity(response).build();
-            } catch (PSFileNameInUseByFolderException e) {
-                response = e.getMessage();
-                return Response.status(Status.CONFLICT).entity(response).build();
-            } catch (PSReservedFileNameException e) {
-                response = e.getMessage();
-                return Response.status(Status.CONFLICT).entity(response).build();
-            } catch (PSFileOperationException e) {
+            } catch (PSFileNameInUseByFolderException | PSReservedFileNameException | PSFileOperationException e) {
                 response = e.getMessage();
                 return Response.status(Status.CONFLICT).entity(response).build();
             }
-
             return Response.ok().entity(VALIDATE_SUCCESS).build();
         } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -304,14 +244,10 @@ public class PSWebResourcesRestService
      * @param path the encoded Path. Assumed not blank.
      * @return a {@link String}. Never <code>null</code>
      */
-    private String getDecodedPath(String path)
-    {
-        try
-        {
+    private String getDecodedPath(String path) {
+        try {
             return URLDecoder.decode(path, PSCharSets.rxJavaEnc());
-        }
-        catch (UnsupportedEncodingException e1)
-        {
+        } catch (UnsupportedEncodingException e1) {
             return URLDecoder.decode(path);
         }
     }
@@ -323,18 +259,17 @@ public class PSWebResourcesRestService
      *         <code>false</code> otherwise.
      */
     private boolean checkUserPermission() throws PSDataServiceException {
-        PSCurrentUser user = userService.getCurrentUser();
+        var user = userService.getCurrentUser();
         return user.isAdminUser() || user.isDesignerUser();
     }
-    
+
     /**
      * Builds a 403 HTTP response to be returned when the user is not authorized
      * to access a given file operation.
      * 
      * @return A <code>Response</code> object with the 403 HTTP code.
      */
-    private Response buildForbiddenResponse()
-    {
+    private Response buildForbiddenResponse() {
         return Response.status(Status.FORBIDDEN).entity("You are not authorized to access this operation.").build();
     }
 

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,17 +19,17 @@
 package com.percussion.widgetbuilder.data;
 
 import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import java.util.Objects;
 
-@XmlRootElement(name="WidgetBuilderDefinitionData")
-public class PSWidgetBuilderDefinitionData  extends PSWidgetBuilderSummaryData
-{
+/**
+ * Represents the full definition of a widget for the Widget Builder.
+ * Includes fields, HTML, JS, and CSS resources.
+ */
+@XmlRootElement(name = "WidgetBuilderDefinitionData")
+public class PSWidgetBuilderDefinitionData extends PSWidgetBuilderSummaryData {
 
     private static final long serialVersionUID = -1L;
 
@@ -37,46 +38,38 @@ public class PSWidgetBuilderDefinitionData  extends PSWidgetBuilderSummaryData
     private PSWidgetBuilderResourceListData jsFileList = new PSWidgetBuilderResourceListData();
     private PSWidgetBuilderResourceListData cssFileList = new PSWidgetBuilderResourceListData();
 
-
-    public PSWidgetBuilderDefinitionData()
-    {
+    public PSWidgetBuilderDefinitionData() {
         super();
     }
 
     /**
-     * Create from dao
+     * Create from DAO.
      *
-     * @param dao The dao to copy from, not <code>null</code>.
+     * @param dao The DAO to copy from, not {@code null}.
      */
-    public PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinition dao)
-    {
+    public PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinition dao) {
         super(dao);
-
-        if (!StringUtils.isBlank(dao.getFields())) {
+        if (StringUtils.isNotBlank(dao.getFields())) {
             setFieldsList(PSWidgetBuilderFieldsListData.fromXml(dao.getFields()));
         }
-
         widgetHtml = dao.getWidgetHtml();
-
-        if (!StringUtils.isBlank(dao.getCssFiles())) {
+        if (StringUtils.isNotBlank(dao.getCssFiles())) {
             setCssFileList(PSWidgetBuilderResourceListData.fromXml(dao.getCssFiles()));
         }
-
-        if (!StringUtils.isBlank(dao.getJsFiles())) {
+        if (StringUtils.isNotBlank(dao.getJsFiles())) {
             setJsFileList(PSWidgetBuilderResourceListData.fromXml(dao.getJsFiles()));
         }
     }
 
-    public static PSWidgetBuilderDefinition createDaoObject(PSWidgetBuilderDefinitionData data)
-    {
-        PSWidgetBuilderDefinition definition = new PSWidgetBuilderDefinition();
+    public static PSWidgetBuilderDefinition createDaoObject(PSWidgetBuilderDefinitionData data) {
+        var definition = new PSWidgetBuilderDefinition();
         definition.setAuthor(data.getAuthor());
         definition.setDescription(data.getDescription());
         definition.setLabel(data.getLabel());
         definition.setPrefix(data.getPrefix());
         definition.setPublisherUrl(data.getPublisherUrl());
         definition.setVersion(data.getVersion());
-        if(data.getWidgetId()>0) {
+        if (data.getWidgetId() > 0) {
             definition.setWidgetBuilderDefinitionId(data.getWidgetId());
         }
         definition.setFields(data.getFieldsList().toXml());
@@ -91,105 +84,99 @@ public class PSWidgetBuilderDefinitionData  extends PSWidgetBuilderSummaryData
 
     /**
      * Get the list of fields.
-     * @return The fields list, never <code>null</code>.
+     *
+     * @return The fields list, never {@code null}.
      */
-    public PSWidgetBuilderFieldsListData getFieldsList()
-    {
+    public PSWidgetBuilderFieldsListData getFieldsList() {
         return fieldsList;
     }
 
     /**
-     * Set the list of fields
+     * Set the list of fields.
      *
-     * @param fieldsList The fieldlist, not <code>null</code>.
+     * @param fieldsList The field list, not {@code null}.
      */
-    public void setFieldsList(PSWidgetBuilderFieldsListData fieldsList)
-    {
-        Validate.notNull(fieldsList);
+    public void setFieldsList(PSWidgetBuilderFieldsListData fieldsList) {
+        Validate.notNull(fieldsList, "fieldsList must not be null");
         this.fieldsList = fieldsList;
     }
 
-
     /**
-     * Set the html used to render the widget
+     * Set the HTML used to render the widget.
      *
-     * @param widgetHtml The html, not be <code>null<code/> or empty.
+     * @param widgetHtml The HTML, not {@code null} or empty.
      */
-    public void setWidgetHtml(String widgetHtml)
-    {
-        Validate.notNull(widgetHtml);
+    public void setWidgetHtml(String widgetHtml) {
+        Validate.notNull(widgetHtml, "widgetHtml must not be null");
         this.widgetHtml = widgetHtml;
     }
 
     /**
-     * Get the html used to render the widget.
+     * Get the HTML used to render the widget.
      *
-     * @return The html, may be <code>null<code/>, not empty.
+     * @return The HTML, may be {@code null}, not empty.
      */
-    public String getWidgetHtml()
-    {
+    public String getWidgetHtml() {
         return widgetHtml;
     }
 
     /**
-     * Get the list of js files
+     * Get the list of JS files.
      *
-     * @return The list, not <code>null</code>.
+     * @return The list, not {@code null}.
      */
-    public PSWidgetBuilderResourceListData getJsFileList()
-    {
+    public PSWidgetBuilderResourceListData getJsFileList() {
         return jsFileList;
     }
 
     /**
-     * Set the list of js files.
+     * Set the list of JS files.
      *
-     * @param jsFileList The list, not <code>null</code>.
+     * @param jsFileList The list, not {@code null}.
      */
-    public void setJsFileList(PSWidgetBuilderResourceListData jsFileList)
-    {
-        Validate.notNull(jsFileList);
+    public void setJsFileList(PSWidgetBuilderResourceListData jsFileList) {
+        Validate.notNull(jsFileList, "jsFileList must not be null");
         this.jsFileList = jsFileList;
     }
 
     /**
-     * Get the list of css files
+     * Get the list of CSS files.
      *
-     * @return The list, not <code>null</code>.
+     * @return The list, not {@code null}.
      */
-    public PSWidgetBuilderResourceListData getCssFileList()
-    {
+    public PSWidgetBuilderResourceListData getCssFileList() {
         return cssFileList;
     }
 
     /**
-     * Set the list of css files
+     * Set the list of CSS files.
      *
-     * @param cssFileList The list, not <code>null</code>.
+     * @param cssFileList The list, not {@code null}.
      */
-    public void setCssFileList(PSWidgetBuilderResourceListData cssFileList)
-    {
-        Validate.notNull(cssFileList);
+    public void setCssFileList(PSWidgetBuilderResourceListData cssFileList) {
+        Validate.notNull(cssFileList, "cssFileList must not be null");
         this.cssFileList = cssFileList;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSWidgetBuilderDefinitionData{");
-        sb.append("fieldsList=").append(fieldsList);
-        sb.append(", widgetHtml='").append(widgetHtml).append('\'');
-        sb.append(", jsFileList=").append(jsFileList);
-        sb.append(", cssFileList=").append(cssFileList);
-        sb.append('}');
-        return sb.toString();
+        return "PSWidgetBuilderDefinitionData{" +
+                "fieldsList=" + fieldsList +
+                ", widgetHtml='" + widgetHtml + '\'' +
+                ", jsFileList=" + jsFileList +
+                ", cssFileList=" + cssFileList +
+                '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSWidgetBuilderDefinitionData)) return false;
-        PSWidgetBuilderDefinitionData that = (PSWidgetBuilderDefinitionData) o;
-        return Objects.equals(getFieldsList(), that.getFieldsList()) && Objects.equals(getWidgetHtml(), that.getWidgetHtml()) && Objects.equals(getJsFileList(), that.getJsFileList()) && Objects.equals(getCssFileList(), that.getCssFileList());
+        var that = (PSWidgetBuilderDefinitionData) o;
+        return Objects.equals(getFieldsList(), that.getFieldsList())
+                && Objects.equals(getWidgetHtml(), that.getWidgetHtml())
+                && Objects.equals(getJsFileList(), that.getJsFileList())
+                && Objects.equals(getCssFileList(), that.getCssFileList());
     }
 
     @Override
@@ -197,4 +184,3 @@ public class PSWidgetBuilderDefinitionData  extends PSWidgetBuilderSummaryData
         return Objects.hash(getFieldsList(), getWidgetHtml(), getJsFileList(), getCssFileList());
     }
 }
-

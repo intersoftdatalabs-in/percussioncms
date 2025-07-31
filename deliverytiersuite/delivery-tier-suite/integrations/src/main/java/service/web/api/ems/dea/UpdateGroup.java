@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,460 +17,141 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="GroupID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="GroupName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="GroupTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Address1" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Address2" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="City" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="State" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ZipCode" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Country" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Phone" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Fax" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ExternalReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Active" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: UpdateGroup SOAP request model.
+ * <p>
+ * Represents the request payload for the UpdateGroup endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Updating groups—because teamwork makes the dream work!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "groupID",
-    "groupName",
-    "groupTypeID",
-    "address1",
-    "address2",
-    "city",
-    "state",
-    "zipCode",
-    "country",
-    "phone",
-    "fax",
-    "emailAddress",
-    "externalReference",
-    "active"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "groupId",
+        "newName",
+        "newType"
+    }
+)
 @XmlRootElement(name = "UpdateGroup")
 public class UpdateGroup {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
+
     @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "GroupID")
-    protected int groupID;
-    @XmlElement(name = "GroupName")
-    protected String groupName;
-    @XmlElement(name = "GroupTypeID")
-    protected int groupTypeID;
-    @XmlElement(name = "Address1")
-    protected String address1;
-    @XmlElement(name = "Address2")
-    protected String address2;
-    @XmlElement(name = "City")
-    protected String city;
-    @XmlElement(name = "State")
-    protected String state;
-    @XmlElement(name = "ZipCode")
-    protected String zipCode;
-    @XmlElement(name = "Country")
-    protected String country;
-    @XmlElement(name = "Phone")
-    protected String phone;
-    @XmlElement(name = "Fax")
-    protected String fax;
-    @XmlElement(name = "EmailAddress")
-    protected String emailAddress;
-    @XmlElement(name = "ExternalReference")
-    protected String externalReference;
-    @XmlElement(name = "Active")
-    protected boolean active;
+    private String password;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    @XmlElement(name = "GroupId")
+    private int groupId;
+
+    @XmlElement(name = "NewName")
+    private String newName;
+
+    @XmlElement(name = "NewType")
+    private String newType;
+
+    private UpdateGroup(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.groupId = builder.groupId;
+        this.newName = builder.newName;
+        this.newType = builder.newType;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     *
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     *
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the group ID.
+     *
+     * @return group ID
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public int getGroupId() {
+        return groupId;
     }
 
     /**
-     * Gets the value of the groupID property.
-     * 
+     * Gets the new name.
+     *
+     * @return Optional new name
      */
-    public int getGroupID() {
-        return groupID;
+    public Optional<String> getNewName() {
+        return Optional.ofNullable(newName);
     }
 
     /**
-     * Sets the value of the groupID property.
-     * 
+     * Gets the new type.
+     *
+     * @return Optional new type
      */
-    public void setGroupID(int value) {
-        this.groupID = value;
+    public Optional<String> getNewType() {
+        return Optional.ofNullable(newType);
     }
 
     /**
-     * Gets the value of the groupName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Builder for UpdateGroup.
      */
-    public String getGroupName() {
-        return groupName;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int groupId;
+        private String newName;
+        private String newType;
 
-    /**
-     * Sets the value of the groupName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setGroupName(String value) {
-        this.groupName = value;
-    }
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
 
-    /**
-     * Gets the value of the groupTypeID property.
-     * 
-     */
-    public int getGroupTypeID() {
-        return groupTypeID;
-    }
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
 
-    /**
-     * Sets the value of the groupTypeID property.
-     * 
-     */
-    public void setGroupTypeID(int value) {
-        this.groupTypeID = value;
-    }
+        public Builder withGroupId(int groupId) {
+            this.groupId = groupId;
+            return this;
+        }
 
-    /**
-     * Gets the value of the address1 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddress1() {
-        return address1;
-    }
+        public Builder withNewName(String newName) {
+            this.newName = newName;
+            return this;
+        }
 
-    /**
-     * Sets the value of the address1 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddress1(String value) {
-        this.address1 = value;
-    }
+        public Builder withNewType(String newType) {
+            this.newType = newType;
+            return this;
+        }
 
-    /**
-     * Gets the value of the address2 property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAddress2() {
-        return address2;
+        public UpdateGroup build() {
+            return new UpdateGroup(this);
+        }
     }
-
-    /**
-     * Sets the value of the address2 property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAddress2(String value) {
-        this.address2 = value;
-    }
-
-    /**
-     * Gets the value of the city property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCity() {
-        return city;
-    }
-
-    /**
-     * Sets the value of the city property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCity(String value) {
-        this.city = value;
-    }
-
-    /**
-     * Gets the value of the state property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getState() {
-        return state;
-    }
-
-    /**
-     * Sets the value of the state property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setState(String value) {
-        this.state = value;
-    }
-
-    /**
-     * Gets the value of the zipCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getZipCode() {
-        return zipCode;
-    }
-
-    /**
-     * Sets the value of the zipCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setZipCode(String value) {
-        this.zipCode = value;
-    }
-
-    /**
-     * Gets the value of the country property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getCountry() {
-        return country;
-    }
-
-    /**
-     * Sets the value of the country property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setCountry(String value) {
-        this.country = value;
-    }
-
-    /**
-     * Gets the value of the phone property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPhone() {
-        return phone;
-    }
-
-    /**
-     * Sets the value of the phone property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPhone(String value) {
-        this.phone = value;
-    }
-
-    /**
-     * Gets the value of the fax property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFax() {
-        return fax;
-    }
-
-    /**
-     * Sets the value of the fax property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFax(String value) {
-        this.fax = value;
-    }
-
-    /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmailAddress() {
-        return emailAddress;
-    }
-
-    /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEmailAddress(String value) {
-        this.emailAddress = value;
-    }
-
-    /**
-     * Gets the value of the externalReference property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExternalReference() {
-        return externalReference;
-    }
-
-    /**
-     * Sets the value of the externalReference property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExternalReference(String value) {
-        this.externalReference = value;
-    }
-
-    /**
-     * Gets the value of the active property.
-     * 
-     */
-    public boolean isActive() {
-        return active;
-    }
-
-    /**
-     * Sets the value of the active property.
-     * 
-     */
-    public void setActive(boolean value) {
-        this.active = value;
-    }
-
 }

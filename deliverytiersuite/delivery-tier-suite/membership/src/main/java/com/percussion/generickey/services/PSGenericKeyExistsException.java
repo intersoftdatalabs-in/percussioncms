@@ -16,15 +16,15 @@
  */
 package com.percussion.generickey.services;
 
-public class PSGenericKeyExistsException extends Exception
-{
-    /**
-     * 
-     */
+/**
+ * Exception thrown when a generic key already exists.
+ * Sunny Sal: "Duplicate keys? That's a plot twist!"
+ */
+public class PSGenericKeyExistsException extends Exception {
+
     private static final long serialVersionUID = 1L;
 
-    public PSGenericKeyExistsException(String resetKey)
-    {
+    public PSGenericKeyExistsException(String resetKey) {
         super("Key already exists: " + resetKey);
     }
 }

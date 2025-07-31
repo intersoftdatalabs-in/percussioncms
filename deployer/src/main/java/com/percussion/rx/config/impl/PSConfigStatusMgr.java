@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rx.config.impl;
 
 import com.percussion.rx.config.IPSConfigStatusMgr;
@@ -35,189 +37,125 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Class to handle the crud operations of config status object. 
- * @author bjoginipally
- *
- */
 @Transactional
 @PSBaseBean("sys_configStatusMgr")
-public class PSConfigStatusMgr  implements IPSConfigStatusMgr
-{
-   @PersistenceContext
-   private EntityManager entityManager;
+public class PSConfigStatusMgr implements IPSConfigStatusMgr {
+    @PersistenceContext
+    private EntityManager entityManager;
 
-   private Session getSession(){
-      return entityManager.unwrap(Session.class);
-   }
+    private Session getSession() {
+        return entityManager.unwrap(Session.class);
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#createConfigStatus(java.lang.String)
-    */
-   public PSConfigStatus createConfigStatus(String configName)
-   {
-      if (StringUtils.isBlank(configName))
-         throw new IllegalArgumentException("configName must not be blank");
-      PSConfigStatus cs = new PSConfigStatus();
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      int stid = gmgr.createId("CONFIG_STATUS_ID");
-      cs.setStatusId(stid);
-      cs.setConfigName(configName);
-      return cs;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#saveConfigStatus(com.percussion.rx.config.data.PSConfigStatus)
-    */
-   public void saveConfigStatus(PSConfigStatus obj)
-   {
-      if (obj == null)
-         throw new IllegalArgumentException("obj may not be null");
-      
-       getSession().saveOrUpdate(obj);
-   }
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#loadConfigStatus(long)
-    */
-   public PSConfigStatus loadConfigStatus(long statusID) throws PSNotFoundException {
-      // As per the convention added this method, there is not much need at this
-      // moment to cache the status objects.
+    @Override
+    public PSConfigStatus createConfigStatus(String configName) {
+        if (StringUtils.isBlank(configName))
+            throw new IllegalArgumentException("configName must not be blank");
+        var cs = new PSConfigStatus();
+        IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
+        int stid = gmgr.createId("CONFIG_STATUS_ID");
+        cs.setStatusId(stid);
+        cs.setConfigName(configName);
+        return cs;
+    }
 
-      return loadConfigStatusModifiable(statusID);
+    @Override
+    public void saveConfigStatus(PSConfigStatus obj) {
+        if (obj == null)
+            throw new IllegalArgumentException("obj may not be null");
+        getSession().saveOrUpdate(obj);
+    }
 
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#loadConfigStatusModifiable(long)
-    */
-   public PSConfigStatus loadConfigStatusModifiable(long statusID) throws PSNotFoundException {
-      PSConfigStatus cfgStatus = null;
-      Session session = getSession();
+    @Override
+    public PSConfigStatus loadConfigStatus(long statusID) throws PSNotFoundException {
+        return loadConfigStatusModifiable(statusID);
+    }
 
-      CriteriaBuilder builder = session.getCriteriaBuilder();
-      CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-      Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-      criteria.where(builder.equal(critRoot.get("statusid"), statusID));
-      cfgStatus = entityManager.createQuery(criteria).getSingleResult();
+    @Override
+    public PSConfigStatus loadConfigStatusModifiable(long statusID) throws PSNotFoundException {
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+        criteria.where(builder.equal(critRoot.get("statusid"), statusID));
+        var cfgStatus = entityManager.createQuery(criteria).getSingleResult();
 
-         if (cfgStatus == null)
-         {
-            String msg = "Failed to find config status for supplied " +
-                  "status id ({0})";
-            Object[] args = {statusID};
-            throw new PSNotFoundException(MessageFormat.format(msg, args));
-         }
+        if (cfgStatus == null) {
+            var msg = "Failed to find config status for supplied status id ({0})";
+            throw new PSNotFoundException(MessageFormat.format(msg, statusID));
+        }
+        return cfgStatus;
+    }
 
-      return cfgStatus;
-   }
-      
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#findConfigStatus(java.lang.String)
-    */
-   @SuppressWarnings("unchecked")
-   public List<PSConfigStatus> findConfigStatus(String nameFilter)
-   {
-      if (StringUtils.isBlank(nameFilter))
-         throw new IllegalArgumentException("nameFilter may not be null or empty string");
-     
-      List<PSConfigStatus> cfgStatusList = null;
-      Session session = getSession();
+    @Override
+    public List<PSConfigStatus> findConfigStatus(String nameFilter) {
+        if (StringUtils.isBlank(nameFilter))
+            throw new IllegalArgumentException("nameFilter may not be null or empty string");
 
-         CriteriaBuilder builder = session.getCriteriaBuilder();
-         CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-         Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-         criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
-         criteria.orderBy(builder.asc(critRoot.get("configName")));
-         criteria.orderBy(builder.desc(critRoot.get("dateApplied")));
-         cfgStatusList = entityManager.createQuery(criteria).getResultList();
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+        criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
+        criteria.orderBy(builder.asc(critRoot.get("configName")), builder.desc(critRoot.get("dateApplied")));
+        return entityManager.createQuery(criteria).getResultList();
+    }
 
-      return cfgStatusList;
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#findLatestConfigStatus(java.lang.String)
-    */
-   public List<PSConfigStatus> findLatestConfigStatus(String nameFilter)
-   {
-      if (StringUtils.isBlank(nameFilter))
-         throw new IllegalArgumentException("nameFilter may not be null or empty string");
-     
-      List<PSConfigStatus> resultList = new ArrayList<>();
-      List<PSConfigStatus> cfgStatusList = findConfigStatus(nameFilter);
-      if(!cfgStatusList.isEmpty())
-      {
-         PSConfigStatus currPkg = cfgStatusList.get(0);
-         resultList.add(currPkg);
-         for (PSConfigStatus status : cfgStatusList)
-         {
-            if (!currPkg.getConfigName().equalsIgnoreCase(
-                  status.getConfigName()))
-            {
-               resultList.add(status);
-               currPkg = status;
+    @Override
+    public List<PSConfigStatus> findLatestConfigStatus(String nameFilter) {
+        if (StringUtils.isBlank(nameFilter))
+            throw new IllegalArgumentException("nameFilter may not be null or empty string");
+
+        var resultList = new ArrayList<PSConfigStatus>();
+        var cfgStatusList = findConfigStatus(nameFilter);
+        if (!cfgStatusList.isEmpty()) {
+            var currPkg = cfgStatusList.get(0);
+            resultList.add(currPkg);
+            for (var status : cfgStatusList) {
+                if (!currPkg.getConfigName().equalsIgnoreCase(status.getConfigName())) {
+                    resultList.add(status);
+                    currPkg = status;
+                }
             }
-         }
-      }
-      return resultList;
-   }
+        }
+        return resultList;
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#deleteConfigStatus(long)
-    */
-   public void deleteConfigStatus(long statusID) throws PSNotFoundException {
-      PSConfigStatus cfgStatus = loadConfigStatusModifiable(statusID);
-      getSession().delete(cfgStatus);
-   }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#deleteConfigStatus(java.lang.String)
-    */
-   @SuppressWarnings("unchecked")
-   public void deleteConfigStatus(String nameFilter)
-   {
-      if (StringUtils.isBlank(nameFilter))
-         throw new IllegalArgumentException("nameFilter may not be null or empty string");
+    @Override
+    public void deleteConfigStatus(long statusID) throws PSNotFoundException {
+        var cfgStatus = loadConfigStatusModifiable(statusID);
+        getSession().delete(cfgStatus);
+    }
 
-      Session sess = getSession();
+    @Override
+    public void deleteConfigStatus(String nameFilter) {
+        if (StringUtils.isBlank(nameFilter))
+            throw new IllegalArgumentException("nameFilter may not be null or empty string");
 
-      CriteriaBuilder builder = sess.getCriteriaBuilder();
-      CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-      Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-      criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
-      criteria.orderBy(builder.asc(critRoot.get("configName")));
-      criteria.orderBy(builder.asc(critRoot.get("dateApplied")));
-      entityManager.createQuery(criteria).getResultList().forEach(sess::delete);
-   }
+        Session sess = getSession();
+        CriteriaBuilder builder = sess.getCriteriaBuilder();
+        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+        criteria.where(builder.like(builder.lower(critRoot.get("configName")), nameFilter.toLowerCase()));
+        criteria.orderBy(builder.asc(critRoot.get("configName")), builder.asc(critRoot.get("dateApplied")));
+        entityManager.createQuery(criteria).getResultList().forEach(sess::delete);
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.config.IPSConfigStatusMgr#findLastSuccessfulConfigStatus(java.lang.String)
-    */
-   @SuppressWarnings("unchecked")
-   public PSConfigStatus findLastSuccessfulConfigStatus(String configName)
-   {
-      if (StringUtils.isBlank(configName))
-         throw new IllegalArgumentException("configName may not be null or empty string");
-      List<PSConfigStatus> cfgList;
-      Session session = getSession();
-         CriteriaBuilder builder = session.getCriteriaBuilder();
-         CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
-         Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
-         criteria.where(builder.equal(critRoot.get("configName"), configName));
-         criteria.where(builder.equal(critRoot.get("status"), PSConfigStatus.ConfigStatus.SUCCESS));
-         criteria.orderBy(builder.desc(critRoot.get("dateApplied")));
-         entityManager.createQuery(criteria).setMaxResults(1);
-         cfgList = entityManager.createQuery(criteria).getResultList();
-
-      return cfgList.size()==0 ? null : cfgList.get(0);
-   }
+    @Override
+    public PSConfigStatus findLastSuccessfulConfigStatus(String configName) {
+        if (StringUtils.isBlank(configName))
+            throw new IllegalArgumentException("configName may not be null or empty string");
+        Session session = getSession();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaQuery<PSConfigStatus> criteria = builder.createQuery(PSConfigStatus.class);
+        Root<PSConfigStatus> critRoot = criteria.from(PSConfigStatus.class);
+        criteria.where(
+                builder.equal(critRoot.get("configName"), configName),
+                builder.equal(critRoot.get("status"), PSConfigStatus.ConfigStatus.SUCCESS)
+        );
+        criteria.orderBy(builder.desc(critRoot.get("dateApplied")));
+        entityManager.createQuery(criteria).setMaxResults(1);
+        var cfgList = entityManager.createQuery(criteria).getResultList();
+        return cfgList.isEmpty() ? null : cfgList.get(0);
+    }
 }
-

@@ -25,7 +25,7 @@ Write side-effect-free streams and standard functional interfaces.
 Use Repository pattern for data access; avoid direct database calls in services.
 
 Project Structure
-Source, Test, and Resource directories can be identified from the maven pom.xml file, general structure is:
+Source, Test, and Resource directories can be identified from the maven pom.xml files, general structure is:
 ```
 src/main/java/: Main application code
 src/main/resources/: Configuration files (e.g., application.properties)
@@ -33,6 +33,8 @@ src/test/java/: Unit tests
 src/test/resources/: Test resources (e.g., test data, configuration)
 docs/: Markdown documentation and API specs. 
 ```
+Always work with the #codebase directory as the root for all file paths.
+Always use the #codebase context when resolving missing interfaces or classes.
 
 Refactoring Guidelines
 
@@ -40,7 +42,20 @@ Java 11 Migration:
 Refactor to use Java 11 features (var, Optional, Streams).
 Add // REFACTORED: CP-JAVA11 at class level when fully refactored.
 Skip classes with this marker in future sessions.
-When a package is fully refactored, add to refactored-java11-packages.txt in module root; skip listed packages.
+When a package is fully refactored, append to refactored-java11-packages.txt in module root; skip listed packages.
+Example refactored-java11-packages.txt format:
+```
+## This file lists the packages that are part of the refactored Java 11 codebase.
+## PACKAGE NAME, DESCRIPTION
+
+com.percussion.delivery.client, The delivery client
+com.percussion.delivery.metadata.solr.impl, Solr implementation for metadata delivery
+```
+Refactor obsolete javax refrences to the jakarta namespace where applicable, but ensure backward compatibility.
+Use the jakarta namespace for JAX-RS, JPA, and other Jakarta EE APIs.
+Add // REFACTORED: CP-JAKARTA at class level when fully refactored
+Skip classes with this marker in future sessions.
+Use the internet and find suitable Java 11 or > replacement dependencies for javax packages if there is no jakarta equivalent.
 
 SOAP Server and Client Modernization
 Objective: Refactor legacy SOAP server and client implementations to Java 11 standards using Apache CXF or Spring Web Services, ensuring backward compatibility with existing WSDLs and clients.
@@ -58,10 +73,12 @@ Add // REFACTORED: CP-SOAP-CLIENT at class level when client refactoring is comp
 
 
 General:
-Process one SOAP-related class at a time to avoid token limits.
+Process one SOAP-related package at a time to avoid token limits.
 Update module README.md with endpoint/client changes post-refactoring.
 Write JUnit5 tests for server (endpoint behavior, WSDL compliance) and client (request/response handling, edge cases).
 Use Javadoc for public SOAP APIs; add inline comments for complex XML logic.
+Refactor commons loogging, java util.logging, SLF4j logging,and log4j 1.x logging to use Log4j 2.x API.
+Ensure all logging is OWASP compliant (e.g., no sensitive data in logs).
 
 
 Package Tracking: When all SOAP classes in a package are refactored, add to refactored-soap-packages.txt in module root; skip listed packages in future sessions.
@@ -70,8 +87,6 @@ Package Tracking: When all SOAP classes in a package are refactored, add to refa
 Spring/Hibernate Updates:
 Upgrade to latest Spring and compatible Hibernate versions.
 Ensure dependency compatibility and backward-compatible APIs.
-
-Process one class at a time to avoid token limits.
 
 ## Mandatory Post-Refactoring Steps (DO NOT SKIP)
 
@@ -88,17 +103,18 @@ After completing ANY refactoring work:
     - Add `// REFACTORED: CP-SOAP-CLIENT` for SOAP client refactoring
 
 3. **Update package tracking files:**
-    - Add fully refactored packages to `refactored-java11-packages.txt`
+    - APPEND fully refactored packages to `refactored-java11-packages.txt`
     - Add SOAP packages to `refactored-soap-packages.txt`
-
-**⚠️ COPILOT REMINDER: End every refactoring response with "Next: Update module README.md with these changes"**
 
 Documentation
 
-**CRITICAL: Update README.md after EVERY refactoring session - this is mandatory**
-Maintain README.md in module root with setup, usage, and module structure.
+Maintain README.md in each module root with setup, usage, and module structure.
 Use Javadoc for public APIs and complex logic; include examples.
 Add inline comments for non-obvious code.
+
+Source Code License Header and Copyright
+All source files must include the standard Percussion CMS license header at the top.
+Ensure copyright years are updated to the current year.
 
 Testing and Validation
 
@@ -123,28 +139,8 @@ Refactor ContentService to Java 11 (use Optional, Streams); update README.md
 Example Humor (Use Sparingly)
 
 Use cowsay format at beginning or end of a session/plain text if in middle of session using tech/movie quips mixing:
-- Hollywood action/sci-fi quotes ("I'll be back", "May the force be with you")
-- Bollywood references ("Picture abhi baaki hai mere dost", "Mogambo khush hua")
-- Tech culture ("It's not a bug, it's a feature", "Works on my machine")
-- Mix English/Hindi naturally ("Code ka hero ban gaya tu!", "Debugging karna pada")
-Examples:
-
-< abhibaaki hai - more bugs! >
-< Chuck Norris doesn't do code reviews, he just stares at the code until it fixes itself >
-_____________________________________
-< Picture abhi baaki hai - more bugs! >
-------------------------------------
-        \   ^__^
-         \  (oo)\\_______
-            (__)\\       )\\/\\
-                ||----w |
-                ||     ||
-
- _________________________________
-< I'll be back... with cleaner code >
----------------------------------
-        \   ^__^
-         \  (oo)\\_______
-            (__)\\       )\\/\\
-                ||----w |
-                ||     ||
+- Hollywood action/sci-fi quotes
+- Bollywood movie quotes
+- Tech culture 
+- Mix English/Hindi naturally
+- Use the internet to find relevant quotes, cache all quotes in the #codebase/.github/quotes.json file using cached quotes, 80% of the time.

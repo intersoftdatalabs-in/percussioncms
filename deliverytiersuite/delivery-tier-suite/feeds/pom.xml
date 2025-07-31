@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- REFACTORED: CP-JAVA11 - Sunny Sal modernized for Java 11, JUnit5, and Google Java Style -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -22,6 +22,9 @@
         <jersey.version>3.1.1</jersey.version>
         <jackson.version>2.15.2</jackson.version>
         <httpclient.version>4.5.14</httpclient.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <guava.version>33.1.0-jre</guava.version>
+        <commons.lang3.version>3.13.0</commons.lang3.version>
     </properties>
 
     <dependencies>
@@ -98,6 +101,25 @@
             <version>${derby.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Add Apache Commons Lang3 for modern utility support -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons.lang3.version}</version>
+        </dependency>
+        <!-- Add Guava for modern collections and utilities -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <!-- Add JUnit5 Jupiter for modern testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -107,6 +129,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
+                    <source>11</source>
+                    <target>11</target>
                     <release>11</release>
                 </configuration>
             </plugin>

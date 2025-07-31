@@ -24,14 +24,23 @@ import com.percussion.webservices.PSErrorResultsException;
 import java.rmi.RemoteException;
 import java.util.List;
 
+/**
+ * Adaptor interface for Community operations.
+ */
 public interface ICommunityAdaptor {
 
-    public CommunityList createCommunities(List<String> names);
-    public CommunityList findCommunities(String name);
-    public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock) throws PSErrorResultsException;
-    public void saveCommunities(CommunityList communities, boolean release);
-    public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
-    public CommunityVisibilityList getVisibilityByCommunity(
+    CommunityList createCommunities(List<String> names);
+
+    CommunityList findCommunities(String name);
+
+    CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock) throws PSErrorResultsException;
+
+    void saveCommunities(CommunityList communities, boolean release);
+
+    void deleteCommunities(GuidList ids, boolean ignoreDependencies);
+
+    CommunityVisibilityList getVisibilityByCommunity(
             GuidList ids, ObjectTypeEnum type) throws PSErrorResultsException, RemoteException;
-    public void switchCommunity(String name);
+
+    void switchCommunity(String name);
 }

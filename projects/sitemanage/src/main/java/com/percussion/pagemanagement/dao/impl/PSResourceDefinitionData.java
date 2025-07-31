@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -37,154 +38,125 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * 
  * A container to hold resource definition data in memory.
  * Hash Maps are used for performance instead of other collections.
  * @author adamgent
- *
  */
 @Component("resourceDefinitionData")
 @Lazy
-public class PSResourceDefinitionData
-{
-    private Map<PSResourceDefinitionUniqueId, PSResourceDefinition> resourceDefinitions = new HashMap<>();
-    private Map<String, PSResourceDefinitionGroup> resourceDefinitionGroups = new HashMap<>();
-    private Map<String, PSAssetResource> primaryAssetResources = new HashMap<>();
-    private Map<String, Set<PSAssetResource>> contentTypeAssetResources = new HashMap<>();
-    private Map<String, Set<PSAssetResource>> legacyTemplateAssetResources = new HashMap<>();
-    
-    private IPSResourceDefinitionVisitor resourceVisitor = new ResourceVisitor();
-    
+public class PSResourceDefinitionData {
+    private final Map<PSResourceDefinitionUniqueId, PSResourceDefinition> resourceDefinitions = new HashMap<>();
+    private final Map<String, PSResourceDefinitionGroup> resourceDefinitionGroups = new HashMap<>();
+    private final Map<String, PSAssetResource> primaryAssetResources = new HashMap<>();
+    private final Map<String, Set<PSAssetResource>> contentTypeAssetResources = new HashMap<>();
+    private final Map<String, Set<PSAssetResource>> legacyTemplateAssetResources = new HashMap<>();
+    private final IPSResourceDefinitionVisitor resourceVisitor = new ResourceVisitor();
+
     public void add(PSResourceDefinitionGroup group) throws PSDataServiceException {
         notNull(group);
         notEmpty(group.getId());
         resourceDefinitionGroups.put(group.getId(), group);
-        List<PSResourceDefinition> rds = new ArrayList<>();
+        var rds = new ArrayList<PSResourceDefinition>();
         add(rds, group.getAssetResources());
         add(rds, group.getFileResources());
         add(rds, group.getFolderResources());
-        for (PSResourceDefinition rd : rds) {
-            PSResourceDefinitionUniqueId uid = new PSResourceDefinitionUniqueId(group.getId(), rd.getId());
+        for (var rd : rds) {
+            var uid = new PSResourceDefinitionUniqueId(group.getId(), rd.getId());
             rd.setGroupId(uid.getGroupId());
             rd.setId(uid.getLocalId());
             rd.setUniqueId(uid.getUniqueId());
             resourceDefinitions.put(uid, rd);
             rd.accept(resourceVisitor);
         }
-        
     }
-    
+
     private void add(Collection<PSResourceDefinition> merged, Collection<? extends PSResourceDefinition> add) {
         if (add != null) {
             merged.addAll(add);
         }
     }
-    
-    
+
     /**
-     * Returns resources marked as primary where the key is the content type. 
-     * @return ContentTypeName ==> AssetResource map, never <code>null</code>.
+     * Returns resources marked as primary where the key is the content type.
+     * @return ContentTypeName ==> AssetResource map, never {@code null}.
      */
-    public final Map<String, PSAssetResource> getPrimaryAssetResources()
-    {
+    public Map<String, PSAssetResource> getPrimaryAssetResources() {
         return primaryAssetResources;
     }
-    
+
     /**
-     * Legacy templates associated to a resources.
-     * Key is the legacy template name and value is a set of assets with
-     * that legacy template.
-     * 
+     * Legacy templates associated to resources.
+     * Key is the legacy template name and value is a set of assets with that legacy template.
      * @return LegacyTemplateName ==> Set of Asset resources.
      */
-    public Map<String, Set<PSAssetResource>> getLegacyTemplateAssetResources()
-    {
+    public Map<String, Set<PSAssetResource>> getLegacyTemplateAssetResources() {
         return legacyTemplateAssetResources;
     }
 
     /**
      * Resource map where the key is the content type.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public final Map<String, Set<PSAssetResource>> getContentTypeAssetResources()
-    {
+    public Map<String, Set<PSAssetResource>> getContentTypeAssetResources() {
         return contentTypeAssetResources;
     }
 
-    public final Map<PSResourceDefinitionUniqueId, PSResourceDefinition> getResourceDefinitions()
-    {
+    public Map<PSResourceDefinitionUniqueId, PSResourceDefinition> getResourceDefinitions() {
         return resourceDefinitions;
     }
 
-
-    public final Map<String, PSResourceDefinitionGroup> getResourceDefinitionGroups()
-    {
+    public Map<String, PSResourceDefinitionGroup> getResourceDefinitionGroups() {
         return resourceDefinitionGroups;
     }
-    
-    
-    protected class ResourceVisitor implements IPSResourceDefinitionVisitor {
 
-        public void visit(PSAssetResource resource)
-        {
-            String ct = resource.getContentType();
+    protected class ResourceVisitor implements IPSResourceDefinitionVisitor {
+        @Override
+        public void visit(PSAssetResource resource) {
+            var ct = resource.getContentType();
             if (isBlank(ct)) {
-                log.error("Content type is null for resource: {} " , resource);
+                log.error("Content type is null for resource: {}", resource);
                 return;
             }
-            String template = resource.getLegacyTemplate();
-            
-            /*
-             * Add content type asset resources assocations.
-             */
-            Set<PSAssetResource> ars = contentTypeAssetResources.get(ct);
-            ars = ars == null ? new HashSet<>() : ars;
+            var template = resource.getLegacyTemplate();
+
+            // Add content type asset resources associations.
+            var ars = contentTypeAssetResources.getOrDefault(ct, new HashSet<>());
             ars.add(resource);
             contentTypeAssetResources.put(ct, ars);
-            
-            /*
-             * Add to primary asset resource assocations.
-             */
-            if(resource.isPrimary()) {
+
+            // Add to primary asset resource associations.
+            if (resource.isPrimary()) {
                 if (ct != null) {
                     primaryAssetResources.put(ct, resource);
                 }
             }
-            
-            /*
-             * Add to template asset resource associates.
-             */
+
+            // Add to template asset resource associations.
             if (template != null) {
-                Set<PSAssetResource> trs = legacyTemplateAssetResources.get(template);
-                trs = trs == null ? new HashSet<>() : trs;
+                var trs = legacyTemplateAssetResources.getOrDefault(template, new HashSet<>());
                 trs.add(resource);
                 legacyTemplateAssetResources.put(template, trs);
             }
         }
 
-        public void visit(@SuppressWarnings("unused") PSFileResource resource)
-        {
-            return;
-        }
-
-        public void visit(@SuppressWarnings("unused") PSFolderResource resource)
-        {
-            return;
+        @Override
+        public void visit(@SuppressWarnings("unused") PSFileResource resource) {
+            // No-op for file resources.
         }
 
         @Override
-        public void visit(@SuppressWarnings("unused") PSThemeResource resource)
-        {
-            return;
+        public void visit(@SuppressWarnings("unused") PSFolderResource resource) {
+            // No-op for folder resources.
         }
-    
+
+        @Override
+        public void visit(@SuppressWarnings("unused") PSThemeResource resource) {
+            // No-op for theme resources.
+        }
     }
 
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
-
     private static final Logger log = LogManager.getLogger(PSResourceDefinitionData.class);
-
-
 }

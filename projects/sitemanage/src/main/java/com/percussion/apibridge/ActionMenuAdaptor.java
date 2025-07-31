@@ -52,19 +52,15 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
 
     private IPSUiDesignWs service;
 
-
     @Autowired
-    public ActionMenuAdaptor(IPSUiDesignWs service){
-     this.service = service;
+    public ActionMenuAdaptor(IPSUiDesignWs service) {
+        this.service = service;
     }
 
     @Override
     public List<ActionMenu> findMenus(String name, String label, Boolean item, Boolean dynamic, Boolean cascading) throws PSErrorResultsException {
-
-        IPSCmsObjectMgr mgr = PSCmsObjectMgrLocator.getObjectManager();
-
+        var mgr = PSCmsObjectMgrLocator.getObjectManager();
         return ApiUtils.convertPSActionMenuList(mgr.findActionMenus());
-
     }
 
     @Override
@@ -81,83 +77,70 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     @Override
     public List<ActionMenu> findAllowedTemplates(Integer contentId, boolean isAA) {
         return ApiUtils.convertPSActionMenuList(
-                PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId,isAA,null)
+                PSTemplateActionMenuHelper.getInstance().getTemplateMenus(contentId, isAA, null)
         );
     }
 
     private ActionMenuVisibilityContext[] copyVisibilityContexts(PSActionVisibilityContexts visibilityContexts) {
-
-        ArrayList<ActionMenuVisibilityContext> ctxs = new ArrayList<>();
-
-        while(visibilityContexts.iterator().hasNext()){
-            PSActionVisibilityContext  v = (PSActionVisibilityContext)visibilityContexts.iterator().next();
-            ActionMenuVisibilityContext amc = new ActionMenuVisibilityContext();
-
-            ArrayList values = new ArrayList();
-            while(v.iterator().hasNext()){
-                values.add(v.iterator().next());
+        var ctxs = new ArrayList<ActionMenuVisibilityContext>();
+        var it = visibilityContexts.iterator();
+        while (it.hasNext()) {
+            var v = (PSActionVisibilityContext) it.next();
+            var amc = new ActionMenuVisibilityContext();
+            var values = new ArrayList<>();
+            var vit = v.iterator();
+            while (vit.hasNext()) {
+                values.add(vit.next());
             }
             amc.setDescription(v.getDescription());
             amc.setName(v.getName());
-
+            // TODO: Set values if needed
+            ctxs.add(amc);
         }
-
-        return ctxs.toArray(new ActionMenuVisibilityContext[ctxs.size()]);
+        return ctxs.toArray(new ActionMenuVisibilityContext[0]);
     }
 
     private ActionMenuModeUIContext[] copyUIContexts(PSDbComponentCollection modeUIContexts) {
-        ArrayList<ActionMenuModeUIContext> uictx = new ArrayList<>();
-
-        while(modeUIContexts.iterator().hasNext()){
-            PSMenuModeContextMapping mode = (PSMenuModeContextMapping)modeUIContexts.iterator().next();
-
-            ActionMenuModeUIContext restMode = new ActionMenuModeUIContext();
-
+        var uictx = new ArrayList<ActionMenuModeUIContext>();
+        var it = modeUIContexts.iterator();
+        while (it.hasNext()) {
+            var mode = (PSMenuModeContextMapping) it.next();
+            var restMode = new ActionMenuModeUIContext();
             restMode.setContextId(mode.getContextId());
             restMode.setContextName(mode.getContextName());
             restMode.setModeId(mode.getModeId());
             restMode.setModeName(mode.getModeName());
             restMode.setDescription(mode.getDescription());
-
             uictx.add(restMode);
         }
-
-        return uictx.toArray(new ActionMenuModeUIContext[uictx.size()]);
+        return uictx.toArray(new ActionMenuModeUIContext[0]);
     }
 
     private ActionMenuParameter[] copyParameters(PSActionParameters parameters) {
-        ArrayList<ActionMenuParameter> ret = new ArrayList<>();
-
-        while(parameters.iterator().hasNext()){
-            PSActionParameter  psap = (PSActionParameter)parameters.iterator().next();
-
-            ActionMenuParameter p = new ActionMenuParameter();
-
+        var ret = new ArrayList<ActionMenuParameter>();
+        var it = parameters.iterator();
+        while (it.hasNext()) {
+            var psap = (PSActionParameter) it.next();
+            var p = new ActionMenuParameter();
             p.setDescription(psap.getDescription());
             p.setName(psap.getName());
             p.setValue(psap.getValue());
             ret.add(p);
         }
-
-        return ret.toArray(new ActionMenuParameter[ret.size()]);
+        return ret.toArray(new ActionMenuParameter[0]);
     }
 
     private ActionMenuProperty[] copyProperties(PSActionProperties properties) {
-
-        ArrayList<ActionMenuProperty> ret = new ArrayList<>();
-
-        while(properties.iterator().hasNext()){
-            PSActionProperty p = (PSActionProperty) properties.iterator().next();
-
-            ActionMenuProperty prop = new ActionMenuProperty();
+        var ret = new ArrayList<ActionMenuProperty>();
+        var it = properties.iterator();
+        while (it.hasNext()) {
+            var p = (PSActionProperty) it.next();
+            var prop = new ActionMenuProperty();
             prop.setDescription(p.getDescription());
             prop.setValue(p.getValue());
             prop.setName(p.getName());
             ret.add(prop);
-
         }
-
-        return ret.toArray(new ActionMenuProperty[ret.size()]);
+        return ret.toArray(new ActionMenuProperty[0]);
     }
-
 }

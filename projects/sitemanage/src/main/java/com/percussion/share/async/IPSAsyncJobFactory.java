@@ -17,12 +17,11 @@
 package com.percussion.share.async;
 
 /**
- * Factory to create instances of async jobs.  Implementation provided by the
+ * Factory to create instances of async jobs. Implementation provided by the
  * Spring framework ServiceLocatorFactoryBean.
- * 
+ *
  * @author JaySeletz
  */
-public interface IPSAsyncJobFactory
-{
-    public IPSAsyncJob getJob(String jobType);
+public interface IPSAsyncJobFactory {
+    IPSAsyncJob getJob(String jobType);
 }

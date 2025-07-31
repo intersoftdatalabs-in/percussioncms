@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -92,7 +93,7 @@ public class PSDefaultModerationState implements IPSDefaultModerationState, Seri
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSDefaultModerationState)) return false;
-        PSDefaultModerationState that = (PSDefaultModerationState) o;
+        var that = (PSDefaultModerationState) o;
         return Objects.equals(site, that.site);
     }
 

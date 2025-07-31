@@ -47,15 +47,15 @@ public class PSSearchDefDependencyHandler
    }
    
    // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
+   @Override
+   public String getType() {
+       return DEPENDENCY_TYPE;
    }
 
    // see base class
-   protected boolean isDependentType(PSSearch search)
-   {
-      return search.isStandardSearch() || search.isCustomSearch();
+   @Override
+   protected boolean isDependentType(PSSearch search) {
+       return search.isStandardSearch() || search.isCustomSearch();
    }
 
    /**

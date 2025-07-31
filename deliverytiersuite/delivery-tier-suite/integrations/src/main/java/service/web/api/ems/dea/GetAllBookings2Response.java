@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,50 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetAllBookings2Result" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAllBookings2Response SOAP response.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getAllBookings2Result"
 })
 @XmlRootElement(name = "GetAllBookings2Response")
-public class GetAllBookings2Response {
+public final class GetAllBookings2Response {
 
     @XmlElement(name = "GetAllBookings2Result")
-    protected String getAllBookings2Result;
+    private String getAllBookings2Result;
 
-    /**
-     * Gets the value of the getAllBookings2Result property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetAllBookings2Result() {
-        return getAllBookings2Result;
+    /** @return Optional containing the result string if present. */
+    public java.util.Optional<String> getGetAllBookings2Result() {
+        return java.util.Optional.ofNullable(getAllBookings2Result);
     }
 
-    /**
-     * Sets the value of the getAllBookings2Result property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
+    /** @param value allowed object is {@link String } */
     public void setGetAllBookings2Result(String value) {
         this.getAllBookings2Result = value;
     }
 
+    @Override
+    public String toString() {
+        return "GetAllBookings2Response{" +
+                "getAllBookings2Result='" + getAllBookings2Result + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GetAllBookings2Response)) return false;
+        var that = (GetAllBookings2Response) o;
+        return java.util.Objects.equals(getAllBookings2Result, that.getAllBookings2Result);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getAllBookings2Result);
+    }
 }

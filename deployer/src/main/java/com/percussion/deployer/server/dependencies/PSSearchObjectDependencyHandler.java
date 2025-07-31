@@ -52,11 +52,14 @@ import com.percussion.util.IPSHtmlParameters;
 import org.w3c.dom.Element;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -172,41 +175,32 @@ public abstract class PSSearchObjectDependencyHandler
    }
 
    // see base class
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-         throws PSDeployException
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      try
-      {
-         List<PSDependency> deps = new ArrayList<>();
-
-         PSComponentProcessorProxy proc = getComponentProcessor(tok);
-         Element[] elements = proc.load(PSSearch.getComponentType(
-            PSSearch.class), null);
-         for (int i = 0; i < elements.length; i++)
-         {
-            PSSearch search = new PSSearch(elements[i]);
-            if (isDependentType(search))
-            {
-               String name = search.getInternalName();
-               deps.add(createDependency(m_def, getIdFromKey(search, name),
-                  name));
-            }
-         }
-
-         return deps.iterator();
       }
-      catch (PSCmsException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
-      }
-      catch (PSUnknownNodeTypeException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
+
+      try {
+         var proc = getComponentProcessor(tok);
+         var elements = proc.load(PSSearch.getComponentType(PSSearch.class), null);
+
+         return Arrays.stream(elements)
+            .map(element -> {
+               try {
+                  var search = new PSSearch(element);
+                  if (isDependentType(search)) {
+                     var name = search.getInternalName();
+                     return createDependency(m_def, getIdFromKey(search, name), name);
+                  }
+                  return null;
+               } catch (PSUnknownNodeTypeException e) {
+                  throw new RuntimeException(e);
+               }
+            })
+            .filter(Objects::nonNull)
+            .iterator();
+      } catch (PSCmsException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
    }
 
@@ -275,26 +269,13 @@ public abstract class PSSearchObjectDependencyHandler
 
    // see base class
    @Override
-   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      // load the component
-      PSSearch search = loadSearch(getComponentProcessor(tok), dep.getDependencyId());
-      if (search != null)
-         files.add(createDependencyFile(search));
-
-      return files.iterator();
+      var search = loadSearch(getComponentProcessor(tok), dep.getDependencyId());
+      return search != null ? List.of(createDependencyFile(search)).iterator() : List.<PSDependencyFile>of().iterator();
    }
 
    // see base class
@@ -542,19 +523,14 @@ public abstract class PSSearchObjectDependencyHandler
     * @return A list of <code>PSProperty</code> objects, never
     * <code>null</code>, may be empty.
     */
-   private List<PSProperty> mapToProps(Map map)
-   {
-      Iterator props = map.entrySet().iterator();
-      List<PSProperty> propList = new ArrayList<>();
-      while (props.hasNext())
-      {
-         Map.Entry entry = (Map.Entry)props.next();
-         PSProperty prop = new PSProperty((String)entry.getKey());
-         prop.setValue(entry.getValue());
-         propList.add(prop);
-      }
-
-      return propList;
+   private List<PSProperty> mapToProps(Map<String, String> map) {
+      return map.entrySet().stream()
+         .map(entry -> {
+            var prop = new PSProperty(entry.getKey());
+            prop.setValue(entry.getValue());
+            return prop;
+         })
+         .toList();
    }
 
    /**

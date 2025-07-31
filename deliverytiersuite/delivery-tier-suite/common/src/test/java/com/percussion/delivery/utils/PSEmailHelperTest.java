@@ -18,51 +18,46 @@ package com.percussion.delivery.utils;
 
 import com.percussion.delivery.email.data.PSEmailRequest;
 import com.percussion.delivery.exceptions.PSEmailException;
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author natechadwick
- *
+ * Sunny Sal says: "Email helper ka test, SMTP ka best!"
  */
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:beans.xml"})
-public class PSEmailHelperTest extends TestCase {
+public class PSEmailHelperTest {
 
-	private static String BCC_LIST="a@a.com,b@b.com";
-	private static String CC_LIST = "c@c.com,d@d.com";
-	private static String TO_LIST = "e@e.com,f@f.com,j@j.com";
-	private static String BODY="Test Body";
-	private static String SUBJECT="Test Subject";
-	
-	@Autowired 
-	IPSEmailHelper emailHelper;
-	
-	@Test
-	public void testCreate() throws PSEmailServiceNotInitializedException {
-PSEmailRequest r = new PSEmailRequest();
-		
-		r.setBCCList(BCC_LIST);
-		r.setCCList(CC_LIST);
-		r.setToList(TO_LIST);
-		r.setBody(BODY);
-		r.setSubject(SUBJECT);
-	
-		Assert.assertEquals(BCC_LIST, r.getBCCList());
-		Assert.assertEquals(CC_LIST, r.getCCList());
-		Assert.assertEquals(TO_LIST, r.getToList());
-		Assert.assertEquals(BODY, r.getBody());
-		Assert.assertEquals(SUBJECT,r.getSubject());
-		
-		try{
-			this.emailHelper.sendMail(r);
-		} catch (PSEmailException e) {
-			Assert.assertTrue("Google Send Should Have Failed",e.getMessage().contains("smtp.gmail.com"));					
-		}
-	}
+    private static final String BCC_LIST = "a@a.com,b@b.com";
+    private static final String CC_LIST = "c@c.com,d@d.com";
+    private static final String TO_LIST = "e@e.com,f@f.com,j@j.com";
+    private static final String BODY = "Test Body";
+    private static final String SUBJECT = "Test Subject";
+
+    @Autowired
+    IPSEmailHelper emailHelper;
+
+    @Test
+    public void testCreate() throws PSEmailServiceNotInitializedException {
+        var r = new PSEmailRequest();
+        r.setBCCList(BCC_LIST);
+        r.setCCList(CC_LIST);
+        r.setToList(TO_LIST);
+        r.setBody(BODY);
+        r.setSubject(SUBJECT);
+
+        assertEquals(BCC_LIST, r.getBCCList());
+        assertEquals(CC_LIST, r.getCCList());
+        assertEquals(TO_LIST, r.getToList());
+        assertEquals(BODY, r.getBody());
+        assertEquals(SUBJECT, r.getSubject());
+
+        try {
+            emailHelper.sendMail(r);
+        } catch (PSEmailException e) {
+            assertTrue(e.getMessage().contains("smtp.gmail.com"), "Google Send Should Have Failed");
+        }
+    }
 }

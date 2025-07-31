@@ -33,7 +33,8 @@ import java.util.List;
 public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
     private IPSContentDesignWs designSvc;
-    public ContentTypeAdaptor(){
+
+    public ContentTypeAdaptor() {
         designSvc = PSContentWsLocator.getContentDesignWebservice();
     }
 
@@ -44,12 +45,11 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
      */
     @Override
     public List<ContentType> listContentTypes(URI baseUri) {
-        List<ContentType> ret = new ArrayList<>();
-
-            List<IPSCatalogSummary> types = designSvc.findContentTypes("*");
-            for(IPSCatalogSummary s : types){
-                ret.add(ApiUtils.convertContentType(s));
-            }
+        var ret = new ArrayList<ContentType>();
+        var types = designSvc.findContentTypes("*");
+        for (var s : types) {
+            ret.add(ApiUtils.convertContentType(s));
+        }
         return ret;
     }
 
@@ -61,7 +61,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
      */
     @Override
     public List<ContentType> listContentTypes(URI baseUri, int siteId) {
-
         return null;
     }
 

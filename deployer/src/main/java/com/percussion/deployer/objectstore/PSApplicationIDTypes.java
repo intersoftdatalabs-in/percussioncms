@@ -33,6 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -138,26 +139,16 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     * <code>String</code> objects. Will be empty if there are no mappings
     * defined for the application referenced by this object.
     */
-   public Iterator getResourceList(boolean incompleteOnly)
-   {
-      List resList = new ArrayList();
-      if ( incompleteOnly)
-      {
-         Iterator resNameIterator = m_resourceMap.keySet().iterator();
-         while (resNameIterator.hasNext())
-         {
-            String resName = (String) resNameIterator.next();
-            if (! isComplete(resName))
-               resList.add(resName);
-         }
-      }
-      else
-      {
-         // return copy to allow removal during iterator traversal
-         resList.addAll(m_resourceMap.keySet());
-      }
-
-      return resList.iterator();
+   public Iterator<String> getResourceList(boolean incompleteOnly) {
+    var resList = new ArrayList<String>();
+    if (incompleteOnly) {
+        m_resourceMap.keySet().stream()
+            .filter(resName -> !isComplete(resName))
+            .forEach(resList::add);
+    } else {
+        resList.addAll(m_resourceMap.keySet());
+    }
+    return resList.iterator();
    }
 
    /**
@@ -177,37 +168,23 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     *
     * @throws IllegalArgumentException If any param is invalid.
     */
-   public Iterator getElementList(String resourceName, boolean incompleteOnly)
-   {
-      if ( resourceName == null || resourceName.trim().length() == 0 )
-         throw new IllegalArgumentException(
-            "Resource name may not be null or empty");
+   public Iterator<String> getElementList(String resourceName, boolean incompleteOnly) {
+    if (resourceName == null || resourceName.trim().isEmpty()) {
+        throw new IllegalArgumentException("Resource name may not be null or empty");
+    }
 
-      List elementList = new ArrayList();
-      Map resElements = (Map) m_resourceMap.get(resourceName);
+    var resElements = Optional.ofNullable(m_resourceMap.get(resourceName))
+        .orElseThrow(() -> new IllegalArgumentException("Resource name does not exist"));
 
-      if ( resElements == null )
-         throw new IllegalArgumentException(
-            "Resource name, " + resourceName + ", does not exist");
-
-      if ( incompleteOnly ) // need to check the incompleteness
-      {
-         Iterator allElement = resElements.keySet().iterator();
-
-         while (allElement.hasNext())
-         {
-            String currElement = (String) allElement.next();
-            if ( hasInCompleteIdTypes((List)resElements.get(currElement)) )
-               elementList.add(currElement);
-         }
-      }
-      else
-      {
-         // create copy to allow removal during iterator traversal
-         elementList.addAll(resElements.keySet());
-      }
-
-      return elementList.iterator();
+    var elementList = new ArrayList<String>();
+    if (incompleteOnly) {
+        resElements.keySet().stream()
+            .filter(currElement -> hasInCompleteIdTypes(resElements.get(currElement)))
+            .forEach(elementList::add);
+    } else {
+        elementList.addAll(resElements.keySet());
+    }
+    return elementList.iterator();
    }
 
    /**
@@ -225,39 +202,18 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     *
     * @throws IllegalArgumentException If any param is invalid.
     */
-   public Iterator getIdTypeMappings(String resourceName, String elementName,
-      boolean incompleteOnly)
-   {
-      if ( resourceName == null || resourceName.trim().length() == 0 )
-         throw new IllegalArgumentException(
-            "Resource name may not be null or empty");
+   public Iterator<PSApplicationIDTypeMapping> getIdTypeMappings(String resourceName, String elementName, boolean incompleteOnly) {
+    if (resourceName == null || resourceName.trim().isEmpty()) {
+        throw new IllegalArgumentException("Resource name may not be null or empty");
+    }
+    if (elementName == null || elementName.trim().isEmpty()) {
+        throw new IllegalArgumentException("Element name may not be null or empty");
+    }
 
-      if ( elementName == null || elementName.trim().length() == 0 )
-         throw new IllegalArgumentException(
-            "Element name may not be null or empty");
-
-      List idTypeList = getIdTypeMappingsList(resourceName, elementName);
-
-      List mappingList = new ArrayList();
-      if ( incompleteOnly )
-      {
-         Iterator idTypeIterator = idTypeList.iterator();
-
-         while (idTypeIterator.hasNext())
-         {
-            PSApplicationIDTypeMapping idType =
-              (PSApplicationIDTypeMapping) idTypeIterator.next();
-            if (! idType.hasDefinedType() )
-               mappingList.add(idType);
-         }
-      }
-      else
-      {
-         // return copy to allow removal during iterator traversal
-         mappingList.addAll(idTypeList);
-      }
-
-      return mappingList.iterator();
+    var idTypeList = getIdTypeMappingsList(resourceName, elementName);
+    return idTypeList.stream()
+        .filter(idType -> !incompleteOnly || !idType.hasDefinedType())
+        .iterator();
    }
 
    /**
@@ -366,19 +322,8 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     */
    public boolean isComplete(String resourceName, String elementName)
    {
-      // Get the whole list, but do the check here, so that we don't walk
-      // through the whole list, less expensive
-      // NOTE: getIdTypeMappings() will check the parameters
-      Iterator idTypeList = getIdTypeMappings(resourceName, elementName, false);
-
-      while (idTypeList.hasNext())
-      {
-         PSApplicationIDTypeMapping idType =
-            (PSApplicationIDTypeMapping) idTypeList.next();
-         if (! idType.hasDefinedType())
-            return false;
-      }
-      return true;
+      return getIdTypeMappings(resourceName, elementName, false).stream()
+        .allMatch(PSApplicationIDTypeMapping::hasDefinedType);
    }
 
    /**
@@ -635,29 +580,14 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     * @return A set of ids as <code>String</code> objects, never 
     * <code>null</code>, may be emtpy.
     */
-   public Set getIds()
-   {
-      Set ids = new HashSet();
-      
-      Iterator resources = m_resourceMap.values().iterator();
-      while (resources.hasNext())
-      {
-         Map elementMap = (Map)resources.next();
-         Iterator elements = elementMap.values().iterator();
-         while (elements.hasNext())
-         {
-            List mappingList = (List)elements.next();
-            Iterator mappings = mappingList.iterator();
-            while (mappings.hasNext())
-            {
-               PSApplicationIDTypeMapping mapping = 
-                  (PSApplicationIDTypeMapping)mappings.next();
-               ids.add(mapping.getValue());
-            }
-         }
-      }
-      
-      return ids;
+   public Set<String> getIds() {
+    var ids = new HashSet<String>();
+    m_resourceMap.values().stream()
+        .flatMap(elementMap -> elementMap.values().stream())
+        .flatMap(List::stream)
+        .map(PSApplicationIDTypeMapping::getValue)
+        .forEach(ids::add);
+    return ids;
    }
    
    /**
@@ -669,30 +599,14 @@ public class PSApplicationIDTypes implements IPSDeployComponent
     * @return An iterator over zero or more {@link PSApplicationIDTypeMapping}
     * objects, never <code>null</code>.
     */
-   public Iterator getAllMappings(boolean incompleteOnly)
-   {
-      List allMappings = new ArrayList();
-      
-      Iterator resources = m_resourceMap.values().iterator();
-      while (resources.hasNext())
-      {
-         Map elementMap = (Map)resources.next();
-         Iterator elements = elementMap.values().iterator();
-         while (elements.hasNext())
-         {
-            List mappingList = (List)elements.next();
-            Iterator mappings = mappingList.iterator();
-            while (mappings.hasNext())
-            {
-               PSApplicationIDTypeMapping mapping = 
-                  (PSApplicationIDTypeMapping)mappings.next();
-               if (!(incompleteOnly && mapping.isComplete()))
-                  allMappings.add(mapping);
-            }
-         }
-      }
-      
-      return allMappings.iterator();
+   public Iterator<PSApplicationIDTypeMapping> getAllMappings(boolean incompleteOnly) {
+    var allMappings = new ArrayList<PSApplicationIDTypeMapping>();
+    m_resourceMap.values().stream()
+        .flatMap(elementMap -> elementMap.values().stream())
+        .flatMap(List::stream)
+        .filter(mapping -> !(incompleteOnly && mapping.isComplete()))
+        .forEach(allMappings::add);
+    return allMappings.iterator();
    }
 
    /**

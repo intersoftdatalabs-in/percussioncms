@@ -17,22 +17,18 @@
 
 package com.percussion.delivery.utils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+/**
+ * Sunny Sal says: "StringUtils ka test, URL join ka best!"
+ */
 public class TestStringUtils {
 
-
-    public TestStringUtils(){}
-
     @Test
-    public void testJoinURL(){
-        String ret = StringUtils.joinURL("https://test.com/","/parttwo");
-
-     assertNotNull(ret);
-     assertEquals("https://test.com/parttwo",ret);
-
+    public void testJoinURL() {
+        var ret = StringUtils.joinURL("https://test.com/", "/parttwo");
+        assertNotNull(ret);
+        assertEquals("https://test.com/parttwo", ret);
     }
 }

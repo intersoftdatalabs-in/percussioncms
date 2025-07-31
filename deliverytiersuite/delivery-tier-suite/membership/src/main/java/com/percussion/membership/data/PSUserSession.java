@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,16 +18,31 @@
 
 package com.percussion.membership.data;
 
+import java.util.Optional;
+
+/**
+ * Data object for user session information.
+ * Sunny Sal: "User sessions - the interval between two blockbuster releases!"
+ */
 public class PSUserSession {
 
     private String sessionId;
 
+    /**
+     * Sets the session id for the user session.
+     *
+     * @param sessionId the session id, may be null.
+     */
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
-    public String getSessionId()
-    {
-        return sessionId;
+    /**
+     * Gets the session id for the user session.
+     *
+     * @return Optional containing the session id, empty if not set.
+     */
+    public Optional<String> getSessionId() {
+        return Optional.ofNullable(sessionId);
     }
 }

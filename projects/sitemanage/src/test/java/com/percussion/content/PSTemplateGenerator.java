@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,28 +30,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient>
-{
-    private PSSiteTemplateRestClient siteTemplateClient;
+public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient> {
 
-    private PSWidgetGenerator widgetGen;
+    private final PSSiteTemplateRestClient siteTemplateClient;
+    private final PSWidgetGenerator widgetGen;
 
-    public PSTemplateGenerator(String baseUrl, String uid, String pw)
-    {
+    public PSTemplateGenerator(String baseUrl, String uid, String pw) {
         super(PSTemplateServiceClient.class, baseUrl, uid, pw);
         siteTemplateClient = new PSSiteTemplateRestClient(baseUrl);
         widgetGen = new PSWidgetGenerator(baseUrl, uid, pw);
         siteTemplateClient.login(uid, pw);
     }
 
-    public PSTemplateSummary findTemplateByName(String name)
-    {
-        List<PSTemplateSummary> templateSums = getRestClient().findAll();
+    public PSTemplateSummary findTemplateByName(String name) {
+        var templateSums = getRestClient().findAll();
         PSTemplateSummary templateSum = null;
-        for (PSTemplateSummary sum : templateSums)
-        {
-            if (sum.getName().equalsIgnoreCase(name))
-            {
+        for (var sum : templateSums) {
+            if (sum.getName().equalsIgnoreCase(name)) {
                 templateSum = sum;
                 break;
             }
@@ -58,43 +54,40 @@ public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient>
         return templateSum;
     }
 
-    public PSTemplate createTemplate(TemplateDef def)
-    {
+    public PSTemplate createTemplate(TemplateDef def) {
         log.info("Creating template " + def.getName() + " in site " + def.getSiteName());
-        String themeName = "percussion";
+        var themeName = "percussion";
 
-        // a blank template needs to be created first, then it is updated with
-        // all its data
-        PSSiteTemplates tpls = new PSSiteTemplates();
-        List<CreateTemplate> ctpls = new ArrayList<CreateTemplate>();
+        // a blank template needs to be created first, then it is updated with all its data
+        var tpls = new PSSiteTemplates();
+        var ctpls = new ArrayList<CreateTemplate>();
         tpls.setCreateTemplates(ctpls);
-        CreateTemplate ct = new CreateTemplate();
+        var ct = new CreateTemplate();
         ctpls.add(ct);
         ct.setName(def.getName());
         ct.setSiteIds(Collections.singletonList(def.getSiteName()));
-        PSTemplateSummary tsum = findTemplateByName(def.getBaseTemplateName());
+        var tsum = findTemplateByName(def.getBaseTemplateName());
         ct.setSourceTemplateId(tsum.getId());
-        List<PSTemplateSummary> sums = siteTemplateClient.save(tpls);
+        var sums = siteTemplateClient.save(tpls);
 
-        PSTemplate template = new PSTemplate();
+        var template = new PSTemplate();
         template.setAdditionalHeadContent(def.getAdditionalHeadContent());
         template.setAfterBodyStartContent(def.getAfterBodyStart());
         template.setBeforeBodyCloseContent(def.getBeforeBodyClose());
         template.setName(def.getName());
-        template.setId(sums.get(0).getId()); // must use id, same name results
-                                             // in new template being created
+        template.setId(sums.get(0).getId()); // must use id, same name results in new template being created
         template.setSourceTemplateName(tsum.getName());
         template.setLabel(tsum.getLabel());
         template.setTheme(themeName);
         template.setReadOnly(false);
 
-        List<Widget> widgets = def.getWidget();
+        var widgets = def.getWidget();
         Map<String, List<String>> regionToWidgets = widgetGen.parseRegionWidget(widgets);
 
-        PSTemplate resultWithRegion = getRestClient().save(template);
+        var resultWithRegion = getRestClient().save(template);
         widgetGen.createAndAssignWidgets(regionToWidgets, resultWithRegion, null);
 
-        PSTemplate result = getRestClient().save(resultWithRegion);
+        var result = getRestClient().save(resultWithRegion);
 
         widgetGen.linkContent(widgets, result, null);
 
@@ -102,4 +95,3 @@ public class PSTemplateGenerator extends PSGenerator<PSTemplateServiceClient>
         return result;
     }
 }
-

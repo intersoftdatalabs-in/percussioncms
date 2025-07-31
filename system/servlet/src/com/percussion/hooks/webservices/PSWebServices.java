@@ -79,6 +79,8 @@ import java.util.Vector;
  * uses the name of the first child element in the body of the SOAP message to
  * determine with method to call within the deployed service.
  */
+// REFACTORED: CP-JAVA11
+// TODO: Replace deprecated com.percussion.HTTPClient usage with modern HTTP APIs in future major version. Backward compatibility maintained for now.
 public class PSWebServices
 {
    /**
@@ -161,7 +163,7 @@ public class PSWebServices
 
          // setup the options from the option map
          NVPair[] opts = new NVPair[m_optionMap.size()];
-         Iterator optIter = m_optionMap.keySet().iterator();
+         Iterator<String> optIter = m_optionMap.keySet().iterator();
          int x = 0;
          while (optIter.hasNext())
          {
@@ -295,7 +297,7 @@ public class PSWebServices
          // set up the header
          Document headerDoc = db.newDocument();
          Header header = new Header();
-         Vector headerEntries = new Vector();
+         Vector<Element> headerEntries = new Vector<>();
 
          Cookie[] cookies = CookieModule.listAllCookies(context);
          Element root = headerDoc.createElement("HeaderResponse");
@@ -322,7 +324,7 @@ public class PSWebServices
 
          // set up the body
          Body body = new Body();
-         Vector bodyEntries = new Vector();
+         Vector<Element> bodyEntries = new Vector<>();
          try(InputStream is = resp.getInputStream() ) {
             Document bodyDoc = db.parse(is);
             if (bodyDoc == null) {
@@ -397,7 +399,7 @@ public class PSWebServices
          throw new SOAPException(Constants.FAULT_CODE_CLIENT, "missing header");
       }
 
-      Vector v = header.getHeaderEntries();
+      Vector<Element> v = header.getHeaderEntries();
       if (v == null || v.size() == 0)
       {
          throw new SOAPException(
@@ -405,7 +407,7 @@ public class PSWebServices
             "missing header entry");
       }
 
-      Iterator i = v.iterator();
+      Iterator<Element> i = v.iterator();
 
       // if there are multiple header entries, set the
       // credentials based on the first header found
@@ -461,7 +463,7 @@ public class PSWebServices
          (HttpServletRequest)reqCtx.getProperty(
             Constants.BAG_HTTPSERVLETREQUEST);
 
-      List tmpList = new ArrayList();
+      List<NVPair> tmpList = new ArrayList<>();
       String name, value;
 
       name =
@@ -831,7 +833,7 @@ public class PSWebServices
    /**
     * Storage for the options passed with the request to the Rx server
     */
-   protected HashMap m_optionMap = new HashMap();
+   protected HashMap<String, String> m_optionMap = new HashMap<>();
 
    /**
     * Storage for the namespace to be returned when building the result

@@ -21,31 +21,27 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.PSFieldDescriptionDataType;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Tests the {@link PSFieldTypeConverter}
  */
 @Category(IntegrationTest.class)
-public class PSFieldTypeConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object.
-    *  
-    * @throws Exception If the test fails.
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSFieldDescription.PSFieldTypeEnum source = 
-         PSFieldDescription.PSFieldTypeEnum.NUMBER; 
-      
-      PSFieldDescription.PSFieldTypeEnum target = 
-         (PSFieldDescription.PSFieldTypeEnum) roundTripConversion(
-            PSFieldDescription.PSFieldTypeEnum.class, 
-            PSFieldDescriptionDataType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
-}
+public class PSFieldTypeConverterTest extends PSConverterTestBase {
 
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // Create the source object
+        var source = PSFieldDescription.PSFieldTypeEnum.NUMBER;
+
+        var target = (PSFieldDescription.PSFieldTypeEnum) roundTripConversion(
+                PSFieldDescription.PSFieldTypeEnum.class,
+                PSFieldDescriptionDataType.class,
+                source);
+
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
+}

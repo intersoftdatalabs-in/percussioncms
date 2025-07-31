@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -27,6 +26,5 @@ import java.util.Collection;
 public class PSContentActivityList extends ArrayList<PSContentActivity> {
     public PSContentActivityList(Collection<? extends PSContentActivity> c) {
         super(c);
-
     }
 }

@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
+
 package com.percussion.sitemanage.web.service;
 
 import com.percussion.pagemanagement.data.PSTemplateSummary;
@@ -26,43 +24,46 @@ import com.percussion.sitemanage.service.PSSiteTemplates;
 
 import java.util.List;
 
+/**
+ * REST client for site template operations.
+ * // REFACTORED: CP-JAVA11
+ */
 public class PSSiteTemplateRestClient extends PSObjectRestClient {
-    private String path = "/Rhythmyx/services/sitemanage/sitetemplates/";
-    
+
+    private final String path = "/Rhythmyx/services/sitemanage/sitetemplates/";
+
     public List<PSTemplateSummary> save(PSSiteTemplates siteTemplates) {
-        String response = postObjectToPath(path, siteTemplates);
+        var response = postObjectToPath(path, siteTemplates);
         return objectsFromResponseBody(response, PSTemplateSummary.class);
     }
-    
+
     public PSTemplateSummary createTemplateFromUrl(PSSiteTemplates siteTemplates) {
-        String response = postObjectToPath(concatPath(path,"createFromUrl"), siteTemplates);
+        var response = postObjectToPath(concatPath(path, "createFromUrl"), siteTemplates);
         return objectFromResponseBody(response, PSTemplateSummary.class);
     }
-    
-    public long createTemplateFromUrlAsync(PSSiteTemplates siteTemplates)
-    {
-        String response = postObjectToPath(concatPath(path, "createFromUrlAsync"), siteTemplates);
+
+    public long createTemplateFromUrlAsync(PSSiteTemplates siteTemplates) {
+        var response = postObjectToPath(concatPath(path, "createFromUrlAsync"), siteTemplates);
         return Long.parseLong(response);
     }
-    
-    public PSTemplateSummary getImportedTemplate(Long jobId)
-    {
+
+    public PSTemplateSummary getImportedTemplate(Long jobId) {
         return getObjectFromPath(concatPath(path, "getImportedTemplate", jobId.toString()), PSTemplateSummary.class);
     }
-    
+
     public List<PSTemplateSummary> findTemplatesWithNoSite() {
-        return getObjectsFromPath(concatPath(path,"nosites"), PSTemplateSummary.class);
+        return getObjectsFromPath(concatPath(path, "nosites"), PSTemplateSummary.class);
     }
-    
+
     public List<PSSiteSummary> findSitesByTemplate(String id) {
-        return getObjectsFromPath(concatPath(path,"sites",id), PSSiteSummary.class);
+        return getObjectsFromPath(concatPath(path, "sites", id), PSSiteSummary.class);
     }
-    
+
     public List<PSTemplateSummary> findTemplatesBySite(String id) {
-        return getObjectsFromPath(concatPath(path,"templates",id), PSTemplateSummary.class);
+        return getObjectsFromPath(concatPath(path, "templates", id), PSTemplateSummary.class);
     }
-    
+
     public List<PSTemplateSummary> findTemplatesBySite(String id, String widgetId) {
-        return getObjectsFromPath(concatPath(path,"templates",id,widgetId), PSTemplateSummary.class);
+        return getObjectsFromPath(concatPath(path, "templates", id, widgetId), PSTemplateSummary.class);
     }
 }

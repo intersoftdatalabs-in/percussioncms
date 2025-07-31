@@ -14,16 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.web.service;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.pagemanagement.data.PSWidgetPackageInfo;
@@ -34,59 +29,61 @@ import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSObjectRestClient.DataValidationRestClientException;
 import com.percussion.share.validation.PSValidationErrors;
+import com.percussion.utils.testing.IntegrationTest;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.*;
 import org.junit.experimental.categories.Category;
 
+import java.util.List;
+
+/**
+ * Test widget service through REST.
+ * <p>
+ * Sunny Sal says: "Widgets are like toppings—test them all, and your pizza (app) will be delicious!"
+ */
 @Category(IntegrationTest.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSWidgetServiceTest extends PSRestTestCase<PSWidgetServiceTest.PSWidgetRestClient> {
 
     @Test
-    public void testFindAll() throws Exception {
-        List<PSWidgetSummary> widgets = restClient.getAll();
-        //We should have atleast one widget shipped.
-        assertTrue(widgets.size() > 0);
-        PSWidgetSummary w = widgets.get(0);
+    public void testFindAll() {
+        var widgets = restClient.getAll();
+        assertFalse(widgets.isEmpty(), "Should have at least one widget shipped.");
+        var w = widgets.get(0);
         assertNotNull(w);
     }
 
     @Test
-    public void testFind() throws Exception
-    {
-        PSWidgetSummary widget = restClient.get("percRawHtml");
+    public void testFind() {
+        var widget = restClient.get("percRawHtml");
         assertEquals("percRawHtmlAsset", widget.getName());
     }
 
     @Test
-    public void testValidateWidgetItem() throws Exception
-    {
-        PSWidgetItem widgetItem = new PSWidgetItem();
-        try {
-            restClient.validateWidgetItem(widgetItem);
-            fail("Should be invalid");
-        }
-        catch (DataValidationRestClientException e) {
-            log.debug(e.getResponseBody());
-        }
+    public void testValidateWidgetItem() {
+        var widgetItem = new PSWidgetItem();
+        assertThrows(DataValidationRestClientException.class, () -> restClient.validateWidgetItem(widgetItem));
     }
-    
+
     @Test
-    public void testWidgetPackageInfo() throws Exception
-    {
-        PSWidgetPackageInfoRequest request = new PSWidgetPackageInfoRequest();
-        List<String> names = request.getWidgetNames();
+    public void testWidgetPackageInfo() {
+        var request = new PSWidgetPackageInfoRequest();
+        var names = request.getWidgetNames();
         names.add("percRawHtml");
         names.add("nosuchwidget");
         names.add("percRichText");
-        
-        PSWidgetPackageInfoResult response = restClient.findWidgetPackageInfo(request);
+
+        var response = restClient.findWidgetPackageInfo(request);
         assertNotNull(response);
-        List<PSWidgetPackageInfo> infoList = response.getPackageInfoList();
+        var infoList = response.getPackageInfoList();
         assertEquals(2, infoList.size());
-        
-        PSWidgetPackageInfo info = infoList.get(0);
+
+        var info = infoList.get(0);
         assertEquals("percRawHtml", info.getWidgetName());
         assertEquals("http://www.percussion.com", info.getProviderUrl());
         assertEquals("1.0.4", info.getVersion());
-        
+
         info = infoList.get(1);
         assertEquals("percRichText", info.getWidgetName());
         assertEquals("http://www.percussion.com", info.getProviderUrl());
@@ -102,26 +99,16 @@ public class PSWidgetServiceTest extends PSRestTestCase<PSWidgetServiceTest.PSWi
         public PSValidationErrors validateWidgetItem(PSWidgetItem item) {
             return postObjectToPath(concatPath(getPath(), "validate/item"), item, PSValidationErrors.class);
         }
-        
-        public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request)
-        {
+
+        public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request) {
             return postObjectToPath(concatPath(getPath(), "packageinfo"), request, PSWidgetPackageInfoResult.class);
         }
-
     }
-
 
     @Override
-    protected PSWidgetRestClient getRestClient(String baseUrl)
-    {
+    protected PSWidgetRestClient getRestClient(String baseUrl) {
         return new PSWidgetRestClient(baseUrl);
-
     }
 
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
     private static final Logger log = LogManager.getLogger(PSWidgetServiceTest.class);
-
 }

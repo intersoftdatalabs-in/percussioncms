@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,7 +28,6 @@ import com.percussion.share.service.impl.jaxb.Property.Pvalues;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -40,104 +40,65 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This handler uses jaxb to load data from a specified xml file.
- * 
+ * This handler uses JAXB to load data from a specified XML file.
+ *
  * @author peterfrontiero
  */
-public class PSXmlDataHandler
-{
+public class PSXmlDataHandler {
+
+    private static final Logger log = LogManager.getLogger(PSXmlDataHandler.class);
+
+    /**
+     * The path to the XML data file. Initialized in constructor, never null after that.
+     */
+    private String file;
+
     /**
      * Gets the response data associated with the request which matches the specified properties.
-     * 
-     * @param properties request properties, must not be <code>null</code>.
-     * 
-     * @return Response containing result data or <code>null</code> if a matching request could not be found or an
-     * error occurs.
+     *
+     * @param properties request properties, must not be null.
+     * @return Response containing result data or null if a matching request could not be found or an error occurs.
      */
-    public Response getData(Map<String, Object> properties)
-    {
-        notNull(properties);
-    
-        InputStream is = null;
-        try
-        {
-            JAXBContext jc = JAXBContext.newInstance("com.percussion.share.service.impl.jaxb");
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-            is = new FileInputStream(new File(file));
-            Data data = (Data) unmarshaller.unmarshal(is);
-            List<Request> requests = data.getRequest();
-            for (Request request : requests)
-            {
-                Map<String, Object> reqProps = new HashMap<>();
-                Settings settings = request.getSettings();
-                List<Property> props = settings.getProperty();
-                for (Property prop : props)
-                {
+    public Response getData(Map<String, Object> properties) {
+        notNull(properties, "properties must not be null");
+        try (InputStream is = new FileInputStream(new File(file))) {
+            var jc = JAXBContext.newInstance("com.percussion.share.service.impl.jaxb");
+            var unmarshaller = jc.createUnmarshaller();
+            var data = (Data) unmarshaller.unmarshal(is);
+            for (var request : data.getRequest()) {
+                var reqProps = new HashMap<String, Object>();
+                var settings = request.getSettings();
+                for (var prop : settings.getProperty()) {
                     Object val;
-                    Pvalues pvalues = prop.getPvalues();
-                    if (pvalues != null)
-                    {
-                        val = pvalues.getPvalue();                        
-                    }
-                    else
-                    {
+                    var pvalues = prop.getPvalues();
+                    if (pvalues != null) {
+                        val = pvalues.getPvalue();
+                    } else {
                         val = prop.getValue();
                     }
-                    
                     reqProps.put(prop.getName(), val);
                 }
-                
-                if (reqProps.equals(properties))
-                {
+                if (reqProps.equals(properties)) {
                     return request.getResponse();
                 }
             }
+        } catch (Exception e) {
+            log.error("Error occurred getting response data: ", e);
         }
-        catch (Exception e)
-        {
-            log.error("Error occurred getting response data : ", e);
-        }
-        finally
-        {
-            if (is != null)
-            {
-                try
-                {
-                    is.close();
-                }
-                catch (IOException e)
-                {
-                }
-            }
-        }
-                    
         return null;
     }
 
     /**
      * @return the file
      */
-    public String getFile()
-    {
+    public String getFile() {
         return file;
     }
 
     /**
      * @param file the file to set
      */
-    public void setFile(String file)
-    {
+    public void setFile(String file) {
         this.file = file;
     }
-    
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSXmlDataHandler.class);
- 
-    /**
-     * The path to the xml data file.  Initialized in constructor, never <code>null</code> after that.
-     */
-    private String file;
-
 }

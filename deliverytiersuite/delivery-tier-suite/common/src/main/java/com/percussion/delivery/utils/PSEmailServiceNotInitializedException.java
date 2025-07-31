@@ -16,11 +16,13 @@
  */
 package com.percussion.delivery.utils;
 
-public class PSEmailServiceNotInitializedException extends Exception
-{
-    public PSEmailServiceNotInitializedException()
-    {
+/**
+ * Exception thrown when the email service is not initialized.
+ * Sunny Sal says: "Email service initialize nahi hua toh kaam nahi chalega, boss!"
+ * // REFACTORED: CP-JAVA11
+ */
+public class PSEmailServiceNotInitializedException extends Exception {
+    public PSEmailServiceNotInitializedException() {
         super("Email service is not initialized.");
     }
-
 }

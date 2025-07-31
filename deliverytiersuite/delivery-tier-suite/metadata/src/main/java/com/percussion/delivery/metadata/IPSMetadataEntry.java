@@ -15,89 +15,42 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata;
 
 import java.util.Set;
 
-public interface IPSMetadataEntry
-{
+/**
+ * Represents a metadata entry for a page.
+ */
+public interface IPSMetadataEntry {
+
+    String getName();
+    void setName(String name);
+
+    String getFolder();
+    void setFolder(String folder);
+
+    String getPagepath();
+    void setPagepath(String path);
+
+    String getLinktext();
+    void setLinktext(String linktext);
+
+    String getType();
+    void setType(String type);
+
+    String getSite();
+    void setSite(String site);
 
     /**
-     * @return the name
+     * Returns a cloned set of properties. Changing these directly will not affect the entry.
+     * To update property values, use {@link #setProperties(Set)}.
      */
-    public String getName();
+    Set<IPSMetadataProperty> getProperties();
+    void setProperties(Set<IPSMetadataProperty> properties);
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name);
-
-    /**
-     * @return the folder
-     */
-    public String getFolder();
-
-    /**
-     * @param folder the folder to set
-     */
-    public void setFolder(String folder);
-
-    /**
-     * @return the page path
-     */
-    public String getPagepath();
-
-    /**
-     * @param path the pagepath to set
-     */
-    public void setPagepath(String path);
-
-    /**
-     * @return the linktext
-     */
-    public String getLinktext();
-
-    /**
-     * @param linktext the linktext to set
-     */
-    public void setLinktext(String linktext);
-
-    /**
-     * @return the type
-     */
-    public String getType();
-
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type);
-
-    /**
-     * @return the site
-     */
-    public String getSite();
-
-    /**
-     * @param site the site to set
-     */
-    public void setSite(String site);
-
-    /**
-     * @return the properties. This returns a cloned set of properties changing
-     *         the value of these directly will not affect the property values
-     *         in the entry. To change property values on the entry you must
-     *         passed the properties back to the entries
-     *         {@link #setProperties(Set)} method.
-     */
-    public Set<IPSMetadataProperty> getProperties();
-
-    /**
-     * @param properties the properties to set
-     */
-    public void setProperties(Set<IPSMetadataProperty> properties);
-
-    public void addProperty(IPSMetadataProperty prop);
-
-    public void clearProperties();
-
+    void addProperty(IPSMetadataProperty prop);
+    void clearProperties();
 }

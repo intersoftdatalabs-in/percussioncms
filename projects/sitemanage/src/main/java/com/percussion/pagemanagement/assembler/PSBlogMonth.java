@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,57 +15,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.pagemanagement.assembler;
 
-public class PSBlogMonth 
-{
+/**
+ * Represents a month in a blog year, with a count of entries.
+ */
+public class PSBlogMonth {
 
     private String month;
-
     private Integer count;
 
     /**
-     * @param month
-     * @param count
+     * Constructs a blog month with the specified name and count.
+     * @param month the month name
+     * @param count the entry count
      */
-    public PSBlogMonth(String month, Integer count)
-    {
-        super();
+    public PSBlogMonth(String month, Integer count) {
         this.month = month;
         this.count = count;
     }
 
     /**
-     * @return the month
+     * Gets the month name.
+     * @return the month name
      */
-    public String getMonth()
-    {
+    public String getMonth() {
         return month;
     }
 
     /**
+     * Sets the month name.
      * @param month the month to set
      */
-    public void setMonth(String month)
-    {
+    public void setMonth(String month) {
         this.month = month;
     }
 
     /**
+     * Gets the entry count for the month.
      * @return the count
      */
-    public Integer getCount()
-    {
+    public Integer getCount() {
         return count;
     }
 
     /**
-     * @param count the number of counts to set
+     * Sets the entry count for the month.
+     * @param count the number of entries to set
      */
-    public void setCount(Integer count)
-    {
+    public void setCount(Integer count) {
         this.count = count;
     }
-
 }

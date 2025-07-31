@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -31,10 +33,9 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
-import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -42,79 +43,73 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Iterator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * Test use of the {@link PSBinaryFileValue} class
+ * Test use of the {@link PSBinaryFileValue} class.
  */
+@Tag("IntegrationTest")
+public class PSBinaryFileValueTest {
 
-@Category(IntegrationTest.class)
-public class PSBinaryFileValueTest extends ServletTestCase
-{
-   /**
-    * Test saving a file item to ensure info fields are set by the extractor
-    * 
-    * @throws Exception If the test fails or there are any errors.
-    */
-   @Test
-   public void testFileUpload() throws Exception
-   {
-      Path currentRelativePath = Paths.get("");
-      String s = currentRelativePath.toAbsolutePath().toString();
-      System.out.println("Current relative path is: " + s);
+    /**
+     * Test saving a file item to ensure info fields are set by the extractor.
+     *
+     * @throws Exception If the test fails or there are any errors.
+     */
+    @Test
+    public void testFileUpload() throws Exception {
+        var currentRelativePath = Paths.get("");
+        var s = currentRelativePath.toAbsolutePath().toString();
+        System.out.println("Current relative path is: " + s);
 
-      // login to set community etc
-      IPSSecurityWs secWs = PSSecurityWsLocator.getSecurityWebservice();
-      secWs.login(request, response, "admin1", "demo", null, "Enterprise_Investments", null);
-      PSRequest psReq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-      PSSecurityToken tok = psReq.getSecurityToken();
-      
-      // create the item
-      PSItemDefinition itemDef = PSItemDefManager.getInstance().getItemDef("rffFile", tok);
-      PSServerItem item = new PSServerItem(itemDef, null, tok);
-      Iterator<PSItemField> fields = item.getAllFields();
-      String fileFieldName = "item_file_attachment";
-      while (fields.hasNext())
-      {
-         PSItemField field = fields.next();
-         String name = field.getName();
+        // login to set community etc
+        var secWs = PSSecurityWsLocator.getSecurityWebservice();
+        secWs.login(request, response, "admin1", "demo", null, "Enterprise_Investments", null);
+        var psReq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+        var tok = psReq.getSecurityToken();
 
-         if (name.equals("sys_title") || name.equals("displaytitle"))
-            field.addValue(new PSTextValue("testFile"));
-         else if (name.equals("sys_contentstartdate"))
-            field.addValue(new PSDateValue(new Date()));
-         else if (name.equals(fileFieldName + "_hash"))
-         {
-            // This is no longer to a real field "item_file_attachment"
-            // the content item will store item_file_attachement_hash value
-            // and store the file in the binary store
+        // create the item
+        var itemDef = PSItemDefManager.getInstance().getItemDef("rffFile", tok);
+        var item = new PSServerItem(itemDef, null, tok);
+        var fields = item.getAllFields();
+        var fileFieldName = "item_file_attachment";
+        while (fields.hasNext()) {
+            var field = fields.next();
+            var name = field.getName();
 
-            IPSFileStorageService storage = PSFileStorageServiceLocator.getFileStorageService();
-            String hash = storage.store(new File(PSServer.getRxDir(), "rx_resources/images/boxcheck.gif"));
-            field.addValue(new PSTextValue(hash));
-         } else if (name.equals(fileFieldName + "_filename"))
-         {
-            field.addValue(new PSTextValue("rx_resources/images/boxcheck.gif"));
-         }
-      }
-      
-      item.save(tok);
-      
-      // load and ensure fields are set
-      item = PSServerItem.loadItem(new PSLocator(item.getContentId(), item.getRevision()), tok);
-      
-      fields = item.getAllFields();
-      while (fields.hasNext())
-      {
-         PSItemField field = fields.next();
-         String name =  field.getName();
-         if (name.startsWith(fileFieldName + "_"))
-         {
-            IPSFieldValue val = field.getValue();
-            assertTrue(val != null);
-            if (val instanceof PSTextValue)
-            {
-               assertTrue(!StringUtils.isBlank((String) ((PSTextValue) val).getValue()));
+            if (name.equals("sys_title") || name.equals("displaytitle")) {
+                field.addValue(new PSTextValue("testFile"));
+            } else if (name.equals("sys_contentstartdate")) {
+                field.addValue(new PSDateValue(new Date()));
+            } else if (name.equals(fileFieldName + "_hash")) {
+                // This is no longer to a real field "item_file_attachment"
+                // the content item will store item_file_attachement_hash value
+                // and store the file in the binary store
+
+                var storage = PSFileStorageServiceLocator.getFileStorageService();
+                var hash = storage.store(new File(PSServer.getRxDir(), "rx_resources/images/boxcheck.gif"));
+                field.addValue(new PSTextValue(hash));
+            } else if (name.equals(fileFieldName + "_filename")) {
+                field.addValue(new PSTextValue("rx_resources/images/boxcheck.gif"));
             }
-         }
-      }
-   }
+        }
+
+        item.save(tok);
+
+        // load and ensure fields are set
+        item = PSServerItem.loadItem(new PSLocator(item.getContentId(), item.getRevision()), tok);
+
+        fields = item.getAllFields();
+        while (fields.hasNext()) {
+            var field = fields.next();
+            var name = field.getName();
+            if (name.startsWith(fileFieldName + "_")) {
+                var val = field.getValue();
+                assertNotNull(val);
+                if (val instanceof PSTextValue) {
+                    assertFalse(StringUtils.isBlank((String) ((PSTextValue) val).getValue()));
+                }
+            }
+        }
+    }
 }

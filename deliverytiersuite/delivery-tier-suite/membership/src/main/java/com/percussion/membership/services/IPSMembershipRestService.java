@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.membership.services;
 
 import java.util.List;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -28,125 +28,107 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import com.percussion.delivery.services.IPSRestService;
 import com.percussion.membership.data.*;
 
 /**
- * @author natechadwick
+ * REST service for membership accounts.
  *
+ * @author natechadwick
  */
 @Path("/membership")
 public interface IPSMembershipRestService extends IPSRestService {
 
-	/**
-	 * Rest service method to create a membership account.
-	 * 
-	 * @param membership Object containing the account info to create, may not be <code>null</code>.
-	 * 
-	 * @return A result object, never <code>null</code>.
-	 */
-	@POST
-	@Path("/user")
-	@Produces("application/json")
-	public abstract PSMembershipResult createUser(
-			PSMembershipAccount membership, @Context HttpHeaders header);
+    /**
+     * Creates a membership account.
+     *
+     * @param membership Account info to create, not null.
+     * @return Result object, never null.
+     */
+    @POST
+    @Path("/user")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSMembershipResult createUser(PSMembershipAccount membership, @Context HttpHeaders header);
 
-	/**
-	 * Rest service method to change the state of an user account.
-	 * 
-	 * @param account a {@link PSAccountSummary} object with the data
-	 * to process.
-	 */
-	@PUT
-	@Path("/admin/account")
-	public abstract void changeStateAccount(PSAccountSummary account);
+    /**
+     * Changes the state of a user account.
+     *
+     * @param account {@link PSAccountSummary} with data to process.
+     */
+    @PUT
+    @Path("/admin/account")
+    void changeStateAccount(PSAccountSummary account);
 
-	/**
-	 * Rest service method to delete an user account.
-	 * 
-	 * @param account a {@link PSAccountSummary} object with the data
-	 * to process.
-	 */
-	@DELETE
-	@Path("/admin/account/{email:.*}")
-	public abstract void deleteAccount(@PathParam("email") String email);
+    /**
+     * Deletes a user account.
+     *
+     * @param email Email of account to delete.
+     */
+    @DELETE
+    @Path("/admin/account/{email:.*}")
+    void deleteAccount(@PathParam("email") String email);
 
-	@POST
-	@Path("/session")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSGetUserResult getUser(PSUserSession psUserSession);
+    @POST
+    @Path("/session")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSGetUserResult getUser(PSUserSession psUserSession);
 
-	@POST
-	@Path("/login")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSLoginResult login(PSLoginRequest loginRequest);
+    @POST
+    @Path("/login")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSLoginResult login(PSLoginRequest loginRequest);
 
-	@POST
-	@Path("/logout")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMembershipResult logout(PSUserSession psUserSession);
+    @POST
+    @Path("/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSMembershipResult logout(PSUserSession psUserSession);
 
-	@POST
-	@Path("/pwd/requestReset")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSMembershipResult requestPwdReset(
-			PSResetRequest resetRequest, @Context HttpHeaders header);
+    @POST
+    @Path("/pwd/requestReset")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSMembershipResult requestPwdReset(PSResetRequest resetRequest, @Context HttpHeaders header);
 
-	/**
-	 * Rest service method to validate the reset key.
-	 * 
-	 * @param resetKey String containing the token key, may not be <code>null</code>.
-	 * @param resetRequest An {@link PSMembershipAccount} object with the parameters to associate
-	 * the new password to the user.
-	 * @return An {@link PSGetUserResult} object containing the email, may be empty but 
-	 * never <code>null</code>.
-	 */
-	@POST
-	@Path("/pwd/validate/{resetKey:.*}")
-	@Produces("application/json")
-	public abstract PSGetUserResult validatePwdResetKey(
-			@PathParam("resetKey") String resetKey);
+    /**
+     * Validates the reset key.
+     *
+     * @param resetKey Token key, not null.
+     * @return {@link PSGetUserResult} containing the email, never null.
+     */
+    @POST
+    @Path("/pwd/validate/{resetKey:.*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSGetUserResult validatePwdResetKey(@PathParam("resetKey") String resetKey);
 
-	/**
-	 * Rest service method to reset the user password.
-	 * 
-	 * @param resetKey String containing the token key, may not be <code>null</code>.
-	 * @param resetRequest An {@link PSMembershipAccount} object with the parameters to associate
-	 * the new password to the user.
-	 * @return An {@link PSLoginResult} object containing the session, may be empty but 
-	 * never <code>null</code>.
-	 */
-	@POST
-	@Path("/pwd/reset/{resetKey:.*}")
-	@Produces("application/json")
-	public abstract PSLoginResult resetPwd(
-			@PathParam("resetKey") String resetKey,
-			PSMembershipAccount resetRequest);
+    /**
+     * Resets the user password.
+     *
+     * @param resetKey Token key, not null.
+     * @param resetRequest Parameters to associate new password.
+     * @return {@link PSLoginResult} containing the session, never null.
+     */
+    @POST
+    @Path("/pwd/reset/{resetKey:.*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSLoginResult resetPwd(@PathParam("resetKey") String resetKey, PSMembershipAccount resetRequest);
 
-	/**
-	 * Rest service method to reset the user password.
-	 * 
-	 * @param resetKey String containing the token key, may not be <code>null</code>.
-	 * @param resetRequest An {@link PSMembershipAccount} object with the parameters to associate
-	 * the new password to the user.
-	 * @return An {@link PSLoginResult} object containing the session, may be empty but 
-	 * never <code>null</code>.
-	 */
-	@POST
-	@Path("/registration/confirm/{rvkey:.*}")
-	@Produces("application/json")
-	public abstract PSLoginResult confirmAccount(
-			@PathParam("rvkey") String confirmKey);
+    /**
+     * Confirms an account.
+     *
+     * @param confirmKey Token key, not null.
+     * @return {@link PSLoginResult} containing the session, never null.
+     */
+    @POST
+    @Path("/registration/confirm/{rvkey:.*}")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSLoginResult confirmAccount(@PathParam("rvkey") String confirmKey);
 
-	@GET
-	@Path("/admin/users")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract List<PSUserSummary> findUserGroups();
+    @GET
+    @Path("/admin/users")
+    @Produces(MediaType.APPLICATION_JSON)
+    List<PSUserSummary> findUserGroups();
 
-	@PUT
-	@Path("/admin/user/group/{siteName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract void updateUserGroups(PSUserGroup userSummary);
-
+    @PUT
+    @Path("/admin/user/group/{siteName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    void updateUserGroups(PSUserGroup userSummary);
 }

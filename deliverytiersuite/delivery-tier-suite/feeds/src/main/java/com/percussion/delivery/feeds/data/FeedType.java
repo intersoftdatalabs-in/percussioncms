@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,6 +25,7 @@ import java.util.stream.Stream;
 
 /**
  * Enumeration of supported feed types with their corresponding media types.
+ * Immutable and type-safe.
  */
 public enum FeedType {
     @JsonProperty("ATOM")

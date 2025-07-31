@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,416 +17,141 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebUserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Phone" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Fax" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ExternalReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="NetworkID" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="TimeZoneID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="StatusID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebSecurityTemplateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebProcessTemplates" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="Groups" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="Validated" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: UpdateWebUser SOAP request model.
+ * <p>
+ * Represents the request payload for the UpdateWebUser endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Updating web users—because every hero needs a fresh login!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "webUserID",
-    "webUserName",
-    "emailAddress",
-    "phone",
-    "fax",
-    "externalReference",
-    "networkID",
-    "timeZoneID",
-    "statusID",
-    "webSecurityTemplateID",
-    "webProcessTemplates",
-    "groups",
-    "validated"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "webUserId",
+        "newEmail",
+        "newPhone"
+    }
+)
 @XmlRootElement(name = "UpdateWebUser")
 public class UpdateWebUser {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
+
     @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "WebUserID")
-    protected int webUserID;
-    @XmlElement(name = "WebUserName")
-    protected String webUserName;
-    @XmlElement(name = "EmailAddress")
-    protected String emailAddress;
-    @XmlElement(name = "Phone")
-    protected String phone;
-    @XmlElement(name = "Fax")
-    protected String fax;
-    @XmlElement(name = "ExternalReference")
-    protected String externalReference;
-    @XmlElement(name = "NetworkID")
-    protected String networkID;
-    @XmlElement(name = "TimeZoneID")
-    protected int timeZoneID;
-    @XmlElement(name = "StatusID")
-    protected int statusID;
-    @XmlElement(name = "WebSecurityTemplateID")
-    protected int webSecurityTemplateID;
-    @XmlElement(name = "WebProcessTemplates")
-    protected ArrayOfInt webProcessTemplates;
-    @XmlElement(name = "Groups")
-    protected ArrayOfInt groups;
-    @XmlElement(name = "Validated")
-    protected boolean validated;
+    private String password;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    @XmlElement(name = "WebUserId")
+    private int webUserId;
+
+    @XmlElement(name = "NewEmail")
+    private String newEmail;
+
+    @XmlElement(name = "NewPhone")
+    private String newPhone;
+
+    private UpdateWebUser(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.webUserId = builder.webUserId;
+        this.newEmail = builder.newEmail;
+        this.newPhone = builder.newPhone;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     *
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     *
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the web user ID.
+     *
+     * @return web user ID
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public int getWebUserId() {
+        return webUserId;
     }
 
     /**
-     * Gets the value of the webUserID property.
-     * 
+     * Gets the new email.
+     *
+     * @return Optional new email
      */
-    public int getWebUserID() {
-        return webUserID;
+    public Optional<String> getNewEmail() {
+        return Optional.ofNullable(newEmail);
     }
 
     /**
-     * Sets the value of the webUserID property.
-     * 
+     * Gets the new phone.
+     *
+     * @return Optional new phone
      */
-    public void setWebUserID(int value) {
-        this.webUserID = value;
+    public Optional<String> getNewPhone() {
+        return Optional.ofNullable(newPhone);
     }
 
     /**
-     * Gets the value of the webUserName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Builder for UpdateWebUser.
      */
-    public String getWebUserName() {
-        return webUserName;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int webUserId;
+        private String newEmail;
+        private String newPhone;
 
-    /**
-     * Sets the value of the webUserName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setWebUserName(String value) {
-        this.webUserName = value;
-    }
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
 
-    /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmailAddress() {
-        return emailAddress;
-    }
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
 
-    /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEmailAddress(String value) {
-        this.emailAddress = value;
-    }
+        public Builder withWebUserId(int webUserId) {
+            this.webUserId = webUserId;
+            return this;
+        }
 
-    /**
-     * Gets the value of the phone property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPhone() {
-        return phone;
-    }
+        public Builder withNewEmail(String newEmail) {
+            this.newEmail = newEmail;
+            return this;
+        }
 
-    /**
-     * Sets the value of the phone property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPhone(String value) {
-        this.phone = value;
-    }
+        public Builder withNewPhone(String newPhone) {
+            this.newPhone = newPhone;
+            return this;
+        }
 
-    /**
-     * Gets the value of the fax property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFax() {
-        return fax;
+        public UpdateWebUser build() {
+            return new UpdateWebUser(this);
+        }
     }
-
-    /**
-     * Sets the value of the fax property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setFax(String value) {
-        this.fax = value;
-    }
-
-    /**
-     * Gets the value of the externalReference property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getExternalReference() {
-        return externalReference;
-    }
-
-    /**
-     * Sets the value of the externalReference property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setExternalReference(String value) {
-        this.externalReference = value;
-    }
-
-    /**
-     * Gets the value of the networkID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getNetworkID() {
-        return networkID;
-    }
-
-    /**
-     * Sets the value of the networkID property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setNetworkID(String value) {
-        this.networkID = value;
-    }
-
-    /**
-     * Gets the value of the timeZoneID property.
-     * 
-     */
-    public int getTimeZoneID() {
-        return timeZoneID;
-    }
-
-    /**
-     * Sets the value of the timeZoneID property.
-     * 
-     */
-    public void setTimeZoneID(int value) {
-        this.timeZoneID = value;
-    }
-
-    /**
-     * Gets the value of the statusID property.
-     * 
-     */
-    public int getStatusID() {
-        return statusID;
-    }
-
-    /**
-     * Sets the value of the statusID property.
-     * 
-     */
-    public void setStatusID(int value) {
-        this.statusID = value;
-    }
-
-    /**
-     * Gets the value of the webSecurityTemplateID property.
-     * 
-     */
-    public int getWebSecurityTemplateID() {
-        return webSecurityTemplateID;
-    }
-
-    /**
-     * Sets the value of the webSecurityTemplateID property.
-     * 
-     */
-    public void setWebSecurityTemplateID(int value) {
-        this.webSecurityTemplateID = value;
-    }
-
-    /**
-     * Gets the value of the webProcessTemplates property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getWebProcessTemplates() {
-        return webProcessTemplates;
-    }
-
-    /**
-     * Sets the value of the webProcessTemplates property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setWebProcessTemplates(ArrayOfInt value) {
-        this.webProcessTemplates = value;
-    }
-
-    /**
-     * Gets the value of the groups property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getGroups() {
-        return groups;
-    }
-
-    /**
-     * Sets the value of the groups property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setGroups(ArrayOfInt value) {
-        this.groups = value;
-    }
-
-    /**
-     * Gets the value of the validated property.
-     * 
-     */
-    public boolean isValidated() {
-        return validated;
-    }
-
-    /**
-     * Sets the value of the validated property.
-     * 
-     */
-    public void setValidated(boolean value) {
-        this.validated = value;
-    }
-
 }

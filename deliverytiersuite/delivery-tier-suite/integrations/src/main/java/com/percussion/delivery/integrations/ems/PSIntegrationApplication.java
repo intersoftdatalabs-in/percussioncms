@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
 
 import org.glassfish.jersey.logging.LoggingFeature;
@@ -28,18 +29,23 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSIntegrationApplication extends  ResourceConfig {
-        public PSIntegrationApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSEmsProxyRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-
-
-        }
+/**
+ * Jersey application configuration for EMS integration REST endpoints.
+ * <p>
+ * Registers Spring and Jersey features for dependency injection, logging, and security.
+ * </p>
+ */
+@ApplicationPath("/")
+public class PSIntegrationApplication extends ResourceConfig {
+    public PSIntegrationApplication() {
+        // Register Jersey/Spring integration and REST resources
+        register(RequestContextFilter.class);
+        register(SpringComponentProvider.class);
+        register(AutowiredInjectResolver.class);
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSEmsProxyRestService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
     }
+}

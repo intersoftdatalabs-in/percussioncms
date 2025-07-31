@@ -15,76 +15,106 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.integrations.siteimprove.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Siteimprove credentials to access their api.
+ * Siteimprove credentials to access their API.
  */
 @XmlRootElement(name = "SiteimproveCredentials")
 public class PSSiteImproveCredentials {
 
-	private String siteName;
-	private String token;
-	private String siteProtocol;
-	private String defaultDocument;
-	private String canonicalDist;
+    private String siteName;
+    private String token;
+    private String siteProtocol;
+    private String defaultDocument;
+    private String canonicalDist;
 
-	/**
-	 * Empty constructor for jax-rs to use.
-	 */
-	public PSSiteImproveCredentials() {
-	}
+    /**
+     * Empty constructor for JAX-RS to use.
+     */
+    public PSSiteImproveCredentials() {
+        // Default constructor
+    }
 
-	/**
-	 * @param siteName the name of the site to associate credentials with
-	 * @param token the token generated from the Siteimprove GET token endpoint for the site
-	 * the token should be persisted in the PSMetadata object.
-	 */
-	public PSSiteImproveCredentials(String token, String siteName) {
-		this.siteName = siteName;
-		this.token = token;
-	}
+    /**
+     * @param token    the token generated from the Siteimprove GET token endpoint for the site
+     * @param siteName the name of the site to associate credentials with
+     */
+    public PSSiteImproveCredentials(String token, String siteName) {
+        this.siteName = siteName;
+        this.token = token;
+    }
 
-	public String getSiteName() {
-		return siteName;
-	}
+    public String getSiteName() {
+        return siteName;
+    }
 
-	public void setSiteName(String siteName) {
-		this.siteName = siteName;
-	}
-	
-	public void setToken(String token) {
-		this.token = token;
-	}
-	
-	public String getToken() {
-		return token;
-	}
-	
-	public String getSiteProtocol() {
-		return siteProtocol;
-	}
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
 
-	public void setSiteProtocol(String protocol) {
-		this.siteProtocol = protocol;
-	}
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-	public String getDefaultDocument() {
-		return defaultDocument;
-	}
+    public String getToken() {
+        return token;
+    }
 
-	public void setDefaultDocument(String defaultDocument) {
-		this.defaultDocument = defaultDocument;
-	}
+    public Optional<String> getSiteProtocol() {
+        return Optional.ofNullable(siteProtocol);
+    }
 
-	public String getCanonicalDist() {
-		return canonicalDist;
-	}
+    public void setSiteProtocol(String protocol) {
+        this.siteProtocol = protocol;
+    }
 
-	public void setCanonicalDist(String canonicalDist) {
-		this.canonicalDist = canonicalDist;
-	}
+    public Optional<String> getDefaultDocument() {
+        return Optional.ofNullable(defaultDocument);
+    }
 
+    public void setDefaultDocument(String defaultDocument) {
+        this.defaultDocument = defaultDocument;
+    }
+
+    public Optional<String> getCanonicalDist() {
+        return Optional.ofNullable(canonicalDist);
+    }
+
+    public void setCanonicalDist(String canonicalDist) {
+        this.canonicalDist = canonicalDist;
+    }
+
+    @Override
+    public String toString() {
+        return "PSSiteImproveCredentials{" +
+                "siteName='" + siteName + '\'' +
+                ", token='" + (token != null ? "***" : null) + '\'' +
+                ", siteProtocol='" + siteProtocol + '\'' +
+                ", defaultDocument='" + defaultDocument + '\'' +
+                ", canonicalDist='" + canonicalDist + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSSiteImproveCredentials)) return false;
+        var that = (PSSiteImproveCredentials) o;
+        return Objects.equals(siteName, that.siteName) &&
+                Objects.equals(token, that.token) &&
+                Objects.equals(siteProtocol, that.siteProtocol) &&
+                Objects.equals(defaultDocument, that.defaultDocument) &&
+                Objects.equals(canonicalDist, that.canonicalDist);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(siteName, token, siteProtocol, defaultDocument, canonicalDist);
+    }
 }

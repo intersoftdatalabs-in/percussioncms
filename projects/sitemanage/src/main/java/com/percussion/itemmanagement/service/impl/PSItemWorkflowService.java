@@ -98,8 +98,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfBlank;
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfNull;
@@ -194,58 +196,53 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
      * @return PSNoContent
      */
     public PSNoContent checkIn(String id, boolean ignoreRevisionCheck) throws PSItemWorkflowServiceException, PSDataServiceException {
-            List<String> ids = new ArrayList<>();
-            ids.add(id);
+        var ids = new ArrayList<String>();
+        ids.add(id);
 
-            PSDataItemSummary sum = dataItemSummaryService.find(id);
-            if (sum == null) {
-                return new PSNoContent("checkIn");
-            }
+        var sum = dataItemSummaryService.find(id);
+        if (sum == null) {
+            return new PSNoContent("checkIn");
+        }
 
-            if (sum.getType().equals(IPSPageService.PAGE_CONTENT_TYPE)) {
-                ids.addAll(getLocalAssetIdsForCheckin(id));
-            }
+        if (sum.getType().equals(IPSPageService.PAGE_CONTENT_TYPE)) {
+            ids.addAll(getLocalAssetIdsForCheckin(id));
+        }
 
-            try {
-                contentWs.checkinItems(idMapper.getGuids(ids), null, ignoreRevisionCheck);
-                return new PSNoContent("checkIn");
-            } catch (PSErrorsException e) {
-                PSErrorException ex = (PSErrorException) e.getErrors().get(
-                        ids.get(0));
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                throw new PSItemWorkflowServiceException("Failed to check-in item: " + sum != null ? sum.getName() : "no summary " + "id= " + id + " , Error: " + ex.getErrorMessage(), ex);
-            }
-
+        try {
+            contentWs.checkinItems(idMapper.getGuids(ids), null, ignoreRevisionCheck);
+            return new PSNoContent("checkIn");
+        } catch (PSErrorsException e) {
+            var ex = (PSErrorException) e.getErrors().get(ids.get(0));
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new PSItemWorkflowServiceException("Failed to check-in item: " + (sum != null ? sum.getName() : "no summary ") + "id= " + id + " , Error: " + ex.getErrorMessage(), ex);
+        }
     }
     
    
 
     private List<String> getLocalAssetIdsForCheckin(String pageId)
     {
-        List<String> ids = new ArrayList<>();
-        
-        List<PSRelationship> rels = widgetAssetRelationshipService.getLocalAssetRelationships(pageId, null, null);
-        for (PSRelationship rel : rels)
+        var ids = new ArrayList<String>();
+        var rels = widgetAssetRelationshipService.getLocalAssetRelationships(pageId, null, null);
+        for (var rel : rels)
         {
-            PSLocator dep = rel.getDependent();
-            PSComponentSummary summary = PSWebserviceUtils.getItemSummary(dep.getId());
+            var dep = rel.getDependent();
+            var summary = PSWebserviceUtils.getItemSummary(dep.getId());
             int tipRev = summary.getTipLocator().getRevision();
-            String currentUser = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-            
+            var currentUser = (String)PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+
             if (currentUser != null && StringUtils.isNotEmpty(summary.getCheckoutUserName())
                     && !currentUser.equals(summary.getCheckoutUserName())) {
                 forceCheckInLocalContent(dep, currentUser);
             }
-            
+
             if (dep.getRevision() != tipRev)
             {
-                // the revision of local asset must by in tip revision before check-in.
-                // the relationship is out of sync, fix up the relationship.
                 dep.setRevision(tipRev);
                 systemWs.saveRelationships(Collections.singletonList(rel));
             }
-            IPSGuid guid = new PSLegacyGuid(dep);
+            var guid = new PSLegacyGuid(dep);
             ids.add(guid.toString());
         }
         return ids;
@@ -333,8 +330,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
         {
             return true;
         }
-        
-        for (PSTransitionRole tranRole : t.getTransitionRoles())
+        for (var tranRole : t.getTransitionRoles())
         {
             Integer tranRoleId = (int) tranRole.getRoleId();
             if (userRoleIds.contains(tranRoleId))
@@ -342,7 +338,6 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
                 return true;
             }
         }
-        
         return false;
     }
     
@@ -416,7 +411,7 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
         log.debug("The shared assets to check for approval are: {}", sharedAssets);
         Set<String> linkedAssets = widgetAssetRelationshipService.getLinkedAssets(id);
         log.debug("The linked assets to check for approval are: {}", linkedAssets);
-        Set<String> allAssets = new TreeSet<>(sharedAssets);
+        Set<String> allAssets = new HashSet<>(sharedAssets);
         allAssets.addAll(linkedAssets);
 
         //Iterate over the shared and linked assets
@@ -710,7 +705,6 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
     public boolean isTriggerAvailable(String id, String trigger) throws PSValidationException {
         rejectIfBlank("isTriggerAvailable", "id", id);
         rejectIfBlank("isTriggerAvailable", "trigger", trigger);
-        
         return getTransitions(id).getTransitionTriggers().contains(trigger);
     }
     
@@ -1101,14 +1095,11 @@ public class PSItemWorkflowService implements IPSItemWorkflowService
         boolean isQuickEditTriggerAvailableForPendingOrLivePage = false;
         rejectIfBlank("isTriggerAvailable", "id", id);
         rejectIfBlank("isTriggerAvailable", "trigger", trigger);
-        PSState state = workflowHelper.getState(id);
+        var state = workflowHelper.getState(id);
         if(state.getName().equalsIgnoreCase(currentState)){
-            List<String> transitionTriggerList = getTransitions(id).getTransitionTriggers();
-            for(String transitionTrigger : transitionTriggerList){
-                if(transitionTrigger.equalsIgnoreCase(trigger)){
-                    isQuickEditTriggerAvailableForPendingOrLivePage = true;
-                }
-            }
+            var transitionTriggerList = getTransitions(id).getTransitionTriggers();
+            isQuickEditTriggerAvailableForPendingOrLivePage = transitionTriggerList.stream()
+                .anyMatch(transitionTrigger -> transitionTrigger.equalsIgnoreCase(trigger));
         }
 
         return isQuickEditTriggerAvailableForPendingOrLivePage;

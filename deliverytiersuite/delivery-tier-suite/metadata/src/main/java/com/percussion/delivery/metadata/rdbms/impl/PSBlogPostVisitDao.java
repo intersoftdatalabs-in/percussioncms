@@ -44,7 +44,7 @@ import java.util.List;
 
 @Repository
 @Scope("singleton")
-public class PSBlogPostVisitDao  implements IPSBlogPostVisitDao {
+public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
 
     private SessionFactory sessionFactory;
 
@@ -53,177 +53,114 @@ public class PSBlogPostVisitDao  implements IPSBlogPostVisitDao {
         this.sessionFactory = sessionFactory;
     }
 
-    /**
-     * Logger for this class.
-     */
     private static final Logger log = LogManager.getLogger(PSBlogPostVisitDao.class);
+    private static final PSHashCalculator hashCalculator = new PSHashCalculator();
 
-    private static PSHashCalculator hashCalculator = new PSHashCalculator();
-
-
+    @Override
     public void delete(Collection<String> pagepaths) {
-
-        /**
-         * this code is close but not working.
-         Validate.notNull(pagepaths, "pagepaths cannot be null.");
-
-         Collection<String> pagepathHashes = getPagepathHashes(pagepaths);
-
-         Session session = getSession(false);
-
-         // Delete entries
-         String hqlMetadataEntryDelete = "delete from PSDbBlogPostVisit visit "
-         + "where visit.id in (:pagepathHashes)";
-
-         session.createQuery(hqlMetadataEntryDelete).setParameterList("pagepathHashes", pagepathHashes).executeUpdate();
-         **/
-
+        // Not implemented; see README for migration notes.
         throw new UnsupportedOperationException();
-
     }
 
+    @Override
     public boolean delete(String pagepath) {
-        /**
-         Validate.notEmpty(pagepath, "pagepath cannot be null or empty.");
-
-         List<PSDbBlogPostVisit> visits = findBlogPostVisit(pagepath);
-         if (visits != null)
-         {
-         for(PSDbBlogPostVisit visit : visits) {
-         getHibernateTemplate().delete(visit);
-         }
-         return true;
-         }
-         return false;
-         **/
+        // Not implemented; see README for migration notes.
         throw new UnsupportedOperationException();
     }
 
+    @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void save(Collection<IPSBlogPostVisit> visits) {
         Validate.notNull(visits, "visits cannot be null");
-        if (visits.isEmpty())
-            return;
+        if (visits.isEmpty()) return;
 
-        Session session = getSession();
-
-        // Save entries
+        var session = getSession();
+        var dbVisits = convertToDbVisits(visits);
         int i = 0;
-        Collection<PSDbBlogPostVisit> dbVisits = convertToDbVisits(visits);
-        for (PSDbBlogPostVisit visit : dbVisits)
-        {
-
+        for (var visit : dbVisits) {
             session.saveOrUpdate(visit);
-
-            // To avoid OutOfMemory exceptions in case of a lot of entries
-            // to be added, flush and clear session after 50 newly added
-            // entries (this value is the same value set for JDBC batch size
-            // in beans.xml file).
-            if (++i % 50 == 0)
-            {
+            if (++i % 50 == 0) {
                 session.flush();
                 session.clear();
-                if (Thread.currentThread().isInterrupted()) {
-                    return;
-                }
+                if (Thread.currentThread().isInterrupted()) return;
             }
         }
-
     }
 
+    @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED)
     public void save(IPSBlogPostVisit visit) {
-        Collection<IPSBlogPostVisit> visits = Collections.singletonList(visit);
-        save(visits);
+        save(Collections.singletonList(visit));
     }
 
+    @Override
     @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
     public List<String> getTopVisitedPages(String sectionPath, int days, int limit, String sortOrder) {
-        Session session = getSession();
-        Calendar cal = Calendar.getInstance();
-        /*
-         *  if -1, means we are looking for events from all time.
-         *  we just keep current time and filter below current time.
-         */
-        if (days != -1)
-            cal.add(Calendar.DAY_OF_YEAR, -days);
-        Date fromDate = cal.getTime();
+        var session = getSession();
+        var cal = Calendar.getInstance();
+        if (days != -1) cal.add(Calendar.DAY_OF_YEAR, -days);
+        var fromDate = cal.getTime();
 
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<String> criteriaQuery = criteriaBuilder.createQuery(String.class);
-        Root<PSDbBlogPostVisit> root = criteriaQuery.from(PSDbBlogPostVisit.class);
+        var criteriaBuilder = session.getCriteriaBuilder();
+        var criteriaQuery = criteriaBuilder.createQuery(String.class);
+        var root = criteriaQuery.from(PSDbBlogPostVisit.class);
 
-        Predicate dateCriteria = null;
-        if (days != -1) {
-            dateCriteria = criteriaBuilder.greaterThanOrEqualTo(root.get("hitDate"), fromDate);
-        }else {
-            dateCriteria = criteriaBuilder.lessThanOrEqualTo(root.get("hitDate"), fromDate);
-        }
+        Predicate dateCriteria = days != -1
+            ? criteriaBuilder.greaterThanOrEqualTo(root.get("hitDate"), fromDate)
+            : criteriaBuilder.lessThanOrEqualTo(root.get("hitDate"), fromDate);
 
         sectionPath = sectionPath + "%";
-
-
-        criteriaQuery.select(root.get("pagepath")).where(criteriaBuilder.and(criteriaBuilder.like(root.get("pagepath"), sectionPath),dateCriteria));
+        criteriaQuery.select(root.get("pagepath"))
+            .where(criteriaBuilder.and(criteriaBuilder.like(root.get("pagepath"), sectionPath), dateCriteria));
         criteriaQuery.groupBy(root.get("pagepath"));
-        if(sortOrder == null || sortOrder.equalsIgnoreCase("desc")){
+        if (sortOrder == null || sortOrder.equalsIgnoreCase("desc")) {
             criteriaQuery.orderBy(criteriaBuilder.desc(criteriaBuilder.sum(root.get("hitCount"))));
-        }else{
+        } else {
             criteriaQuery.orderBy(criteriaBuilder.asc(criteriaBuilder.sum(root.get("hitCount"))));
         }
 
         return session.createQuery(criteriaQuery).setMaxResults(limit).getResultList();
-
     }
 
-    @Transactional(isolation=Isolation.READ_UNCOMMITTED, readOnly = true)
+    @Override
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
     public List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath) {
         Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
-
-        Session session = getSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<PSDbBlogPostVisit> criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
-        Root<PSDbBlogPostVisit> root = criteriaQuery.from(PSDbBlogPostVisit.class);
+        var session = getSession();
+        var criteriaBuilder = session.getCriteriaBuilder();
+        var criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
+        var root = criteriaQuery.from(PSDbBlogPostVisit.class);
         criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), pagepath));
-
         return session.createQuery(criteriaQuery).getResultList();
     }
 
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED,readOnly = true)
+    @Override
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
     public PSDbBlogPostVisit findBlogPostVisitByDate(String pagepath, Date date) {
         Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
-
-        Session session = getSession();
-
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<PSDbBlogPostVisit> criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
-        Root<PSDbBlogPostVisit> root = criteriaQuery.from(PSDbBlogPostVisit.class);
-        criteriaQuery.select(root).where(criteriaBuilder.and(criteriaBuilder.like(root.get("pagepath"), pagepath),criteriaBuilder.equal(root.get("hitDate"), date)));
-
-        List<PSDbBlogPostVisit> results = session.createQuery(criteriaQuery).getResultList();
-
-        if (results == null || results.isEmpty())
-            return null;
-        return results.get(0);
+        var session = getSession();
+        var criteriaBuilder = session.getCriteriaBuilder();
+        var criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
+        var root = criteriaQuery.from(PSDbBlogPostVisit.class);
+        criteriaQuery.select(root).where(criteriaBuilder.and(
+            criteriaBuilder.like(root.get("pagepath"), pagepath),
+            criteriaBuilder.equal(root.get("hitDate"), date)
+        ));
+        var results = session.createQuery(criteriaQuery).getResultList();
+        return (results == null || results.isEmpty()) ? null : results.get(0);
     }
 
-    private Collection<String> getPagepathHashes(Collection<String> pagepaths)
-    {
-        List<String> pagepathHashes = new ArrayList<>();
-
-        for (String pp : pagepaths)
-        {
-            pagepathHashes.add(hashCalculator.calculateHash(pp));
-        }
-
+    private Collection<String> getPagepathHashes(Collection<String> pagepaths) {
+        var pagepathHashes = new ArrayList<String>();
+        pagepaths.forEach(pp -> pagepathHashes.add(hashCalculator.calculateHash(pp)));
         return pagepathHashes;
     }
 
     private Collection<PSDbBlogPostVisit> convertToDbVisits(Collection<IPSBlogPostVisit> visits) {
         Validate.notNull(visits, "list of visits cannot be null");
-
-        Collection<PSDbBlogPostVisit> result = new ArrayList<>();
-        for (IPSBlogPostVisit visit : visits) {
-            PSDbBlogPostVisit dbVisit = findBlogPostVisitByDate(visit.getPagepath(), visit.getHitDate());
+        var result = new ArrayList<PSDbBlogPostVisit>();
+        for (var visit : visits) {
+            var dbVisit = findBlogPostVisitByDate(visit.getPagepath(), visit.getHitDate());
             if (dbVisit != null) {
                 dbVisit.setHitCount(dbVisit.getHitCount().add(visit.getHitCount()));
             } else {
@@ -236,26 +173,20 @@ public class PSBlogPostVisitDao  implements IPSBlogPostVisitDao {
 
     @Override
     @Transactional
-    public void updatePostsAfterSiteRename(String prevSiteName,
-                                           String newSiteName) throws Exception {
-        Session session = getSession();
-
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<PSDbBlogPostVisit> criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
-        Root<PSDbBlogPostVisit> root = criteriaQuery.from(PSDbBlogPostVisit.class);
-        criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), "%/" +prevSiteName + "/%"));
-
-        List<PSDbBlogPostVisit> results = session.createQuery(criteriaQuery).getResultList();
-
-        for (PSDbBlogPostVisit visit : results) {
+    public void updatePostsAfterSiteRename(String prevSiteName, String newSiteName) throws Exception {
+        var session = getSession();
+        var criteriaBuilder = session.getCriteriaBuilder();
+        var criteriaQuery = criteriaBuilder.createQuery(PSDbBlogPostVisit.class);
+        var root = criteriaQuery.from(PSDbBlogPostVisit.class);
+        criteriaQuery.select(root).where(criteriaBuilder.like(root.get("pagepath"), "%/" + prevSiteName + "/%"));
+        var results = session.createQuery(criteriaQuery).getResultList();
+        for (var visit : results) {
             visit.setPagepath(visit.getPagepath().replaceAll(prevSiteName, newSiteName));
             session.saveOrUpdate(visit);
         }
     }
 
-    private Session getSession(){
-
+    private Session getSession() {
         return sessionFactory.getCurrentSession();
-
     }
 }

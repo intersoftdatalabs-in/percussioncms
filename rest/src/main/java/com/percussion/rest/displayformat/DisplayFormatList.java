@@ -24,13 +24,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @XmlRootElement(name = "DisplayFormatList")
 @XmlSeeAlso({DisplayFormat.class})
-@ArraySchema(schema=@Schema(implementation = DisplayFormat.class))
+@ArraySchema(schema = @Schema(implementation = DisplayFormat.class))
 public class DisplayFormatList extends ArrayList<DisplayFormat> {
     public DisplayFormatList(Collection<? extends DisplayFormat> c) {
         super(c);
     }
-    public DisplayFormatList(){}
+    public DisplayFormatList() {}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof DisplayFormatList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "DisplayFormatList" + super.toString();
+    }
 }

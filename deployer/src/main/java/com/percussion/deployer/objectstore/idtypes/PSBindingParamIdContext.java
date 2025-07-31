@@ -29,6 +29,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 
 /**
  * ID Context to represent a parameter in a JEXL binding that needs idmapping
@@ -201,21 +202,17 @@ public class PSBindingParamIdContext extends PSApplicationIdContext
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
       root.setAttribute(XML_ATTR_OCCUR, String.valueOf(m_occurence));
-      if (m_paramName != null)
-         root.setAttribute(XML_ATTR_NAME, m_paramName);
+      Optional.ofNullable(m_paramName).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
       root.appendChild(m_param.toXml(doc));
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-         root.appendChild(parent.toXml(doc));
-
+      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
       return root;
    }
    
@@ -225,78 +222,50 @@ public class PSBindingParamIdContext extends PSApplicationIdContext
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      String strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_INDEX);
-      m_index = -1;
-      try 
-      {
-         m_index = Integer.parseInt(strIndex);
-      }
-      catch (NumberFormatException ex) 
-      {
-         // fall thru
-      }
-      if (!validateIndex(m_index))
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_INDEX, strIndex};
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
-      
-      String strOccur = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_OCCUR);
-      m_occurence = -1;
-      try
-      {
-         m_occurence = Integer.parseInt(strOccur);
-      }
-      catch (NumberFormatException ex)
-      {
-         // fall thru
-      }
-     
-      if ( m_occurence < 0 )
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_OCCUR, strOccur};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      } 
-      
-      m_paramName = null;
-      String paramName = sourceNode.getAttribute(XML_ATTR_NAME);
-      if (paramName != null && paramName.trim().length() > 0)
-      {
-         m_paramName = paramName;
-      }
-            
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element paramEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (paramEl == null)
-      {
-         Object[] args = {XML_NODE_NAME, "null", "null"};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-      }
-      
+
+      var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
+      m_index = Optional.ofNullable(strIndex)
+         .map(Integer::parseInt)
+         .filter(this::validateIndex)
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_INDEX, strIndex}
+         ));
+
+      var strOccur = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OCCUR);
+      m_occurence = Optional.ofNullable(strOccur)
+         .map(Integer::parseInt)
+         .filter(occur -> occur >= 0)
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_OCCUR, strOccur}
+         ));
+
+      m_paramName = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
+         .filter(name -> !name.trim().isEmpty())
+         .orElse(null);
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var paramEl = Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+            new Object[]{XML_NODE_NAME, "null", "null"}
+         ));
       m_param = new PSTextLiteral(paramEl, null, null);
-      
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      if (ctxEl != null)
-         setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
    }
    
    // see IPSDeployComponent interface

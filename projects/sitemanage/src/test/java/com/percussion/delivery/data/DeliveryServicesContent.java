@@ -263,7 +263,7 @@ public class DeliveryServicesContent {
          */
         public List<DeliveryServicesContent.CommentService.Comments> getComments() {
             if (comments == null) {
-                comments = new ArrayList<DeliveryServicesContent.CommentService.Comments>();
+                comments = new ArrayList<>();
             }
             return this.comments;
         }
@@ -341,7 +341,7 @@ public class DeliveryServicesContent {
              */
             public List<DeliveryServicesContent.CommentService.Comments.Comment> getComment() {
                 if (comment == null) {
-                    comment = new ArrayList<DeliveryServicesContent.CommentService.Comments.Comment>();
+                    comment = new ArrayList<>();
                 }
                 return this.comment;
             }
@@ -644,7 +644,7 @@ public class DeliveryServicesContent {
          */
         public List<DeliveryServicesContent.MembershipService.Memberships> getMemberships() {
             if (memberships == null) {
-                memberships = new ArrayList<DeliveryServicesContent.MembershipService.Memberships>();
+                memberships = new ArrayList<>();
             }
             return this.memberships;
         }
@@ -714,7 +714,7 @@ public class DeliveryServicesContent {
              */
             public List<DeliveryServicesContent.MembershipService.Memberships.Membership> getMembership() {
                 if (membership == null) {
-                    membership = new ArrayList<DeliveryServicesContent.MembershipService.Memberships.Membership>();
+                    membership = new ArrayList<>();
                 }
                 return this.membership;
             }

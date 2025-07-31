@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,41 +25,76 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.List;
 
 /**
- * @author chriswright
+ * Service for managing recycling and restoration of items and folders.
  */
 public interface IPSRecycleService {
 
+    /**
+     * Recycles an item by its dependent ID.
+     *
+     * @param dependentId the dependent item ID
+     */
     void recycleItem(int dependentId);
 
+    /**
+     * Recycles a folder by its GUID.
+     *
+     * @param guid the folder GUID
+     */
     void recycleFolder(IPSGuid guid);
 
+    /**
+     * Restores an item by its GUID.
+     *
+     * @param guid the item GUID
+     */
     void restoreItem(String guid);
 
+    /**
+     * Restores a folder by its GUID.
+     *
+     * @param guid the folder GUID
+     */
     void restoreFolder(String guid);
 
+    /**
+     * Finds children under the given path in the recycling bin.
+     *
+     * @param path the path to search
+     * @return list of item summaries
+     */
     List<IPSItemSummary> findChildren(String path);
 
+    /**
+     * Finds a recycled item by its path.
+     *
+     * @param path the item path
+     * @return the item summary
+     * @throws IPSDataService.DataServiceLoadException if loading fails
+     */
     IPSItemSummary findItem(String path) throws IPSDataService.DataServiceLoadException;
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
+    /**
+     * Checks if the specified GUID is in the recycler.
+     *
+     * @param guid a valid GUID to search for, never null
+     * @return true if GUID is in the recycler, false otherwise
      */
     boolean isInRecycler(String guid);
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
+    /**
+     * Checks if the specified navigation GUID is in the recycler.
+     *
+     * @param guid a valid GUID to search for, never null
+     * @return true if GUID is in the recycler, false otherwise
      */
     boolean isNavInRecycler(String guid);
 
-    /***
-     * Returns a boolean indicating if the specified guid is in the Recycler.
-     * @param guid A valid guid to search for, never null
-     * @return true if guid is in the recycler, false if not
+    /**
+     * Checks if the specified GUID is in the recycler.
+     *
+     * @param guid a valid GUID to search for, never null
+     * @return true if GUID is in the recycler, false otherwise
      */
     boolean isInRecycler(IPSGuid guid);
-
 }

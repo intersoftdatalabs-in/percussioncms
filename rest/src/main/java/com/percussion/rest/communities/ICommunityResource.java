@@ -22,14 +22,21 @@ import com.percussion.rest.ObjectTypeEnum;
 
 import java.util.List;
 
+/**
+ * Resource interface for Community REST operations.
+ */
 public interface ICommunityResource {
 
-        public CommunityList createCommunities(List<String> names);
-        public CommunityList findCommunities(String name);
-        public CommunityList loadCommunities(GuidList ids,boolean lock, boolean overrideLock);
-        public void saveCommunities(CommunityList communities, boolean release);
-        public void deleteCommunities(GuidList ids, boolean ignoreDependencies);
-        public CommunityVisibilityList getVisibilityByCommunity(
-                GuidList ids, ObjectTypeEnum type);
-}
+    CommunityList createCommunities(List<String> names);
 
+    CommunityList findCommunities(String name);
+
+    CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock);
+
+    void saveCommunities(CommunityList communities, boolean release);
+
+    void deleteCommunities(GuidList ids, boolean ignoreDependencies);
+
+    CommunityVisibilityList getVisibilityByCommunity(
+            GuidList ids, ObjectTypeEnum type);
+}

@@ -20,6 +20,7 @@ package com.percussion.rest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -29,54 +30,46 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description="Status")
-public class Status
-{
-    /**
-     * 
-     */
-    @Schema(name="message", description="The message for the Status response")
+@Schema(description = "Status")
+public class Status {
+    @Schema(name = "message", description = "The message for the Status response")
     private String message;
 
-    @Schema(name="statusCode", description="The numeric code for the Status message")
+    @Schema(name = "statusCode", description = "The numeric code for the Status message")
     private int statusCode;
 
     public int getStatusCode() {
-		return statusCode;
-	}
-
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
-	}
-
-	public Status()
-    {
+        return statusCode;
     }
-    
-    public Status(String message)
-    {
-        this.message=message;
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
-    
-    public Status(int statusCode, String message)
-    {
-    	this.statusCode = statusCode;
-        this.message=message;
+
+    public Status() {
+        // Default constructor
+    }
+
+    public Status(String message) {
+        this.message = message;
+    }
+
+    public Status(int statusCode, String message) {
+        this.statusCode = statusCode;
+        this.message = message;
     }
 
     /**
-     * @return status message
+     * @return status message as Optional
      */
-    public String getMessage()
-    {
-        return message;
+    public Optional<String> getMessage() {
+        return Optional.ofNullable(message);
     }
 
     /**
-     * @param message
+     * @param message status message
      */
-    public void setMessage(String message)
-    {
+    public void setMessage(String message) {
         this.message = message;
     }
 }

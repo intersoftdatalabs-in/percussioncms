@@ -14,10 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.theme;
 
 import static org.apache.commons.io.FileUtils.forceDelete;
 import static org.apache.commons.io.FileUtils.forceMkdir;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.server.PSServer;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
@@ -30,185 +32,140 @@ import com.percussion.utils.types.PSPair;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import org.apache.cactus.ServletTestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
 
 /**
- * @author Santiago M. Murchio
- *
+ * Integration tests for PSFileDownloader.
+ * @author Santiago M. Murchio, Sunny Sal (refactored)
  */
-@Category(IntegrationTest.class)
-@Ignore("TODO: Test is incorrectly getting picked up as a unit test.  Ignoring until that is fixed.")
-public class PSFileDownloaderTest extends ServletTestCase
-{
+@Tag("IntegrationTest")
+class PSFileDownloaderTest {
 
     private static final Logger log = LogManager.getLogger(PSFileDownloaderTest.class);
 
-    PSSiteImportCtx context;
-    IPSSiteImportLogger logger = new PSSiteImportLogger(PSLogObjectType.SITE);
-    IPSFileDownloader fileDownloader = new PSFileDownloader();
-    
-    private List<File> filesToDelete = new ArrayList<File>();
-    private File tempDir = new File(PSServer.getRxDir().getAbsolutePath() + "/temp/ImageDownloaderTest");
+    private PSSiteImportCtx context;
+    private IPSSiteImportLogger logger = new PSSiteImportLogger(PSLogObjectType.SITE);
+    private IPSFileDownloader fileDownloader = new PSFileDownloader();
 
-    @Override
-    public void setUp()
-    {
-        try
-        {
-            super.setUp();
-        }
-        catch (Exception e1)
-        {
-            // FIXME Auto-generated catch block
-            log.error(e1.getMessage());
-            log.debug(e1.getMessage(), e1);
-        }
-        
-        if(!tempDir.exists())
-        {
-            try
-            {
+    private final List<File> filesToDelete = new ArrayList<>();
+    private final File tempDir = new File(PSServer.getRxDir().getAbsolutePath() + "/temp/ImageDownloaderTest");
+
+    @BeforeEach
+    void setUp() {
+        try {
+            if (!tempDir.exists()) {
                 forceMkdir(tempDir);
             }
-            catch (IOException e)
-            {
-                fail("No exception should have been thrown.");
-            }
+        } catch (IOException e) {
+            fail("No exception should have been thrown.");
         }
-        
         context = new PSSiteImportCtx();
         context.setLogger(logger);
     }
-    
-    @Override
-    public void tearDown()
-    {
-        try
-        {
-            super.tearDown();
-        }
-        catch (Exception e1)
-        {
-        }
-        
-        for(File fileToDelete : filesToDelete)
-        {
-            if(fileToDelete.exists())
-            {
-                try
-                {
+
+    @AfterEach
+    void tearDown() {
+        for (var fileToDelete : filesToDelete) {
+            if (fileToDelete.exists()) {
+                try {
                     forceDelete(fileToDelete);
-                }
-                catch (IOException e)
-                {
-                    
+                } catch (IOException e) {
+                    // Ignore
                 }
             }
         }
     }
 
-    public void testDownloadFiles_emptyMap()
-    {
-        Map<String, String> filesMap = new HashMap<String, String>();
-        List<PSPair<Boolean,String>> downloaded = fileDownloader.downloadFiles(filesMap, context, false);
-                
+    @Test
+    void testDownloadFiles_emptyMap() {
+        var filesMap = new HashMap<String, String>();
+        var downloaded = fileDownloader.downloadFiles(filesMap, context, false);
         assertNotNull(downloaded);
         assertTrue(downloaded.isEmpty());
     }
-    
-    public void testDownloadFiles_malformedUrl()
-    {
-        File tempFile = createTempFile();
-        assertNotNull("Could not create temporal file.", tempFile);
-        
-        String invalidUrl = "invalid.url(to test)";
-        String invalidUrlName = "/nonExistingFile.css";
-        String invalidUrlDestinationPath = tempDir.getAbsolutePath() + invalidUrlName;
-        
-        String validUrl = "file://" + tempFile.getAbsolutePath().replace('\\', '/');
-        String validUrlName = "/validFile.css";
-        String validUrlDestinationPath = tempDir.getAbsolutePath() + validUrlName;
 
-        Map<String, String> filesMap = new HashMap<String, String>();
+    @Test
+    void testDownloadFiles_malformedUrl() {
+        var tempFile = createTempFile();
+        assertNotNull(tempFile, "Could not create temporal file.");
+
+        var invalidUrl = "invalid.url(to test)";
+        var invalidUrlName = "/nonExistingFile.css";
+        var invalidUrlDestinationPath = tempDir.getAbsolutePath() + invalidUrlName;
+
+        var validUrl = "file://" + tempFile.getAbsolutePath().replace('\\', '/');
+        var validUrlName = "/validFile.css";
+        var validUrlDestinationPath = tempDir.getAbsolutePath() + validUrlName;
+
+        var filesMap = new HashMap<String, String>();
         filesMap.put(invalidUrl, invalidUrlDestinationPath);
         filesMap.put(validUrl, validUrlDestinationPath);
-        List<PSPair<Boolean,String>> downloaded = fileDownloader.downloadFiles(filesMap, context, false);
-        
-        File invalid = new File(invalidUrlDestinationPath);
-        File valid = new File(validUrlDestinationPath);
-        
+        var downloaded = fileDownloader.downloadFiles(filesMap, context, false);
+
+        var invalid = new File(invalidUrlDestinationPath);
+        var valid = new File(validUrlDestinationPath);
+
         filesToDelete.add(invalid);
         filesToDelete.add(valid);
         filesToDelete.add(tempFile);
 
         assertNotNull(downloaded);
-        for(PSPair<Boolean, String> download : downloaded) 
-        {
+        for (var download : downloaded) {
             assertNotNull(download);
         }
         assertTrue(valid.exists());
         assertFalse(invalid.exists());
     }
 
-    public void testdownloadTest_UrlWithSpaces()
-    {
-        String url = "http://www.frsf.utn.edu.ar/images/banners/ofa-frsf 1.gif";
-        String dest = "D:/Temp/ofa-frsf 1.gif";
+    @Test
+    void testDownloadTest_UrlWithSpaces() {
+        // This test is a placeholder for manual/visual verification.
+        var url = "http://www.frsf.utn.edu.ar/images/banners/ofa-frsf 1.gif";
+        var dest = tempDir.getAbsolutePath() + "/ofa-frsf 1.gif";
         fileDownloader.downloadFile(url, dest);
+        // No assertion: just ensure no exception is thrown.
     }
-    
-    public void testdownloadTest_WhenFileExists()
-    {
-        File tempFile = createTempFile();
-        assertNotNull("Could not create temporal file.", tempFile);
+
+    @Test
+    void testDownloadTest_WhenFileExists() {
+        var tempFile = createTempFile();
+        assertNotNull(tempFile, "Could not create temporal file.");
         filesToDelete.add(tempFile);
 
-        String url = "file://" + tempFile.getAbsolutePath().replace('\\', '/');
-        String dest = tempDir.getAbsolutePath() + "/logo3w.png";
-        PSPair<Boolean, String> downloadResult = fileDownloader.downloadFile(url, dest);
-        
+        var url = "file://" + tempFile.getAbsolutePath().replace('\\', '/');
+        var dest = tempDir.getAbsolutePath() + "/logo3w.png";
+        var downloadResult = fileDownloader.downloadFile(url, dest);
+
         // The file should be downloaded
         assertTrue(downloadResult.getFirst());
-        
-        File downloadedFile = new File(dest);
-        
+
+        var downloadedFile = new File(dest);
+
         // Call the downloader again, the file should not be downloaded
-        String expectedMessage = "Skip download '" + url + "' to '" + dest + "', as such file already exists.";
+        var expectedMessage = "Skip download '" + url + "' to '" + dest + "', as such file already exists.";
         downloadResult = fileDownloader.downloadFile(url, dest);
         assertTrue(downloadResult.getFirst());
-        assertTrue(downloadResult.getSecond().contentEquals(expectedMessage));
-        
+        assertEquals(expectedMessage, downloadResult.getSecond());
+
         filesToDelete.add(downloadedFile);
     }
 
     /**
      * Creates a temporal file with sample content.
-     * 
-     * @return {@link File} with sample content, or <code>null</code> if there
-     *         was an error creating it.
+     * @return File with sample content, or null if there was an error creating it.
      */
-    private File createTempFile()
-    {
-        File tempFile = new File(tempDir, "tempFile.css");
-        try
-        {
+    private File createTempFile() {
+        var tempFile = new File(tempDir, "tempFile.css");
+        try {
             FileUtils.writeStringToFile(tempFile, "sample data for temp file.", StandardCharsets.UTF_8);
             return tempFile;
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             return null;
         }
     }
-
 }

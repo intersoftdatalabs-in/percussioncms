@@ -79,47 +79,24 @@ public abstract class PSMenuActionObjectDependencyHandler
    @Override
    public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok,
       PSDependency dep) throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var childDeps = new HashSet<PSDependency>();
+      var proc = getComponentProcessor(tok);
+      var action = loadAction(proc, dep, isLeaf());
 
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-
-      Set<PSDependency> childDeps = new HashSet<>();
-
-      PSComponentProcessorProxy proc = getComponentProcessor(tok);
-
-      // get this action
-      String actionId = dep.getDependencyId();
-      PSAction action = loadAction(proc, dep, isLeaf());
-
-      // get all parent actions and add them as dependencies
-      Iterator<PSAction> actions = loadActions(proc, false, actionId);
-      while (actions.hasNext()) {
-         PSAction parent = actions.next();
-         String name = parent.getName();
-         String childType =
+      loadActions(proc, false, action.getId()).forEachRemaining(parent -> {
+         var name = parent.getName();
+         var childType =
                  PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE;
-
-         PSDependencyDef def;
-         if (getType().equals(childType)) {
-            def = m_def;
-         } else {
-            PSDependencyHandler childHandler = getDependencyHandler(
-                    childType);
-            // this is okay since we are the base class for this handler
-            def = childHandler.m_def;
-         }
-
-         PSDependency childDep = createDependency(def, getIdFromKey(parent,
+         var def = getType().equals(childType) ? m_def : getDependencyHandler(childType).m_def;
+         var childDep = createDependency(def, getIdFromKey(parent,
                  name), name);
          childDep.setDependencyType(PSDependency.TYPE_LOCAL);
          childDeps.add(childDep);
-
-      }
+      });
 
       // now get action's dependencies
 

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.soln.segment.ds.data;
 
 import java.util.List;
@@ -26,21 +27,27 @@ import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.Segments;
 import com.percussion.soln.segment.data.ISegmentDataService;
 
+/**
+ * Hibernate DAO for segments.
+ * Sunny Sal says: "Hibernate like a hero, debug like a ninja!"
+ */
 public class DSSegmentDao extends HibernateDaoSupport implements ISegmentDataService {
 
+    @Override
     @SuppressWarnings("unchecked")
     public void resetSegmentTree(boolean clear, String rootPath) {
         if (clear) {
-            List<Segment> segments = (List<Segment>) getHibernateTemplate().find("from " + Segment.class.getSimpleName());
+            var segments = (List<Segment>) getHibernateTemplate().find("from " + Segment.class.getSimpleName());
             getHibernateTemplate().deleteAll(segments);
         }
     }
 
+    @Override
     public void updateSegmentTree(Segments segments) {
-        HibernateTemplate t = getHibernateTemplate();
-        for (Segment seg : segments.getList()) {
+        var t = getHibernateTemplate();
+        for (var seg : segments.getList()) {
             if (seg != null) {
-                Segment old = t.get(Segment.class, seg.getId());
+                var old = t.get(Segment.class, seg.getId());
                 if (old != null) {
                     t.delete(old);
                 }
@@ -49,22 +56,20 @@ public class DSSegmentDao extends HibernateDaoSupport implements ISegmentDataSer
         }
     }
 
+    @Override
     public String getSegmentContentType() {
-        // TODO Auto-generated method stub
-        //return null;
         throw new UnsupportedOperationException("getSegmentContentType is not yet supported");
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public Segments retrieveAllSegmentData() {
-        HibernateTemplate t = getHibernateTemplate();
+        var t = getHibernateTemplate();
         return new Segments((List<Segment>) t.find("from " + Segment.class.getSimpleName()));
     }
 
+    @Override
     public Segment retrieveSegmentDataForId(String arg0) {
-        // TODO Auto-generated method stub
-        //return null;
         throw new UnsupportedOperationException("retrieveSegmentDataForId is not yet supported");
     }
-    
 }

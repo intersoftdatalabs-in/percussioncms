@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,269 +17,141 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="BookingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StatusID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="EventName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: UpdateBooking2 SOAP request model.
+ * <p>
+ * Represents the request payload for the UpdateBooking2 endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "UpdateBooking2—because sometimes one update just isn't enough!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "bookingID",
-    "bookingDate",
-    "startTime",
-    "endTime",
-    "statusID",
-    "roomID",
-    "eventName"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "bookingId",
+        "newStatus",
+        "comment"
+    }
+)
 @XmlRootElement(name = "UpdateBooking2")
 public class UpdateBooking2 {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
+
     @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "BookingID")
-    protected int bookingID;
-    @XmlElement(name = "BookingDate", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
-    @XmlElement(name = "StartTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startTime;
-    @XmlElement(name = "EndTime", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endTime;
-    @XmlElement(name = "StatusID")
-    protected int statusID;
-    @XmlElement(name = "RoomID")
-    protected int roomID;
-    @XmlElement(name = "EventName")
-    protected String eventName;
+    private String password;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    @XmlElement(name = "BookingId")
+    private int bookingId;
+
+    @XmlElement(name = "NewStatus")
+    private int newStatus;
+
+    @XmlElement(name = "Comment")
+    private String comment;
+
+    private UpdateBooking2(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.bookingId = builder.bookingId;
+        this.newStatus = builder.newStatus;
+        this.comment = builder.comment;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     *
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     *
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the booking ID.
+     *
+     * @return booking ID
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public int getBookingId() {
+        return bookingId;
     }
 
     /**
-     * Gets the value of the bookingID property.
-     * 
+     * Gets the new status.
+     *
+     * @return new status
      */
-    public int getBookingID() {
-        return bookingID;
+    public int getNewStatus() {
+        return newStatus;
     }
 
     /**
-     * Sets the value of the bookingID property.
-     * 
+     * Gets the comment.
+     *
+     * @return Optional comment
      */
-    public void setBookingID(int value) {
-        this.bookingID = value;
+    public Optional<String> getComment() {
+        return Optional.ofNullable(comment);
     }
 
     /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Builder for UpdateBooking2.
      */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int bookingId;
+        private int newStatus;
+        private String comment;
 
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setBookingDate(XMLGregorianCalendar value) {
-        this.bookingDate = value;
-    }
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
 
-    /**
-     * Gets the value of the startTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartTime() {
-        return startTime;
-    }
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
 
-    /**
-     * Sets the value of the startTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setStartTime(XMLGregorianCalendar value) {
-        this.startTime = value;
-    }
+        public Builder withBookingId(int bookingId) {
+            this.bookingId = bookingId;
+            return this;
+        }
 
-    /**
-     * Gets the value of the endTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndTime() {
-        return endTime;
-    }
+        public Builder withNewStatus(int newStatus) {
+            this.newStatus = newStatus;
+            return this;
+        }
 
-    /**
-     * Sets the value of the endTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setEndTime(XMLGregorianCalendar value) {
-        this.endTime = value;
-    }
+        public Builder withComment(String comment) {
+            this.comment = comment;
+            return this;
+        }
 
-    /**
-     * Gets the value of the statusID property.
-     * 
-     */
-    public int getStatusID() {
-        return statusID;
+        public UpdateBooking2 build() {
+            return new UpdateBooking2(this);
+        }
     }
-
-    /**
-     * Sets the value of the statusID property.
-     * 
-     */
-    public void setStatusID(int value) {
-        this.statusID = value;
-    }
-
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
-    public int getRoomID() {
-        return roomID;
-    }
-
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
-    public void setRoomID(int value) {
-        this.roomID = value;
-    }
-
-    /**
-     * Gets the value of the eventName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEventName() {
-        return eventName;
-    }
-
-    /**
-     * Sets the value of the eventName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setEventName(String value) {
-        this.eventName = value;
-    }
-
 }

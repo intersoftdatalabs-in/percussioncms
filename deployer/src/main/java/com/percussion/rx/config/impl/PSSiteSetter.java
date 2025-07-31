@@ -42,6 +42,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
+// REFACTORED: CP-JAVA11
 @SuppressFBWarnings("HARD_CODE_PASSWORD")
 public class PSSiteSetter extends PSPropertySetterWithValidation
 {
@@ -52,11 +53,11 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
       throws Exception
    {
       // validate the arguments.
-      if (!(obj instanceof IPSSite))         
+      if (!(obj instanceof IPSSite))
       {
          throw new PSConfigException("obj must be an instance of IPSSite.");
       }
-      IPSSite site = (IPSSite) obj;
+      var site = (IPSSite) obj;
       if (ms_propNameMap.get(propName) != null)
       {
          super.applyProperty(site, state, aSets, ms_propNameMap.get(propName),
@@ -81,7 +82,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          Object pvalue, Map<String, Object> defs) throws PSNotFoundException {
       if (super.addPropertyDefs(obj, propName, pvalue, defs))
          return true;
-      
+
       if (VARIABLES.equals(propName))
       {
          addFixmePropertyDefsForList(propName, pvalue, defs);
@@ -99,16 +100,16 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
 
       if (VARIABLES.equals(propName))
       {
-         IPSSite site = (IPSSite) obj;
-         IPSSiteManager mgr = PSSiteManagerLocator.getSiteManager();
-         
-         List<Map<String, String>> result = new ArrayList<>();
-         for (IPSPublishingContext ctx : mgr.findAllContexts())
+         var site = (IPSSite) obj;
+         var mgr = PSSiteManagerLocator.getSiteManager();
+
+         var result = new ArrayList<Map<String, String>>();
+         for (var ctx : mgr.findAllContexts())
          {
-            for (String pname : site.getPropertyNames(ctx.getGUID()))
+            for (var pname : site.getPropertyNames(ctx.getGUID()))
             {
-               Map<String, String> sp = new HashMap<>();
-               String value = site.getProperty(pname, ctx.getGUID());
+               var sp = new HashMap<String, String>();
+               var value = site.getProperty(pname, ctx.getGUID());
                sp.put(NAME, pname);
                sp.put(CONTEXT, ctx.getName());
                sp.put(VALUE, value);
@@ -117,7 +118,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          }
          return result;
       }
-      
+
       return super.getPropertyValue(obj, propName);
    }   
 
@@ -129,29 +130,29 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          String propName, Object propValue, Object otherValue) throws PSNotFoundException {
       if (!VARIABLES.equals(propName))
          return super.validate(objName, state, propName, propValue, otherValue);
-      
-      List<Map<String, Object>> myVars = convertObjectToMaps(propValue);
+
+      var myVars = convertObjectToMaps(propValue);
       if (myVars.isEmpty() || state.equals(ObjectState.PREVIOUS))
          return Collections.emptyList();
 
-      List<Map<String, Object>> otherVars = convertObjectToMaps(otherValue);
+      var otherVars = convertObjectToMaps(otherValue);
       if (otherVars.isEmpty())
          return Collections.emptyList();
 
       PSConfigValidation vError;
-      List<PSConfigValidation> result = new ArrayList<>();
-      for (Map<String, Object> var : myVars)
+      var result = new ArrayList<PSConfigValidation>();
+      for (var var : myVars)
       {
-         PSPair<String, IPSGuid> pair = getSiteVariableNameCtx(var);
-         String myVarName = pair.getFirst();
+         var pair = getSiteVariableNameCtx(var);
+         var myVarName = pair.getFirst();
          if (StringUtils.isBlank(myVarName))
             continue;
-         for (Map<String, Object> other : otherVars)
+         for (var other : otherVars)
          {
             pair = getSiteVariableNameCtx(other);
             if (myVarName.equalsIgnoreCase(pair.getFirst()))
             {
-               String msg = " the Site Variable \"" + myVarName
+               var msg = " the Site Variable \"" + myVarName
                      + "\" is already configured.";
                vError = new PSConfigValidation(objName, VARIABLES, true, msg);
                result.add(vError);
@@ -173,7 +174,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
       {
          throw new PSConfigException("obj must be an instance of IPSSite.");
       }
-      IPSSite site = (IPSSite) obj;
+      var site = (IPSSite) obj;
       if (VARIABLES.equals(propName))
       {
          return deleteSiteVariables(site, convertObjectToMaps(propValue));
@@ -222,21 +223,21 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
     */
    @SuppressWarnings("unchecked")
    private boolean mergeAndDeleteSiteVariables(IPSSite site, Object propValue) throws PSNotFoundException {
-      boolean isChanged = mergeSiteVariables(site, propValue);
-      List<Map<String, Object>> prevVars = getPrevSiteVariables();
+      var isChanged = mergeSiteVariables(site, propValue);
+      var prevVars = getPrevSiteVariables();
       if (prevVars.isEmpty())
          return isChanged;
 
       // collect variables in previous, but not in current
-      List<Map<String, Object>> curVars = convertObjectToMaps(propValue);
-      List<Map<String, Object>> deletedVars = new ArrayList<>();
-      for (Map<String, Object> var : prevVars)
+      var curVars = convertObjectToMaps(propValue);
+      var deletedVars = new ArrayList<Map<String, Object>>();
+      for (var var : prevVars)
       {
-         boolean found = false;
-         String vname = getSiteVariableNameCtx(var).getFirst();
-         for (Map<String, Object> curVar : curVars)
+         var found = false;
+         var vname = getSiteVariableNameCtx(var).getFirst();
+         for (var curVar : curVars)
          {
-            String curName = getSiteVariableNameCtx(curVar).getFirst();
+            var curName = getSiteVariableNameCtx(curVar).getFirst();
             if (vname.equalsIgnoreCase(curName))
             {
                found = true;
@@ -279,7 +280,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
    @SuppressWarnings("unchecked")
    private List<Map<String, Object>> getPrevSiteVariables()
    {
-      Map<String, Object> props = getPrevProperties();
+      var props = getPrevProperties();
       if (props == null || props.isEmpty())
          return Collections.emptyList();
       
@@ -299,8 +300,8 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          List<Map<String, Object>> vars) throws PSNotFoundException {
       if (vars.isEmpty())
          return false;
-      
-      for (Map<String, Object> var : vars)
+
+      for (var var : vars)
       {
          deleteSiteVariable(site, var);
       }
@@ -320,11 +321,11 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
    @SuppressWarnings("unchecked")
    private boolean mergeSiteVariables(IPSSite site, Object propValue) throws PSNotFoundException {
       // apply the property
-      List<Map<String, Object>> vars = convertObjectToMaps(propValue);
+      var vars = convertObjectToMaps(propValue);
       if (vars.isEmpty())
          return false;
-      
-      for (Map<String, Object> var : vars)
+
+      for (var var : vars)
       {
          mergeSiteVariable(site, var);
       }
@@ -344,7 +345,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          throw new PSConfigException(
                "Properties of Site Variable cannot be null or empty.");
 
-      PSPair<String, IPSGuid> pair = getSiteVariableNameCtx(props);
+      var pair = getSiteVariableNameCtx(props);
       site.setProperty(pair.getFirst(), pair.getSecond(), (String) props
             .get(VALUE));
    }
@@ -362,7 +363,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
          throw new PSConfigException(
                "Properties of Site Variable cannot be null or empty.");
 
-      PSPair<String, IPSGuid> pair = getSiteVariableNameCtx(props);
+      var pair = getSiteVariableNameCtx(props);
       site.removeProperty(pair.getFirst(), pair.getSecond());
    }
 
@@ -378,17 +379,17 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
     */
    private PSPair<String, IPSGuid> getSiteVariableNameCtx(
          Map<String, Object> props) throws PSNotFoundException {
-      String name = (String) props.get(NAME);
+      var name = (String) props.get(NAME);
       if (name == null || StringUtils.isBlank(name))
          throw new PSConfigException("The property \"" + NAME
                + "\" cannot be null or empty.");
 
-      String context = (String) props.get(CONTEXT);
+      var context = (String) props.get(CONTEXT);
       if (context == null || StringUtils.isBlank(context))
          throw new PSConfigException("The property \"" + CONTEXT
                + "\" cannot be null or empty.");
 
-      IPSPublishingContext ctx = getSiteMgr().loadContext(context);
+      var ctx = getSiteMgr().loadContext(context);
 
       return new PSPair<>(name, ctx.getGUID());
    }
@@ -402,7 +403,7 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
    {
       if (m_siteMgr != null)
          return m_siteMgr;
-      
+
       m_siteMgr = PSSiteManagerLocator.getSiteManager();
       return m_siteMgr;
    }
@@ -411,34 +412,12 @@ public class PSSiteSetter extends PSPropertySetterWithValidation
     * The cached Site Manager service instance. Default to <code>null</code>.
     */
    private IPSSiteManager m_siteMgr = null;
-   
-   /**
-    * The name of the "name" property of the Site Variable.
-    */
    public static final String NAME = "name";
-   
-   /**
-    * The name of the "context" property of the Site Variable.
-    */
    public static final String CONTEXT = "context";
-
-   /**
-    * The name of the "value" property of the Site Variable.
-    */
    public static final String VALUE = "value";
-   
-   /**
-    * The name of the property contains a collection of Site variables.
-    * The expected value is a {@link Map Map&lt;String, Map&lt;String, Object>>}.
-    */
    public static final String VARIABLES = "variables";
-
-   /**
-    * This maps the logic property name to an actual property name defined in
-    * {@link IPSSite}.
-    */
    private static final Map<String, String> ms_propNameMap = new HashMap<>();
-   
+
    static
    {
       ms_propNameMap.put("siteFolderPath", "folderRoot");

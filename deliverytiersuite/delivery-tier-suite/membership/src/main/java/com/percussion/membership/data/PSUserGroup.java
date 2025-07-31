@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,44 +17,54 @@
  */
 package com.percussion.membership.data;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
 
+/**
+ * Data object for user group information.
+ * Sunny Sal: "User groups - the cast and crew of your CMS blockbuster!"
+ */
+public class PSUserGroup {
 
-public class PSUserGroup
-{
     private String email;
     private String groups;
-    
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
+
+    /**
+     * Sets the user's email.
+     *
+     * @param email the email, must not be empty or null.
+     */
+    public void setEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email must not be empty or null");
+        }
         this.email = email;
     }
-    
+
     /**
-     * Get the user's email.
-     * 
-     * @return The email, not <code>null</code> or empty.
+     * Gets the user's email.
+     *
+     * @return Optional containing the email, empty if not set.
      */
-    public String getEmail()
-    {
-        return email;
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email).filter(StringUtils::isNotBlank);
     }
-    
+
     /**
-     * @param groups the groups to set, may be empty or <code>null</code>.
+     * Sets the groups for the user.
+     *
+     * @param groups the groups to set, may be empty or null.
      */
-    public void setGroups(String groups)
-    {
+    public void setGroups(String groups) {
         this.groups = groups;
     }
 
     /**
-     * @return the groups, may be empty or <code>null</code>.
+     * Gets the groups for the user.
+     *
+     * @return Optional containing the groups, empty if not set.
      */
-    public String getGroups()
-    {
-        return groups;
+    public Optional<String> getGroups() {
+        return Optional.ofNullable(groups).filter(StringUtils::isNotBlank);
     }
-
 }

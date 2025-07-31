@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,25 +17,40 @@
  */
 package com.percussion.membership.data;
 
-public class PSResetRequest
-{
+import java.util.Optional;
+
+/**
+ * Data object for password reset requests.
+ * Sunny Sal: "Reset requests - the reboot button for your account!"
+ */
+public class PSResetRequest {
+
     private String email;
     private String redirectPage;
 
-    public String getEmail()
-    {
-        return email;
+    /**
+     * Gets the email for password reset.
+     *
+     * @return Optional containing the email, empty if not set.
+     */
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email);
     }
-    public void setEmail(String email)
-    {
+
+    public void setEmail(String email) {
         this.email = email;
     }
-    public String getRedirectPage()
-    {
-        return redirectPage;
+
+    /**
+     * Gets the redirect page after reset.
+     *
+     * @return Optional containing the redirect page, empty if not set.
+     */
+    public Optional<String> getRedirectPage() {
+        return Optional.ofNullable(redirectPage);
     }
-    public void setRedirectPage(String redirectPage)
-    {
+
+    public void setRedirectPage(String redirectPage) {
         this.redirectPage = redirectPage;
     }
 }

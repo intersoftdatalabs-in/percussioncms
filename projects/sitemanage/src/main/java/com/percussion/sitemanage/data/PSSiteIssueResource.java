@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,39 +21,30 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 @XmlRootElement(name = "issue")
 @JsonRootName("issue")
-public class PSSiteIssueResource extends PSAbstractDataObject
-{
+public class PSSiteIssueResource extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     private String name;
-
     private String uri;
 
-    public String getName()
-    {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getUri()
-    {
-        return uri;
+    public Optional<String> getUri() {
+        return Optional.ofNullable(uri);
     }
 
-    public void setUri(String uri)
-    {
+    public void setUri(String uri) {
         this.uri = uri;
     }
-
 }

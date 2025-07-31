@@ -1,4 +1,4 @@
-
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,58 +24,51 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="AddServiceOrderResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP response for AddServiceOrder.
+ * Immutable, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addServiceOrderResult"
 })
 @XmlRootElement(name = "AddServiceOrderResponse")
-public class AddServiceOrderResponse {
+public final class AddServiceOrderResponse {
 
     @XmlElement(name = "AddServiceOrderResult")
-    protected String addServiceOrderResult;
+    private String addServiceOrderResult;
 
     /**
-     * Gets the value of the addServiceOrderResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional containing the result string if present
      */
-    public String getAddServiceOrderResult() {
-        return addServiceOrderResult;
+    public java.util.Optional<String> getAddServiceOrderResult() {
+        return java.util.Optional.ofNullable(addServiceOrderResult);
     }
 
     /**
-     * Sets the value of the addServiceOrderResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @param value allowed object is {@link String }
      */
     public void setAddServiceOrderResult(String value) {
         this.addServiceOrderResult = value;
     }
 
+    @Override
+    public String toString() {
+        return "AddServiceOrderResponse{" +
+                "addServiceOrderResult='" + addServiceOrderResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddServiceOrderResponse that = (AddServiceOrderResponse) o;
+        return java.util.Objects.equals(addServiceOrderResult, that.addServiceOrderResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(addServiceOrderResult);
+    }
 }

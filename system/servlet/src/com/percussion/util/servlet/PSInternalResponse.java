@@ -57,9 +57,8 @@ import java.util.StringTokenizer;
  * For servlets that return an XML document, see
  * PSInternalResponseXML.
  */
-class PSInternalResponse
-   extends HttpServletResponseWrapper
-   implements HttpServletResponse
+// REFACTORED: CP-JAVA11
+class PSInternalResponse extends HttpServletResponseWrapper
 {
   /**
    * Creates a HttpServletResponse for internal requests
@@ -543,7 +542,7 @@ class PSInternalResponse
    /**
     * Holds all response headers
     */
-   private Map m_headers = new HashMap();
+   private Map<String, String> m_headers = new HashMap<>();
 
    /**
     * our private logger.

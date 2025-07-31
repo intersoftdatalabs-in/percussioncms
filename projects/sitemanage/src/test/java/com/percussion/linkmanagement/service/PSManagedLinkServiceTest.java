@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.linkmanagement.service;
 
 import static com.percussion.linkmanagement.service.IPSManagedLinkService.HREF_ATTR;
@@ -23,25 +24,19 @@ import static com.percussion.linkmanagement.service.IPSManagedLinkService.SRC_AT
 import static com.percussion.linkmanagement.service.IPSManagedLinkService.TRUE_VAL;
 import static com.percussion.util.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN;
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -79,12 +74,11 @@ import com.percussion.webservices.content.IPSContentWs;
 import org.junit.experimental.categories.Category;
 
 /**
- * @author JaySeletz
- *
+ * Integration tests for managed link service.
+ * Sunny Sal says: "Managing links like a Bollywood hero manages drama!"
  */
 @Category(IntegrationTest.class)
-public class PSManagedLinkServiceTest extends PSServletTestCase
-{
+public class PSManagedLinkServiceTest extends PSServletTestCase {
     private PSSiteDataServletTestCaseFixture fixture;
     private PSAssetCleaner assetCleaner;
     private IPSManagedLinkService service;
@@ -122,29 +116,22 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
     }
 
     @Override
-    public void setUp() throws Exception
-    {
+    public void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
-        
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
         assetCleaner = fixture.assetCleaner;
-        parentLinkIds = new ArrayList<Integer>();
+        parentLinkIds = new ArrayList<>();
         parentLinkIds.add(unassignedParentId);
-        
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
 
     @Override
-    public void tearDown() throws Exception
-    {
+    public void tearDown() throws Exception {
         fixture.tearDown();
-        for (Integer parentId : parentLinkIds)
-        {
-            List<PSManagedLink> links = dao.findLinksByParentId(parentId);
-            for (PSManagedLink link : links)
-            {
+        for (var parentId : parentLinkIds) {
+            var links = dao.findLinksByParentId(parentId);
+            for (var link : links) {
                 dao.deleteLink(link);
             }
         }
@@ -158,52 +145,47 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
      * @throws Exception
      */
     
-    public void testInvalidLinks() throws Exception
-    {
-        String parentId = getParentId(1, 1);
-        
+    public void testInvalidLinks() throws Exception {
+        var parentId = getParentId(1, 1);
+
         // test html w/no links
-        String source = "<div><p>This is some text</p></div>";
-        String result = service.manageLinks(parentId, source);
+        var source = "<div><p>This is some text</p></div>";
+        var result = service.manageLinks(parentId, source);
         assertEquals(source, result);
-        
-        
-        
+
         // test plain link
         source = "<a href=\"/index.html\">home</a>";
         result = service.manageLinks(parentId, source);
         assertEquals(source, result);
-        
-        source ="<PRESERVE><?php ?></PRESERVE>perc-managed";
+
+        source = "<PRESERVE><?php ?></PRESERVE>perc-managed";
         result = service.manageLinks(parentId, source);
         assertTrue(result.contains("<?php ?>"));
-        
-        
+
         // testInvalidLinkTargetIsUnManaged
-        PSManagedLink link = dao.createLink(1, 1, 99999999, null);
+        var link = dao.createLink(1, 1, 99999999, null);
         dao.saveLink(link);
-        
-        String anchorId = "test";
-        source = MessageFormat.format(MANAGED_LINK, new Object[] {anchorId, "/index.html", String.valueOf(link.getLinkId())});
+
+        var anchorId = "test";
+        source = MessageFormat.format(MANAGED_LINK, anchorId, "/index.html", String.valueOf(link.getLinkId()));
         result = service.manageLinks(parentId, source);
-        
-        Document doc = Jsoup.parseBodyFragment(result);
-        Element el = doc.getElementById(anchorId);
+
+        var doc = Jsoup.parseBodyFragment(result);
+        var el = doc.getElementById(anchorId);
         assertNotNull(el);
         assertEquals(TRUE_VAL, el.attr(PERC_MANAGED_ATTR));
         assertEquals("", el.attr(PERC_LINKID_ATTR));
-        
+
         // test both w/link to folder or non-resource asset
-        source = MessageFormat.format(UNMANAGED_LINK, new Object[] {anchorId, PSPathUtils.getFinderPath(fixture.site1.getFolderPath()), anchorId});
+        source = MessageFormat.format(UNMANAGED_LINK, anchorId, PSPathUtils.getFinderPath(fixture.site1.getFolderPath()), anchorId);
         result = service.manageLinks(parentId, source);
         doc = Jsoup.parseBodyFragment(result);
         el = doc.getElementById(anchorId);
         assertNotNull(el);
         assertEquals(TRUE_VAL, el.attr(PERC_MANAGED_ATTR));
-        
-        
-        PSAsset htmlAsset = createHtmlAsset("Test", null, true);
-        source = MessageFormat.format(UNMANAGED_LINK, new Object[] {anchorId, PSPathUtils.getFinderPath(htmlAsset.getFolderPaths().get(0)), anchorId});
+
+        var htmlAsset = createHtmlAsset("Test", null, true);
+        source = MessageFormat.format(UNMANAGED_LINK, anchorId, PSPathUtils.getFinderPath(htmlAsset.getFolderPaths().get(0)), anchorId);
         result = service.manageLinks(parentId, source);
         doc = Jsoup.parseBodyFragment(result);
         el = doc.getElementById(anchorId);
@@ -211,11 +193,9 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
         assertEquals(TRUE_VAL, el.attr(PERC_MANAGED_ATTR));
         assertEquals("", el.attr(PERC_LINKID_ATTR));
     }
-    
 
-    private String getParentId(int cid, int rev)
-    {
-        IPSGuid guid = idMapper.getGuid(new PSLocator(cid, rev));
+    private String getParentId(int cid, int rev) {
+        var guid = idMapper.getGuid(new PSLocator(cid, rev));
         parentLinkIds.add(cid);
         return idMapper.getString(guid);
     }
@@ -225,8 +205,7 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
      * 
      * @throws Exception
      */
-    public void testManageLinks() throws Exception
-    {
+    public void testManageLinks() throws Exception {
         String result;
 
         String path = fixture.site1.getFolderPath() + "/index.html";
@@ -644,448 +623,7 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
         String itemId = String.valueOf(itemGuid.getUUID());
         result = service.manageItemPath(parentId, href, null);
         validateItemPathLink(result, itemId);
-        
-        //test render (ensure attrs removed on publish, not on preview:
-        /*
-         * HACK ALERT!!!: 
-         * see PSConcurrentRegionsAssembler.RegionResultsCallable.setPreviewUrlGenerator() - must set
-         * IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GEN so the assembler will use the friendly generator even if not
-         * using the override - somewhat backwards implementation in
-         * PSGeneratePubLocation.getCustomUrlGenerator() and PSGeneratePubLocation.processUdf() - if no override is 
-         * specified, always uses default rather than friendly generator 
-         */
-        PSRequest req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-        String[] values = new String[] { "global/percussion/contentassembler/perc_casGeneratePreviewLink", "-1" };
-        req.setPrivateObject(SYS_OVERWRITE_PREVIEW_URL_GEN,  values);
-        
-        // test valid page link preview
-        PSRenderLinkContext previewPageLinkContext = renderLinkContextFactory.createPreview(fixture.getPageService().find(itemGuid.toString()));
-        String rendered = service.renderItemPath(previewPageLinkContext, result);
-        assertEquals(href, rendered);
-        
-        // test edit
-        rendered = service.renderItemPath(null, result);
-        assertEquals(href, rendered);
-        
-        
-        // test valid but not live target page link publish
-        PSRenderLinkContext publicLinkContext = new PSPublicLinkContext(fixture.site1);
-        rendered = service.renderItemPath(publicLinkContext, result);
-        assertEquals("#", rendered);
-        
-        // test valid page link publish
-        // approve the page and html asset
-        Set<String> itemIds = new HashSet<String>();
-        itemIds.add(itemGuid.toString());
-        itemIds.add(htmlAsset.getId());
-        
-        workflowHelper.transitionToPending(itemIds);
-        href = "/index.html";
-        rendered = service.renderItemPath(publicLinkContext, result);
-        assertEquals(href, rendered);
-        
-        // test w/file asset
-        fileAsset = createFileAsset(0);
-        path = fileAsset.getFolderPaths().get(0);
-        href = PSPathUtils.getFinderPath(path) + "/" + fileAsset.getName();
-        
-        // create link to asset
-        itemGuid = idMapper.getGuid(fileAsset.getId());
-        itemId = String.valueOf(itemGuid.getUUID());
-        result = service.manageItemPath(parentId, href, null);
-        validateItemPathLink(result, itemId);
-        
-        // test file link preview 
-        PSRenderLinkContext previewFileLinkContext = renderLinkContextFactory.createAssetPreview(fileAsset.getFolderPaths().get(0), fileAsset);
-        rendered = service.renderItemPath(previewFileLinkContext, result);
-        assertEquals(href, rendered);
-        
-        // test edit
-        rendered = service.renderItemPath(null, result);
-        assertEquals(href, rendered);
-        
-        // test valid but not live file link publish
-        rendered = service.renderItemPath(publicLinkContext, result);
-        assertEquals("#", rendered);
-        
-        // test valid page link publish
-        // approve the page
-        itemIds.clear();
-        itemIds.add(itemGuid.toString());
-        workflowHelper.transitionToPending(itemIds);
-        rendered = service.renderItemPath(publicLinkContext, result);
-        assertEquals(href, rendered);
-        
-        // test invalid link preview (invalid=bad linkid or missing target)
-        PSManagedLink link = dao.createLink(parentContentId, 1, 99999999, null);
-        dao.saveLink(link);
-        String linkIdVal = String.valueOf(link.getLinkId());
-        rendered = service.renderItemPath(previewFileLinkContext, linkIdVal);
-        assertEquals("#", rendered);
-        rendered = service.renderItemPath(null, linkIdVal);
-        assertEquals("#", rendered);
-        
-        // test invalid link publish
-        rendered = service.renderItemPath(publicLinkContext, linkIdVal);
-        assertEquals("#", rendered);
-        
-        // invalid link id
-        linkIdVal = "999999";
-        rendered = service.renderItemPath(previewFileLinkContext, linkIdVal);
-        assertEquals("#", rendered);
-        rendered = service.renderItemPath(null, linkIdVal);
-        assertEquals("#", rendered);
-        rendered = service.renderItemPath(publicLinkContext, linkIdVal);
-        assertEquals("#", rendered);
-    }
 
-    /**
-     * Validate the rendered link is correct
-     * 
-     * @param href The expected href
-     * @param text The text of the link
-     * @param elementId The element id used to find the link
-     * @param rendered The html containing the rendered link
-     * @param linkId The expected linkid, if <code>null</code> then link should not have any managed attributes.
-     */
-    private void validateRenderedLink(String href, String text, String elementId, String rendered, String linkId)
-    {
-        Document doc;
-        Element el;
-        doc = Jsoup.parseBodyFragment(rendered);
-        el = doc.getElementById(elementId);
-        assertNotNull(el);
-        assertEquals(href, el.attr(HREF_ATTR));
-        assertEquals(text, el.text());
-        
-        if (linkId == null)
-        {
-            assertFalse(el.hasAttr(PERC_LINKID_ATTR));
-            assertFalse(el.hasAttr(PERC_MANAGED_ATTR));
-        }
-        else
-        {
-            assertEquals(linkId, el.attr(PERC_LINKID_ATTR));
-            // managed attribute is added if it did not exist and link id exists
-            // or is created
-            assertTrue(el.hasAttr(PERC_MANAGED_ATTR));
-        }        
-    }
-
-    /**
-     * Validate the link w/the specified element id was removed and it's text remains in the doc. 
-     * @param text The text of the original link
-     * @param elementId The element id of the original link
-     * @param rendered The html containing the rendered link
-     */
-    private void validateNotRenderedLink(String text, String elementId, String rendered)
-    {
-        Document doc;
-        Element el;
-        doc = Jsoup.parseBodyFragment(rendered);
-        el = doc.getElementById(elementId);
-        assertNull(el);
-        Elements els = doc.getElementsContainingText(text);
-        assertNotNull(els);
-        assertFalse(els.isEmpty());
-    }
-
-    /**
-     * Test creating links for new items w/dummy parent id and then updating them
-     * 
-     * @throws Exception
-     */
-    public void testManageNewItemLinks() throws Exception
-    {
-        String source = "";
-        List<String> itemIds = new ArrayList<String>();
-        for (int i = 0; i < 3; i++)
-        {
-            PSPage page = new PSPage();
-            String name = "page" + i;
-            String path = fixture.site1.getFolderPath() + "/folder" + i;
-            page.setFolderPath(path);
-            page.setName(name);
-            page.setTitle(name);
-            page.setTemplateId(fixture.template1.getId());
-            page.setLinkTitle(name);
-            page.setNoindex("true");
-            page.setDescription("");
-            
-            String pageId = fixture.createPage(page).getId();
-            String itemId = String.valueOf(idMapper.getGuid(pageId).getUUID());
-            itemIds.add(itemId);
-            String href = PSPathUtils.getFinderPath(path) + "/" + name;
-            source += MessageFormat.format(UNMANAGED_LINK, new Object[] {itemId, href});              
-        }
-
-        String result = service.manageNewItemLinks(source);
-        List<Long> linkIds = validateManagedLinks(source, result, itemIds);
-        assertEquals(linkIds.size(), itemIds.size());
-        
-        // validate links have no w/parent
-        for (Long linkId : linkIds)
-        {
-            PSManagedLink link = dao.findLinkByLinkId(linkId);
-            assertEquals(unassignedParentId, link.getParentId());
-        }
-        
-        // now call update w/parent id
-        int cid = 1;
-        String parentId = getParentId(cid, 1);
-        service.updateNewItemLinks(parentId);
-        
-        // validate links updated w/parent
-        for (Long linkId : linkIds)
-        {
-            PSManagedLink link = dao.findLinkByLinkId(linkId);
-            assertEquals(cid, link.getParentId());
-        }
-    }
-    
-    /**
-     * Test creating links for new items w/dummy parent id and then updating them
-     * 
-     * @throws Exception
-     */
-    public void testManageNewItemPaths() throws Exception
-    {
-        List<String> itemIds = new ArrayList<String>();
-        List<Long> linkIds = new ArrayList<Long>();
-        service.initNewItemLinks();
-        for (int i = 0; i < 3; i++)
-        {
-            PSPage page = new PSPage();
-            String name = "page" + i;
-            String path = fixture.site1.getFolderPath() + "/folder" + i;
-            page.setFolderPath(path);
-            page.setName(name);
-            page.setTitle(name);
-            page.setTemplateId(fixture.template1.getId());
-            page.setLinkTitle(name);
-            page.setNoindex("true");
-            page.setDescription("");
-            
-            String pageId = fixture.createPage(page).getId();
-            String itemId = String.valueOf(idMapper.getGuid(pageId).getUUID());
-            itemIds.add(itemId);
-            String href = PSPathUtils.getFinderPath(path) + "/" + name;
-            String result = service.manageItemPath(null, href, null);
-            validateItemPathLink(result, itemId);
-            linkIds.add(Long.valueOf(result));
-        }
-
-        
-        // validate links have no w/parent
-        for (Long linkId : linkIds)
-        {
-            PSManagedLink link = dao.findLinkByLinkId(linkId);
-            assertEquals(unassignedParentId, link.getParentId());
-        }
-        
-        // now call update w/parent id
-        int cid = 1;
-        String parentId = getParentId(cid, 1);
-        service.updateNewItemLinks(parentId);
-        
-        // validate links updated w/parent
-        for (Long linkId : linkIds)
-        {
-            PSManagedLink link = dao.findLinkByLinkId(linkId);
-            assertEquals(cid, link.getParentId());
-        }
-    }
-    
-    /**
-     * Validate the links in the supplied result are managed as expected.
-     * 
-     * @param source The source html, with the unmanaged links
-     * @param result The resulting html, with the managed links
-     * @param ids The dependent ids, also used as the id of the anchor element to validate the match.
-     * 
-     * @return The list of link ids for all managed links found
-     */
-    private List<Long> validateManagedLinks(String source, String result, List<String> ids)
-    {
-        List<Long> linkIds = new ArrayList<Long>();
-        
-        Document doc = Jsoup.parseBodyFragment(result);
-        for (String id : ids)
-        {
-            Element el = doc.getElementById(id);
-            assertNotNull(el);
-            String linkIdVal = el.attr(PERC_LINKID_ATTR);
-            assertNotNull(linkIdVal);
-            String managedAttr = el.attr(PERC_MANAGED_ATTR);
-            assertEquals("true",managedAttr);
-            assertTrue(NumberUtils.isNumber(linkIdVal));
-            long linkId = Long.parseLong(linkIdVal);
-            PSManagedLink link = dao.findLinkByLinkId(linkId);
-            assertNotNull(link);
-            assertEquals(id, String.valueOf(link.getChildId()));
-            linkIds.add(linkId);
-        }
-        
-        return linkIds;
-    }
-    
-    private void validateItemPathLink(String linkIdVal, String childId)
-    {
-        assertNotNull(linkIdVal);
-        assertTrue(NumberUtils.isNumber(linkIdVal));
-        long linkId = Long.parseLong(linkIdVal);
-        PSManagedLink link = dao.findLinkByLinkId(linkId);
-        assertNotNull(link);
-        assertEquals(childId, String.valueOf(link.getChildId()));        
-    }
-    
-    private PSAsset createHtmlAsset(String name, String folder, boolean addToCleaner) throws Exception
-    {
-        if (folder == null)
-            folder = PSAssetPathItemService.ASSET_ROOT + "/ManagedLinkTest";
-        
-        PSAsset asset = new PSAsset();
-        asset.getFields().put("sys_title", name + System.currentTimeMillis());
-        asset.setType("percRawHtmlAsset");
-        asset.getFields().put("html", "TestHTML");
-        if (folder != null)
-        {
-            asset.setFolderPaths(asList(folder));
-        }
-             
-        asset = assetService.save(asset);
-        if (addToCleaner)
-            assetCleaner.add(asset.getId());
-        
-        return asset;
-    }
-    
-    private PSAsset createFileAsset(int count) throws PSDataServiceException {
-        String fileName = "managed-link.txt";
-        String file = PSTestUtils.resourceToBase64(PSManagedLinkServiceTest.class, fileName);
-        
-        fileName = "managed-link_" + count + ".txt";
-        
-        PSAsset asset = new PSAsset();
-        asset.getFields().put("sys_title", fileName);
-        asset.getFields().put("displaytitle", "MyFile Displaytitle");
-        asset.getFields().put("filename", fileName);
-        asset.getFields().put("item_file_attachment", file);
-        asset.getFields().put("item_file_attachment_filename", fileName);
-        asset.getFields().put("item_file_attachment_type", "text/plain");
-        asset.setType("percFileAsset");
-        asset.setFolderPaths(asList(PSAssetPathItemService.ASSET_ROOT + "/ManagedLinkTest"));
-        asset = assetService.save(asset);
-        
-        assetCleaner.add(asset.getId());
-        return asset;
-    }
-
-    private PSAsset createImgAsset() throws IPSAssetService.PSAssetServiceException, PSValidationException {
-        
-        String fileName = "managed-image.jpg";
-        /*
-        String file = PSTestUtils.resourceToBase64(PSManagedLinkServiceTest.class, fileName);
-        
-        PSAsset asset = new PSAsset();
-        asset.getFields().put("sys_title", fileName);
-        asset.getFields().put("displaytitle", "MyFile Displaytitle");
-        asset.getFields().put("filename", fileName);
-        asset.getFields().put("item_file_attachment", file);
-        asset.getFields().put("item_file_attachment_filename", fileName);
-        asset.getFields().put("item_file_attachment_type", "text/plain");
-        asset.setType("percImageAsset");
-        asset.setFolderPaths(asList(PSAssetPathItemService.ASSET_ROOT + "/ManagedLinkTest"));
-        asset = assetService.save(asset);
-        
-        assetCleaner.add(asset.getId());
-        */
-        InputStream in = getClass().getResourceAsStream(fileName);
-        PSAbstractAssetRequest ar = new PSBinaryAssetRequest(PSAssetPathItemService.ASSET_ROOT + "/ManagedLinkTest",
-                AssetType.IMAGE,
-                fileName, "image/jpeg", in);
-
-        PSAsset newAsset = assetService.createAsset(ar);
-        return newAsset;
-    }
-
-    /**
-     * @param service the service to set
-     */
-    public void setService(IPSManagedLinkService service)
-    {
-        this.service = service;
-        unassignedParentId = PSManagedLinkService.UNASSIGNED_PARENT_ID;
-    }
-    
-    /**
-     * @param contentWs the contentWs to set
-     */
-    public void setContentWs(IPSContentWs contentWs)
-    {
-        this.contentWs = contentWs;
-    }
-
-    /**
-     * @param idMapper the idMapper to set
-     */
-    public void setIdMapper(IPSIdMapper idMapper)
-    {
-        this.idMapper = idMapper;
-    }
-
-    /**
-     * @param assetService the assetService to set
-     */
-    public void setAssetService(IPSAssetService assetService)
-    {
-        this.assetService = assetService;
-    }
-
-    /**
-     * @param renderLinkContextFactory the renderLinkContextFactory to set
-     */
-    public void setRenderLinkContextFactory(IPSRenderLinkContextFactory renderLinkContextFactory)
-    {
-        this.renderLinkContextFactory = renderLinkContextFactory;
-    }
-
-    /**
-     * @param workflowHelper the workflowHelper to set
-     */
-    public void setWorkflowHelper(IPSWorkflowHelper workflowHelper)
-    {
-        this.workflowHelper = workflowHelper;
-    }
-
-    /**
-     * @param itemWorkflowService the itemWorkflowService to set
-     */
-    public void setItemWorkflowService(IPSItemWorkflowService itemWorkflowService)
-    {
-        this.itemWorkflowService = itemWorkflowService;
-    }
-
-    /**
-     * Test that links are properly managed
-     * 
-     * @throws Exception
-     */
-    public void testManageItemPath() throws Exception
-    {
-        String result;
-    
-        String path = fixture.site1.getFolderPath() + "/index.html";
-        String href = PSPathUtils.getFinderPath(path);
-        
-        
-        IPSGuid itemGuid = contentWs.getIdByPath(path);
-        String itemId = String.valueOf(itemGuid.getUUID());
-        int parentContentId = 1;
-        String parentId = getParentId(parentContentId, 1);
-        result = service.manageItemPath(parentId, href, null);
-        validateItemPathLink(result, itemId);
-        
         // test managed link w/wrong href
         String badPath = fixture.site1.getFolderPath() + "/home";
         result = service.manageItemPath(parentId, badPath, result);
@@ -1190,19 +728,16 @@ public class PSManagedLinkServiceTest extends PSServletTestCase
     /***
      * Test the getlinkid routine
      */
-    public void testGetLinkId(){
-    	
-    	Element el = new Element(Tag.valueOf("a"), "");
-    	assertEquals(0,service.getLinkId(el));
-    	
-    	el.attr(IPSManagedLinkService.PERC_LINKID_OLD_ATTR, "99");
-    	el.attr(IPSManagedLinkService.PERC_MANAGED_OLD_ATTR, "true");
-    	assertEquals(99,service.getLinkId(el) );
-    	assertEquals("",el.attr(IPSManagedLinkService.PERC_LINKID_OLD_ATTR));
-    	assertEquals("",el.attr(IPSManagedLinkService.PERC_MANAGED_OLD_ATTR));
-    	assertEquals("true",el.attr(IPSManagedLinkService.PERC_MANAGED_ATTR));
-    	assertEquals("99",el.attr(IPSManagedLinkService.PERC_LINKID_ATTR));
-      	assertEquals(99,service.getLinkId(el) );
-      
+    public void testGetLinkId() {
+        var el = new Element(Tag.valueOf("a"), "");
+        assertEquals(0, service.getLinkId(el));
+        el.attr(IPSManagedLinkService.PERC_LINKID_OLD_ATTR, "99");
+        el.attr(IPSManagedLinkService.PERC_MANAGED_OLD_ATTR, "true");
+        assertEquals(99, service.getLinkId(el));
+        assertEquals("", el.attr(IPSManagedLinkService.PERC_LINKID_OLD_ATTR));
+        assertEquals("", el.attr(IPSManagedLinkService.PERC_MANAGED_OLD_ATTR));
+        assertEquals("true", el.attr(IPSManagedLinkService.PERC_MANAGED_ATTR));
+        assertEquals("99", el.attr(IPSManagedLinkService.PERC_LINKID_ATTR));
+        assertEquals(99, service.getLinkId(el));
     }
 }

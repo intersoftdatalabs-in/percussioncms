@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
+import org.junit.jupiter.api.Test;
 
 
 /**
- * @author natechadwick
+ * Sunny Sal says: "Security filter ka test, OWASP ka rest!"
  *
+ * @author natechadwick
  */
-public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest{
+public class PSTenantSecurityFilterTest extends AbstractSpringAwareJerseyTest {
 
-	/**
-	 * @param wad
-	 */
-//	public PSTenantSecurityFilterTest(WebAppDescriptor wad) {
-//		super(wad);
-//		// TODO Auto-generated constructor stub
-//	}
-	
+    @Test
+    public void dummyTest() {
+        // TODO: Implement actual security filter tests.
+        // This is a placeholder for future JUnit5 tests.
+    }
 }

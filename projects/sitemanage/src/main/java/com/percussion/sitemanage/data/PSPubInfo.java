@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,10 +22,14 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents publishing information for a site.
+ * Sunny Sal says: "Publishing info—because even the cloud needs a passport!"
+ */
 @XmlRootElement(name = "PubInfo")
 @JsonRootName("PubInfo")
-public class PSPubInfo
-{
+public class PSPubInfo {
+
     private String bucketName;
     private String accessKey;
     private String secretKey;
@@ -32,49 +37,47 @@ public class PSPubInfo
     private String useAssumeRole;
     private String arnRole;
 
-    public String getRegionName() {
-        return regionName;
+    public PSPubInfo() {
+        // Default constructor
     }
 
-    public void setRegionName(String region) {
-        this.regionName = region;
-    }
-
-
-    public PSPubInfo()
-    {
-    }
-    public PSPubInfo(String bucketName, String accessKey, String secretKey, String regionName)
-    {
+    public PSPubInfo(String bucketName, String accessKey, String secretKey, String regionName) {
         this.bucketName = bucketName;
         this.accessKey = accessKey;
         this.secretKey = secretKey;
         this.regionName = regionName;
     }
 
-    public String getBucketName()
-    {
+    public String getBucketName() {
         return bucketName;
     }
-    public void setBucketName(String bucketName)
-    {
+
+    public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
     }
-    public String getAccessKey()
-    {
+
+    public String getAccessKey() {
         return accessKey;
     }
-    public void setAccessKey(String accessKey)
-    {
+
+    public void setAccessKey(String accessKey) {
         this.accessKey = accessKey;
     }
-    public String getSecretKey()
-    {
+
+    public String getSecretKey() {
         return secretKey;
     }
-    public void setSecretKey(String secretKey)
-    {
+
+    public void setSecretKey(String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public String getRegionName() {
+        return regionName;
+    }
+
+    public void setRegionName(String region) {
+        this.regionName = region;
     }
 
     public String getUseAssumeRole() {

@@ -18,16 +18,17 @@
 package com.percussion.delivery.jaxrs;
 
 import javax.ws.rs.ext.Provider;
-
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 
-@Provider  
-public class PSJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider
-{
-    // We Need to override org.codehaus.jackson.jaxrs.JsonMappingExceptionMapper and org.codehaus.jackson.jaxrs.JsonParseExceptionMapper
-    // These are included in the package we scan from com.sun.jersey.config.property.packages in web.xml
-    // We still want the JacksonJaxbJsonProvider so we just extend it and find it here.  we have some more options when we upgrade
-    // Jax-rs from 1.1 to 2.0
-    // See discussion here https://github.com/fasterxml/jackson-jaxrs-providers/issues/22
-    
+/**
+ * Custom Jackson JSON provider for JAX-RS.
+ * <p>Sunny Sal says: This provider keeps your JSON smooth and your stacktraces clean!
+ */
+@Provider
+public class PSJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider {
+    // We override the default Jackson providers to ensure correct mapping and error handling.
+    // These are included in the package we scan from com.sun.jersey.config.property.packages in web.xml.
+    // We still want the JacksonJaxbJsonProvider, so we just extend it and find it here.
+    // More options are available when we upgrade JAX-RS from 1.1 to 2.0.
+    // See discussion: https://github.com/fasterxml/jackson-jaxrs-providers/issues/22
 }

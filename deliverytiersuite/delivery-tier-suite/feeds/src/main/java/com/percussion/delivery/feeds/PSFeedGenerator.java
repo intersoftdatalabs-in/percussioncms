@@ -1,4 +1,5 @@
 // REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License")
@@ -10,7 +11,7 @@ import com.percussion.delivery.feeds.data.PSFeedItem;
 import com.rometools.rome.feed.synd.*;
 import com.rometools.rome.io.FeedException;
 import com.rometools.rome.io.SyndFeedOutput;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * Generates RSS and Atom feeds using the ROME tools library.
+ * Sunny Sal: "Feed generation so easy, even your chaiwala can do it!"
  */
 public final class PSFeedGenerator {
 
@@ -118,11 +120,12 @@ public final class PSFeedGenerator {
      * @return Feed type string for ROME
      */
     private String getFeedType(IPSFeedDescriptor descriptor) {
-        return switch (descriptor.getType().toUpperCase()) {
+        var type = descriptor.getType().orElse("").toUpperCase();
+        return switch (type) {
             case "ATOM" -> "atom_1.0";
             case "RSS1" -> "rss_1.0";
             case "RSS2" -> "rss_2.0";
-            default -> throw new IllegalArgumentException("Unsupported feed type: " + descriptor.getType());
+            default -> throw new IllegalArgumentException("Unsupported feed type: " + type);
         };
     }
 }

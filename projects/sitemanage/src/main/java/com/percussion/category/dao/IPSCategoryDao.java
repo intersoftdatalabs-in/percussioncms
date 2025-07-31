@@ -18,33 +18,32 @@
 package com.percussion.category.dao;
 
 import com.percussion.utils.guid.IPSGuid;
-
 import java.util.List;
 import java.util.Set;
 
 /**
+ * Data access object for category operations.
+ * Provides methods to delete categories and retrieve page IDs by category.
+ *
  * @author chriswright
  */
 public interface IPSCategoryDao {
+
     /**
-     * @param ids     the category IDs which will be used to remove from
-     *                the ct_page child categories table.
-     * @param pageIds IDs corresponding to Page Ids that use the categories
-     *                that can be used to evict the pages
-     *                using the contained category IDs from the
-     *                hibernate cache. These should be passed in along with
-     *                the category IDs so they can be evicted from cache. May not
-     *                be <code>null</code> or <code>empty</code>.
-     *                <p>
-     *                {@link #getPageIdsFromCategoryIds(Set)} can be used to obtain the page IDs first.
+     * Deletes the specified category IDs from the ct_page child categories table.
+     * Also evicts the provided page IDs from the Hibernate cache.
+     *
+     * @param ids     the category IDs to remove; must not be {@code null} or empty.
+     * @param pageIds IDs corresponding to pages using the categories; must not be {@code null} or empty.
+     *                Use {@link #getPageIdsFromCategoryIds(Set)} to obtain page IDs.
      */
     void delete(Set<String> ids, List<IPSGuid> pageIds);
 
     /**
-     * @param ids the Category IDs which can be used to retrieve the corresponding
-     *            page IDs that use the category.  May return <code>empty</code>,
-     *            never <code>null</code>.
-     * @return a Set of IPSGuids representing the page IDs provided by the input.
+     * Retrieves the page IDs that use the specified category IDs.
+     *
+     * @param ids the category IDs; must not be {@code null}.
+     * @return a list of page IDs using the categories; never {@code null}, may be empty.
      */
     List<Integer> getPageIdsFromCategoryIds(Set<String> ids);
 }

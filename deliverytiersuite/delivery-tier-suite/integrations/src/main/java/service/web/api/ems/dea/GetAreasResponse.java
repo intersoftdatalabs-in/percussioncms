@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,56 +25,67 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="GetAreasResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAreasResponse SOAP response.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
+ * <p>
+ * // REFACTORED: CP-JAVA11
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getAreasResult"
 })
 @XmlRootElement(name = "GetAreasResponse")
-public class GetAreasResponse {
-
+public final class GetAreasResponse {
     @XmlElement(name = "GetAreasResult")
-    protected String getAreasResult;
+    private final String getAreasResult;
 
-    /**
-     * Gets the value of the getAreasResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGetAreasResult() {
-        return getAreasResult;
+    private GetAreasResponse(Builder builder) {
+        this.getAreasResult = builder.getAreasResult;
     }
 
     /**
-     * Sets the value of the getAreasResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @return Optional result string for all areas.
      */
-    public void setGetAreasResult(String value) {
-        this.getAreasResult = value;
+    public java.util.Optional<String> getAreasResult() {
+        return java.util.Optional.ofNullable(getAreasResult);
     }
 
+    @Override
+    public String toString() {
+        return "GetAreasResponse{" +
+                "getAreasResult='" + getAreasResult + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetAreasResponse that = (GetAreasResponse) o;
+        return java.util.Objects.equals(getAreasResult, that.getAreasResult);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getAreasResult);
+    }
+
+    /**
+     * Builder for GetAreasResponse. Use for safe, immutable construction.
+     */
+    public static class Builder {
+        private String getAreasResult;
+
+        public Builder() {}
+
+        public Builder getAreasResult(String getAreasResult) {
+            this.getAreasResult = getAreasResult;
+            return this;
+        }
+
+        public GetAreasResponse build() {
+            return new GetAreasResponse(this);
+        }
+    }
 }

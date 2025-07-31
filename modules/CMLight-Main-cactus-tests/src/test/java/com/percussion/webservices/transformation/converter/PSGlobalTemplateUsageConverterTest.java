@@ -21,28 +21,27 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.assembly.data.TemplateUsageType;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSGlobalTemplateUsageConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSGlobalTemplateUsageConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      IPSAssemblyTemplate.GlobalTemplateUsage source = 
-         IPSAssemblyTemplate.GlobalTemplateUsage.Defined;
-      
-      IPSAssemblyTemplate.GlobalTemplateUsage target = 
-         (IPSAssemblyTemplate.GlobalTemplateUsage) roundTripConversion(
-            IPSAssemblyTemplate.GlobalTemplateUsage.class, 
-            TemplateUsageType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+public class PSGlobalTemplateUsageConverterTest extends PSConverterTestBase {
+
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // Create the source object
+        var source = IPSAssemblyTemplate.GlobalTemplateUsage.Defined;
+
+        var target = (IPSAssemblyTemplate.GlobalTemplateUsage) roundTripConversion(
+                IPSAssemblyTemplate.GlobalTemplateUsage.class,
+                TemplateUsageType.class,
+                source);
+
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
 }

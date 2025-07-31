@@ -37,20 +37,18 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * Page visit object
- * 
+ * Represents a page visit object for blog posts.
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSBlogPostVisit")
 @Table(name = "BLOG_POST_VISIT")
-public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable
-{
+public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable {
 
     @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "VISIT_ID")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "VISIT_ID")
     private long visitId;
-    
+
     @Column(length = 2000)
     private String pagepath;
 
@@ -58,24 +56,13 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable
     @Temporal(TemporalType.DATE)
     private Date hitDate;
 
-
     @Basic
     private BigInteger hitCount;
 
-    public PSDbBlogPostVisit()
-    {
+    public PSDbBlogPostVisit() {}
 
-    }
-
-    /**
-     * 
-     * @param pagepath
-     * @param hitDate
-     * @param hitCount
-     */
-    public PSDbBlogPostVisit(String pagepath, Date hitDate, BigInteger hitCount)
-    {
-        if (pagepath == null || pagepath.length() == 0)
+    public PSDbBlogPostVisit(String pagepath, Date hitDate, BigInteger hitCount) {
+        if (pagepath == null || pagepath.isEmpty())
             throw new IllegalArgumentException("pagepath cannot be null or empty");
         if (hitDate == null)
             throw new IllegalArgumentException("hitDate cannot be null");
@@ -87,57 +74,47 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable
         setPagepath(pagepath);
     }
 
-    /**
-     * @return the page path
-     */
-    public String getPagepath()
-    {
+    @Override
+    public String getPagepath() {
         return pagepath;
     }
 
-    /**
-     * @param path the pagepath to set
-     */
-    public void setPagepath(String path)
-    {
+    @Override
+    public void setPagepath(String path) {
         this.pagepath = path;
     }
 
-    public Date getHitDate() {
-		return Optional
-                .ofNullable(hitDate)
-                .map(Date::getTime)
-                .map(Date::new)
-                .orElse(null);
-	}
-
-	public void setHitDate(Date hitDate) {
-		this.hitDate = Optional
-                .ofNullable(hitDate)
-                .map(Date::getTime)
-                .map(Date::new)
-                .orElse(null);
-	}
-
-	public BigInteger getHitCount() {
-		return hitCount;
-	}
-
-	public void setHitCount(BigInteger hitCount) {
-		this.hitCount = hitCount;
-	}
-
-	/*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
-    public boolean equals(Object obj)
-    {
+    public Date getHitDate() {
+        return Optional.ofNullable(hitDate)
+            .map(Date::getTime)
+            .map(Date::new)
+            .orElse(null);
+    }
+
+    @Override
+    public void setHitDate(Date hitDate) {
+        this.hitDate = Optional.ofNullable(hitDate)
+            .map(Date::getTime)
+            .map(Date::new)
+            .orElse(null);
+    }
+
+    @Override
+    public BigInteger getHitCount() {
+        return hitCount;
+    }
+
+    @Override
+    public void setHitCount(BigInteger hitCount) {
+        this.hitCount = hitCount;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
         if (obj == null || !getClass().getName().equals(obj.getClass().getName()))
             return false;
-        PSDbBlogPostVisit visits = (PSDbBlogPostVisit) obj;
+        var visits = (PSDbBlogPostVisit) obj;
         return new EqualsBuilder()
             .append(hitDate, visits.hitDate)
             .append(hitCount, visits.hitCount)
@@ -145,19 +122,12 @@ public class PSDbBlogPostVisit implements IPSBlogPostVisit, Serializable
             .isEquals();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return new HashCodeBuilder()
             .append(hitDate)
             .append(hitCount)
             .append(pagepath)
             .toHashCode();
     }
-
 }

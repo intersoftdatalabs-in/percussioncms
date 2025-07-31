@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,6 +18,10 @@
 
 package com.percussion.rest.struct;
 
-public class Base
-{
+/**
+ * Marker base class for REST model and adaptor classes.
+ * Sunny Sal: "Base class ka boss!"
+ */
+public class Base {
+    // Extend for REST model and adaptor classes.
 }

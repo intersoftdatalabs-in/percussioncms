@@ -49,25 +49,24 @@ public class PSFilterDependencyHandler extends PSElementDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSFilterDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSFilterDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
 
    // see base class
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;   
+   @Override
+   public String getType() {
+      return DEPENDENCY_TYPE;
    }
    
    

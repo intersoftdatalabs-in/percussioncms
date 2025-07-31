@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Implementation of IPSFeedDescriptor interface using builder pattern and immutable fields.
+ * Immutable implementation of IPSFeedDescriptor using builder pattern.
  */
 public final class PSFeedDescriptor implements IPSFeedDescriptor {
     private final String name;
@@ -60,8 +60,8 @@ public final class PSFeedDescriptor implements IPSFeedDescriptor {
     }
 
     @Override
-    public String getType() {
-        return type;
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
     public static Builder builder() {

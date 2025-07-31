@@ -50,103 +50,100 @@ import java.util.Map;
 public class PSItemServiceTest extends PSServletTestCase
 {
     private PSSiteDataServletTestCaseFixture fixture;
-        
+
     @Override
     public void setUp() throws Exception
     {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
-        
+
     @Override
     protected void tearDown() throws Exception
     {
         fixture.tearDown();
     }
-    
+
     public void testCopyFolder() throws Exception
     {
         String asset1Id = null;
         String asset2Id = null;
-        List<IPSGuid> folderIds = new ArrayList<IPSGuid>();
+        var folderIds = new ArrayList<IPSGuid>();
 
         try
         {
-            // create a folder
-            List<PSFolder> folders = contentWs.addFolderTree(PSAssetPathItemService.ASSET_ROOT + "/Test");
-            String folderPath = folders.get(0).getFolderPath();
-            IPSGuid folderId = folders.get(0).getGuid();
+            // Create a folder
+            var folders = contentWs.addFolderTree(PSAssetPathItemService.ASSET_ROOT + "/Test");
+            var folderPath = folders.get(0).getFolderPath();
+            var folderId = folders.get(0).getGuid();
             folderIds.add(folderId);
-            
-            // create an asset in folder
-            PSAsset asset1 = createAsset("asset1", folderPath);
+
+            // Create an asset in folder
+            var asset1 = createAsset("asset1", folderPath);
             asset1Id = asset1.getId();
-            
-            // create a sub-folder
+
+            // Create a sub-folder
             folders = contentWs.addFolderTree(PSAssetPathItemService.ASSET_ROOT + "/Test/TestSub");
-            String subFolderPath = folders.get(0).getFolderPath();
-                        
-            // create an asset in sub-folder
-            PSAsset asset2 = createAsset("asset2", subFolderPath);
+            var subFolderPath = folders.get(0).getFolderPath();
+
+            // Create an asset in sub-folder
+            var asset2 = createAsset("asset2", subFolderPath);
             asset2Id = asset2.getId();
-            
-            // copy folder
-            Map<String, String> assetMap = itemService.copyFolder(folderPath, PSAssetPathItemService.ASSET_ROOT,
-                    "TestCopy");
-            
-            List<PSFolder> copyFolders = contentWs.loadFolders(new String[]{PSAssetPathItemService.ASSET_ROOT
-                    + "/TestCopy"});
+
+            // Copy folder
+            var assetMap = itemService.copyFolder(folderPath, PSAssetPathItemService.ASSET_ROOT, "TestCopy");
+
+            var copyFolders = contentWs.loadFolders(new String[]{PSAssetPathItemService.ASSET_ROOT + "/TestCopy"});
             assertTrue(!copyFolders.isEmpty());
-            IPSGuid copyFolderId = copyFolders.get(0).getGuid();
-            folderIds.add(copyFolderId);            
+            var copyFolderId = copyFolders.get(0).getGuid();
+            folderIds.add(copyFolderId);
             assertFolders(folderId, copyFolderId);
-            
+
             assertEquals(2, assetMap.size());
             assertTrue(assetMap.containsKey(asset1Id));
             assertTrue(assetMap.containsKey(asset2Id));
-            
-            // create another folder
+
+            // Create another folder
             folders = contentWs.addFolderTree(PSAssetPathItemService.ASSET_ROOT + "/TestCopy2");
-            IPSGuid copy2FolderId = folders.get(0).getGuid();
+            var copy2FolderId = folders.get(0).getGuid();
             folderIds.add(copy2FolderId);
-            
-            // copy folder to existing folder
+
+            // Copy folder to existing folder
             assetMap = itemService.copyFolder(folderPath, PSAssetPathItemService.ASSET_ROOT, "TestCopy2");
-    
+
             copyFolders = contentWs.loadFolders(new String[]{PSAssetPathItemService.ASSET_ROOT + "/TestCopy2"});
             assertTrue(!copyFolders.isEmpty());
-                          
+
             assertFolders(folderId, copy2FolderId);
 
             assertEquals(2, assetMap.size());
             assertTrue(assetMap.containsKey(asset1Id));
-            assertTrue(assetMap.containsKey(asset2Id));            
+            assertTrue(assetMap.containsKey(asset2Id));
         }
         finally
         {
-            // wait before deleting (to allow for search index queue processing)
+            // Wait before deleting (to allow for search index queue processing)
             Thread.sleep(1000);
-            
+
             if (asset1Id != null)
-            {        
+            {
                 assetService.delete(asset1Id);
             }
-            
+
             if (asset2Id != null)
             {
                 assetService.delete(asset2Id);
             }
-            
+
             if (!folderIds.isEmpty())
             {
                 contentWs.deleteFolders(folderIds, false);
             }
         }
     }
-    
+
     public void testMyPages() throws Exception
     {
         myPagesAddRemoveTest();
@@ -154,128 +151,108 @@ public class PSItemServiceTest extends PSServletTestCase
         myPagesDeleteUserTest();
         myPagesGetTest();
     }
-    
+
     /**
-     * Convenient method to test my pages add and remove functionality.
-     * @throws Exception
+     * Test add and remove from my pages.
      */
     private void myPagesAddRemoveTest() throws Exception
     {
-        //Test add and remove from my pages
-        PSPage page1 = fixture.createPage("myPagesAddRemoveTest1");
-        String id1 = page1.getId();
+        var page1 = fixture.createPage("myPagesAddRemoveTest1");
+        var id1 = page1.getId();
         assertFalse(itemService.isMyPage(id1));
         itemService.addToMyPages(id1);
         assertTrue(itemService.isMyPage(id1));
         itemService.removeFromMyPages(id1);
         assertFalse(itemService.isMyPage(id1));
-        
-        //Add the page to multiple users and make sure data is not getting overwritten
-        //Adds it to the logged in user
-        int count = itemService.getUserItems(id1).size();
+
+        // Add the page to multiple users and make sure data is not getting overwritten
+        var count = itemService.getUserItems(id1).size();
         itemService.addToMyPages(id1);
-        //Add it to Editor
         itemService.addUserItem("Editor", idMapper.getContentId(id1), PSUserItemTypeEnum.FAVORITE_PAGE);
-        //Make sure we get two more than original size.
-        assertTrue(itemService.getUserItems(idMapper.getContentId(id1)).size()==count+2);
-    }
-    
-    /**
-     * Convenient method to test my pages functionality when an item is deleted.
-     * @throws Exception
-     */
-    private void myPagesItemDeleteTest() throws Exception
-    {
-        //Test delete page
-        PSPage page1 = fixture.createPage("myPagesItemDeleteTest1");
-        PSPage page2 = fixture.createPage("myPagesItemDeleteTest2");
-        String id1 = page1.getId();
-        String id2 = page2.getId();
-        itemService.addToMyPages(id1);
-        itemService.addToMyPages(id2);
-        
-        pageService.delete(id1);
-        //make sure page2 is not in my pages anymore
-        assertFalse(itemService.isMyPage(id1));
-        //make sure I still have page3 in my pages
-        assertTrue(itemService.isMyPage(id2));
-    }
-    
-    /**
-     * Convenient test to test my pages get functionality.
-     */
-    private void myPagesGetTest() throws Exception
-    {
-        int origCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();        
-        PSPage page1 = fixture.createPage("myPagesGetTest1");
-        PSPage page2 = fixture.createPage("myPagesGetTest2");
-        String id1 = page1.getId();
-        String id2 = page2.getId();
-        itemService.addToMyPages(id1);
-        itemService.addToMyPages(id2);
-        int newCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();
-        //As we added two pages here, make sure when we get the pages the new count is two more than origCount.
-        assertTrue( newCount == origCount+2);
-        //Add page 1 to a different user
-        itemService.addUserItem("Editor", idMapper.getContentId(id1), PSUserItemTypeEnum.FAVORITE_PAGE);
-        //As we added the page 1 to a different user the new count still should be 2 more than origCount.
-        newCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();
-        assertTrue( newCount == origCount+2);
-        
+        assertTrue(itemService.getUserItems(idMapper.getContentId(id1)).size() == count + 2);
     }
 
     /**
-     * Convenient test to test my pages when a user is deleted.
+     * Test my pages functionality when an item is deleted.
+     */
+    private void myPagesItemDeleteTest() throws Exception
+    {
+        var page1 = fixture.createPage("myPagesItemDeleteTest1");
+        var page2 = fixture.createPage("myPagesItemDeleteTest2");
+        var id1 = page1.getId();
+        var id2 = page2.getId();
+        itemService.addToMyPages(id1);
+        itemService.addToMyPages(id2);
+
+        pageService.delete(id1);
+        assertFalse(itemService.isMyPage(id1));
+        assertTrue(itemService.isMyPage(id2));
+    }
+
+    /**
+     * Test my pages get functionality.
+     */
+    private void myPagesGetTest() throws Exception
+    {
+        var origCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();
+        var page1 = fixture.createPage("myPagesGetTest1");
+        var page2 = fixture.createPage("myPagesGetTest2");
+        var id1 = page1.getId();
+        var id2 = page2.getId();
+        itemService.addToMyPages(id1);
+        itemService.addToMyPages(id2);
+        var newCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();
+        assertTrue(newCount == origCount + 2);
+        itemService.addUserItem("Editor", idMapper.getContentId(id1), PSUserItemTypeEnum.FAVORITE_PAGE);
+        newCount = itemService.getUserItems(PSWebserviceUtils.getUserName()).size();
+        assertTrue(newCount == origCount + 2);
+    }
+
+    /**
+     * Test my pages when a user is deleted.
      */
     private void myPagesDeleteUserTest() throws Exception
     {
-        //Add a MyPagesTest user
-        String testuser = "MyPagesTestUser";
-        PSUser myPagesUser = new PSUser();
+        var testuser = "MyPagesTestUser";
+        var myPagesUser = new PSUser();
         myPagesUser.setName(testuser);
         myPagesUser.setPassword("demo");
         myPagesUser.setRoles(Collections.singletonList(PSRoleService.ADMINISTRATOR_ROLE));
         userService.create(myPagesUser);
-        boolean isUserDeleted = false;
+        var isUserDeleted = false;
         try
         {
-            PSPage page1 = fixture.createPage("myPagesDeleteUserTest1");
-            PSPage page2 = fixture.createPage("myPagesDeleteUserTest2");
-            String id1 = page1.getId();
-            String id2 = page2.getId();
+            var page1 = fixture.createPage("myPagesDeleteUserTest1");
+            var page2 = fixture.createPage("myPagesDeleteUserTest2");
+            var id1 = page1.getId();
+            var id2 = page2.getId();
             itemService.addUserItem(testuser, idMapper.getContentId(id1), PSUserItemTypeEnum.FAVORITE_PAGE);
             itemService.addUserItem(testuser, idMapper.getContentId(id2), PSUserItemTypeEnum.FAVORITE_PAGE);
-            int count = itemService.getUserItems(testuser).size();
-            //Make sure we have above pages stored for the test user
+            var count = itemService.getUserItems(testuser).size();
             assertTrue(count > 0);
-            //Delete the testuser
             userService.delete(testuser);
             isUserDeleted = true;
             count = itemService.getUserItems(testuser).size();
-            //Make sure the count is zero now
             assertTrue(count == 0);
         }
         finally
         {
-            if(!isUserDeleted)//I would have used find method but if the user is already deleted the user service's find method also throws exception.
+            if (!isUserDeleted)
                 userService.delete(testuser);
         }
-
     }
 
     /**
      * Creates an asset.
-     * 
-     * @param name assumed not <code>null</code>.
-     * @param folder assumed not <code>null</code>.
-     * 
-     * @return {@link PSAsset} representation of the asset item, never <code>null</code>.
-     * 
+     *
+     * @param name   asset name, not null.
+     * @param folder folder path, not null.
+     * @return {@link PSAsset} representation of the asset item, never null.
      * @throws Exception if an error occurs saving the asset.
      */
     private PSAsset createAsset(String name, String folder) throws Exception
     {
-        PSAsset asset = new PSAsset();
+        var asset = new PSAsset();
         asset.getFields().put("sys_title", name);
         asset.setType("percRawHtmlAsset");
         asset.getFields().put("html", "TestHTML");
@@ -283,27 +260,26 @@ public class PSItemServiceTest extends PSServletTestCase
         {
             asset.setFolderPaths(asList(folder));
         }
-             
         return assetService.save(asset);
     }
-    
+
     private void assertFolders(IPSGuid id1, IPSGuid id2)
     {
-        List<PSItemSummary> items1 = contentWs.findFolderChildren(id1, false);
-        List<PSItemSummary> items2 = contentWs.findFolderChildren(id2, false);
+        var items1 = contentWs.findFolderChildren(id1, false);
+        var items2 = contentWs.findFolderChildren(id2, false);
         assertEquals(items1.size(), items2.size());
-    
-        for (PSItemSummary item1 : items1)
+
+        for (var item1 : items1)
         {
-            boolean match = false;
-            String item1Name = item1.getName();
-            IPSGuid item1Guid = item1.getGUID();
-            
-            for (PSItemSummary item2 : items2)
+            var match = false;
+            var item1Name = item1.getName();
+            var item1Guid = item1.getGUID();
+
+            for (var item2 : items2)
             {
-                String item2Name = item2.getName();
-                IPSGuid item2Guid = item2.getGUID();
-                
+                var item2Name = item2.getName();
+                var item2Guid = item2.getGUID();
+
                 if (item2Name.equals(item1Name))
                 {
                     PSFolder folder1 = null;
@@ -315,7 +291,7 @@ public class PSItemServiceTest extends PSServletTestCase
                     {
                         // item1 is not a folder
                     }
-                    
+
                     if (folder1 != null)
                     {
                         try
@@ -326,20 +302,19 @@ public class PSItemServiceTest extends PSServletTestCase
                         {
                             fail(item2Name + " should be a folder");
                         }
-                        
+
                         assertFolders(item2Guid, item1Guid);
                     }
-                                   
+
                     match = true;
                     break;
                 }
             }
-            
+
             assertTrue("match not found for " + item1Name, match);
         }
-        
     }
-    
+
     public IPSAssetService getAssetService()
     {
         return assetService;
@@ -349,7 +324,7 @@ public class PSItemServiceTest extends PSServletTestCase
     {
         this.assetService = assetService;
     }
-    
+
     /**
      * @return the contentWs
      */
@@ -365,7 +340,7 @@ public class PSItemServiceTest extends PSServletTestCase
     {
         this.contentWs = contentWs;
     }
-    
+
     /**
      * @return the itemService
      */
@@ -381,7 +356,7 @@ public class PSItemServiceTest extends PSServletTestCase
     {
         this.itemService = itemService;
     }
-    
+
     public IPSPageService getPageService()
     {
         return pageService;
@@ -419,5 +394,5 @@ public class PSItemServiceTest extends PSServletTestCase
     private IPSUserService userService;
     private IPSIdMapper idMapper;
 
-  
+
 }

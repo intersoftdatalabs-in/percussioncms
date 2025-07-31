@@ -1,4 +1,4 @@
-
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,6 +18,7 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,42 +27,11 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EventName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EventTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="GroupName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Contact" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Phone" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Fax" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="BookingDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StartTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="SetupTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="SetupCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 modernized: AddWebRequest for EMS SOAP API.
+ * <p>
+ * Represents a web request to add an event via the EMS web service.
+ * </p>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -85,430 +55,205 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "notes"
 })
 @XmlRootElement(name = "AddWebRequest")
-public class AddWebRequest {
-
+public final class AddWebRequest {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "EventName")
-    protected String eventName;
+    private String eventName;
     @XmlElement(name = "EventTypeID")
-    protected int eventTypeID;
+    private int eventTypeID;
     @XmlElement(name = "GroupName")
-    protected String groupName;
+    private String groupName;
     @XmlElement(name = "Contact")
-    protected String contact;
+    private String contact;
     @XmlElement(name = "Phone")
-    protected String phone;
+    private String phone;
     @XmlElement(name = "Fax")
-    protected String fax;
+    private String fax;
     @XmlElement(name = "EmailAddress")
-    protected String emailAddress;
+    private String emailAddress;
     @XmlElement(name = "WebUserID")
-    protected int webUserID;
+    private int webUserID;
     @XmlElement(name = "BuildingID")
-    protected int buildingID;
+    private int buildingID;
     @XmlElement(name = "RoomID")
-    protected int roomID;
+    private int roomID;
     @XmlElement(name = "BookingDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar bookingDate;
+    private XMLGregorianCalendar bookingDate;
     @XmlElement(name = "StartTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar startTime;
+    private XMLGregorianCalendar startTime;
     @XmlElement(name = "EndTime", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar endTime;
+    private XMLGregorianCalendar endTime;
     @XmlElement(name = "SetupTypeID")
-    protected int setupTypeID;
+    private int setupTypeID;
     @XmlElement(name = "SetupCount")
-    protected int setupCount;
+    private int setupCount;
     @XmlElement(name = "Notes")
-    protected String notes;
+    private String notes;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setUserName(String value) {
         this.userName = value;
     }
-
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPassword(String value) {
         this.password = value;
     }
-
-    /**
-     * Gets the value of the eventName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEventName() {
-        return eventName;
+    public java.util.Optional<String> getEventName() {
+        return java.util.Optional.ofNullable(eventName);
     }
-
-    /**
-     * Sets the value of the eventName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setEventName(String value) {
         this.eventName = value;
     }
-
-    /**
-     * Gets the value of the eventTypeID property.
-     * 
-     */
     public int getEventTypeID() {
         return eventTypeID;
     }
-
-    /**
-     * Sets the value of the eventTypeID property.
-     * 
-     */
     public void setEventTypeID(int value) {
         this.eventTypeID = value;
     }
-
-    /**
-     * Gets the value of the groupName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getGroupName() {
-        return groupName;
+    public java.util.Optional<String> getGroupName() {
+        return java.util.Optional.ofNullable(groupName);
     }
-
-    /**
-     * Sets the value of the groupName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setGroupName(String value) {
         this.groupName = value;
     }
-
-    /**
-     * Gets the value of the contact property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getContact() {
-        return contact;
+    public java.util.Optional<String> getContact() {
+        return java.util.Optional.ofNullable(contact);
     }
-
-    /**
-     * Sets the value of the contact property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setContact(String value) {
         this.contact = value;
     }
-
-    /**
-     * Gets the value of the phone property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPhone() {
-        return phone;
+    public java.util.Optional<String> getPhone() {
+        return java.util.Optional.ofNullable(phone);
     }
-
-    /**
-     * Sets the value of the phone property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPhone(String value) {
         this.phone = value;
     }
-
-    /**
-     * Gets the value of the fax property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getFax() {
-        return fax;
+    public java.util.Optional<String> getFax() {
+        return java.util.Optional.ofNullable(fax);
     }
-
-    /**
-     * Sets the value of the fax property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setFax(String value) {
         this.fax = value;
     }
-
-    /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getEmailAddress() {
-        return emailAddress;
+    public java.util.Optional<String> getEmailAddress() {
+        return java.util.Optional.ofNullable(emailAddress);
     }
-
-    /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setEmailAddress(String value) {
         this.emailAddress = value;
     }
-
-    /**
-     * Gets the value of the webUserID property.
-     * 
-     */
     public int getWebUserID() {
         return webUserID;
     }
-
-    /**
-     * Sets the value of the webUserID property.
-     * 
-     */
     public void setWebUserID(int value) {
         this.webUserID = value;
     }
-
-    /**
-     * Gets the value of the buildingID property.
-     * 
-     */
     public int getBuildingID() {
         return buildingID;
     }
-
-    /**
-     * Sets the value of the buildingID property.
-     * 
-     */
     public void setBuildingID(int value) {
         this.buildingID = value;
     }
-
-    /**
-     * Gets the value of the roomID property.
-     * 
-     */
     public int getRoomID() {
         return roomID;
     }
-
-    /**
-     * Sets the value of the roomID property.
-     * 
-     */
     public void setRoomID(int value) {
         this.roomID = value;
     }
-
-    /**
-     * Gets the value of the bookingDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getBookingDate() {
-        return bookingDate;
+    public java.util.Optional<XMLGregorianCalendar> getBookingDate() {
+        return java.util.Optional.ofNullable(bookingDate);
     }
-
-    /**
-     * Sets the value of the bookingDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setBookingDate(XMLGregorianCalendar value) {
         this.bookingDate = value;
     }
-
-    /**
-     * Gets the value of the startTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getStartTime() {
-        return startTime;
+    public java.util.Optional<XMLGregorianCalendar> getStartTime() {
+        return java.util.Optional.ofNullable(startTime);
     }
-
-    /**
-     * Sets the value of the startTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setStartTime(XMLGregorianCalendar value) {
         this.startTime = value;
     }
-
-    /**
-     * Gets the value of the endTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getEndTime() {
-        return endTime;
+    public java.util.Optional<XMLGregorianCalendar> getEndTime() {
+        return java.util.Optional.ofNullable(endTime);
     }
-
-    /**
-     * Sets the value of the endTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
     public void setEndTime(XMLGregorianCalendar value) {
         this.endTime = value;
     }
-
-    /**
-     * Gets the value of the setupTypeID property.
-     * 
-     */
     public int getSetupTypeID() {
         return setupTypeID;
     }
-
-    /**
-     * Sets the value of the setupTypeID property.
-     * 
-     */
     public void setSetupTypeID(int value) {
         this.setupTypeID = value;
     }
-
-    /**
-     * Gets the value of the setupCount property.
-     * 
-     */
     public int getSetupCount() {
         return setupCount;
     }
-
-    /**
-     * Sets the value of the setupCount property.
-     * 
-     */
     public void setSetupCount(int value) {
         this.setupCount = value;
     }
-
-    /**
-     * Gets the value of the notes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getNotes() {
-        return notes;
+    public java.util.Optional<String> getNotes() {
+        return java.util.Optional.ofNullable(notes);
     }
-
-    /**
-     * Sets the value of the notes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setNotes(String value) {
         this.notes = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddWebRequest that = (AddWebRequest) o;
+        return eventTypeID == that.eventTypeID &&
+                webUserID == that.webUserID &&
+                buildingID == that.buildingID &&
+                roomID == that.roomID &&
+                setupTypeID == that.setupTypeID &&
+                setupCount == that.setupCount &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(password, that.password) &&
+                Objects.equals(eventName, that.eventName) &&
+                Objects.equals(groupName, that.groupName) &&
+                Objects.equals(contact, that.contact) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(fax, that.fax) &&
+                Objects.equals(emailAddress, that.emailAddress) &&
+                Objects.equals(bookingDate, that.bookingDate) &&
+                Objects.equals(startTime, that.startTime) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(notes, that.notes);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, password, eventName, eventTypeID, groupName, contact, phone, fax, emailAddress, webUserID, buildingID, roomID, bookingDate, startTime, endTime, setupTypeID, setupCount, notes);
+    }
+    @Override
+    public String toString() {
+        return "AddWebRequest{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", eventName='" + eventName + '\'' +
+                ", eventTypeID=" + eventTypeID +
+                ", groupName='" + groupName + '\'' +
+                ", contact='" + contact + '\'' +
+                ", phone='" + phone + '\'' +
+                ", fax='" + fax + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", webUserID=" + webUserID +
+                ", buildingID=" + buildingID +
+                ", roomID=" + roomID +
+                ", bookingDate=" + bookingDate +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", setupTypeID=" + setupTypeID +
+                ", setupCount=" + setupCount +
+                ", notes='" + notes + '\'' +
+                '}';
+    }
 }

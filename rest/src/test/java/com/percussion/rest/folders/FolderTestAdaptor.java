@@ -26,90 +26,82 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 @Component
 @Lazy
-public class FolderTestAdaptor implements IFolderAdaptor
-{
+public class FolderTestAdaptor implements IFolderAdaptor {
+
     private URI baseURI;
-    
+
     @Override
-    public Folder getFolder(URI baseURI, String id)
-    {
-        Folder folder = Examples.SAMPLE_FOLDER;
+    public Folder getFolder(URI baseURI, String id) {
+        var folder = Examples.SAMPLE_FOLDER;
         folder.setId(id);
-        if (id.equals("invalidId"))
-        {
+        if ("invalidId".equals(id)) {
             throw new FolderNotFoundException();
         }
-
         return folder;
     }
 
     @Override
-    public Folder getFolder(URI baseURI, String site, String path, String folderName)
-    {
-        Folder folder = Examples.SAMPLE_FOLDER;
-
+    public Folder getFolder(URI baseURI, String site, String path, String folderName) {
+        var folder = Examples.SAMPLE_FOLDER;
         folder.setName(folderName);
         folder.setPath(path);
         folder.setSiteName(site);
-    
-        if (site.equals("testNotFound"))
+
+        if ("testNotFound".equals(site)) {
             throw new SiteNotFoundException();
-
-        if (path.contains("testNotFound"))
+        }
+        if (path.contains("testNotFound")) {
             throw new FolderNotFoundException();
-
-        if (folderName.equals("testNotFound"))
+        }
+        if ("testNotFound".equals(folderName)) {
             throw new FolderNotFoundException();
-
+        }
         return folder;
     }
 
     @Override
-    public Folder updateFolder(URI baseURI, Folder folder)
-    {
+    public Folder updateFolder(URI baseURI, Folder folder) {
         return folder;
     }
 
     @Override
-    public void deleteFolder(URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders)
-    {
-        if (folderName.equals("testNotFound"))
+    public void deleteFolder(URI baseURI, String siteName, String path, String folderName, boolean includeSubFolders) {
+        if ("testNotFound".equals(folderName)) {
             throw new FolderNotFoundException();
+        }
     }
 
-	@Override
-	public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) {
-	}
+    @Override
+    public void moveFolderItem(URI baseURI, String itemPath, String targetFolderPath) {
+        // No-op for test adaptor
+    }
 
-	@Override
-	public void moveFolder(URI baseURI, String folderPath, String targetFolderPath) {
-	
-	}
+    @Override
+    public void moveFolder(URI baseURI, String folderPath, String targetFolderPath) {
+        // No-op for test adaptor
+    }
 
-	@Override
-	public Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName) {
-		Folder f = new Folder();
-		
-		f.setSiteName(site);
-		f.setPath(path);
-		f.setName(newName);
-		
-		return f;
-	}
+    @Override
+    public Folder renameFolder(URI baseURI, String site, String path, String folderName, String newName) {
+        var f = new Folder();
+        f.setSiteName(site);
+        f.setPath(path);
+        f.setName(newName);
+        return f;
+    }
 
     @Override
     public void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) {
-
+        // No-op for test adaptor
     }
 
     @Override
     public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) {
-
+        // No-op for test adaptor
     }
 
     @Override
     public void deleteFolderItem(URI baseURI, String itemPath) {
-
+        // No-op for test adaptor
     }
-
 }

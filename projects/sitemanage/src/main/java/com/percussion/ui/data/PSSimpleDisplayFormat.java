@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,138 +22,114 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
- * A simplified version of <code>PSDisplayFormat</code>. Used
- * for CMS's list view.
- * @author erikserating
- *
+ * A simplified version of PSDisplayFormat for CMS list views.
  */
 @JsonRootName("SimpleDisplayFormat")
-public class PSSimpleDisplayFormat
-{
- 
+public class PSSimpleDisplayFormat {
     private int id;
     private String name;
     private String displayName;
     private String description;
     private List<PSDisplayFormatColumn> columns = new ArrayList<>();
-    private String sortby;
-    private boolean sortAscending = true;    
-    
-    
+    private String sortBy;
+    private boolean sortAscending = true;
+
     /**
-     * @return the id
+     * Gets the display format ID.
      */
-    public int getId()
-    {
+    public int getId() {
         return id;
     }
 
     /**
-     * @param id the id to set
+     * Sets the display format ID.
      */
-    public void setId(int id)
-    {
+    public void setId(int id) {
         this.id = id;
     }
 
     /**
-     * @return the name
+     * Gets the internal name.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
-     * @param name the name to set
+     * Sets the internal name.
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
-    }    
+    }
 
     /**
-     * @return the displayName
+     * Gets the display name.
      */
-    public String getDisplayName()
-    {
+    public String getDisplayName() {
         return displayName;
     }
 
     /**
-     * @param displayName the displayName to set
+     * Sets the display name.
      */
-    public void setDisplayName(String displayName)
-    {
+    public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
     /**
-     * @return the description
+     * Gets the description.
      */
-    public String getDescription()
-    {
+    public String getDescription() {
         return description;
     }
 
     /**
-     * @param description the description to set
+     * Sets the description.
      */
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * @return the columns
+     * Gets the list of columns.
      */
-    public List<PSDisplayFormatColumn> getColumns()
-    {
+    public List<PSDisplayFormatColumn> getColumns() {
         return columns;
     }
 
     /**
-     * @param columns the columns to set
+     * Sets the list of columns.
      */
-    public void setColumns(List<PSDisplayFormatColumn> columns)
-    {
+    public void setColumns(List<PSDisplayFormatColumn> columns) {
         this.columns = columns;
     }
 
     /**
-     * @return the sortby
+     * Gets the sort by field.
      */
-    public String getSortby()
-    {
-        return sortby;
+    public String getSortby() {
+        return sortBy;
     }
 
     /**
-     * @param sortby the sortby to set
+     * Sets the sort by field.
      */
-    public void setSortby(String sortby)
-    {
-        this.sortby = sortby;
-    }    
+    public void setSortby(String sortBy) {
+        this.sortBy = sortBy;
+    }
 
     /**
-     * @return the sortAscending
+     * Returns true if sorting is ascending.
      */
-    public boolean isSortAscending()
-    {
+    public boolean isSortAscending() {
         return sortAscending;
     }
 
     /**
-     * @param sortAscending the sortAscending to set
+     * Sets whether sorting is ascending.
      */
-    public void setSortAscending(boolean sortAscending)
-    {
+    public void setSortAscending(boolean sortAscending) {
         this.sortAscending = sortAscending;
     }
-
-    
 }

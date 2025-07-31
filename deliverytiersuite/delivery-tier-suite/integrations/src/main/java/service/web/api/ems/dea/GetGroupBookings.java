@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,40 +17,13 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
-
+import java.util.Optional;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="StartDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="GroupID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Statuses" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="StatusTypes" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="ViewComboRoomComponents" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Request for fetching group bookings.
+ * Sunny Sal: "Group bookings, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -87,179 +59,130 @@ public class GetGroupBookings {
     protected boolean viewComboRoomComponents;
 
     /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     * @return user name or null
      */
-    public String getUserName() {
-        return userName;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the user name.
+     * @param value user name
      */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     * @return password or null
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the password.
+     * @param value password
      */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
     /**
-     * Gets the value of the startDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Gets the start date.
+     * @return start date or null
      */
-    public XMLGregorianCalendar getStartDate() {
-        return startDate;
+    public Optional<XMLGregorianCalendar> getStartDate() {
+        return Optional.ofNullable(startDate);
     }
 
     /**
-     * Sets the value of the startDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Sets the start date.
+     * @param value start date
      */
     public void setStartDate(XMLGregorianCalendar value) {
-        this.startDate = value;
+        startDate = value;
     }
 
     /**
-     * Gets the value of the endDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Gets the end date.
+     * @return end date or null
      */
-    public XMLGregorianCalendar getEndDate() {
-        return endDate;
+    public Optional<XMLGregorianCalendar> getEndDate() {
+        return Optional.ofNullable(endDate);
     }
 
     /**
-     * Sets the value of the endDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Sets the end date.
+     * @param value end date
      */
     public void setEndDate(XMLGregorianCalendar value) {
-        this.endDate = value;
+        endDate = value;
     }
 
     /**
-     * Gets the value of the groupID property.
-     * 
+     * Gets the group ID.
+     * @return group ID
      */
     public int getGroupID() {
         return groupID;
     }
 
     /**
-     * Sets the value of the groupID property.
-     * 
+     * Sets the group ID.
+     * @param value group ID
      */
     public void setGroupID(int value) {
-        this.groupID = value;
+        groupID = value;
     }
 
     /**
-     * Gets the value of the statuses property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     * Gets the statuses.
+     * @return statuses or null
      */
-    public ArrayOfInt getStatuses() {
-        return statuses;
+    public Optional<ArrayOfInt> getStatuses() {
+        return Optional.ofNullable(statuses);
     }
 
     /**
-     * Sets the value of the statuses property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     * Sets the statuses.
+     * @param value statuses
      */
     public void setStatuses(ArrayOfInt value) {
-        this.statuses = value;
+        statuses = value;
     }
 
     /**
-     * Gets the value of the statusTypes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     * Gets the status types.
+     * @return status types or null
      */
-    public ArrayOfInt getStatusTypes() {
-        return statusTypes;
+    public Optional<ArrayOfInt> getStatusTypes() {
+        return Optional.ofNullable(statusTypes);
     }
 
     /**
-     * Sets the value of the statusTypes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     * Sets the status types.
+     * @param value status types
      */
     public void setStatusTypes(ArrayOfInt value) {
-        this.statusTypes = value;
+        statusTypes = value;
     }
 
     /**
-     * Gets the value of the viewComboRoomComponents property.
-     * 
+     * Gets the viewComboRoomComponents flag.
+     * @return true if combo room components should be viewed
      */
     public boolean isViewComboRoomComponents() {
         return viewComboRoomComponents;
     }
 
     /**
-     * Sets the value of the viewComboRoomComponents property.
-     * 
+     * Sets the viewComboRoomComponents flag.
+     * @param value true to view combo room components
      */
     public void setViewComboRoomComponents(boolean value) {
-        this.viewComboRoomComponents = value;
+        viewComboRoomComponents = value;
     }
-
 }

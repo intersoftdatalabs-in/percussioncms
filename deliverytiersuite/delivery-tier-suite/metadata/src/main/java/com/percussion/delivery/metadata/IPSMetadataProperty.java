@@ -15,53 +15,38 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata;
 
 import java.util.Date;
 
-
+/**
+ * Represents a metadata property for a page.
+ */
 public interface IPSMetadataProperty {
 
-	/**
-	 * @return the name
-	 */
-	public String getName();
+    String getName();
+    void setName(String name);
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name);
+    VALUETYPE getValuetype();
 
-	/**
-	 * @return the valuetype
-	 */
-	public VALUETYPE getValuetype();
+    /**
+     * Returns the untyped value.
+     * @return may be null.
+     */
+    Object getValue();
 
-	/**
-	 * Returns the untyped value.
-	 * 
-	 * @return May be <code>null</code>.
-	 */
-	public Object getValue();
-	
-	public Date getDatevalue();
-	
-	public Double getNumbervalue();
-	
-	public String getStringvalue();
-	
-    public void setDatevalue(Date val);
-    
-    public void setNumbervalue(Double val);
-    
-    public void setStringvalue(String val);
-    
-    public void setTextvalue(String val);
+    Date getDatevalue();
+    Double getNumbervalue();
+    String getStringvalue();
 
-	
-	
-	public enum VALUETYPE {
+    void setDatevalue(Date value);
+    void setNumbervalue(Double value);
+    void setStringvalue(String value);
+    void setTextvalue(String value);
+
+    enum VALUETYPE {
         DATE, NUMBER, STRING, TEXT
     }
-
 }

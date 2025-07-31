@@ -55,21 +55,9 @@ public class PSPublisherServiceHelper
     * A convenience method to reset any loaded content lists so that we donot
     * have any stale data. MUST BE STATELESS
     */
-   private void resetContentLists()
-   {
-      if ( m_namedContentList != null )
-      {
-         m_namedContentList.clear();
-         m_namedContentList = null;
-      }
-      
-      if ( m_guidContentList != null )
-      {
-         m_guidContentList.clear();
-         m_guidContentList = null;
-      }
-      m_namedContentList =  new HashedMap();
-      m_guidContentList  =  new HashedMap();
+   private void resetContentLists() {
+      m_namedContentList = new HashedMap();
+      m_guidContentList = new HashedMap();
    }
 
    /**
@@ -199,6 +187,7 @@ public class PSPublisherServiceHelper
     * @return a map of <contentlist_name, IPSContentList> 
     * @throws PSDeployException
     */
+   @Override
    public IterableMap getNamedContentListMap() throws PSDeployException
    {
       getContentLists();

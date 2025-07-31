@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -135,26 +136,18 @@ public class PSArchive
     * Returns <code>false</code> if an <code>IOException</code> occurs
     * while obtaining the archive type.
     */
-   public boolean isSampleArchive()
-   {
-      String sampleArchiveType =
-         PSExportDescriptor.ARCHIVE_TYPE_ENUM[PSExportDescriptor.ARCHIVE_TYPE_SAMPLE];
-
-      try
-      {
-         ZipFile zf = getZipFile();
-         byte[] extra = PSArchiveFiles.getExtra(zf, ARCHIVE_INFO_PATH);
-         if (extra != null)
-         {
-            String s = new String(extra);
-            if (s.equalsIgnoreCase(sampleArchiveType))
-             return true;
-         }
-      }
-      catch (IOException e)
-      {
-      }
-      return false;
+   public boolean isSampleArchive() {
+    var sampleArchiveType = PSExportDescriptor.ARCHIVE_TYPE_ENUM[PSExportDescriptor.ARCHIVE_TYPE_SAMPLE];
+    try (var zf = getZipFile()) {
+        var extra = PSArchiveFiles.getExtra(zf, ARCHIVE_INFO_PATH);
+        return Optional.ofNullable(extra)
+            .map(String::new)
+            .map(s -> s.equalsIgnoreCase(sampleArchiveType))
+            .orElse(false);
+    } catch (IOException e) {
+        log.error("Error checking sample archive: {}", e.getMessage());
+        return false;
+    }
    }
 
 
@@ -368,30 +361,14 @@ public class PSArchive
     * @param infoSet The set to which dbmsInfo objects are to be added, assumed
     * not <code>null</code>.
     */
-   private void updateDbmsInfoList(PSDependency dep, Set infoSet)
-   {
-      // if hit a child that's a deployable element, can stop
-      if (m_archiveManifest != null && !(dep instanceof PSDeployableElement))
-      {
-         // only need to check if dependency is included
-         if (dep.isIncluded())
-         {
-            List infoList = m_archiveManifest.getDbmsInfoList(dep);
-            if (infoList != null)
-               infoSet.addAll(infoList);
-         }
-
-         // recurse children even if not included
-         Iterator<PSDependency> deps = dep.getDependencies();
-         if (deps != null)
-         {
-            while (deps.hasNext())
-            {
-               PSDependency child = deps.next();
-               updateDbmsInfoList(child, infoSet);
-            }
-         }
-      }
+   private void updateDbmsInfoList(PSDependency dep, Set<PSDbmsInfo> infoSet) {
+    if (m_archiveManifest != null && !(dep instanceof PSDeployableElement)) {
+        if (dep.isIncluded()) {
+            Optional.ofNullable(m_archiveManifest.getDbmsInfoList(dep))
+                .ifPresent(infoSet::addAll);
+        }
+        dep.getDependencies().forEachRemaining(child -> updateDbmsInfoList(child, infoSet));
+    }
    }
 
    /**
@@ -671,10 +648,8 @@ public class PSArchive
     * @todo Move this to com.percussion.util.PSArchiveFiles class in later
     * version (cannot modify that class in 4.0 tree).
     */
-   private boolean hasEntry(ZipFile zipFile, String archiveEntryPath)
-   {
-      ZipEntry entry = zipFile.getEntry(archiveEntryPath);
-      return (entry != null);
+   private boolean hasEntry(ZipFile zipFile, String archiveEntryPath) {
+    return Optional.ofNullable(zipFile.getEntry(archiveEntryPath)).isPresent();
    }
 
    /**

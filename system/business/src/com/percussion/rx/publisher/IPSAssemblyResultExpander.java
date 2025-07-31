@@ -14,40 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher;
 
 import java.util.List;
-
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
 
 /**
- * 
  * Expands an assembly result into multiple assembly items that
- * are then added immediatly (front of the queue) to the current publishing job.
- * 
- * @author adamgent
+ * are then added immediately (front of the queue) to the current publishing job.
+ * <p>
+ * Implementations must be stateless and thread-safe. This interface is used by
+ * publishing handlers to support advanced pagination and batch expansion logic.
+ * <p>
+ * <b>Java 11 Modernization:</b>
+ * <ul>
+ *   <li>Clarified nullability and contract in Javadoc</li>
+ *   <li>Improved spelling and grammar in comments</li>
+ *   <li>Marked as refactored for Java 11</li>
+ * </ul>
  *
+ * @author adamgent
  */
-public interface IPSAssemblyResultExpander
-{
+public interface IPSAssemblyResultExpander {
 
-   /**
-    * The parameter in {@link IPSAssemblyResult#getParameters()} that designates
-    * the name of the expander to run.
-    */
-   public static final String ASSEMBLY_RESULT_EXPANDER_PARAM = "perc_expander";
-   
-   /**
-    * The publisher handler will call this for assembly results
-    * that are marked as paginate and have the parameter {@value #ASSEMBLY_RESULT_EXPANDER_PARAM}
-    * set to this expander.
-    * 
-    * @param assemblyResult never <code>null</code>.
-    * @return never <code>null</code>, maybe empty.
-    * @throws Exception
-    * 
-    */
-   public List<IPSAssemblyItem> expand(IPSAssemblyResult assemblyResult) throws Exception;
-   
+    /**
+     * The parameter in {@link IPSAssemblyResult#getParameters()} that designates
+     * the name of the expander to run.
+     */
+    String ASSEMBLY_RESULT_EXPANDER_PARAM = "perc_expander";
+
+    /**
+     * Expands the given assembly result into a list of assembly items to be published.
+     * <p>
+     * The publisher handler will call this for assembly results that are marked as paginate
+     * and have the parameter {@value #ASSEMBLY_RESULT_EXPANDER_PARAM} set to this expander.
+     * <p>
+     * <b>Contract:</b> Implementations must return a non-null list (may be empty).
+     *
+     * @param assemblyResult the assembly result to expand, never {@code null}
+     * @return a non-null, possibly empty list of expanded assembly items
+     * @throws Exception if expansion fails for any reason
+     */
+    List<IPSAssemblyItem> expand(IPSAssemblyResult assemblyResult) throws Exception;
 }

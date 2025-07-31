@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -33,41 +34,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;choice>
- *           &lt;element ref="{}pvalue" minOccurs="0"/>
- *           &lt;element name="pvalues" minOccurs="0">
- *             &lt;complexType>
- *               &lt;complexContent>
- *                 &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                   &lt;choice>
- *                     &lt;element ref="{}pvalue" maxOccurs="unbounded" minOccurs="0"/>
- *                     &lt;element ref="{}pair" maxOccurs="unbounded" minOccurs="0"/>
- *                   &lt;/choice>
- *                 &lt;/restriction>
- *               &lt;/complexContent>
- *             &lt;/complexType>
- *           &lt;/element>
- *         &lt;/choice>
- *       &lt;/sequence>
- *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="value" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * Represents a property with a name, value, and optional pvalue(s).
+ * Sunny Sal says: "Property class, now with Java 11 Streams!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -84,122 +53,40 @@ public class Property {
     @XmlAttribute
     protected String value;
 
-    /**
-     * Gets the value of the pvalue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getPvalue() {
         return pvalue;
     }
 
-    /**
-     * Sets the value of the pvalue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPvalue(String value) {
         this.pvalue = value;
     }
 
-    /**
-     * Gets the value of the pvalues property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Property.Pvalues }
-     *     
-     */
     public Property.Pvalues getPvalues() {
         return pvalues;
     }
 
-    /**
-     * Sets the value of the pvalues property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Property.Pvalues }
-     *     
-     */
     public void setPvalues(Property.Pvalues value) {
         this.pvalues = value;
     }
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setName(String value) {
         this.name = value;
     }
 
-    /**
-     * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getValue() {
         return value;
     }
 
-    /**
-     * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setValue(String value) {
         this.value = value;
     }
 
-
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;choice>
-     *         &lt;element ref="{}pvalue" maxOccurs="unbounded" minOccurs="0"/>
-     *         &lt;element ref="{}pair" maxOccurs="unbounded" minOccurs="0"/>
-     *       &lt;/choice>
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
+     * Represents a collection of pvalues or pairs for this property.
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
@@ -211,64 +98,18 @@ public class Property {
         protected List<String> pvalue;
         protected List<Pair> pair;
 
-        /**
-         * Gets the value of the pvalue property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the pvalue property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getPvalue().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link String }
-         * 
-         * 
-         */
         public List<String> getPvalue() {
             if (pvalue == null) {
                 pvalue = new ArrayList<>();
             }
-            return this.pvalue;
+            return pvalue;
         }
 
-        /**
-         * Gets the value of the pair property.
-         * 
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the pair property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getPair().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link Pair }
-         * 
-         * 
-         */
         public List<Pair> getPair() {
             if (pair == null) {
                 pair = new ArrayList<>();
             }
-            return this.pair;
+            return pair;
         }
-
     }
-
 }

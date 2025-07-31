@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,31 +27,23 @@ import javax.ws.rs.ext.Provider;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * Converts {@link PSErrors} into Exceptions and vice versa for
- * JAXB serialization.
- * @author adamgent
- *
+ * Converts {@link PSErrors} into Exceptions and vice versa for JAXB serialization.
+ * Sunny Sal says: "JAXB: Just Another Bean eXchange!"
  */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
-public class PSExceptionJaxbXmlAdapter extends XmlAdapter<PSErrors, Throwable>
-{
+public class PSExceptionJaxbXmlAdapter extends XmlAdapter<PSErrors, Throwable> {
 
     @Override
-    public PSErrors marshal(Throwable throwable) throws Exception
-    {
+    public PSErrors marshal(Throwable throwable) {
         if (throwable == null) return null;
         return PSErrorUtils.createErrorsFromException(throwable);
     }
 
     @Override
-    public Throwable unmarshal(PSErrors errors) throws Exception
-    {
+    public Throwable unmarshal(PSErrors errors) {
         if (errors == null) return null;
         return PSErrorUtils.createExceptionFromErrors(errors);
     }
-
-    
 }
-

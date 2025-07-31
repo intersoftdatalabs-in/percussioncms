@@ -29,72 +29,64 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 
- * Contains a {@link PSRegion} id to list of {@link PSWidgetItem}  association.
+ * Contains a {@link PSRegion} id to list of {@link PSWidgetItem} association.
  * The order of the list from {@link #getWidgetItems()} is important and is
  * the order that should be presented in the region.
  * <p>
- * This object contains the serialized {@link PSWidgetItem}. In other words
- * the {@link PSWidgetItem} is stored in this object but with out the asset
+ * This object contains the serialized {@link PSWidgetItem}. In other words,
+ * the {@link PSWidgetItem} is stored in this object but without the asset
  * associations. The associations to the assets are stored elsewhere.
- * 
- * 
  * @author adamgent
- *
  */
 @JsonRootName("WidgetRegion")
-public class PSRegionWidgets extends PSAbstractPersistantObject
-{
-    
+public class PSRegionWidgets extends PSAbstractPersistantObject {
+
     @NotNull
     @NotBlank
     private String regionId;
-    
-    @AssertValid()
+
+    @AssertValid
     private List<PSWidgetItem> widgetItems = new ArrayList<>();
-    
+
     /**
      * The id of the region.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
     @NotNull
     @NotBlank
-    public String getRegionId()
-    {
+    public String getRegionId() {
         return regionId;
     }
-    public void setRegionId(String regionId)
-    {
+
+    public void setRegionId(String regionId) {
         this.regionId = regionId;
     }
-    
+
     /**
      * Returns the widgets in the correct order.
-     * @return never <code>null</code>, maybe empty.
+     * @return never {@code null}, may be empty.
      */
-    @AssertValid()
+    @AssertValid
     @XmlElementWrapper(name = "widgetItems")
     @XmlElement(name = "widgetItem")
-    public List<PSWidgetItem> getWidgetItems()
-    {
+    public List<PSWidgetItem> getWidgetItems() {
         return widgetItems;
     }
-    public void setWidgetItems(List<PSWidgetItem> widgetItems)
-    {
+
+    public void setWidgetItems(List<PSWidgetItem> widgetItems) {
         this.widgetItems = widgetItems;
     }
-    
+
     @Override
-    public String getId()
-    {
+    public String getId() {
         return getRegionId();
     }
+
     @Override
-    public void setId(String id)
-    {
+    public void setId(String id) {
         setRegionId(id);
     }
-    
+
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -102,7 +94,7 @@ public class PSRegionWidgets extends PSAbstractPersistantObject
         if (this == o) return true;
         if (!(o instanceof PSRegionWidgets)) return false;
         if (!super.equals(o)) return false;
-        PSRegionWidgets that = (PSRegionWidgets) o;
+        var that = (PSRegionWidgets) o;
         return getRegionId().equals(that.getRegionId()) && getWidgetItems().equals(that.getWidgetItems());
     }
 

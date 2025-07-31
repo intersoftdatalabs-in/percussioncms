@@ -15,33 +15,38 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
-@XmlRootElement(name="CreateAclRequest")
-@Schema(description="A request to create an acl")
+@XmlRootElement(name = "CreateAclRequest")
+@Schema(description = "A request to create an acl")
 public class CreateAclRequest {
 
-    @Schema(required = true, description="A valid object guid.")
+    @Schema(required = true, description = "A valid object guid.")
     private Guid objectGuid;
 
-    @Schema(required = true, description="A valid Typed Principal")
+    @Schema(required = true, description = "A valid Typed Principal")
     private TypedPrincipal owner;
 
-    public CreateAclRequest() {
-    }
+    public CreateAclRequest() {}
 
+    public CreateAclRequest(Guid objectGuid, TypedPrincipal owner) {
+        this.objectGuid = objectGuid;
+        this.owner = owner;
+    }
 
     public TypedPrincipal getOwner() {
         return owner;
     }
 
-    public void setPrincipal(TypedPrincipal principal) {
-        this.owner = principal;
+    public void setOwner(TypedPrincipal owner) {
+        this.owner = owner;
     }
 
     public Guid getObjectGuid() {
@@ -50,5 +55,27 @@ public class CreateAclRequest {
 
     public void setObjectGuid(Guid objectGuid) {
         this.objectGuid = objectGuid;
+    }
+
+    @Override
+    public String toString() {
+        return "CreateAclRequest{" +
+                "objectGuid=" + objectGuid +
+                ", owner=" + owner +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CreateAclRequest)) return false;
+        var that = (CreateAclRequest) o;
+        return Objects.equals(objectGuid, that.objectGuid) &&
+                Objects.equals(owner, that.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(objectGuid, owner);
     }
 }

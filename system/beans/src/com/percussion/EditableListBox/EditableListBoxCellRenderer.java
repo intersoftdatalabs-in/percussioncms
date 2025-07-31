@@ -19,7 +19,6 @@ package com.percussion.EditableListBox;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.io.Serializable;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -36,7 +35,7 @@ import javax.swing.table.TableCellRenderer;
  * @see JTable
  */
 public class EditableListBoxCellRenderer extends JLabel
-    implements TableCellRenderer, Serializable
+    implements TableCellRenderer
 {
 
     protected static Border noFocusBorder; 

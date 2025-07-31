@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -36,13 +37,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
 import static org.apache.commons.lang.StringUtils.isBlank;
@@ -51,134 +47,117 @@ import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * Helper class used for retrieving page/template asset relationships. 
+ * Helper class used for retrieving page/template asset relationships.
  * It uses the same API to retrieve and sort relationships as the content finder does.
  * The content finder is used during assemble page/template.
- * 
+ *
  * @author YuBingChen
  */
-public class PSWidgetContentFinderUtils
-{
+public class PSWidgetContentFinderUtils {
+
     /**
      * Retrieves associated relationships where the specified page/template is the owner
-     * and the dependents are local and shared assets. 
-     * 
-     * @param id the ID of the specified page or template, not <code>null</code> or empty.
-     * 
-     * @return the list of relationships, sorted by "sort-rank" property, never <code>null</code>, but may be empty.
+     * and the dependents are local and shared assets.
+     *
+     * @param id the ID of the specified page or template, not {@code null} or empty.
+     * @return the list of relationships, sorted by "sort-rank" property, never {@code null}, but may be empty.
      */
-    public static List<PSRelationship> getLocalSharedAssetRelationships(String id)
-    {
+    public static List<PSRelationship> getLocalSharedAssetRelationships(String id) {
         return getAssetRelationships(id, null);
     }
-    
+
     /**
-     * This is the same as {@link #getLocalSharedAssetRelationships(String)}, 
+     * This is the same as {@link #getLocalSharedAssetRelationships(String)},
      * except the dependents are shared assets only.
-     * 
-     * @param id the ID of the specified page or template, not <code>null</code> or empty.
-     * 
-     * @return the list of relationships, sorted by "sort-rank" property, never <code>null</code>, but may be empty.
+     *
+     * @param id the ID of the specified page or template, not {@code null} or empty.
+     * @return the list of relationships, sorted by "sort-rank" property, never {@code null}, but may be empty.
      */
-    public static List<PSRelationship> getSharedAssetRelationships(String id)
-    {
+    public static List<PSRelationship> getSharedAssetRelationships(String id) {
         return getAssetRelationships(id, PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
     }
-    
+
     /**
-     * except the dependents are local assets only.
-     * 
-     * @param id the ID of the specified page or template, not <code>null</code> or empty.
-     * 
-     * @return the list of relationships, sorted by "sort-rank" property, never <code>null</code>, but may be empty.
+     * Except the dependents are local assets only.
+     *
+     * @param id the ID of the specified page or template, not {@code null} or empty.
+     * @return the list of relationships, sorted by "sort-rank" property, never {@code null}, but may be empty.
      */
-    public static List<PSRelationship> getLocalAssetRelationships(String id)
-    {
+    public static List<PSRelationship> getLocalAssetRelationships(String id) {
         return getAssetRelationships(id, PSRelationshipConfig.TYPE_LOCAL_CONTENT);
     }
-    
+
     /**
      * Retrieves associated relationships where the specified page/template is the owner
-     * and the dependents are local and shared assets. In addition, the relationship category 
+     * and the dependents are local and shared assets. In addition, the relationship category
      * is active-assembly.
-     * 
-     * @param id the ID of the specified page or template, not <code>null</code>.
-     * @param relationshipName the name of the returned relationship. It may be <code>null</code> 
-     * if the dependent can be either share & local assets.
-     * 
-     * @return the list of relationships, sorted by "sort-rank" property, never <code>null</code>, but may be empty.
+     *
+     * @param id the ID of the specified page or template, not {@code null}.
+     * @param relationshipName the name of the returned relationship. It may be {@code null}
+     *                         if the dependent can be either shared & local assets.
+     * @return the list of relationships, sorted by "sort-rank" property, never {@code null}, but may be empty.
      */
-    private static List<PSRelationship> getAssetRelationships(String id, String relationshipName)
-    {
+    private static List<PSRelationship> getAssetRelationships(String id, String relationshipName) {
         notEmpty(id, "id may not be empty");
-        IPSGuid guid = getIdMapper().getItemGuid(id);
-        
-        List<PSRelationship> rels = getFinder().findRelationshipByOwner(guid);
+        var guid = getIdMapper().getItemGuid(id);
+
+        var rels = getFinder().findRelationshipByOwner(guid);
         if (relationshipName == null) {
             return rels;
         }
-        
-        Set<PSRelationship> sortSet = new HashSet<>();
-        for (PSRelationship r : rels)
-        {
-            String name = r.getConfig().getName();
-            if (name.equals(relationshipName) && (r.getOwner().getId()!=guid.getUUID()))
-            {
+
+        var sortSet = new HashSet<PSRelationship>();
+        for (var r : rels) {
+            var name = r.getConfig().getName();
+            if (name.equals(relationshipName) && (r.getOwner().getId() != guid.getUUID())) {
                 sortSet.add(r);
             }
         }
-        
         return new ArrayList<>(sortSet);
     }
-    
+
     /**
      * Gets a list of relationships (from the given source relationships) that matches one of the supplied widgets.
      * The matched relationships are the ones that will be used during (page) rendering.
-     * 
-     * @param srcRels the source relationships, never <code>null</code>.
-     * @param widgets the widget instances (that may be used on a page/template to render the source relationships/assets). Not <code>null</code>.
-     * 
-     * @return the matching relationships, never <code>null</code>, but may be empty.
+     *
+     * @param srcRels the source relationships, never {@code null}.
+     * @param widgets the widget instances (that may be used on a page/template to render the source relationships/assets). Not {@code null}.
+     * @return the matching relationships, never {@code null}, but may be empty.
      */
-    public static Collection<PSRelationship> getMatchRelationships(Collection<PSRelationship> srcRels, Collection<PSWidgetItem> widgets)
-    {
-        List<PSRelationship> result = new ArrayList<>();
-        for (PSWidgetItem w : widgets)
-        {
-            PSRelationship r = getMatchRelationship(srcRels, w);
+    public static Collection<PSRelationship> getMatchRelationships(Collection<PSRelationship> srcRels, Collection<PSWidgetItem> widgets) {
+        var result = new ArrayList<PSRelationship>();
+        for (var w : widgets) {
+            var r = getMatchRelationship(srcRels, w);
             if (r != null) {
                 result.add(r);
             }
         }
-        
         return result;
     }
-    
-    /**
-     * Gets the relationship (from the source relationships) that matches the given widgets.
-     * 
-     * @param srcRels the source relationships, assumed not <code>null</code>.
-     * @param widget the widget instances, assumed not <code>null</code>.
-     * 
-     * @return the matching relationship. It may be <code>null</code> if cannot find one.
-     */
-    public static PSRelationship getMatchRelationship(Collection<PSRelationship> srcRels, PSWidgetItem widget)
-    {
-        try {
-            PSWidgetInstance wi = new PSWidgetInstance();
-            wi.setItem(widget);
-            String widgetDefId = widget.getDefinitionId();
-            PSWidgetDefinition widgetDef = getWidgetService().load(widgetDefId);
-            wi.setDefinition(widgetDef);
-            WidgetCriteria criteria = new WidgetCriteria(wi);
 
-            TreeSet<PSRelationship> rels = new TreeSet<>(new RelationshipOrder(criteria));
-            for (PSRelationship r : srcRels) {
+    /**
+     * Gets the relationship (from the source relationships) that matches the given widget.
+     *
+     * @param srcRels the source relationships, assumed not {@code null}.
+     * @param widget the widget instance, assumed not {@code null}.
+     * @return the matching relationship. It may be {@code null} if cannot find one.
+     */
+    public static PSRelationship getMatchRelationship(Collection<PSRelationship> srcRels, PSWidgetItem widget) {
+        try {
+            var wi = new PSWidgetInstance();
+            wi.setItem(widget);
+            var widgetDefId = widget.getDefinitionId();
+            var widgetDef = getWidgetService().load(widgetDefId);
+            wi.setDefinition(widgetDef);
+            var criteria = new WidgetCriteria(wi);
+
+            var rels = new TreeSet<PSRelationship>(new RelationshipOrder(criteria));
+            for (var r : srcRels) {
                 if (getFinder().isMatchRelationship(r, criteria, null)) {
                     if (StringUtils.isNotBlank(widget.getId())
                             && StringUtils.isNotBlank(r.getProperty("sys_slotid"))
                             && !r.getProperty("sys_slotid").equals(widget.getId())) {
-                        PSRelationshipSet relationships = new PSRelationshipSet();
+                        var relationships = new PSRelationshipSet();
                         r.setProperty("sys_slotid", widget.getId());
                         relationships.add(r);
                         try {
@@ -193,141 +172,120 @@ public class PSWidgetContentFinderUtils
             if (rels.isEmpty()) {
                 return null;
             }
-
             return rels.first();
         } catch (PSDataServiceException | PSNotFoundException e) {
-            log.error("Error getting Widget Definition for: {} Error: {}",widget.getDefinitionId(),e.getMessage());
+            log.error("Error getting Widget Definition for: {} Error: {}", widget.getDefinitionId(), e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return null;
     }
-    
-    private static IPSIdMapper getIdMapper()
-    {
+
+    private static IPSIdMapper getIdMapper() {
         if (idMapper == null) {
             idMapper = (IPSIdMapper) getWebApplicationContext().getBean("sys_idMapper");
         }
         return idMapper;
     }
-    
+
     private static IPSIdMapper idMapper = null;
-    
-    private static IPSWidgetService getWidgetService()
-    {
+
+    private static IPSWidgetService getWidgetService() {
         if (widgetService == null) {
             widgetService = (IPSWidgetService) getWebApplicationContext().getBean("widgetService");
         }
         return widgetService;
     }
-    private static IPSWidgetService widgetService = null;    
-    
+
+    private static IPSWidgetService widgetService = null;
+
     /**
      * Comparator to order widget/slot relationships.
-     * Note, this comparator must be compatible or behaves the same as the 
+     * Note, this comparator must be compatible or behave the same as the
      * comparator defined in {@link PSRelationshipWidgetContentFinder}.
      */
-    private static class RelationshipOrder implements Comparator<PSRelationship>
-    {
-       private WidgetCriteria m_criteria;
-       
-       public RelationshipOrder(WidgetCriteria widget)
-       {
-           m_criteria = widget;    
-       }
-       
-       /**
-        * Compare widget/slot items for ordering
-        * 
-        * @param r1 page/asset relationship one, never <code>null</code>
-        * @param r2 page/asset relationship two, never <code>null</code>
-        * @return positive number for increasing order, negative for decreasing
-        *         order, zero for no change
-        */
-       public int compare(PSRelationship r1, PSRelationship r2)
-       {
-          notNull(r1);
-          notNull(r2);
+    private static class RelationshipOrder implements Comparator<PSRelationship> {
+        private final WidgetCriteria criteria;
 
-          if (isBlank(m_criteria.getWidgetName())) {
-              return compareUnnamed(r1, r2);
-          }
+        public RelationshipOrder(WidgetCriteria widget) {
+            this.criteria = widget;
+        }
 
-          String wname1 = r1.getProperty(PSRelationshipConfig.PDU_WIDGET_NAME);
-          String wname2 = r2.getProperty(PSRelationshipConfig.PDU_WIDGET_NAME);
-          if (isBlank(wname1) && isNotBlank(wname2)) {
-              return 1;
-          }
+        /**
+         * Compare widget/slot items for ordering.
+         *
+         * @param r1 page/asset relationship one, never {@code null}
+         * @param r2 page/asset relationship two, never {@code null}
+         * @return positive number for increasing order, negative for decreasing
+         *         order, zero for no change
+         */
+        @Override
+        public int compare(PSRelationship r1, PSRelationship r2) {
+            notNull(r1);
+            notNull(r2);
 
-          if (isNotBlank(wname1) && isBlank(wname2)) {
-              return -1;
-          }
-          
-          return compareUnnamed(r1, r2);
-       }
-       
-       /**
-        * Compare items as unnamed items.
-        * @param r1 widget/slot item one, never <code>null</code>
-        * @param r2 widget/slot item two, never <code>null</code>
-        * @return positive number for increasing order, negative for decreasing
-        *         order, zero for no change
-        */
-       private int compareUnnamed(PSRelationship r1, PSRelationship r2)
-       {
-           int sortRank1 = getSortRank(r1);
-           int sortRank2 = getSortRank(r2);
-           
-           if (sortRank1 != sortRank2) {
-               return sortRank1 - sortRank2;
-           }
-               
-          /*
-           * If this comparator returns zero, a set based on this comparator
-           * will treat the two slot items as equal (and only store one of
-           * them).
-           * 
-           * Therefore, if by some chance the sort ranks are the same, compare
-           * the items using their relationship ids (if set) or their item
-           * ids.
-           */
-          IPSGuid id1 = r1.getGuid();
-          IPSGuid id2 = r2.getGuid();
-          return (id1.longValue() < id2.longValue() ? -1 : 1);
-       }
-       
-       private int getSortRank(PSRelationship rel)
-       {
-           String sort = rel.getProperty(PSRelationshipConfig.PDU_SORTRANK);
-           if (isBlank(sort)) {
-               return 0;
-           }
-           try
-           {
-               return Integer.parseInt(sort);
-           }
-           catch (NumberFormatException e)
-           {
-               return Integer.MAX_VALUE;
-           }
-       }
+            if (isBlank(criteria.getWidgetName())) {
+                return compareUnnamed(r1, r2);
+            }
 
+            var wname1 = r1.getProperty(PSRelationshipConfig.PDU_WIDGET_NAME);
+            var wname2 = r2.getProperty(PSRelationshipConfig.PDU_WIDGET_NAME);
+            if (isBlank(wname1) && isNotBlank(wname2)) {
+                return 1;
+            }
+            if (isNotBlank(wname1) && isBlank(wname2)) {
+                return -1;
+            }
+            return compareUnnamed(r1, r2);
+        }
+
+        /**
+         * Compare items as unnamed items.
+         * @param r1 widget/slot item one, never {@code null}
+         * @param r2 widget/slot item two, never {@code null}
+         * @return positive number for increasing order, negative for decreasing
+         *         order, zero for no change
+         */
+        private int compareUnnamed(PSRelationship r1, PSRelationship r2) {
+            var sortRank1 = getSortRank(r1);
+            var sortRank2 = getSortRank(r2);
+
+            if (sortRank1 != sortRank2) {
+                return sortRank1 - sortRank2;
+            }
+
+            // If this comparator returns zero, a set based on this comparator
+            // will treat the two slot items as equal (and only store one of them).
+            // Therefore, if by some chance the sort ranks are the same, compare
+            // the items using their relationship ids (if set) or their item ids.
+            var id1 = r1.getGuid();
+            var id2 = r2.getGuid();
+            return Long.compare(id1.longValue(), id2.longValue());
+        }
+
+        private int getSortRank(PSRelationship rel) {
+            var sort = rel.getProperty(PSRelationshipConfig.PDU_SORTRANK);
+            if (isBlank(sort)) {
+                return 0;
+            }
+            try {
+                return Integer.parseInt(sort);
+            } catch (NumberFormatException e) {
+                return Integer.MAX_VALUE;
+            }
+        }
     }
-    
-    private static PSRelationshipWidgetContentFinder getFinder()
-    {
+
+    private static PSRelationshipWidgetContentFinder getFinder() {
         if (ms_finder == null) {
             ms_finder = (PSRelationshipWidgetContentFinder) PSPageUtils.getWidgetContentFinder(null);
         }
-
         return ms_finder;
     }
+
     private static PSRelationshipWidgetContentFinder ms_finder = null;
-    
 
     /**
-     * Logger for this class
+     * Logger for this class.
      */
     private static final Logger log = LogManager.getLogger(PSWidgetContentFinderUtils.class);
-
 }

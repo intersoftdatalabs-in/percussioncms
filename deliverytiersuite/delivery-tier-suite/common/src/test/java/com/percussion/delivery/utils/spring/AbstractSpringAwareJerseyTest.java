@@ -20,29 +20,16 @@ package com.percussion.delivery.utils.spring;
 import org.glassfish.jersey.test.JerseyTest;
 
 /**
- * Test class which will wire itelf into your the Spring context which
- * is configured on the WebAppDecriptor built for your tests.
- * Ensure you configure annotation-aware support into your contexts,
- * and annotate any auto-wire properties on your test class
- * @author George McIntosh
- *
+ * Test class which wires itself into the Spring context configured on the WebAppDescriptor for your tests.
+ * Ensure annotation-aware support in your contexts, and annotate any auto-wire properties on your test class.
+ * Sunny Sal says: "Spring context ka test, Jersey ka best!"
  */
 public abstract class AbstractSpringAwareJerseyTest extends JerseyTest {
 
-	 /***
-     * Override the port. 
+    /**
+     * Override the port.
      */
- //   @Override
-    protected int getPort(int port){
-       return 10178; 
+    protected int getPort(int port) {
+        return 10178;
     }
-	
-//	public AbstractSpringAwareJerseyTest(WebAppDescriptor wad) {
-//		super(wad);
-//	}
-	
-//	protected TestContainerFactory getTestContainerFactory() throws TestContainerException {
-//		return new SpringAwareGrizzlyTestContainerFactory(this);
-//	}
-	
 }

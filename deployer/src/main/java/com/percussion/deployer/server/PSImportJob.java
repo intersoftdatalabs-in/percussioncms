@@ -82,10 +82,9 @@ import java.util.ResourceBundle;
 /**
  * Job to install objects from a deployment archive using an import descriptor.
  */
-public class PSImportJob extends PSDeployJob
-{
+public class PSImportJob extends PSDeployJob {
    private static final Logger log = LogManager.getLogger(PSImportJob.class);
-    
+
    /**
     * Restores the import descriptor from the supplied document, and validates
     * that the user is authorized to perform this job. Saves the security token
@@ -134,35 +133,23 @@ public class PSImportJob extends PSDeployJob
       }
    }
 
+   private void initDepCount() {
+      var pkgList = m_descriptor.getImportPackageList().stream()
+                                .map(PSImportPackage::getPackage)
+                                .toList();
+      initDepCount(pkgList.iterator());
+   }
 
-    private void initDepCount()
-    {
-        List<PSDeployableElement> pkgList = new ArrayList<>();
-         Iterator importPkgs = m_descriptor.getImportPackageList().iterator();
-         while (importPkgs.hasNext())
-         {
-            PSImportPackage importPkg = (PSImportPackage) importPkgs.next();
-            pkgList.add(importPkg.getPackage());
-         }         
-         initDepCount(pkgList.iterator());
-    }
+   private void acquirePubLock() throws PSJobException {
+      var lockMgr = PSServerLockManager.getInstance();
+      var result = lockMgr.acquireLock(PSServerLockManager.RESOURCE_PUBLISHER,
+                                       PSDeploymentHandler.getActiveSubsystem().name() + ":" + getUserId());
+      if (!result.wasLockAcquired()) {
+         throw new PSJobException(result.formatLockException());
+      }
+      m_pubLockId = result.getLock().getLockId();
+   }
 
-
-    private void acquirePubLock() throws PSJobException
-    {
-        PSServerLockManager lockMgr = PSServerLockManager.getInstance();
-         PSServerLockResult result = lockMgr.acquireLock(
-               PSServerLockManager.RESOURCE_PUBLISHER,
-               PSDeploymentHandler.getActiveSubsystem().name() + ":" + getUserId());
-    
-         if (!result.wasLockAcquired())
-         {
-            throw new PSJobException(result.formatLockException());
-         }
-         else
-            m_pubLockId = result.getLock().getLockId();
-    }
-   
    /**
     * Standalone method to install an archive, used by server-side services, does not check authorization.
     * 
@@ -293,36 +280,17 @@ public class PSImportJob extends PSDeployJob
 
    }
 
-   /**
-    * Use current ID-Map to convert the IDs in the current descriptor to
-    * the new IDs, and write the converted descriptor to the location
-    * of {@link PSDeploymentHandler#IMPORT_ARCHIVE_DIR}, with the same
-    * name as the archive file, but ".xml" file extension.
-    * 
-    * @param info the info contains current descriptor, assumed not 
-    * <code>null</code>
-    * @param ctx the import context, assumed not <code>null</code>.
-    * 
-    * @throws IOException if failed to create/write to the descriptor file.
-    * @throws PSDeployException if any other error occurs. 
-    */
-   private void writeDescriptorWithNewIDs(PSArchiveInfo info, PSImportCtx ctx)
-      throws PSDeployException, IOException
-   {
-      PSDeploymentHandler dh = PSDeploymentHandler.getInstance();
-      PSDependencyManager dm = (PSDependencyManager) dh.getDependencyManager();
+   private void writeDescriptorWithNewIDs(PSArchiveInfo info, PSImportCtx ctx) throws PSDeployException, IOException {
+      var dh = PSDeploymentHandler.getInstance();
+      var dm = (PSDependencyManager) dh.getDependencyManager();
+      var cvtDesc = dm.convertExportDescriptor(info, dh.getLogHandler(), ctx.getCurrentIdMap());
 
-      PSExportDescriptor cvtDesc = dm.convertExportDescriptor(info, dh
-            .getLogHandler(), ctx.getCurrentIdMap());
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
+      var expEl = cvtDesc.toXml(doc);
+      var descString = PSXmlDocumentBuilder.toString(expEl);
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      Element expEl = cvtDesc.toXml(doc);
-      String descString = PSXmlDocumentBuilder.toString(expEl);
-      
-      File descFile = new File(PSDeploymentHandler.IMPORT_ARCHIVE_DIR,
-            info.getArchiveRef() + ".xml");
+      var descFile = new File(PSDeploymentHandler.IMPORT_ARCHIVE_DIR, info.getArchiveRef() + ".xml");
       descFile.getParentFile().mkdirs();
-      
       FileUtils.writeStringToFile(descFile, descString, "UTF8");
    }
    

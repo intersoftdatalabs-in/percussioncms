@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -61,7 +62,7 @@ public class PSConditionalExitEvaluator extends PSRuleListEvaluator
 
       try
       {
-         m_preparedExits = new ArrayList();
+         m_preparedExits = new ArrayList<>();
          PSDataHandler.loadExtensions(appHandler, exit.getRules(),
             className, m_preparedExits);
       }
@@ -74,7 +75,7 @@ public class PSConditionalExitEvaluator extends PSRuleListEvaluator
    /**
     * Returns a list of prepared extensions.  Never <code>null</code>.
     */
-   public List getExits()
+   public List<Object> getExits()
    {
       return m_preparedExits;
    }
@@ -83,5 +84,5 @@ public class PSConditionalExitEvaluator extends PSRuleListEvaluator
     * List of prepared exits, initialized in the constructor, never <code>
     * null</code> after that.
     */
-   private List m_preparedExits;
+   private List<Object> m_preparedExits;
 }

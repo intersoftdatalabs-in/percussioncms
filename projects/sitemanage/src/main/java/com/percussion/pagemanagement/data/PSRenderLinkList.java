@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,10 +25,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSRenderLink.
+ */
 @XmlRootElement(name = "RenderLink")
-@ArraySchema(schema=@Schema(implementation = PSRenderLink.class))
+@ArraySchema(schema = @Schema(implementation = PSRenderLink.class))
 public class PSRenderLinkList extends ArrayList<PSRenderLink> {
+    public PSRenderLinkList() {
+        super();
+    }
     public PSRenderLinkList(Collection<? extends PSRenderLink> c) {
         super(c);
     }

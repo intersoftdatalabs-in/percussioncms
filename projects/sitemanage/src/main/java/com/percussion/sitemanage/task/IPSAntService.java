@@ -34,7 +34,6 @@ import org.apache.tools.ant.BuildListener;
  */
 public interface IPSAntService
 {
-
     /**
      * Check to see if a script is running.
      * This is only really useful for reporting purposes
@@ -55,74 +54,60 @@ public interface IPSAntService
     public String runAnt(AntScript antScript);
     
     public static class AntScript {
-        
         @NotEmpty
         private String file;
         private List<String> targets;
         private List<? extends BuildListener> listeners;
-        
         @NotNull
         private boolean blocking = true;
-        
         @NotNull
         private Map<String, String> properties = new HashMap<>();
-        
+
         /**
          * The file name of the script.
          * @return never <code>null</code>.
          */
-        public String getFile()
-        {
+        public String getFile() {
             return file;
         }
-        public void setFile(String file)
-        {
+        public void setFile(String file) {
             this.file = file;
         }
-        public List<String> getTargets()
-        {
+        public List<String> getTargets() {
             return targets;
         }
-        public void setTargets(List<String> targets)
-        {
+        public void setTargets(List<String> targets) {
             this.targets = targets;
         }
-        public List<? extends BuildListener> getListeners()
-        {
+        public List<? extends BuildListener> getListeners() {
             return listeners;
         }
-        public void setListeners(List<? extends BuildListener> listeners)
-        {
+        public void setListeners(List<? extends BuildListener> listeners) {
             this.listeners = listeners;
         }
         /**
          * If <code>true</code> the call to {@link IPSAntService#runAnt(AntScript)}
          * will block and wait till the script is done.
-         * Its recommend that if set to <code>false</code> to add {@link BuildListener}
+         * It is recommended that if set to <code>false</code> to add {@link BuildListener}
          * to know when the build is complete.
          * @return never <code>null</code>.
          */
-        public boolean isBlocking()
-        {
+        public boolean isBlocking() {
             return blocking;
         }
-        public void setBlocking(boolean blocking)
-        {
+        public void setBlocking(boolean blocking) {
             this.blocking = blocking;
         }
         /**
          * Properties that are passed on to the ant script.
          * @return never <code>null</code>.
          */
-        public Map<String, String> getProperties()
-        {
+        public Map<String, String> getProperties() {
             return properties;
         }
-        public void setProperties(Map<String, String> properties)
-        {
+        public void setProperties(Map<String, String> properties) {
             this.properties = properties;
         }
     }
 
 }
-

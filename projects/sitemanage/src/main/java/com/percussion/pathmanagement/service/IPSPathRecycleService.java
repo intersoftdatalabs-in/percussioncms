@@ -19,8 +19,18 @@ package com.percussion.pathmanagement.service;
 
 import com.percussion.share.data.PSNoContent;
 
+/**
+ * Service for restoring folders from recycle bin.
+ */
 public interface IPSPathRecycleService {
 
+    /**
+     * Restores a folder by its GUID.
+     *
+     * @param guid the GUID of the folder to restore, not {@code null}
+     * @return a {@link PSNoContent} response
+     * @throws IPSPathService.PSPathServiceException if the folder cannot be restored
+     */
     PSNoContent restoreFolder(String guid) throws IPSPathService.PSPathServiceException;
 
 }

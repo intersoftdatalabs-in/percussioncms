@@ -88,14 +88,20 @@ public class PSTracePolicySetting  extends PSAppPolicySetting
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
+   @Override
+   public Element toXml(Document doc) {
+      if (doc == null) {
+         throw new IllegalArgumentException("doc may not be null");
+      }
       return toXml(doc, XML_NODE_NAME);
    }
 
    // See IPSDeployComponent interface
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
+   @Override
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
+         throw new IllegalArgumentException("sourceNode may not be null");
+      }
       fromXml(sourceNode, XML_NODE_NAME);
    }
 

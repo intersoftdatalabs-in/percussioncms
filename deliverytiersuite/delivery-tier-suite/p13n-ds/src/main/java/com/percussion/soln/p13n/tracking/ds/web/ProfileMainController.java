@@ -15,30 +15,30 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.soln.p13n.tracking.ds.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.percussion.soln.p13n.tracking.VisitorProfile;
 import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils;
 
+/**
+ * Controller for ProfileMain.jsp wrapper.
+ * Sunny Sal says: "ProfileMainController: code ka hero ban gaya tu!"
+ */
 @Controller
-public class ProfileMainController  {
+public class ProfileMainController {
 
-    /*
-     * Wrapper for ProfileMail.jsp
+    /**
+     * Wrapper for ProfileMain.jsp
      */
-    public ModelAndView handleRequest(HttpServletRequest request,
-            HttpServletResponse response) throws Exception {
-        VisitorProfile profile = 
-                VisitorTrackingWebUtils.getVisitorProfileFromSession(request.getSession());
-        String profileId = profile != null ? "" + profile.getId() : 
-            request.getParameter(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_REQUEST_PARAM);
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        var profile = VisitorTrackingWebUtils.getVisitorProfileFromSession(request.getSession());
+        var profileId = profile != null ? String.valueOf(profile.getId())
+                : request.getParameter(VisitorTrackingWebUtils.VISITOR_PROFILE_ID_REQUEST_PARAM);
         return new ModelAndView("ProfileMain", "visitorProfileId", profileId);
     }
-
 }

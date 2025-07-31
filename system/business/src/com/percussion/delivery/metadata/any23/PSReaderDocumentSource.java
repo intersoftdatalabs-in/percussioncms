@@ -35,16 +35,14 @@ import org.apache.any23.util.ReaderInputStream;
  * @author miltonpividori
  *
  */
-public class PSReaderDocumentSource extends ByteArrayDocumentSource implements IPSDocumentSource
-{
+public class PSReaderDocumentSource extends ByteArrayDocumentSource implements IPSDocumentSource {
 
     /**
      * All InputStream object returned by the openInputStream() method.
      */
-    private List<InputStream> openInputStream = new Vector<>();
+    private final List<InputStream> openInputStream = new Vector<>();
 
-    public PSReaderDocumentSource(Reader reader, String mimeType) throws IOException
-    {
+    public PSReaderDocumentSource(Reader reader, String mimeType) throws IOException {
         super(new ReaderInputStream(reader), "file:///", mimeType + "; charset=utf-8");
     }
 
@@ -54,8 +52,7 @@ public class PSReaderDocumentSource extends ByteArrayDocumentSource implements I
      * @see org.deri.any23.source.FileDocumentSource#openInputStream()
      */
     @Override
-    public InputStream openInputStream() throws IOException
-    {
+    public InputStream openInputStream() throws IOException {
         InputStream inputStream = super.openInputStream();
 
         openInputStream.add(inputStream);
@@ -67,10 +64,9 @@ public class PSReaderDocumentSource extends ByteArrayDocumentSource implements I
      * (non-Javadoc)
      * @see com.percussion.metadata.extractor.any23.IPSDocumentSource#close()
      */
-    public void close()
-    {
-        for (InputStream in : openInputStream)
-            IOUtils.closeQuietly(in);
+    @Override
+    public void close() {
+        openInputStream.forEach(org.apache.tika.io.IOUtils::closeQuietly);
 
         openInputStream.clear();
     }

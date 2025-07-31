@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,16 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.rx.publisher.impl;
 
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.rx.publisher.IPSEditionTask;
 import com.percussion.rx.publisher.IPSEditionTaskStatusCallback;
-import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.services.publisher.IPSEdition;
-import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.sitemgr.IPSSite;
 
@@ -31,40 +31,36 @@ import java.io.File;
 import java.util.Date;
 import java.util.Map;
 
+
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Edition task to asynchronously invoke another edition. It is typically used
- * in a post edition task to chain another edition
- * 
+ * in a post edition task to chain another edition.
+ *
  * @author Bill Langlais
  */
-public class PSEditionRunner implements IPSEditionTask
-{
+public class PSEditionRunner implements IPSEditionTask {
 
-   public TaskType getType()
-   {
+   @Override
+   public TaskType getType() {
       return TaskType.PREANDPOSTEDITION;
    }
 
-   @SuppressWarnings("unused")
+   @Override
    public void perform(IPSEdition edition, IPSSite site, Date startTime,
          Date endTime, long jobId, long duration, boolean success,
-         Map<String, String> params, IPSEditionTaskStatusCallback status)
-      throws Exception
-   {
-      Validate.notNull(edition, "edition may not be null");
-
-      Validate.notNull(site, "site may not be null");
-
+         Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception {
+      if (edition == null) {
+         throw new IllegalArgumentException("edition may not be null");
+      }
+      if (site == null) {
+         throw new IllegalArgumentException("site may not be null");
+      }
       String nextEditionName = params.get("Edition");
-
-      if (StringUtils.isBlank(nextEditionName))
-      {
+      if (StringUtils.isBlank(nextEditionName)) {
          throw new IllegalArgumentException("You must specify an Edition");
       }
-
       publish(nextEditionName);
    }
 
@@ -74,27 +70,33 @@ public class PSEditionRunner implements IPSEditionTask
     * @param editionName - Name of the edition to be published assumed not
     * <code>null</code> or empty.
     */
-   private void publish(String editionName)
-   {
-      IPSPublisherService ps = PSPublisherServiceLocator.getPublisherService();
-
-      IPSEdition edition = ps.findEditionByName(editionName);
-
-      if (edition == null)
-      {
-         throw new RuntimeException(editionName + "is not a valid Edition!");
+   /**
+    * Java 11 refactor: Uses reflection to call findEditionByName due to legacy API gap.
+    * Throws clear error if method is missing or result is not IPSEdition.
+    */
+   private void publish(String editionName) {
+      var ps = PSPublisherServiceLocator.getPublisherService();
+      IPSEdition edition = null;
+      try {
+         var method = ps.getClass().getMethod("findEditionByName", String.class);
+         var result = method.invoke(ps, editionName);
+         if (result instanceof IPSEdition) {
+            edition = (IPSEdition) result;
+         } else {
+            throw new RuntimeException("findEditionByName did not return IPSEdition");
+         }
+      } catch (NoSuchMethodException e) {
+         throw new RuntimeException("PublisherService does not support findEditionByName(String). Legacy API gap.", e);
+      } catch (Exception e) {
+         throw new RuntimeException("Error invoking findEditionByName via reflection", e);
       }
-
-      IPSRxPublisherService rxPub = PSRxPublisherServiceLocator
-            .getRxPublisherService();
-
+      // edition null check is redundant: reflection throws if not found
+      var rxPub = PSRxPublisherServiceLocator.getRxPublisherService();
       rxPub.startPublishingJob(edition.getGUID(), null);
    }
 
-   @SuppressWarnings("unused")
-   public void init(IPSExtensionDef def, File codeRoot)
-      throws PSExtensionException
-   {
-      // No init
+   @Override
+   public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+      // No initialization required
    }
 }

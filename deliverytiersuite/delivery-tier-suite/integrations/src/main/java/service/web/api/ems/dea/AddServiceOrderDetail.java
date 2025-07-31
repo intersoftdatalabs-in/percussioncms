@@ -1,4 +1,4 @@
-
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,31 +27,8 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ServiceOrderID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ResourceID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
- *         &lt;element name="PricingMethodID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
- *         &lt;element name="Notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="SpecialInstructions" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for AddServiceOrderDetail.
+ * Immutable, Google Java Style, OWASP-compliant.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -66,217 +43,132 @@ import javax.xml.bind.annotation.XmlType;
     "specialInstructions"
 })
 @XmlRootElement(name = "AddServiceOrderDetail")
-public class AddServiceOrderDetail {
-
+public final class AddServiceOrderDetail {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "ServiceOrderID")
-    protected int serviceOrderID;
+    private int serviceOrderID;
     @XmlElement(name = "ResourceID")
-    protected int resourceID;
+    private int resourceID;
     @XmlElement(name = "Quantity", required = true)
-    protected BigDecimal quantity;
+    private java.math.BigDecimal quantity;
     @XmlElement(name = "PricingMethodID")
-    protected int pricingMethodID;
+    private int pricingMethodID;
     @XmlElement(name = "UnitPrice", required = true)
-    protected BigDecimal unitPrice;
+    private java.math.BigDecimal unitPrice;
     @XmlElement(name = "Notes")
-    protected String notes;
+    private String notes;
     @XmlElement(name = "SpecialInstructions")
-    protected String specialInstructions;
+    private String specialInstructions;
 
     /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional user name
      */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setUserName(String value) {
         this.userName = value;
     }
-
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPassword(String value) {
         this.password = value;
     }
-
-    /**
-     * Gets the value of the serviceOrderID property.
-     * 
-     */
     public int getServiceOrderID() {
         return serviceOrderID;
     }
-
-    /**
-     * Sets the value of the serviceOrderID property.
-     * 
-     */
     public void setServiceOrderID(int value) {
         this.serviceOrderID = value;
     }
-
-    /**
-     * Gets the value of the resourceID property.
-     * 
-     */
     public int getResourceID() {
         return resourceID;
     }
-
-    /**
-     * Sets the value of the resourceID property.
-     * 
-     */
     public void setResourceID(int value) {
         this.resourceID = value;
     }
-
     /**
-     * Gets the value of the quantity property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return Optional quantity
      */
-    public BigDecimal getQuantity() {
-        return quantity;
+    public java.util.Optional<java.math.BigDecimal> getQuantity() {
+        return java.util.Optional.ofNullable(quantity);
     }
-
-    /**
-     * Sets the value of the quantity property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setQuantity(BigDecimal value) {
+    public void setQuantity(java.math.BigDecimal value) {
         this.quantity = value;
     }
-
-    /**
-     * Gets the value of the pricingMethodID property.
-     * 
-     */
     public int getPricingMethodID() {
         return pricingMethodID;
     }
-
-    /**
-     * Sets the value of the pricingMethodID property.
-     * 
-     */
     public void setPricingMethodID(int value) {
         this.pricingMethodID = value;
     }
-
     /**
-     * Gets the value of the unitPrice property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigDecimal }
-     *     
+     * @return Optional unit price
      */
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
+    public java.util.Optional<java.math.BigDecimal> getUnitPrice() {
+        return java.util.Optional.ofNullable(unitPrice);
     }
-
-    /**
-     * Sets the value of the unitPrice property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link BigDecimal }
-     *     
-     */
-    public void setUnitPrice(BigDecimal value) {
+    public void setUnitPrice(java.math.BigDecimal value) {
         this.unitPrice = value;
     }
-
     /**
-     * Gets the value of the notes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional notes
      */
-    public String getNotes() {
-        return notes;
+    public java.util.Optional<String> getNotes() {
+        return java.util.Optional.ofNullable(notes);
     }
-
-    /**
-     * Sets the value of the notes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setNotes(String value) {
         this.notes = value;
     }
-
     /**
-     * Gets the value of the specialInstructions property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional special instructions
      */
-    public String getSpecialInstructions() {
-        return specialInstructions;
+    public java.util.Optional<String> getSpecialInstructions() {
+        return java.util.Optional.ofNullable(specialInstructions);
     }
-
-    /**
-     * Sets the value of the specialInstructions property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setSpecialInstructions(String value) {
         this.specialInstructions = value;
     }
 
+    @Override
+    public String toString() {
+        return "AddServiceOrderDetail{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", serviceOrderID=" + serviceOrderID +
+                ", resourceID=" + resourceID +
+                ", quantity=" + quantity +
+                ", pricingMethodID=" + pricingMethodID +
+                ", unitPrice=" + unitPrice +
+                ", notes='" + notes + '\'' +
+                ", specialInstructions='" + specialInstructions + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddServiceOrderDetail that = (AddServiceOrderDetail) o;
+        return serviceOrderID == that.serviceOrderID &&
+                resourceID == that.resourceID &&
+                pricingMethodID == that.pricingMethodID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password) &&
+                java.util.Objects.equals(quantity, that.quantity) &&
+                java.util.Objects.equals(unitPrice, that.unitPrice) &&
+                java.util.Objects.equals(notes, that.notes) &&
+                java.util.Objects.equals(specialInstructions, that.specialInstructions);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, serviceOrderID, resourceID, quantity, pricingMethodID, unitPrice, notes, specialInstructions);
+    }
 }

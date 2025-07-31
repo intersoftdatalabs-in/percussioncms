@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,38 +22,34 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 /**
  * A simple wrapper around a string class to allow for proper handling of non-ascii characters when used with CXF
  * serialization.
+ * Sunny Sal says: "Wrapping strings tighter than my code reviews!"
  */
 @JsonRootName(value = "psstring")
-public class PSStringWrapper
-{
-    public PSStringWrapper()
-    {
-        //no arg constructor
+public class PSStringWrapper {
+    private String value;
+    private static final long serialVersionUID = -7646223863119728949L;
+
+    public PSStringWrapper() {
+        // No-arg constructor
     }
 
-    public PSStringWrapper(String value)
-    {
+    public PSStringWrapper(String value) {
         this.value = value;
     }
+
     /**
-     * @return the value of the wrapped string, may be <code>null</code>.
+     * @return the value of the wrapped string, may be null.
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
      * Sets the value to be wrapped.
-     * 
-     * @param value of the string. 
+     *
+     * @param value of the string.
      */
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
-
-    private String value;
-
-    private static final long serialVersionUID = -7646223863119728949L;
 }

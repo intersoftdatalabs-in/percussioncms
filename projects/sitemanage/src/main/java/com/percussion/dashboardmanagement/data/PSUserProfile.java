@@ -30,29 +30,23 @@ public class PSUserProfile extends PSAbstractPersistantObject {
     @NotBlank
     private String userName;
 
-    
     public String getUserName() {
         return userName;
     }
 
-    
     public void setUserName(String userName) {
         this.userName = userName;
     }
-
 
     @Override
     public String getId() {
         return getUserName();
     }
 
-
     @Override
     public void setId(String id) {
         setUserName(id);
     }
-    
 
     private static final long serialVersionUID = -6627409151209959037L;
-    
 }

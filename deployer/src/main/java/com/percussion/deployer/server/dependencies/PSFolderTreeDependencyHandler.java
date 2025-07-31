@@ -28,6 +28,7 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /**
@@ -57,7 +58,7 @@ public class PSFolderTreeDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
@@ -83,22 +84,14 @@ public class PSFolderTreeDependencyHandler
     }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
 
-      List deps = new ArrayList();
-
-      // get all top level folders
-      Iterator paths = getChildFolderPaths(this.getRelationshipProcessor(tok), null);
-      while (paths.hasNext())
-      {
-         String path = (String)paths.next();
-         deps.add(createDeployableElement(m_def, path, path));
-      }
-
-      return deps.iterator();
+      var paths = getChildFolderPaths(getRelationshipProcessor(tok), null);
+      return paths.stream().map(path -> createDeployableElement(m_def, path, path)).iterator();
    }
 
    // see base class

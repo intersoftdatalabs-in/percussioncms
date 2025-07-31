@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -25,9 +27,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSComment.
+ */
 @XmlRootElement(name = "comments")
-@ArraySchema(schema=@Schema(implementation = PSComment.class))
+@ArraySchema(schema = @Schema(implementation = PSComment.class))
 @JsonRootName("comments")
 public class PSCommentList extends ArrayList<PSComment> {
     public PSCommentList(Collection<? extends PSComment> c) {

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -22,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSUnusedAssetSummary.
+ */
 @JsonRootName("UnusedAssetSummary")
 public class PSUnusedAssetSummaryList extends ArrayList<PSUnusedAssetSummary> {
     public PSUnusedAssetSummaryList(Collection<? extends PSUnusedAssetSummary> c) {

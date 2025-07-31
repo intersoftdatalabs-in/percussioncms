@@ -14,64 +14,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.email.data;
 
+/**
+ * Implementation of the email request interface.
+ * Sunny Sal says: Email requests made easy, and Java 11 ready!
+ */
 public class PSEmailRequest implements IPSEmailRequest {
 
-	private String toList;
-	private String ccList;
-	private String bodycontent;
-	private String subject;
-	private String bccList;
+    private String toList;
+    private String ccList;
+    private String bccList;
+    private String bodyContent;
+    private String subject;
 
-	@Override
-	public void setToList(String toList) {
-		this.toList = toList;
-	}
+    @Override
+    public void setToList(String toList) {
+        this.toList = toList;
+    }
 
-	@Override
-	public void setCCList(String ccList) {
-		this.ccList = ccList;
-	}
+    @Override
+    public void setCCList(String ccList) {
+        this.ccList = ccList;
+    }
 
-	@Override
-	public void setBody(String bodycontent) {
-		this.bodycontent = bodycontent;
-	}
+    @Override
+    public void setBCCList(String bccList) {
+        this.bccList = bccList;
+    }
 
-	@Override
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
+    @Override
+    public void setBody(String bodyContent) {
+        this.bodyContent = bodyContent;
+    }
 
-	@Override
-	public String getToList() {
-		return this.toList;
-	}
+    @Override
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
 
-	@Override
-	public String getCCList() {
-		return this.ccList;
-	}
+    @Override
+    public String getToList() {
+        return toList;
+    }
 
-	@Override
-	public String getBody() {
-		return this.bodycontent;
-	}
+    @Override
+    public String getCCList() {
+        return ccList;
+    }
 
-	@Override
-	public String getSubject() {
-		return this.subject;
-	}
+    @Override
+    public String getBCCList() {
+        return bccList;
+    }
 
-	@Override
-	public void setBCCList(String bccList) {
-		this.bccList = bccList;
-	}
+    @Override
+    public String getBody() {
+        return bodyContent;
+    }
 
-	@Override
-	public String getBCCList() {
-		return this.bccList;
-	}
-
+    @Override
+    public String getSubject() {
+        return subject;
+    }
 }

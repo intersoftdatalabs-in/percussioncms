@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,58 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UpdateBookingResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: Immutable SOAP response for UpdateBooking.
+ * <p>
+ * Represents the response payload for the UpdateBooking endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "If only updating your code was as easy as updating a booking!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateBookingResult"
 })
 @XmlRootElement(name = "UpdateBookingResponse")
-public class UpdateBookingResponse {
+public final class UpdateBookingResponse {
 
     @XmlElement(name = "UpdateBookingResult")
-    protected String updateBookingResult;
+    private final String updateBookingResult;
 
-    /**
-     * Gets the value of the updateBookingResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUpdateBookingResult() {
-        return updateBookingResult;
+    private UpdateBookingResponse(Builder builder) {
+        this.updateBookingResult = builder.updateBookingResult;
     }
 
     /**
-     * Sets the value of the updateBookingResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the update booking result.
+     *
+     * @return Optional result string
      */
-    public void setUpdateBookingResult(String value) {
-        this.updateBookingResult = value;
+    public Optional<String> getUpdateBookingResult() {
+        return Optional.ofNullable(updateBookingResult);
     }
 
+    /**
+     * Builder for UpdateBookingResponse.
+     */
+    public static class Builder {
+        private String updateBookingResult;
+
+        public Builder withUpdateBookingResult(String updateBookingResult) {
+            this.updateBookingResult = updateBookingResult;
+            return this;
+        }
+
+        public UpdateBookingResponse build() {
+            return new UpdateBookingResponse(this);
+        }
+    }
 }

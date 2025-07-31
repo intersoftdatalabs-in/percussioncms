@@ -31,6 +31,7 @@ import org.apache.logging.log4j.Logger;
  * Writes the postbody for a HTML form, using <code>multipart/form-data<code>
  * encoding.
  */
+// REFACTORED: CP-JAVA11
 class PSMultipartWriter extends OutputStreamWriter
 {
    /**
@@ -194,7 +195,7 @@ class PSMultipartWriter extends OutputStreamWriter
       File f = new File(filename);
       if (f == null)
       {
-         return;
+         // ...existing code...
       }
       String ctype;
       if (encoding != null && encoding.length() > 0)

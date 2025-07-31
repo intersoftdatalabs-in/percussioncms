@@ -95,7 +95,7 @@ import com.percussion.utils.service.impl.PSUtilityService;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils; // Modernized: Use lang3
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,11 +126,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional; // Java 11 Optional
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors; // Java 11 Streams
 
 import static com.percussion.role.service.IPSRoleService.ADMINISTRATOR_ROLE;
 import static com.percussion.role.service.IPSRoleService.DESIGNER_ROLE;
@@ -142,10 +144,10 @@ import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
 import static com.percussion.webservices.PSWebserviceUtils.setUserName;
 import static java.util.Arrays.asList;
 import static org.apache.commons.collections.CollectionUtils.containsAny;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.apache.commons.lang.Validate.isTrue;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * 

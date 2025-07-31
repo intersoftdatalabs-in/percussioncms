@@ -14,112 +14,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import java.util.Date;
 
 /**
- * 
- * Represents information about an authorized tenant and maintains 
- * the state of the tenant between requests.
- * 
- * @author natechadwick
- *
+ * Represents information about an authorized tenant and maintains state between requests.
  */
-public class PSTenantInfo implements IPSTenantInfo{
+public class PSTenantInfo implements IPSTenantInfo {
 
-	private String tenantid;
-	private long api_counter;
-	private Date api_start;
-	private Date last_authdate;
-	private PSLicenseStatus status;
-	/** 
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#setTenantId(java.lang.String)
-	 */
-	@Override
-	public void setTenantId(String id) {
-		this.tenantid = id;
-	}
+    private String tenantid;
+    private long apiCounter;
+    private Date apiStart;
+    private Date lastAuthDate;
+    private PSLicenseStatus status;
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#getTenantId()
-	 */
-	@Override
-	public String getTenantId() {
-		return this.tenantid;
-	}
+    @Override
+    public void setTenantId(String id) {
+        this.tenantid = id;
+    }
 
-	/** 
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#getAPIUsage()
-	 */
-	@Override
-	public long getAPIUsage() {
-		return this.api_counter;
-	}
+    @Override
+    public String getTenantId() {
+        return this.tenantid;
+    }
 
-	/** (non-Javadoc)
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#addAPIUsage(long)
-	 */
-	@Override
-	public void addAPIUsage(long value) {
-		this.api_counter +=value;
-	}
+    @Override
+    public long getAPIUsage() {
+        return this.apiCounter;
+    }
 
-	/* (non-Javadoc)
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#clearAPIUsage()
-	 */
-	@Override
-	public void clearAPIUsage() {
-		this.api_counter = 0;
-		this.api_start = new Date();
-	}
+    @Override
+    public void addAPIUsage(long value) {
+        this.apiCounter += value;
+    }
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#setAPIUsageStart(java.util.Date)
-	 */
-	@Override
-	public void setAPIUsageStart(Date start) {
-		this.api_start = start;	
-	}
+    @Override
+    public void clearAPIUsage() {
+        this.apiCounter = 0;
+        this.apiStart = new Date();
+    }
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#getAPIUsageStart()
-	 */
-	@Override
-	public Date getAPIUsageStart() {
-		return this.api_start;
-	}
+    @Override
+    public void setAPIUsageStart(Date start) {
+        this.apiStart = start;
+    }
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#getLastAuthorizationCheckDate()
-	 */
-	@Override
-	public Date getLastAuthorizationCheckDate() {
-		return this.last_authdate;
-	}
+    @Override
+    public Date getAPIUsageStart() {
+        return this.apiStart;
+    }
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#setLastAuthorizationCheckDate(java.util.Date)
-	 */
-	@Override
-	public void setLastAuthorizationCheckDate(Date date) {
-		this.last_authdate = date;
-	}
+    @Override
+    public Date getLastAuthorizationCheckDate() {
+        return this.lastAuthDate;
+    }
 
-	/** 
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#getLicenseStatus()
-	 */
-	@Override
-	public PSLicenseStatus getLicenseStatus() {
-		return this.status;
-	}
+    @Override
+    public void setLastAuthorizationCheckDate(Date date) {
+        this.lastAuthDate = date;
+    }
 
-	/**
-	 * @see com.percussion.delivery.multitenant.IPSTenantInfo#setLicenseStatus(com.percussion.delivery.multitenant.PSLicenseStatus)
-	 */
-	@Override
-	public void setLicenseStatus(PSLicenseStatus status) {
-		this.status = status;
-	}
+    @Override
+    public PSLicenseStatus getLicenseStatus() {
+        return this.status;
+    }
 
+    @Override
+    public void setLicenseStatus(PSLicenseStatus status) {
+        this.status = status;
+    }
 }

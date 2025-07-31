@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.displayformat;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -22,15 +24,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
+/**
+ * List wrapper for DisplayFormatProperty.
+ */
 @XmlRootElement(name = "DisplayFormatPropertyList")
-@ArraySchema(schema=@Schema(implementation = DisplayFormatProperty.class))
+@ArraySchema(schema = @Schema(implementation = DisplayFormatProperty.class))
 @XmlSeeAlso(DisplayFormatProperty.class)
-public class DisplayFormatPropertyList extends ArrayList<DisplayFormatProperty> {
+public class DisplayFormatPropertyList extends java.util.ArrayList<DisplayFormatProperty> {
+
     public DisplayFormatPropertyList(Collection<? extends DisplayFormatProperty> c) {
-        super(c);
+        super(c == null ? java.util.Collections.emptyList() : c.stream().collect(Collectors.toList()));
     }
-    public DisplayFormatPropertyList(){}
+
+    public DisplayFormatPropertyList() {
+        super();
+    }
 }

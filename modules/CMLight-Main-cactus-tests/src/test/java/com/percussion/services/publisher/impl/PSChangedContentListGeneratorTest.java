@@ -43,6 +43,7 @@ import org.junit.experimental.categories.Category;
  * @author JaySeletz
  *
  */
+// REFACTORED: CP-JAVA11
 @Category(IntegrationTest.class)
 public class PSChangedContentListGeneratorTest extends ServletTestCase
 {
@@ -51,68 +52,68 @@ public class PSChangedContentListGeneratorTest extends ServletTestCase
    private static final String SITEID = "999";
    private PSChangedContentListGenerator gen;
    private IPSContentChangeService changeService;
-   
 
+   @Override
    public void setUp()
    {
       gen = new PSChangedContentListGenerator();
       changeService = PSContentChangeServiceLocator.getContentChangeService();
    }
-   
+
+   @Override
    public void tearDown()
    {
       changeService.deleteChangeEventsForSite(Long.parseLong(SITEID));
    }
-   
+
    public void testGenerate() throws Exception
    {
-       
-       assertGeneration(null, null, true);
-       Map<String, String> params = new HashMap<>();
-       assertGeneration(null, null, true);
-       
-       params.put(SITE_ID_PARAM, null);
-       params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
-       assertGeneration(params, null, true);
-       
-       params.put(SITE_ID_PARAM, "notanumber");
-       params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
-       assertGeneration(params, null, true);
-       
-       params.put(SITE_ID_PARAM, SITEID);
-       params.put(CONTENT_CHANGE_TYPE_PARAM, null);
-       assertGeneration(params, null, true);
-       
-       params.put(SITE_ID_PARAM, SITEID);
-       params.put(CONTENT_CHANGE_TYPE_PARAM, "badType");
-       assertGeneration(params, null, true);
-       
-       List<String> changedIds = new ArrayList<>();
-       params.put(SITE_ID_PARAM, SITEID);
-       params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
-       assertGeneration(params, changedIds, false);
-       
-       changedIds.add(createChange(1, 999, PSContentChangeType.PENDING_LIVE));
-       changedIds.add(createChange(2, 999, PSContentChangeType.PENDING_LIVE));
-       changedIds.add(createChange(3, 999, PSContentChangeType.PENDING_LIVE));
-       assertGeneration(params, changedIds, false);
-       
-       changedIds.clear();
-       changedIds.add(createChange(1, 999, PSContentChangeType.PENDING_STAGED));
-       changedIds.add(createChange(2, 999, PSContentChangeType.PENDING_STAGED));
-       params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_STAGED");
-       assertGeneration(params, changedIds, false);
+      assertGeneration(null, null, true);
+      var params = new HashMap<String, String>();
+      assertGeneration(null, null, true);
+
+      params.put(SITE_ID_PARAM, null);
+      params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
+      assertGeneration(params, null, true);
+
+      params.put(SITE_ID_PARAM, "notanumber");
+      params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
+      assertGeneration(params, null, true);
+
+      params.put(SITE_ID_PARAM, SITEID);
+      params.put(CONTENT_CHANGE_TYPE_PARAM, null);
+      assertGeneration(params, null, true);
+
+      params.put(SITE_ID_PARAM, SITEID);
+      params.put(CONTENT_CHANGE_TYPE_PARAM, "badType");
+      assertGeneration(params, null, true);
+
+      var changedIds = new ArrayList<String>();
+      params.put(SITE_ID_PARAM, SITEID);
+      params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_LIVE");
+      assertGeneration(params, changedIds, false);
+
+      changedIds.add(createChange(1, 999, PSContentChangeType.PENDING_LIVE));
+      changedIds.add(createChange(2, 999, PSContentChangeType.PENDING_LIVE));
+      changedIds.add(createChange(3, 999, PSContentChangeType.PENDING_LIVE));
+      assertGeneration(params, changedIds, false);
+
+      changedIds.clear();
+      changedIds.add(createChange(1, 999, PSContentChangeType.PENDING_STAGED));
+      changedIds.add(createChange(2, 999, PSContentChangeType.PENDING_STAGED));
+      params.put(CONTENT_CHANGE_TYPE_PARAM, "PENDING_STAGED");
+      assertGeneration(params, changedIds, false);
    }
 
    private String createChange(int contentId, long siteId, PSContentChangeType changeType) throws IPSGenericDao.SaveException {
-      PSContentChangeEvent changeEvent = new PSContentChangeEvent();
-       changeEvent.setChangeType(changeType);
-       changeEvent.setContentId(contentId);
-       changeEvent.setSiteId(siteId);
-       changeService.contentChanged(changeEvent);
-       return String.valueOf(contentId);
+      var changeEvent = new PSContentChangeEvent();
+      changeEvent.setChangeType(changeType);
+      changeEvent.setContentId(contentId);
+      changeEvent.setSiteId(siteId);
+      changeService.contentChanged(changeEvent);
+      return String.valueOf(contentId);
    }
-   
+
    private void assertGeneration(Map<String, String> params, List<String> expectedIds, boolean shouldFail) throws Exception
    {
       QueryResult result;
@@ -125,20 +126,18 @@ public class PSChangedContentListGeneratorTest extends ServletTestCase
          assertTrue(shouldFail);
          return;
       }
-      
+
       assertFalse(shouldFail);
-      
-      RowIterator rows = result.getRows();
-      while(rows.hasNext())
+
+      var rows = result.getRows();
+      while (rows.hasNext())
       {
-         Row row = rows.nextRow();
-         Value val = row.getValue(IPSContentPropertyConstants.RX_SYS_CONTENTID);
+         var row = rows.nextRow();
+         var val = row.getValue(IPSContentPropertyConstants.RX_SYS_CONTENTID);
          assertTrue(NumberUtils.isNumber(val.getString()));
          assertTrue("Unexpected ID: " + val.getLong(), expectedIds.remove(val.getString()));
       }
-      
-      assertTrue(expectedIds.isEmpty());
-      
-   }
 
+      assertTrue(expectedIds.isEmpty());
+   }
 }

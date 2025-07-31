@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,98 +17,57 @@
  */
 package com.percussion.delivery.metadata.data;
 
+import com.percussion.delivery.metadata.impl.utils.PSPair;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.percussion.delivery.metadata.impl.utils.PSPair;
+import java.util.Optional;
 
 /**
- * Represents an object with a category name, the count of pages that are
- * categorized with it and their children.
- * 
+ * Represents a category with its name, count, and children.
  */
-public class PSMetadataRestCategory
-{
+public class PSMetadataRestCategory {
+
     private String category;
-
     private PSPair<Integer, Integer> count;
-
     private List<PSMetadataRestCategory> children;
 
-    public PSMetadataRestCategory()
-    {
-        super();
+    public PSMetadataRestCategory() {
+        this.children = new ArrayList<>();
     }
 
-    /**
-     * @param category
-     */
-    public PSMetadataRestCategory(String category)
-    {
-        super();
+    public PSMetadataRestCategory(String category) {
         this.category = category;
         this.count = new PSPair<>(0, 0);
         this.children = new ArrayList<>();
     }
 
-    /**
-     * @param category
-     * @param count
-     * @param children
-     */
-    public PSMetadataRestCategory(String category, PSPair<Integer, Integer> count, List<PSMetadataRestCategory> children)
-    {
-        super();
+    public PSMetadataRestCategory(String category, PSPair<Integer, Integer> count, List<PSMetadataRestCategory> children) {
         this.category = category;
         this.count = count;
         this.children = children;
     }
 
-    /**
-     * @return the category
-     */
-    public String getCategory()
-    {
-        return category;
+    public Optional<String> getCategory() {
+        return Optional.ofNullable(category);
     }
 
-    /**
-     * @param category the category to set
-     */
-    public void setCategory(String category)
-    {
+    public void setCategory(String category) {
         this.category = category;
     }
 
-    /**
-     * @return the count
-     */
-    public PSPair<Integer, Integer> getCount()
-    {
-        return count;
+    public Optional<PSPair<Integer, Integer>> getCount() {
+        return Optional.ofNullable(count);
     }
 
-    /**
-     * @param count the count to set
-     */
-    public void setCount(PSPair<Integer, Integer> count)
-    {
+    public void setCount(PSPair<Integer, Integer> count) {
         this.count = count;
     }
 
-    /**
-     * @return the children
-     */
-    public List<PSMetadataRestCategory> getChildren()
-    {
+    public List<PSMetadataRestCategory> getChildren() {
         return children;
     }
 
-    /**
-     * @param children the children to set
-     */
-    public void setChildrens(List<PSMetadataRestCategory> children)
-    {
+    public void setChildren(List<PSMetadataRestCategory> children) {
         this.children = children;
     }
 }

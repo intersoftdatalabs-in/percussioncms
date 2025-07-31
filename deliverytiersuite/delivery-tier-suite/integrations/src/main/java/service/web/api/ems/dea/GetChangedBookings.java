@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,101 +25,83 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="StartDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="Rooms" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="Statuses" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="EventTypes" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="GroupTypes" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="ViewComboRoomComponents" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: GetChangedBookings SOAP request model.
+ * <p>
+ * Represents the request payload for the GetChangedBookings endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "startDate",
-    "endDate",
-    "rooms",
-    "statuses",
-    "eventTypes",
-    "groupTypes",
-    "viewComboRoomComponents"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "startDate",
+        "endDate",
+        "rooms",
+        "statuses",
+        "eventTypes",
+        "groupTypes",
+        "viewComboRoomComponents"
+    }
+)
 @XmlRootElement(name = "GetChangedBookings")
 public class GetChangedBookings {
 
     @XmlElement(name = "UserName")
     protected String userName;
+
     @XmlElement(name = "Password")
     protected String password;
+
     @XmlElement(name = "StartDate", required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar startDate;
+
     @XmlElement(name = "EndDate", required = true)
     @XmlSchemaType(name = "dateTime")
     protected XMLGregorianCalendar endDate;
+
     @XmlElement(name = "Rooms")
     protected ArrayOfInt rooms;
+
     @XmlElement(name = "Statuses")
     protected ArrayOfInt statuses;
+
     @XmlElement(name = "EventTypes")
     protected ArrayOfInt eventTypes;
+
     @XmlElement(name = "GroupTypes")
     protected ArrayOfInt groupTypes;
+
     @XmlElement(name = "ViewComboRoomComponents")
     protected boolean viewComboRoomComponents;
 
     /**
      * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the user name, or null if not set
      */
     public String getUserName() {
+        // Java 11: var for local variable (if any logic added)
         return userName;
     }
 
     /**
      * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the user name to set
      */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
 
     /**
      * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the password, or null if not set
      */
     public String getPassword() {
         return password;
@@ -128,23 +109,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the password to set
      */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
     /**
      * Gets the value of the startDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @return the start date, never null
      */
     public XMLGregorianCalendar getStartDate() {
         return startDate;
@@ -152,23 +127,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the startDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @param value the start date to set
      */
     public void setStartDate(XMLGregorianCalendar value) {
-        this.startDate = value;
+        startDate = value;
     }
 
     /**
      * Gets the value of the endDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @return the end date, never null
      */
     public XMLGregorianCalendar getEndDate() {
         return endDate;
@@ -176,23 +145,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the endDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     *
+     * @param value the end date to set
      */
     public void setEndDate(XMLGregorianCalendar value) {
-        this.endDate = value;
+        endDate = value;
     }
 
     /**
      * Gets the value of the rooms property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @return the rooms, or null if not set
      */
     public ArrayOfInt getRooms() {
         return rooms;
@@ -200,23 +163,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the rooms property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @param value the rooms to set
      */
     public void setRooms(ArrayOfInt value) {
-        this.rooms = value;
+        rooms = value;
     }
 
     /**
      * Gets the value of the statuses property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @return the statuses, or null if not set
      */
     public ArrayOfInt getStatuses() {
         return statuses;
@@ -224,23 +181,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the statuses property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @param value the statuses to set
      */
     public void setStatuses(ArrayOfInt value) {
-        this.statuses = value;
+        statuses = value;
     }
 
     /**
      * Gets the value of the eventTypes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @return the event types, or null if not set
      */
     public ArrayOfInt getEventTypes() {
         return eventTypes;
@@ -248,23 +199,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the eventTypes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @param value the event types to set
      */
     public void setEventTypes(ArrayOfInt value) {
-        this.eventTypes = value;
+        eventTypes = value;
     }
 
     /**
      * Gets the value of the groupTypes property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @return the group types, or null if not set
      */
     public ArrayOfInt getGroupTypes() {
         return groupTypes;
@@ -272,19 +217,17 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the groupTypes property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     *
+     * @param value the group types to set
      */
     public void setGroupTypes(ArrayOfInt value) {
-        this.groupTypes = value;
+        groupTypes = value;
     }
 
     /**
      * Gets the value of the viewComboRoomComponents property.
-     * 
+     *
+     * @return true if combo room components should be viewed, false otherwise
      */
     public boolean isViewComboRoomComponents() {
         return viewComboRoomComponents;
@@ -292,10 +235,10 @@ public class GetChangedBookings {
 
     /**
      * Sets the value of the viewComboRoomComponents property.
-     * 
+     *
+     * @param value true to view combo room components, false otherwise
      */
     public void setViewComboRoomComponents(boolean value) {
-        this.viewComboRoomComponents = value;
+        viewComboRoomComponents = value;
     }
-
 }

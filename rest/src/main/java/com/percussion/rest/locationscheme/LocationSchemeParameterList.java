@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.locationscheme;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,11 +26,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@XmlRootElement(name = "LocationSchemeParemeterList")
-@ArraySchema(schema=@Schema(implementation = LocationSchemeParameter.class))
+/**
+ * List wrapper for LocationSchemeParameter objects.
+ * Sunny Sal: "Parameter list ka boss!"
+ */
+@XmlRootElement(name = "LocationSchemeParameterList")
+@ArraySchema(schema = @Schema(implementation = LocationSchemeParameter.class))
 public class LocationSchemeParameterList extends ArrayList<LocationSchemeParameter> {
+
     public LocationSchemeParameterList(Collection<? extends LocationSchemeParameter> c) {
         super(c);
     }
-    public LocationSchemeParameterList(){}
+
+    public LocationSchemeParameterList() {
+        super();
+    }
 }

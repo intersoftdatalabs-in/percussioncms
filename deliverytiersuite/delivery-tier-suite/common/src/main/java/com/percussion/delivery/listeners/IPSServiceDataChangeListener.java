@@ -19,23 +19,30 @@ package com.percussion.delivery.listeners;
 import java.util.Set;
 
 /**
- * @author erikserating
+ * Listener interface for service data change events in Percussion CMS.
  *
+ * Implementations should handle notifications for data changes and requests
+ * in a thread-safe manner. Use dependency injection for listener registration.
+ *
+ * @author erikserating
+ * // REFACTORED: CP-JAVA11
  */
-public interface IPSServiceDataChangeListener
-{
+public interface IPSServiceDataChangeListener {
+
     /**
-     * Called when  data is changed as a result of an update or
-     * delete and is committed to the repository. An insert will not fire this method.
-     * @param site the site whose data was changed. Never blank.
-     * @param services affected by the data change. Never <code>null</code> or
-     * empty.
+     * Called when data is changed as a result of an update or delete and is committed to the repository.
+     * An insert will not fire this method.
+     *
+     * @param sites the sites whose data was changed. Never blank.
+     * @param services the services affected by the data change. Never {@code null} or empty.
      */
-    public void dataChanged(Set<String> site, String[] services);
-    
+    void dataChanged(Set<String> sites, String[] services);
+
     /**
-     * Called when a data change is requested but before the data is
-     * actually committed to the repository.
+     * Called when a data change is requested but before the data is actually committed to the repository.
+     *
+     * @param sites the sites whose data change is requested. Never {@code null} or empty.
+     * @param services the services affected by the data change request. Never {@code null} or empty.
      */
-    public void dataChangeRequested(Set<String> sites, String[] services);
+    void dataChangeRequested(Set<String> sites, String[] services);
 }

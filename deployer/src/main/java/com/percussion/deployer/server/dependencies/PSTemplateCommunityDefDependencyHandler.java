@@ -125,19 +125,17 @@ public class PSTemplateCommunityDefDependencyHandler
    
    
    //see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      String templateID = dep.getDependencyId();
-
-      List childDeps = getChildDepsFromParentID(VARCOMMUNITYTABLE,
-            COMMUNITYID, TEMPLATEID, templateID,
-          PSTemplateCommunityDefDependencyHandler.DEPENDENCY_TYPE, tok);
+      var templateID = dep.getDependencyId();
+      var childDeps = getChildDepsFromParentID(
+         VARCOMMUNITYTABLE, COMMUNITYID, TEMPLATEID, templateID,
+         DEPENDENCY_TYPE, tok
+      );
 
       return childDeps.iterator();
    }
@@ -152,16 +150,12 @@ public class PSTemplateCommunityDefDependencyHandler
 
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
       // pack the data into the files
       List<PSDependencyFile> files = new ArrayList<>();

@@ -26,14 +26,13 @@ import com.percussion.extension.PSDatabaseFunctionManager;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.utils.collections.PSIteratorUtils;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.stream.StreamSupport;
 
 
 /**
  * Class to handle discovering database function definitions as dependencies.
- * Database functions are not deployable and user defined dependencies are
+ * Database functions are not deployable and user-defined dependencies are
  * returned as "Server" type dependencies.
  */
 public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler
@@ -57,7 +56,7 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler
    
    
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
       if (tok == null)
@@ -74,18 +73,17 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
          
-      List deps = new ArrayList();
-      PSDatabaseFunctionManager mgr = PSDatabaseFunctionManager.getInstance();
-      Iterator funcs = mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
-      while (funcs.hasNext())
-         deps.add(createDependency((PSDatabaseFunction)funcs.next()));
-      
-      return deps.iterator();
+      var mgr = PSDatabaseFunctionManager.getInstance();
+      var funcs = mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
+
+      return StreamSupport.stream(funcs.spliterator(), false)
+         .map(this::createDependency)
+         .iterator();
    }
    
    
@@ -152,13 +150,10 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler
     */
    private PSDependency createDependency(PSDatabaseFunction func)
    {
-      PSDependency dep = createDependency(m_def, func.getName(), 
-         func.getName());
-      if (func.getType() == PSDatabaseFunctionManager.FUNCTION_TYPE_SYSTEM)
-         dep.setDependencyType(PSDependency.TYPE_SYSTEM);
-      else
-         dep.setDependencyType(PSDependency.TYPE_SERVER);
-      
+      var dep = createDependency(m_def, func.getName(), func.getName());
+      dep.setDependencyType(func.getType() == PSDatabaseFunctionManager.FUNCTION_TYPE_SYSTEM
+         ? PSDependency.TYPE_SYSTEM
+         : PSDependency.TYPE_SERVER);
       return dep;
    }
  

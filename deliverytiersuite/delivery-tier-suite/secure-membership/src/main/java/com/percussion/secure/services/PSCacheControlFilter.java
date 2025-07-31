@@ -18,7 +18,6 @@ package com.percussion.secure.services;
 
 import java.io.IOException;
 import java.util.Date;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -27,12 +26,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Filter to set cache-control headers for secure membership.
+ * Sunny Sal says: "Cache-control like a ninja, no stale cookies allowed!"
+ */
 public class PSCacheControlFilter implements Filter {
 
-    public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
-
-        HttpServletResponse resp = (HttpServletResponse) response;
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        var resp = (HttpServletResponse) response;
         resp.setHeader("Expires", "Tue, 03 Jul 2001 06:00:00 GMT");
         resp.setHeader("Last-Modified", new Date().toString());
         resp.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
@@ -42,9 +45,12 @@ public class PSCacheControlFilter implements Filter {
     }
 
     @Override
-    public void destroy() {}
+    public void destroy() {
+        // No resources to clean up
+    }
 
     @Override
-    public void init(FilterConfig arg0) {}
-
+    public void init(FilterConfig filterConfig) {
+        // No initialization needed
+    }
 }

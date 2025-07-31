@@ -15,22 +15,51 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
-
-import java.util.List;
 
 import com.percussion.delivery.integrations.ems.model.MCCalendar;
 import com.percussion.delivery.integrations.ems.model.MCEventDetail;
 import com.percussion.delivery.integrations.ems.model.MCEventType;
 import com.percussion.delivery.integrations.ems.model.MCLocation;
+import java.util.List;
 
+/**
+ * EMS Master Calendar Service interface for event, calendar, and location queries.
+ * <p>
+ * Implementations must be thread-safe and support Java 11 features.
+ * </p>
+ */
 public interface IPSEMSMasterCalendarService {
-	
-	public List<MCEventDetail>getMasterCalendarEvents(PSEventQuery query);
-	public List<MCEventDetail>getMasterCalendarFeaturedEvents(PSFeaturedEventsQuery query);
-	public List<MCEventType>getMasterCalendarEventTypes();
-	public List<MCLocation>getMasterCalendarLocations();
-	public List<MCCalendar>getMasterCalendarCalendars();
-	
+    /**
+     * Returns a list of master calendar events matching the given query.
+     * @param query event query (must not be null)
+     * @return list of event details (never null)
+     */
+    List<MCEventDetail> getMasterCalendarEvents(PSEventQuery query);
 
+    /**
+     * Returns a list of featured master calendar events matching the given query.
+     * @param query featured events query (must not be null)
+     * @return list of event details (never null)
+     */
+    List<MCEventDetail> getMasterCalendarFeaturedEvents(PSFeaturedEventsQuery query);
+
+    /**
+     * Returns all available master calendar event types.
+     * @return list of event types (never null)
+     */
+    List<MCEventType> getMasterCalendarEventTypes();
+
+    /**
+     * Returns all available master calendar locations.
+     * @return list of locations (never null)
+     */
+    List<MCLocation> getMasterCalendarLocations();
+
+    /**
+     * Returns all available master calendars.
+     * @return list of calendars (never null)
+     */
+    List<MCCalendar> getMasterCalendarCalendars();
 }

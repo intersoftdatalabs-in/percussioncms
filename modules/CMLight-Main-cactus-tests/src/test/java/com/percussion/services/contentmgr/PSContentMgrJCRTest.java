@@ -56,29 +56,29 @@ public class PSContentMgrJCRTest extends ServletTestCase
     */
    public void testMetaData() throws RepositoryException
    {
-      IPSContentMgr cmgr = PSContentMgrLocator.getContentMgr();
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
+      var cmgr = PSContentMgrLocator.getContentMgr();
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
 
-      NodeDefinition def = cmgr.findNodeDefinitionByName("rffGeneric");
-      doNodeDefinitionTest(def, "rx:rffGeneric", 
+      var def = cmgr.findNodeDefinitionByName("rffGeneric");
+      doNodeDefinitionTest(def, "rx:rffGeneric",
             "rx:body", PropertyType.STRING, false, 
             "rx:displaytitle", PropertyType.STRING, false);
-      IPSGuid c340 = gmgr.makeGuid(new PSLocator(340, 3));
-      List<Node> nodes = cmgr.findItemsByGUID(Collections.singletonList(c340),
+      var c340 = gmgr.makeGuid(new PSLocator(340, 3));
+      var nodes = cmgr.findItemsByGUID(Collections.singletonList(c340),
             new PSContentMgrConfig());
       assertNotNull(nodes);
       assertEquals(1, nodes.size());
-      Node node = nodes.get(0);
+      var node = nodes.get(0);
       assertNotNull(node);
       doNodeDefinitionTest(node.getDefinition(), "rx:rffGeneric", 
             "rx:callout", PropertyType.STRING, false,
             "rx:sys_contentcreateddate", PropertyType.DATE, false);
       
       // Check some node properties
-      Property body = node.getProperty("rx:body");
-      Property callout = node.getProperty("rx:callout");
-      Property createdate = node.getProperty("rx:sys_contentcreateddate");
-      
+      var body = node.getProperty("rx:body");
+      var callout = node.getProperty("rx:callout");
+      var createdate = node.getProperty("rx:sys_contentcreateddate");
+
       assertEquals("rx:body", body.getDefinition().getName());
       assertEquals(PropertyType.STRING, body.getDefinition().getRequiredType());
       assertFalse(body.getDefinition().isMultiple());
@@ -119,22 +119,22 @@ public class PSContentMgrJCRTest extends ServletTestCase
       assertFalse(def.isMandatory());
       assertFalse(def.isProtected());
 
-      NodeType type = def.getDefaultPrimaryType();
+      var type = def.getDefaultPrimaryType();
       doNodeTypeTest(type, name);
 
-      Map<String, PropertyDefinition> defs = new HashMap<String, PropertyDefinition>();
-      for (PropertyDefinition pd : type.getPropertyDefinitions())
+      var defs = new HashMap<String, PropertyDefinition>();
+      for (var pd : type.getPropertyDefinitions())
       {
          defs.put(pd.getName(), pd);
       }
 
       for (int i = 0; i < args.length; i += 3)
       {
-         String pname = (String) args[i];
-         int ptype = (Integer) args[i + 1];
-         boolean multiple = (Boolean) args[i + 2];
+         var pname = (String) args[i];
+         var ptype = (Integer) args[i + 1];
+         var multiple = (Boolean) args[i + 2];
 
-         PropertyDefinition pd = defs.get(pname);
+         var pd = defs.get(pname);
          assertNotNull(pd);
          assertEquals(type, pd.getDeclaringNodeType());
          assertEquals(ptype, pd.getRequiredType());

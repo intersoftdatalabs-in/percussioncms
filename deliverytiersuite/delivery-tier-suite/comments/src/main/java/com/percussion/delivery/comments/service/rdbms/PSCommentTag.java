@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -102,7 +103,7 @@ public class PSCommentTag implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSCommentTag)) return false;
-        PSCommentTag that = (PSCommentTag) o;
+        var that = (PSCommentTag) o;
         return id != null && id.equals(that.id);
     }
 

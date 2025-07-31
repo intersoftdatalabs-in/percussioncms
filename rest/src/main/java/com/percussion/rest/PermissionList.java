@@ -28,9 +28,12 @@ import java.util.Collection;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "PermissionList")
 @ArraySchema(schema=@Schema(implementation = Permissions.class))
-public class PermissionList  extends ArrayList<Permissions> {
+public class PermissionList extends ArrayList<Permissions> {
     public PermissionList(Collection<? extends Permissions> c) {
         super(c);
     }
-    public PermissionList(){};
+
+    public PermissionList() {
+        // Default constructor
+    }
 }

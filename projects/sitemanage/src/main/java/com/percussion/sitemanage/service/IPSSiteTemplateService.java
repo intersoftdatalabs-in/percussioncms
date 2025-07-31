@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -33,17 +34,13 @@ import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.error.PSSiteImportException;
 
-
 /**
- * 
- * Manages the site -> template assocations.
- * @author adamgent
- *
+ * Manages the site-to-template associations.
  */
-public interface IPSSiteTemplateService
-{
+public interface IPSSiteTemplateService {
+
     String generateNewTemplateName(String templateName, String siteId);
-    
+
     /**
      * Finds templates associated to a site.
      * 
@@ -51,7 +48,7 @@ public interface IPSSiteTemplateService
      * @return if the site cannot be found the list of templates will be empty, never <code>null</code>.
      */
     List<PSTemplateSummary> findTemplatesBySite(String siteId);
-    
+
     /**
      * Finds templates for the specified site which have an instance of the specified widget.
      * 
@@ -61,7 +58,7 @@ public interface IPSSiteTemplateService
      * @return list of template summaries, never <code>null</code>, may be empty.
      */
     List<PSTemplateSummary> findTemplatesBySite(String siteId, String widgetId);
-    
+
     /**
      * Finds templates for the specified site which have a corresponding type.
      * See com.percussion.pagemanagement.dao.findUserTemplatesByType(PSTemplateTypeEnum) for details.
@@ -72,16 +69,15 @@ public interface IPSSiteTemplateService
      * @param type - the type of template. Never <code>null</code>
      * @return list of template summaries, never <code>null</code>, may be <code>empty</code>.
      */
-    List<PSTemplateSummary> findTypedTemplatesBySite(String siteId, PSTemplateTypeEnum type) throws PSValidationException, IPSTemplateService.PSTemplateException, IPSDataService.DataServiceNotFoundException;
-    
+    List<PSTemplateSummary> findTypedTemplatesBySite(String siteId, PSTemplateTypeEnum type)
+            throws PSValidationException, IPSTemplateService.PSTemplateException, IPSDataService.DataServiceNotFoundException;
+
     List<PSSiteSummary> findSitesByTemplate(String templateId);
-    
+
     List<PSTemplateSummary> findTemplatesWithNoSite();
-    
+
     List<PSTemplateSummary> save(PSSiteTemplates siteTemplates);
-    
-    
-    
+
     /**
      * Creates a new template with an HTML widget on it, a new page using that
      * template, and in the local content of the widget in the page, the
@@ -98,7 +94,7 @@ public interface IPSSiteTemplateService
      * 
      */
     PSTemplateSummary createTemplateFromUrl(@Context HttpServletRequest request, PSSiteTemplates siteTemplates);
-    
+
     /**
      * Creates a new template with an HTML widget on it, a new page using that
      * template, and in the local content of the widget in the page, the
@@ -115,7 +111,7 @@ public interface IPSSiteTemplateService
      * 
      */
     Long createTemplateFromUrlAsync(@Context HttpServletRequest request, PSSiteTemplates siteTemplates);
-    
+
     /**
      * Once the import template from url job is completed, it gets the new
      * template that was created in the process.
@@ -128,9 +124,9 @@ public interface IPSSiteTemplateService
      *         job.
      */
     PSTemplateSummary getImportedTemplate(Long jobId) throws PSDataServiceException;
-    
+
     PSValidationErrors validate(PSSiteTemplates siteTemplates) throws PSBeanValidationException;
-    
+
     /**
      * Copies all templates from the specified source site to the specified target site.  Names, assets, and local
      * content will be retained.  Existing templates will not be updated.
@@ -141,8 +137,8 @@ public interface IPSSiteTemplateService
      * @return map whose key is the source template id (guid string) and associated value is the id (guid string) of the
      * newly created template, never <code>null</code>.
      */
-    Map<String, String> copyTemplates(String site1Id, String site2Id) throws PSDataServiceException, PSSiteImportException;
+    Map<String, String> copyTemplates(String site1Id, String site2Id)
+            throws PSDataServiceException, PSSiteImportException;
 
     PSTemplateSummary createTemplateFromPage(PSPageToTemplatePair pair);
-
 }

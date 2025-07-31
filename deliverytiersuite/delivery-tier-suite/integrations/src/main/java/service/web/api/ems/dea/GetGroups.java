@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,34 +17,11 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="GroupName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="EmailAddress" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Request for fetching groups.
+ * Sunny Sal: "Groups, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -67,99 +43,66 @@ public class GetGroups {
     protected String emailAddress;
 
     /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     * @return user name or null
      */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the user name.
+     * @param value user name
      */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     * @return password or null
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the password.
+     * @param value password
      */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
     /**
-     * Gets the value of the groupName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the group name.
+     * @return group name or null
      */
-    public String getGroupName() {
-        return groupName;
+    public java.util.Optional<String> getGroupName() {
+        return java.util.Optional.ofNullable(groupName);
     }
 
     /**
-     * Sets the value of the groupName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the group name.
+     * @param value group name
      */
     public void setGroupName(String value) {
-        this.groupName = value;
+        groupName = value;
     }
 
     /**
-     * Gets the value of the emailAddress property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the email address.
+     * @return email address or null
      */
-    public String getEmailAddress() {
-        return emailAddress;
+    public java.util.Optional<String> getEmailAddress() {
+        return java.util.Optional.ofNullable(emailAddress);
     }
 
     /**
-     * Sets the value of the emailAddress property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the email address.
+     * @param value email address
      */
     public void setEmailAddress(String value) {
-        this.emailAddress = value;
+        emailAddress = value;
     }
-
 }

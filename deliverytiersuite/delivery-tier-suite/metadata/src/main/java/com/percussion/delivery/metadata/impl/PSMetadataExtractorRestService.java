@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -47,27 +48,26 @@ import java.util.Collections;
 
 /**
  * REST/Webservice layer for metadata extractor services.
- * 
  * @author miltonpividori
  */
 @Path("/indexer")
 @Component
-public class PSMetadataExtractorRestService
-{
+public class PSMetadataExtractorRestService {
+
     public static final Logger log = LogManager.getLogger(PSMetadataExtractorRestService.class);
 
     private final PSPropertyDatatypeMappings datatypeMappings;
-    private IPSMetadataIndexerService indexer;
+    private final IPSMetadataIndexerService indexer;
 
     @HEAD
     @Path("/csrf")
-    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response)  {
-        Cookie[] cookies = request.getCookies();
-        if(cookies == null){
+    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+        var cookies = request.getCookies();
+        if (cookies == null) {
             return;
         }
-        for(Cookie cookie: cookies){
-            if("XSRF-TOKEN".equals(cookie.getName())){
+        for (var cookie : cookies) {
+            if ("XSRF-TOKEN".equals(cookie.getName())) {
                 response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
                 response.setHeader("X-CSRF-TOKEN", cookie.getValue());
             }
@@ -76,69 +76,56 @@ public class PSMetadataExtractorRestService
 
     @Inject
     @Autowired
-    public PSMetadataExtractorRestService(IPSMetadataIndexerService indexer, PSPropertyDatatypeMappings datatypeMappings)
-    {
+    public PSMetadataExtractorRestService(
+            IPSMetadataIndexerService indexer,
+            PSPropertyDatatypeMappings datatypeMappings) {
         this.indexer = indexer;
         this.datatypeMappings = datatypeMappings;
     }
-    
+
     @Path("/entry/{pagePath:.*}")
     @POST
     @RolesAllowed("deliverymanager")
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
     public void index(@Context HttpHeaders headers,
-            @PathParam("pagePath") String path,
-            PSMetadataEntry entry)
-    {
+                      @PathParam("pagePath") String path,
+                      PSMetadataEntry entry) {
         log.debug("Indexing file: {}", path);
         try {
-            String contentType = headers.getMediaType().toString();
-            log.debug("Content type: {}" , contentType);
+            var contentType = headers.getMediaType().toString();
+            log.debug("Content type: {}", contentType);
 
-            if (entry != null){
-                // Get property value type
-
-                for (IPSMetadataProperty ipsMetadataProperty : entry.getProperties()) {
-                    PSMetadataProperty prop = (PSMetadataProperty) ipsMetadataProperty;
-
-                    // Namespace prefix is not being used in datatype lookup.
-
-                    String testval = prop.getName();
-                    int indx = testval.indexOf(':');
-                    if (indx > 0)
+            if (entry != null) {
+                // Set property value types using datatype mappings
+                entry.getProperties().forEach(ipsMetadataProperty -> {
+                    var prop = (PSMetadataProperty) ipsMetadataProperty;
+                    var testval = prop.getName();
+                    var indx = testval.indexOf(':');
+                    if (indx > 0) {
                         testval = testval.substring(indx + 1);
-
-                    VALUETYPE propertyValueType = datatypeMappings.getDatatype(testval);
+                    }
+                    var propertyValueType = datatypeMappings.getDatatype(testval);
                     prop.setValuetype(propertyValueType);
-                }
+                });
                 indexer.save(entry);
-            }
-              
-            else
+            } else {
                 log.debug("File has no metadata (no link tags)");
-        }
-        catch (Exception e)
-        {
-            log.error("An error when saving index {}",PSExceptionUtils.getMessageForLog(e));
+            }
+        } catch (Exception e) {
+            log.error("An error when saving index {}", PSExceptionUtils.getMessageForLog(e));
             throw new WebApplicationException(e, Response.serverError().build());
         }
-       
     }
-    
+
     @Path("/entry/{pagePath:.*}")
     @DELETE
     @RolesAllowed("deliverymanager")
-    public void delete(@PathParam("pagePath") String path)
-    {
-        log.debug("Deleting file: {}" , path);
-        
-        try
-        {
+    public void delete(@PathParam("pagePath") String path) {
+        log.debug("Deleting file: {}", path);
+        try {
             indexer.delete(Collections.singleton(path));
             // TODO: implement blogPostService.delete here
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error("An error when deleting the file {}", PSExceptionUtils.getMessageForLog(e));
             throw new WebApplicationException(e, Response.serverError().build());
         }

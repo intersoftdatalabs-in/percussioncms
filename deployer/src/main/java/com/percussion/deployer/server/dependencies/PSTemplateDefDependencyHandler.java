@@ -16,6 +16,8 @@
  */
 package com.percussion.deployer.server.dependencies;
 
+import java.util.List;
+
 import com.percussion.deployer.client.IPSDeployConstants;
 import com.percussion.deployer.objectstore.PSApplicationIDTypeMapping;
 import com.percussion.deployer.objectstore.PSApplicationIDTypes;
@@ -474,44 +476,25 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler
          throws PSDeployException
    {
       init(); 
-      HashMap<String, IPSAssemblyTemplate> templates = m_assemblyHelper
-            .getNamedTemplatesMap();
-      Iterator tmpNames   = templates.keySet().iterator(); 
-      List<PSDependency> deps = new ArrayList<>();
-      PSDependency dep;
-      
-      while (tmpNames.hasNext())
-      {
-         String name = (String) tmpNames.next();
-         IPSAssemblyTemplate tmp = templates.get(name);
-         dep = createDeployableElement(m_def, ""
-               + tmp.getGUID().longValue(), name);
-         if ( dep != null )
-            deps.add(dep);
-      }     
-      return deps.iterator();
+      var templates = m_assemblyHelper.getNamedTemplatesMap();
+      return templates.values().stream()
+         .map(tmp -> createDeployableElement(m_def, String.valueOf(tmp.getGUID().longValue()), tmp.getName()))
+         .iterator();
    }
 
    
    // see base class
    @Override
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
       init();
-      // pack the data into the files
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      IPSAssemblyTemplate tmp = findTemplateByDependencyID(dep.getDependencyId(), true);
-      files.add(getDepFileFromTemplate(tmp));
-      return files.iterator();
+      var tmp = findTemplateByDependencyID(dep.getDependencyId(), true);
+      return List.of(getDepFileFromTemplate(tmp)).iterator();
    }
 
    /**

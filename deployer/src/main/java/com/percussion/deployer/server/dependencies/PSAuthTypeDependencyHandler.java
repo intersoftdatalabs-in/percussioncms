@@ -43,8 +43,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying authtypes.  
@@ -69,10 +71,10 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler
    }
    
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      List deps = new ArrayList();
-      
+      List<PSDependency> deps = new ArrayList<>();
+
       // get entry
       Properties props = getAuthTypesProps();
       
@@ -113,36 +115,24 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
            throws PSDeployException, PSNotFoundException {
-      Set deps = new HashSet();
-      Properties props = getAuthTypesProps();
-      Map nameMap = getAuthtypeNames();
-      
-      // walk all entries and parse authtypes from keys
-      Iterator entries = props.entrySet().iterator();
-      while (entries.hasNext())
-      {
-         Map.Entry entry = (Entry) entries.next();
-         String key = (String) entry.getKey();
-         String authType = getAuthType(key);
-         if (authType != null)
-         {
-            String name = (String) nameMap.get(authType);
-            PSDependency dep = createDependency(m_def, authType, 
-               (name != null ? name : authType));
-            
-            // set type to whatever the app type is
-            String value = (String) entry.getValue();
-            
-            PSDependency appDep = getAppDep(tok, value);
-            if (appDep != null)
-               dep.setDependencyType(appDep.getDependencyType());
-            
+      var deps = new HashSet<PSDependency>();
+      var props = getAuthTypesProps();
+      var nameMap = getAuthtypeNames();
+
+      props.entrySet().stream()
+        .map(entry -> Map.entry((String) entry.getKey(), (String) entry.getValue()))
+        .filter(entry -> getAuthType(entry.getKey()) != null)
+        .forEach(entry -> {
+            var authType = getAuthType(entry.getKey());
+            var name = nameMap.getOrDefault(authType, authType);
+            var dep = createDependency(m_def, authType, name);
+            var appDep = getAppDep(tok, entry.getValue());
+            Optional.ofNullable(appDep).ifPresent(d -> dep.setDependencyType(d.getDependencyType()));
             deps.add(dep);
-         }
-      }
-      
+        });
+
       return deps.iterator();
    }
 
@@ -181,11 +171,11 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler
     * 
     * @throws PSDeployException If the names cannot be retrieved. 
     */
-   private Map getAuthtypeNames() throws PSDeployException
+   private Map<String, String> getAuthtypeNames() throws PSDeployException
    {
       try
       {
-         Map result = new HashMap();
+         Map<String, String> result = new HashMap<>();
          Iterator entries = PSChoiceBuilder.getGlobalLookupEntries(
             AUTH_TYPE_LOOKUP_ID, PSRequest.getContextForRequest());
          while (entries.hasNext())
@@ -272,21 +262,15 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler
     * 
     * @throws PSDeployException if there are any errors
     */
-   private Properties getAuthTypesProps() throws PSDeployException
-   {
-      Properties props = new Properties();
-      try(FileInputStream in = new FileInputStream(PSServer.getRxDir().getAbsolutePath() + "/"
-               + IPSConstants.AUTHTYPE_PROP_FILE)){
-         props.load(in);
-         return props;
-      }
-      catch (IOException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-            e.getLocalizedMessage());
-      }
-
-   }
+   private Properties getAuthTypesProps() throws PSDeployException {
+    try (var in = new FileInputStream(PSServer.getRxDir().getAbsolutePath() + "/" + IPSConstants.AUTHTYPE_PROP_FILE)) {
+        var props = new Properties();
+        props.load(in);
+        return props;
+    } catch (IOException e) {
+        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    }
+}
 
    /**
     * Provides the list of child dependency types this class can discover.
@@ -377,4 +361,3 @@ public class PSAuthTypeDependencyHandler extends PSDependencyHandler
    }
 
 }
-

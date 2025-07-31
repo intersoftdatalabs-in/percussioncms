@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -49,33 +48,53 @@ import javax.xml.bind.annotation.XmlType;
     "getCategoryStatesResult"
 })
 @XmlRootElement(name = "GetCategoryStatesResponse")
-public class GetCategoryStatesResponse {
+public final class GetCategoryStatesResponse {
 
     @XmlElement(name = "GetCategoryStatesResult")
-    protected String getCategoryStatesResult;
+    private final String getCategoryStatesResult;
+
+    private GetCategoryStatesResponse(Builder builder) {
+        this.getCategoryStatesResult = builder.getCategoryStatesResult;
+    }
 
     /**
      * Gets the value of the getCategoryStatesResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the category states result, or null if not set
      */
     public String getGetCategoryStatesResult() {
         return getCategoryStatesResult;
     }
 
     /**
-     * Sets the value of the getCategoryStatesResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Builder for GetCategoryStatesResponse.
+     * <p>
+     * Example usage:
+     * <pre>
+     * var response = new GetCategoryStatesResponse.Builder()
+     *     .withCategoryStatesResult("Active")
+     *     .build();
+     * </pre>
      */
-    public void setGetCategoryStatesResult(String value) {
-        this.getCategoryStatesResult = value;
-    }
+    public static class Builder {
+        private String getCategoryStatesResult;
 
+        /**
+         * Sets the category states result value.
+         * @param getCategoryStatesResult the result string
+         * @return this builder instance
+         */
+        public Builder withCategoryStatesResult(String getCategoryStatesResult) {
+            this.getCategoryStatesResult = getCategoryStatesResult;
+            return this;
+        }
+
+        /**
+         * Builds a new immutable GetCategoryStatesResponse instance.
+         * @return a new GetCategoryStatesResponse
+         */
+        public GetCategoryStatesResponse build() {
+            return new GetCategoryStatesResponse(this);
+        }
+    }
 }

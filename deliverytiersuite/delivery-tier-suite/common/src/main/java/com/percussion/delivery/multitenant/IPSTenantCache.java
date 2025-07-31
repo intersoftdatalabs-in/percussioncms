@@ -14,98 +14,92 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import javax.servlet.ServletRequest;
 
 /**
- * Defines a simple cache for storing tenant data
- * intended to be used by services that require authorization 
- * of tenant data.
- * 
- * @author natechadwick
- *
+ * Defines a simple cache for storing tenant data,
+ * intended for services requiring tenant authorization.
  */
 public interface IPSTenantCache {
-	
-	
-	/***
-	 * Tha maximum time to live that a tenants info can be cached 
-	 * before it must be re-authorized
-	 * @param minutes 
-	 */
-	public void setMaxTTL(long minutes);
-	
-	/***
-	 * Returns the number of minutes before and entry in cach must be re-authorized.
-	 * 
-	 * @return
-	 */
-	public long getMaxTTL();
 
-	/**
-	 * Returns weather or not the service will authorize expired urls. 
-	 * 
-	 * When false, the cache will simply return null for missing tenants
-	 * and remove tenants from cache when their TTL expires. 
-	 * 
-	 * @return
-	 */
-	public boolean getAuthorizeExpiredTTL();
-	
-	/***
-	 * When set to true, the service will attempt to autorize expiring urls using the 
-	 * provider set in the AuthorizationProvider property.
-	 * 
-	 * @param ret
-	 */
-	public void setAuthorizeExpiredTTL(boolean ret);
-	
-	
-	/***
-	 * Returns the Authorization Provider to use when authorizing expired tenants;
-	 * @return
-	 */
-	public IPSTenantAuthorization getAuthorizationProvider();
-	
-	/***
-	 * Sets the authorization provider to use. 
-	 * 
-	 * @param auth
-	 */
-	public void setAuthorizationProvider(IPSTenantAuthorization auth);
-	
-	/***
-	 * Returns the specified tenant from the cache. 
-	 * 
-	 * @param id
-	 * @return
-	 */
-	public IPSTenantInfo get(String id, ServletRequest req);
-	
-	
-	/***
-	 * Puts the specified tenant into the cache. 
-	 * 
-	 * @param tenant Tenant Information
-	 */
-	public void put(IPSTenantInfo tenant);
-	
-	/***
-	 * Removes the specified tenant from the cache. 
-	 * 
-	 * @param id  The tenant ID of the tenant being removed. 
-	 */
-	public void remove(String id);
-	
-	/***
-	 * Clears all tenants from the cache
-	 */
-	public void clear();
-	
-	/***
-	 * Scans the cache and removes any expired tenants. 
-	 */
-	public void scavenge(ServletRequest req);
+    /**
+     * Sets the maximum time-to-live (TTL) in minutes for cached tenant info before re-authorization.
+     *
+     * @param minutes TTL in minutes
+     */
+    void setMaxTTL(long minutes);
 
+    /**
+     * Returns the TTL in minutes before a cache entry must be re-authorized.
+     *
+     * @return TTL in minutes
+     */
+    long getMaxTTL();
+
+    /**
+     * Returns whether the service will authorize expired URLs.
+     * When false, the cache returns null for missing tenants and removes tenants when TTL expires.
+     *
+     * @return true if expired TTLs are authorized, false otherwise
+     */
+    boolean getAuthorizeExpiredTTL();
+
+    /**
+     * Sets whether the service will attempt to authorize expiring URLs using the AuthorizationProvider.
+     *
+     * @param ret true to authorize expired TTLs
+     */
+    void setAuthorizeExpiredTTL(boolean ret);
+
+    /**
+     * Returns the Authorization Provider used for authorizing expired tenants.
+     *
+     * @return the authorization provider
+     */
+    IPSTenantAuthorization getAuthorizationProvider();
+
+    /**
+     * Sets the authorization provider to use.
+     *
+     * @param auth the authorization provider
+     */
+    void setAuthorizationProvider(IPSTenantAuthorization auth);
+
+    /**
+     * Returns the specified tenant from the cache.
+     *
+     * @param id tenant ID
+     * @param req servlet request
+     * @return tenant info, or null if not found
+     */
+    IPSTenantInfo get(String id, ServletRequest req);
+
+    /**
+     * Puts the specified tenant into the cache.
+     *
+     * @param tenant tenant information
+     */
+    void put(IPSTenantInfo tenant);
+
+    /**
+     * Removes the specified tenant from the cache.
+     *
+     * @param id tenant ID
+     */
+    void remove(String id);
+
+    /**
+     * Clears all tenants from the cache.
+     */
+    void clear();
+
+    /**
+     * Scans the cache and removes any expired tenants.
+     *
+     * @param req servlet request
+     */
+    void scavenge(ServletRequest req);
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.objectstore;
 
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIDContextFactory;
@@ -25,11 +26,12 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.Optional;
+
 /**
- * The PSApplicationIDTypeMapping class is to encapsulate ID and Type mapping
- * information.
+ * Encapsulates ID and Type mapping information.
  */
-public class PSApplicationIDTypeMapping  implements IPSDeployComponent
+public class PSApplicationIDTypeMapping implements IPSDeployComponent
 {
 
    /**
@@ -246,19 +248,18 @@ public class PSApplicationIDTypeMapping  implements IPSDeployComponent
     */
    public Element toXml(Document doc)
    {
-      if (doc == null)
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_VALUE, m_value);
       root.setAttribute(XML_ATTR_TYPE, m_type);
-      if (m_parentId != null)
-      {
-         root.setAttribute(XML_ATTR_PARENT_ID, m_parentId);
+      Optional.ofNullable(m_parentId).ifPresent(id -> {
+         root.setAttribute(XML_ATTR_PARENT_ID, id);
          root.setAttribute(XML_ATTR_PARENT_TYPE, m_parentType);
-      }
+      });
       root.appendChild(m_ctx.toXml(doc));
-      
       return root;
    }
 
@@ -270,42 +271,34 @@ public class PSApplicationIDTypeMapping  implements IPSDeployComponent
     */
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
    {
-      if (sourceNode == null)
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      m_value = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_VALUE);
-      m_type = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_TYPE);
-      String sTemp = sourceNode.getAttribute(XML_ATTR_PARENT_ID);
-      if (sTemp != null && sTemp.trim().length() > 0)
-         m_parentId = sTemp;
-      else
-         m_parentId = null;
-      
-      if (m_parentId != null)
-         m_parentType = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_PARENT_TYPE);
-      else
-         m_parentType = null;
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (ctxEl == null)
-      {
-         Object[] args = {XML_NODE_NAME, "ANY", "null"};
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
-      
+
+      m_value = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_VALUE);
+      m_type = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
+      m_parentId = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_PARENT_ID))
+         .filter(id -> !id.trim().isEmpty())
+         .orElse(null);
+      m_parentType = Optional.ofNullable(m_parentId)
+         .map(id -> PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PARENT_TYPE))
+         .orElse(null);
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      if (ctxEl == null) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+            new Object[]{XML_NODE_NAME, "ANY", "null"}
+         );
+      }
       m_ctx = PSApplicationIDContextFactory.fromXml(ctxEl);
    }
 

@@ -18,72 +18,66 @@
 package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.rdbms.impl.PSDbCookieConsent;
-
 import java.util.Collection;
 import java.util.Map;
 
 /**
- * 
- * @author chriswright
- *
+ * Data access object for cookie consent entries.
  */
 public interface IPSCookieConsentDao {
-    
+
     /**
      * Saves a list of cookie consent entries.
-     * 
-     * @param consents the collection of consent objects
-     * to save.
+     * @param consents the collection of consent objects to save.
      */
-    public void save(Collection<PSDbCookieConsent> consents);
-    
+    void save(Collection<PSDbCookieConsent> consents);
+
     /**
-     * Gets the entire list of cookie consent entries.
-     * 
-     * @see IPSCookieConsent
-     * @return A collection of cookie consent entries, may be empty
-     * never <code>null</code>.
+     * Gets all cookie consent entries.
+     * @return a collection of cookie consent entries.
      */
-    public Collection<IPSCookieConsent> getAllCookieConsentStats();
-    
+    Collection<IPSCookieConsent> getAllCookieConsentStats();
+
     /**
-     * Returns the list of cookie consent entries for a site.
-     * 
-     * @param siteName - the site name in which to get entries for;
-     * @return A collection of cookie consent entries
-     * @see IPSCookieConsent
+     * Gets cookie consent entries for a site.
+     * @param siteName the site name.
+     * @return a collection of cookie consent entries.
      */
-    public Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName);
-    
+    Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName);
+
     /**
-     * Deletes all cookie consent entries from the DB.
+     * Deletes all cookie consent entries.
+     * @throws Exception if delete fails.
      */
-    public void deleteAll() throws Exception;
-    
+    void deleteAll() throws Exception;
+
     /**
      * Deletes all cookie consent entries for the specified site.
-     * 
-     * @param siteName - the site in which to delete the entries for.
+     * @param siteName the site name.
+     * @throws Exception if delete fails.
      */
-    public void deleteForSite(String siteName) throws Exception;
-    
-    /**
-     * Gets the totals from DB for all sites.
-     * 
-     * @return Key/value pair with siteName/total being pair.
-     */
-    public Map<String, Integer> getTotalsForAllSites() throws Exception;
-    
-    /**
-     * Gets the totals from DB for specified site.  Returns
-     * Map format with service/total being key/value pair.
-     * 
-     * @param siteName - the site in which to retrieve entries for.
-     * @return A map representation of each serviceName/total for site.
-     * @throws Exception
-     */
-    public Map<String, Integer> getTotalsForSite(String siteName) throws Exception;
+    void deleteForSite(String siteName) throws Exception;
 
-    public void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception;
-    
+    /**
+     * Gets totals for all sites.
+     * @return map of site name to total.
+     * @throws Exception if query fails.
+     */
+    Map<String, Integer> getTotalsForAllSites() throws Exception;
+
+    /**
+     * Gets totals for a specified site.
+     * @param siteName the site name.
+     * @return map of service name to total.
+     * @throws Exception if query fails.
+     */
+    Map<String, Integer> getTotalsForSite(String siteName) throws Exception;
+
+    /**
+     * Updates site name for all entries.
+     * @param oldSiteName previous site name.
+     * @param newSiteName new site name.
+     * @throws Exception if update fails.
+     */
+    void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception;
 }

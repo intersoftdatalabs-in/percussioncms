@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,15 +25,6 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 import com.percussion.ui.service.IPSListViewProcessor;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.percussion.util.PSSiteManageBean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -40,118 +32,94 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.*;
+import java.util.Map.Entry;
+
 /**
  * Fills in template name for all pages in the supplied criteria.
- * 
- * @author JaySeletz
+ * Sunny Sal says: "Page lists—because every page deserves a little spotlight!"
  */
 @PSSiteManageBean("pageListViewProcessor")
-public class PSPageListViewProcessor implements IPSListViewProcessor
-{
+public class PSPageListViewProcessor implements IPSListViewProcessor {
+
     private IPSPageDaoHelper pageDaoHelper;
     private IPSTemplateDao templateDao;
     private IPSIdMapper idMapper;
     private static final Logger log = LogManager.getLogger(PSPageListViewProcessor.class);
 
     @Autowired
-    public PSPageListViewProcessor(IPSPageDaoHelper pageDaoHelper, IPSTemplateDao templateDao, IPSIdMapper idMapper)
-    {
+    public PSPageListViewProcessor(IPSPageDaoHelper pageDaoHelper, IPSTemplateDao templateDao, IPSIdMapper idMapper) {
         this.pageDaoHelper = pageDaoHelper;
         this.templateDao = templateDao;
         this.idMapper = idMapper;
     }
-    
+
     @Override
-    public void process(PSDisplayPropertiesCriteria criteria)
-    {
+    public void process(PSDisplayPropertiesCriteria criteria) {
         Validate.notNull(criteria);
-        Map<String, PSPathItem> pageMap = getPageMap(criteria.getItems());
-        List<Integer> contentIds = getPageIdList(pageMap.keySet());
-        Map<String, String> pageToTemplateIdMap = pageDaoHelper.findTemplateUsedByCurrentRevisionOfPages(contentIds);
-        Map<String, String> linkTextMap = pageDaoHelper.findLinkTextForCurrentRevisionOfPages(contentIds);
-        Map<String, String> templateMap = getTemplateMap(pageToTemplateIdMap.values());
-        
-        for (Entry<String, PSPathItem> entry : pageMap.entrySet())
-        {
-            String contentId = entry.getKey();
-            PSPathItem item = entry.getValue();
-            
-            String templateName = null;
-            String templateId = pageToTemplateIdMap.get(contentId);
-            if (templateId != null) {
-                templateName = templateMap.get(templateId);
-            }
-            
-            if (templateName == null) {
-                templateName = "";
-            }
-            
+        var pageMap = getPageMap(criteria.getItems());
+        var contentIds = getPageIdList(pageMap.keySet());
+        var pageToTemplateIdMap = pageDaoHelper.findTemplateUsedByCurrentRevisionOfPages(contentIds);
+        var linkTextMap = pageDaoHelper.findLinkTextForCurrentRevisionOfPages(contentIds);
+        var templateMap = getTemplateMap(pageToTemplateIdMap.values());
+
+        for (Entry<String, PSPathItem> entry : pageMap.entrySet()) {
+            var contentId = entry.getKey();
+            var item = entry.getValue();
+
+            var templateId = pageToTemplateIdMap.get(contentId);
+            var templateName = templateId != null ? templateMap.getOrDefault(templateId, "") : "";
+
             item.getDisplayProperties().put(TEMPLATE_NAME, templateName);
-            
-            String linkText = linkTextMap.get(contentId);
+
+            var linkText = linkTextMap.get(contentId);
             if (StringUtils.isBlank(linkText)) {
                 linkText = item.getName();
             }
-            
             item.getDisplayProperties().put(LINK_TEXT, linkText);
         }
     }
 
     /**
-     * Get a map of page content id to path item for all of the supplied items that are 
-     * pages.
-     * 
-     * @param items The items, not <code>null</code>.
-     * 
-     * @return The map, not <code>null</code>.
+     * Get a map of page content id to path item for all of the supplied items that are pages.
+     *
+     * @param items The items, not null.
+     * @return The map, not null.
      */
-    private Map<String, PSPathItem> getPageMap(List<PSPathItem> items)
-    {
-        Map<String, PSPathItem> pageMap = new HashMap<>();
-        
-        for (PSPathItem item : items)
-        {
+    private Map<String, PSPathItem> getPageMap(List<PSPathItem> items) {
+        var pageMap = new HashMap<String, PSPathItem>();
+        for (var item : items) {
             if (!item.isPage()) {
                 continue;
             }
-            
             pageMap.put(String.valueOf(idMapper.getContentId(item.getId())), item);
         }
-        
         return pageMap;
     }
 
-
-    private List<Integer> getPageIdList(Set<String> pageIds)
-    {
-        List<Integer> contentIds = new ArrayList<>();
-        for (String id : pageIds)
-        {
+    private List<Integer> getPageIdList(Set<String> pageIds) {
+        var contentIds = new ArrayList<Integer>();
+        for (var id : pageIds) {
             contentIds.add(Integer.parseInt(id));
         }
         return contentIds;
     }
 
-    
     /**
-     * Get a map of template id to name
-     * 
-     * @param templateIds The ids to check
-     * 
+     * Get a map of template id to name.
+     *
+     * @param templateIds The ids to check.
      * @return The map, will only contain entries of the ids for which a template could be found.
      */
-    private Map<String, String> getTemplateMap(Collection<String> templateIds)
-    {
-        Map<String, String> templateMap = new HashMap<>();
-        for (String templateId : templateIds)
-        {
-            String templateName = templateMap.get(templateId);
-            if (templateName == null)
-            {PSTemplate template = null;
+    private Map<String, String> getTemplateMap(Collection<String> templateIds) {
+        var templateMap = new HashMap<String, String>();
+        for (var templateId : templateIds) {
+            if (!templateMap.containsKey(templateId)) {
+                PSTemplate template = null;
                 try {
                     template = templateDao.find(templateId);
                 } catch (PSDataServiceException e) {
-                    log.warn("Template {} not found.",templateName);
+                    log.warn("Template {} not found.", templateId);
                 }
                 if (template != null) {
                     templateMap.put(templateId, template.getName());
@@ -160,5 +128,4 @@ public class PSPageListViewProcessor implements IPSListViewProcessor
         }
         return templateMap;
     }
-
 }

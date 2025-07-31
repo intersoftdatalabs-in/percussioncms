@@ -26,42 +26,36 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
- * Defines an interface that should be implemented by all public Rest services.
- * 
- * The interface defines common methods for things like retrieving the current version
- * of a service that are intended to be consistent between services. 
- * 
- * @author natechadwick
- *
+ * Defines an interface to be implemented by all public REST services.
+ * This interface defines common methods such as retrieving the current version
+ * of a service, intended to be consistent between services.
+ * // REFACTORED: CP-JAVA11
  */
 public interface IPSRestService {
-	
-	/***
-	 * Returns the currently deployed version of the service. 
-	 * 
-	 * @return
-	 */
-	@GET
-	@Path("/version")
-	public String getVersion();
 
     /**
-     * The purpose of this method is to fix behavior in the DTS db
-     * after a site is renamed in CM1.  Starting this for the purpose
-     * of deleting old DTS database information after a site is renamed in CM1.
-     * Prior to fix all the old data after the rename is left behind.
+     * Returns the currently deployed version of the service.
+     *
+     * @return the version string
+     */
+    @GET
+    @Path("/version")
+    String getVersion();
+
+    /**
+     * Fixes behavior in the DTS database after a site is renamed in CM1.
+     * Deletes old DTS database information after a site is renamed in CM1.
+     * Prior to this fix, old data after the rename was left behind.
      *
      * @param prevSiteName the old name for the site
      * @param newSiteName the new name for the site
-     *
-     * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries IPSSiteRenameService
-     *
-     * @return <code>204</code> if the process was successful.  Return error code otherwise.
+     * @return {@code 204} if the process was successful; error code otherwise
+     * @see com.percussion.services.siterename.IPSSiteRenameService#deleteDTSEntries
      */
     @DELETE
     @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed("deliverymanager")
-    public Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName);
-
+    Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName,
+                                  @PathParam("newSiteName") String newSiteName);
 }

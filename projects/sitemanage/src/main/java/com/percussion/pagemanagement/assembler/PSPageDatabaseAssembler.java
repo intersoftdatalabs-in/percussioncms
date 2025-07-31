@@ -40,6 +40,7 @@ import org.apache.logging.log4j.Logger;
  * 
  * @author YuBingChen
  */
+// REFACTORED: CP-JAVA11
 public class PSPageDatabaseAssembler extends PSDatabaseAssembler
 {
     private PSPageAssemblyContextFactory pageAssemblyContextFactory;
@@ -51,32 +52,32 @@ public class PSPageDatabaseAssembler extends PSDatabaseAssembler
         super.init(def, file);
         PSSpringWebApplicationContextUtils.injectDependencies(this);
     }
-    
+
     /*
      * (non-Javadoc)
      * @see com.percussion.services.assembly.impl.plugin.PSAssemblerBase#preProcessItemBinding(com.percussion.services.assembly.IPSAssemblyItem, com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator)
      */
+    @Override
     public void preProcessItemBinding(IPSAssemblyItem pageItem, PSAssemblyJexlEvaluator eval) throws PSAssemblyException
     {
         try
         {
             // clone the page item, which may be polluted by the following process.
-            IPSAssemblyItem assemblyItem = (IPSAssemblyItem) pageItem.clone();
-            
-            TemplateAndPage tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
-            PSPageAssemblyContext context = getPageAssemblyContextFactory().createContext(assemblyItem, tp, false);
-            
+            final var assemblyItem = (IPSAssemblyItem) pageItem.clone();
+
+            final var tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
+            final var context = getPageAssemblyContextFactory().createContext(assemblyItem, tp, false);
+
             eval.bind("$perc", context);
         }
         catch (Exception e)
         {
-            String msg = "Failed to create page assembly context ($perc). The underlying error is: " + e.getMessage();
+            final var msg = "Failed to create page assembly context ($perc). The underlying error is: " + e.getMessage();
             log.error(msg, e);
             throw new PSAssemblyException(IPSAssemblyErrors.UNKNOWN_ERROR, e, msg);
         }
     }
-    
-    
+
     public PSPageAssemblyContextFactory getPageAssemblyContextFactory()
     {
         return pageAssemblyContextFactory;
@@ -86,7 +87,6 @@ public class PSPageDatabaseAssembler extends PSDatabaseAssembler
     {
         this.pageAssemblyContextFactory = pageAssemblyContextFactory;
     }
-    
 
     public PSAssemblyItemBridge getAssemblyItemBridge()
     {
@@ -102,6 +102,4 @@ public class PSPageDatabaseAssembler extends PSDatabaseAssembler
      * The log instance to use for this class, never <code>null</code>.
      */
     private static final Logger log = LogManager.getLogger(PSPageDatabaseAssembler.class);
-    
-
 }

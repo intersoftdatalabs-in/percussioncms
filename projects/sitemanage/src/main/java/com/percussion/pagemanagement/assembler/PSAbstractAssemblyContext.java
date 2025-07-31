@@ -22,71 +22,66 @@ import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 
 /**
- * 
- * Represents an abstract object that is bound to the
- * the rendering of a {@link PSPage}, {@link PSWidgetItem},
- * or {@link PSTemplate}.
+ * Represents an abstract object that is bound to the rendering of a {@link PSPage},
+ * {@link PSWidgetItem}, or {@link PSTemplate}.
  * <p>
- * Concrete implementations are bound to <code>$perc</code>
- * 
+ * Concrete implementations are bound to <code>$perc</code>.
+ *
  * @see PSPageAssemblyContext
  * @see PSWidgetAssemblyContext
  * @author adamgent
- *
  */
-public abstract class PSAbstractAssemblyContext implements Cloneable
-{
+public abstract class PSAbstractAssemblyContext implements Cloneable {
+
     /**
-     * never <code>null</code>.
+     * Never {@code null}.
      */
     private PSPage page;
 
     /**
-     * never <code>null</code>.
+     * Never {@code null}.
      */
     private PSTemplate template;
-    
+
     /**
-     * never <code>null</code>.
+     * Never {@code null}.
      * @see #getRootRenderType()
      */
     private RootRenderType rootRenderType = RootRenderType.PAGE;
-    
+
     private EditType editType = EditType.PAGE;
 
     /**
-     * never <code>null</code>.
+     * Never {@code null}.
      */
     private PSRenderLinkContext linkContext;
 
     /**
-     * See {@link #isEditMode()} for details. Defaults to <code>false</code>.
+     * See {@link #isEditMode()} for details. Defaults to {@code false}.
      */
     private boolean editMode;
-    
-    /**
-     * See {@link #isPreviewMode()} for details
-     */
-    private boolean previewMode;    
 
     /**
-     * See {@link #isScriptsOff()} for details. Defaults to <code>false</code>.
+     * See {@link #isPreviewMode()} for details.
+     */
+    private boolean previewMode;
+
+    /**
+     * See {@link #isScriptsOff()} for details. Defaults to {@code false}.
      */
     private boolean scriptsOff;
-    
+
     /**
      * The page object. If in template layout mode this will be a blank page.
      * <p>
      * <b>Binding:</b> $perc.page
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSPage getPage()
-    {
+    public PSPage getPage() {
         return page;
     }
 
-    public void setPage(PSPage page)
-    {
+    public void setPage(PSPage page) {
         this.page = page;
     }
 
@@ -94,160 +89,136 @@ public abstract class PSAbstractAssemblyContext implements Cloneable
      * The template object.
      * <p>
      * <b>Binding:</b> $perc.template
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSTemplate getTemplate()
-    {
+    public PSTemplate getTemplate() {
         return template;
     }
 
-    public void setTemplate(PSTemplate template)
-    {
+    public void setTemplate(PSTemplate template) {
         this.template = template;
     }
-    
-    
+
     /**
      * The link context used to create links.
      * <p>
      * <b>Binding:</b> $perc.linkContext
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSRenderLinkContext getLinkContext()
-    {
+    public PSRenderLinkContext getLinkContext() {
         return linkContext;
     }
 
-    public void setLinkContext(PSRenderLinkContext linkContext)
-    {
+    public void setLinkContext(PSRenderLinkContext linkContext) {
         this.linkContext = linkContext;
     }
 
-    
     /**
      * The type of item that this context was created for.
-     * If the rendering is for a page than {@link RootRenderType#PAGE}
-     * will be returned. If the rendering is for a template than
-     * the return value will be {@link RootRenderType#TEMPLATE}
-     * returned.
-     * 
-     * @return never <code>null</code>.
+     * If the rendering is for a page then {@link RootRenderType#PAGE}
+     * will be returned. If the rendering is for a template then
+     * the return value will be {@link RootRenderType#TEMPLATE}.
+     *
+     * @return never {@code null}.
      */
-    public RootRenderType getRootRenderType()
-    {
+    public RootRenderType getRootRenderType() {
         return rootRenderType;
     }
 
-    public void setRootRenderType(RootRenderType renderType)
-    {
+    public void setRootRenderType(RootRenderType renderType) {
         this.rootRenderType = renderType;
     }
 
     /**
-     * The type of the item this context is created for while the item is been edited.
-     * This value is only useful if {@link #isEditMode()} is <code>true</code>.
-     * It is default to {@link EditType#PAGE}.
-     * 
-     * @return the edit type, never <code>null</code>.
+     * The type of the item this context is created for while the item is being edited.
+     * This value is only useful if {@link #isEditMode()} is {@code true}.
+     * It defaults to {@link EditType#PAGE}.
+     *
+     * @return the edit type, never {@code null}.
      */
-    public EditType getEditType()
-    {
+    public EditType getEditType() {
         return editType;
     }
-    
-    public void setEditType(EditType editType)
-    {
+
+    public void setEditType(EditType editType) {
         this.editType = editType;
     }
-    
+
     @Override
-    protected Object clone() 
-    {
-        try
-        {
+    protected Object clone() {
+        try {
             return super.clone();
-        }
-        catch (CloneNotSupportedException e)
-        {
+        } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
      * See {@link #isEditMode()} for details.
-     * @param editMode 
+     * @param editMode whether this context is in edit mode
      */
-    public void setEditMode(boolean editMode)
-    {
+    public void setEditMode(boolean editMode) {
         this.editMode = editMode;
     }
 
     /**
-     * This flag is provided to indicate whether the requester plans on using
+     * This flag indicates whether the requester plans on using
      * the assembled document in an editor. Widgets can use this flag to change
      * their behavior. For example, if they don't have an asset, they should
      * render some sample content such as 'Add image here' for an image widget.
      * Other possibilities would be to build an in-line editor to re-order a
      * manual list.
-     * 
+     *
      * @return The mode as requested by the caller.
      */
-    public boolean isEditMode()
-    {
+    public boolean isEditMode() {
         return editMode;
     }
-    
-    
 
     /**
-    * A flag indicating that the assembled document will be used in preview mode.
-    * Widgets can use this flag to change their behavior. For example this
-    * may be used to show a placeholder when in preview mode but the real content
-    * on a published page. Usually needed for delivery side content widgets.
-    * @return the previewMode
-    */
-   public boolean isPreviewMode()
-   {
-      return previewMode;
-   }
-
-   /**
-    * See {@link #isPreviewMode()} for details
-    * @param previewMode the previewMode to set
-    */
-   public void setPreviewMode(boolean previewMode)
-   {
-      this.previewMode = previewMode;
-   }
-
-   /**
-     * See {@link #isScriptsOff()} for details.
-     * @param scriptsOff 
+     * A flag indicating that the assembled document will be used in preview mode.
+     * Widgets can use this flag to change their behavior. For example, this
+     * may be used to show a placeholder when in preview mode but the real content
+     * on a published page. Usually needed for delivery-side content widgets.
+     * @return the previewMode
      */
-    public void setScriptsOff(boolean scriptsOff)
-    {
+    public boolean isPreviewMode() {
+        return previewMode;
+    }
+
+    /**
+     * See {@link #isPreviewMode()} for details.
+     * @param previewMode the previewMode to set
+     */
+    public void setPreviewMode(boolean previewMode) {
+        this.previewMode = previewMode;
+    }
+
+    /**
+     * See {@link #isScriptsOff()} for details.
+     * @param scriptsOff disables scripts if true
+     */
+    public void setScriptsOff(boolean scriptsOff) {
         this.scriptsOff = scriptsOff;
     }
 
     /**
-     * This flag is provided to indicate whether the requester plans on using
-     * the assembled document with javascript code stripped or not. Some customer 
-     * javascript code causes conflicts with our code, this flag can be used to 
-     * determine whether to render the javascript code or strip it. 
-     * 
-     * @return The scripts on flag as requested by the caller.
+     * This flag indicates whether the requester plans on using
+     * the assembled document with JavaScript code stripped or not. Some customer
+     * JavaScript code causes conflicts with our code; this flag can be used to
+     * determine whether to render the JavaScript code or strip it.
+     *
+     * @return The scripts off flag as requested by the caller.
      */
-    public boolean isScriptsOff()
-    {
+    public boolean isScriptsOff() {
         return scriptsOff;
     }
 
     public enum RootRenderType {
         PAGE, TEMPLATE
     }
-    
+
     public enum EditType {
         PAGE, TEMPLATE
     }
-
 }

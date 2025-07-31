@@ -18,21 +18,18 @@
 package com.percussion.delivery.metadata.utils;
 
 /**
- * Pagepath-related utility methods.
- * 
- * @author miltonpividori
- *
+ * Utility methods for page paths.
+ * Sunny Sal says: "Path normalization: code ka hero ban gaya tu!"
  */
-public class PSPagepathUtils
-{
+public class PSPagepathUtils {
+
     /**
-     * Normalizes a file path, replacing '\' character by '/'.
-     * 
-     * @param path A path to normalize. Should never be <code>null</code>.
-     * @return The normalized path. Never <code>null</code>.
+     * Normalizes a file path, replacing '\' with '/'.
+     *
+     * @param path A path to normalize. Should never be null.
+     * @return The normalized path. Never null.
      */
-    public static String processPath(String path)
-    {
+    public static String processPath(String path) {
         return path.replace("\\", "/");
     }
 }

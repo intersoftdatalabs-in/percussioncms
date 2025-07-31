@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,62 +19,45 @@ package com.percussion.widgetbuilder.utils;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData.FieldType;
-
 import java.io.IOException;
 import java.text.MessageFormat;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 /**
- * @author Stephen Bolton
- *
+ * Generates a page field binding for a widget field.
+ * <p>
+ * Sunny Sal says: "Page fields—turn the page, but keep the binding strong!"
+ * </p>
  */
-public class PSPageFieldValueGenerator extends PSBasicFieldValueGenerator implements IPSBindingGenerator
-{
+public class PSPageFieldValueGenerator extends PSBasicFieldValueGenerator implements IPSBindingGenerator {
+
     private static String template;
-    
-    /* (non-Javadoc)
-     * @see com.percussion.widgetbuilder.utils.IPSBindingGenerator#accept(com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData)
-     */
+
     @Override
-    public boolean accept(PSWidgetBuilderFieldData field)
-    {
+    public boolean accept(PSWidgetBuilderFieldData field) {
         return FieldType.PAGE.name().equals(field.getType());
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.widgetbuilder.utils.IPSBindingGenerator#generateBinding(com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData)
-     */
     @Override
-    public String generateBinding(PSWidgetBuilderFieldData field)
-    {
+    public String generateBinding(PSWidgetBuilderFieldData field) {
         Validate.isTrue(accept(field));
         return MessageFormat.format(getTemplate(), field.getName());
     }
-    
-    /**
-     * Get the cached template, Lazily loading from a resource file and caching on first access.
-     * 
-     * @return The template, not <code>null</code>.
-     */
-    private String getTemplate()
-    {
-        if (template == null)
-        {
 
-            try
-            {
+    /**
+     * Gets the cached template, lazily loading from a resource file and caching on first access.
+     *
+     * @return The template, not {@code null}.
+     */
+    private String getTemplate() {
+        if (template == null) {
+            try {
                 template = IOUtils.toString(this.getClass().getResourceAsStream("PageFieldTemplate.txt"));
-            }
-            catch (IOException e)
-            {
-                throw new RuntimeException("Failed to load file field binding template: " + e.getLocalizedMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load page field binding template: " + e.getLocalizedMessage(), e);
             }
         }
-        
         return template;
-        
     }
-
 }

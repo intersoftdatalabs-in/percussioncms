@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,7 +19,7 @@
 package com.percussion.assetmanagement.service;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -26,12 +27,9 @@ import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.PSValidationException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.assetmanagement.service.impl.PSAssetNewFolderPathResolver;
 import com.percussion.assetmanagement.service.impl.PSAssetNewFolderPathResolver.PSResolvedFolderPath;
@@ -43,17 +41,11 @@ import com.percussion.share.data.IPSItemSummary;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 
-//import static java.util.Arrays.*;
-//import static org.hamcrest.CoreMatchers.*;
-//import static org.junit.matchers.JUnitMatchers.*;
-
 /**
- * Scenario description: 
- * @author adamgent, Jan 7, 2010
+ * Scenario description:
+ * Tests for PSAssetNewFolderPathResolver.
  */
-@RunWith(JMock.class)
-public class PSAssetNewFolderPathResolverTest
-{
+public class PSAssetNewFolderPathResolverTest {
 
     private Mockery context = new JUnit4Mockery();
 
@@ -61,7 +53,7 @@ public class PSAssetNewFolderPathResolverTest
 
     private IPSSiteTemplateService siteTemplateService;
     private IPSPageService pageService;
-    
+
     private PSResolvedFolderPath resolved;
     private IPSItemSummary owner;
     private IPSItemSummary asset;
@@ -70,134 +62,106 @@ public class PSAssetNewFolderPathResolverTest
     private IPSItemSummary template;
     private PSSiteSummary siteSummary;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        
+    @BeforeEach
+    public void setUp() throws Exception {
         siteTemplateService = context.mock(IPSSiteTemplateService.class);
         pageService = context.mock(IPSPageService.class);
         resolver = new PSAssetNewFolderPathResolver(pageService, siteTemplateService);
         pageItem = createItemSummary("p", IPSPageService.PAGE_CONTENT_TYPE, asList("//a/b"));
         template = createItemSummary("t", IPSTemplateService.TPL_CONTENT_TYPE, asList("//a/b"));
-        /*
-         * Asset in site A and site B
-         */
+        // Asset in site A and site B
         asset = createItemSummary("a", "asset", asList("//a/b", "//c/b"));
         page = new PSPage();
         page.setId("p");
         page.setFolderPath("//a/d");
         page.setTemplateId("t");
-        
+
         siteSummary = new PSSiteSummary();
         siteSummary.setId("s");
         siteSummary.setFolderPath("//a");
-        
     }
 
     @Test
-    public void shouldResolveForPageUsingAssetsPath() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-
+    public void shouldResolveForPageUsingAssetsPath() throws Exception {
         owner = pageItem;
-        context.checking(new Expectations()
-        {{
-            one(pageService).find("p");
+        context.checking(new Expectations() {{
+            oneOf(pageService).find("p");
             will(returnValue(page));
-            one(siteTemplateService).findSitesByTemplate("t");
+            oneOf(siteTemplateService).findSitesByTemplate("t");
             will(returnValue(asList(siteSummary)));
         }});
-        
+
         resolved = resolver.resolveFolderPath(owner, asset);
 
         assertNotNull(resolved);
         assertEquals("//a/b", resolved.getFolderPath());
         assertEquals(PSResolvedFolderPathType.PAGE, resolved.getType());
-        assertEquals(true, resolved.isAlreadyInFolder());
+        assertTrue(resolved.isAlreadyInFolder());
     }
-    
-    @Test
-    public void shouldResolveForPageUsingSitePath() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
 
+    @Test
+    public void shouldResolveForPageUsingSitePath() throws Exception {
         pageItem = createItemSummary("blah", IPSPageService.PAGE_CONTENT_TYPE, asList("//SITE/blah"));
         owner = pageItem;
         siteSummary.setFolderPath("//SITE");
-        context.checking(new Expectations()
-        {{
-            one(pageService).find("blah");
+        context.checking(new Expectations() {{
+            oneOf(pageService).find("blah");
             will(returnValue(page));
-            one(siteTemplateService).findSitesByTemplate("t");
+            oneOf(siteTemplateService).findSitesByTemplate("t");
             will(returnValue(asList(siteSummary)));
         }});
-        
+
         resolved = resolver.resolveFolderPath(owner, asset);
 
         assertNotNull(resolved);
         assertEquals("//a/d", resolved.getFolderPath());
         assertEquals(PSResolvedFolderPathType.PAGE, resolved.getType());
-        assertEquals(false, resolved.isAlreadyInFolder());
+        assertFalse(resolved.isAlreadyInFolder());
     }
-    
 
     @Test
-    public void shouldResolveForTemplateUsingAssetsPath() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-
+    public void shouldResolveForTemplateUsingAssetsPath() throws Exception {
         owner = template;
-        context.checking(new Expectations()
-        {{
-            one(siteTemplateService).findSitesByTemplate("t");
+        context.checking(new Expectations() {{
+            oneOf(siteTemplateService).findSitesByTemplate("t");
             will(returnValue(asList(siteSummary)));
         }});
-        
+
         resolved = resolver.resolveFolderPath(owner, asset);
 
         assertNotNull(resolved);
         assertEquals("//a/b", resolved.getFolderPath());
         assertEquals(PSResolvedFolderPathType.TEMPLATE, resolved.getType());
-        assertEquals(true, resolved.isAlreadyInFolder());
+        assertTrue(resolved.isAlreadyInFolder());
     }
 
     @Test
-    public void shouldResolveForTemplateUsingSitePath() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-
+    public void shouldResolveForTemplateUsingSitePath() throws Exception {
         owner = template;
         siteSummary.setFolderPath("//SITE");
-        context.checking(new Expectations()
-        {{
-            one(siteTemplateService).findSitesByTemplate("t");
+        context.checking(new Expectations() {{
+            oneOf(siteTemplateService).findSitesByTemplate("t");
             will(returnValue(asList(siteSummary)));
         }});
-        
+
         resolved = resolver.resolveFolderPath(owner, asset);
 
         assertNotNull(resolved);
         assertEquals("//SITE", resolved.getFolderPath());
         assertEquals(PSResolvedFolderPathType.TEMPLATE, resolved.getType());
-        /*
-         * It should be in the folder already
-         */
-        assertEquals(false, resolved.isAlreadyInFolder());
+        assertFalse(resolved.isAlreadyInFolder());
     }
-    
 
-    
     private IPSItemSummary createItemSummary(final String id, final String type, final List<String> paths) {
         final IPSItemSummary item = context.mock(IPSItemSummary.class, id);
-        context.checking(new Expectations()
-        {
-            {
-                allowing(item).getId();
-                will(returnValue(id));
-                
-                allowing(item).getType();
-                will(returnValue(type));
-                
-                allowing(item).getFolderPaths();
-                will(returnValue(paths));
-                
-            }
-        });
-        
+        context.checking(new Expectations() {{
+            allowing(item).getId();
+            will(returnValue(id));
+            allowing(item).getType();
+            will(returnValue(type));
+            allowing(item).getFolderPaths();
+            will(returnValue(paths));
+        }});
         return item;
     }
 }
-
-

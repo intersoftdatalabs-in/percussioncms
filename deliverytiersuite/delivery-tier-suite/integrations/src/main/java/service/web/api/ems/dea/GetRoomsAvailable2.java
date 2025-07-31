@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,32 +25,9 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="RoomTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="FloorID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="WebProcessTemplates" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="StartDateTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="EndDateTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Request for fetching available rooms (version 2).
+ * Sunny Sal: "Rooms available, sequel! Java 11 and ready for action."
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -87,171 +63,130 @@ public class GetRoomsAvailable2 {
     protected XMLGregorianCalendar endDateTime;
 
     /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     * @return user name or null
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the user name.
+     * @param value user name
      */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     * @return password or null
      */
     public String getPassword() {
         return password;
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Sets the password.
+     * @param value password
      */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
     /**
-     * Gets the value of the buildingID property.
-     * 
+     * Gets the building ID.
+     * @return building ID
      */
     public int getBuildingID() {
         return buildingID;
     }
 
     /**
-     * Sets the value of the buildingID property.
-     * 
+     * Sets the building ID.
+     * @param value building ID
      */
     public void setBuildingID(int value) {
-        this.buildingID = value;
+        buildingID = value;
     }
 
     /**
-     * Gets the value of the roomTypeID property.
-     * 
+     * Gets the room type ID.
+     * @return room type ID
      */
     public int getRoomTypeID() {
         return roomTypeID;
     }
 
     /**
-     * Sets the value of the roomTypeID property.
-     * 
+     * Sets the room type ID.
+     * @param value room type ID
      */
     public void setRoomTypeID(int value) {
-        this.roomTypeID = value;
+        roomTypeID = value;
     }
 
     /**
-     * Gets the value of the floorID property.
-     * 
+     * Gets the floor ID.
+     * @return floor ID
      */
     public int getFloorID() {
         return floorID;
     }
 
     /**
-     * Sets the value of the floorID property.
-     * 
+     * Sets the floor ID.
+     * @param value floor ID
      */
     public void setFloorID(int value) {
-        this.floorID = value;
+        floorID = value;
     }
 
     /**
-     * Gets the value of the webProcessTemplates property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
+     * Gets the web process templates.
+     * @return web process templates or null
      */
     public ArrayOfInt getWebProcessTemplates() {
         return webProcessTemplates;
     }
 
     /**
-     * Sets the value of the webProcessTemplates property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
+     * Sets the web process templates.
+     * @param value web process templates
      */
     public void setWebProcessTemplates(ArrayOfInt value) {
-        this.webProcessTemplates = value;
+        webProcessTemplates = value;
     }
 
     /**
-     * Gets the value of the startDateTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Gets the start date/time.
+     * @return start date/time
      */
     public XMLGregorianCalendar getStartDateTime() {
         return startDateTime;
     }
 
     /**
-     * Sets the value of the startDateTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Sets the start date/time.
+     * @param value start date/time
      */
     public void setStartDateTime(XMLGregorianCalendar value) {
-        this.startDateTime = value;
+        startDateTime = value;
     }
 
     /**
-     * Gets the value of the endDateTime property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Gets the end date/time.
+     * @return end date/time
      */
     public XMLGregorianCalendar getEndDateTime() {
         return endDateTime;
     }
 
     /**
-     * Sets the value of the endDateTime property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Sets the end date/time.
+     * @param value end date/time
      */
     public void setEndDateTime(XMLGregorianCalendar value) {
-        this.endDateTime = value;
+        endDateTime = value;
     }
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,58 +21,55 @@ package com.percussion.searchmanagement.service.impl;
 import com.percussion.searchmanagement.data.PSSearchCriteria;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class PSSearchSecurityTests {
+/**
+ * Security tests for search criteria sanitization.
+ * Sunny Sal: "Sanitizing search like a pro!"
+ */
+class PSSearchSecurityTests {
 
     private static final Logger log = LogManager.getLogger(PSSearchSecurityTests.class);
 
     @Test
-    public void testCriteriaValidation(){
-        PSSearchCriteria badCriteria = new PSSearchCriteria();
-        PSSearchRestService svc = new PSSearchRestService(null,null, null);
+    void testCriteriaValidation() {
+        var badCriteria = new PSSearchCriteria();
+        var svc = new PSSearchRestService(null, null, null);
 
         badCriteria.setQuery("<Script>alert();</Script> AND g=1");
         log.info("Bad Query: {}", badCriteria.getQuery());
         svc.sanitizeCriteria(badCriteria);
         log.info("Scrubbed Query: {}", badCriteria.getQuery());
 
-        assertNotEquals("<Script>alert();</Script> AND g=1",badCriteria.getQuery());
+        assertNotEquals("<Script>alert();</Script> AND g=1", badCriteria.getQuery());
 
-        HashMap<String,String> fields = new HashMap<>();
-
+        var fields = new HashMap<String, String>();
         fields.put("key1", "<Script>alert();</Script> ");
         fields.put("key2", "Some data. Yay!!!");
         fields.put("key3", "");
-       badCriteria.setSearchFields(fields);
+        badCriteria.setSearchFields(fields);
 
-       svc.sanitizeCriteria(badCriteria);
-       log.info("Scrubbed Field 0: {}", badCriteria.getSearchFields().values().toArray()[0]);
-       log.info("Scrubbed Field 1: {}", badCriteria.getSearchFields().values().toArray()[1]);
-       log.info("Scrubbed Field 2: {}", badCriteria.getSearchFields().values().toArray()[2]);
+        svc.sanitizeCriteria(badCriteria);
+        log.info("Scrubbed Field 0: {}", badCriteria.getSearchFields().values().toArray()[0]);
+        log.info("Scrubbed Field 1: {}", badCriteria.getSearchFields().values().toArray()[1]);
+        log.info("Scrubbed Field 2: {}", badCriteria.getSearchFields().values().toArray()[2]);
 
         assertNotEquals("<Script>alert();</Script> ", badCriteria.getSearchFields().values().toArray()[0]);
         assertEquals("Some data. Yay!!!", badCriteria.getSearchFields().values().toArray()[1]);
         assertEquals("", badCriteria.getSearchFields().values().toArray()[2]);
 
-        //Sort
-       badCriteria.setSortColumn("IN VALID <script>alert();</script> COLUMN NAME");
+        // Sort
+        badCriteria.setSortColumn("IN VALID <script>alert();</script> COLUMN NAME");
 
-       log.info("Bad Sort Column: {}",badCriteria.getSortColumn());
-       svc.sanitizeCriteria(badCriteria);
-       log.info("Scrubbed Sort Column: {}",badCriteria.getSortColumn());
+        log.info("Bad Sort Column: {}", badCriteria.getSortColumn());
+        svc.sanitizeCriteria(badCriteria);
+        log.info("Scrubbed Sort Column: {}", badCriteria.getSortColumn());
 
-       assertNotEquals("IN VALID <script>alert();</script> COLUMN NAME",
-               badCriteria.getSortColumn());
+        assertNotEquals("IN VALID <script>alert();</script> COLUMN NAME", badCriteria.getSortColumn());
 
         assertFalse(badCriteria.getSortColumn().contains("<"));
         assertFalse(badCriteria.getSortColumn().contains(">"));
@@ -83,10 +81,9 @@ public class PSSearchSecurityTests {
         assertNotNull(badCriteria.getFolderPath());
 
         badCriteria.setFolderPath("//Sites/www.mysite.edu/test/<script>alert()</script>/test");
-        log.info("Bad folder path: {}" ,badCriteria.getFolderPath());
+        log.info("Bad folder path: {}", badCriteria.getFolderPath());
         svc.sanitizeCriteria(badCriteria);
-        log.info("Scrubbed folder path: {}" ,badCriteria.getFolderPath());
+        log.info("Scrubbed folder path: {}", badCriteria.getFolderPath());
         assertNull(badCriteria.getFolderPath());
     }
-
 }

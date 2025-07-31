@@ -45,8 +45,10 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,15 +56,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test the adhoc user test
  *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAssignmentTypeHelperTest
 {
 
@@ -394,7 +395,6 @@ public class PSAssignmentTypeHelperTest
      *
      * @throws PSORMException
      */
-    @AfterClass
     public static void teardownInfo() throws PSORMException
     {
         IPSWorkflowService service = PSWorkflowServiceLocator

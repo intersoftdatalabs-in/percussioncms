@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -52,78 +51,61 @@ import javax.xml.bind.annotation.XmlType;
     "password",
     "bookingID"
 })
+// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingCheckIn")
 public class GetBookingCheckIn {
-
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private String password;
     @XmlElement(name = "BookingID")
-    protected int bookingID;
+    private int bookingID;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setUserName(String value) {
-        this.userName = value;
+        userName = value;
     }
 
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
 
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setPassword(String value) {
-        this.password = value;
+        password = value;
     }
 
-    /**
-     * Gets the value of the bookingID property.
-     * 
-     */
     public int getBookingID() {
         return bookingID;
     }
 
-    /**
-     * Sets the value of the bookingID property.
-     * 
-     */
     public void setBookingID(int value) {
-        this.bookingID = value;
+        bookingID = value;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GetBookingCheckIn)) return false;
+        var that = (GetBookingCheckIn) o;
+        return bookingID == that.bookingID
+                && java.util.Objects.equals(userName, that.userName)
+                && java.util.Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, bookingID);
+    }
+
+    @Override
+    public String toString() {
+        return "GetBookingCheckIn{"
+                + "userName='" + userName + '\''
+                + ", password='[PROTECTED]'"
+                + ", bookingID=" + bookingID
+                + '}';
+    }
 }

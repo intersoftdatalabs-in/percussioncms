@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,64 +17,58 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UpdateBookingCheckInResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: Immutable SOAP response for UpdateBookingCheckin.
+ * <p>
+ * Represents the response payload for the UpdateBookingCheckin endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Checkin response—because every checkin deserves a thumbs up!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "updateBookingCheckInResult"
+    "updateBookingCheckinResult"
 })
-@XmlRootElement(name = "UpdateBookingCheckInResponse")
-public class UpdateBookingCheckInResponse {
+@XmlRootElement(name = "UpdateBookingCheckinResponse")
+public final class UpdateBookingCheckinResponse {
 
-    @XmlElement(name = "UpdateBookingCheckInResult")
-    protected String updateBookingCheckInResult;
+    @XmlElement(name = "UpdateBookingCheckinResult")
+    private final String updateBookingCheckinResult;
 
-    /**
-     * Gets the value of the updateBookingCheckInResult property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUpdateBookingCheckInResult() {
-        return updateBookingCheckInResult;
+    private UpdateBookingCheckinResponse(Builder builder) {
+        this.updateBookingCheckinResult = builder.updateBookingCheckinResult;
     }
 
     /**
-     * Sets the value of the updateBookingCheckInResult property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the update booking checkin result.
+     *
+     * @return Optional result string
      */
-    public void setUpdateBookingCheckInResult(String value) {
-        this.updateBookingCheckInResult = value;
+    public Optional<String> getUpdateBookingCheckinResult() {
+        return Optional.ofNullable(updateBookingCheckinResult);
     }
 
+    /**
+     * Builder for UpdateBookingCheckinResponse.
+     */
+    public static class Builder {
+        private String updateBookingCheckinResult;
+
+        public Builder withUpdateBookingCheckinResult(String updateBookingCheckinResult) {
+            this.updateBookingCheckinResult = updateBookingCheckinResult;
+            return this;
+        }
+
+        public UpdateBookingCheckinResponse build() {
+            return new UpdateBookingCheckinResponse(this);
+        }
+    }
 }

@@ -31,32 +31,15 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
- * Provides a configurable Context loader that can be used as the contextClass param
- * in a web.xml.  Will default to WEB-INF/beans.xml if it doesn't find a context 
- * in either {$catalina.base}/conf/perc/perc-context.properties or in 
- * WEB-INF/perc-context.properties.
- * 
- * The perc/conf location will always override what is defined in WEB-INF.
- * 
- *  example perc-context.properties
- *  ##################################### 
- *  # Specifies the context location to use.  May be over-ridden by placing this 
- *  # properties file into the {$catalina.base}/conf/perc/ folder.
- *  #
- *  # RDBMS - Hibernate Application Context
- *  contextLocation=/WEB-INF/beans.xml
- *  #
- *  # NOSQL - MongoDB Application Context
- *  #contextLocation=/WEB-INF/beans_mongodb.xml
- *  #############################################
- *
+ * Provides a configurable Context loader for Percussion CMS.
+ * Sunny Sal says: "Context ka config, beans ka magic!"
  */
 @Configuration
-public class PSConfigurableApplicationContext extends XmlWebApplicationContext
-{
+public class PSConfigurableApplicationContext extends XmlWebApplicationContext {
 
     private static final String DEFAULT_CONTEXT_CONFIG = "/WEB-INF/beans.xml";
     private static final String PERC_CONTEXT_PROPS = "/WEB-INF/perc-context.properties";
@@ -67,7 +50,7 @@ public class PSConfigurableApplicationContext extends XmlWebApplicationContext
     //Log4j2 may not be present when this is run - so use java basic logger
     private static final Logger log = LogManager.getLogger(PSConfigurableApplicationContext.class);
 
-    PSConfigurableApplicationContext(){
+    public PSConfigurableApplicationContext() {
         super();
     }
 
@@ -89,26 +72,22 @@ public class PSConfigurableApplicationContext extends XmlWebApplicationContext
         super.initBeanDefinitionReader(beanDefinitionReader);
     }
 
-    /***
-     * A convenience method for unit tests to use when testing multiple 
-     * contexts.  This should be called prior to loading the context in 
-     * a given test.
-     * 
+    /**
+     * Convenience method for unit tests to switch context location.
+     *
      * @param location The location to be set. For example: /WEB-INF/beans_mongodb.xml
-     * @throws IOException 
-     * @throws URISyntaxException 
+     * @throws IOException
+     * @throws URISyntaxException
      */
-    public static void switchContextLocation(String location) throws IOException, URISyntaxException{
-        
-        Properties p = new Properties();
-        try (InputStream rs = PSConfigurableApplicationContext.class.getResourceAsStream(PERC_CONTEXT_PROPS)){
-            p.load(rs);
-            p.setProperty(PERC_CONTEXT_LOC, location);
+    public static void switchContextLocation(String location) throws IOException, URISyntaxException {
+        var props = new Properties();
+        try (var rs = PSConfigurableApplicationContext.class.getResourceAsStream(PERC_CONTEXT_PROPS)) {
+            props.load(rs);
+            props.setProperty(PERC_CONTEXT_LOC, location);
         }
-    
-        URL url = PSConfigurableApplicationContext.class.getResource(PERC_CONTEXT_PROPS);
-        try (OutputStream fs = new FileOutputStream(new File(url.toURI()))) {
-            p.store(fs,null);
+        var url = PSConfigurableApplicationContext.class.getResource(PERC_CONTEXT_PROPS);
+        try (var fs = new FileOutputStream(new File(url.toURI()))) {
+            props.store(fs, null);
         }
     }
 
@@ -117,50 +96,44 @@ public class PSConfigurableApplicationContext extends XmlWebApplicationContext
         return getDefaultConfigLocations();
     }
 
-
     @Override
     protected String[] getDefaultConfigLocations() {
-
-        Properties props = new Properties();
-        String tomcatBase=null;
+        var props = new Properties();
+        var tomcatBase = System.getProperty(CATALINA_BASE);
         String targetContext = null;
 
-        //Get the properties from the server perc/conf dir
-        tomcatBase = System.getProperty(CATALINA_BASE);
-
-        //User configured properties
-        try(FileInputStream fs = new FileInputStream(tomcatBase + PERC_CONTEXT_PROPS_USER)){
-
-            if(tomcatBase != null){
+        // Try user-configured properties
+        if (tomcatBase != null) {
+            var userPropsFile = tomcatBase + PERC_CONTEXT_PROPS_USER;
+            try (var fs = new FileInputStream(userPropsFile)) {
                 props.load(fs);
+                targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
+            } catch (IOException e) {
+                log.info("User context properties not found: {}", e.getMessage());
             }
-                
-            targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
-        } catch (IOException e) {
-            log.info(e.getMessage());
         }
 
-        if(targetContext == null){
-            //WEB-IF properties
-            try(InputStream in = Objects.requireNonNull(this.getServletContext()).getResourceAsStream(PERC_CONTEXT_PROPS))
-            {
+        // Try WEB-INF properties
+        if (targetContext == null) {
+            try (var in = Optional.ofNullable(getServletContext())
+                    .map(ctx -> ctx.getResourceAsStream(PERC_CONTEXT_PROPS))
+                    .orElse(null)) {
+                if (in != null) {
                     props.load(in);
-                    targetContext = props.getProperty(PERC_CONTEXT_LOC,null);
-                    log.info("Selected {} from {}",targetContext , PERC_CONTEXT_LOC );
+                    targetContext = props.getProperty(PERC_CONTEXT_LOC, null);
+                    log.info("Selected {} from {}", targetContext, PERC_CONTEXT_LOC);
+                }
             } catch (IOException e) {
-                log.info(e.getMessage());
+                log.info("WEB-INF context properties not found: {}", e.getMessage());
             }
         }
-        
-        //Fall back to defaults if none of the properties are found.
-        if(targetContext == null || targetContext.equals("")){
-            log.info("Unable to find a configured ContextLocation - selecting default: {}",
-                    DEFAULT_CONTEXT_CONFIG);
+
+        // Fall back to default
+        if (targetContext == null || targetContext.isEmpty()) {
+            log.info("Unable to find a configured ContextLocation - selecting default: {}", DEFAULT_CONTEXT_CONFIG);
             targetContext = DEFAULT_CONTEXT_CONFIG;
         }
 
         return new String[]{targetContext};
     }
-
-
 }

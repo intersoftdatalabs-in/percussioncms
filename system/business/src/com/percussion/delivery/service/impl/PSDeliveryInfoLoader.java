@@ -50,6 +50,7 @@ import org.apache.logging.log4j.Logger;
  * @author miltonpividori
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSDeliveryInfoLoader
 {
 

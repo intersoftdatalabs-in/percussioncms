@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.share.extension;
 
 import com.percussion.error.PSExceptionUtils;
@@ -24,13 +25,7 @@ import com.percussion.server.PSServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
@@ -38,29 +33,24 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 /**
- * Startup process that will auto-import customer trusted certificates
- * into the central cacerts keystore when the server starts.<br/><br/>
+ * Startup process that auto-imports customer trusted certificates
+ * into the central cacerts keystore when the server starts.
  *
  * @author Santosh Dhariwal
- *
  */
 public class PSImportCustCertificates implements IPSStartupProcess {
 
-    private static final Logger log = LogManager.getLogger(PSImportCustCertificates.class.getName());
+    private static final Logger log = LogManager.getLogger(PSImportCustCertificates.class);
 
-    public PSImportCustCertificates(){
+    public PSImportCustCertificates() {}
 
-    }
-
-    /***
-     * Allow for running from the command line
-     * @param args
+    /**
+     * Allow for running from the command line.
      */
-    public static void main(String[] args){
-        Properties props = new Properties();
-        props.setProperty(PSImportCustCertificates.class.getSimpleName(),"true");
-
-        PSImportCustCertificates run = new PSImportCustCertificates();
+    public static void main(String[] args) {
+        var props = new Properties();
+        props.setProperty(PSImportCustCertificates.class.getSimpleName(), "true");
+        var run = new PSImportCustCertificates();
         try {
             run.doStartupWork(props);
         } catch (Exception e) {
@@ -68,86 +58,72 @@ public class PSImportCustCertificates implements IPSStartupProcess {
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
     }
-    @Override
-    public void doStartupWork(Properties startupProps) throws Exception {
 
-        if (!"true".equalsIgnoreCase(startupProps.getProperty(getPropName()))) {
-            log.info(getPropName() + " is set to false or missing from startup properties file. Nothing to run.");
+    @Override
+    public void doStartupWork(Properties startupProps) {
+        var propName = getPropName();
+        if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
+            log.info("{} is set to false or missing from startup properties file. Nothing to run.", propName);
             return;
         }
 
-        char[] password = "changeit".toCharArray();
-        String certificatePath = System.getProperty("java.home") + "/lib/security/cacerts";
-        File file = new File(certificatePath);
-        try(InputStream localCertIn = new FileInputStream(file)){
-
-            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        var password = "changeit".toCharArray();
+        var certificatePath = System.getProperty("java.home") + "/lib/security/cacerts";
+        var file = new File(certificatePath);
+        try (InputStream localCertIn = new FileInputStream(file)) {
+            var keystore = KeyStore.getInstance(KeyStore.getDefaultType());
             keystore.load(localCertIn, password);
-            localCertIn.close();
 
-            //Read all certificates in the given directory
-            File custCertificateDir = new File(PSServer.getRxDir(),"rxconfig/trusted_certificates");
-            File[] certificates = custCertificateDir.listFiles();
-            if(certificates != null && (certificates.length > 0)){
-                for (int i=0;i<certificates.length;i++) {
-                    File cert = certificates[i];
-                    if(!cert.isDirectory()) {
+            var custCertificateDir = new File(PSServer.getRxDir(), "rxconfig/trusted_certificates");
+            var certificates = custCertificateDir.listFiles();
+            if (certificates != null && certificates.length > 0) {
+                for (var cert : certificates) {
+                    if (!cert.isDirectory()) {
                         appendCertKey(cert, keystore);
                     }
                 }
-                File keystoreFile = new File(certificatePath);
-                // Save the new keystore contents
-                try(FileOutputStream out = new FileOutputStream(keystoreFile)) {
+                try (FileOutputStream out = new FileOutputStream(file)) {
                     keystore.store(out, password);
                 }
-            }else{
-                log.info("No Certificate Files found in : " + custCertificateDir.getPath());
+            } else {
+                log.info("No Certificate Files found in : {}", custCertificateDir.getPath());
             }
-
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error while importing customer trusted certificates into the central cacerts keystore.", e);
         }
 
-        log.info(getPropName() + " has completed.");
+        log.info("{} has completed.", propName);
     }
 
-
-    private static void appendCertKey ( File file , KeyStore keystore) throws Exception {
-
-            String fname = file.getPath();
-            String sName = file.getName();
-            try(FileInputStream fis = new FileInputStream(fname)){
-                String alias = sName + " : " + fis.getChannel().size();
-                //If this Certificate is already added, then return
-                if (keystore.containsAlias(alias)) {
-                    fis.close();
-                    return;
+    private static void appendCertKey(File file, KeyStore keystore) {
+        var fname = file.getPath();
+        var sName = file.getName();
+        try (FileInputStream fis = new FileInputStream(fname)) {
+            var alias = sName + " : " + fis.getChannel().size();
+            if (keystore.containsAlias(alias)) {
+                return;
+            }
+            var aliases = keystore.aliases();
+            while (aliases.hasMoreElements()) {
+                var str = aliases.nextElement();
+                if (str.contains(sName)) {
+                    keystore.deleteEntry(str);
+                    break;
                 }
-                //if Certificate name is same and size is different, then we need to replace the certificate
-                Enumeration<String> aliases = keystore.aliases();
-                while (aliases.hasMoreElements()) {
-                    String str = aliases.nextElement();
-                    if (str.contains(sName)) {
-                        keystore.deleteEntry(str);
-                        break;
-                    }
+            }
+            try (DataInputStream dis = new DataInputStream(fis)) {
+                var bytes = new byte[dis.available()];
+                dis.readFully(bytes);
+                try (ByteArrayInputStream certIn = new ByteArrayInputStream(bytes);
+                     BufferedInputStream bis = new BufferedInputStream(certIn)) {
+                    var cf = CertificateFactory.getInstance("X.509");
+                    Certificate cert = cf.generateCertificate(bis);
+                    keystore.setCertificateEntry(alias, cert);
                 }
-
-                try(DataInputStream dis = new DataInputStream(fis)) {
-                    byte[] bytes = new byte[dis.available()];
-                    dis.readFully(bytes);
-                    try(ByteArrayInputStream certIn = new ByteArrayInputStream(bytes)) {
-                        try(BufferedInputStream bis = new BufferedInputStream(certIn)) {
-                            CertificateFactory cf = CertificateFactory.getInstance("X.509");
-                            Certificate cert = cf.generateCertificate(bis);
-                            keystore.setCertificateEntry(alias, cert);
-                        }
-                    }
-                }
-        }catch(Exception e){
-            log.error("Error while importing customer trusted certificate File Name : " + file.getName(), e);
+            }
+        } catch (Exception e) {
+            log.error("Error while importing customer trusted certificate File Name : {}", file.getName(), e);
         }
-
     }
 
     @Override
@@ -158,5 +134,4 @@ public class PSImportCustCertificates implements IPSStartupProcess {
     static String getPropName() {
         return PSImportCustCertificates.class.getSimpleName();
     }
-
 }

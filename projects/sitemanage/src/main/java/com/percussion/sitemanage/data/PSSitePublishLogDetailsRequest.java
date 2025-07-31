@@ -17,56 +17,45 @@
 package com.percussion.sitemanage.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 
 /**
- * @author DavidBenua
+ * Request for details of a site publish log.
  *
+ * @author DavidBenua
  */
-@XmlRootElement(name="SitePublishLogDetailsRequest")
+@XmlRootElement(name = "SitePublishLogDetailsRequest")
 @JsonRootName("SitePublishLogDetailsRequest")
 public class PSSitePublishLogDetailsRequest extends PSAbstractDataObject {
-   private long jobid; 
-   private int skipCount;
-   private boolean showOnlyFailures;
-/**
- * @return the jobid
- */
-public long getJobid() {
-	return jobid;
-}
-/**
- * @param jobid the jobid to set
- */
-public void setJobid(long jobid) {
-	this.jobid = jobid;
-}
-/**
- * @return the skipCount
- */
-public int getSkipCount() {
-	return skipCount;
-}
-/**
- * @param skipCount the skipCount to set
- */
-public void setSkipCount(int skipCount) {
-	this.skipCount = skipCount;
-}
-/**
- * @return the showOnlyFailures
- */
-public boolean isShowOnlyFailures() {
-	return showOnlyFailures;
-}
-/**
- * @param showOnlyFailures the showOnlyFailures to set
- */
-public void setShowOnlyFailures(boolean showOnlyFailures) {
-	this.showOnlyFailures = showOnlyFailures;
-} 
-   
-   
+    // REFACTORED: CP-JAVA11
+    private static final long serialVersionUID = 1L;
+
+    private long jobid;
+    private int skipCount;
+    private boolean showOnlyFailures;
+
+    public long getJobid() {
+        return jobid;
+    }
+
+    public void setJobid(long jobid) {
+        this.jobid = jobid;
+    }
+
+    public int getSkipCount() {
+        return skipCount;
+    }
+
+    public void setSkipCount(int skipCount) {
+        this.skipCount = skipCount;
+    }
+
+    public boolean isShowOnlyFailures() {
+        return showOnlyFailures;
+    }
+
+    public void setShowOnlyFailures(boolean showOnlyFailures) {
+        this.showOnlyFailures = showOnlyFailures;
+    }
 }

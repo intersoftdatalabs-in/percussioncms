@@ -22,6 +22,7 @@ import java.util.Optional;
 
 /**
  * Represents an item in a feed with title, description, publish date and link.
+ * Immutable and built using builder pattern.
  */
 public final class PSFeedItem {
     private final String title;

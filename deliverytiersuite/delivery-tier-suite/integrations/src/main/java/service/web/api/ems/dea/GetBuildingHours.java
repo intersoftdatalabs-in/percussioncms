@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,38 +15,19 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
+import java.util.Objects;
+import java.util.Optional;
+import javax.xml.bind.annotation.*;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Buildings" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
- *         &lt;element name="BuildingHoursDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored SOAP request for GetBuildingHours.
+ * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
+ * Sunny Sal: "Building hours, Java 11 style!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -57,112 +37,114 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "buildingHoursDate"
 })
 @XmlRootElement(name = "GetBuildingHours")
-public class GetBuildingHours {
+public final class GetBuildingHours {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
     @XmlElement(name = "Buildings")
-    protected ArrayOfInt buildings;
+    private final ArrayOfInt buildings;
     @XmlElement(name = "BuildingHoursDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar buildingHoursDate;
+    private final XMLGregorianCalendar buildingHoursDate;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private GetBuildingHours(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.buildings = builder.buildings;
+        this.buildingHoursDate = Objects.requireNonNull(builder.buildingHoursDate, "buildingHoursDate must not be null");
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the buildings.
+     * @return Optional buildings
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public Optional<ArrayOfInt> getBuildings() {
+        return Optional.ofNullable(buildings);
     }
 
     /**
-     * Gets the value of the buildings property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public ArrayOfInt getBuildings() {
-        return buildings;
-    }
-
-    /**
-     * Sets the value of the buildings property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ArrayOfInt }
-     *     
-     */
-    public void setBuildings(ArrayOfInt value) {
-        this.buildings = value;
-    }
-
-    /**
-     * Gets the value of the buildingHoursDate property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Gets the building hours date.
+     * @return building hours date (never null)
      */
     public XMLGregorianCalendar getBuildingHoursDate() {
         return buildingHoursDate;
     }
 
     /**
-     * Sets the value of the buildingHoursDate property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Builder for GetBuildingHours (Java 11+ style).
      */
-    public void setBuildingHoursDate(XMLGregorianCalendar value) {
-        this.buildingHoursDate = value;
+    public static class Builder {
+        private String userName;
+        private String password;
+        private ArrayOfInt buildings;
+        private XMLGregorianCalendar buildingHoursDate;
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder buildings(ArrayOfInt buildings) {
+            this.buildings = buildings;
+            return this;
+        }
+
+        public Builder buildingHoursDate(XMLGregorianCalendar buildingHoursDate) {
+            this.buildingHoursDate = buildingHoursDate;
+            return this;
+        }
+
+        public GetBuildingHours build() {
+            return new GetBuildingHours(this);
+        }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GetBuildingHours)) return false;
+        var that = (GetBuildingHours) o;
+        return Objects.equals(userName, that.userName)
+                && Objects.equals(password, that.password)
+                && Objects.equals(buildings, that.buildings)
+                && Objects.equals(buildingHoursDate, that.buildingHoursDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userName, password, buildings, buildingHoursDate);
+    }
+
+    @Override
+    public String toString() {
+        return "GetBuildingHours{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", buildings=" + buildings +
+                ", buildingHoursDate=" + buildingHoursDate +
+                '}';
+    }
 }

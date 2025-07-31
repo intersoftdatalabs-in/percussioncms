@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,124 +17,106 @@
  */
 package com.percussion.tomcat.valves;
 
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.connector.Connector;
-import org.apache.catalina.connector.Request;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javax.servlet.ServletException;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.connector.Request;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author natechadwick
- * 
- *
+ * Unit tests for PSMultiAppVersionRedirectorValve.
+ * Sunny Sal says: "Testing valves so your requests don't leak!"
  */
-public class PSMultiAppVersionRedirectorValveTest {
+class PSMultiAppVersionRedirectorValveTest {
 
-	private static String PERC_VERSION_HEADER="perc-version";
-	private static String TEST_SERVICE = "perc-comments-services";
-	
-	private Request getTestRequest(){
-		Connector connector = new Connector();
+    private static final String PERC_VERSION_HEADER = "perc-version";
+    private static final String TEST_SERVICE = "perc-comments-services";
 
+    private Request getTestRequest() {
+        var connector = new Connector();
+        var ret = connector.createRequest();
+        var cr = new org.apache.coyote.Request();
+        cr.getMimeHeaders().addValue(PERC_VERSION_HEADER).setString("2.9.0");
+        ret.setCoyoteRequest(cr);
+        ret.setRemoteAddr("10.10.10.10");
+        ret.setRemoteHost("remote-origin");
+        return ret;
+    }
 
-		Request ret = connector.createRequest();
+    private void validateTestRequest(Request r) {
+        Assertions.assertEquals("10.10.10.10", r.getRemoteAddr(), "Remote address was changed by valve.");
+        Assertions.assertEquals("remote-origin", r.getRemoteHost(), "Remote origin was changed by valve");
+        Assertions.assertEquals("2.9.0", r.getHeader(PERC_VERSION_HEADER), "Version was changed by valve");
+    }
 
-		org.apache.coyote.Request cr = new org.apache.coyote.Request();
+    /**
+     * Make sure the valve doesn't crash if the properties file is missing.
+     */
+    @Test
+    void testNoPropertiesFile() throws IOException, ServletException {
+        var valve = new PSMultiAppVersionRedirectorValve();
+        var req = getTestRequest();
+        valve.setMappingFile(null);
+        req.setPathInfo(TEST_SERVICE);
+        valve.invoke(req, null);
+        validateTestRequest(req);
+    }
 
-		cr.getMimeHeaders().addValue(PERC_VERSION_HEADER).setString("2.9.0");
-		ret.setCoyoteRequest(cr);
-		
-		ret.setRemoteAddr("10.10.10.10");
-		ret.setRemoteHost("remote-origin");
-		
-		return ret;
-	}
-	
-	private void validateTestRequest(Request r){
-		Assert.assertEquals("Remote address was changed by valve.", r.getRemoteAddr(), "10.10.10.10");
-		Assert.assertEquals("Remote origin was changed by valve", r.getRemoteHost(), "remote-origin");
-		Assert.assertEquals("Version was changed by valve", r.getHeader(PERC_VERSION_HEADER), "2.9.0");
-	}
-	
-	/***
-	 * Make sure the valve doesn't crash if the properties file is missing. 
-	 * 
-	 * @throws IOException
-	 * @throws ServletException
-	 */
-	@Test
-	public void testNoPropertiesFile() throws IOException, ServletException{
-		PSMultiAppVersionRedirectorValve valve = new PSMultiAppVersionRedirectorValve();
-		Request req = getTestRequest();
-		
-		valve.setMappingFile(null);
-		req.setPathInfo(TEST_SERVICE);
-		valve.invoke(req, null);
-		validateTestRequest(req);
-	}
-	
-	// Digital Clarity Group
-	/***
-	 * Make sure the sample properties File Loads and Parses OK and that the version is
-	 * rewritten to the sample context.
-	 * @throws IOException
-	 * @throws ServletException
-	 * @throws URISyntaxException
-	 * @throws LifecycleException 
-	 */
-	@Ignore
-	@Test 
-	public void testWithPropertiesFile() throws IOException, ServletException, URISyntaxException, LifecycleException{
-		PSMultiAppVersionRedirectorValve valve = new PSMultiAppVersionRedirectorValve();
-		Request req = getTestRequest();
-		
-		URL filePath = this.getClass().getResource("mapping.properties");
-		String file = new File(filePath.toURI()).getCanonicalPath();
-	
-		valve.setMappingFile(file);
-		Assert.assertEquals("Mapping file name not set correctly", file, valve.getMappingFile());
-		
-		valve.startInternal();
-		
-		req.setPathInfo(TEST_SERVICE);
-		
-		try{
-		valve.invoke(req, null);
-		}catch (RuntimeException e){ /*this is expected due to no connector.*/}
-		validateTestRequest(req);
-		
-	}
-	
-	@Ignore
-	@Test
-	public void testWithBadPropertiesFile() throws IOException, URISyntaxException, ServletException, LifecycleException{
-	
-		PSMultiAppVersionRedirectorValve valve = new PSMultiAppVersionRedirectorValve();
-		Request req = getTestRequest();
-		
-		URL filePath = this.getClass().getResource("bad-mapping-1.properties");
-		String file = new File(filePath.toURI()).getCanonicalPath();
+    /**
+     * Make sure the sample properties file loads and parses OK and that the version is
+     * rewritten to the sample context.
+     */
+    @Disabled("Requires connector and mapping.properties resource")
+    @Test
+    void testWithPropertiesFile() throws IOException, ServletException, URISyntaxException, LifecycleException {
+        var valve = new PSMultiAppVersionRedirectorValve();
+        var req = getTestRequest();
 
-		valve.setMappingFile(file);
-		Assert.assertEquals("Mapping file name not set correctly", file, valve.getMappingFile());
-		
-		valve.startInternal();
-		
-		req.setPathInfo(TEST_SERVICE);
-		
-		try{
-			valve.invoke(req, null);
-			}catch (RuntimeException e){ /*this is expected due to no connector.*/}
-			validateTestRequest(req);
-		
-	}
-	
-	
+        URL filePath = this.getClass().getResource("mapping.properties");
+        var file = new File(filePath.toURI()).getCanonicalPath();
+
+        valve.setMappingFile(file);
+        Assertions.assertEquals(file, valve.getMappingFile(), "Mapping file name not set correctly");
+
+        valve.startInternal();
+
+        req.setPathInfo(TEST_SERVICE);
+
+        try {
+            valve.invoke(req, null);
+        } catch (RuntimeException e) {
+            // Expected due to no connector.
+        }
+        validateTestRequest(req);
+    }
+
+    @Disabled("Requires connector and bad-mapping-1.properties resource")
+    @Test
+    void testWithBadPropertiesFile() throws IOException, URISyntaxException, ServletException, LifecycleException {
+        var valve = new PSMultiAppVersionRedirectorValve();
+        var req = getTestRequest();
+
+        URL filePath = this.getClass().getResource("bad-mapping-1.properties");
+        var file = new File(filePath.toURI()).getCanonicalPath();
+
+        valve.setMappingFile(file);
+        Assertions.assertEquals(file, valve.getMappingFile(), "Mapping file name not set correctly");
+
+        valve.startInternal();
+
+        req.setPathInfo(TEST_SERVICE);
+
+        try {
+            valve.invoke(req, null);
+        } catch (RuntimeException e) {
+            // Expected due to no connector.
+        }
+        validateTestRequest(req);
+    }
 }

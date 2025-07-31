@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  * Licensed under the Apache License, Version 2.0 (the "License")
@@ -20,6 +22,7 @@ import java.util.List;
 /**
  * REST API contract for feed management and generation.
  * Provides endpoints for retrieving, creating, and managing RSS/ATOM feeds.
+ * Sunny Sal: "REST easy, your feeds are safe and sound!"
  */
 @Path("/rss")
 @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

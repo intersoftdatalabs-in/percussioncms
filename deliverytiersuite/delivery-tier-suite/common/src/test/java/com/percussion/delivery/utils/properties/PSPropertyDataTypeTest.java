@@ -18,92 +18,79 @@ package com.percussion.delivery.utils.properties;
 
 import java.util.Date;
 import java.util.List;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author natechadwick
- *
+ * Sunny Sal says: "Data type ka test, type safety ka best!"
  */
 public class PSPropertyDataTypeTest {
-	
-	@Test
-	public void testTypes(){
-		
-		Assert.assertEquals("string", PSPropertyDataType.STRING.getName());
-		Assert.assertEquals("enum", PSPropertyDataType.ENUM.getName());
-		Assert.assertEquals("number", PSPropertyDataType.NUMBER.getName());
-		Assert.assertEquals("bool", PSPropertyDataType.BOOL.getName());
-		Assert.assertEquals("hidden", PSPropertyDataType.HIDDEN.getName());
-		Assert.assertEquals("date", PSPropertyDataType.DATE.getName());
-		Assert.assertEquals("list", PSPropertyDataType.LIST.getName());
-			
-	}
-	
-	@Test
-	public void testString(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("string");
-		Assert.assertEquals(String.class, t.getJavaType());
-		Assert.assertEquals("string", t.getName());		
-	}
 
-	@Test
-	public void testEnum(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("enum");
-		Assert.assertEquals(String.class, t.getJavaType());
-		Assert.assertEquals("enum", t.getName());		
-	}
+    @Test
+    public void testTypes() {
+        assertEquals("string", PSPropertyDataType.STRING.getName());
+        assertEquals("enum", PSPropertyDataType.ENUM.getName());
+        assertEquals("number", PSPropertyDataType.NUMBER.getName());
+        assertEquals("bool", PSPropertyDataType.BOOL.getName());
+        assertEquals("hidden", PSPropertyDataType.HIDDEN.getName());
+        assertEquals("date", PSPropertyDataType.DATE.getName());
+        assertEquals("list", PSPropertyDataType.LIST.getName());
+    }
 
-	
-	@Test
-	public void testNumber(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("number");
-		Assert.assertEquals(Number.class, t.getJavaType());
-		Assert.assertEquals("number", t.getName());		
-	}
+    @Test
+    public void testString() {
+        var t = PSPropertyDataType.parseType("string");
+        assertEquals(String.class, t.getJavaType());
+        assertEquals("string", t.getName());
+    }
 
-	@Test
-	public void testBool(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("bool");
-		Assert.assertEquals(Boolean.class, t.getJavaType());
-		Assert.assertEquals("bool", t.getName());		
-	}
-	
+    @Test
+    public void testEnum() {
+        var t = PSPropertyDataType.parseType("enum");
+        assertEquals(String.class, t.getJavaType());
+        assertEquals("enum", t.getName());
+    }
 
-	@Test
-	public void testList(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("list");
-		Assert.assertEquals(List.class, t.getJavaType());
-		Assert.assertEquals("list", t.getName());		
-	}
+    @Test
+    public void testNumber() {
+        var t = PSPropertyDataType.parseType("number");
+        assertEquals(Number.class, t.getJavaType());
+        assertEquals("number", t.getName());
+    }
 
-	@Test
-	public void testDate(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("date");
-		Assert.assertEquals(Date.class, t.getJavaType());
-		Assert.assertEquals("date", t.getName());		
-	}
+    @Test
+    public void testBool() {
+        var t = PSPropertyDataType.parseType("bool");
+        assertEquals(Boolean.class, t.getJavaType());
+        assertEquals("bool", t.getName());
+    }
 
+    @Test
+    public void testList() {
+        var t = PSPropertyDataType.parseType("list");
+        assertEquals(List.class, t.getJavaType());
+        assertEquals("list", t.getName());
+    }
 
-	@Test
-	public void testHidden(){
-		PSPropertyDataType t =  PSPropertyDataType.parseType("hidden");
-		Assert.assertEquals(Object.class, t.getJavaType());
-		Assert.assertEquals("hidden", t.getName());		
-	}
-	
-	@Test
-	public void testFromProp(){
-		PSPropertyDefinition p = new PSPropertyDefinition();
-		
-		p.setDatatype("hidden");
-		
-		Assert.assertEquals(Object.class, PSPropertyDataType.fromDefinition(p).getJavaType());
-		
-		Assert.assertEquals("hidden", PSPropertyDataType.fromDefinition(p).getName());
-		
-	}
-	
+    @Test
+    public void testDate() {
+        var t = PSPropertyDataType.parseType("date");
+        assertEquals(Date.class, t.getJavaType());
+        assertEquals("date", t.getName());
+    }
+
+    @Test
+    public void testHidden() {
+        var t = PSPropertyDataType.parseType("hidden");
+        assertEquals(Object.class, t.getJavaType());
+        assertEquals("hidden", t.getName());
+    }
+
+    @Test
+    public void testFromProp() {
+        var p = new PSPropertyDefinition();
+        p.setDatatype("hidden");
+        assertEquals(Object.class, PSPropertyDataType.fromDefinition(p).getJavaType());
+        assertEquals("hidden", PSPropertyDataType.fromDefinition(p).getName());
+    }
 }

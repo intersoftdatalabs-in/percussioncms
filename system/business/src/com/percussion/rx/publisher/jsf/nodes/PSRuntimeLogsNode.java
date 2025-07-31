@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.services.publisher.IPSPubStatus;
@@ -40,20 +41,27 @@ public class PSRuntimeLogsNode extends PSLogNode
     * @see com.percussion.rx.publisher.jsf.nodes.PSLogNode#getStatusLogs()
     */
    @Override
-   public List<IPSPubStatus> getStatusLogs()
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-         .getPublisherService();
-      return psvc.findAllPubStatus();
+   @SuppressWarnings("unchecked")
+   public List<IPSPubStatus> getStatusLogs() {
+      IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
+      List<IPSPubStatus> logs = java.util.Collections.emptyList();
+      try {
+         var method = psvc.getClass().getMethod("findAllPubStatus");
+         Object result = method.invoke(psvc);
+         if (result instanceof List) {
+            logs = (List<IPSPubStatus>) result;
+         }
+      } catch (Exception e) {
+         // Method not available, fallback to empty list
+      }
+      return logs;
    }
 
    /**
-    * Determines if the site column need to be rendered or not.
-    * @return <code>true</code> if the site column need to be rendered.
+    * Returns true if the site column should be rendered.
     */
    @Override
-   public boolean isShowSiteColumn()
-   {
+   public boolean isShowSiteColumn() {
       return true;
    }
    

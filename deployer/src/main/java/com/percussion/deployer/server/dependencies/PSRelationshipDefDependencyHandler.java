@@ -17,6 +17,7 @@
  
 package com.percussion.deployer.server.dependencies;
 
+import java.util.stream.Collectors;
 
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.deployer.client.IPSDeployConstants;
@@ -83,81 +84,49 @@ public class PSRelationshipDefDependencyHandler
    
    // see base class
    @SuppressWarnings("unchecked")
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      
-      // use a set to weed out dupes
-      Set childDeps = new HashSet();
-
-      PSRelationshipConfigSet cfgSet = 
-         PSRelationshipCommandHandler.getConfigurationSet();
-      PSRelationshipConfig cfg = cfgSet.getConfig(dep.getDependencyId());
-      if (cfg != null)
-      {
-         // this will add extensions, and files, and apps from the params and
-         // conditions.
-         addApplicationDependencies(tok, childDeps, cfg.toXml(
-            PSXmlDocumentBuilder.createXmlDocument()));
-         
-         // this will add all dependencies specified by id types
-         childDeps.addAll(getIdTypeDependencies(tok, dep));
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-            
+
+      var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
+      var cfg = cfgSet.getConfig(dep.getDependencyId());
+      if (cfg == null) {
+         return PSIteratorUtils.emptyIterator();
+      }
+
+      var childDeps = new HashSet<PSDependency>();
+      addApplicationDependencies(tok, childDeps, cfg.toXml(PSXmlDocumentBuilder.createXmlDocument()));
+      childDeps.addAll(getIdTypeDependencies(tok, dep));
+
       return childDeps.iterator();
     }
 
    // see base class
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-         throws PSDeployException
-   {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-      
-      PSRelationshipConfigSet cfgSet = 
-         PSRelationshipCommandHandler.getConfigurationSet();
-      Iterator configs = cfgSet.iterator();
-      while (configs.hasNext())
-      {
-         PSRelationshipConfig cfg = (PSRelationshipConfig)configs.next();
-         String name = cfg.getName();
-         deps.add(createDependency(m_def, name, name));
       }
-      
-      return deps.iterator();
+
+      var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
+      return cfgSet.stream()
+              .map(cfg -> createDependency(m_def, cfg.getName(), cfg.getName()))
+              .iterator();
    }
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-   
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-      
-      PSDependency dep = null;
-         
-      PSRelationshipConfigSet cfgSet = 
-         PSRelationshipCommandHandler.getConfigurationSet();
-      PSRelationshipConfig cfg = cfgSet.getConfig(id);
-      if (cfg != null)
-      {
-         String name = cfg.getName();
-         dep = createDependency(m_def, name, name);
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-         
-      return dep;
+
+      var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
+      var cfg = cfgSet.getConfig(id);
+      return cfg != null ? createDependency(m_def, cfg.getName(), cfg.getName()) : null;
    }
    
    /**
@@ -184,33 +153,22 @@ public class PSRelationshipDefDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      PSRelationshipConfigSet cfgSet = 
-         PSRelationshipCommandHandler.getConfigurationSet();
-      PSRelationshipConfig cfg = cfgSet.getConfig(dep.getDependencyId());
-      if (cfg != null)
-      {
-         Document doc = PSXmlDocumentBuilder.createXmlDocument();
-         PSXmlDocumentBuilder.replaceRoot(doc, cfg.toXml(doc));
-         File file = createXmlFile(doc);
-         files.add(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML, 
-            file));
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      return files.iterator();
+
+      var cfgSet = PSRelationshipCommandHandler.getConfigurationSet();
+      var cfg = cfgSet.getConfig(dep.getDependencyId());
+      if (cfg == null) {
+         return PSIteratorUtils.emptyIterator();
+      }
+
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
+      PSXmlDocumentBuilder.replaceRoot(doc, cfg.toXml(doc));
+      var file = createXmlFile(doc);
+      return List.of(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML, file)).iterator();
    }
 
    // see base class

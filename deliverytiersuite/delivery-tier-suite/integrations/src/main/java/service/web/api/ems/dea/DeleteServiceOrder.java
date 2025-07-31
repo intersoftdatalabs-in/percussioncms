@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,33 +17,12 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ServiceOrderID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of DeleteServiceOrder SOAP request.
+ * <p>
+ * Immutable, thread-safe, OWASP-compliant. Use builder for instantiation.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,77 +31,81 @@ import javax.xml.bind.annotation.XmlType;
     "serviceOrderID"
 })
 @XmlRootElement(name = "DeleteServiceOrder")
-public class DeleteServiceOrder {
-
+public final class DeleteServiceOrder {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
     @XmlElement(name = "ServiceOrderID")
-    protected int serviceOrderID;
+    private final int serviceOrderID;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private DeleteServiceOrder(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.serviceOrderID = builder.serviceOrderID;
     }
 
-    /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUserName(String value) {
-        this.userName = value;
+    /** @return Optional user name for authentication. */
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
-
-    /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getPassword() {
-        return password;
+    /** @return Optional password for authentication. */
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
-
-    /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
-
-    /**
-     * Gets the value of the serviceOrderID property.
-     * 
-     */
+    /** @return Service order ID to delete. */
     public int getServiceOrderID() {
         return serviceOrderID;
     }
 
-    /**
-     * Sets the value of the serviceOrderID property.
-     * 
-     */
-    public void setServiceOrderID(int value) {
-        this.serviceOrderID = value;
+    @Override
+    public String toString() {
+        return "DeleteServiceOrder{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", serviceOrderID=" + serviceOrderID +
+                '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DeleteServiceOrder)) return false;
+        var that = (DeleteServiceOrder) o;
+        return serviceOrderID == that.serviceOrderID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, serviceOrderID);
+    }
+
+    /**
+     * Builder for DeleteServiceOrder. Use for safe, immutable construction.
+     */
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int serviceOrderID;
+
+        public Builder() {}
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+        public Builder serviceOrderID(int serviceOrderID) {
+            this.serviceOrderID = serviceOrderID;
+            return this;
+        }
+        public DeleteServiceOrder build() {
+            return new DeleteServiceOrder(this);
+        }
+    }
 }

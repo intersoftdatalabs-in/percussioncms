@@ -41,8 +41,7 @@ import java.util.Map;
  * 
  * @author bjoginipally
  */
-public class PSConfigMerger
-{
+public class PSConfigMerger {
    /**
     * Merges the configuration on the design objects and saves them. Gets the
     * design model for each handler. Loads the design object for each handler.
@@ -63,83 +62,57 @@ public class PSConfigMerger
     */
    public PSPair<Collection<IPSGuid>, PSConfigException> merge(List<IPSConfigHandler> cfgHandlers,
          boolean hasPrevProps, boolean isApplyConfig) throws PSNotFoundException {
-      if (cfgHandlers == null)
-         throw new IllegalArgumentException("cfgHandlers must not be null");
-      List<IPSGuid> processedGuids = new ArrayList<>();
-      PSConfigException exceptionDuringSave = null;
-      IPSDesignModelFactory dmFactory = PSDesignModelFactoryLocator
-            .getDesignModelFactory();
-      //Get the model and load the objects
-      for (IPSConfigHandler handler : cfgHandlers)
-      {
-         PSTypeEnum type = handler.getType();
-         if (type == null)
-         {
-            m_handlerData.put(handler, new HandlerData(null,null,null));
-            continue;
-         }
-         IPSDesignModel model = dmFactory.getDesignModel(type);
-         List<PSPair<Object, ObjectState>> objs = getDesignObjectsWithState(type, model,
-               handler, hasPrevProps);
-         if (objs.isEmpty())
-         {
-            m_handlerData.put(handler, new HandlerData(null,null,null));
-            continue;
-         }
-
-         m_handlerData.put(handler, new HandlerData(model, objs, model
-               .getAssociationSets()));
-      }
-
-      // Process the handlers
-      try
-      {
-         List<IPSAssociationSet> assocList;
-         for (IPSConfigHandler handler : cfgHandlers)
-         {
-            IPSDesignModel model = m_handlerData.get(handler).mi_model;
-            List<PSPair<Object, ObjectState>> objs = m_handlerData
-                  .get(handler).mi_designObjects;
-            assocList = m_handlerData.get(handler).mi_associationSets;
-            if (objs == null || objs.isEmpty())
-            {
-               if (isApplyConfig)
-                  handler.process(null, null, assocList);
-               else
-                  handler.unprocess(null, assocList);
+        if (cfgHandlers == null) throw new IllegalArgumentException("cfgHandlers must not be null");
+        var processedGuids = new ArrayList<IPSGuid>();
+        PSConfigException exceptionDuringSave = null;
+        var dmFactory = PSDesignModelFactoryLocator.getDesignModelFactory();
+        //Get the model and load the objects
+        for (var handler : cfgHandlers) {
+            var type = handler.getType();
+            if (type == null) {
+                m_handlerData.put(handler, new HandlerData(null, null, null));
+                continue;
             }
-            else
-            {
-               for (PSPair<Object, ObjectState> op : objs)
-               {
-                  Object o = op.getFirst();
-                  ObjectState state = op.getSecond();
-                  if (model != null)
-                  {
-                     boolean processed = false;
-                     if (isApplyConfig)
-                        processed = handler.process(o, state, assocList);
-                     else
-                        processed = handler.unprocess(o, assocList);
-                     if (processed)
-                     {
-                        IPSGuid processedGuid = handler.saveResult(model, o,
-                              state, assocList);
-                        if (processedGuid != null)
-                           processedGuids.add(processedGuid);
-                     }
-                  }
-               }
+            var model = dmFactory.getDesignModel(type);
+            var objs = getDesignObjectsWithState(type, model, handler, hasPrevProps);
+            if (objs.isEmpty()) {
+                m_handlerData.put(handler, new HandlerData(null, null, null));
+                continue;
             }
-         }
-      }
-      catch (PSConfigException e)
-      {
-         exceptionDuringSave = e;
-      }
-      
-      return new PSPair<>(
-            processedGuids, exceptionDuringSave);
+            m_handlerData.put(handler, new HandlerData(model, objs, model.getAssociationSets()));
+        }
+
+        // Process the handlers
+        try {
+            List<IPSAssociationSet> assocList;
+            for (var handler : cfgHandlers) {
+                var data = m_handlerData.get(handler);
+                var model = data.mi_model;
+                var objs = data.mi_designObjects;
+                assocList = data.mi_associationSets;
+                if (objs == null || objs.isEmpty()) {
+                    if (isApplyConfig) handler.process(null, null, assocList);
+                    else handler.unprocess(null, assocList);
+                } else {
+                    for (var op : objs) {
+                        var o = op.getFirst();
+                        var state = op.getSecond();
+                        if (model != null) {
+                            boolean processed = false;
+                            if (isApplyConfig) processed = handler.process(o, state, assocList);
+                            else processed = handler.unprocess(o, assocList);
+                            if (processed) {
+                                var processedGuid = handler.saveResult(model, o, state, assocList);
+                                if (processedGuid != null) processedGuids.add(processedGuid);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (PSConfigException e) {
+            exceptionDuringSave = e;
+        }
+        return new PSPair<>(processedGuids, exceptionDuringSave);
    }
 
    /**
@@ -157,33 +130,25 @@ public class PSConfigMerger
     */
    @SuppressWarnings("unchecked")
    public PSPair<Map<String, Object>, List<Exception>> getPropertyDefs(
-         List<IPSConfigHandler> cfgHandlers)
-   {
-      if (cfgHandlers == null)
-         throw new IllegalArgumentException("cfgHandlers must not be null");
-      Map<String, Object> props = new HashMap<>();
-      List<Exception> cfgExceptions = new ArrayList<>();
-      PSPair<Map<String, Object>, List<Exception>> result = new PSPair(
-            props, cfgExceptions);
-      for (IPSConfigHandler handler : cfgHandlers)
-      {
-         try
-         {
-            PSTypeEnum type = handler.getType();
-            if (type == null)
-            {
-               props.putAll(handler.getPropertyDefs(null));
-               continue;
+         List<IPSConfigHandler> cfgHandlers) {
+        if (cfgHandlers == null) throw new IllegalArgumentException("cfgHandlers must not be null");
+        var props = new HashMap<String, Object>();
+        var cfgExceptions = new ArrayList<Exception>();
+        var result = new PSPair(props, cfgExceptions);
+        for (var handler : cfgHandlers) {
+            try {
+                var type = handler.getType();
+                if (type == null) {
+                    props.putAll(handler.getPropertyDefs(null));
+                    continue;
+                }
+                var obj = getDesignObject(handler);
+                props.putAll(handler.getPropertyDefs(obj));
+            } catch (Exception e) {
+                cfgExceptions.add(e);
             }
-            Object obj = getDesignObject(handler);
-            props.putAll(handler.getPropertyDefs(obj));
-         }
-         catch (Exception e)
-         {
-            cfgExceptions.add(e);
-         }
-      }
-      return result;
+        }
+        return result;
    }
    
    /**
@@ -203,34 +168,18 @@ public class PSConfigMerger
    @SuppressWarnings("unchecked")
    private List<PSPair<Object, ObjectState>> getDesignObjectsWithState(PSTypeEnum type,
          IPSDesignModel model, IPSConfigHandler handler, boolean hasPrevProps) throws PSNotFoundException {
-      Map<String, Object> typeMap = m_designObjects.get(type);
-      if (typeMap== null)
-      {
-         typeMap = new HashMap<>();
-         m_designObjects.put(type, typeMap);
-      }
-
-      // get the Design Objects from the handler?
-      if (handler.isGetDesignObjects())
-         return handler.getDesignObjects(typeMap);
-      
-      // get the Design Objects by name 
-      List<PSPair<Object, ObjectState>> objs = new ArrayList<>();
-      
-      // load object from current configure
-      String name = handler.getName();
-      Object obj = typeMap.get(name);
-      if (obj == null)
-      {
-         obj = model.loadModifiable(name);
-         typeMap.put(name, obj);
-      }
-      
-      // load object from previous configure if there is any
-      ObjectState state = hasPrevProps ? ObjectState.BOTH : ObjectState.CURRENT;
-      objs.add(new PSPair<>(obj, state));
-      
-      return objs;
+        var typeMap = m_designObjects.computeIfAbsent(type, k -> new HashMap<>());
+        if (handler.isGetDesignObjects()) return handler.getDesignObjects(typeMap);
+        var objs = new ArrayList<PSPair<Object, ObjectState>>();
+        var name = handler.getName();
+        var obj = typeMap.get(name);
+        if (obj == null) {
+            obj = model.loadModifiable(name);
+            typeMap.put(name, obj);
+        }
+        var state = hasPrevProps ? ObjectState.BOTH : ObjectState.CURRENT;
+        objs.add(new PSPair<>(obj, state));
+        return objs;
    }
 
    /**
@@ -249,35 +198,23 @@ public class PSConfigMerger
     * the design object with the given name.
     */
    private Object getDesignObject(IPSConfigHandler handler) throws PSNotFoundException {
-      PSTypeEnum type = handler.getType();
-      IPSDesignModelFactory dmFactory = PSDesignModelFactoryLocator
-      .getDesignModelFactory();
-      IPSDesignModel model = dmFactory.getDesignModel(type);
-      if(model == null)
-      {
-         throw new PSConfigException("Failed to find the design model " +
-               "for the handler with type \"" + type + "\"");
-      }
-      Map<String, Object> typeMap = m_designObjects.get(type);
-      if (typeMap== null)
-      {
-         typeMap = new HashMap<>();
-         m_designObjects.put(type, typeMap);
-      }
-      if (handler.isGetDesignObjects())
-      {
-         return handler.getDefaultDesignObject(typeMap);
-      }
-
-      // load object from current configure
-      String name = handler.getName();
-      Object obj = typeMap.get(name);
-      if (obj == null)
-      {
-         obj = model.loadModifiable(name);
-         typeMap.put(name, obj);
-      }
-      return obj;
+        var type = handler.getType();
+        var dmFactory = PSDesignModelFactoryLocator.getDesignModelFactory();
+        var model = dmFactory.getDesignModel(type);
+        if (model == null) {
+            throw new PSConfigException("Failed to find the design model for the handler with type \"" + type + "\"");
+        }
+        var typeMap = m_designObjects.computeIfAbsent(type, k -> new HashMap<>());
+        if (handler.isGetDesignObjects()) {
+            return handler.getDefaultDesignObject(typeMap);
+        }
+        var name = handler.getName();
+        var obj = typeMap.get(name);
+        if (obj == null) {
+            obj = model.loadModifiable(name);
+            typeMap.put(name, obj);
+        }
+        return obj;
    }
    
    /**
@@ -285,32 +222,26 @@ public class PSConfigMerger
     * @author bjoginipally
     *
     */
-   class HandlerData
-   {
-      HandlerData(IPSDesignModel model,
-            List<PSPair<Object, ObjectState>> designObjects,
-            List<IPSAssociationSet> associationSets)
-      {
-         mi_model = model;
-         mi_designObjects = designObjects;
-         mi_associationSets = associationSets;
-      }
-      IPSDesignModel mi_model;
-      List<PSPair<Object, ObjectState>> mi_designObjects;
-      List<IPSAssociationSet> mi_associationSets;
-   }
-   
+   class HandlerData {
+        HandlerData(IPSDesignModel model, List<PSPair<Object, ObjectState>> designObjects, List<IPSAssociationSet> associationSets) {
+            mi_model = model;
+            mi_designObjects = designObjects;
+            mi_associationSets = associationSets;
+        }
+        IPSDesignModel mi_model;
+        List<PSPair<Object, ObjectState>> mi_designObjects;
+        List<IPSAssociationSet> mi_associationSets;
+    }
+
    /**
     * Handler data map
     */
-   private Map<IPSConfigHandler, HandlerData> m_handlerData = 
-      new HashMap<IPSConfigHandler, HandlerData>();
-   
+   private Map<IPSConfigHandler, HandlerData> m_handlerData = new HashMap<>();
+
    /**
     * This is a map of type enum and a map of object name and actual object. If
     * multiple handlers use the same design object, we get the design object
     * from this map.
     */
-   private Map<PSTypeEnum, Map<String, Object>> m_designObjects = 
-      new HashMap<>();
+   private Map<PSTypeEnum, Map<String, Object>> m_designObjects = new HashMap<>();
 }

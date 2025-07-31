@@ -41,7 +41,8 @@ public class IntegerConstraint implements ComponentValidationConstraint {
     * valid integers, no range checking.
     */
    public IntegerConstraint() {
-      // Default constructor - no range checking
+      this.rangeMin = null;
+      this.rangeMax = null;
    }
 
    /** 

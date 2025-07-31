@@ -14,35 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.services;
 
 /**
- * Handle deploy service exceptions
- * @author vamsinukala
- *
+ * Handles deploy service exceptions.
  */
-public class PSDeployServiceException extends Exception
-{
-   private static final long serialVersionUID = 1L;
+public class PSDeployServiceException extends Exception {
+    private static final long serialVersionUID = 1L;
 
-   public PSDeployServiceException() 
-   {
-      super();
-   }
+    public PSDeployServiceException() {
+        super();
+    }
 
-   public PSDeployServiceException(String message, Throwable cause) 
-   {
-      super(message, cause);
-   }
+    public PSDeployServiceException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-   public PSDeployServiceException(String message) 
-   {
-      super(message);
-   }
+    public PSDeployServiceException(String message) {
+        super(message);
+    }
 
-   public PSDeployServiceException(Throwable cause) 
-   {
-      super(cause);
-   }
-
+    public PSDeployServiceException(Throwable cause) {
+        super(cause);
+    }
 }

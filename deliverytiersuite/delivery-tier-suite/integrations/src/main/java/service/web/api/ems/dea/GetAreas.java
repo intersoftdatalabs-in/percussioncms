@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,25 +25,11 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="AreaID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11+ refactored version of GetAreas SOAP request.
+ * <p>
+ * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
+ * <p>
+ * // REFACTORED: CP-JAVA11
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,77 +38,92 @@ import javax.xml.bind.annotation.XmlType;
     "areaID"
 })
 @XmlRootElement(name = "GetAreas")
-public class GetAreas {
-
+public final class GetAreas {
     @XmlElement(name = "UserName")
-    protected String userName;
+    private final String userName;
     @XmlElement(name = "Password")
-    protected String password;
+    private final String password;
     @XmlElement(name = "AreaID")
-    protected int areaID;
+    private final int areaID;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    private GetAreas(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.areaID = builder.areaID;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * @return Optional user name for authentication.
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public java.util.Optional<String> getUserName() {
+        return java.util.Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * @return Optional password for authentication.
      */
-    public String getPassword() {
-        return password;
+    public java.util.Optional<String> getPassword() {
+        return java.util.Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setPassword(String value) {
-        this.password = value;
-    }
-
-    /**
-     * Gets the value of the areaID property.
-     * 
+     * @return Area ID for which data is requested.
      */
     public int getAreaID() {
         return areaID;
     }
 
-    /**
-     * Sets the value of the areaID property.
-     * 
-     */
-    public void setAreaID(int value) {
-        this.areaID = value;
+    @Override
+    public String toString() {
+        return "GetAreas{" +
+                "userName='" + userName + '\'' +
+                ", password='[PROTECTED]'" +
+                ", areaID=" + areaID +
+                '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GetAreas that = (GetAreas) o;
+        return areaID == that.areaID &&
+                java.util.Objects.equals(userName, that.userName) &&
+                java.util.Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(userName, password, areaID);
+    }
+
+    /**
+     * Builder for GetAreas. Use for safe, immutable construction.
+     */
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int areaID;
+
+        public Builder() {}
+
+        public Builder userName(String userName) {
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder areaID(int areaID) {
+            this.areaID = areaID;
+            return this;
+        }
+
+        public GetAreas build() {
+            return new GetAreas(this);
+        }
+    }
 }

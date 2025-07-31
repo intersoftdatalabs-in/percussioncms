@@ -19,13 +19,36 @@ package com.percussion.dashboardmanagement.service;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
+/**
+ * Service for dashboard operations.
+ * <p>
+ * Sunny Sal says: "DashboardService, now Java 11 and Google-styled!"
+ */
 public interface IPSDashboardService {
 
-    PSDashboard load()throws PSDashboardNotFoundException, PSDashboardServiceException;
-    PSDashboard save(PSDashboard dashboard)throws PSDashboardNotFoundException, PSDashboardServiceException;
+    /**
+     * Loads the current user's dashboard.
+     *
+     * @return the dashboard for the current user
+     * @throws PSDashboardNotFoundException if not found
+     * @throws PSDashboardServiceException on service error
+     */
+    PSDashboard load() throws PSDashboardNotFoundException, PSDashboardServiceException;
 
-    public static class PSDashboardServiceException extends RuntimeException {
+    /**
+     * Saves the dashboard for the current user.
+     *
+     * @param dashboard the dashboard to save
+     * @return the saved dashboard
+     * @throws PSDashboardNotFoundException if not found
+     * @throws PSDashboardServiceException on service error
+     */
+    PSDashboard save(PSDashboard dashboard) throws PSDashboardNotFoundException, PSDashboardServiceException;
 
+    /**
+     * Exception for dashboard service errors.
+     */
+    class PSDashboardServiceException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
         public PSDashboardServiceException(String message) {
@@ -39,10 +62,12 @@ public interface IPSDashboardService {
         public PSDashboardServiceException(Throwable cause) {
             super(cause);
         }
-
     }
-    public static class PSDashboardNotFoundException extends PSDashboardServiceException implements IPSNotFoundException {
 
+    /**
+     * Exception for dashboard not found scenarios.
+     */
+    class PSDashboardNotFoundException extends PSDashboardServiceException implements IPSNotFoundException {
         private static final long serialVersionUID = 1L;
 
         public PSDashboardNotFoundException(String message) {
@@ -56,7 +81,5 @@ public interface IPSDashboardService {
         public PSDashboardNotFoundException(Throwable cause) {
             super(cause);
         }
-
     }
-
 }

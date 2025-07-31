@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,26 +20,47 @@ package com.percussion.pagemanagement.parser;
 import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 
-public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-{
+/**
+ * Parses HTML or template text into a region tree.
+ *
+ * @param <REGION> Region type.
+ * @param <CODE> Code type.
+ * @author adamgent, Sunny Sal
+ */
+public interface IPSRegionParser<REGION extends PSAbstractRegion, CODE extends PSRegionCode> {
 
-    PSParsedRegionTree<REGION, CODE> parse(String text);
-    
-    
     /**
-     * Implement to create different kinds of {@link PSAbstractRegion} with the parser.
-     * 
-     * @author adamgent
+     * Parses the provided text into a region tree.
+     *
+     * @param text the HTML or template text, never null or empty.
+     * @return the parsed region tree.
+     */
+    PSParsedRegionTree<REGION, CODE> parse(String text);
+
+    /**
+     * Factory for creating region and code objects for the parser.
      *
      * @param <R> Region type.
      * @param <C> Code type.
      */
-    public static interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode>
-    {
+    interface IPSRegionParserRegionFactory<R extends PSAbstractRegion, C extends PSRegionCode> {
+        /**
+         * Creates a new code object.
+         * @return never null.
+         */
         C createRegionCode();
-        
+
+        /**
+         * Creates a new region with the given region id.
+         * @param regionId the region id, never null.
+         * @return never null.
+         */
         R createRegion(String regionId);
 
+        /**
+         * Creates the root region.
+         * @return never null.
+         */
         R createRootRegion();
     }
 }

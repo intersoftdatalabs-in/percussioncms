@@ -35,29 +35,27 @@ import javax.ws.rs.ext.Provider;
  *  to ensure we do not modify behavior for other parts of the system
  *
  */
+// REFACTORED: CP-JAVA11
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 public class JacksonContextResolver implements ContextResolver<ObjectMapper>
 {
-    private static ObjectMapper objectMapper  = new ObjectMapper();
+    private static final ObjectMapper objectMapper  = new ObjectMapper();
     static
     {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
-        // Indent may help with testing but can slow performance and can 
-        // fail unit tests.
-        // .configure(SerializationConfig.Feature.INDENT_OUTPUT, true)
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-                        false)
-                .configure(SerializationFeature.WRAP_ROOT_VALUE,true)
-                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT,true)
-                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE,true);
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+                .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
     }
 
     @Override
     public ObjectMapper getContext(Class<?> objectType)
     {
-        // only use this configuration for classes in same package and subpackages
-        return (objectType.getPackage().getName().startsWith(JacksonContextResolver.class.getPackage().getName()))
+        // Only use this configuration for classes in same package and subpackages
+        var pkgName = objectType.getPackage().getName();
+        return (pkgName.startsWith(JacksonContextResolver.class.getPackage().getName()))
                 ? objectMapper
                 : null;
     }

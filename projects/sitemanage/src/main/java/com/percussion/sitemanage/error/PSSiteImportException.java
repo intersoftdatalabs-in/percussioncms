@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,25 +20,35 @@ package com.percussion.sitemanage.error;
 import com.percussion.error.PSException;
 
 /**
- * @author LucasPiccoli
- *
+ * Exception thrown when a site import operation fails.
  */
-public class PSSiteImportException extends PSException
-{
+public class PSSiteImportException extends PSException {
 
-    public PSSiteImportException(String message)
-    {
-
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public PSSiteImportException(String message) {
         super(-1, message);
     }
 
-    public PSSiteImportException(String message, Throwable cause)
-    {
-
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message the detail message.
+     * @param cause   the cause.
+     */
+    public PSSiteImportException(String message, Throwable cause) {
         super(-1, new Object[]{message}, cause);
     }
 
-    public PSSiteImportException(Throwable t){
+    /**
+     * Constructs a new exception with the specified cause.
+     *
+     * @param t the cause.
+     */
+    public PSSiteImportException(Throwable t) {
         super(t);
     }
 }

@@ -25,15 +25,21 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-public class SecureKeyServlet extends HttpServlet
-{
-   private static final Logger logger = LogManager.getLogger(SecureKeyServlet.class);
-    public void init() throws ServletException
-    {
-        boolean secureKeyPresent = PSEncryptor.checkSecureKeyPresent(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
-        if(!secureKeyPresent){
-           logger.error("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
-           System.out.println("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
+/**
+ * Servlet that checks for the presence of the secure key file.
+ * Sunny Sal says: "No key, no party!"
+ */
+public class SecureKeyServlet extends HttpServlet {
+
+    private static final Logger logger = LogManager.getLogger(SecureKeyServlet.class);
+
+    @Override
+    public void init() throws ServletException {
+        var secureKeyPresent = PSEncryptor.checkSecureKeyPresent(
+                PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR));
+        if (!secureKeyPresent) {
+            logger.error("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
+            System.out.println("*******SECURE KEY FILE IS MISSING!!! NEED TO COPY FROM CMS FIRST******");
         }
     }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -32,312 +33,275 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Class representing an Package Information Configuration object, used to save
+ * Represents a Package Information Configuration object, used to save
  * configuration information regarding the "solution" package created or
  * installed on a server.
  */
-
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSConfigStatus")
 @Table(name = "PSX_CONFIG_STATUS")
-public class PSConfigStatus implements Serializable
-{
+public class PSConfigStatus implements Serializable {
 
-   /**
-    * 
-    */
-   private static final long serialVersionUID = 6702475588603579446L;
+    private static final long serialVersionUID = 6702475588603579446L;
 
-   public PSConfigStatus()
-   {
-      statusId = 0;
-      configName = "";
-      dateApplied = null;
-      status = ConfigStatus.FAILURE;
-      defaultConfig = "";
-      localConfig = "";
-   }
+    public PSConfigStatus() {
+        statusId = 0;
+        configName = "";
+        dateApplied = null;
+        status = ConfigStatus.FAILURE;
+        defaultConfig = "";
+        localConfig = "";
+    }
 
-   // ------------------------------------------------------------------------------
+    /**
+     * Gets the unique identifier for this object.
+     *
+     * @return the statusId
+     */
+    public long getStatusId() {
+        return statusId;
+    }
 
-   /**
-    * Get the Unique Identifier for this object
-    * 
-    * @return the guid
-    */
-   public long getStatusId()
-   {
-      return statusId;
-   }
+    /**
+     * Gets the name of the configuration.
+     *
+     * @return the configName
+     */
+    public String getConfigName() {
+        return configName;
+    }
 
-   /**
-    * Get the GUID of the Package being configured
-    * 
-    * @return the packageGuid
-    */
-   public String getConfigName()
-   {
-      return configName;
-   }
+    /**
+     * Gets the date the configuration was applied.
+     *
+     * @return the dateApplied as Optional
+     */
+    public Optional<Date> getDateApplied() {
+        return Optional.ofNullable(dateApplied);
+    }
 
-   /**
-    * Get the Date the configuration was applied.
-    * 
-    * @return the dateApplied
-    */
-   public Date getDateApplied()
-   {
-      return dateApplied;
-   }
+    /**
+     * Gets the result of configuration.
+     *
+     * @return the status
+     */
+    public ConfigStatus getStatus() {
+        return status;
+    }
 
-   /**
-    * Get the Result of configuration
-    * 
-    * @return the successful
-    */
-   public ConfigStatus getStatus()
-   {
-      return status;
-   }
+    /**
+     * Gets the local configuration.
+     *
+     * @return the configuration content, may be null.
+     */
+    public Optional<String> getLocalConfig() {
+        return Optional.ofNullable(localConfig);
+    }
 
-   /**
-    * Gets the local configuration
-    * 
-    * @return the configuration content, may be <code>null</code>.
-    */
-   public String getLocalConfig()
-   {
-      return localConfig;
-   }
+    /**
+     * Gets the default configuration.
+     *
+     * @return the configuration content, may be null.
+     */
+    public Optional<String> getDefaultConfig() {
+        return Optional.ofNullable(defaultConfig);
+    }
 
-   /**
-    * Gets the default configuration
-    * 
-    * @return the configuration content, may be <code>null</code>.
-    */
-   public String getDefaultConfig()
-   {
-      return defaultConfig;
-   }
+    /**
+     * Sets the unique identifier for this object.
+     *
+     * @param statusId the statusId to set
+     */
+    public void setStatusId(long statusId) {
+        this.statusId = statusId;
+    }
 
-   // ------------------------------------------------------------------------------
+    /**
+     * Sets the name of the configuration.
+     *
+     * @param configName the configName to set
+     */
+    public void setConfigName(String configName) {
+        this.configName = configName;
+    }
 
-   /**
-    * Set the Unique Identifier for this object
-    * 
-    * @param guid the guid to set
-    */
-   public void setStatusId(long statusId)
-   {
-      this.statusId = statusId;
-   }
+    /**
+     * Sets the date the configuration was applied.
+     *
+     * @param dateApplied the dateApplied to set
+     */
+    public void setDateApplied(Date dateApplied) {
+        this.dateApplied = dateApplied;
+    }
 
-   /**
-    * Set the GUID of the Package being configured
-    * 
-    * @param packageGuid the packageGuid to set
-    */
-   public void setConfigName(String configName)
-   {
-      this.configName = configName;
-   }
+    /**
+     * Sets the result of configuration.
+     *
+     * @param status the status to set
+     */
+    public void setStatus(ConfigStatus status) {
+        this.status = status;
+    }
 
-   /**
-    * Set the Date the configuration was applied.
-    * 
-    * @param dateApplied the dateApplied to set
-    */
-   public void setDateApplied(Date dateApplied)
-   {
-      this.dateApplied = dateApplied;
-   }
+    /**
+     * Sets the configuration data for the local configuration.
+     *
+     * @param configuration the configuration to set
+     */
+    public void setLocalConfig(String configuration) {
+        this.localConfig = configuration;
+    }
 
-   /**
-    * Set the Result of configuration
-    * 
-    * @param successful the successful to set
-    */
-   public void setStatus(ConfigStatus status)
-   {
-      this.status = status;
-   }
+    /**
+     * Sets the configuration data for the default configuration.
+     *
+     * @param configuration the configuration to set
+     */
+    public void setDefaultConfig(String configuration) {
+        this.defaultConfig = configuration;
+    }
 
-   /**
-    * Set the Configuration Data for the local configure
-    * 
-    * @param configuration the configuration to set
-    */
-   public void setLocalConfig(String configuration)
-   {
-      this.localConfig = configuration;
-   }
+    /**
+     * Gets the configuration definition file content.
+     *
+     * @return configuration definition, may be null or empty.
+     */
+    public Optional<String> getConfigDef() {
+        return Optional.ofNullable(configDef);
+    }
 
-   /**
-    * Set the Configuration Data for the default configure
-    * 
-    * @param configuration the configuration to set
-    */
-   public void setDefaultConfig(String configuration)
-   {
-      this.defaultConfig = configuration;
-   }
+    /**
+     * Sets the configuration definition file content.
+     *
+     * @param config the new configuration definition, may be null or empty.
+     */
+    public void setConfigDef(String config) {
+        configDef = config;
+    }
 
-   /**
-    * Gets the configuration definition file content.
-    * 
-    * @return configuration definition, it may be <code>null</code> or empty.
-    */
-   public String getConfigDef()
-   {
-      return configDef;
-   }
-   
-   /**
-    * Sets the configuration definition file content.
-    * 
-    * @param config the new configuration definition, it may be
-    * <code>null</code> or empty.
-    */
-   public void setConfigDef(String config)
-   {
-      configDef = config;
-   }
-   
-   // ------------------------------------------------------------------------------
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof PSConfigStatus)) return false;
+        var other = (PSConfigStatus) obj;
+        return new EqualsBuilder()
+                .append(statusId, other.statusId)
+                .append(configName, other.configName)
+                .append(dateApplied, other.dateApplied)
+                .append(status, other.status)
+                .append(localConfig, other.localConfig)
+                .append(defaultConfig, other.defaultConfig)
+                .append(configDef, other.configDef)
+                .isEquals();
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   @Override
-   public boolean equals(Object b)
-   {
-      if (!(b instanceof PSConfigStatus))
-         return false;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+                .append(statusId)
+                .append(configName)
+                .append(dateApplied)
+                .append(status)
+                .append(localConfig)
+                .append(defaultConfig)
+                .append(configDef)
+                .toHashCode();
+    }
 
-      PSConfigStatus second = (PSConfigStatus) b;
-      return new EqualsBuilder().append(statusId, second.statusId).append(
-            configName, second.configName).append(dateApplied,
-            second.dateApplied).append(status, second.status).append(
-            localConfig, second.localConfig).append(defaultConfig,
-            second.defaultConfig).append(configDef, second.configDef)
-            .isEquals();
-   }
+    @Override
+    public String toString() {
+        return new StringBuilder("PSConfigStatus{")
+                .append("statusId=").append(statusId)
+                .append(", configName='").append(configName).append('\'')
+                .append(", defaultConfig='").append(defaultConfig).append('\'')
+                .append(", localConfig='").append(localConfig).append('\'')
+                .append(", configDef='").append(configDef).append('\'')
+                .append(", dateApplied=").append(dateApplied)
+                .append(", status=").append(status)
+                .append('}')
+                .toString();
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#hashCode()
-    */
-   @Override
-   public int hashCode()
-   {
-      return new HashCodeBuilder().append(statusId).append(configName).append(
-            dateApplied).append(status).append(localConfig).append(
-            defaultConfig).append(configDef).toHashCode();
-   }
+    /**
+     * Unique identifier for this object.
+     */
+    @Id
+    @Column(name = "STATUS_ID", nullable = false)
+    private long statusId;
 
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSConfigStatus{");
-      sb.append("statusId=").append(statusId);
-      sb.append(", configName='").append(configName).append('\'');
-      sb.append(", defaultConfig='").append(defaultConfig).append('\'');
-      sb.append(", localConfig='").append(localConfig).append('\'');
-      sb.append(", configDef='").append(configDef).append('\'');
-      sb.append(", dateApplied=").append(dateApplied);
-      sb.append(", status=").append(status);
-      sb.append('}');
-      return sb.toString();
-   }
-// ------------------------------------------------------------------------------
+    /**
+     * Name of the configuration.
+     */
+    @Column(name = "CONFIG_NAME", nullable = false)
+    private String configName;
 
-   /**
-    * Unique Identifier for this object
-    */
-   @Id
-   @Column(name = "STATUS_ID", nullable = false)
-   private long statusId;
+    /**
+     * Default configuration file.
+     */
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    private String defaultConfig;
 
-   /**
-    * Name of the configuration
-    */
-   @Column(name = "CONFIG_NAME", nullable = false)
-   private String configName;
+    /**
+     * Local configuration file.
+     */
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    private String localConfig;
 
-   /**
-    * Default configuration file
-    */
-   @Lob
-   @Basic(fetch = FetchType.EAGER)
-   private String defaultConfig;
+    /**
+     * Configuration definition file.
+     */
+    @Lob
+    @Basic(fetch = FetchType.EAGER)
+    private String configDef;
 
-   /**
-    * Local configuration file
-    */
-   @Lob
-   @Basic(fetch = FetchType.EAGER)
-   private String localConfig;
+    /**
+     * Date the configuration was applied.
+     */
+    @Column(name = "DATE_APPLIED", nullable = false)
+    private Date dateApplied;
 
-   /**
-    * Configuration definition file
-    */
-   @Lob
-   @Basic(fetch = FetchType.EAGER)
-   private String configDef;
+    /**
+     * Status of configuration.
+     */
+    @Column(name = "STATUS", nullable = false)
+    private ConfigStatus status;
 
-   
-   /**
-    * Date the configuration was applied.
-    */
-   @Column(name = "DATE_APPLIED", nullable = false)
-   private Date dateApplied;
+    /**
+     * Enumeration for configuration status.
+     */
+    public enum ConfigStatus {
+        /**
+         * Enum for failure to apply configuration status.
+         */
+        FAILURE(0),
+        /**
+         * Enum for successfully applied configuration status.
+         */
+        SUCCESS(1);
 
-   /**
-    * Status of configuration
-    */
-   @Column(name = "STATUS", nullable = false)
-   private ConfigStatus status;
+        ConfigStatus(int ordinal) {
+            this.ordinal = ordinal;
+        }
 
-   /**
-    * Enumeration for configuration status.
-    */
-   public enum ConfigStatus
-   {
-      /**
-       * Enum for failure to apply configuration status
-       */
-      FAILURE(0),
-      /**
-       * Enum for Successfully applied configuration status
-       */
-      SUCCESS(1);
-      
-      ConfigStatus(int ordinal)
-      {
-         mi_ordinal = ordinal;
-      }
-      
-      public static ConfigStatus valueOf(int s) throws IllegalArgumentException
-      {
-         ConfigStatus types[] = values();
-         for (int i = 0; i < types.length; i++)
-         {
-            if (types[i].getOrdinal() == s)
-               return types[i];
-         }
-         return null;
-      }
-      
-      public int getOrdinal()
-      {
-         return mi_ordinal;
-      }
-      
-      private int mi_ordinal;
-   }
+        public static Optional<ConfigStatus> valueOf(int s) {
+            for (var type : values()) {
+                if (type.getOrdinal() == s) {
+                    return Optional.of(type);
+                }
+            }
+            return Optional.empty();
+        }
 
+        public int getOrdinal() {
+            return ordinal;
+        }
+
+        private final int ordinal;
+    }
 }

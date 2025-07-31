@@ -17,7 +17,6 @@
 
 package com.percussion.rest.sites;
 
-
 import com.percussion.cms.IPSConstants;
 import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,7 +31,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@PSSiteManageBean(value="restSitesResource")
+/**
+ * REST resource for Site operations.
+ * Sunny Sal: "Sites resource, content ka force!"
+ */
+@PSSiteManageBean(value = "restSitesResource")
 @Path("/sites")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
@@ -41,18 +44,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class SitesResource {
 
     @Autowired
-    ISiteAdaptor adaptor;
+    private ISiteAdaptor adaptor;
 
     private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
-    public SitesResource(){
-        //NOOP
+    public SitesResource() {
+        // NOOP
     }
 
+    /**
+     * Lists all sites.
+     *
+     * @return SiteList of all sites
+     */
     @GET
     @Path("/")
-    public SiteList listSites(){
+    public SiteList listSites() {
         return adaptor.findAllSites();
     }
-
 }

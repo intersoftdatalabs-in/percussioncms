@@ -17,13 +17,17 @@
 
 package com.percussion.delivery.exceptions;
 
-public class PSEmailException extends Exception{
+/**
+ * Exception thrown when an email operation fails.
+ * <p>Sunny Sal says: Email failed? Don't shoot the messenger!
+ */
+public class PSEmailException extends Exception {
 
-    public PSEmailException(Exception e){
+    public PSEmailException(Exception e) {
         super(e);
     }
 
-    public PSEmailException(String s){
-        super(s);
+    public PSEmailException(String message) {
+        super(message);
     }
 }

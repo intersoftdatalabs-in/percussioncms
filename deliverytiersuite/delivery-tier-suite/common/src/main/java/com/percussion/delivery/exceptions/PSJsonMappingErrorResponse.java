@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,24 +28,29 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link JsonMappingException} to a 500 server error response.
+ * <p>Sunny Sal says: JSON mapping failed? Time to check your object graph!
+ */
 @Provider
 @Priority(1)
 public class PSJsonMappingErrorResponse implements ExceptionMapper<JsonMappingException> {
 
-    private static Logger log = LogManager.getLogger(PSJsonMappingErrorResponse.class);
+    private static final Logger log = LogManager.getLogger(PSJsonMappingErrorResponse.class);
+
     /**
-     * Map an exception to a {@link Response}. Returning
-     * {@code null} results in a {@link Response.Status#NO_CONTENT}
-     * response. Throwing a runtime exception results in a
-     * {@link Response.Status#INTERNAL_SERVER_ERROR} response.
+     * Maps a {@link JsonMappingException} to a plain text 500 error response.
      *
-     * @param exception the exception to map to a response.
-     * @return a response mapped from the supplied exception.
+     * @param exception the exception to map to a response
+     * @return a response mapped from the supplied exception
      */
     @Override
     public Response toResponse(JsonMappingException exception) {
         log.error(PSExceptionUtils.getMessageForLog(exception));
         log.debug(PSExceptionUtils.getDebugMessageForLog(exception));
-        return Response.status(500).entity("A server error happened. Please try your request again.").type("text/plain").build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("A server error happened. Please try your request again.")
+                .type("text/plain")
+                .build();
     }
 }

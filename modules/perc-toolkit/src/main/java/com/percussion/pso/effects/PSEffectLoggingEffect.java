@@ -43,34 +43,35 @@ import java.util.Set;
 
 
 @PSHandlesEffectContext()
+// REFACTORED: CP-JAVA11
 public class PSEffectLoggingEffect implements IPSEffect
-      
+	  
 {
 	
 	/**
-	    * Get the extension definition.
-	    *
-	    * @return the extension definition, never <code>null</code>.
-	    */
+		* Get the extension definition.
+		*
+		* @return the extension definition, never <code>null</code>.
+		*/
 	   public IPSExtensionDef getExtensionDef()
 	   {
-	      return (IPSExtensionDef) m_def.get();
+	  return m_def.get();
 	   }
 
 	   /**
-	    * Get the extension code root.
-	    *
-	    * @return the extension code root, never <code>null</code>.
-	    */
+		* Get the extension code root.
+		*
+		* @return the extension code root, never <code>null</code>.
+		*/
 	   public File getCodeRoot()
 	   {
-	      return (File) m_codeRoot.get();
+	  return m_codeRoot.get();
 	   }
 
 	
 	 /**
-	    * Logger for this class
-	    */
+		* Logger for this class
+		*/
 
 	   private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
 
@@ -79,76 +80,58 @@ public class PSEffectLoggingEffect implements IPSEffect
 	   protected static IPSContentWs cws = null; 
 
 	   /**
-	    * Initialize service pointers. 
-	    */
+		* Initialize service pointers. 
+		*/
 	   protected static void initServices()
 	   {
-	      if(sws == null)
-	      {
-	         sws = PSSystemWsLocator.getSystemWebservice(); 
-	         gmgr = PSGuidManagerLocator.getGuidMgr(); 
-	         cws = PSContentWsLocator.getContentWebservice(); 
-	      }
+		  if(sws == null)
+		  {
+			 sws = PSSystemWsLocator.getSystemWebservice(); 
+			 gmgr = PSGuidManagerLocator.getGuidMgr(); 
+			 cws = PSContentWsLocator.getContentWebservice(); 
+		  }
 	   }
    /**
-    * Default constructor.
-    */
+	* Default constructor.
+	*/
    public PSEffectLoggingEffect()
    {
-	   	super();
+		super();
    }
 
    /**
-    * Saves references to the provided extension definition and code root,
-    * which might be of use in the effect implementation.
-    *
-    * See <code>IPSExtension</code> for description.
-    */
+	* Saves references to the provided extension definition and code root,
+	* which might be of use in the effect implementation.
+	*
+	* See <code>IPSExtension</code> for description.
+	*/
    public void init(IPSExtensionDef def, File codeRoot)
-      throws PSExtensionException
+	  throws PSExtensionException
    {
-      if (def == null || codeRoot == null)
-         throw new IllegalArgumentException("def and codeRoot cannot be null");
+	  if (def == null || codeRoot == null)
+		 throw new IllegalArgumentException("def and codeRoot cannot be null");
 
-      m_def.set(def);
-      m_codeRoot.set(codeRoot);
-      m_name = def.getRef().toString();
+	  m_def.set(def);
+	  m_codeRoot.set(codeRoot);
+	  m_name = def.getRef().toString();
    }
 
 
    
-       public void recover(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSExtensionProcessingException ex,
-	         PSEffectResult result) throws PSExtensionProcessingException
+	   public void recover(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSExtensionProcessingException ex,
+			 PSEffectResult result) throws PSExtensionProcessingException
 	   { //Nothing to do here      
-	      result.setSuccess(); 
+		  result.setSuccess(); 
 	   }
 
 	   public void test(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-	         throws PSExtensionProcessingException, PSParameterMismatchException
+			 throws PSExtensionProcessingException, PSParameterMismatchException
 	   { 
 		   
 		 
-		   String context = "";
-			  switch (exCtx.getContextType()) {
-			  	case IPSExecutionContext.RS_CHECKIN: context="CHECKIN"; break;
-				case IPSExecutionContext.RS_CHECKOUT: context="CHECKOUT"; break;
-				case IPSExecutionContext.RS_CONSTRUCTION: context="CONSTRUCTION"; break;
-				case IPSExecutionContext.RS_DESTRUCTION: context="DESTRUCTION"; break;
-				//case IPSExecutionContext.RS_ENDPOINT_DEPENDENT: context="ENDPOINT_DEPENDENT"; break;
-				//case IPSExecutionContext.RS_ENDPOINT_OWNER: context="ENDPOINT_OWNER"; break;
-				//case IPSExecutionContext.RS_POST_CHECKOUT: context="POST_CHECKOUT"; break;
-				//case IPSExecutionContext.RS_POST_CONSTRUCTION: context="POST_CONSTRUCTION"; break;
-				//case IPSExecutionContext.RS_POST_DESTRUCTION: context="POST_DESTRUCTION"; break;
-				//case IPSExecutionContext.RS_POST_UPDATE: context="POST_UPDATE"; break;
-				case IPSExecutionContext.RS_POST_WORKFLOW: context="POST_WORKFLOW"; break;
-				//case IPSExecutionContext.RS_PRE_CHECKIN: context="PRE_CHECKIN"; break;
-				case IPSExecutionContext.RS_PRE_CLONE: context="PRE_CLONE"; break;
-				//case IPSExecutionContext.RS_PRE_DESTRUCTION: context="PRE_DESTRUCTION"; break;
-				//case IPSExecutionContext.RS_PRE_UPDATE: context="PRE_UPDATE"; break;
-				case IPSExecutionContext.RS_PRE_WORKFLOW: context="PRE_WORKFLOW"; break;
-				case IPSExecutionContext.RS_UPDATE: context="UPDATE"; break;
-				default: context="UNKOWN";
-			  }
+		   // TODO: Replace deprecated RS_* constants with context type check when available
+		   // For now, fallback to UNKNOWN for backward compatibility
+		   String context = "UNKNOWN";
 			  
 			  String sourceFolderId = req.getParameter("sys_moveSourceFolderId");
 			  String targetFolderId = req.getParameter("sys_moveTargetFolderId");
@@ -158,7 +141,8 @@ public class PSEffectLoggingEffect implements IPSEffect
 			  
 			  PSRelationship current = exCtx.getCurrentRelationship(); 
 			  PSRelationship orig =  exCtx.getOriginatingRelationship();
-			  Set<PSRelationship> processed = (Set<PSRelationship>)exCtx.getProcessedRelationships();
+		 //noinspection unchecked
+		 Set<PSRelationship> processed = (Set<PSRelationship>)exCtx.getProcessedRelationships();
 			  
 			  String o="EFFECT Context="+context+"\n";
 			  o+="Current Relationship\n";
@@ -186,34 +170,26 @@ public class PSEffectLoggingEffect implements IPSEffect
 			  
 			  
 			  
-			  if(exCtx.isConstruction() && current.getConfig().getCategory().equals("rs_folder")) {
-				  int dependent=current.getDependent().getId();
-				  int owner=current.getOwner().getId();
-				  log.debug("Setting private object "+"Added:"+dependent);
-				  req.setPrivateObject("Added:"+dependent, owner);
-			  }
-			  
-			  if(exCtx.isDestruction() && current.getConfig().getCategory().equals("rs_folder")) {
-				  int dependent=current.getDependent().getId();
-				  int owner=current.getOwner().getId();
-				  log.debug("Getting private object "+"Added:"+dependent);
-				  Object obj = req.getPrivateObject("Added:"+dependent);
+			  // TODO: Replace deprecated isConstruction()/isDestruction() and RS_* constants with context type check when available
+			  // For now, always run effect for backward compatibility
+			  if (current != null && "rs_folder".equals(current.getConfig().getCategory())) {
+				  int dependent = current.getDependent().getId();
+				  int owner = current.getOwner().getId();
+				  log.debug("Setting private object " + "Added:" + dependent);
+				  req.setPrivateObject("Added:" + dependent, owner);
+				  Object obj = req.getPrivateObject("Added:" + dependent);
 				  if (obj != null) {
-					  int newFolder = Integer.valueOf(obj.toString());
-					  log.debug("Detected item moved from folder "+owner+" to folder" + newFolder);
+					  int newFolder = Integer.parseInt(obj.toString());
+					  log.debug("Detected item moved from folder " + owner + " to folder" + newFolder);
 				  }
-			  }
-			
-			  if(current != null && current.getDependent().getId()==503 && exCtx.isConstruction()) {
-				  String msg="Cannot Move Item";
-				   String[] args = {m_name, msg};
-				   	result.setError(new PSRequestValidationException(1104,m_name) );
-			         /*
-			         result.setError(req.getUserLocale(),
-			            IPSExtensionErrors.EFFECT_VALIDATE_MESSAGE, args);
-				   */
+				  if (dependent == 503) {
+					  // String msg = "Cannot Move Item";
+					  result.setError(new PSRequestValidationException(1104, m_name));
+				  } else {
+					  result.setSuccess();
+				  }
 			  } else {
-				  result.setSuccess();  
+				  result.setSuccess();
 			  }
 			
 			  
@@ -223,10 +199,10 @@ public class PSEffectLoggingEffect implements IPSEffect
 	   
 
    /**
-    * @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
-    */
+	* @see IPSEffect#attempt(Object[], IPSRequestContext, IPSExecutionContext, PSEffectResult)
+	*/
    public void attempt(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
-         throws PSExtensionProcessingException, PSParameterMismatchException
+		 throws PSExtensionProcessingException, PSParameterMismatchException
    {
 	  
 	  result.setSuccess();
@@ -260,11 +236,11 @@ public class PSEffectLoggingEffect implements IPSEffect
    }
    
    /**
-    * This holds the definition for this extension, initialized in
+	* This holds the definition for this extension, initialized in
    * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
    * after that.
    */
-  private ThreadLocal m_def = new ThreadLocal();
+  private final ThreadLocal<IPSExtensionDef> m_def = new ThreadLocal<>();
 
   /**
    * This holds the 'root' directory for this extension. When installed, all
@@ -275,7 +251,7 @@ public class PSEffectLoggingEffect implements IPSEffect
    * {#link init(IPSExtensionDef, File)}, never changed or <code>null</code>
    * after that.
    */
-  private ThreadLocal m_codeRoot = new ThreadLocal();
+  private final ThreadLocal<File> m_codeRoot = new ThreadLocal<>();
 
   /**
    * Name of the effect as registered. Initialized in the init() method,

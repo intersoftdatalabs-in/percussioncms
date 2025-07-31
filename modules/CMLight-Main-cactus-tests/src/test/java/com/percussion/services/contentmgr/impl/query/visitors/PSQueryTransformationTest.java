@@ -54,8 +54,8 @@ import org.junit.experimental.categories.Category;
 public class PSQueryTransformationTest extends ServletTestCase
 {
    
-   List<IPSGuid> pathGuids = new ArrayList<IPSGuid>();
-   
+   List<IPSGuid> pathGuids = new ArrayList<>();
+
    public void setUp() throws Exception
    {
       super.setUp();
@@ -136,16 +136,16 @@ public class PSQueryTransformationTest extends ServletTestCase
     */
    public void testSqlSimpleExpression() throws Exception
    {
-      Reader reader = new StringReader(example);
-      SqlLexer lexer = new SqlLexer(reader);
-      SqlParser parser = new SqlParser(lexer);
+      var reader = new StringReader(example);
+      var lexer = new SqlLexer(reader);
+      var parser = new SqlParser(lexer);
 
       PSCmsObjectMgrLocator.getObjectManager();
 
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       sw.start();
 
-      PSQuery q = parser.start_rule();
+      var q = parser.start_rule();
       System.err.println("Parsing: " + sw);
 
       checkResults(q, result1, where1, sw);
@@ -158,17 +158,17 @@ public class PSQueryTransformationTest extends ServletTestCase
     */
    public void testNoFoldersFound() throws Exception
    {
-      pathGuids = new ArrayList<IPSGuid>();
-      Reader reader = new StringReader(example);
-      SqlLexer lexer = new SqlLexer(reader);
-      SqlParser parser = new SqlParser(lexer);
+      pathGuids = new ArrayList<>();
+      var reader = new StringReader(example);
+      var lexer = new SqlLexer(reader);
+      var parser = new SqlParser(lexer);
 
       PSCmsObjectMgrLocator.getObjectManager();
 
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       sw.start();
 
-      PSQuery q = parser.start_rule();
+      var q = parser.start_rule();
       System.err.println("Parsing: " + sw);
       
 
@@ -189,16 +189,16 @@ public class PSQueryTransformationTest extends ServletTestCase
     */
    public void testXpathSimpleExpression() throws Exception
    {
-      Reader reader = new StringReader(xexample);
-      XpathLexer lexer = new XpathLexer(reader);
-      XpathParser parser = new XpathParser(lexer);
+      var reader = new StringReader(xexample);
+      var lexer = new XpathLexer(reader);
+      var parser = new XpathParser(lexer);
 
       PSCmsObjectMgrLocator.getObjectManager();
 
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       sw.start();
 
-      PSQuery q = parser.start_rule();
+      var q = parser.start_rule();
       System.err.println("Parsing: " + sw);
 
       checkResults(q, result1, where1, sw);
@@ -230,16 +230,16 @@ public class PSQueryTransformationTest extends ServletTestCase
     */
    public void testJcrpathExpression() throws Exception
    {
-      Reader reader = new StringReader(xexample2);
-      XpathLexer lexer = new XpathLexer(reader);
-      XpathParser parser = new XpathParser(lexer);
+      var reader = new StringReader(xexample2);
+      var lexer = new XpathLexer(reader);
+      var parser = new XpathParser(lexer);
 
       PSCmsObjectMgrLocator.getObjectManager();
 
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       sw.start();
 
-      PSQuery q = parser.start_rule();
+      var q = parser.start_rule();
       System.err.println("Parsing: " + sw);
 
       checkResults(q, result2, where2, sw);
@@ -260,21 +260,21 @@ public class PSQueryTransformationTest extends ServletTestCase
    public void checkResults(PSQuery q, String res, String wres, PSStopwatch sw)
          throws Exception
    {
-      IPSDatasourceManager dbMgr = (IPSDatasourceManager) PSBaseServiceLocator
+      var dbMgr = (IPSDatasourceManager) PSBaseServiceLocator
             .getBean("sys_datasourceManager");
-      boolean isDerbyDatabase = dbMgr.getConnectionDetail(null).getDriver().equals("derby");
-      
-      PSItemDefManager mgr = PSItemDefManager.getInstance();
-      PSItemDefinition def = mgr.getItemDef("rffpressrelease", 1001);
-      PSTypeConfiguration type = new PSTypeConfiguration(def, null, isDerbyDatabase);
-      IPSQueryNode n = q.getWhere();
+      var isDerbyDatabase = dbMgr.getConnectionDetail(null).getDriver().equals("derby");
 
-      PSQueryPropertyType typesetter = new PSQueryPropertyType();
+      var mgr = PSItemDefManager.getInstance();
+      var def = mgr.getItemDef("rffpressrelease", 1001);
+      var type = new PSTypeConfiguration(def, null, isDerbyDatabase);
+      var n = q.getWhere();
+
+      var typesetter = new PSQueryPropertyType();
       typesetter.setConfig(type);
-      PSQueryTransformer transformer = new PSQueryTransformer(
-            new TestFolderExpander(), new HashMap(), null);
+      var transformer = new PSQueryTransformer(
+            new TestFolderExpander(), new HashMap<>(), null);
 
-      IPSQueryNode tf = n.accept(typesetter);
+      var tf = n.accept(typesetter);
       sw.pause();
       System.err.println("Type set: " + sw);
 
@@ -283,16 +283,16 @@ public class PSQueryTransformationTest extends ServletTestCase
       sw.pause();
       System.err.println("Transform: " + sw);
 
-      String rep = tf.toString();
+      var rep = tf.toString();
 
       assertEquals(res, rep);
 
       sw.cont();
-      PSQueryNodeVisitor where = new PSQueryWhereBuilder(type, null);
+      var where = new PSQueryWhereBuilder(type, null);
 
       tf.accept(where);
 
-      String whereclause = where.toString();
+      var whereclause = where.toString();
       sw.stop();
       System.err.println("Where: " + sw);
       assertEquals(wres, whereclause);

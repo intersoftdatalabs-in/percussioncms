@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,53 +17,55 @@
  */
 package com.percussion.share.service;
 
-import java.util.List;
-
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
+import java.util.List;
 
 /**
- * An extremely low level wrapper to 
- * CM System for relatively fast item retrieval.
+ * Extremely low-level wrapper to CM System for relatively fast item retrieval.
  * <p>
- * Be aware: Although this is public API it should probably not be used externally
- * and maybe removed in the future.
- * 
- * @author adamgent
+ * Be aware: Although this is public API, it should probably not be used externally
+ * and may be removed in the future.
  *
- * @param <S> item summary type.
+ * @param <S> item summary type
+ * @author adamgent
  */
-public interface IPSItemSummaryService<S extends IPSItemSummary> extends IPSCatalogService<S, String>
-{
+public interface IPSItemSummaryService<S extends IPSItemSummary> extends IPSCatalogService<S, String> {
+
     /**
      * Returns the id for the given path.
      * The path could be to an asset, page, or folder.
      * <strong>
-     * NOTICE that the return value maybe <code>null</code>.
+     * NOTICE that the return value may be {@code null}.
      * </strong>
-     * Higher level layers and API should deal with the null return value.
-     * @param path never <code>null</code> or empty.
-     * @return maybe <code>null</code> if there is not item at the given path.
+     * Higher-level layers and API should deal with the null return value.
+     *
+     * @param path never {@code null} or empty
+     * @return may be {@code null} if there is no item at the given path
      */
-    public String pathToId(String path) throws IPSDataService.DataServiceNotFoundException;
+    String pathToId(String path) throws IPSDataService.DataServiceNotFoundException;
+
     /**
-     * Returns the id for the given path.
+     * Returns the id for the given path and relationship type.
      * The path could be to an asset, page, or folder.
      * <strong>
-     * NOTICE that the return value maybe <code>null</code>.
+     * NOTICE that the return value may be {@code null}.
      * </strong>
-     * Higher level layers and API should deal with the null return value.
-     * @param path never <code>null</code> or empty.
-     * @return maybe <code>null</code> if there is not item at the given path.
+     * Higher-level layers and API should deal with the null return value.
+     *
+     * @param path                  never {@code null} or empty
+     * @param relationshipTypeName  the relationship type name
+     * @return may be {@code null} if there is no item at the given path
      */
-    public String pathToId(String path, String relationshipTypeName) throws IPSDataService.DataServiceNotFoundException;
-    
+    String pathToId(String path, String relationshipTypeName) throws IPSDataService.DataServiceNotFoundException;
+
     /**
      * Returns the items that are children to the given id.
      * The id should probably be an item that is a folder.
-     * @param id never <code>null</code> or empty.
-     * @return never <code>null</code>, maybe empty.
-     * @throws DataServiceLoadException if the item is not valid to have children or does not exist.
+     *
+     * @param id never {@code null} or empty
+     * @return never {@code null}, may be empty
+     * @throws DataServiceLoadException if the item is not valid to have children or does not exist
      */
-    public List<S> findFolderChildren(String id) throws DataServiceLoadException;
+    List<S> findFolderChildren(String id) throws DataServiceLoadException;
 }

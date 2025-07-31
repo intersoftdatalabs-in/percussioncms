@@ -19,10 +19,14 @@ package com.percussion.security.dao;
 import java.util.List;
 
 /**
- * @author miltonpividori
- *
+ * Data access object for security items such as SSH private keys.
  */
-public interface IPSSecurityItemsDao
-{
+public interface IPSSecurityItemsDao {
+
+    /**
+     * Gets the available SSH private key file names.
+     *
+     * @return list of private key file names, never {@code null}
+     */
     List<String> getAvailablePrivateKeys();
 }

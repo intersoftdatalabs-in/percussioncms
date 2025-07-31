@@ -49,8 +49,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to handle packaging and deploying a schema definition.
@@ -91,76 +93,41 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler
     }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
 
-      PSDbmsInfo dbmsInfo = 
-         PSDbmsHelper.getInstance().getServerRepositoryInfo();         
-         
-      
-      // catalog the table names
-      List<String> tableList = new ArrayList<>();
-      String filterAll = "%";
-      String db = dbmsInfo.getDatabase();
-      if (db.trim().length() == 0)
-         db = filterAll;
-      String schema = dbmsInfo.getOrigin();
-      if (schema.trim().length() == 0)
-         schema = filterAll;
-      
-      Connection conn = PSDbmsHelper.getInstance().getRepositoryConnection();
-      ResultSet rs = null;   
-      try
-      {
-         DatabaseMetaData meta = conn.getMetaData();
-         rs = meta.getTables(db, schema, 
-            filterAll, new String[] {"TABLE"});
-         if (rs != null)
-         {
-            while (rs.next())
-            {
-               tableList.add(rs.getString(COLNO_TABLE_NAME));
-            }
-         }
-      } 
-      catch (SQLException e) 
-      {
-         throw new PSDeployException(
-            IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, 
-            PSDeployException.formatSqlException(e));
-      }
-      finally 
-      {
-         if (rs != null)
-            try { rs.close();} catch (SQLException e){}
-
-         if (conn != null)
-            try { conn.close();} catch (SQLException e){}
-      }
-      
-      List<String> excludeTables = PSDependencyUtils.getSharedGroupTables();
+      var dbmsHelper = PSDbmsHelper.getInstance();
+      var dbmsInfo = dbmsHelper.getServerRepositoryInfo();
+      var excludeTables = new HashSet<>(PSDependencyUtils.getSharedGroupTables());
       excludeTables.addAll(PSDependencyUtils.getAllContentTypeTables(tok));
-      excludeTables.add("PSLOG");
-      excludeTables.add("PSLOGDATA");
-      
-      // create dependency objects from the table names
-      List<PSDependency> deps = new ArrayList<>();
-      for (String tablename : tableList)
-      {
-         if (excludeTables.contains(tablename) || 
-            tablename.endsWith("_BAK") ||
-            tablename.endsWith("_BAKUP") ||
-            tablename.endsWith("_UPG"))
-            continue;
-         
-         PSDependency dep = getDependency(tok, tablename);
-         if (dep != null)
-            deps.add(dep);
+      excludeTables.addAll(List.of("PSLOG", "PSLOGDATA"));
+
+      try (var conn = dbmsHelper.getRepositoryConnection();
+           var rs = conn.getMetaData().getTables(
+                   dbmsInfo.getDatabase().isBlank() ? "%" : dbmsInfo.getDatabase(),
+                   dbmsInfo.getOrigin().isBlank() ? "%" : dbmsInfo.getOrigin(),
+                   "%",
+                   new String[]{"TABLE"})) {
+
+          var tableList = new ArrayList<String>();
+          while (rs.next()) {
+              tableList.add(rs.getString(COLNO_TABLE_NAME));
+          }
+
+          return tableList.stream()
+                  .filter(table -> !excludeTables.contains(table) &&
+                          !table.endsWith("_BAK") &&
+                          !table.endsWith("_BAKUP") &&
+                          !table.endsWith("_UPG"))
+                  .map(table -> getDependency(tok, table))
+                  .filter(Objects::nonNull)
+                  .iterator();
+      } catch (SQLException e) {
+          throw new PSDeployException(IPSDeploymentErrors.REPOSITORY_READ_WRITE_ERROR, PSDeployException.formatSqlException(e));
       }
-      
-      return deps.iterator();
    }
    
    // see base class

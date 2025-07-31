@@ -99,26 +99,20 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    
    // see base class
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-         
-      // get all keyword lookup categories
-      List<PSDependency> deps = new ArrayList<>();
-      
-      List<PSKeyword> keywords = ms_contentSvc.findKeywordsByLabel(null, null);
-      for (PSKeyword keyword : keywords)
-      {
-         String value = keyword.getValue();
-         PSDependency dep = createDependency(m_def, value, keyword.getName()); 
-         if (keyword.getId() != Long.valueOf(value))
-            dep.setDependencyType(PSDependency.TYPE_SYSTEM);
-         
-         deps.add(dep);
       }
-      
-      return deps.iterator();
+
+      return ms_contentSvc.findKeywordsByLabel(null, null).stream()
+         .map(keyword -> {
+            var dep = createDependency(m_def, keyword.getValue(), keyword.getName());
+            if (!keyword.getId().equals(Long.valueOf(keyword.getValue()))) {
+               dep.setDependencyType(PSDependency.TYPE_SYSTEM);
+            }
+            return dep;
+         })
+         .iterator();
    }
       
    // see base class

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -25,48 +27,37 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Maps JavaScript http request data object to a
- * PSCookieConsent object.  This class includes a
- * variable 'services' which is needed to map all
- * cookies approved by the client to unique DB entries
- * per approved cookie.
- * 
- * @author chriswright
- *
+ * Maps JavaScript HTTP request data object to a PSCookieConsent object.
+ * Includes a variable 'services' to map all cookies approved by the client.
  */
-@XmlRootElement(name="consent")
+@XmlRootElement(name = "consent")
 public class PSCookieConsentQuery extends PSCookieConsent {
-    
+
     private List<String> services;
 
-    public PSCookieConsentQuery(){
+    public PSCookieConsentQuery() {
         super();
     }
-    
+
     /**
-     * Constructor used to call {@link PSCookieConsent} super
-     * and create PSCookieConsentQuery.
-     * 
-     * @param siteName name of the site accessed.
+     * Constructor for PSCookieConsentQuery.
+     *
+     * @param siteName    name of the site accessed.
      * @param consentDate date the cookie consent was given.
-     * @param optIn <code>true</code> always.  No information is saved
-     * if user does not opt in.
-     * @param services the list of services/cookies approved by the client.
+     * @param optIn       true if user opted in.
+     * @param services    list of services/cookies approved by the client.
      */
     @JsonCreator
-    public PSCookieConsentQuery(@JsonProperty("siteName") String siteName,
+    public PSCookieConsentQuery(
+            @JsonProperty("siteName") String siteName,
             @JsonProperty("consentDate") Date consentDate,
             @JsonProperty("optIn") boolean optIn,
             @JsonProperty("services") List<String> services) {
-        // Here "undefined" is passed for the serviceName as
-        // we set each service name later with each service
-        // that has been passed in with the 'services' parameter.
-        // IP is undefined as that is set server side later.
         super(siteName, "undefined", consentDate, "undefined", optIn);
-        
-        if (services == null)
+
+        if (services == null) {
             throw new IllegalArgumentException("List of cookies approved by client may not be null.");
-        
+        }
         setServices(services);
     }
 
@@ -77,10 +68,10 @@ public class PSCookieConsentQuery extends PSCookieConsent {
     public void setServices(List<String> services) {
         this.services = services;
     }
-    
+
     @Override
     public String toString() {
         return String.format("Site name: %s - IP: %s - Consent Date: %s - Services: %s",
-                getSiteName(), getIP(), getConsentDate(), this.services);
+                getSiteName(), getIP(), getConsentDate(), services);
     }
 }

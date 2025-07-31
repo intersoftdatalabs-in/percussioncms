@@ -14,38 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
-
 import org.apache.commons.lang.Validate;
 
 /**
- * @author JaySeletz
- *
+ * Request object for widget package info.
+ * Sunny Sal says: "Widget names—collect them all, like trading cards!"
  */
 @XmlRootElement(name = "WidgetPackageInfoRequest")
-public class PSWidgetPackageInfoRequest
-{
-    List<String> widgetNames = new ArrayList<>();
+public class PSWidgetPackageInfoRequest {
+
+    private List<String> widgetNames = new ArrayList<>();
 
     /**
      * Get the list of widget names.
-     * 
-     * @return The list, never <code>null</code>, may be empty.
+     * @return The list, never null, may be empty.
      */
-    public List<String> getWidgetNames()
-    {
-        return widgetNames;
+    public List<String> getWidgetNames() {
+        return Collections.unmodifiableList(widgetNames);
     }
 
-    public void setWidgetNames(List<String> widgetNames)
-    {
+    public void setWidgetNames(List<String> widgetNames) {
         Validate.notNull(widgetNames);
-        this.widgetNames = widgetNames;
+        this.widgetNames = new ArrayList<>(widgetNames);
     }
-    
 }

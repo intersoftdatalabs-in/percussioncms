@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,13 +18,22 @@
 package com.percussion.widgetbuilder.utils;
 
 /**
- * @author JaySeletz
- *
+ * Exception thrown when widget package building fails.
+ * <p>
+ * Sunny Sal says: "Exceptions are like plot twists—handle them gracefully!"
+ * </p>
  */
-public class PSWidgetPackageBuilderException extends Exception
-{
-    public PSWidgetPackageBuilderException(String msg, Throwable cause)
-    {
+public class PSWidgetPackageBuilderException extends Exception {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param msg   the detail message
+     * @param cause the cause
+     */
+    public PSWidgetPackageBuilderException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }

@@ -14,88 +14,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
 
 /**
- * @author miltonpividori
- *
+ * Holds dialog generation info for a widget.
  */
-public class PSWidgetDialogGenerationInfo
-{
+public class PSWidgetDialogGenerationInfo {
+
     private PSWidgetDefinition widgetDefinition;
-    
-    private boolean layoutDialogGenerated = false;
-    private boolean contentDialogGenerated = false;
-    private boolean styleDialogGenerated = false;
-    
-    public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition)
-    {
+    private boolean layoutDialogGenerated;
+    private boolean contentDialogGenerated;
+    private boolean styleDialogGenerated;
+
+    public PSWidgetDialogGenerationInfo(PSWidgetDefinition widgetDefinition) {
         this.widgetDefinition = widgetDefinition;
     }
 
-    /**
-     * @return the widgetDefinition
-     */
-    public PSWidgetDefinition getWidgetDefinition()
-    {
+    public PSWidgetDefinition getWidgetDefinition() {
         return widgetDefinition;
     }
 
-    /**
-     * @param widgetDefinition the widgetDefinition to set
-     */
-    public void setWidgetDefinition(PSWidgetDefinition widgetDefinition)
-    {
+    public void setWidgetDefinition(PSWidgetDefinition widgetDefinition) {
         this.widgetDefinition = widgetDefinition;
     }
 
-    /**
-     * @return the layoutDialogGenerated
-     */
-    public boolean isLayoutDialogGenerated()
-    {
+    public boolean isLayoutDialogGenerated() {
         return layoutDialogGenerated;
     }
 
-    /**
-     * @param layoutDialogGenerated the layoutDialogGenerated to set
-     */
-    public void setLayoutDialogGenerated(boolean layoutDialogGenerated)
-    {
+    public void setLayoutDialogGenerated(boolean layoutDialogGenerated) {
         this.layoutDialogGenerated = layoutDialogGenerated;
     }
 
-    /**
-     * @return the contentDialogGenerated
-     */
-    public boolean isContentDialogGenerated()
-    {
+    public boolean isContentDialogGenerated() {
         return contentDialogGenerated;
     }
 
-    /**
-     * @param contentDialogGenerated the contentDialogGenerated to set
-     */
-    public void setContentDialogGenerated(boolean contentDialogGenerated)
-    {
+    public void setContentDialogGenerated(boolean contentDialogGenerated) {
         this.contentDialogGenerated = contentDialogGenerated;
     }
 
-    /**
-     * @return the styleDialogGenerated
-     */
-    public boolean isStyleDialogGenerated()
-    {
+    public boolean isStyleDialogGenerated() {
         return styleDialogGenerated;
     }
 
-    /**
-     * @param styleDialogGenerated the styleDialogGenerated to set
-     */
-    public void setStyleDialogGenerated(boolean styleDialogGenerated)
-    {
+    public void setStyleDialogGenerated(boolean styleDialogGenerated) {
         this.styleDialogGenerated = styleDialogGenerated;
     }
 }

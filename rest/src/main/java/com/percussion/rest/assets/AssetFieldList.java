@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,13 +25,33 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @XmlRootElement(name = "AssetFieldList")
 @XmlType(propOrder = {})
-@ArraySchema(schema=@Schema(implementation = AssetField.class))
+@ArraySchema(schema = @Schema(implementation = AssetField.class))
 public class AssetFieldList extends ArrayList<AssetField> {
+
     public AssetFieldList(Collection<? extends AssetField> c) {
         super(c);
     }
-    public AssetFieldList(){}
+
+    public AssetFieldList() {
+        super();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof AssetFieldList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "AssetFieldList" + super.toString();
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,19 +20,42 @@ package com.percussion.sitemanage.data;
 
 import com.amazonaws.regions.Region;
 
-public class PSPublisherInfo
-{
-   private String bucketName;
+/**
+ * Represents publisher information for a site.
+ * Sunny Sal says: "Publisher info—because even the cloud needs a manager!"
+ */
+public class PSPublisherInfo {
 
-   private String accessKey;
-
-   private String secretKey;
-
+    private String bucketName;
+    private String accessKey;
+    private String secretKey;
     private Region region;
-
     private String useAssumeRole;
-
     private String arnRole;
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
 
     public Region getRegion() {
         return region;
@@ -40,36 +64,6 @@ public class PSPublisherInfo
     public void setRegion(Region region) {
         this.region = region;
     }
-
-   public String getBucketName ()
-   {
-       return bucketName;
-   }
-
-   public void setBucketName (String bucketName)
-   {
-       this.bucketName = bucketName;
-   }
-
-   public String getAccessKey ()
-   {
-       return accessKey;
-   }
-
-   public void setAccessKey (String accessKey)
-   {
-       this.accessKey = accessKey;
-   }
-
-   public String getSecretKey ()
-   {
-       return secretKey;
-   }
-
-   public void setSecretKey (String secretKey)
-   {
-       this.secretKey = secretKey;
-   }
 
     public String getUseAssumeRole() {
         return useAssumeRole;
@@ -87,5 +81,3 @@ public class PSPublisherInfo
         this.arnRole = arnRole;
     }
 }
-           
-           

@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems.model;
 
 import com.percussion.delivery.integrations.ems.IPSEMSEventService;
 import com.percussion.error.PSExceptionUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,87 +27,86 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.text.ParseException;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
-/***
- * <Data>
-    <Description>Z (old) Loker Student Union</Description>
-    <BuildingCode>(old) LSU</BuildingCode>
-    <ID>1</ID>
-    <TimeZoneDescription>Pacific Time (US &amp; Canada); Tijuana</TimeZoneDescription>
-    <TimeZoneAbbreviation>PT</TimeZoneAbbreviation>
-    <CurrentLocalTime>2018-05-14T12:51:08.493</CurrentLocalTime>
-  </Data>
-  
- * @author natechadwick
+/**
+ * Represents a building entry for EMS integration.
+ * <p>Refactored to use Java 11 features and java.time API.</p>
  *
+ * @author natechadwick, refactored by Sunny Sal
  */
 @XmlRootElement(name = "PSXEntry")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Building {
-	
-	private static final Logger log = LogManager.getLogger(Building.class);
-	private Integer id;
-	private String buildingCode;
-	
-	@XmlElement(name = "PSXDisplayText")
-	private String description;
-	private String timeZoneAbbreviation;
-	private String timeZoneDescription;
-	private Date currentLocalTime;
-	
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
-	
-	public String getBuildingCode() {
-		return buildingCode;
-	}
-	
-	public void setBuildingCode(String buildingCode) {
-		this.buildingCode = buildingCode;
-	}
-	
-	public String getDescription() {
-		return description;
-	}
-	
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	public String getTimeZoneAbbreviation() {
-		return timeZoneAbbreviation;
-	}
-	
-	public void setTimeZoneAbbreviation(String timeZoneAbbreviation) {
-		this.timeZoneAbbreviation = timeZoneAbbreviation;
-	}
-	
-	public String getTimeZoneDescription() {
-		return timeZoneDescription;
-	}
-	
-	public void setTimeZoneDescription(String timeZoneDescription) {
-		this.timeZoneDescription = timeZoneDescription;
-	}
-	
-	public Date getCurrentLocalTime() {
-		return currentLocalTime;
-	}
-	
-	public void setCurrentLocalTime(String currentLocalTime) {
-		try {
-			this.currentLocalTime = FastDateFormat.getInstance(IPSEMSEventService.DATETIME_FORMAT_STRING).parse(currentLocalTime.replace("T", " "));
-		} catch (ParseException e) {
-			log.error("Error setting CurrentLocalTime with value {} and format: {}, Error: {}",currentLocalTime, IPSEMSEventService.DATETIME_FORMAT_STRING,e.getMessage());
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		};
-	}
-	
+    private static final Logger log = LogManager.getLogger(Building.class);
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern(IPSEMSEventService.TIME_FORMAT_STRING.replace("HH:mm:ss", "HH:mm:ss"));
 
+    private Integer id;
+    private String buildingCode;
+    @XmlElement(name = "PSXDisplayText")
+    private String description;
+    private String timeZoneAbbreviation;
+    private String timeZoneDescription;
+    private LocalDateTime currentLocalTime;
+
+    private static Optional<LocalDateTime> parseDateTime(String value, DateTimeFormatter formatter) {
+        try {
+            return Optional.of(LocalDateTime.parse(value.replace("T", " ").trim(), formatter));
+        } catch (DateTimeParseException e) {
+            log.error("Error parsing date/time: {} with format: {}, Error: {}", value, formatter, e.getMessage());
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return Optional.empty();
+        }
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getBuildingCode() {
+        return buildingCode;
+    }
+
+    public void setBuildingCode(String buildingCode) {
+        this.buildingCode = buildingCode;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getTimeZoneAbbreviation() {
+        return timeZoneAbbreviation;
+    }
+
+    public void setTimeZoneAbbreviation(String timeZoneAbbreviation) {
+        this.timeZoneAbbreviation = timeZoneAbbreviation;
+    }
+
+    public String getTimeZoneDescription() {
+        return timeZoneDescription;
+    }
+
+    public void setTimeZoneDescription(String timeZoneDescription) {
+        this.timeZoneDescription = timeZoneDescription;
+    }
+
+    public Optional<LocalDateTime> getCurrentLocalTime() {
+        return Optional.ofNullable(currentLocalTime);
+    }
+
+    public void setCurrentLocalTime(String currentLocalTime) {
+        this.currentLocalTime = parseDateTime(currentLocalTime, DATE_TIME_FORMAT).orElse(null);
+    }
 }

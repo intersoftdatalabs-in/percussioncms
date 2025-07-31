@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,16 +21,20 @@ import com.percussion.pagemanagement.data.PSAbstractRegion;
 import com.percussion.pagemanagement.data.PSRegionCode;
 import com.percussion.pagemanagement.parser.IPSRegionParser.IPSRegionParserRegionFactory;
 
+/**
+ * Adapter for region parser and region factory.
+ *
+ * @param <REGION> Region type.
+ * @param <CODE> Code type.
+ * @author adamgent, Sunny Sal
+ */
 public abstract class PSRegionParserAdapter<REGION extends PSAbstractRegion, CODE extends PSRegionCode>
-        implements
-            IPSRegionParserRegionFactory<REGION, CODE>,
-            IPSRegionParser<REGION, CODE>
-{
-    PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+        implements IPSRegionParserRegionFactory<REGION, CODE>, IPSRegionParser<REGION, CODE> {
 
-    public PSParsedRegionTree<REGION, CODE> parse(String text)
-    {
+    private final PSRegionParser<REGION, CODE> parser = new PSRegionParser<>(this);
+
+    @Override
+    public PSParsedRegionTree<REGION, CODE> parse(String text) {
         return parser.parse(text);
     }
-
 }

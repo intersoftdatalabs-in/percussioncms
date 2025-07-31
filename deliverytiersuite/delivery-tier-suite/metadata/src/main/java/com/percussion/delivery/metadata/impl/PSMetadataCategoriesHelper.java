@@ -14,67 +14,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.delivery.metadata.impl;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletException;
 
 import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.data.PSMetadataRestCategory;
-import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
+
+import javax.servlet.ServletException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * This class is responsible for process the categories list metadata and return
- * the JSONObject with the list properties with categories and their
- * occurrences.
- * 
+ * Processes categories from metadata entries and returns a tree of categories with their occurrences.
  * @author rafaelsalis
- * 
  */
-public class PSMetadataCategoriesHelper
-{
+public class PSMetadataCategoriesHelper {
 
     public static final String REFERENCES = "perc:category";
-
     public static final String CATEGORY_NAME = "categoryName";
-
     public static final String CATEGORY_COUNT = "categoryCount";
-
     public static final String PROPERTIES = "properties";
 
     /**
-     * This method is responsible for return the list with categories, their
-     * occurrences and their childrens. First iterate by page and later by
-     * PropertyPage.
-     * 
+     * Returns a list of categories, their occurrences, and their children.
      * @param results assumed not <code>null</code>.
-     * @return PSMetadataRestCategory
+     * @return List of PSMetadataRestCategory
      * @throws ServletException
      */
-    public List<PSMetadataRestCategory> processCategories(List<IPSMetadataEntry> results) throws ServletException
-    {
-        try
-        {
-            PSMetadataRestCategory categoryTree = new PSMetadataRestCategory("dummyRoot");
+    public List<PSMetadataRestCategory> processCategories(List<IPSMetadataEntry> results) throws ServletException {
+        try {
+            var categoryTree = new PSMetadataRestCategory("dummyRoot");
             List<String> parsedCategories = new ArrayList<>();
 
-            for (IPSMetadataEntry entryPage : results)
-            {
-                for (IPSMetadataProperty prop : entryPage.getProperties())
-                {
-                    if (REFERENCES.equals(prop.getName()) && !prop.getStringvalue().isEmpty())
-                    {
-                        String[] categoriesValues = prop.getStringvalue().split(",");
-                        for (String category : categoriesValues)
-                        {
-                            if (category.trim().startsWith("/"))
-                            {
+            for (var entryPage : results) {
+                for (var prop : entryPage.getProperties()) {
+                    if (REFERENCES.equals(prop.getName()) && !prop.getStringvalue().isEmpty()) {
+                        var categoriesValues = prop.getStringvalue().split(",");
+                        for (var category : categoriesValues) {
+                            if (category.trim().startsWith("/")) {
                                 category = category.trim().substring(1);
                             }
-                            countCategories(category,1, categoryTree.getChildren(), parsedCategories, "");
+                            countCategories(category, 1, categoryTree.getChildren(), parsedCategories, "");
                         }
                     }
                 }
@@ -83,135 +65,88 @@ public class PSMetadataCategoriesHelper
 
             alphaOrderCategories(categoryTree);
             return categoryTree.getChildren();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     /**
-     *This method is responsible for return the list with categories, their
-     *      * occurrences and their childrens. First iterate by page and later by
-     *      * PropertyPage.
-     *
-     * @param categorySummary  Passes List of Array with "Count: {} Name {} Cat: {}", c[0], c[1], c[2]
-     *           Object[2,"perc:category","/Categories/Color/Blue"
-     *           Object[1,"perc:category","/Categories/Color/Red"
-     * @return PSMetadataRestCategory
+     * Returns a list of categories, their occurrences, and their children from summary data.
+     * @param categorySummary List of Object arrays with count and category info.
+     * @return List of PSMetadataRestCategory
      * @throws ServletException
      */
-    public List<PSMetadataRestCategory> processCategorySummary(List<Object[]> categorySummary) throws ServletException
-    {
-        try
-        {
-            PSMetadataRestCategory categoryTree = new PSMetadataRestCategory("dummyRoot");
-            List<String> parsedCategories = new ArrayList<String>();
+    public List<PSMetadataRestCategory> processCategorySummary(List<Object[]> categorySummary) throws ServletException {
+        try {
+            var categoryTree = new PSMetadataRestCategory("dummyRoot");
+            List<String> parsedCategories = new ArrayList<>();
 
-            for (Object[] c : categorySummary)
-            {
-                String[] categoriesValues = ((String)c[2]).split(",");
-                for (String category : categoriesValues)
-                {
-                    if (category.trim().startsWith("/"))
-                    {
+            for (var c : categorySummary) {
+                var categoriesValues = ((String) c[2]).split(",");
+                for (var category : categoriesValues) {
+                    if (category.trim().startsWith("/")) {
                         category = category.trim().substring(1);
                     }
-                    Long countL = (Long)c[0];
-                    int count = countL.intValue();
-                    countCategories(category,count, categoryTree.getChildren(), parsedCategories, "");
+                    var count = ((Long) c[0]).intValue();
+                    countCategories(category, count, categoryTree.getChildren(), parsedCategories, "");
                 }
-                parsedCategories = new ArrayList<String>();
+                parsedCategories = new ArrayList<>();
             }
 
             alphaOrderCategories(categoryTree);
             return categoryTree.getChildren();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new ServletException(e);
         }
     }
 
     /**
-     * This method is responsible for build the tree with the categories and
-     * their occurrences. Moves through the "path" of the categories generating
-     * the node if necessary and counting the occurrences at the same time.
-     * 
+     * Builds the tree with categories and their occurrences.
      * @param pathCategory assumed not <code>null</code>.
      * @param childrens can be <code>null</code>.
      * @param parsedCategories can be <code>null</code>.
      * @param currentPath assumed not <code>null</code>.
-     * 
      */
-    private void countCategories(String pathCategory,int count, List<PSMetadataRestCategory> childrens,
-            List<String> parsedCategories, String currentPath)
-    {
-        if (!pathCategory.isEmpty())
-        {
-            int index = (pathCategory.indexOf('/') != -1) ? pathCategory.indexOf('/') : pathCategory.length();
-            String category = (pathCategory.substring(0, index).trim());
-            String sep = ((currentPath != "") ? "/" : "");
+    private void countCategories(
+            String pathCategory,
+            int count,
+            List<PSMetadataRestCategory> childrens,
+            List<String> parsedCategories,
+            String currentPath) {
+        if (!pathCategory.isEmpty()) {
+            var index = pathCategory.indexOf('/') != -1 ? pathCategory.indexOf('/') : pathCategory.length();
+            var category = pathCategory.substring(0, index).trim();
+            var sep = !currentPath.isEmpty() ? "/" : "";
             currentPath = currentPath + sep + category;
-            pathCategory = (index < pathCategory.length()) ? pathCategory.substring(index + 1).trim() : "";
-            PSMetadataRestCategory categoryNode = null;
-            for (PSMetadataRestCategory node : childrens)
-            {
-                if (node.getCategory().equalsIgnoreCase(category))
-                {
-                    categoryNode = node;
-                    break;
-                }
-            }
-            if (categoryNode == null)
-            {
-                categoryNode = new PSMetadataRestCategory(category);
-                childrens.add(categoryNode);
-            }
-            if (!parsedCategories.contains(currentPath))
-            {
-                if (pathCategory.equals(""))
-                {
+            pathCategory = index < pathCategory.length() ? pathCategory.substring(index + 1).trim() : "";
+            var categoryNode = childrens.stream()
+                    .filter(node -> node.getCategory().equalsIgnoreCase(category))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        var newNode = new PSMetadataRestCategory(category);
+                        childrens.add(newNode);
+                        return newNode;
+                    });
+            if (!parsedCategories.contains(currentPath)) {
+                if (pathCategory.isEmpty()) {
                     categoryNode.getCount().setFirst(count);
-                }
-                else
-                {
+                } else {
                     categoryNode.getCount().setSecond(categoryNode.getCount().getSecond() + count);
                 }
                 parsedCategories.add(currentPath);
             }
-
-            countCategories(pathCategory,count, categoryNode.getChildren(), parsedCategories, currentPath);
+            countCategories(pathCategory, count, categoryNode.getChildren(), parsedCategories, currentPath);
         }
     }
 
-    public void alphaOrderCategories(PSMetadataRestCategory categoryTree)
-    {
-        // Sort the children
+    public void alphaOrderCategories(PSMetadataRestCategory categoryTree) {
         alphaOrderChildrens(categoryTree.getChildren());
-
-        // Sort the children of the sorted children
-        for (PSMetadataRestCategory children : categoryTree.getChildren())
-        {
+        for (var children : categoryTree.getChildren()) {
             alphaOrderCategories(children);
         }
     }
 
-    private void alphaOrderChildrens(List<PSMetadataRestCategory> categoryTree)
-    {
-        int n = categoryTree.size();
-
-        for (int pass = 1; pass < n; pass++)
-        {
-            for (int i = 0; i < n - pass; i++)
-            {
-                if (categoryTree.get(i).getCategory().compareToIgnoreCase(categoryTree.get(i + 1).getCategory()) > 0)
-                {
-                    PSMetadataRestCategory temp = categoryTree.get(i);
-                    categoryTree.set(i, categoryTree.get(i + 1));
-                    categoryTree.set(i + 1, temp);
-                }
-            }
-        }
+    private void alphaOrderChildrens(List<PSMetadataRestCategory> categoryTree) {
+        categoryTree.sort(Comparator.comparing(cat -> cat.getCategory().toLowerCase()));
     }
 }

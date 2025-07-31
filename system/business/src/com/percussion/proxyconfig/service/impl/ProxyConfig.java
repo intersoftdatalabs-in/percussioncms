@@ -43,9 +43,7 @@ import com.percussion.share.data.PSAbstractDataObject;
     "password",
     "protocols"
 })
-public class ProxyConfig
-    extends PSAbstractDataObject
-{
+public class ProxyConfig extends PSAbstractDataObject {
 
    @XmlElement(required = true)
    protected String host;

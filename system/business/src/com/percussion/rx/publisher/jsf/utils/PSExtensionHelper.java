@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.utils;
 
-import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSExtensionManager;
-import com.percussion.extension.IPSExtensionParamDef;
 import com.percussion.extension.PSExtensionRef;
 import com.percussion.rx.publisher.jsf.data.PSParameter;
 import com.percussion.server.PSServer;
@@ -26,7 +24,6 @@ import com.percussion.server.PSServer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,30 +44,22 @@ public class PSExtensionHelper
     * @return the skeleton list of parameters, ready to be populated, never 
     * <code>null</code>.
     */
-   @SuppressWarnings("unchecked")
-   public static List<PSParameter> getParametersForExtension(String extensionName)
-   {
-      if (StringUtils.isBlank(extensionName))
-      {
-         throw new IllegalArgumentException(
-               "extensionName may not be null or empty");
+   public static List<PSParameter> getParametersForExtension(String extensionName) {
+      if (StringUtils.isBlank(extensionName)) {
+         throw new IllegalArgumentException("extensionName may not be null or empty");
       }
-      IPSExtensionManager emgr = PSServer.getExtensionManager(null);
-      List<PSParameter> rval = new ArrayList<>();
-      PSExtensionRef ref = new PSExtensionRef(extensionName);
-      try
-      {
-         IPSExtensionDef def = emgr.getExtensionDef(ref);
-         Iterator<String> niter = def.getRuntimeParameterNames();
-         while (niter.hasNext())
-         {
-            String name = niter.next();
-            IPSExtensionParamDef param = def.getRuntimeParameter(name);
+      var emgr = PSServer.getExtensionManager(null);
+      var rval = new ArrayList<PSParameter>();
+      var ref = new PSExtensionRef(extensionName);
+      try {
+         var def = emgr.getExtensionDef(ref);
+         var niter = def.getRuntimeParameterNames();
+         while (niter.hasNext()) {
+            var name = niter.next();
+            var param = def.getRuntimeParameter(name);
             rval.add(new PSParameter(name, param.getDescription(), null));
          }
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          // Don't bother throwing an exception for this case
       }
       return rval;
@@ -83,18 +72,13 @@ public class PSExtensionHelper
     * @param input list to be populated from the map, never <code>null</code>.
     * @param params the parameter map, may be <code>null</code>.
     */
-   public static void populateListFromMap(List<PSParameter> input, 
-         Map<String, String> params)
-   {
-      if (input == null)
-      {
+   public static void populateListFromMap(List<PSParameter> input, Map<String, String> params) {
+      if (input == null) {
          throw new IllegalArgumentException("input may not be null");
       }
-      if (params != null)
-      {
-         for(PSParameter p : input)
-         {
-            String value = params.get(p.getName());
+      if (params != null) {
+         for (var p : input) {
+            var value = params.get(p.getName());
             p.setValue(value);
          }
       }
@@ -107,21 +91,15 @@ public class PSExtensionHelper
     * @param params the parameters, never <code>null</code>.
     * @param savedData the map to save the data in, never <code>null</code>.
     */
-   public static void saveParameterData(List<PSParameter> params,
-         Map<String, String> savedData)
-   {
-      if (params == null)
-      {
+   public static void saveParameterData(List<PSParameter> params, Map<String, String> savedData) {
+      if (params == null) {
          throw new IllegalArgumentException("params may not be null");
       }
-      if (savedData == null)
-      {
+      if (savedData == null) {
          throw new IllegalArgumentException("savedData may not be null");
       }
-      for(PSParameter p : params)
-      {
-         if (p.getValue() != null)
-            savedData.put(p.getName(), p.getValue());
+      for (var p : params) {
+         if (p.getValue() != null) savedData.put(p.getName(), p.getValue());
       }
    }
    
@@ -132,27 +110,18 @@ public class PSExtensionHelper
     *    qualified name of the extension and the label is the name of the 
     *    extension. It never <code>null</code>, but may be empty.
     */
-   @SuppressWarnings("unchecked")
-   public static List<SelectItem> getTaskExtensionChoices(String interfaceName)
-   {
-      List<SelectItem> rval = new ArrayList<>();
-      try
-      {
-         IPSExtensionManager emgr = PSServer.getExtensionManager(null);
-
-
-         Iterator iter = emgr.getExtensionNames(null, null, interfaceName,
-               null);
-         while (iter.hasNext())
-         {
-            PSExtensionRef ref = (PSExtensionRef) iter.next();
-            String name = ref.getFQN();
-            String display = ref.getExtensionName();
+   public static List<SelectItem> getTaskExtensionChoices(String interfaceName) {
+      var rval = new ArrayList<SelectItem>();
+      try {
+         var emgr = PSServer.getExtensionManager(null);
+         var iter = emgr.getExtensionNames(null, null, interfaceName, null);
+         while (iter.hasNext()) {
+            var ref = (PSExtensionRef) iter.next();
+            var name = ref.getFQN();
+            var display = ref.getExtensionName();
             rval.add(new SelectItem(name, display));
          }
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          // Return none on error
       }
       return rval;
@@ -174,21 +143,14 @@ public class PSExtensionHelper
     *    name of the parameter if it is modified, never <code>null</code>, may
     *    be empty.
     */
-   public static List<PSParameter> setupParameters(String extName,
-         Map<String, String> srcParams, List<PSParameter> tgtParams)
-   {
-      if (StringUtils.isBlank(extName))
-         return tgtParams;
-
-      Map<String, String> savedData = new HashMap<>();
+   public static List<PSParameter> setupParameters(String extName, Map<String, String> srcParams, List<PSParameter> tgtParams) {
+      if (StringUtils.isBlank(extName)) return tgtParams;
+      var savedData = new HashMap<String, String>();
       savedData.putAll(srcParams);
-
-      PSExtensionHelper.saveParameterData(tgtParams, savedData);
-      tgtParams = PSExtensionHelper.getParametersForExtension(extName);
-      PSExtensionHelper.populateListFromMap(tgtParams, savedData);
-
+      saveParameterData(tgtParams, savedData);
+      tgtParams = getParametersForExtension(extName);
+      populateListFromMap(tgtParams, savedData);
       Collections.sort(tgtParams);
-      
       return tgtParams;
    }
 

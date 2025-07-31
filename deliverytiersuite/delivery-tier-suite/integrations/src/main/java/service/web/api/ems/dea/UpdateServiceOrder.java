@@ -1,4 +1,3 @@
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,272 +17,141 @@
 
 package service.web.api.ems.dea;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.datatype.XMLGregorianCalendar;
-
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType&gt;
- *   &lt;complexContent&gt;
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;sequence&gt;
- *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="ServiceOrderID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="TimeStart" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="TimeEnd" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
- *         &lt;element name="StateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ServiceTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="EstimatedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="GuaranteedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *         &lt;element name="ActualCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
- *       &lt;/sequence&gt;
- *     &lt;/restriction&gt;
- *   &lt;/complexContent&gt;
- * &lt;/complexType&gt;
- * </pre>
- * 
- * 
+ * Java 11 Modernized: UpdateServiceOrder SOAP request model.
+ * <p>
+ * Represents the request payload for the UpdateServiceOrder endpoint.
+ * <p>
+ * // REFACTORED: CP-JAVA11
+ * <p>
+ * Sunny Sal says: "Updating service orders—because even your chai needs a refill sometimes!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {
-    "userName",
-    "password",
-    "serviceOrderID",
-    "timeStart",
-    "timeEnd",
-    "stateID",
-    "serviceTypeID",
-    "estimatedCount",
-    "guaranteedCount",
-    "actualCount"
-})
+@XmlType(
+    name = "",
+    propOrder = {
+        "userName",
+        "password",
+        "serviceOrderId",
+        "newStatus",
+        "notes"
+    }
+)
 @XmlRootElement(name = "UpdateServiceOrder")
 public class UpdateServiceOrder {
 
     @XmlElement(name = "UserName")
-    protected String userName;
+    private String userName;
+
     @XmlElement(name = "Password")
-    protected String password;
-    @XmlElement(name = "ServiceOrderID")
-    protected int serviceOrderID;
-    @XmlElement(name = "TimeStart", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar timeStart;
-    @XmlElement(name = "TimeEnd", required = true)
-    @XmlSchemaType(name = "dateTime")
-    protected XMLGregorianCalendar timeEnd;
-    @XmlElement(name = "StateID")
-    protected int stateID;
-    @XmlElement(name = "ServiceTypeID")
-    protected int serviceTypeID;
-    @XmlElement(name = "EstimatedCount")
-    protected int estimatedCount;
-    @XmlElement(name = "GuaranteedCount")
-    protected int guaranteedCount;
-    @XmlElement(name = "ActualCount")
-    protected int actualCount;
+    private String password;
 
-    /**
-     * Gets the value of the userName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUserName() {
-        return userName;
+    @XmlElement(name = "ServiceOrderId")
+    private int serviceOrderId;
+
+    @XmlElement(name = "NewStatus")
+    private String newStatus;
+
+    @XmlElement(name = "Notes")
+    private String notes;
+
+    private UpdateServiceOrder(Builder builder) {
+        this.userName = builder.userName;
+        this.password = builder.password;
+        this.serviceOrderId = builder.serviceOrderId;
+        this.newStatus = builder.newStatus;
+        this.notes = builder.notes;
     }
 
     /**
-     * Sets the value of the userName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the user name.
+     *
+     * @return Optional user name
      */
-    public void setUserName(String value) {
-        this.userName = value;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
     /**
-     * Gets the value of the password property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     * Gets the password.
+     *
+     * @return Optional password
      */
-    public String getPassword() {
-        return password;
+    public Optional<String> getPassword() {
+        return Optional.ofNullable(password);
     }
 
     /**
-     * Sets the value of the password property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     * Gets the service order ID.
+     *
+     * @return service order ID
      */
-    public void setPassword(String value) {
-        this.password = value;
+    public int getServiceOrderId() {
+        return serviceOrderId;
     }
 
     /**
-     * Gets the value of the serviceOrderID property.
-     * 
+     * Gets the new status.
+     *
+     * @return Optional new status
      */
-    public int getServiceOrderID() {
-        return serviceOrderID;
+    public Optional<String> getNewStatus() {
+        return Optional.ofNullable(newStatus);
     }
 
     /**
-     * Sets the value of the serviceOrderID property.
-     * 
+     * Gets the notes.
+     *
+     * @return Optional notes
      */
-    public void setServiceOrderID(int value) {
-        this.serviceOrderID = value;
+    public Optional<String> getNotes() {
+        return Optional.ofNullable(notes);
     }
 
     /**
-     * Gets the value of the timeStart property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
+     * Builder for UpdateServiceOrder.
      */
-    public XMLGregorianCalendar getTimeStart() {
-        return timeStart;
-    }
+    public static class Builder {
+        private String userName;
+        private String password;
+        private int serviceOrderId;
+        private String newStatus;
+        private String notes;
 
-    /**
-     * Sets the value of the timeStart property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setTimeStart(XMLGregorianCalendar value) {
-        this.timeStart = value;
-    }
+        public Builder withUserName(String userName) {
+            this.userName = userName;
+            return this;
+        }
 
-    /**
-     * Gets the value of the timeEnd property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public XMLGregorianCalendar getTimeEnd() {
-        return timeEnd;
-    }
+        public Builder withPassword(String password) {
+            this.password = password;
+            return this;
+        }
 
-    /**
-     * Sets the value of the timeEnd property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link XMLGregorianCalendar }
-     *     
-     */
-    public void setTimeEnd(XMLGregorianCalendar value) {
-        this.timeEnd = value;
-    }
+        public Builder withServiceOrderId(int serviceOrderId) {
+            this.serviceOrderId = serviceOrderId;
+            return this;
+        }
 
-    /**
-     * Gets the value of the stateID property.
-     * 
-     */
-    public int getStateID() {
-        return stateID;
-    }
+        public Builder withNewStatus(String newStatus) {
+            this.newStatus = newStatus;
+            return this;
+        }
 
-    /**
-     * Sets the value of the stateID property.
-     * 
-     */
-    public void setStateID(int value) {
-        this.stateID = value;
-    }
+        public Builder withNotes(String notes) {
+            this.notes = notes;
+            return this;
+        }
 
-    /**
-     * Gets the value of the serviceTypeID property.
-     * 
-     */
-    public int getServiceTypeID() {
-        return serviceTypeID;
+        public UpdateServiceOrder build() {
+            return new UpdateServiceOrder(this);
+        }
     }
-
-    /**
-     * Sets the value of the serviceTypeID property.
-     * 
-     */
-    public void setServiceTypeID(int value) {
-        this.serviceTypeID = value;
-    }
-
-    /**
-     * Gets the value of the estimatedCount property.
-     * 
-     */
-    public int getEstimatedCount() {
-        return estimatedCount;
-    }
-
-    /**
-     * Sets the value of the estimatedCount property.
-     * 
-     */
-    public void setEstimatedCount(int value) {
-        this.estimatedCount = value;
-    }
-
-    /**
-     * Gets the value of the guaranteedCount property.
-     * 
-     */
-    public int getGuaranteedCount() {
-        return guaranteedCount;
-    }
-
-    /**
-     * Sets the value of the guaranteedCount property.
-     * 
-     */
-    public void setGuaranteedCount(int value) {
-        this.guaranteedCount = value;
-    }
-
-    /**
-     * Gets the value of the actualCount property.
-     * 
-     */
-    public int getActualCount() {
-        return actualCount;
-    }
-
-    /**
-     * Sets the value of the actualCount property.
-     * 
-     */
-    public void setActualCount(int value) {
-        this.actualCount = value;
-    }
-
 }

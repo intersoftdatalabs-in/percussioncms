@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,88 +18,134 @@
 
 package com.percussion.analytics.service.impl.google;
 
-public class GoogleCreds
-{
-    private String private_key_id;
-    private String private_key;
-    private String client_email;
-    private String client_id;
+/**
+ * Google service account credentials for OAuth2 authentication.
+ * Sunny Sal: "Credentials are like toothbrushes—don't share them!"
+ */
+public class GoogleCreds {
+
+    private String privateKeyId;
+    private String privateKey;
+    private String clientEmail;
+    private String clientId;
     private String type;
-	private String auth_uri;
-    private String token_uri;
-    private String auth_provider_x509_cert_url;
-    private String client_x509_cert_url;
-    private String project_id;
-    
-    public String getProject_id() {
-		return project_id;
-	}
-	public void setProject_id(String project_id) {
-		this.project_id = project_id;
-	}
-	public String getAuth_uri() {
-		return auth_uri;
-	}
-	public void setAuth_uri(String auth_uri) {
-		this.auth_uri = auth_uri;
-	}
-	public String getToken_uri() {
-		return token_uri;
-	}
-	public void setToken_uri(String token_uri) {
-		this.token_uri = token_uri;
-	}
-	public String getAuth_provider_x509_cert_url() {
-		return auth_provider_x509_cert_url;
-	}
-	public void setAuth_provider_x509_cert_url(String auth_provider_x509_cert_url) {
-		this.auth_provider_x509_cert_url = auth_provider_x509_cert_url;
-	}
-	public String getClient_x509_cert_url() {
-		return client_x509_cert_url;
-	}
-	public void setClient_x509_cert_url(String client_x509_cert_url) {
-		this.client_x509_cert_url = client_x509_cert_url;
-	}
-	
-    public String getPrivate_key_id()
-    {
-        return private_key_id;
+    private String authUri;
+    private String tokenUri;
+    private String authProviderX509CertUrl;
+    private String clientX509CertUrl;
+    private String projectId;
+
+    public String getProjectId() {
+        return projectId;
     }
-    public void setPrivate_key_id(String private_key_id)
-    {
-        this.private_key_id = private_key_id;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
     }
-    public String getPrivate_key()
-    {
-        return private_key;
+    public String getAuthUri() {
+        return authUri;
     }
-    public void setPrivate_key(String private_key)
-    {
-        this.private_key = private_key;
+    public void setAuthUri(String authUri) {
+        this.authUri = authUri;
     }
-    public String getClient_email()
-    {
-        return client_email;
+    public String getTokenUri() {
+        return tokenUri;
     }
-    public void setClient_email(String client_email)
-    {
-        this.client_email = client_email;
+    public void setTokenUri(String tokenUri) {
+        this.tokenUri = tokenUri;
     }
-    public String getClient_id()
-    {
-        return client_id;
+    public String getAuthProviderX509CertUrl() {
+        return authProviderX509CertUrl;
     }
-    public void setClient_id(String client_id)
-    {
-        this.client_id = client_id;
+    public void setAuthProviderX509CertUrl(String authProviderX509CertUrl) {
+        this.authProviderX509CertUrl = authProviderX509CertUrl;
     }
-    public String getType()
-    {
+    public String getClientX509CertUrl() {
+        return clientX509CertUrl;
+    }
+    public void setClientX509CertUrl(String clientX509CertUrl) {
+        this.clientX509CertUrl = clientX509CertUrl;
+    }
+    public String getPrivateKeyId() {
+        return privateKeyId;
+    }
+    public void setPrivateKeyId(String privateKeyId) {
+        this.privateKeyId = privateKeyId;
+    }
+    public String getPrivateKey() {
+        return privateKey;
+    }
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey;
+    }
+    public String getClientEmail() {
+        return clientEmail;
+    }
+    public void setClientEmail(String clientEmail) {
+        this.clientEmail = clientEmail;
+    }
+    public String getClientId() {
+        return clientId;
+    }
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+    public String getType() {
         return type;
     }
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
+    }
+
+    // Optionally, add a builder for future extensibility
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private final GoogleCreds creds = new GoogleCreds();
+
+        public Builder privateKeyId(String privateKeyId) {
+            creds.setPrivateKeyId(privateKeyId);
+            return this;
+        }
+        public Builder privateKey(String privateKey) {
+            creds.setPrivateKey(privateKey);
+            return this;
+        }
+        public Builder clientEmail(String clientEmail) {
+            creds.setClientEmail(clientEmail);
+            return this;
+        }
+        public Builder clientId(String clientId) {
+            creds.setClientId(clientId);
+            return this;
+        }
+        public Builder type(String type) {
+            creds.setType(type);
+            return this;
+        }
+        public Builder authUri(String authUri) {
+            creds.setAuthUri(authUri);
+            return this;
+        }
+        public Builder tokenUri(String tokenUri) {
+            creds.setTokenUri(tokenUri);
+            return this;
+        }
+        public Builder authProviderX509CertUrl(String url) {
+            creds.setAuthProviderX509CertUrl(url);
+            return this;
+        }
+        public Builder clientX509CertUrl(String url) {
+            creds.setClientX509CertUrl(url);
+            return this;
+        }
+        public Builder projectId(String projectId) {
+            creds.setProjectId(projectId);
+            return this;
+        }
+        public GoogleCreds build() {
+            return creds;
+        }
     }
 }
