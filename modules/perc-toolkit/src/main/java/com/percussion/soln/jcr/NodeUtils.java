@@ -29,10 +29,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;

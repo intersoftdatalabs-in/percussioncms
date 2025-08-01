@@ -19,7 +19,7 @@ package com.percussion.services.contentmgr.impl.query.nodes;
 import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor;
 import com.percussion.services.contentmgr.impl.query.visitors.PSQueryWhereBuilder;
 
-import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

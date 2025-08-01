@@ -20,7 +20,7 @@ import com.percussion.services.contentmgr.IPSNode;
 
 import java.util.List;
 
-import javax.jcr.Node;
+import javax.jcr.Node; // TODO: JAVAX-11
 
 /**
  * The interface implemented by the node returned from the navigation

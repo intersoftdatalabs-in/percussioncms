@@ -24,7 +24,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.InputStream;
 import java.sql.SQLException;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.w3c.dom.Document;
 

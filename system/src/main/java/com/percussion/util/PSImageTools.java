@@ -20,7 +20,7 @@ import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; // TODO: JAVAX-11
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;

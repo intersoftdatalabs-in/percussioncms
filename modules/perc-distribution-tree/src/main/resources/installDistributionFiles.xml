@@ -200,14 +200,14 @@
         </copy>
 
         <!-- Copy DesktopContentExplorer resources and jar -->
-        <copy todir="${assembly-directory}/jetty/base/webapps/Rhythmyx/dce" overwrite="true" verbose="true" force="true">
+       <!-- <copy todir="${assembly-directory}/jetty/base/webapps/Rhythmyx/dce" overwrite="true" verbose="true" force="true">
             <fileset dir="${basedir}/../DesktopContentExplorer/src/main/resources/com/percussion/cx">
                 <exclude name="**/*.class"/>
             </fileset>
             <fileset dir="${basedir}/../DesktopContentExplorer/target">
                 <include name="perc-content-explorer-${project.version}.jar"/>
             </fileset>
-        </copy>
+        </copy> -->
 
         <!--<copy todir="${assembly-directory}/cm">
             <fileset dir="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm">

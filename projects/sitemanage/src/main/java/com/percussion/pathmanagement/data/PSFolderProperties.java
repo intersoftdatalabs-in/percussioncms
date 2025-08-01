@@ -21,8 +21,8 @@ import com.percussion.cms.objectstore.PSObjectAcl;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.share.data.PSAbstractDataObject;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * This class contains all properties of a given folder.

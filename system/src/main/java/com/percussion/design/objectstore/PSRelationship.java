@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

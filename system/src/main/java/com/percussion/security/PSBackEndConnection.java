@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

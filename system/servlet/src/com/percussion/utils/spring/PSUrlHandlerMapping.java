@@ -19,7 +19,7 @@ package com.percussion.utils.spring;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.BeansException;
 import org.springframework.web.servlet.HandlerExecutionChain;

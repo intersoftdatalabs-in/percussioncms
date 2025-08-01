@@ -19,9 +19,9 @@ package com.percussion.rest.errors;
 
 import java.util.ResourceBundle;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response.Status;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "Error")
 public class RestExceptionBase extends WebApplicationException
 {

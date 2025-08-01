@@ -24,8 +24,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

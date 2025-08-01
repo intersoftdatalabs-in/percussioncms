@@ -20,7 +20,7 @@ package com.percussion.user.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.user.service.IPSUserService;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  *

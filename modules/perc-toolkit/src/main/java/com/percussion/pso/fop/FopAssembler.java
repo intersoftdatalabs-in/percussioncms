@@ -38,12 +38,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.InputSource;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.Result; // TODO: JAVAX-11
+import javax.xml.transform.Source; // TODO: JAVAX-11
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.sax.SAXResult; // TODO: JAVAX-11
+import javax.xml.transform.sax.SAXSource; // TODO: JAVAX-11
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStreamReader;

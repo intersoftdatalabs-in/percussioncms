@@ -20,7 +20,7 @@ package test.percussion.soln.p13n.tracking.web;
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

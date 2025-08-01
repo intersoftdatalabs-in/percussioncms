@@ -29,7 +29,7 @@ import com.percussion.user.data.PSLdapConfig.PSLdapServer.CatalogType;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.bind.UnmarshalException;
+import jakarta.xml.bind.UnmarshalException;
 
 import org.junit.Test;
 

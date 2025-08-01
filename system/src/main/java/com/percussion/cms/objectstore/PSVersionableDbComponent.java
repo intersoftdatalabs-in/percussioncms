@@ -19,7 +19,7 @@ package com.percussion.cms.objectstore;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 
 /**

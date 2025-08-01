@@ -17,9 +17,9 @@
 
 package com.percussion.security.xml;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.Source; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.URIResolver; // TODO: JAVAX-11
 
 public interface IPSInternalRequestURIResolver extends URIResolver {
 

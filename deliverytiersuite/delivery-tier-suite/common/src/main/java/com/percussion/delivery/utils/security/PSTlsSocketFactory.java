@@ -23,11 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.SSLContext; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocket; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
+import javax.net.ssl.TrustManager; // TODO: JAVAX-11
+import javax.net.ssl.TrustManagerFactory; // TODO: JAVAX-11
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetAddress;

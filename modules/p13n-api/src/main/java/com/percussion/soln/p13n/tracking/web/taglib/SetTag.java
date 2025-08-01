@@ -17,9 +17,9 @@
 
 package com.percussion.soln.p13n.tracking.web.taglib;
 
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.JspTagException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
 
 /**
  * Tag does a Union of the request segment weights and the profiles segment weights

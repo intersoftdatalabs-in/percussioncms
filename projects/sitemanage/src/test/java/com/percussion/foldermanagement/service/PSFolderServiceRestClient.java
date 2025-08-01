@@ -23,7 +23,7 @@ import com.percussion.share.test.PSDataServiceRestClient;
 
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.lang.StringUtils;
 

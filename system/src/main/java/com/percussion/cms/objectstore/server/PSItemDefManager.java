@@ -71,9 +71,9 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

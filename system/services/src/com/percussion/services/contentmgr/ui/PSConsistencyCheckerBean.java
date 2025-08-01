@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.jcr.RepositoryException;
-import javax.naming.NamingException;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 /**
  * JSF bean for the consistency checker interface. This bean has a session

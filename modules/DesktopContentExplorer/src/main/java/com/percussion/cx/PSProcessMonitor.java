@@ -18,7 +18,7 @@ package com.percussion.cx;
 
 import com.percussion.cx.objectstore.PSNode;
 
-import javax.swing.JOptionPane;
+import javax.swing.JOptionPane; // TODO: JAVAX-11
 import java.awt.Component;
 import java.text.MessageFormat;
 /**

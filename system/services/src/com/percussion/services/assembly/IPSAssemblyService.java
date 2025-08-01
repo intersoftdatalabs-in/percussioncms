@@ -22,8 +22,8 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.Node;
-import javax.servlet.http.HttpServletRequest;
+import javax.jcr.Node; // TODO: JAVAX-11
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * The assembler service acts as a toplevel assembler that dispatches to

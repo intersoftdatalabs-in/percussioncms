@@ -19,7 +19,7 @@ package com.percussion.integration;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.apache.axis.components.net.BooleanHolder;
 import org.apache.axis.components.net.DefaultSocketFactory;

@@ -36,7 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.Subject;
+import javax.security.auth.Subject; // TODO: JAVAX-11
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;

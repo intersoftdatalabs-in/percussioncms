@@ -20,10 +20,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.swing.tree.DefaultTreeModel; // TODO: JAVAX-11
+import javax.swing.tree.TreeModel; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;

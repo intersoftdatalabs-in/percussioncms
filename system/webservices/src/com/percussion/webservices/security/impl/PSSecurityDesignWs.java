@@ -68,7 +68,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.auth.Subject;
+import javax.security.auth.Subject; // TODO: JAVAX-11
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;

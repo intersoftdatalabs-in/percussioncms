@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.RangeIterator;
+import javax.jcr.RangeIterator; // TODO: JAVAX-11
 import java.util.Collection;
 import java.util.Iterator;
 

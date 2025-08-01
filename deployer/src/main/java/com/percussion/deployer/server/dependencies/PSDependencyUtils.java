@@ -68,7 +68,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;

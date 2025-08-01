@@ -29,8 +29,8 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
+import javax.naming.Context; // TODO: JAVAX-11
+import javax.naming.InitialContext; // TODO: JAVAX-11
 
 //TODO: The spring tests need moved to a new jar.
 

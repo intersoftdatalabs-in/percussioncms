@@ -20,7 +20,7 @@ package com.percussion.widgets.image.data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
+import javax.imageio.ImageIO; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;

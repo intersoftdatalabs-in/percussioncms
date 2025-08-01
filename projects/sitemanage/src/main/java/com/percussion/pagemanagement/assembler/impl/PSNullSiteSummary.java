@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.assembler.impl;
 import com.percussion.pagemanagement.data.PSResourceInstance;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * 

@@ -31,7 +31,7 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.junit.Test;
 
-import javax.jcr.Property;
+import javax.jcr.Property; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;

@@ -40,11 +40,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.AccessDeniedException;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
+import javax.jcr.AccessDeniedException; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import org.apache.commons.collections4.MultiValuedMap;
 

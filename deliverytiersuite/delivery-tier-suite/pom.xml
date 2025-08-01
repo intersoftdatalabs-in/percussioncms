@@ -67,7 +67,7 @@
         <awssdk.version>1.11.731</awssdk.version>
         <bc.version>1.74</bc.version>
         <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
-        <jackson.version>2.14.2</jackson.version>
+        <jackson.version>2.15.0</jackson.version>
         <jackson.data.version>2.14.2</jackson.data.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
@@ -117,7 +117,7 @@
         <commons.logging.version>1.2</commons.logging.version>
         <commons.io.version>2.14.0</commons.io.version>
         <commons.lang.version>2.6</commons.lang.version>
-        <commons.lang3.version>3.11</commons.lang3.version>
+        <commons.lang3.version>3.18.0</commons.lang3.version>
         <jaxb.api.version>2.3.1</jaxb.api.version>
         <xml.apis.version>1.4.01</xml.apis.version>
         <xerces.version>2.12.2</xerces.version>
@@ -219,8 +219,8 @@
                         <artifactId>guice</artifactId>
                     </exclusion>
                     <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
+                        <groupId>jakarta.xml.bind</groupId>
+                        <artifactId>jakarta.xml.bind-api</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>

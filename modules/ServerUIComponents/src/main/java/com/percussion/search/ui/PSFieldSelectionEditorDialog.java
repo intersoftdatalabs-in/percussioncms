@@ -43,14 +43,14 @@ import com.percussion.search.PSCommonSearchUtils;
 import org.apache.oro.text.perl.MalformedPerl5PatternException;
 import org.apache.oro.text.perl.Perl5Util;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.border.Border; // TODO: JAVAX-11
+import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
+import javax.swing.table.DefaultTableCellRenderer; // TODO: JAVAX-11
+import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
+import javax.swing.table.JTableHeader; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

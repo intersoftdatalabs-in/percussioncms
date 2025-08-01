@@ -19,9 +19,9 @@ package com.percussion.soln.jcr;
 
 import java.util.Calendar;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
 
 public abstract class AbstractSimplyProperty {
 

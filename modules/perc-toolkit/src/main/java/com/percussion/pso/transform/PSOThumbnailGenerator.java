@@ -37,18 +37,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Node;
 
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOInvalidTreeException;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
+import javax.imageio.IIOImage; // TODO: JAVAX-11
+import javax.imageio.ImageIO; // TODO: JAVAX-11
+import javax.imageio.ImageReadParam; // TODO: JAVAX-11
+import javax.imageio.ImageReader; // TODO: JAVAX-11
+import javax.imageio.ImageTypeSpecifier; // TODO: JAVAX-11
+import javax.imageio.ImageWriteParam; // TODO: JAVAX-11
+import javax.imageio.ImageWriter; // TODO: JAVAX-11
+import javax.imageio.metadata.IIOInvalidTreeException; // TODO: JAVAX-11
+import javax.imageio.metadata.IIOMetadata; // TODO: JAVAX-11
+import javax.imageio.metadata.IIOMetadataNode; // TODO: JAVAX-11
+import javax.imageio.stream.ImageInputStream; // TODO: JAVAX-11
+import javax.imageio.stream.MemoryCacheImageOutputStream; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;

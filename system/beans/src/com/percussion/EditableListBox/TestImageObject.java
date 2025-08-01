@@ -17,7 +17,7 @@
 
 package com.percussion.EditableListBox;
 
-import javax.swing.ImageIcon;
+import javax.swing.ImageIcon; // TODO: JAVAX-11
 
 /** Used for testing ICellImageHelper interface.
 */

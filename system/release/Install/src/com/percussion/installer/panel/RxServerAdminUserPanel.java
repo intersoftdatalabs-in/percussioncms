@@ -12,7 +12,7 @@ package com.percussion.installer.panel;
 import java.awt.Label;
 import java.awt.TextField;
 
-import javax.swing.JTextArea;
+import javax.swing.JTextArea; // TODO: JAVAX-11
 
 import com.percussion.install.InstallUtil;
 import com.percussion.install.RxInstallerProperties;

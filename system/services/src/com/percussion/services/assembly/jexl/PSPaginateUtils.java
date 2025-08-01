@@ -39,10 +39,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.DefaultHandler2;
 import org.xml.sax.helpers.DefaultHandler;
 
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParser; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;

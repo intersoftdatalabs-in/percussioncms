@@ -19,7 +19,7 @@ package com.percussion.guitools;
 import com.percussion.UTComponents.UTFixedButton;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

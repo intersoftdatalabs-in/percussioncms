@@ -39,14 +39,14 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.soap.Node;
-import javax.xml.soap.SOAPConstants;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPHeader;
+import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import javax.xml.soap.Node; // TODO: JAVAX-11
+import javax.xml.soap.SOAPConstants; // TODO: JAVAX-11
+import javax.xml.soap.SOAPElement; // TODO: JAVAX-11
+import javax.xml.soap.SOAPException; // TODO: JAVAX-11
+import javax.xml.soap.SOAPHeader; // TODO: JAVAX-11
 import java.rmi.RemoteException;
 import java.util.Iterator;
 

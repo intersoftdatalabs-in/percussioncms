@@ -20,7 +20,7 @@ package com.percussion.activity.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.activity.service.IPSContentActivityService.PSUsageEnum;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * A request object used for getting the effectiveness data from the rest service.  Extends the content activity

@@ -16,7 +16,7 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 import java.awt.event.ActionListener;
 
 

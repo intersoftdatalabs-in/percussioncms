@@ -16,7 +16,7 @@
  */
 package com.percussion.servlets.taglib;
 
-import javax.faces.component.UIComponent;
+import jakarta.faces.component.UIComponent;
 
 /**
  * The tag that implements the progress bar.
