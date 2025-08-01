@@ -1,5 +1,7 @@
-tasksync
-memory-bank
+.vscode/*
+system/.settings/*
+tasksync/*
+memory-bank/*
 .idea/*
 .idea/encodings.xml
 .idea/sonarIssues.xml

@@ -1,6 +1,0 @@
-{
-    "java.compile.nullAnalysis.mode": "automatic",
-    "chat.tools.autoApprove": true,
-    "chat.agent.maxRequests": 100,
-    "java.configuration.updateBuildConfiguration": "automatic",
-}
