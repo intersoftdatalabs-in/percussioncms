@@ -4,7 +4,7 @@
     <artifactId>core</artifactId>
     <version>8.1.6-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <url>https://www.github.com/percussion/percussioncms</url>
+    <url>https://www.github.com/intersoftdatalabs-in/percussioncms</url>
 
     <licenses>
         <license>
@@ -15,9 +15,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/percussion/percussioncms</connection>
-        <developerConnection>scm:git:https://github.com/percussion/percussioncms</developerConnection>
-        <url>https://github.com/percussion/percussioncms</url>
+        <connection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</connection>
+        <developerConnection>scm:git:https://github.com/intersoftdatalabs-in/percussioncms</developerConnection>
+        <url>https://github.com/intersoftdatalabs-in/percussioncms</url>
       <tag>HEAD</tag>
   </scm>
 
