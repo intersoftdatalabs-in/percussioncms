@@ -24,25 +24,24 @@ import java.sql.SQLException;
  * The PSBackEndColumnExtractor class is used to extract data from the
  * back-end column associated with the current result row.
  *
+ * // REFACTORED: CP-JAVA11
+ *
  * @author   Tas Giakouminakis
  * @version   1.0
  * @since   1.0
  */
-public class PSBackEndColumnExtractor extends PSDataExtractor
-{
+public class PSBackEndColumnExtractor extends PSDataExtractor {
    /**
     * Construct an object from its object store counterpart.
     *
     * @param   source       the object defining the source of this value
     */
    public PSBackEndColumnExtractor(
-      com.percussion.design.objectstore.PSBackEndColumn source)
-   {
+         com.percussion.design.objectstore.PSBackEndColumn source) {
       super(source);
-      m_columnName = source.getColumn();
-      String alias = source.getAlias();
-      if (alias != null && alias.length() > 0)
-         m_columnName = alias;
+      m_columnName = source.getAlias() != null && !source.getAlias().isEmpty()
+            ? source.getAlias()
+            : source.getColumn();
       m_columnIndex = -1;
    }
 
@@ -60,9 +59,8 @@ public class PSBackEndColumnExtractor extends PSDataExtractor
     *                        fail. This is not thrown if the requested data
     *                        does not exist.
     */
-   public Object extract(PSExecutionData data)
-      throws PSDataExtractionException
-   {
+   @Override
+   public Object extract(PSExecutionData data) throws PSDataExtractionException {
       return extract(data, null);
    }
 
@@ -86,55 +84,41 @@ public class PSBackEndColumnExtractor extends PSDataExtractor
     * {@link IPSDataErrors#BE_COL_EXTR_EXCEPTION}</li>
     * </ol>
     */
-   public Object extract(PSExecutionData data, Object defValue)
-      throws PSDataExtractionException
-   {
-      /* If we are processing a fake result set for a null result set,
-         return the default value */
-      if (data.forceNullRowForNullResultSet())
+   @Override
+   public Object extract(PSExecutionData data, Object defValue) throws PSDataExtractionException {
+      // If we are processing a fake result set for a null result set, return the default value
+      if (data.forceNullRowForNullResultSet()) {
          return defValue;
-         
-      Object value = null;
+      }
 
-      if (m_columnIndex == -1)
-      {
+      if (m_columnIndex == -1) {
          initColumnIndex(data);
       }
 
-      // get the result row
-      Object[] rowData = data.getCurrentResultRowData();
-
-      // and locate the column
-      try
-      {
-         if (m_columnIndex >= 0 && m_columnIndex < rowData.length)
-            value = rowData[m_columnIndex];
-         else
-            throw new IllegalStateException("m_columnIndex (" + m_columnIndex
-                  + ") is out of the range of rowData[" + rowData.length + "]");
-      }
-      catch (Throwable t)
-      {   // most likely the index was not found (out of bounds)
+      var rowData = data.getCurrentResultRowData();
+      try {
+         if (m_columnIndex >= 0 && m_columnIndex < rowData.length) {
+            var value = rowData[m_columnIndex];
+            return value == null ? defValue : value;
+         } else {
+            throw new IllegalStateException(String.format("m_columnIndex (%d) is out of the range of rowData[%d]", m_columnIndex, rowData.length));
+         }
+      } catch (RuntimeException t) {
+         // most likely the index was not found (out of bounds)
          Object[] args = { m_columnName, t.toString() };
          throw new PSDataExtractionException(
-            IPSDataErrors.BE_COL_EXTR_EXCEPTION, args);
+               IPSDataErrors.BE_COL_EXTR_EXCEPTION, args);
       }
-
-      return (value == null) ? defValue : value;
    }
 
-   private synchronized void initColumnIndex(PSExecutionData data) throws PSDataExtractionException
-   {
-      if (m_columnIndex == -1)
-      {
-         m_columnIndex = getColumnOrdinal(
-               m_columnName, data.getCurrentResultSetMetaData());
-            if (m_columnIndex == -1) {
-               throw new PSDataExtractionException(
+   private synchronized void initColumnIndex(PSExecutionData data) throws PSDataExtractionException {
+      if (m_columnIndex == -1) {
+         m_columnIndex = getColumnOrdinal(m_columnName, data.getCurrentResultSetMetaData());
+         if (m_columnIndex == -1) {
+            throw new PSDataExtractionException(
                   IPSDataErrors.BE_COL_EXTR_INVALID_COL, m_columnName);
-            }
-
-            m_columnIndex -= 1;               
+         }
+         m_columnIndex -= 1; // Convert to 0-based index
       }
    }
 
@@ -154,95 +138,64 @@ public class PSBackEndColumnExtractor extends PSDataExtractor
     * @throws PSDataExtractionException if there is an error.
     * @throws IllegalArgumentException if any parameter is <code>null</code>.
     */
-   public static int getColumnOrdinal(String colName, ResultSetMetaData meta)
-      throws PSDataExtractionException
-   {
-      if (colName == null || meta == null)
+   public static int getColumnOrdinal(String colName, ResultSetMetaData meta) throws PSDataExtractionException {
+      if (colName == null || meta == null) {
          throw new IllegalArgumentException("colName and meta may not be null");
-         
-      try
-      {
+      }
+      try {
          int colCount = meta.getColumnCount();
-         for (int i = 1; i <= colCount; i++) // 1-based
-         {
-            // The colName is actualy the alias of the column, so we need to
+         for (int i = 1; i <= colCount; i++) { // 1-based
+            // The colName is actually the alias of the column, so we need to
             // use the column-label to compare with it
-            if (colName.equalsIgnoreCase(meta.getColumnLabel(i)))
-            {
+            if (colName.equalsIgnoreCase(meta.getColumnLabel(i))) {
                return i;
             }
          }
-
-         for (int i = 1; i <= colCount; i++)
-         {
+         for (int i = 1; i <= colCount; i++) {
             String tableName = null;
             try {
-               /* some (rather stupid) drivers (like Sybase) throw an exception
-                * as they do not support this rather than a nice simple
-                * null like most drivers
-                * See bug id Rx-99-11-0046
-                */
                tableName = meta.getTableName(i);
+            } catch (SQLException | UnsupportedOperationException e) {
+               // ignore, see bug id Rx-99-11-0046
             }
-            catch (SQLException e) {
-               // guess we're ignoring these due to above reasoning
-            }
-            catch (UnsupportedOperationException e) {
-               // ignore these due to above reasoning
-            }
-
-            if (tableName != null && tableName.length() != 0) 
-            {
+            if (tableName != null && !tableName.isEmpty()) {
                String tableCol = tableName + "." + colName;
-               if (tableCol.equalsIgnoreCase(meta.getColumnName(i)))
-               {
+               if (tableCol.equalsIgnoreCase(meta.getColumnName(i))) {
                   return i;
-               }                  
+               }
             }
          }
-
          int pos = colName.indexOf('.');
          if (pos != -1) {
-            String tableCol = colName.substring(pos+1);
-            for (int i = 1; i <= colCount; i++)
-            {
-               if (tableCol.equalsIgnoreCase(meta.getColumnName(i)))
-               {
+            String tableCol = colName.substring(pos + 1);
+            for (int i = 1; i <= colCount; i++) {
+               if (tableCol.equalsIgnoreCase(meta.getColumnName(i))) {
                   return i;
-               }                  
+               }
             }
-         } else
-         {
-            /* Might as well try stripping down the returned colname,
-               we've tried everything else! */
-            for (int i = 1; i <= colCount; i++)
-            {
+         } else {
+            // Try stripping down the returned colname
+            for (int i = 1; i <= colCount; i++) {
                String metaCol = meta.getColumnName(i);
                int metaPos = metaCol.indexOf('.');
-               if (metaPos != -1)
-               {
-                  metaCol = metaCol.substring(metaPos+1);
-                  if (colName.equalsIgnoreCase(metaCol))
-                  {
+               if (metaPos != -1) {
+                  metaCol = metaCol.substring(metaPos + 1);
+                  if (colName.equalsIgnoreCase(metaCol)) {
                      return i;
                   }
-               }                  
+               }
             }
          }
-
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          Object[] args = { colName, e.toString() };
          throw new PSDataExtractionException(
-            IPSDataErrors.BE_COL_GET_INDEX_EXCEPTION, args);
+               IPSDataErrors.BE_COL_GET_INDEX_EXCEPTION, args);
       }
-
       return -1;
    }
 
 
-   private String      m_columnName;
-   private int         m_columnIndex;
+   private String m_columnName;
+   private int m_columnIndex;
 }
 

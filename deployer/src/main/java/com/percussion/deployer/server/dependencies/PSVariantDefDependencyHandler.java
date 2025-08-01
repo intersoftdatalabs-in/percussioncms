@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a variant definition.
@@ -153,22 +154,20 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
     * @return List of Dependencies of TEMPLATE type
     * @throws PSDeployException
     */
-   private List<PSDependency> getContentTypeDependencies(PSSecurityToken tok,
-         IPSAssemblyTemplate tmp) throws PSDeployException, PSNotFoundException {
-      List<PSDependency> depList = new ArrayList<>();
+   private List<PSDependency> getContentTypeDependencies(PSSecurityToken tok, IPSAssemblyTemplate tmp) throws PSDeployException, PSNotFoundException {
       init();
-      List<IPSGuid> ctGuidList = m_assemblyHelper.getContentTypesByTemplate(tmp);
-      PSDependencyHandler handler = getDependencyHandler(
-                                         PSCEDependencyHandler.DEPENDENCY_TYPE);
-      Iterator<IPSGuid> it = ctGuidList.iterator();
-      while ( it.hasNext() )
-      {
-         IPSGuid ctGuid = it.next();
-         String id = ""+ctGuid.longValue();
-         PSDependency childDep = handler.getDependency(tok, id);
-         depList.add(childDep);
-      }
-      return depList;
+      var ctGuidList = m_assemblyHelper.getContentTypesByTemplate(tmp);
+      var handler = getDependencyHandler(PSCEDependencyHandler.DEPENDENCY_TYPE);
+
+      return ctGuidList.stream()
+         .map(ctGuid -> {
+            try {
+               return handler.getDependency(tok, String.valueOf(ctGuid.longValue()));
+            } catch (PSDeployException | PSNotFoundException e) {
+               throw new RuntimeException(e);
+            }
+         })
+         .collect(Collectors.toList());
    }
    
    /**
@@ -178,27 +177,18 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
     * @return List of Dependencies of SLOT type
     * @throws PSDeployException
     */
-   private List<PSDependency> getSlotDependencies(PSSecurityToken tok,
-         IPSAssemblyTemplate tmp) throws PSDeployException, PSNotFoundException {
-      List<PSDependency> depList = new ArrayList<>();
-      
-      Set<IPSTemplateSlot> slots = tmp.getSlots();
-      
-      PSDependencyHandler handler = getDependencyHandler(
-            PSSlotDependencyHandler.DEPENDENCY_TYPE);
-      
-      Iterator<IPSTemplateSlot> it = slots.iterator();
-      while ( it.hasNext() )
-      {
-         IPSTemplateSlot slot = it.next();
-         IPSGuid slotGuid = slot.getGUID();
-         String id = ""+slotGuid.longValue();
-         PSDependency childDep = handler.getDependency(tok, id);
-         depList.add(childDep);
-      }
+   private List<PSDependency> getSlotDependencies(PSSecurityToken tok, IPSAssemblyTemplate tmp) throws PSDeployException, PSNotFoundException {
+      var handler = getDependencyHandler(PSSlotDependencyHandler.DEPENDENCY_TYPE);
 
-      
-      return depList;
+      return tmp.getSlots().stream()
+         .map(slot -> {
+            try {
+               return handler.getDependency(tok, String.valueOf(slot.getGUID().longValue()));
+            } catch (PSDeployException | PSNotFoundException e) {
+               throw new RuntimeException(e);
+            }
+         })
+         .collect(Collectors.toList());
    }
    // see base class
    @Override

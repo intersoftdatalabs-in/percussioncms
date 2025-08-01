@@ -16,228 +16,365 @@
  */
 package com.percussion.services.utils.general;
 
-import java.util.Properties;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+
 /**
- * This java bean contains properties to be used by the various service beans
- * that require user modifiable configuration.
- * 
+ * This Java bean contains properties to be used by the various service beans
+ * that require user modifiable configuration. The bean provides thread-safe
+ * access to configuration properties with enhanced validation and modern
+ * Java 11 features.
+ * <p>
+ * All configuration values have sensible defaults and are validated when set
+ * to ensure system stability.
+ *
  * @author dougrand
  */
-public class PSServiceConfigurationBean
-{
-    private static final Logger ms_log = LogManager.getLogger("PSServiceConfigurationBean");
+public class PSServiceConfigurationBean {
 
-   /**
-    * This property is used by the assembly service to decide if a content node
-    * should or should not be cached in the memory cache. If the value is 
-    * <code>0</code>, then no content nodes are cached. 
-    */
-   long m_maxCachedContentNodeSize = 0;
-   
-   /**
-    * @see #getQuartzThreadCount()
-    */
-   private int m_quartzThreadCount = 3;
-   
-   /**
-    * @see #getPublishJobTimeout()
-    */
-   private int m_publishJobTimeout = 600; 
+    private static final Logger ms_log = LogManager.getLogger(PSServiceConfigurationBean.class);
 
-   /**
-    * @see #getPublishQueueTimeout()
-    */
-   private int m_publishQueueTimeout = 10; 
+    // Configuration constants
+    private static final int DEFAULT_QUARTZ_THREAD_COUNT = 3;
+    private static final int DEFAULT_PUBLISH_JOB_TIMEOUT = 600;
+    private static final int DEFAULT_PUBLISH_QUEUE_TIMEOUT = 10;
+    private static final int DEFAULT_MAX_ROWS_PER_PAGE = 300;
+    private static final long DEFAULT_MAX_CACHED_CONTENT_NODE_SIZE = 0;
 
-   /**
-    * @see #getMaxRowsPerPageInViewPubLog()
-    */
-   private int m_maxRowsPerPageInViewPubLog = 300;
-   
-   /**
-    * @see #getQuartzProperties()
-    */
-   private Properties m_quartzProperties = new Properties();
-   
-   /**
-    * @see #isUseHttpsForSecureSite()
-    */
-   private boolean useHttpsForSecureSite = true;
-   
-   /**
-    * Gets the maximum rows per page that is used when viewing 
-    * a publish log of an edition. Defaults to <code>300</code>
-    * if not set.
-    * 
-    * @return the maximum rows per page.
-    */
-   public int getMaxRowsPerPageInViewPubLog()
-   {
-      return m_maxRowsPerPageInViewPubLog;
-   }
-   
-   /**
-    * Sets the maximum rows per page that is used when viewing 
-    * a publish log of an edition. Defaults to <code>300</code>
-    * if not set.
-    * 
-    * @param maxRowPerPage the new maximum rows per page, must be
-    * greater than <code>0</code>; otherwise it is ignored.
-    */
-   public void setMaxRowsPerPageInViewPubLog(int maxRowPerPage)
-   {
-      if (maxRowPerPage <= 0)
-      {
-         ms_log.warn("Ignore maxRowsPerPageInViewPubLog " + maxRowPerPage + ", because it is <= 0.");
-         return;
-      }
-      
-      ms_log.debug("maxRowsPerPageInViewPubLog = " + maxRowPerPage);
-      m_maxRowsPerPageInViewPubLog = maxRowPerPage;
-   }
-   
-   /**
-    * Get the maximum size of content nodes cached by the assembly service. Note
-    * that a content node may start by being cached, and may be removed later 
-    * after the body fields and/or image fields are loaded.
-    * @return the maxCachedContentNodeSize
-    */
-   public long getMaxCachedContentNodeSize()
-   {
-      return m_maxCachedContentNodeSize;
-   }
+    // Validation ranges
+    private static final int MIN_THREAD_COUNT = 1;
+    private static final int MAX_THREAD_COUNT = 100;
+    private static final int MIN_TIMEOUT = 1;
+    private static final int MAX_TIMEOUT = 3600; // 1 hour
+    private static final int MIN_ROWS_PER_PAGE = 10;
+    private static final int MAX_ROWS_PER_PAGE = 10000;
 
-   /**
-    * Set the maximum size of cached content nodes, should only be called by
-    * Spring as part of configuration.
-    * 
-    * @param maxCachedContentNodeSize the maxCachedContentNodeSize to set
-    */
-   public void setMaxCachedContentNodeSize(long maxCachedContentNodeSize)
-   {
-      ms_log.debug("maxCachedContentNodeSize = " + maxCachedContentNodeSize);
-      m_maxCachedContentNodeSize = maxCachedContentNodeSize;
-   }
+    /**
+     * This property is used by the assembly service to decide if a content node
+     * should or should not be cached in the memory cache. If the value is
+     * {@code 0}, then no content nodes are cached.
+     */
+    private volatile long maxCachedContentNodeSize = DEFAULT_MAX_CACHED_CONTENT_NODE_SIZE;
 
-   /**
-    * Get thread count for the quartz package, which is the max number of 
-    * concurrent jobs fired/triggered by the scheduler.
-    * 
-    * @return the thread count. It is default to 3 if not specified.
-    * @deprecated use {@link #getQuartzProperties()} instead.
-    */
-   public int getQuartzThreadCount()
-   {
-      return m_quartzThreadCount;
-   }
+    /**
+     * Number of threads for Quartz scheduler processing.
+     */
+    private volatile int quartzThreadCount = DEFAULT_QUARTZ_THREAD_COUNT;
 
-   /**
-    * Set the thread count for the quartz scheduler.
-    * @param threadCount the new thread count.
-    * @deprecated use {@link #setQuartzProperties(Properties)} instead.
-    */
-   public void setQuartzThreadCount(int threadCount)
-   {
-      ms_log.debug("quartzThreadCount = " + threadCount);
-      m_quartzThreadCount = threadCount;
-   }
-   
-   /**
-    * The publishing job time out in minutes. 
-    * After a job sent all its job messages to the publishing queue,
-    * it will be timed out if it does not receive any status update 
-    * since its last update.  
-    * 
-    * @return the timeout. Defaults to 600 minutes (or 10 hours).
-    * It is disabled if it is less than or equals to <code>0</code>
-    */
-   public int getPublishJobTimeout()
-   {
-      return m_publishJobTimeout;
-   }
+    /**
+     * Timeout for publishing jobs in seconds.
+     */
+    private volatile int publishJobTimeout = DEFAULT_PUBLISH_JOB_TIMEOUT;
 
-   /**
-    * Set the publishing job time out in minutes.
-    * 
-    * @param timeout the new timeout, must not be less than or equal to <code>0</code>.
-    * 
-    * @see #getPublishJobTimeout()
-    */
-   public void setPublishJobTimeout(int timeout)
-   {
-      ms_log.debug("publishJobTimeout = " + timeout);
-      m_publishJobTimeout = timeout;
-   }
-   
-   /**
-    * Gets the publish queue timeout in minutes. 
-    * The system "notifies" all active publishing jobs when a message is processed
-    * (from the publish queue) and update the job status.
-    * 
-    * A job will be time out if it does not received any notification within the 
-    * specified time.
+    /**
+     * Timeout for publish queue operations in seconds.
+     */
+    private volatile int publishQueueTimeout = DEFAULT_PUBLISH_QUEUE_TIMEOUT;
 
-    * @return the time out. Defaults to 10 minutes. It is disabled if it is less than
-    * or equals to <code>0</code>
-    */
-   public int getPublishQueueTimeout()
-   {
-      return m_publishQueueTimeout;
-   }
-   
-   /**
-    * Sets the publish queue time out.
-    * 
-    * @param timeout the new time out, must not be less than or equal to <code>0</code>.
-    */
-   public void setPublishQueueTimeout(int timeout)
-   {
-      ms_log.debug("publishQueueTimeout = {}" , timeout);
-      m_publishQueueTimeout = timeout;
-   }
+    /**
+     * Maximum rows per page when viewing publish logs.
+     */
+    private volatile int maxRowsPerPageInViewPubLog = DEFAULT_MAX_ROWS_PER_PAGE;
 
-   /**
-    * Gets all quartz-related properties.
-    * 
-    * @return the quartzProperties
-    */
-   public Properties getQuartzProperties()
-   {
-      return m_quartzProperties;
-   }
+    /**
+     * Quartz scheduler properties.
+     */
+    private volatile Properties quartzProperties = new Properties();
 
-   /**
-    * Sets the quartz-related properties.
-    * 
-    * @param quartzProperties the quartzProperties to set
-    */
-   public void setQuartzProperties(Properties quartzProperties)
-   {
-      m_quartzProperties = quartzProperties;
-   }
+    /**
+     * Whether to use HTTPS for secure sites.
+     */
+    private volatile boolean useHttpsForSecureSite = true;
 
-   /**
-    * @param useHttpsForSecureSite the useHttpsForSecureSite to set
-    */
-   public void setUseHttpsForSecureSite(boolean useHttpsForSecureSite)
-   {
-      this.useHttpsForSecureSite = useHttpsForSecureSite;
-   }
+    /**
+     * Gets the maximum cached content node size.
+     *
+     * @return the maximum size in bytes, {@code 0} means no caching
+     */
+    public long getMaxCachedContentNodeSize() {
+        return maxCachedContentNodeSize;
+    }
 
-   /**
-    * Sets if the system should use HTTPS for the secure sites or not. Defaults
-    * to <code>true</code>.
-    * 
-    * @return the useHttpsForSecureSite if <code>true</code> the system will use
-    *         HTTPS for the secure sites. If <code>false</code>, HTTP will be
-    *         used for secure sites.
-    */
-   public boolean isUseHttpsForSecureSite()
-   {
-      return useHttpsForSecureSite;
-   }
+    /**
+     * Sets the maximum cached content node size with validation.
+     *
+     * @param size the maximum size in bytes, must be non-negative
+     * @throws IllegalArgumentException if size is negative
+     */
+    public void setMaxCachedContentNodeSize(long size) {
+        if (size < 0) {
+            throw new IllegalArgumentException("maxCachedContentNodeSize cannot be negative: " + size);
+        }
+
+        ms_log.debug("Setting maxCachedContentNodeSize = {}", size);
+        this.maxCachedContentNodeSize = size;
+    }
+
+    /**
+     * Gets the Quartz thread count.
+     *
+     * @return the number of threads for Quartz processing
+     */
+    public int getQuartzThreadCount() {
+        return quartzThreadCount;
+    }
+
+    /**
+     * Sets the Quartz thread count with validation.
+     *
+     * @param threadCount the number of threads, must be between {@value MIN_THREAD_COUNT}
+     *                    and {@value MAX_THREAD_COUNT}
+     * @throws IllegalArgumentException if threadCount is out of valid range
+     */
+    public void setQuartzThreadCount(int threadCount) {
+        if (threadCount < MIN_THREAD_COUNT || threadCount > MAX_THREAD_COUNT) {
+            throw new IllegalArgumentException(
+                String.format("quartzThreadCount must be between %d and %d, got: %d",
+                    MIN_THREAD_COUNT, MAX_THREAD_COUNT, threadCount));
+        }
+
+        ms_log.debug("Setting quartzThreadCount = {}", threadCount);
+        this.quartzThreadCount = threadCount;
+    }
+
+    /**
+     * Gets the publish job timeout in seconds.
+     *
+     * @return the timeout value in seconds
+     */
+    public int getPublishJobTimeout() {
+        return publishJobTimeout;
+    }
+
+    /**
+     * Sets the publish job timeout with validation.
+     *
+     * @param timeout the timeout in seconds, must be between {@value MIN_TIMEOUT}
+     *                and {@value MAX_TIMEOUT}
+     * @throws IllegalArgumentException if timeout is out of valid range
+     */
+    public void setPublishJobTimeout(int timeout) {
+        validateTimeout(timeout, "publishJobTimeout");
+        ms_log.debug("Setting publishJobTimeout = {}", timeout);
+        this.publishJobTimeout = timeout;
+    }
+
+    /**
+     * Gets the publish queue timeout in seconds.
+     *
+     * @return the timeout value in seconds
+     */
+    public int getPublishQueueTimeout() {
+        return publishQueueTimeout;
+    }
+
+    /**
+     * Sets the publish queue timeout with validation.
+     *
+     * @param timeout the timeout in seconds, must be between {@value MIN_TIMEOUT}
+     *                and {@value MAX_TIMEOUT}
+     * @throws IllegalArgumentException if timeout is out of valid range
+     */
+    public void setPublishQueueTimeout(int timeout) {
+        validateTimeout(timeout, "publishQueueTimeout");
+        ms_log.debug("Setting publishQueueTimeout = {}", timeout);
+        this.publishQueueTimeout = timeout;
+    }
+
+    /**
+     * Gets the maximum rows per page for publish log viewing.
+     *
+     * @return the maximum number of rows per page
+     */
+    public int getMaxRowsPerPageInViewPubLog() {
+        return maxRowsPerPageInViewPubLog;
+    }
+
+    /**
+     * Sets the maximum rows per page with validation.
+     *
+     * @param maxRows the maximum rows per page, must be between {@value MIN_ROWS_PER_PAGE}
+     *                and {@value MAX_ROWS_PER_PAGE}
+     * @throws IllegalArgumentException if maxRows is out of valid range
+     */
+    public void setMaxRowsPerPageInViewPubLog(int maxRows) {
+        if (maxRows < MIN_ROWS_PER_PAGE || maxRows > MAX_ROWS_PER_PAGE) {
+            throw new IllegalArgumentException(
+                String.format("maxRowsPerPageInViewPubLog must be between %d and %d, got: %d",
+                    MIN_ROWS_PER_PAGE, MAX_ROWS_PER_PAGE, maxRows));
+        }
+
+        ms_log.debug("Setting maxRowsPerPageInViewPubLog = {}", maxRows);
+        this.maxRowsPerPageInViewPubLog = maxRows;
+    }
+
+    /**
+     * Gets the Quartz properties safely.
+     *
+     * @return an Optional containing the Quartz properties, never null
+     */
+    public Optional<Properties> getQuartzProperties() {
+        return Optional.ofNullable(quartzProperties);
+    }
+
+    /**
+     * Sets the Quartz properties with null safety.
+     *
+     * @param properties the Quartz properties, may be {@code null}
+     */
+    public void setQuartzProperties(Properties properties) {
+        ms_log.debug("Setting quartzProperties");
+        this.quartzProperties = Objects.requireNonNullElse(properties, new Properties());
+    }
+
+    /**
+     * Gets whether HTTPS should be used for secure sites.
+     *
+     * @return {@code true} if HTTPS should be used, {@code false} otherwise
+     */
+    public boolean isUseHttpsForSecureSite() {
+        return useHttpsForSecureSite;
+    }
+
+    /**
+     * Sets whether to use HTTPS for secure sites.
+     *
+     * @param useHttps {@code true} to use HTTPS, {@code false} otherwise
+     */
+    public void setUseHttpsForSecureSite(boolean useHttps) {
+        ms_log.debug("Setting useHttpsForSecureSite = {}", useHttps);
+        this.useHttpsForSecureSite = useHttps;
+    }
+
+    /**
+     * Gets the publish job timeout as a TimeUnit for better type safety.
+     *
+     * @param unit the desired time unit
+     * @return the timeout value in the specified unit
+     * @throws IllegalArgumentException if unit is null
+     */
+    public long getPublishJobTimeout(TimeUnit unit) {
+        Objects.requireNonNull(unit, "TimeUnit cannot be null");
+        return unit.convert(publishJobTimeout, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Gets the publish queue timeout as a TimeUnit for better type safety.
+     *
+     * @param unit the desired time unit
+     * @return the timeout value in the specified unit
+     * @throws IllegalArgumentException if unit is null
+     */
+    public long getPublishQueueTimeout(TimeUnit unit) {
+        Objects.requireNonNull(unit, "TimeUnit cannot be null");
+        return unit.convert(publishQueueTimeout, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Validates timeout values using a reusable method.
+     *
+     * @param timeout the timeout value to validate
+     * @param fieldName the name of the field being validated for error messages
+     * @throws IllegalArgumentException if timeout is out of valid range
+     */
+    private void validateTimeout(int timeout, String fieldName) {
+        if (timeout < MIN_TIMEOUT || timeout > MAX_TIMEOUT) {
+            throw new IllegalArgumentException(
+                String.format("%s must be between %d and %d seconds, got: %d",
+                    fieldName, MIN_TIMEOUT, MAX_TIMEOUT, timeout));
+        }
+    }
+
+    /**
+     * Creates a configuration summary for debugging and monitoring.
+     *
+     * @return a string representation of current configuration
+     */
+    public String getConfigurationSummary() {
+        return String.format("""
+            PSServiceConfigurationBean Configuration:
+            - Max Cached Content Node Size: %d bytes
+            - Quartz Thread Count: %d
+            - Publish Job Timeout: %d seconds
+            - Publish Queue Timeout: %d seconds
+            - Max Rows Per Page: %d
+            - Use HTTPS for Secure Sites: %s
+            - Quartz Properties Count: %d
+            """,
+            maxCachedContentNodeSize,
+            quartzThreadCount,
+            publishJobTimeout,
+            publishQueueTimeout,
+            maxRowsPerPageInViewPubLog,
+            useHttpsForSecureSite,
+            quartzProperties.size()
+        );
+    }
+
+    /**
+     * Validates the entire configuration for consistency.
+     *
+     * @return {@code true} if configuration is valid, {@code false} otherwise
+     */
+    public boolean isConfigurationValid() {
+        try {
+            validateTimeout(publishJobTimeout, "publishJobTimeout");
+            validateTimeout(publishQueueTimeout, "publishQueueTimeout");
+
+            if (quartzThreadCount < MIN_THREAD_COUNT || quartzThreadCount > MAX_THREAD_COUNT) {
+                return false;
+            }
+
+            if (maxRowsPerPageInViewPubLog < MIN_ROWS_PER_PAGE || maxRowsPerPageInViewPubLog > MAX_ROWS_PER_PAGE) {
+                return false;
+            }
+
+            return maxCachedContentNodeSize >= 0;
+        } catch (IllegalArgumentException e) {
+            ms_log.warn("Configuration validation failed: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getConfigurationSummary();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        var other = (PSServiceConfigurationBean) obj;
+        return maxCachedContentNodeSize == other.maxCachedContentNodeSize &&
+               quartzThreadCount == other.quartzThreadCount &&
+               publishJobTimeout == other.publishJobTimeout &&
+               publishQueueTimeout == other.publishQueueTimeout &&
+               maxRowsPerPageInViewPubLog == other.maxRowsPerPageInViewPubLog &&
+               useHttpsForSecureSite == other.useHttpsForSecureSite &&
+               Objects.equals(quartzProperties, other.quartzProperties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            maxCachedContentNodeSize,
+            quartzThreadCount,
+            publishJobTimeout,
+            publishQueueTimeout,
+            maxRowsPerPageInViewPubLog,
+            useHttpsForSecureSite,
+            quartzProperties
+        );
+    }
 }

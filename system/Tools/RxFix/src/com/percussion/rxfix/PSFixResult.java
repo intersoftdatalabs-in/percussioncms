@@ -16,7 +16,7 @@
  */
 package com.percussion.rxfix;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Each fix (or preview) results in a result. The result has a status and a 

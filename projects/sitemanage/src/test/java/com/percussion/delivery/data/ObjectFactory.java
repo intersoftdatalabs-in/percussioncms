@@ -108,5 +108,4 @@ public class ObjectFactory {
     public DeliveryServicesContent.MembershipService.Memberships createDeliveryServicesContentMembershipServiceMemberships() {
         return new DeliveryServicesContent.MembershipService.Memberships();
     }
-
 }

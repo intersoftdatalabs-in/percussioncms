@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,32 +20,29 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.assembly.data.PublishType;
-import com.percussion.webservices.transformation.converter.PSPublishWhenConverter;
 import org.junit.experimental.categories.Category;
-;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSPublishWhenConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSPublishWhenConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      IPSAssemblyTemplate.PublishWhen source = 
-         IPSAssemblyTemplate.PublishWhen.Always;
-      
-      IPSAssemblyTemplate.PublishWhen target = 
-         (IPSAssemblyTemplate.PublishWhen) roundTripConversion(
-            IPSAssemblyTemplate.PublishWhen.class, 
-            PublishType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+public class PSPublishWhenConverterTest extends PSConverterTestBase {
+
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // create the source object
+        var source = IPSAssemblyTemplate.PublishWhen.Always;
+
+        var target = (IPSAssemblyTemplate.PublishWhen) roundTripConversion(
+                IPSAssemblyTemplate.PublishWhen.class,
+                PublishType.class,
+                source);
+
+        // verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
 }

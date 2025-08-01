@@ -120,64 +120,52 @@ import static com.percussion.assetmanagement.service.impl.PSPreviewPageUtils.get
 
 @PSSiteManageBean
 @Lazy
-public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor
-{
+public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor {
 
-	 private enum WorkflowStates{
-	    	APPROVE,
-	    	ARCHIVE,
-	    	REVIEW
-	    }
-	 
+    private enum WorkflowStates {
+        APPROVE,
+        ARCHIVE,
+        REVIEW
+    }
+
     private IPSPathService pathService;
-
     private final IPSFolderHelper folderHelper;
-
     private final IPSSiteSectionService sectionService;
-
     private IPSPageService pageService;
-
     private IPSTemplateService templateService;
-
     private final IPSWorkflowHelper wfHelper;
-
     private final IPSContentItemDao contentItemDao;
-
     private final IPSWidgetService widgetService;
-
     private final IPSWidgetAssetRelationshipService widgetAssetService;
-
     private final IPSNameGenerator nameGenerator;
-
     private final IPSAssetService assetService;
-    
     private final IAssetAdaptor assetAdaptor;
-    
     private IPSSiteDataService siteDataService;
-
     private IPSContentMigrationService migrationService;
-    
     private IPSRecentService recentService;
-    
     private IPSItemService itemService;
-
-    /**
-     * The ID map service, initialized by constructor.
-     */
     private IPSIdMapper idMapper;
-    
-    /**
-     * Logger for this service.
-     */
+
     public static final Logger log = LogManager.getLogger(PageAdaptor.class);
 
     @Autowired
-    public PageAdaptor(@Qualifier("pathService") IPSPathService pathService, IPSFolderHelper folderHelper, IPSSiteSectionService sectionService,
-                       IPSIdMapper idMapper, IPSPageService pageService, IPSTemplateService templateService,
-                       IPSWorkflowHelper wfHelper, @Qualifier(value = "contentItemDao") IPSContentItemDao contentItemDao, IPSWidgetService widgetService,
-                       IPSWidgetAssetRelationshipService widgetAssetService, IPSNameGenerator nameGenerator,
-                       IPSItemWorkflowService itemWorkflowService, IPSAssetService assetService, IPSUserService userService, IAssetAdaptor assetAdaptor)
-    {
+    public PageAdaptor(
+            @Qualifier("pathService") IPSPathService pathService,
+            IPSFolderHelper folderHelper,
+            IPSSiteSectionService sectionService,
+            IPSIdMapper idMapper,
+            IPSPageService pageService,
+            IPSTemplateService templateService,
+            IPSWorkflowHelper wfHelper,
+            @Qualifier(value = "contentItemDao") IPSContentItemDao contentItemDao,
+            IPSWidgetService widgetService,
+            IPSWidgetAssetRelationshipService widgetAssetService,
+            IPSNameGenerator nameGenerator,
+            IPSItemWorkflowService itemWorkflowService,
+            IPSAssetService assetService,
+            IPSUserService userService,
+            IAssetAdaptor assetAdaptor
+    ) {
         super(userService, itemWorkflowService);
         this.pathService = pathService;
         this.folderHelper = folderHelper;
@@ -202,139 +190,95 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor
     public Page getPage(URI baseUri, String site, String path, String pageName) throws BackendException, PSDataServiceException {
         checkAPIPermission();
 
-        UrlParts url = new UrlParts(site, path, pageName);
-        String pathServicePath = StringUtils.substring(url.getUrl(), 1);
-        PSPathItem pathItem = null;
-        try
-        {
+        var url = new UrlParts(site, path, pageName);
+        var pathServicePath = StringUtils.substring(url.getUrl(), 1);
+        PSPathItem pathItem;
+        try {
             pathItem = pathService.find(pathServicePath);
-
-        }
-        catch (IPSPathService.PSPathServiceException | PSDataServiceException e)
-        {
-            // Change to say that path is not a page
+        } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
             throw new PageNotFoundException();
         }
 
-        if (!pathItem.getType().equals("percPage"))
-        {
+        if (!"percPage".equals(pathItem.getType())) {
             throw new PageNotFoundException();
         }
 
-        Page page = new Page();
+        var page = new Page();
         PSPage psPage;
         try {
-             psPage = pageService.findPageByPath(url.getUrl());
+            psPage = pageService.findPageByPath(url.getUrl());
         } catch (IPSPageService.PSPageException | PSValidationException e) {
-            throw new BackendException(e.getMessage(),e);
+            throw new BackendException(e.getMessage(), e);
         }
 
-        PSItemProperties itemProperties = null;
+        PSItemProperties itemProperties;
         try {
             itemProperties = pathService.findItemProperties(StringUtils.substring(url.getUrl(), 1));
         } catch (PSDataServiceException | IPSPathService.PSPathServiceException e) {
-            throw new BackendException(e.getMessage(),e);
+            throw new BackendException(e.getMessage(), e);
         }
-        PSComponentSummary summ = wfHelper.getComponentSummary(itemProperties.getId());
+        var summ = wfHelper.getComponentSummary(itemProperties.getId());
 
         page.setName(psPage.getName());
         page.setSiteName(site);
         page.setFolderPath(path);
         page.setId(psPage.getId());
-        // page.setDisplayName(psPage.getLabel());
         page.setDisplayName(psPage.getLinkTitle());
-        // linkTitle?
 
-        // Only set if auto flag off. page.setSummary(psPage.getSummary());
-
-        PSTemplate template = templateService.load(psPage.getTemplateId());
-
+        var template = templateService.load(psPage.getTemplateId());
         page.setTemplateName(template.getName());
 
-        PSWorkflow wf = loadWorkflow(psPage.getWorkflowId());
-        WorkflowInfo wfInfo = new WorkflowInfo();
+        var wf = loadWorkflow(psPage.getWorkflowId());
+        var wfInfo = new WorkflowInfo();
         page.setWorkflow(wfInfo);
         wfInfo.setName(wf.getName());
-
         wfInfo.setCheckedOutUser(StringUtils.defaultString(summ.getCheckoutUserName()));
-        if(summ.getCheckoutUserName()!= null && !summ.getCheckoutUserName().isEmpty()) {
-            wfInfo.setCheckedOut(true);
-        }
-        else {
-            wfInfo.setCheckedOut(false);
-        }
-
+        wfInfo.setCheckedOut(summ.getCheckoutUserName() != null && !summ.getCheckoutUserName().isEmpty());
         wfInfo.setState(itemProperties.getStatus());
 
-        SeoInfo seo = new SeoInfo();
-
+        var seo = new SeoInfo();
         seo.setBrowserTitle(psPage.getTitle());
 
-        // Other fields from internal content type
-
-        // Find the content item for the given id
         PSContentItem contentItem;
         try {
-             contentItem = contentItemDao.find(psPage.getId());
+            contentItem = contentItemDao.find(psPage.getId());
         } catch (PSDataServiceException e) {
-            throw new BackendException(e.getMessage(),e);
+            throw new BackendException(e.getMessage(), e);
         }
 
-        Map<String, Object> fields = contentItem.getFields();
-        CalendarInfo calInfo = new CalendarInfo();
+        var fields = contentItem.getFields();
+        var calInfo = new CalendarInfo();
         page.setCalendar(calInfo);
-        List<String> calendarsValue = (List<String>) fields.get("page_calendar");
+        var calendarsValue = (List<String>) fields.get("page_calendar");
         calInfo.setCalendars(calendarsValue);
-        String startDateStr = (String) fields.get("page_start_date");
-        Date startDate = null;
-        if (StringUtils.isNotEmpty(startDateStr))
-        {
-            startDate = PSDateUtils.parseSystemDateString(startDateStr);
-        }
+        var startDateStr = (String) fields.get("page_start_date");
+        Date startDate = StringUtils.isNotEmpty(startDateStr) ? PSDateUtils.parseSystemDateString(startDateStr) : null;
         calInfo.setStartDate(startDate);
 
-        String endDateStr = (String) fields.get("page_end_date");
-        Date endDate = null;
-        if (StringUtils.isNotEmpty(endDateStr))
-        {
-            endDate = PSDateUtils.parseSystemDateString(endDateStr);
-        }
-
+        var endDateStr = (String) fields.get("page_end_date");
+        Date endDate = StringUtils.isNotEmpty(endDateStr) ? PSDateUtils.parseSystemDateString(endDateStr) : null;
         calInfo.setEndDate(endDate);
 
-        String overridePostDateStr = (String) fields.get("sys_contentpostdate");
-        Date overridePostDate = null;
-        if (StringUtils.isNotEmpty(overridePostDateStr))
-        {
-            overridePostDate = PSDateUtils.parseSystemDateString(overridePostDateStr);
-        }
-
+        var overridePostDateStr = (String) fields.get("sys_contentpostdate");
+        Date overridePostDate = StringUtils.isNotEmpty(overridePostDateStr) ? PSDateUtils.parseSystemDateString(overridePostDateStr) : null;
         page.setOverridePostDate(overridePostDate);
 
-        List<String> pageCategories = (List<String>) fields.get("page_categories_tree");
+        var pageCategories = (List<String>) fields.get("page_categories_tree");
         if (pageCategories != null) {
             seo.setCategories(pageCategories);
         }
 
-        String autoGenerate = (String) fields.get("auto_generate_summary");
+        var autoGenerate = (String) fields.get("auto_generate_summary");
+        page.setSummary("1".equals(autoGenerate) ? "" : (String) fields.get("page_summary"));
 
-        if ("1".equals(autoGenerate))
-        {
-            page.setSummary("");
-        }
-        else
-        {
-            page.setSummary((String) fields.get("page_summary"));
-        }
-
-        boolean hideSearch = (psPage.getNoindex() != null && psPage.getNoindex().equalsIgnoreCase("true"));
+        boolean hideSearch = psPage.getNoindex() != null && psPage.getNoindex().equalsIgnoreCase("true");
         seo.setHideSearch(hideSearch);
         seo.setMetaDescription(psPage.getDescription());
         seo.setTags(new ArrayList<>(psPage.getTags()));
 
         page.setSeo(seo);
 
-        CodeInfo code = new CodeInfo();
+        var code = new CodeInfo();
         page.setCode(code);
         code.setAfterStart(psPage.getAfterBodyStartContent());
         code.setBeforeClose(psPage.getBeforeBodyCloseContent());
@@ -342,9 +286,6 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor
 
         getRegionInfo(baseUri, page, psPage, template);
 
-        // page.setBody(body);
-
-        // TODO: Populate Page
         return page;
     }
 
@@ -679,10 +620,10 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor
     	
     	  checkAPIPermission();
 
-          UrlParts url = new UrlParts(siteName, path, pageName);
+          var url = new UrlParts(siteName, path, pageName);
 
-          UrlParts folderUrl = new UrlParts(url.getSite(), url.getPath(), null);
-          String pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
+          var folderUrl = new UrlParts(url.getSite(), url.getPath(), null);
+          var pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
           String originalName = pageName;
           try
           {
@@ -748,11 +689,11 @@ public class PageAdaptor extends SiteManageAdaptorBase implements IPageAdaptor
     public Page updatePage(URI baseUri, Page toPage) throws BackendException, PSDataServiceException {
         checkAPIPermission();
 
-        UrlParts url = new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), toPage.getName());
+        var url = new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), toPage.getName());
 
-        UrlParts folderUrl = new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), null);
-        String pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
-       
+        var folderUrl = new UrlParts(toPage.getSiteName(), toPage.getFolderPath(), null);
+        var pathServicePath = StringUtils.substring(folderUrl.getUrl(), 1);
+
         try
         {
            pathService.find(pathServicePath);

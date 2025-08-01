@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,12 +9,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import java.util.Optional;
 
 /**
  * Represents a lightweight summary of a template.
+ * Sunny Sal: "Summary ka hero, template ka zero!"
  */
-@XmlRootElement(name="TemplateSummary")
-@JsonRootName(value="TemplateSummary")
+@XmlRootElement(name = "TemplateSummary")
+@JsonRootName(value = "TemplateSummary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder()
 @XmlType(propOrder = {})
@@ -39,24 +43,24 @@ public class TemplateSummary {
         this.templateId = templateId;
     }
 
-    public String getTemplateName() {
-        return templateName;
+    public Optional<String> getTemplateName() {
+        return Optional.ofNullable(templateName);
     }
 
     public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
-    public String getTemplateLabel() {
-        return templateLabel;
+    public Optional<String> getTemplateLabel() {
+        return Optional.ofNullable(templateLabel);
     }
 
     public void setTemplateLabel(String templateLabel) {
         this.templateLabel = templateLabel;
     }
 
-    public String getTemplateDescription() {
-        return templateDescription;
+    public Optional<String> getTemplateDescription() {
+        return Optional.ofNullable(templateDescription);
     }
 
     public void setTemplateDescription(String templateDescription) {

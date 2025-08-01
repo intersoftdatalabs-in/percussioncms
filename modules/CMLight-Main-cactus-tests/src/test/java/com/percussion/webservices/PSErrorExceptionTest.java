@@ -19,84 +19,54 @@ package com.percussion.webservices;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.faults.PSError;
 import com.percussion.webservices.transformation.converter.PSConverterTestBase;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSErrorException} class.
  */
 @Category(IntegrationTest.class)
-public class PSErrorExceptionTest extends PSConverterTestBase
-{
-   /**
-    * Test all contracts. 
-    */
-   public void testContracts() throws Exception
-   {
-      Exception exception = null;
-      try
-      {
-         @SuppressWarnings("unused") PSErrorException source = 
-            new PSErrorException(1, null, "stack");
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+class PSErrorExceptionTest extends PSConverterTestBase {
 
-      exception = null;
-      try
-      {
-         @SuppressWarnings("unused") PSErrorException source = 
-            new PSErrorException(1, " ", "stack");
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+    /**
+     * Test all contracts for PSErrorException.
+     */
+    @Test
+    void testContracts() {
+        // Null message
+        var exception = assertThrows(IllegalArgumentException.class,
+            () -> new PSErrorException(1, null, "stack"));
+        assertNotNull(exception);
 
-      exception = null;
-      try
-      {
-         @SuppressWarnings("unused") PSErrorException source = 
-            new PSErrorException(1, "message", null);
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+        // Blank message
+        exception = assertThrows(IllegalArgumentException.class,
+            () -> new PSErrorException(1, " ", "stack"));
+        assertNotNull(exception);
 
-      exception = null;
-      try
-      {
-         @SuppressWarnings("unused") PSErrorException source = 
-            new PSErrorException(1, "message", " ");
-      }
-      catch (Exception e)
-      {
-         exception = e;
-      }
-      assertTrue(exception instanceof IllegalArgumentException);
+        // Null stack
+        exception = assertThrows(IllegalArgumentException.class,
+            () -> new PSErrorException(1, "message", null));
+        assertNotNull(exception);
 
-      @SuppressWarnings("unused") PSErrorException source = 
-         new PSErrorException(1, "message", "stack");
-   }
-   
-   /**
-    * Test conversion. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSErrorException source = new PSErrorException(1, "message", "stack");
-      
-      PSErrorException target = (PSErrorException) roundTripConversion(
-         PSErrorException.class, PSError.class, source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+        // Blank stack
+        exception = assertThrows(IllegalArgumentException.class,
+            () -> new PSErrorException(1, "message", " "));
+        assertNotNull(exception);
+
+        // Valid case
+        assertDoesNotThrow(() -> new PSErrorException(1, "message", "stack"));
+    }
+
+    /**
+     * Test conversion between server and client error exception.
+     */
+    @Test
+    void testConversion() throws Exception {
+        var source = new PSErrorException(1, "message", "stack");
+        var target = (PSErrorException) roundTripConversion(
+                PSErrorException.class, PSError.class, source);
+        assertEquals(source, target);
+    }
 }
-

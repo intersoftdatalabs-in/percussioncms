@@ -20,43 +20,40 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
+/**
+ * Summary of site statistics and issues.
+ */
 @XmlRootElement(name = "SiteSummaryData")
-public class PSSiteStatisticsSummary extends PSAbstractDataObject
-{
-
-    /**
-     * Safe to serialize
-     */
+public class PSSiteStatisticsSummary extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
-    
+
     @NotBlank
     @NotNull
     private String name;
-    
+
     private long id;
-    
+
     private PSSiteStatistics statistics;
-    
+
     private List<PSSiteIssueSummary> issues = new ArrayList<>();
 
     private String abridgedErrorMessage;
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
-    
+
     public long getSiteId() {
         return this.id;
     }
@@ -65,34 +62,27 @@ public class PSSiteStatisticsSummary extends PSAbstractDataObject
         this.id = id;
     }
 
-    public PSSiteStatistics getStatistics()
-    {
-        return statistics;
+    public Optional<PSSiteStatistics> getStatistics() {
+        return Optional.ofNullable(statistics);
     }
 
-    public void setStatistics(PSSiteStatistics statistics)
-    {
+    public void setStatistics(PSSiteStatistics statistics) {
         this.statistics = statistics;
     }
 
-    public List<PSSiteIssueSummary> getIssues()
-    {
+    public List<PSSiteIssueSummary> getIssues() {
         return issues;
     }
 
-    public void setIssues(List<PSSiteIssueSummary> issues)
-    {
-        this.issues = issues;
+    public void setIssues(List<PSSiteIssueSummary> issues) {
+        this.issues = issues == null ? new ArrayList<>() : issues;
     }
 
-    public void setAbridgedErrorMessage(String message)
-    {
+    public void setAbridgedErrorMessage(String message) {
         this.abridgedErrorMessage = message;
     }
 
-    public String getAbridgedErrorMessage()
-    {
-        return abridgedErrorMessage;
+    public Optional<String> getAbridgedErrorMessage() {
+        return Optional.ofNullable(abridgedErrorMessage);
     }
-
 }

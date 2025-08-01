@@ -17,10 +17,6 @@
 
 package com.percussion.deployer.server.dependencies;
 
-import com.percussion.deployer.server.PSDependencyDef;
-import com.percussion.deployer.server.PSDependencyMap;
-import com.percussion.error.PSDeployException;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +67,7 @@ public class PSDisplayFormatDependencyHandler extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
+   public Iterator<String> getChildTypes()
    {
       return ms_childTypes.iterator();
    }

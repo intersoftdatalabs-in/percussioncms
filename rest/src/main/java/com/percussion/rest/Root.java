@@ -30,17 +30,13 @@ import java.net.URI;
 @XmlRootElement
 @Path("/")
 @Tag(name = "/", description = "Root of api")
-@OpenAPIDefinition(
-        servers = { @Server(url="/rest")}
-)
+@OpenAPIDefinition(servers = {@Server(url = "/rest")})
 public class Root extends AdaptorBase {
 
     @XmlElement
-    URI self;
-
+    private URI self;
 
     public Root() {
-
+        // Default constructor
     }
-
 }

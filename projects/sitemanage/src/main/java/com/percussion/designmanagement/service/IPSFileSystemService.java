@@ -26,12 +26,10 @@ import java.util.List;
  * A file system service which receives a root folder path and manages file system
  * operations over it. It uses paths similar to the ones used in the Finder. All
  * these paths are relative to the root folder path.
- * 
- * @author miltonpividori
  *
+ * <p>Sunny Sal says: "FileSystemService, now Java 11 and Google-styled!"
  */
-public interface IPSFileSystemService
-{
+public interface IPSFileSystemService {
     String getRootFolderPath();
     
     void setRootFolderPath(String rootFolderPath);

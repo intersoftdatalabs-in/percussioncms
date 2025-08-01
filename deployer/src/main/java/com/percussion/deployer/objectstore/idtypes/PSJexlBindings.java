@@ -86,18 +86,14 @@ public class PSJexlBindings
     * @param name the name of this binding, never <code>null</code>
     * @return the binding if present, may be <code>null</code>
     */
-   public PSJexlBinding getByName(String name)
-   {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException(
-               "binding name may not be null or empty");
-      for (PSJexlBinding bind : getBindings())
-      {
-         if (StringUtils.isNotBlank(bind.getName())
-               && bind.getName().equals(name))
-            return bind;
+   public PSJexlBinding getByName(String name) {
+      if (StringUtils.isBlank(name)) {
+         throw new IllegalArgumentException("binding name may not be null or empty");
       }
-      return null;
+      return m_bindings.stream()
+          .filter(bind -> StringUtils.isNotBlank(bind.getName()) && bind.getName().equals(name))
+          .findFirst()
+          .orElse(null);
    }
 
    /**
@@ -105,17 +101,14 @@ public class PSJexlBindings
     * @param expression never <code>null</code> or empty
     * @return the binding if present, may be <code>null</code>
     */
-   public PSJexlBinding getByExpression(String expression)
-   {
-      if (StringUtils.isBlank(expression))
-         throw new IllegalArgumentException(
-               "expression may not be null or empty");
-      for (PSJexlBinding bind : getBindings())
-      {
-         if (bind.getExpression().equals(expression))
-            return bind;
+   public PSJexlBinding getByExpression(String expression) {
+      if (StringUtils.isBlank(expression)) {
+         throw new IllegalArgumentException("expression may not be null or empty");
       }
-      return null;
+      return m_bindings.stream()
+          .filter(bind -> bind.getExpression().equals(expression))
+          .findFirst()
+          .orElse(null);
    }
 
    /**
@@ -123,35 +116,26 @@ public class PSJexlBindings
     * @param ix the position of this binding in the list of bindings
     * @return the binding if present, may be <code>null</code>
     */
-   public PSJexlBinding getByIndex(int ix)
-   {
-      if (ix < 0)
-         throw new IllegalArgumentException(
-               "binding index may not be less than 0");
-      for (PSJexlBinding bind : getBindings())
-      {
-         if (bind.getIndex() == ix)
-            return bind;
+   public PSJexlBinding getByIndex(int ix) {
+      if (ix < 0) {
+         throw new IllegalArgumentException("binding index may not be less than 0");
       }
-      return null;
+      return m_bindings.stream()
+          .filter(bind -> bind.getIndex() == ix)
+          .findFirst()
+          .orElse(null);
    }
 
    /**
     * the copier of the current bindings list
     * @return the container of these bindings
     */
-   protected PSJexlBindings clone()
-   {
-      List<PSJexlBinding> bindings = new ArrayList<>(getBindings()
-            .size());
-      Iterator<PSJexlBinding> it = getBindings().iterator();
-      while (it.hasNext())
-      {
-         PSJexlBinding b = it.next();
-         bindings.add(b.clone());
-      }
-      PSJexlBindings jexlBindings = new PSJexlBindings();
-      jexlBindings.setBindings(bindings);
+   protected PSJexlBindings clone() {
+      var clonedBindings = m_bindings.stream()
+          .map(PSJexlBinding::clone)
+          .toList();
+      var jexlBindings = new PSJexlBindings();
+      jexlBindings.setBindings(clonedBindings);
       return jexlBindings;
    }
 

@@ -82,123 +82,60 @@ public abstract class PSFolderObjectDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      PSFolder folder = getFolderObject(getRelationshipProcessor(tok),
-         getComponentProcessor(tok), dep.getDependencyId());
-      if (folder != null)
-         files.add(createDependencyFile(folder));
-
-      return files.iterator();
+      var folder = getFolderObject(getRelationshipProcessor(tok), getComponentProcessor(tok), dep.getDependencyId());
+      return folder != null ? List.of(createDependencyFile(folder)).iterator() : List.<PSDependencyFile>of().iterator();
    }
 
    // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
+      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
+      try {
+         var files = getDependencyFilesFromArchive(archive, dep);
+         var root = getElementFromFile(archive, dep, files.next());
+         var srcFolder = new PSFolder(root);
+         var newFolder = (PSFolder) srcFolder.clone();
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-
-      try
-      {
-         // restore the file
-         Iterator files = getDependencyFilesFromArchive(archive, dep);
-         Element root = getElementFromFile(archive, dep,
-            (PSDependencyFile)files.next());
-         PSFolder srcFolder = new PSFolder(root);
-
-         // clone the source to lose the keys and persisted state
-         PSFolder newFolder = (PSFolder)srcFolder.clone();
-
-         // see if target exists and if so, update with source folder
-         Map<String, String> params = new HashMap<>();
-         // disable nav folder effect when creating folder relationships
-         params.put(IPSHtmlParameters.RXS_DISABLE_NAV_FOLDER_EFFECT, "y");
-         PSRelationshipProcessor relProc = getRelationshipProcessor(tok, 
-            params);
-         PSComponentProcessorProxy compProc = getComponentProcessor(tok);
-         String path = dep.getDependencyId();
-         PSFolder tgtFolder = getFolderObject(relProc, compProc, path);
+         var params = Map.of(IPSHtmlParameters.RXS_DISABLE_NAV_FOLDER_EFFECT, "y");
+         var relProc = getRelationshipProcessor(tok, params);
+         var compProc = getComponentProcessor(tok);
+         var path = dep.getDependencyId();
+         var tgtFolder = getFolderObject(relProc, compProc, path);
          PSComponentSummary parentSum = null;
-         if (tgtFolder != null)
-         {
+
+         if (tgtFolder != null) {
             tgtFolder.mergeFrom(newFolder);
-            newFolder = tgtFolder; 
-         }
-         else if (pathSpecifiesParent(path))
-         {
-            // be sure we can get parent or we can't save
+            newFolder = tgtFolder;
+         } else if (pathSpecifiesParent(path)) {
             parentSum = getParentFolderSummary(relProc, path);
-            if (parentSum == null)
-            {
-               // handle error
-               Object[] args = {path, dep.getObjectTypeName(),
-                  path.substring(0, path.lastIndexOf(PATH_SEP))};
-               throw new PSDeployException(
-                  IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, args);
+            if (parentSum == null) {
+               throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{path, dep.getObjectTypeName(), path.substring(0, path.lastIndexOf(PATH_SEP))});
             }
          }
 
-         // translate ids
-         if (ctx.getCurrentIdMap() != null)
+         if (ctx.getCurrentIdMap() != null) {
             transformIds(compProc, dep, ctx, newFolder);
-
-         // save folder
-         newFolder = (PSFolder)compProc.save(
-            new PSFolder[] {newFolder}).getResults()[0];
-
-         // if inserted, save relationship to its parent if there is one
-         int action;
-         if (tgtFolder == null)
-         {
-            action = PSTransactionSummary.ACTION_CREATED;
-            if (parentSum != null)
-            {
-               List<PSLocator> children = new ArrayList<>(1);
-               children.add(newFolder.getLocator());
-               relProc.add(FOLDER_TYPE, null, children, parentSum.getLocator());
-            }
          }
-         else
-            action = PSTransactionSummary.ACTION_MODIFIED;
 
-         // add the transaction to the log
+         newFolder = (PSFolder) compProc.save(new PSFolder[]{newFolder}).getResults()[0];
+
+         int action = (tgtFolder == null) ? PSTransactionSummary.ACTION_CREATED : PSTransactionSummary.ACTION_MODIFIED;
+         if (tgtFolder == null && parentSum != null) {
+            relProc.add(FOLDER_TYPE, null, List.of(newFolder.getLocator()), parentSum.getLocator());
+         }
+
          addTransactionLogEntry(dep, ctx, newFolder, action);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
-      }
-      catch (PSUnknownNodeTypeException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
+      } catch (PSCmsException | PSUnknownNodeTypeException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
    }
 
@@ -534,46 +471,16 @@ public abstract class PSFolderObjectDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if there are any errors.
     */
-   protected Iterator getChildFolderPaths(PSRelationshipProcessor processor,
+   @Override
+   protected Iterator<String> getChildFolderPaths(PSRelationshipProcessor processor,
       String path) throws PSDeployException
    {
-      if (processor == null)
-         throw new IllegalArgumentException("processor may not be null");
-      if (path != null && path.trim().length() == 0)
-         throw new IllegalArgumentException("path may not be empty");
-
-      boolean exists = true;
-      PSLocator loc = null;
-      if (path == null)
-      {
-         path = "";
-         loc = m_rootLocator;
-      }
-      else
-      {
-         path += PATH_SEP;
-         PSComponentSummary sum = getFolderSummary(processor, path);
-         if (sum != null)
-            loc = sum.getCurrentLocator();
-         else
-            exists = false;
+      if (processor == null || (path != null && path.isBlank())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
 
-      Iterator result = null;
-      if (exists)
-      {
-         List<String> paths = new ArrayList<>();
-         Iterator children = getChildFolderSummaries(processor, loc);
-         while (children.hasNext())
-         {
-            PSComponentSummary child = (PSComponentSummary)children.next();
-            paths.add(path + child.getName());
-         }
-
-         result = paths.iterator();
-      }
-
-      return result;
+      var loc = path == null ? m_rootLocator : getFolderSummary(processor, path).getCurrentLocator();
+      return loc == null ? PSIteratorUtils.emptyIterator() : getChildFolderSummaries(processor, loc).stream().map(child -> path + PATH_SEP + child.getName()).iterator();
    }
 
    /**

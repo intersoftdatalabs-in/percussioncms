@@ -18,73 +18,53 @@
 package com.percussion.server.cache;
 
 import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
-public class PSAutotuneCacheTest extends ServletTestCase
+import static org.junit.jupiter.api.Assertions.*;
+
+@Tag("IntegrationTest")
+public class PSAutotuneCacheTest
 {
-   
-   // see base class
-   public PSAutotuneCacheTest(String name)
+   @Test
+   public void testConstructors()
    {
-      super(name);
-   }
-   
-   // collect all tests into a TestSuite and return it - see base class
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSAutotuneCacheTest("testConstructors"));
-      suite.addTest(new PSAutotuneCacheTest("testUpdateCache"));
-      return suite;
-   }
-   
-   public void testConstructors() throws Exception
-   {
-      
       boolean didThrow = false;
       try 
       {
-         PSAutotuneCache settings = PSAutotuneCacheLocator.getAutotuneCache();
+         var settings = PSAutotuneCacheLocator.getAutotuneCache();
       }
       catch (Exception ex) 
       {
          didThrow = true;
       }
-      
-      assertTrue("Null file passed as ehcache",didThrow);
-      
+      assertTrue(didThrow, "Null file passed as ehcache");
+
       didThrow = false;
-      
       try
       {
-         PSAutotuneCache settings = PSAutotuneCacheLocator.getAutotuneCache();
+         var settings = PSAutotuneCacheLocator.getAutotuneCache();
       }
       catch (Exception ex) 
       {
          didThrow = true;
       }
-      
-      assertFalse("Default Constructor OK.", didThrow);
+      assertFalse(didThrow, "Default Constructor OK.");
    }
-   
-   public void testUpdateCache() throws Exception 
+
+   @Test
+   public void testUpdateCache()
    {
       boolean didThrow = false;
-      
-      try 
+      try
       {             
-         PSAutotuneCache settings = PSAutotuneCacheLocator.getAutotuneCache();
+         var settings = PSAutotuneCacheLocator.getAutotuneCache();
          settings.updateEhcache();
       }
       catch (Exception ex)
       {
          didThrow = true;
       }
-      
-      assertFalse("Update ehcache OK", didThrow);
+      assertFalse(didThrow, "Update ehcache OK");
    }
 }

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Tracks dependencies across multiple packages, and manages the selected
@@ -78,31 +80,22 @@ public class PSDependencyTreeContext
     * in the supplied package, <code>false</code> to leave the matching shared
     * deps as included. 
     */      
-   public void removePackage(PSDeployableElement pkg, boolean removeLocal)
-   {
-      if (pkg == null)
-         throw new IllegalArgumentException("pkg may not be null");
+   public void removePackage(PSDeployableElement pkg, boolean removeLocal) {
+    if (pkg == null) {
+        throw new IllegalArgumentException("pkg may not be null");
+    }
+    if (getDependencyCtx(pkg) == null) {
+        throw new IllegalArgumentException("pkg not found in this ctx");
+    }
 
-      if (getDependencyCtx(pkg) == null)
-         throw new IllegalArgumentException("pkg not found in this ctx");
-      
-      // remove package from map
-      m_pkgMap.remove(pkg.getKey());
-      
-      // remove listener for this package
-      Iterator listeners = m_listeners.iterator();
-      while (listeners.hasNext())
-      {
-         IPSDependencyTreeCtxListener listener = 
-            (IPSDependencyTreeCtxListener)listeners.next();
-         if (listener.listensForChanges(pkg))
-         {
-            removeCtxChangeListener(listener);
-            break;
-         }  
-      }
-         
-      removePackageDependency(pkg, true, removeLocal);
+    m_pkgMap.remove(pkg.getKey());
+
+    var listenerToRemove = m_listeners.stream()
+        .filter(listener -> listener.listensForChanges(pkg))
+        .findFirst();
+    listenerToRemove.ifPresent(this::removeCtxChangeListener);
+
+    removePackageDependency(pkg, true, removeLocal);
    }
 
    /**
@@ -113,17 +106,15 @@ public class PSDependencyTreeContext
     * 
     * @return The package element, never <code>null</code>.
     */
-   public PSDeployableElement getPackage(String key)
-   {
-      if (key == null || key.trim().length() == 0)
-         throw new IllegalArgumentException("key may not be null or empty");
-      
-      PSDeployableElement pkg = (PSDeployableElement)m_pkgMap.get(key);
-      if (pkg == null)
-         throw new IllegalArgumentException("Package not found for key: " + 
-            key);
-      
-      return pkg;
+   public PSDeployableElement getPackage(String key) {
+    if (key == null || key.isBlank()) {
+        throw new IllegalArgumentException("key may not be null or empty");
+    }
+    var pkg = m_pkgMap.get(key);
+    if (pkg == null) {
+        throw new IllegalArgumentException("Package not found for key: " + key);
+    }
+    return (PSDeployableElement) pkg;
    }
 
    /**
@@ -160,18 +151,13 @@ public class PSDependencyTreeContext
     * as a <code>String</code>, value is a list of matching shared 
     * dependencies found in that package as <code>PSDependency</code> objects.
     */
-   public Map checkRemoveLocal(PSDeployableElement pkg)
-   {
-      if (pkg == null)
-         throw new IllegalArgumentException("pkg may not be null");
-      
-      Map resultMap = new HashMap();
-      checkRemoveLocal(pkg, pkg, resultMap);
-      
-      if (resultMap.isEmpty())
-         resultMap = null;
-      
-      return resultMap;
+   public Map<String, List<PSDependency>> checkRemoveLocal(PSDeployableElement pkg) {
+    if (pkg == null) {
+        throw new IllegalArgumentException("pkg may not be null");
+    }
+    var resultMap = new HashMap<String, List<PSDependency>>();
+    checkRemoveLocal(pkg, pkg, resultMap);
+    return resultMap.isEmpty() ? null : resultMap;
    }
    
    /**
@@ -289,19 +275,11 @@ public class PSDependencyTreeContext
     * 
     * @param ctx The context that has changed, may not be <code>null</code>.
     */
-   public void notifyCtxChangeListeners(PSDependencyContext ctx)
-   {
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-
-      
-      Iterator listeners = m_listeners.iterator();
-      while (listeners.hasNext())
-      {
-         IPSDependencyTreeCtxListener listener = 
-            (IPSDependencyTreeCtxListener)listeners.next();
-         listener.ctxChanged(ctx);
-      }
+   private void notifyCtxChangeListeners(PSDependencyContext ctx) {
+    if (ctx == null) {
+        throw new IllegalArgumentException("ctx may not be null");
+    }
+    m_listeners.forEach(listener -> listener.ctxChanged(ctx));
    }
    
    /**
@@ -330,42 +308,21 @@ public class PSDependencyTreeContext
     * @return The context to which the supplied dependency was added, never
     * <code>null</code>. 
     */
-   private PSDependencyContext addPackageDependency(PSDependency dep, 
-      PSDeployableElement pkg, boolean recurse)
-   {
-      String depKey = dep.getKey();
-      
-      PSDependencyContext ctx = (PSDependencyContext)m_depCtxMap.get(depKey);
-      if (ctx == null)
-      {
-         ctx = new PSDependencyContext(depKey, this);
-         m_depCtxMap.put(depKey, ctx);         
-      }      
-      ctx.addDependency(dep, pkg);
-      
-      if (recurse)
-      {
-         Iterator childDeps = dep.getDependencies();
-         if (childDeps != null)
-         {
-            while (childDeps.hasNext())
-            {
-               addPackageDependency((PSDependency)childDeps.next(), pkg, true);
-            }
-         }
-         
-         Iterator ancs = dep.getAncestors();
-         if (ancs != null)
-         {
-            while (ancs.hasNext())
-            {
-               addPackageDependency((PSDependency)ancs.next(), pkg, true);
-            }
-         }
-      }
-      
-      return ctx;      
-   }
+   private PSDependencyContext addPackageDependency(PSDependency dep, PSDeployableElement pkg, boolean recurse) {
+    var depKey = dep.getKey();
+    var ctx = m_depCtxMap.computeIfAbsent(depKey, key -> new PSDependencyContext(key, this));
+    ctx.addDependency(dep, pkg);
+
+    if (recurse) {
+        Optional.ofNullable(dep.getDependencies()).ifPresent(childDeps ->
+            childDeps.forEachRemaining(childDep -> addPackageDependency((PSDependency) childDep, pkg, true))
+        );
+        Optional.ofNullable(dep.getAncestors()).ifPresent(ancestors ->
+            ancestors.forEachRemaining(ancestor -> addPackageDependency((PSDependency) ancestor, pkg, true))
+        );
+    }
+    return ctx;
+}
 
    /**
     * Recursive worker method for 
@@ -378,39 +335,23 @@ public class PSDependencyTreeContext
     * @param removeLocal See {@link #removePackage(PSDeployableElement, 
     * boolean)} for a description
     */
-   private void removePackageDependency(PSDependency dep, boolean recurse, 
-      boolean removeLocal)
-   {
-      String depKey = dep.getKey();
-      
-      PSDependencyContext ctx = (PSDependencyContext)m_depCtxMap.get(depKey);
-      if (ctx != null)
-         ctx.removeDependency(dep, removeLocal);
-      
-      if (recurse)
-      {
-         Iterator childDeps = dep.getDependencies();
-         if (childDeps != null)
-         {
-            while (childDeps.hasNext())
-            {
-               removePackageDependency((PSDependency)childDeps.next(), recurse, 
-                  removeLocal);
-            }
-         }
-         
-         Iterator ancs = dep.getAncestors();
-         if (ancs != null)
-         {
-            while (ancs.hasNext())
-            {
-               removePackageDependency((PSDependency)ancs.next(), recurse, 
-                  removeLocal);
-            }
-         }
-      }      
-   }
-   
+   private void removePackageDependency(PSDependency dep, boolean recurse, boolean removeLocal) {
+    var depKey = dep.getKey();
+    var ctx = m_depCtxMap.get(depKey);
+    if (ctx != null) {
+        ctx.removeDependency(dep, removeLocal);
+    }
+
+    if (recurse) {
+        Optional.ofNullable(dep.getDependencies()).ifPresent(childDeps ->
+            childDeps.forEachRemaining(childDep -> removePackageDependency((PSDependency) childDep, recurse, removeLocal))
+        );
+        Optional.ofNullable(dep.getAncestors()).ifPresent(ancestors ->
+            ancestors.forEachRemaining(ancestor -> removePackageDependency((PSDependency) ancestor, recurse, removeLocal))
+        );
+    }
+}
+
    /**
     * Recursive worker method for {@link #checkRemoveLocal(PSDeployableElement)}
     * 
@@ -420,52 +361,36 @@ public class PSDependencyTreeContext
     * @param resultMap The map to which the results are added, assumed not 
     * <code>null</code>.  
     */
-   private void checkRemoveLocal(PSDependency dep, PSDeployableElement pkg, 
-      Map resultMap)
-   {
-      String depKey = dep.getKey();
-      
-      PSDependencyContext ctx = (PSDependencyContext)m_depCtxMap.get(depKey);
-      if (ctx != null)
-      {
-         ctx.checkRemoveLocal(dep, pkg, resultMap);
-      }
-      
-      // recurse
-      Iterator childDeps = dep.getDependencies();
-      if (childDeps != null)
-      {
-         while (childDeps.hasNext())
-         {
-            checkRemoveLocal((PSDependency)childDeps.next(), pkg, resultMap);
-         }
-      }
-         
-      Iterator ancs = dep.getAncestors();
-      if (ancs != null)
-      {
-         while (ancs.hasNext())
-         {
-            checkRemoveLocal((PSDependency)ancs.next(), pkg, resultMap);
-         }
-      }
-   }
-   
+   private void checkRemoveLocal(PSDependency dep, PSDeployableElement pkg, Map<String, List<PSDependency>> resultMap) {
+    var depKey = dep.getKey();
+    var ctx = m_depCtxMap.get(depKey);
+    if (ctx != null) {
+        ctx.checkRemoveLocal(dep, pkg, resultMap);
+    }
+
+    Optional.ofNullable(dep.getDependencies()).ifPresent(childDeps ->
+        childDeps.forEachRemaining(childDep -> checkRemoveLocal((PSDependency) childDep, pkg, resultMap))
+    );
+    Optional.ofNullable(dep.getAncestors()).ifPresent(ancestors ->
+        ancestors.forEachRemaining(ancestor -> checkRemoveLocal((PSDependency) ancestor, pkg, resultMap))
+    );
+}
+
    /**
     * Map of dependency keys to the matching context.  Key is the dependency key
     * as a <code>String</code>, value is the <code>PSDependencyContext</code>.
     * Never <code>null</code> or modified after construction.
     */
-   private Map m_depCtxMap = new HashMap();
- 
+   private Map<String, PSDependencyContext> m_depCtxMap = new HashMap<>();
+
    /**
     * List of context change listeners, never <code>null</code>, may be be 
     * empty.  Modified by calls to 
     * {@link #addCtxChangeListener(IPSDependencyTreeCtxListener)} and
     * {@link #removeCtxChangeListener(IPSDependencyTreeCtxListener)}.
     */
-   private List m_listeners = new ArrayList();
-   
+   private List<IPSDependencyTreeCtxListener> m_listeners = new ArrayList<>();
+
    /**
     * Map of packages added to this context.  Key is the dependency key of the
     * package as a <code>String</code>, value is the 
@@ -473,8 +398,8 @@ public class PSDependencyTreeContext
     * calls to {@link #addPackage(PSDeployableElement)} and
     * {@link #removePackage(PSDeployableElement, boolean)}
     */
-   private Map m_pkgMap = new HashMap();      
-   
+   private Map<String, PSDeployableElement> m_pkgMap = new HashMap<>();
+
    /**
     * When assigned, the suppressor is invoked by 
     * {@link #shouldSuppressDependency(PSDependency)} to determine if a specific 

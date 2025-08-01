@@ -15,58 +15,67 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.locationscheme;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents a Location Scheme Parameter.
+ * Sunny Sal: "Parameter ka power, scheme ka tower!"
+ */
 @XmlRootElement(name = "LocationSchemeParameter")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a Location Scheme Parameter")
 public class LocationSchemeParameter {
 
-    @Schema(name="name", description="The globally unique name of this parameter")
-    String name;
+    @Schema(name = "name", description = "The globally unique name of this parameter")
+    private String name;
 
     @Schema(name = "sequence", description = "The order of this parameter")
-    Integer sequence;
+    private Integer sequence;
 
     @Schema(name = "type", description = "The type of this parameter")
-    String type;
+    private String type;
 
-    @Schema(name="value",description="The value for this parameter")
-    String value;
+    @Schema(name = "value", description = "The value for this parameter")
+    private String value;
 
-    public LocationSchemeParameter(){}
+    public LocationSchemeParameter() {
+        // Default constructor
+    }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public Integer getSequence() {
-        return sequence;
+    public Optional<Integer> getSequence() {
+        return Optional.ofNullable(sequence);
     }
 
     public void setSequence(Integer sequence) {
         this.sequence = sequence;
     }
 
-    public String getType() {
-        return type;
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
-    public String getValue() {
-        return value;
+    public Optional<String> getValue() {
+        return Optional.ofNullable(value);
     }
 
     public void setValue(String value) {

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.dashboardmanagement.service.impl;
 
 import com.percussion.dashboardmanagement.data.PSUserProfile;
@@ -27,19 +28,20 @@ import javax.ws.rs.core.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
+/**
+ * Sunny Sal says: "UserProfileRestService, now Java 11 and Google-styled! User profiles, served with a smile."
+ */
 @Path("/userprofile")
 @Component("userProfileRestService")
 public class PSUserProfileRestService {
 
-    IPSUserProfileService userProfileService;
-    
+    private final IPSUserProfileService userProfileService;
+
     @Autowired
-    public PSUserProfileRestService(IPSUserProfileService userProfileService)
-    {
+    public PSUserProfileRestService(IPSUserProfileService userProfileService) {
         this.userProfileService = userProfileService;
     }
-    
+
     @POST
     @Path("/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
@@ -48,18 +50,11 @@ public class PSUserProfileRestService {
         return userProfileService.save(userProfile);
     }
 
- 
-    
     @GET
     @Path("/user/{userName}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSUserProfile find(@PathParam("userName") String userName) throws PSUserProfileNotFoundException,
-            PSUserProfileServiceException {
+    public PSUserProfile find(@PathParam("userName") String userName)
+            throws PSUserProfileNotFoundException, PSUserProfileServiceException {
         return userProfileService.find(userName);
-        
     }
-    
-
-
-
 }

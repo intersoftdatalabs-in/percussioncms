@@ -21,7 +21,8 @@ import com.percussion.cx.guitools.PSMouseAdapter;
 import com.percussion.cx.objectstore.PSMenuAction;
 import com.percussion.cx.objectstore.PSNode;
 import com.percussion.utils.collections.PSIteratorUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
@@ -69,7 +70,7 @@ public class PSNavigationTree
         extends JTree
         implements DragGestureListener, DropTargetListener
 {
-   static Logger log = Logger.getLogger(PSNavigationTree.class);
+   static final Logger log = LogManager.getLogger(PSNavigationTree.class);
 
    /**
     * Serializable id

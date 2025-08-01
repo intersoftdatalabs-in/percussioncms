@@ -23,14 +23,13 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-
 /**
  * The IPSStatementBlock interface defines a block of text which will
  * be used to construct a statement. These blocks can be strung together
  * to get the full text of the statement. Blocks can be static blocks
  * or replaceable blocks. Static blocks are always used when building the
  * statement text. Replaceable blocks are used only if all the XML
- * fields they contain are not <code>NULL</code>.
+ * fields they contain are not {@code null}.
  *
  * @author     Tas Giakouminakis
  * @version    1.0
@@ -41,109 +40,93 @@ public interface IPSStatementBlock
    /**
     * Set the data for the bound column(s) associated with this block.
     *
-    * @param   data        the execution data associated with this plan
+    * @param data the execution data associated with this plan, may not be {@code null}
+    * @param stmt the prepared statement, may not be {@code null}
+    * @param bindStart the starting position (1-based) to bind columns to
     *
-    * @param   stmt         the prepared statement
+    * @return the next bind position (1-based)
     *
-    * @param   bindStart   the starting position (1-based) to bind columns
-    *                              to
-    *
-    * @return               the next bind position (1-based)
-    *
-    * @exception   SQLException   if a SQL error occurs
+    * @throws SQLException if a SQL error occurs
+    * @throws PSDataExtractionException if data extraction fails
     */
-   public int setColumnData(PSExecutionData data,
-      PreparedStatement stmt, int bindStart)
-         throws SQLException, PSDataExtractionException;
+   int setColumnData(PSExecutionData data, PreparedStatement stmt, int bindStart)
+      throws SQLException, PSDataExtractionException;
 
    /**
     * Releases all resources that were used by the column's data.
     * This should be called after the data is no longer needed.
     */
-   public void releaseColumnData();
+   void releaseColumnData();
 
    /**
     * Build the statement text which can be passed to the JDBC Connection
     * object's prepareStatement method. Placeholders (?) will be used for
-    * each variable defined in the statement;
+    * each variable defined in the statement.
     *
-    * @param   data         the run-time context info for this request
+    * @param data the run-time context info for this request, may not be {@code null}
     *
-    * @return               the statement text
+    * @return the statement text, never {@code null}
+    *
+    * @throws PSDataExtractionException if data extraction fails
     */
-   public String buildStatement(PSExecutionData data)
-      throws PSDataExtractionException;
-
+   String buildStatement(PSExecutionData data) throws PSDataExtractionException;
 
    /**
     * Build the statement text which can be passed to the JDBC Connection
     * object's prepareStatement method. Placeholders (?) will be used for
-    * each variable defined in the statement;
+    * each variable defined in the statement.
     *
-    * @param   buf         the buffer to store the text in
+    * @param buf the buffer to store the text in, may not be {@code null}
+    * @param data the run-time context info for this request, may not be {@code null}
     *
-    * @param   data         the run-time context info for this request
+    * @throws PSDataExtractionException if data extraction fails
     */
-   public void buildStatement(StringBuilder buf, PSExecutionData data)
-      throws PSDataExtractionException;
+   void buildStatement(StringBuilder buf, PSExecutionData data) throws PSDataExtractionException;
 
    /**
     * Get the list of LOB-based PSStatementColumns.
     *
-    * @return  The list of columns.  Never <code>null</code>. Can be
-    *          empty.
+    * @return The list of columns. Never {@code null}. Can be empty.
     */
-   public List getLobStatementColumns();
+   List<PSStatementColumn> getLobStatementColumns();
 
    /**
     * Get the data extractors used to get the replacement values which will
     * be used to execute the statement.
     *
-    * @return            the list of replacement values
+    * @return The list of data extractors. Never {@code null}, may be empty.
     */
-   public List getReplacementValueExtractors();
+   List<IPSDataExtractor> getReplacementValueExtractors();
 
    /**
-    * Is this block static (not dependent upon run-time data)?
+    * Is this a static block?
     *
-    * @return         <code>true</code> if it is
+    * @return {@code true} if this is a static block, {@code false} otherwise
     */
-   public boolean isStaticBlock();
+   boolean isStaticBlock();
 
    /**
-    * Determines whether this block generates sql that does not depend upon the
-    * runtime data.
+    * Does this block contain static SQL text?
     *
-    * @return If <code>true</code> the sql is not dependent on runtime
-    * data, <code>false</code> otherwise.
+    * @return {@code true} if this block contains static SQL text, {@code false} otherwise
     */
-   public boolean hasStaticSql();
+   boolean hasStaticSql();
 
    /**
-    * Add text to this block.
+    * Add text to this statement block.
     *
-    * @param text the text run to add, may not be <code>null</code> or empty
+    * @param text the text to add, may be {@code null}
     */
-   public void addText(String text);
+   void addText(String text);
 
    /**
-    * Add a replacement field to the block. The value of the
-    * replacement field will be used, at run-time, when the statement to
-    * execute is constructed. Replacement fields are often XML fields,
-    * HTML parameters or CGI variables.
-    * <p>
-    * Be sure to add components in the appropriate order. The run-time
-    * construction uses the same ordering as the addXXX calls.
+    * Add a replacement field to this statement block.
     *
-    * @param value the replacement value, may not be <code>null</code>
-    * @param params implementation specific parameters, may be
-    * <code>null</code> or empty if the implementation does not require these
-    * parameters
+    * @param value the replacement value, may not be {@code null}
+    * @param params the parameters for the replacement value, may be {@code null}
+    *
+    * @throws PSDataExtractionException if the replacement field cannot be added
     */
-   public void addReplacementField(IPSReplacementValue value, Object[] params);
-
+   void addReplacementField(IPSReplacementValue value, Object[] params)
+      throws PSDataExtractionException;
 }
-
-
-
-

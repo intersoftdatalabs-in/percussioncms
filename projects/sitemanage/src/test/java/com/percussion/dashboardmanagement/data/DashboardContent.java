@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,54 +28,11 @@ package com.percussion.dashboardmanagement.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
-
+import java.util.Optional;
+import javax.xml.bind.annotation.*;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence maxOccurs="unbounded">
- *         &lt;element name="GadgetDef">
- *           &lt;complexType>
- *             &lt;complexContent>
- *               &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *                 &lt;sequence>
- *                   &lt;element name="UserPref" maxOccurs="unbounded" minOccurs="0">
- *                     &lt;complexType>
- *                       &lt;simpleContent>
- *                         &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">
- *                           &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                         &lt;/extension>
- *                       &lt;/simpleContent>
- *                     &lt;/complexType>
- *                   &lt;/element>
- *                 &lt;/sequence>
- *                 &lt;attribute name="gadgetType" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="expanded" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" />
- *                 &lt;attribute name="column" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
- *               &lt;/restriction>
- *             &lt;/complexContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *       &lt;/sequence>
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
+ * Java class for DashboardContent JAXB mapping.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -88,63 +46,19 @@ public class DashboardContent {
 
     /**
      * Gets the value of the gadgetDef property.
-     * 
-     * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the gadgetDef property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getGadgetDef().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link DashboardContent.GadgetDef }
-     * 
-     * 
      */
     public List<DashboardContent.GadgetDef> getGadgetDef() {
         if (gadgetDef == null) {
-            gadgetDef = new ArrayList<DashboardContent.GadgetDef>();
+            gadgetDef = new ArrayList<>();
         }
         return this.gadgetDef;
     }
 
-
     /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;complexContent>
-     *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
-     *       &lt;sequence>
-     *         &lt;element name="UserPref" maxOccurs="unbounded" minOccurs="0">
-     *           &lt;complexType>
-     *             &lt;simpleContent>
-     *               &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">
-     *                 &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *               &lt;/extension>
-     *             &lt;/simpleContent>
-     *           &lt;/complexType>
-     *         &lt;/element>
-     *       &lt;/sequence>
-     *       &lt;attribute name="gadgetType" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *       &lt;attribute name="expanded" type="{http://www.w3.org/2001/XMLSchema}boolean" default="true" />
-     *       &lt;attribute name="column" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
-     *     &lt;/restriction>
-     *   &lt;/complexContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
+     * Java class for GadgetDef JAXB mapping.
      */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
@@ -163,118 +77,43 @@ public class DashboardContent {
 
         /**
          * Gets the value of the userPref property.
-         * 
-         * <p>
          * This accessor method returns a reference to the live list,
          * not a snapshot. Therefore any modification you make to the
          * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the userPref property.
-         * 
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getUserPref().add(newItem);
-         * </pre>
-         * 
-         * 
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link DashboardContent.GadgetDef.UserPref }
-         * 
-         * 
          */
         public List<DashboardContent.GadgetDef.UserPref> getUserPref() {
             if (userPref == null) {
-                userPref = new ArrayList<DashboardContent.GadgetDef.UserPref>();
+                userPref = new ArrayList<>();
             }
             return this.userPref;
         }
 
-        /**
-         * Gets the value of the gadgetType property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
         public String getGadgetType() {
             return gadgetType;
         }
 
-        /**
-         * Sets the value of the gadgetType property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
         public void setGadgetType(String value) {
             this.gadgetType = value;
         }
 
-        /**
-         * Gets the value of the expanded property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link Boolean }
-         *     
-         */
         public boolean isExpanded() {
-            if (expanded == null) {
-                return true;
-            } else {
-                return expanded;
-            }
+            return Optional.ofNullable(expanded).orElse(true);
         }
 
-        /**
-         * Sets the value of the expanded property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link Boolean }
-         *     
-         */
         public void setExpanded(Boolean value) {
             this.expanded = value;
         }
 
-        /**
-         * Gets the value of the column property.
-         * 
-         */
         public int getColumn() {
             return column;
         }
 
-        /**
-         * Sets the value of the column property.
-         * 
-         */
         public void setColumn(int value) {
             this.column = value;
         }
 
-
         /**
-         * <p>Java class for anonymous complex type.
-         * 
-         * <p>The following schema fragment specifies the expected content contained within this class.
-         * 
-         * <pre>
-         * &lt;complexType>
-         *   &lt;simpleContent>
-         *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>string">
-         *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-         *     &lt;/extension>
-         *   &lt;/simpleContent>
-         * &lt;/complexType>
-         * </pre>
-         * 
-         * 
+         * Java class for UserPref JAXB mapping.
          */
         @XmlAccessorType(XmlAccessType.FIELD)
         @XmlType(name = "", propOrder = {
@@ -287,56 +126,21 @@ public class DashboardContent {
             @XmlAttribute(required = true)
             protected String name;
 
-            /**
-             * Gets the value of the value property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getValue() {
                 return value;
             }
 
-            /**
-             * Sets the value of the value property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setValue(String value) {
                 this.value = value;
             }
 
-            /**
-             * Gets the value of the name property.
-             * 
-             * @return
-             *     possible object is
-             *     {@link String }
-             *     
-             */
             public String getName() {
                 return name;
             }
 
-            /**
-             * Sets the value of the name property.
-             * 
-             * @param value
-             *     allowed object is
-             *     {@link String }
-             *     
-             */
             public void setName(String value) {
                 this.name = value;
             }
-
         }
-
     }
-
 }

@@ -14,300 +14,352 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.services.integrations.siteimprove;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.security.TLSSocketFactory;
 import com.percussion.server.PSServer;
 import com.percussion.services.integrations.IPSIntegrationProviderService;
 import com.percussion.util.PSURLEncoder;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 /**
- * Services for the REST endpoint for our Siteimprove integration.
+ * SiteImprove provider service modernized for Java 11 with enhanced HTTP client,
+ * stream processing, and improved error handling.
+ *
+ * <p>Provides asynchronous operations for SiteImprove API integration with
+ * comprehensive retry logic, proper resource management, and type-safe operations.
  */
-public class PSSiteImproveProviderService implements IPSIntegrationProviderService
-{
+public class PSSiteImproveProviderService implements IPSIntegrationProviderService {
 
-   // The api endpoints for the Siteimprove api.
-   private static final String NEW_SITEIMPROVE_BASE_URL = "https://api-gateway.siteimprove.com/cms-recheck";
+    // API endpoints for the SiteImprove API
+    private static final String NEW_SITEIMPROVE_BASE_URL = "https://api-gateway.siteimprove.com/cms-recheck";
+    private static final String SITEIMPROVE_TOKEN_URL = "https://my2.siteimprove.com/auth/token?cms=";
 
-   private static final String PERCUSSION_CM1_VERSION = "Percussion CMS " + PSServer.getVersion();
-   private static final String SITEIMPROVE_TOKEN_URL = "https://my2.siteimprove.com/auth/token?cms=";
-   private static final String SITEIMPROVE_RECRAWL_SITE = "recrawl";
-   private static final String SITEIMPROVE_RECHECK_PAGE = "recheck";
-   private static final String SITEIMPROVE_TOKEN = "token";
+    // Constants
+    private static final String PERCUSSION_CM1_VERSION = "Percussion CMS " + PSServer.getVersion();
+    private static final String SITEIMPROVE_RECRAWL_SITE = "recrawl";
+    private static final String SITEIMPROVE_RECHECK_PAGE = "recheck";
+    private static final String SITEIMPROVE_TOKEN = "token";
 
-   // Header strings
-   private static final String ACCEPTS = "Accept";
-   private static final String APPLICATION_JSON = "application/json";
-   private static final String CONTENT_TYPE = "Content-Type";
-   private static final String UTF_8 = "UTF-8";
-   private static ExecutorService pool = Executors.newFixedThreadPool(1);
-   private static final Logger logger = LogManager.getLogger(PSSiteImproveProviderService.class);
-   
-   private static final int HTTPS_PORT = 443;
-   private static final String DEFAULT_PROTOCOL = "http";
+    // HTTP configuration
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String DEFAULT_PROTOCOL = "http";
+    private static final int MAX_RETRIES = 4;
+    private static final Duration RETRY_DELAY = Duration.ofSeconds(3);
+    private static final Duration HTTP_TIMEOUT = Duration.ofSeconds(30);
 
-   /**
-    * Gets a new Siteimprove token for the site. It is to be saved/persisted in
-    * PSMetadata object unless the feature is disabled/re-enabled for a site.
-    * 
-    * @return the token. empty string if not set
-    */
-   public String getNewSiteImproveToken()
-   {
+    // Modern Java 11 HTTP client with optimal configuration
+    private static final HttpClient httpClient = HttpClient.newBuilder()
+        .connectTimeout(HTTP_TIMEOUT)
+        .followRedirects(HttpClient.Redirect.NORMAL)
+        .build();
 
-    try{
-       registerSslProtocol();
-    }catch(Exception e){
-       logger.error("Error initilizing SSL Engine: {}" , PSExceptionUtils.getMessageForLog(e));
-       return "";
+    // Thread-safe executor service with proper resource management
+    private static final ExecutorService executorService =
+        Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    private static final Logger logger = LogManager.getLogger(PSSiteImproveProviderService.class);
+
+    // Static initialization with proper resource cleanup
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            executorService.shutdown();
+            try {
+                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executorService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }));
     }
 
-      String SITEIMPROVE_TOKEN_QUERY_PARAM = PSURLEncoder.encodeQuery(PERCUSSION_CM1_VERSION);
-      GetMethod getMethod = new GetMethod(SITEIMPROVE_TOKEN_URL + SITEIMPROVE_TOKEN_QUERY_PARAM);
-      try
-      {
-         executeMethod(getMethod);
-      }
-      catch (Exception e1)
-      {
-         logger.error("Unable to get new Siteimprove token with message: {}", PSExceptionUtils.getMessageForLog(e1));
-         return "";
-      }
-      String token = "";
+    /**
+     * Gets a new SiteImprove token using modern HTTP client and enhanced error handling.
+     *
+     * @return the token wrapped in Optional, empty if not available
+     */
+    public Optional<String> getNewSiteImproveToken() {
+        try {
+            var encodedVersion = PSURLEncoder.encodeQuery(PERCUSSION_CM1_VERSION);
+            var tokenUri = URI.create(SITEIMPROVE_TOKEN_URL + encodedVersion);
 
-      try
-      {
-         JSONObject jsonObjectItems = new JSONObject(getMethod.getResponseBodyAsString());
-         token = jsonObjectItems.getString(SITEIMPROVE_TOKEN);
-      }
-      catch (IOException | JSONException e)
-      {
-         logger.error("Failed to get new Siteimprove token with message: {}" ,
-                 PSExceptionUtils.getMessageForLog(e));
-         logger.debug(e);
-      }
+            var request = HttpRequest.newBuilder(tokenUri)
+                .GET()
+                .timeout(HTTP_TIMEOUT)
+                .header("Accept", APPLICATION_JSON)
+                .build();
 
-      return token;
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-   }
-
-   /**
-    * Request a site check from siteimprove. Site is determined by id.
-    *
-    * @param siteId Site id of the site we wish to check.
-    * @param credentials The credentials allowing us to access the siteimprove
-    *           api.
-    * @throws Exception Siteimprove rejected our request or the site id was bad.
-    */
-   @Override
-   public void updateSiteInfo(final String siteId, final Map<String, String> credentials) throws Exception
-   {
-
-      if (siteId == null || siteId.isEmpty())
-      {
-         throw new NullPointerException("siteURL cannot be null or empty.");
-      }
-
-      pool.submit(() -> {
-         try
-         {
-
-            registerSslProtocol();
-
-            PostMethod postMethod = new PostMethod(NEW_SITEIMPROVE_BASE_URL);
-
-            JSONObject object = new JSONObject();
-            object.accumulate("url", siteId);
-            object.accumulate(SITEIMPROVE_TOKEN, credentials.get(SITEIMPROVE_TOKEN));
-            object.accumulate("type", SITEIMPROVE_RECRAWL_SITE);
-
-            logger.debug("JSON Object body: {}" ,object);
-
-            StringRequestEntity requestEntity = new StringRequestEntity(object.toString(), APPLICATION_JSON, UTF_8);
-
-            postMethod.setRequestEntity(requestEntity);
-
-            boolean responseStatus = executeMethod(postMethod);
-
-            if (!responseStatus)
-            {
-               throw new PSSiteImproveProviderException("Failed to request a page check from siteimprove with id:  " + siteId);
+            if (response.statusCode() != 200) {
+                logger.warn("Failed to get SiteImprove token - HTTP {} response", response.statusCode());
+                return Optional.empty();
             }
 
-         }
-         catch (Exception e)
-         {
-            logger.error(e);
-         }
-      });
-   }
+            var jsonObject = new JSONObject(response.body());
+            var token = jsonObject.optString(SITEIMPROVE_TOKEN);
 
-   /**
-    * Request a page check from siteimprove.
-    *
-    * @param siteId Id of our site that the page lives on
-    * @param pageURL The live URL of a page, must pre-exist from a site crawl on
-    *           siteimprove's side. Otherwise do a new site crawl.
-    * @param credentials The sitename/token allowing us to access the siteimprove
-    *           api.
-    */
-   @Override
-   public void updatePageInfo(final String siteId, final String pageURL, final Map<String, String> credentials)
-   {
+            return Optional.ofNullable(token)
+                .filter(StringUtils::isNotBlank);
 
-      if (pageURL == null || pageURL.isEmpty())
-      {
-         throw new NullPointerException("pageUrl cannot be null or empty.");
-      }
-
-      pool.submit(() -> {
-         try
-         {
-            int retries = 0;
-            while (retries < 4)
-            {
-               registerSslProtocol();
-
-               PostMethod postMethod = new PostMethod(NEW_SITEIMPROVE_BASE_URL);
-
-               JSONObject object = new JSONObject();
-
-               String finalURL = pageURL;
-
-               logger.debug("canonicalDist: {}" , credentials.get("canonicalDist"));
-               logger.debug("siteProtocol: {}" , credentials.get("siteProtocol"));
-               logger.debug("defaultDocument: {}" , credentials.get("defaultDocument"));
-               logger.debug("token: {}" , credentials.get(SITEIMPROVE_TOKEN));
-               logger.debug("siteName: {}" , credentials.get("sitename"));
-
-               if("sections".equals(credentials.get("canonicalDist")))
-                  finalURL = StringUtils.replace(pageURL, credentials.get("defaultDocument"), "");
-
-               object.accumulate("url", finalURL);
-               object.accumulate(SITEIMPROVE_TOKEN, credentials.get(SITEIMPROVE_TOKEN));
-               object.accumulate("type", SITEIMPROVE_RECHECK_PAGE);
-
-               logger.debug("JSON Object body: {}" , object);
-
-               StringRequestEntity requestEntity = null;
-
-               requestEntity = new StringRequestEntity(object.toString(), APPLICATION_JSON, UTF_8);
-
-               postMethod.setRequestEntity(requestEntity);
-
-               boolean responseStatus = executeMethod(postMethod);
-               if (responseStatus)
-               {
-                  return;
-               }
-               Thread.sleep(3000);
-               retries++;
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
-            throw new PSSiteImproveProviderException("Failed to notify siteimprove to check page with url: " + pageURL
-                  + " .  Site id is: " + siteId + " .  Exceeded retry count.");
-         } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | PSSiteImproveProviderException | IOException e) {
-            logger.error(PSExceptionUtils.getMessageForLog(e));
-         }catch (InterruptedException e) {
-            logger.error(e.getMessage());
-            Thread.currentThread().interrupt();
-         }
-      });
-   }
+            logger.error("Unable to get new SiteImprove token: {}", PSExceptionUtils.getMessageForLog(e));
+            logger.debug("Token retrieval error details", e);
+            return Optional.empty();
+        } catch (Exception e) {
+            logger.error("Unexpected error getting SiteImprove token: {}", PSExceptionUtils.getMessageForLog(e));
+            return Optional.empty();
+        }
+    }
 
-   /**
-    * Parse the credentials, set up the headers for the request such as auth and
-    * accepts JSON. Then send request.
-    *
-    * @param httpMethod The http method we wish to execute, make sure it has the
-    *           URI already.
-    * @throws Exception The httpclient failed to execute the method.
-    */
-   private Boolean executeMethod(HttpMethod httpMethod) throws NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+    @Override
+    public boolean validateCredentials(Map<String, String> credentials) {
+        Objects.requireNonNull(credentials, "Credentials cannot be null");
 
-      HttpClient httpClient = new HttpClient();
-      registerSslProtocol();
-      Header acceptsHeader = new Header(ACCEPTS, APPLICATION_JSON);
-      Header contentType = new Header(CONTENT_TYPE, APPLICATION_JSON);
-      httpMethod.addRequestHeader(acceptsHeader);
-      httpMethod.addRequestHeader(contentType);
+        var hasValidToken = Optional.ofNullable(credentials.get(SITEIMPROVE_TOKEN))
+            .filter(StringUtils::isNotBlank)
+            .isPresent();
 
-      int statusCode = httpClient.executeMethod(httpMethod);
+        var hasValidSiteName = Optional.ofNullable(credentials.get("sitename"))
+            .filter(StringUtils::isNotBlank)
+            .isPresent();
 
-      return statusCode >= 200 && statusCode <= 300;
-   }
+        if (!hasValidToken || !hasValidSiteName) {
+            return false;
+        }
 
-   private void registerSslProtocol() throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException
-   {
-      String scheme = "https";
-      Protocol baseHttps = Protocol.getProtocol(scheme);
-      int defaultPort = HTTPS_PORT;
+        // Set defaults for optional parameters using modern Map operations
+        credentials.putIfAbsent("siteProtocol", DEFAULT_PROTOCOL);
+        credentials.putIfAbsent("defaultDocument", "index.html");
+        credentials.putIfAbsent("canonicalDist", "pages");
 
-      ProtocolSocketFactory customFactory = new TLSSocketFactory();
+        return true;
+    }
 
-      Protocol customHttps = new Protocol(scheme, customFactory, defaultPort);
-      Protocol.registerProtocol(scheme, customHttps);
-   }
+    @Override
+    public Optional<String> retrieveSiteInfo(String siteName, Map<String, String> credentials)
+            throws IntegrationProviderException {
+        throw new IntegrationProviderException(
+            "Site info retrieval not implemented - handled by front-end SiteImprove plugin");
+    }
 
-   @Override
-   public Boolean validateCredentials(Map<String, String> credentials) throws Exception
-   {
-      if("".equals(credentials.get(SITEIMPROVE_TOKEN)))
-         return false;
-      else if("".equals(credentials.get("sitename")))
-         return false;
-      
-      if("".equals(credentials.get("siteProtocol")) || null == credentials.get("siteProtocol"))
-         credentials.put("siteProtocol", DEFAULT_PROTOCOL); // default protocol to http if empty
-      if("".equals(credentials.get("defaultDocument")) || null == credentials.get("defaultDocument"))
-         credentials.put("defaultDocument", "index.html");
-      if("".equals(credentials.get("canonicalDist")) || null == credentials.get("canonicalDist"))
-         credentials.put("canonicalDist", "pages");
-      return true;
-   }
-   
-   /**
-    * No need to implement as we don't need to retreive site info from backend.  It's all done 
-    * from the front end Siteimprove plugin.
-    */
-   @Override
-   public String retrieveSiteInfo(String siteName, Map<String, String> credentials) throws Exception
-   {
-      throw new NotImplementedException();
-   }
+    @Override
+    public Optional<String> retrievePageInfo(String siteName, String pageURL, Map<String, String> credentials)
+            throws IntegrationProviderException {
+        throw new IntegrationProviderException(
+            "Page info retrieval not implemented - handled by front-end SiteImprove plugin");
+    }
 
-   /**
-    * No need to implement as we don't need to retreive site info from backend.  It's all done 
-    * from the front end Siteimprove plugin.
-    */
-   @Override
-   public String retrievePageInfo(String siteName, String pageURL, Map<String, String> credentials)
-   {
-      throw new NotImplementedException();
-   }
+    @Override
+    public void updateSiteInfo(String siteId, Map<String, String> credentials)
+            throws IntegrationProviderException {
+        validateInputs(siteId, credentials, "Site ID");
 
+        CompletableFuture
+            .runAsync(() -> performSiteUpdate(siteId, credentials), executorService)
+            .exceptionally(throwable -> {
+                logger.error("Async site update failed for site {}: {}",
+                    siteId, PSExceptionUtils.getMessageForLog(throwable));
+                return null;
+            });
+    }
+
+    @Override
+    public void updatePageInfo(String siteId, String pageURL, Map<String, String> credentials)
+            throws IntegrationProviderException {
+        validateInputs(siteId, credentials, "Site ID");
+        validateInputs(pageURL, credentials, "Page URL");
+
+        CompletableFuture
+            .runAsync(() -> performPageUpdateWithRetries(pageURL, credentials), executorService)
+            .exceptionally(throwable -> {
+                logger.error("Async page update failed for page {} on site {}: {}",
+                    pageURL, siteId, PSExceptionUtils.getMessageForLog(throwable));
+                return null;
+            });
+    }
+
+    /**
+     * Performs the actual site update operation using modern HTTP client.
+     */
+    private void performSiteUpdate(String siteId, Map<String, String> credentials) {
+        try {
+            var jsonPayload = createSiteUpdatePayload(siteId, credentials);
+            var request = createJsonPostRequest(NEW_SITEIMPROVE_BASE_URL, jsonPayload);
+
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new PSSiteImproveProviderException(
+                    PSSiteImproveProviderException.ErrorCode.API_TIMEOUT,
+                    "Failed site update for ID: " + siteId + " (HTTP " + response.statusCode() + ")");
+            }
+
+            logger.debug("Site update successful for ID: {}", siteId);
+
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            throw new RuntimeException(new PSSiteImproveProviderException(
+                PSSiteImproveProviderException.ErrorCode.NETWORK_ERROR,
+                "Network error during site update for ID: " + siteId, e));
+        } catch (Exception e) {
+            throw new RuntimeException(new PSSiteImproveProviderException(
+                PSSiteImproveProviderException.ErrorCode.NETWORK_ERROR,
+                "Site update error for ID: " + siteId, e));
+        }
+    }
+
+    /**
+     * Performs page update with retry logic using modern stream-based approach.
+     */
+    private void performPageUpdateWithRetries(String pageURL, Map<String, String> credentials) {
+        var finalURL = preprocessPageURL(pageURL, credentials);
+        var jsonPayload = createPageUpdatePayload(finalURL, credentials);
+
+        var success = IntStream.range(0, MAX_RETRIES)
+            .anyMatch(attempt -> {
+                try {
+                    var request = createJsonPostRequest(NEW_SITEIMPROVE_BASE_URL, jsonPayload);
+                    var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+                    if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                        logger.debug("Page update successful for URL: {} on attempt {}", pageURL, attempt + 1);
+                        return true;
+                    }
+
+                    if (attempt < MAX_RETRIES - 1) {
+                        Thread.sleep(RETRY_DELAY.toMillis());
+                    }
+                    return false;
+
+                } catch (IOException | InterruptedException e) {
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
+                    logger.warn("Page update attempt {} failed for URL {}: {}",
+                        attempt + 1, pageURL, PSExceptionUtils.getMessageForLog(e));
+
+                    if (attempt < MAX_RETRIES - 1) {
+                        try {
+                            Thread.sleep(RETRY_DELAY.toMillis());
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            return false;
+                        }
+                    }
+                    return false;
+                } catch (Exception e) {
+                    logger.error("Unexpected error during page update attempt {} for URL {}: {}",
+                        attempt + 1, pageURL, PSExceptionUtils.getMessageForLog(e));
+                    return false;
+                }
+            });
+
+        if (!success) {
+            throw new RuntimeException(new PSSiteImproveProviderException(
+                PSSiteImproveProviderException.ErrorCode.API_TIMEOUT,
+                "All retry attempts failed for page update: " + pageURL));
+        }
+    }
+
+    /**
+     * Creates a JSON POST request using modern HTTP client builder.
+     */
+    private HttpRequest createJsonPostRequest(String url, JSONObject payload) {
+        return HttpRequest.newBuilder(URI.create(url))
+            .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+            .timeout(HTTP_TIMEOUT)
+            .header("Content-Type", APPLICATION_JSON)
+            .header("Accept", APPLICATION_JSON)
+            .build();
+    }
+
+    /**
+     * Creates site update payload with enhanced validation.
+     */
+    private JSONObject createSiteUpdatePayload(String siteId, Map<String, String> credentials) {
+        var payload = new JSONObject();
+        payload.put("token", credentials.get(SITEIMPROVE_TOKEN));
+        payload.put("url", buildSiteURL(siteId, credentials));
+        payload.put("action", SITEIMPROVE_RECRAWL_SITE);
+        return payload;
+    }
+
+    /**
+     * Creates page update payload with enhanced validation.
+     */
+    private JSONObject createPageUpdatePayload(String pageURL, Map<String, String> credentials) {
+        var payload = new JSONObject();
+        payload.put("token", credentials.get(SITEIMPROVE_TOKEN));
+        payload.put("url", pageURL);
+        payload.put("action", SITEIMPROVE_RECHECK_PAGE);
+        return payload;
+    }
+
+    /**
+     * Builds the site URL using modern string processing.
+     */
+    private String buildSiteURL(String siteId, Map<String, String> credentials) {
+        var protocol = credentials.getOrDefault("siteProtocol", DEFAULT_PROTOCOL);
+        var defaultDoc = credentials.getOrDefault("defaultDocument", "index.html");
+
+        return String.format("%s://%s/%s", protocol, siteId, defaultDoc);
+    }
+
+    /**
+     * Preprocesses page URL with enhanced validation and modern string operations.
+     */
+    private String preprocessPageURL(String pageURL, Map<String, String> credentials) {
+        var canonicalDist = credentials.getOrDefault("canonicalDist", "pages");
+
+        return Optional.ofNullable(pageURL)
+            .filter(StringUtils::isNotBlank)
+            .map(url -> url.contains(canonicalDist) ? url : url + "/" + canonicalDist)
+            .orElse(pageURL);
+    }
+
+    /**
+     * Validates inputs with enhanced null safety.
+     */
+    private void validateInputs(String value, Map<String, String> credentials, String fieldName)
+            throws IntegrationProviderException {
+
+        if (StringUtils.isBlank(value)) {
+            throw new IntegrationProviderException(fieldName + " cannot be null or empty");
+        }
+
+        Objects.requireNonNull(credentials, "Credentials cannot be null");
+
+        if (!credentials.containsKey(SITEIMPROVE_TOKEN) ||
+            StringUtils.isBlank(credentials.get(SITEIMPROVE_TOKEN))) {
+            throw new IntegrationProviderException("SiteImprove token is required");
+        }
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,62 +17,48 @@
  */
 package com.percussion.linkmanagement.service.impl;
 
-import com.percussion.extension.IPSExtensionDef;
-import com.percussion.extension.IPSItemInputTransformer;
-import com.percussion.extension.PSDefaultExtension;
-import com.percussion.extension.PSExtensionException;
-import com.percussion.extension.PSExtensionProcessingException;
-import com.percussion.extension.PSParameterMismatchException;
+import com.percussion.extension.*;
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.util.IPSHtmlParameters;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
+ * Pre-processor for managed item path input.
+ * Initializes new item links for new items.
  * @author JaySeletz
- *
  */
-public class PSManagedItemPathPreProcessor extends PSDefaultExtension implements IPSItemInputTransformer
-{
+public class PSManagedItemPathPreProcessor extends PSDefaultExtension implements IPSItemInputTransformer {
+
     private IPSManagedLinkService service;
-    
+
     @Override
-    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException
-    {
+    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
         super.init(def, codeRoot);
-        //This is for wiring the services
         PSSpringWebApplicationContextUtils.injectDependencies(this);
+    }
 
-    }    
-
-
-    @SuppressWarnings("unused")
     @Override
-    public void preProcessRequest(Object[] params, IPSRequestContext request) throws PSAuthorizationException,
-            PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException
-    {
-        String cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        if(StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid))
-        {
+    public void preProcessRequest(Object[] params, IPSRequestContext request)
+            throws PSAuthorizationException, PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException {
+        var cid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+        if (StringUtils.isBlank(cid) || !StringUtils.isNumeric(cid)) {
             service.initNewItemLinks();
             request.setPrivateObject(PSManagedLinksPostProcessor.PERC_UPDATE_NEW_MANAGED_LINKS, true);
         }
     }
-    
+
     /**
-     * Setter for dependency injection
-     * 
+     * Setter for dependency injection.
+     *
      * @param service the service to set
      */
-    public void setService(IPSManagedLinkService service)
-    {
+    public void setService(IPSManagedLinkService service) {
         this.service = service;
-    }    
-
+    }
 }

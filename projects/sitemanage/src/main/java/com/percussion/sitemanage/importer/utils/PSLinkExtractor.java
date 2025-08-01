@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.utils;
 
 import com.percussion.queue.impl.PSSiteQueue;
@@ -24,417 +25,294 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
 import com.percussion.sitemanage.importer.PSLink;
 import com.percussion.sitemanage.importer.PSSiteImporter;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public final class PSLinkExtractor
-{
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Utility class for extracting and processing links and images from HTML documents.
+ * Provides methods to extract anchor and image links, generate relative paths, and handle link text.
+ */
+public final class PSLinkExtractor {
 
     private static final String DOUBLE_SLASH = "//";
-
     private static final String DASH = "-";
-
-    private static final String BACK_SLASH = "\\";
-
+    private static final String BACK_SLASH = "\\;
     private static final String SLASH = "/";
-
     private static final String EMPTY = "";
-
     private static final String QUESTION_MARK = "?";
-
     private static final String PERIOD = ".";
-
     private static final String UNKNOWN = "unknown";
-
     private static final String ABS_HREF = "abs:href";
-
     public static final String A_HREF = "a[href]";
-
     public static final String IMG_SOURCE = "img[src]";
-
     public static final String HREF = "href";
-
     public static final String SRC = "src";
-
     public static final String QUERY_STRING_LINK_TEXT_TOKEN = "{{{{{{{PERCUSSION|QUERY|STRING|TOKEN}}}}}}}";
-
     private static final String QUERY_STRING_PAGE_NAME = "/item-";
 
-
-    private PSLinkExtractor()
-    {
+    private PSLinkExtractor() {
+        // Utility class; prevent instantiation.
     }
 
-    // Wrapped for test
     /**
-     * Mapped to PSSiteImporter method
-     * 
-     * @param siteUrl
-     * @param logger
-     * @param userAgent
-     * @return the redirected URL
+     * Gets the redirected URL for a given site URL.
+     *
+     * @param siteUrl   The site URL.
+     * @param logger    Logger for logging.
+     * @param userAgent User agent string.
+     * @return The redirected URL, or the original if redirection fails.
      */
-    protected String getRedirectedURL(String siteUrl, IPSSiteImportLogger logger, String userAgent)
-    {
-        String urlReturn = siteUrl;
-
-        try
-        {
+    protected String getRedirectedURL(String siteUrl, IPSSiteImportLogger logger, String userAgent) {
+        var urlReturn = siteUrl;
+        try {
             urlReturn = PSSiteImporter.getRedirectedUrl(siteUrl, logger, userAgent);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             urlReturn = siteUrl;
         }
-
         return urlReturn;
     }
 
-
     /**
-     * Gets a list of PSLink objects for a given Document
-     * 
-     * @param url the URL target
-     * @return a list of PSLink objects
+     * Gets a list of PSLink objects for anchor tags in a given Document.
+     *
+     * @param doc      The HTML document.
+     * @param log      Logger for logging.
+     * @param siteQueue Site queue for caching.
+     * @param siteUrl  The site URL.
+     * @param config   Import configuration.
+     * @return List of PSLink objects.
      */
     public static List<PSLink> getLinksForDocument(final Document doc, final IPSSiteImportLogger log,
-            PSSiteQueue siteQueue, String siteUrl, PSSiteImportConfiguration config)
-    {
-
-        final ArrayList<PSLink> outList = new ArrayList<>();
-        String queryParameter= config.getMapQueryParamToPageName();
-        ArrayList<String> uniqueListOfLinks = new ArrayList<>();
-
+                                                   PSSiteQueue siteQueue, String siteUrl, PSSiteImportConfiguration config) {
+        var outList = new ArrayList<PSLink>();
+        var queryParameter = config.getMapQueryParamToPageName();
+        var uniqueListOfLinks = new ArrayList<String>();
         boolean linkCheckPassed = true;
         String paramValue = null;
         final Elements links = doc.select(A_HREF);
-        for (Element link : links)
-        {
+
+        for (var link : links) {
             if ((!removeTrailingSlash(link.attr(ABS_HREF)).equals(getRoot(siteUrl)))
-            		&& (!link.attr(HREF).startsWith("#"))
-                    && (!link.attr(HREF).startsWith("tel")))
-            {
-                String absUrl = link.attr(ABS_HREF);
-                //If query parameter check is required then need to perform new checks
+                    && (!link.attr(HREF).startsWith("#"))
+                    && (!link.attr(HREF).startsWith("tel"))) {
+                var absUrl = link.attr(ABS_HREF);
+                // Query parameter check
                 if (!StringUtils.isBlank(queryParameter)) {
-                    String queryParameters = absUrl.substring(absUrl.indexOf("?") + 1);
-                    String[] queryParametersArr = queryParameters.split("&");
-
-                    for (String s: queryParametersArr) {
-                        String[] parameterNameAndValueArr = s.split("=");
-                        if(parameterNameAndValueArr[0].equals(queryParameter)){
-                            // If duplicate link then go to next link iteration
+                    var queryParameters = absUrl.substring(absUrl.indexOf("?") + 1);
+                    var queryParametersArr = queryParameters.split("&");
+                    for (var s : queryParametersArr) {
+                        var parameterNameAndValueArr = s.split("=");
+                        if (parameterNameAndValueArr[0].equals(queryParameter)) {
                             paramValue = parameterNameAndValueArr[1];
-                            if(paramValue.indexOf("#") != -1){
-                                paramValue = paramValue.substring(0,paramValue.indexOf("#"));
+                            if (paramValue.indexOf("#") != -1) {
+                                paramValue = paramValue.substring(0, paramValue.indexOf("#"));
                             }
-
-                            if(uniqueListOfLinks.contains(paramValue)){
+                            if (uniqueListOfLinks.contains(paramValue)) {
                                 linkCheckPassed = false;
-                            }else{
+                            } else {
                                 linkCheckPassed = true;
                                 uniqueListOfLinks.add(paramValue);
                             }
                             break;
                         }
                     }
-
-                }else{
-                    //If query parameter check is not required then need to perform old check
-                    linkCheckPassed =  getRoot(link.attr(ABS_HREF)).equals(getRoot(siteUrl));
+                } else {
+                    // Fallback check
+                    linkCheckPassed = getRoot(link.attr(ABS_HREF)).equals(getRoot(siteUrl));
                 }
-
-                //if check failed then go to next link iteration
-                if(!linkCheckPassed) {
+                if (!linkCheckPassed) {
                     continue;
                 }
-                final String absHref = link.attr(ABS_HREF);
-                final String aHref = link.attr(HREF);
-                if (siteQueue != null && siteQueue.hasLinkBeenProcessed(absHref))
-                {
-                	PSLink cachedLink = siteQueue.getProcessedLink(absHref);
-                	cachedLink.setElement(link);
+                final var absHref = link.attr(ABS_HREF);
+                final var aHref = link.attr(HREF);
+                if (siteQueue != null && siteQueue.hasLinkBeenProcessed(absHref)) {
+                    var cachedLink = siteQueue.getProcessedLink(absHref);
+                    cachedLink.setElement(link);
                     outList.add(cachedLink);
-                }
-                else
-                {
-                    try
-                    {
-                        PSLink psLink = null;
-
-                        if (absHref.equals(getRoot(doc.baseUri())) && !absHref.isEmpty())
-                        {
+                } else {
+                    try {
+                        PSLink psLink;
+                        if (absHref.equals(getRoot(doc.baseUri())) && !absHref.isEmpty()) {
                             psLink = createLink(link, absHref, aHref, PSSiteContentDao.HOME_PAGE_NAME,
                                     getRelativePath(absHref, aHref, log, config));
-                        }
-                        else
-                        {
+                        } else {
                             psLink = createLink(link, absHref, aHref, getPageName(absHref, log, config),
                                     getRelativePath(absHref, aHref, log, config));
                         }
                         link.attr(HREF, PSReplacementFilter.filter(psLink.getRelativePathWithFileName()));
-
                         outList.add(psLink);
-
-                    }
-                    catch (Exception e)
-                    {
-                        log.appendLogMessage(PSLogEntryType.ERROR, "Link Extractor", absHref
-                                + " could not be retrieved.");
+                    } catch (Exception e) {
+                        log.appendLogMessage(PSLogEntryType.ERROR, "Link Extractor", absHref + " could not be retrieved.");
                         log.appendLogMessage(PSLogEntryType.STATUS, "Link Extractor", absHref
                                 + " could not be retrieved due to the following error: " + e.getLocalizedMessage());
                     }
                 }
-
             }
         }
         return outList;
-
     }
 
     /**
-     * Gets a list of PSLink objects for a given Document searching for images
-     * 
-     * @param doc The document object to fetch
-     * @param log The logger for the site importing process
-     * @return a list of PSLink objects for the img tags
+     * Gets a list of PSLink objects for image tags in a given Document.
+     *
+     * @param doc The HTML document.
+     * @param log Logger for logging.
+     * @return List of PSLink objects for images.
      */
-    public static List<PSLink> getImagesForDocument(final Document doc, final IPSSiteImportLogger log)
-    {
-        final ArrayList<PSLink> outList = new ArrayList<>();
-
+    public static List<PSLink> getImagesForDocument(final Document doc, final IPSSiteImportLogger log) {
+        var outList = new ArrayList<PSLink>();
         final Elements images = doc.select(IMG_SOURCE);
-
-        for (Element image : images)
-        {
-            final String absHref = image.attr(ABS_HREF);
-            final String imgSrc = image.attr(SRC);
-            try
-            {
-                PSLink psImage = createLink(image, "", imgSrc, "", "");
+        for (var image : images) {
+            final var absHref = image.attr(ABS_HREF);
+            final var imgSrc = image.attr(SRC);
+            try {
+                var psImage = createLink(image, "", imgSrc, "", "");
                 outList.add(psImage);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.appendLogMessage(PSLogEntryType.ERROR, "Link Extractor", absHref + " could not be retrieved.");
                 log.appendLogMessage(PSLogEntryType.STATUS, "Link Extractor", absHref
                         + " could not be retrieved due to the following error: " + e.getLocalizedMessage());
             }
         }
-
         return outList;
     }
 
     protected static PSLink createLink(Element link, final String absHref, final String aHref, final String pageName,
-            final String relativePath) throws UnsupportedEncodingException
-    {
-        try
-        {
+                                       final String relativePath) throws UnsupportedEncodingException {
+        try {
             return PSLink.createLink(PSReplacementFilter.filter(relativePath),
                     URLDecoder.decode(getLinkText(aHref, link), "UTF-8"), absHref,
                     PSReplacementFilter.filter(pageName), link);
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             throw e;
         }
     }
 
     /**
-     * Encapsulates link text extraction
-     * 
-     * @param absHref the absolute HREF
-     * @return the link text
+     * Extracts link text for a given anchor.
+     *
+     * @param absHref The absolute HREF.
+     * @param link    The anchor element.
+     * @return The link text.
      */
-    protected static String getLinkText(final String absHref, Element link)
-    {
+    protected static String getLinkText(final String absHref, Element link) {
         String linkText = "";
-        if (absHref != null && !absHref.isEmpty() && removeTrailingSlash(absHref).equals(getRoot(absHref)))
-        {
+        if (absHref != null && !absHref.isEmpty() && removeTrailingSlash(absHref).equals(getRoot(absHref))) {
             return "Home";
         }
-
-        if (link.attr("title") != null && !link.attr("title").isEmpty())
-        {
+        if (link.hasAttr("title") && !link.attr("title").isEmpty()) {
             if (!PSLinkBadKeywords.isStringInFilterList(link.attr("title")))
                 return PSLinkBadKeywords.filterLinkTextString(link.attr("title"));
         }
-
-        if (link.text() != null && !link.text().isEmpty())
-        {
+        if (link.text() != null && !link.text().isEmpty()) {
             if (!PSLinkBadKeywords.isStringInFilterList(link.text()))
                 return PSLinkBadKeywords.filterLinkTextString(link.text());
         }
-
-        try
-        {
-            Document doc = Jsoup.connect(absHref).get();
-            Elements h1 = doc.select("h1");
-            if (h1.size() > 0)
-            {
-                String h1Text = h1.get(0).text();
-                //FB: NP_NULL_PARAM_DEREF_NONVIRTUAL NC 1-16-16
-                if (h1Text != null && !linkText.isEmpty())
-                {
-                    if (!PSLinkBadKeywords.isStringInFilterList(h1Text))
-                    {
+        try {
+            var doc = Jsoup.connect(absHref).get();
+            var h1 = doc.select("h1");
+            if (!h1.isEmpty()) {
+                var h1Text = h1.get(0).text();
+                if (h1Text != null && !linkText.isEmpty()) {
+                    if (!PSLinkBadKeywords.isStringInFilterList(h1Text)) {
                         return h1Text;
                     }
                 }
             }
-
             return doc.title();
+        } catch (Exception e) {
+            // Ignore bad links.
         }
-        catch (Exception e)
-        {
-            // bad link move on.
-        }
-
-        if (absHref != null)
-        {
+        if (absHref != null) {
             linkText = absHref;
-
-            if (absHref.contains(QUESTION_MARK))
-            {
+            if (absHref.contains(QUESTION_MARK)) {
                 linkText = QUERY_STRING_LINK_TEXT_TOKEN;
-            }
-            else
-            {
+            } else {
                 linkText = getLastElementInPath(linkText);
-
-                if (linkText.contains(PERIOD))
-                {
+                if (linkText.contains(PERIOD)) {
                     linkText = linkText.substring(0, linkText.indexOf(PERIOD));
                 }
-
-                if (linkText.isEmpty())
-                {
+                if (linkText.isEmpty()) {
                     linkText = UNKNOWN;
                 }
             }
-        }
-        else
-        {
+        } else {
             linkText = UNKNOWN;
         }
-
         return linkText;
     }
 
     /**
      * Gets the last item in a path. Does not handle query strings.
-     * 
-     * @param linkText the path for evaluation
-     * @return the last item in the path
      */
-    private static String getLastElementInPath(final String linkText)
-    {
-        String linkTextMod = removeTrailingSlash(linkText);
-        // Left Cut
-        if (linkTextMod.contains(SLASH))
-        {
+    private static String getLastElementInPath(final String linkText) {
+        var linkTextMod = removeTrailingSlash(linkText);
+        if (linkTextMod.contains(SLASH)) {
             linkTextMod = linkTextMod.substring(linkTextMod.lastIndexOf(SLASH) + 1);
         }
         return linkTextMod;
     }
 
     /**
-     * Removes a trailing slash from link text
-     * 
-     * @param linkText the text to remove the slash from
-     * @return a String with the trailing slash removed
+     * Removes a trailing slash from link text.
      */
-    private static String removeTrailingSlash(final String linkText)
-    {
-        String linkTextMod = linkText;
-        // If the link ends in a "/" remove said "/" - must do before left cut
-        if (linkTextMod.length() > 0 && hasTrailingSlash(linkTextMod))
-        {
+    private static String removeTrailingSlash(final String linkText) {
+        var linkTextMod = linkText;
+        if (!linkTextMod.isEmpty() && hasTrailingSlash(linkTextMod)) {
             linkTextMod = linkTextMod.substring(0, linkTextMod.length() - 1);
         }
         return linkTextMod;
     }
 
     /**
-     * Checks text for a trailing slash
-     * 
-     * @param linkText the link text for evaluation
-     * @return a boolean indicating the presence or lack of a trailing slash
+     * Checks text for a trailing slash.
      */
-    public static boolean hasTrailingSlash(final String linkText)
-    {
-        boolean hasTrailingSlash = false;
-        if (!linkText.isEmpty())
-        {
-            hasTrailingSlash = linkText.substring(linkText.length() - 1).equals(SLASH);
-        }
-        return hasTrailingSlash;
+    public static boolean hasTrailingSlash(final String linkText) {
+        return !linkText.isEmpty() && linkText.substring(linkText.length() - 1).equals(SLASH);
     }
 
     /**
-     * Handles query string
-     * 
-     * @param stringForStrip the string to be stripped
-     * @return a String stripped of query elements
+     * Handles query string in a URL.
      */
-    private static String handleQueryString(final String stringForStrip)
-    {
-        String strippedString = stringForStrip;
-        // Handles Word Press URLs
-        strippedString = stringForStrip.replace("/?", QUERY_STRING_PAGE_NAME);
-        return strippedString;
+    private static String handleQueryString(final String stringForStrip) {
+        return stringForStrip.replace("/?", QUERY_STRING_PAGE_NAME);
     }
 
     /**
-     * Shared functionality basic path without root and query string
-     * 
-     * @param absHref url for evaluation
-     * @return the base path
+     * Gets the base path without root and query string.
      */
-    private static String getBasePath(final String absHref)
-    {
-        String relativePath = absHref.replace(BACK_SLASH, SLASH);
+    private static String getBasePath(final String absHref) {
+        var relativePath = absHref.replace(BACK_SLASH, SLASH);
         relativePath = absHref.replace(getRoot(absHref), "");
         relativePath = handleQueryString(relativePath);
         return relativePath;
     }
 
     /**
-     * Encapsulates relative path extraction
-     * 
-     * @param absHref the absolute HREF
-     * @return the relative path
+     * Extracts the relative path for a given absolute HREF.
      */
-    protected static String getRelativePath(final String absHref, String aHref, final IPSSiteImportLogger log, PSSiteImportConfiguration config)
-    {
-        String relativePath = getBasePath(absHref.replace(BACK_SLASH, SLASH));
-        if (relativePath.isEmpty())
-        {
-            if (getRoot(absHref).equals(absHref))
-            {
+    protected static String getRelativePath(final String absHref, String aHref, final IPSSiteImportLogger log, PSSiteImportConfiguration config) {
+        var relativePath = getBasePath(absHref.replace(BACK_SLASH, SLASH));
+        if (relativePath.isEmpty()) {
+            if (getRoot(absHref).equals(absHref)) {
                 return SLASH;
             }
-            String drPath = aHref.replace(BACK_SLASH, SLASH);
+            var drPath = aHref.replace(BACK_SLASH, SLASH);
             relativePath = drPath.replace(getPageName(drPath, log, config), EMPTY);
-        }
-        else
-        {
-            if (!hasTrailingSlash(relativePath))
-            {
+        } else {
+            if (!hasTrailingSlash(relativePath)) {
                 relativePath = relativePath.substring(0, relativePath.lastIndexOf(SLASH) + 1);
             }
         }
-        if (log != null)
-        {
+        if (log != null) {
             log.appendLogMessage(PSLogEntryType.STATUS, "Link Extractor", "Changed Relative Path : " + relativePath
                     + " to " + PSReplacementFilter.filter(relativePath));
         }
@@ -442,40 +320,36 @@ public final class PSLinkExtractor
     }
 
     /**
-     * Gets the page name (file name from an absHref)
-     * 
-     * @param absHref
-     * @return the page name
+     * Gets the page name (file name) from an absHref.
      */
     protected static String getPageName(final String absHref, final IPSSiteImportLogger log, PSSiteImportConfiguration config) {
         String queryParameter = null;
-        if(config !=null){
+        if (config != null) {
             queryParameter = config.getMapQueryParamToPageName();
         }
-
         if (!StringUtils.isBlank(queryParameter) && absHref.indexOf("?") != -1) {
-            String queryParameters = absHref.substring(absHref.indexOf("?") + 1);
-            String[] queryParametersArr = queryParameters.split("&");
+            var queryParameters = absHref.substring(absHref.indexOf("?") + 1);
+            var queryParametersArr = queryParameters.split("&");
             String pageName = null;
             String paramValue = null;
-            for (String s: queryParametersArr) {
-                String[] parameterNameAndValueArr = s.split("=");
-                if(parameterNameAndValueArr[0].equals(queryParameter)){
+            for (var s : queryParametersArr) {
+                var parameterNameAndValueArr = s.split("=");
+                if (parameterNameAndValueArr[0].equals(queryParameter)) {
                     paramValue = parameterNameAndValueArr[1];
-                    if(paramValue.indexOf("#") != -1){
-                        paramValue = paramValue.substring(0,paramValue.indexOf("#"));
+                    if (paramValue.indexOf("#") != -1) {
+                        paramValue = paramValue.substring(0, paramValue.indexOf("#"));
                     }
-                    pageName = paramValue+"."+config.getSite().getDefaultFileExtention();
+                    pageName = paramValue + "." + config.getSite().getDefaultFileExtention();
                     break;
                 }
             }
             return pageName;
-        }else{
-            String endPartString = PSSiteContentDao.HOME_PAGE_NAME;
-            String cleanAbsHref = absHref.replace(BACK_SLASH, SLASH);
+        } else {
+            var endPartString = PSSiteContentDao.HOME_PAGE_NAME;
+            var cleanAbsHref = absHref.replace(BACK_SLASH, SLASH);
             if (!(cleanAbsHref != null && !cleanAbsHref.isEmpty() && removeTrailingSlash(cleanAbsHref).equals(
                     getRoot(cleanAbsHref)))) {
-                final String basePath = getBasePath(cleanAbsHref);
+                final var basePath = getBasePath(cleanAbsHref);
                 if (!hasTrailingSlash(cleanAbsHref) || getLastElementInPath(basePath).contains(PERIOD)) {
                     endPartString = getLastElementInPath(basePath);
                 }
@@ -494,30 +368,19 @@ public final class PSLinkExtractor
     }
 
     /**
-     * Gets the site root for a path
-     * 
-     * @param path
-     * @return a string that maps to the site root
+     * Gets the site root for a path.
      */
-    protected static String getRoot(final String path)
-    {
-        String builtRoot = "";
-
-        if (path != null && path.contains(DOUBLE_SLASH))
-        {
-            final String leftPart = path.substring(0, path.indexOf(DOUBLE_SLASH) + 2);
-            String rightPart = path.replace(leftPart, EMPTY);
-            if (rightPart.contains(SLASH))
-            {
+    protected static String getRoot(final String path) {
+        var builtRoot = "";
+        if (path != null && path.contains(DOUBLE_SLASH)) {
+            final var leftPart = path.substring(0, path.indexOf(DOUBLE_SLASH) + 2);
+            var rightPart = path.replace(leftPart, EMPTY);
+            if (rightPart.contains(SLASH)) {
                 rightPart = rightPart.substring(0, rightPart.indexOf(SLASH));
                 builtRoot = leftPart + rightPart;
-            }
-            else
-            {
-                // we were at the root.
+            } else {
                 builtRoot = path;
             }
-
         }
         return builtRoot;
     }

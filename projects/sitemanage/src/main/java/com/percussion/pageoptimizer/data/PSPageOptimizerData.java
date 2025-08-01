@@ -15,36 +15,45 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pageoptimizer.data;
 
 import com.percussion.cloudservice.data.PSCloudServicePageData;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Data object for Page Optimizer.
+ * Sunny Sal says: "Data so optimized, even your JVM will smile!"
+ */
 @XmlRootElement(name = "PageOptimizerData")
-public class PSPageOptimizerData extends PSCloudServicePageData
-{
-    String pageOptimizerUrl;
-    
-    public String getPageOptimizerUrl()
-    {
+public class PSPageOptimizerData extends PSCloudServicePageData {
+
+    private String pageOptimizerUrl;
+
+    public String getPageOptimizerUrl() {
         return pageOptimizerUrl;
     }
-    public void setPageOptimizerUrl(String pageOptimizerUrl)
-    {
+
+    public void setPageOptimizerUrl(String pageOptimizerUrl) {
         this.pageOptimizerUrl = pageOptimizerUrl;
         this.uiProviderUrl = pageOptimizerUrl;
     }
-    
+
     @Override
-    public void setUiProviderUrl(String uiProviderUrl)
-    {
+    public void setUiProviderUrl(String uiProviderUrl) {
         this.pageOptimizerUrl = uiProviderUrl;
         this.uiProviderUrl = uiProviderUrl;
     }
 
+    /**
+     * Creates a PSPageOptimizerData from a PSCloudServicePageData.
+     *
+     * @param cloudData the cloud service page data, not null
+     * @return a new PSPageOptimizerData instance
+     */
     public static PSPageOptimizerData fromPSCloudServicePageData(PSCloudServicePageData cloudData) {
-        PSPageOptimizerData data = new PSPageOptimizerData();
+        var data = new PSPageOptimizerData();
         data.setId(cloudData.getId());
         data.setPath(cloudData.getPath());
         data.setPageName(cloudData.getPageName());

@@ -18,80 +18,67 @@ package com.percussion.webservices.aop.security;
 
 import com.percussion.webservices.aop.security.data.PSMockDesignObject;
 import com.percussion.webservices.aop.security.strategy.PSTestSecurityStrategy;
-
 import java.util.List;
 
 /**
- * A mock webservice service manager to test the public method patterns for AOP 
- * based security processing.
+ * Mock web service manager for testing public method patterns for AOP-based security processing.
+ * <p>
+ * All methods are for test purposes only.
  */
-public interface IPSSecurityAopTestImplWs
-{
-   /**
-    * Attempts to load all design objects specified by 
-    * {@link PSSecurityAopTest#getTestAcls()}
-    * 
-    * @param name a placeholder argument, may be <code>null</code>.
-    * 
-    * @return The list of objects with guids specified by that acl, never 
-    * <code>null</code>.
-    */
-   public List<PSMockDesignObject> loadDesignObjects(String name);
-   
-   /**
-    * Attempts to load the first design object specified by 
-    * {@link PSSecurityAopTest#getTestAcls()}
-    * 
-    * @return An object with the guid specified by that acl, never 
-    * <code>null</code>.
-    */
-   public PSMockDesignObject loadDesignObject();
-   
-   /**
-    * Returns all design objects specified by 
-    * {@link PSSecurityAopTest#getTestAcls()}, used to test that public find
-    * results aren't filtered.
-    *  
-    * @param name Placeholder arg, if <code>null</code>, a runtime exception is
-    * thrown, otherwise the list is returned unmodified.
-    * 
-    * @return The list, never <code>null</code>.
-    */
-   public List<PSMockDesignObject> findPublicObjects(String name);
-   
-   /**
-    * A noop method used to test that public save methods aren't protected.
-    * 
-    * @param name Placeholder arg, should not be <code>null</code>.
-    */
-   public void savePublicObjects(String name);
-   
-   /**
-    * A noop method used to test that public delete methods aren't protected.
-    * 
-    * @param name Placeholder arg, should not be <code>null</code>.
-    */
-   public void deletePublicObjects(String name);   
-   
-   /**
-    * Attempts to load the first design object specified by 
-    * {@link PSSecurityAopTest#getTestAcls()}
-    * 
-    * @return An object with the guid specified by that acl, never 
-    * <code>null</code>.
-    */
-   @IPSWsMethod(ignore=true)
-   public PSMockDesignObject loadDesignObjectIgnore();
-   
-   /**
-    * Same as {@link #findPublicObjects(String)} but with custom strategy.
-    *  
-    * @param name Placeholder arg, if <code>null</code>, a runtime exception is
-    * thrown, otherwise the list is returned unmodified.
-    * 
-    * @return The list, never <code>null</code>.
-    */
-   @IPSWsStrategy(PSTestSecurityStrategy.class)
-   public List<PSMockDesignObject> findPublicObjectsCustom(String name);    
-}
+public interface IPSSecurityAopTestImplWs {
 
+    /**
+     * Loads all design objects specified by {@link PSSecurityAopTest#getTestAcls()}.
+     *
+     * @param name Placeholder argument, may be {@code null}.
+     * @return List of objects with GUIDs specified by the ACL, never {@code null}.
+     */
+    List<PSMockDesignObject> loadDesignObjects(String name);
+
+    /**
+     * Loads the first design object specified by {@link PSSecurityAopTest#getTestAcls()}.
+     *
+     * @return Object with the GUID specified by the ACL, never {@code null}.
+     */
+    PSMockDesignObject loadDesignObject();
+
+    /**
+     * Returns all design objects specified by {@link PSSecurityAopTest#getTestAcls()}.
+     * Used to test that public find results aren't filtered.
+     *
+     * @param name Placeholder argument, if {@code null}, a runtime exception is thrown.
+     * @return List of objects, never {@code null}.
+     */
+    List<PSMockDesignObject> findPublicObjects(String name);
+
+    /**
+     * No-op method used to test that public save methods aren't protected.
+     *
+     * @param name Placeholder argument, should not be {@code null}.
+     */
+    void savePublicObjects(String name);
+
+    /**
+     * No-op method used to test that public delete methods aren't protected.
+     *
+     * @param name Placeholder argument, should not be {@code null}.
+     */
+    void deletePublicObjects(String name);
+
+    /**
+     * Loads the first design object specified by {@link PSSecurityAopTest#getTestAcls()}.
+     *
+     * @return Object with the GUID specified by the ACL, never {@code null}.
+     */
+    @IPSWsMethod(ignore = true)
+    PSMockDesignObject loadDesignObjectIgnore();
+
+    /**
+     * Same as {@link #findPublicObjects(String)} but with a custom strategy.
+     *
+     * @param name Placeholder argument, if {@code null}, a runtime exception is thrown.
+     * @return List of objects, never {@code null}.
+     */
+    @IPSWsStrategy(PSTestSecurityStrategy.class)
+    List<PSMockDesignObject> findPublicObjectsCustom(String name);
+}

@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
-
 
 import com.percussion.error.PSExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -29,91 +28,96 @@ import javax.xml.bind.Unmarshaller;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PSJaxbContext
-{
-   private static final Logger log = LogManager.getLogger(PSJaxbContext.class);
+/**
+ * Java 11 refactored: Thread-safe singleton/context manager for JAXB marshallers and unmarshallers.
+ * <p>
+ * Uses thread-local storage for marshaller/unmarshaller instances and a concurrent map for singleton context per class.
+ * <p>
+ * All methods are static and thread-safe. Callers must use the static get() method for instance retrieval.
+ */
+public class PSJaxbContext {
+    private static final Logger log = LogManager.getLogger(PSJaxbContext.class);
 
-   // singleton pattern: one instance per class.
-   private static Map<Class,PSJaxbContext> singletonMap = new ConcurrentHashMap<>();
+    // Singleton pattern: one instance per class (Java 11 generics)
+    private static final Map<Class<?>, PSJaxbContext> singletonMap = new ConcurrentHashMap<>();
 
-   private Class clazz;
+    private final Class<?> clazz;
 
-   // thread-local pattern: one marshaller/unmarshaller instance per thread
-   private ThreadLocal<Marshaller> marshallerThreadLocal = new ThreadLocal<>();
-   private ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<>();
+    // Thread-local pattern: one marshaller/unmarshaller instance per thread
+    private final ThreadLocal<Marshaller> marshallerThreadLocal = new ThreadLocal<>();
+    private final ThreadLocal<Unmarshaller> unmarshallerThreadLocal = new ThreadLocal<>();
 
-   // The static singleton getter needs to be thread-safe too,
-   // so this method is marked as synchronized.
-   public static PSJaxbContext get(Class clazz)
-   {
-      PSJaxbContext jaxb = singletonMap.computeIfAbsent(clazz, k -> new PSJaxbContext(k));
-      return jaxb;
-   }
+    /**
+     * Returns the singleton PSJaxbContext for the given class.
+     * Thread-safe and uses Java 11 features.
+     */
+    public static PSJaxbContext get(Class<?> clazz) {
+        return singletonMap.computeIfAbsent(clazz, k -> new PSJaxbContext(k));
+    }
 
-   // the constructor needs to be private,
-   // because all instances need to be created with the get method.
-   private PSJaxbContext(Class clazz)
-   {
-      this.clazz = clazz;
-   }
+    // Private constructor: use get() for instance creation
+    private PSJaxbContext(Class<?> clazz) {
+        this.clazz = clazz;
+    }
 
-   public static Marshaller createMarshaller(Class<?> aClass) {
-      try {
-         Marshaller m = get(aClass).createMarshaller();
-         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-         m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-         return m;
-      }catch (JAXBException e)
-         {
-            log.error("FATAL... Unable to create JAXB Marshaller: {}",
-                    PSExceptionUtils.getMessageForLog(e));
+    /**
+     * Creates a new JAXB Marshaller for the given class.
+     * @param aClass the class to marshal
+     * @return a new Marshaller instance, or null if creation fails
+     */
+    public static Marshaller createMarshaller(Class<?> aClass) {
+        try {
+            var m = get(aClass).createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            return m;
+        } catch (JAXBException e) {
+            log.error("FATAL... Unable to create JAXB Marshaller: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return null;
-         }
-   }
+        }
+    }
 
-   public static Unmarshaller createUnmarshaller(Class<?> aClass) {
-      try {
-         return get(aClass).createUnmarshaller();
-      }catch (JAXBException e)
-      {
-         log.error("FATAL... Unable to create JAXB Unmarshaller: {}",
-                 PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-         return null;
-      }
-   }
+    /**
+     * Creates a new JAXB Unmarshaller for the given class.
+     * @param aClass the class to unmarshal
+     * @return a new Unmarshaller instance, or null if creation fails
+     */
+    public static Unmarshaller createUnmarshaller(Class<?> aClass) {
+        try {
+            return get(aClass).createUnmarshaller();
+        } catch (JAXBException e) {
+            log.error("FATAL... Unable to create JAXB Unmarshaller: {}", PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return null;
+        }
+    }
 
-   /**
-    * Gets/Creates a marshaller (thread-safe)
-    * @throws JAXBException
-    */
-   public Marshaller createMarshaller() throws JAXBException
-   {
-      Marshaller m = marshallerThreadLocal.get();
-      if (m == null)
-      {
-         JAXBContext jc = JAXBContext.newInstance(clazz);
-         m = jc.createMarshaller();
-         marshallerThreadLocal.set(m);
-      }
-      return m;
-   }
+    /**
+     * Gets/Creates a marshaller (thread-safe)
+     * @throws JAXBException if marshaller creation fails
+     */
+    public Marshaller createMarshaller() throws JAXBException {
+        var m = marshallerThreadLocal.get();
+        if (m == null) {
+            var jc = JAXBContext.newInstance(clazz);
+            m = jc.createMarshaller();
+            marshallerThreadLocal.set(m);
+        }
+        return m;
+    }
 
-   /**
-    * Gets/Creates an unmarshaller (thread-safe)
-    * @throws JAXBException
-    */
-   public Unmarshaller createUnmarshaller() throws JAXBException
-   {
-      Unmarshaller um = unmarshallerThreadLocal.get();
-      if (um == null)
-      {
-         JAXBContext jc = JAXBContext.newInstance(clazz);
-
-         um = jc.createUnmarshaller();
-         unmarshallerThreadLocal.set(um);
-      }
-      return um;
-   }
+    /**
+     * Gets/Creates an unmarshaller (thread-safe)
+     * @throws JAXBException if unmarshaller creation fails
+     */
+    public Unmarshaller createUnmarshaller() throws JAXBException {
+        var um = unmarshallerThreadLocal.get();
+        if (um == null) {
+            var jc = JAXBContext.newInstance(clazz);
+            um = jc.createUnmarshaller();
+            unmarshallerThreadLocal.set(um);
+        }
+        return um;
+    }
 }

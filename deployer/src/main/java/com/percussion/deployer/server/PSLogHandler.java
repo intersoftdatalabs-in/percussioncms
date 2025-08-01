@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.deployer.server;
 
 
@@ -55,10 +57,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
- * Handling the processing all log table related operations.
+ * Handles processing of all log table related operations for deployment.
  */
 public class PSLogHandler
 {
@@ -106,13 +110,10 @@ public class PSLogHandler
     * @throws IllegalArgumentException if <code>tgtServer</code> is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   public Iterator getArchiveSummaries(String tgtServer)
-        throws PSDeployException
-   {
-      if (tgtServer == null || tgtServer.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "tgtServer may not be null or empty");
-      
+   public Iterator<PSArchiveSummary> getArchiveSummaries(String tgtServer)
+         throws PSDeployException {
+      if (tgtServer == null || tgtServer.trim().isEmpty())
+         throw new IllegalArgumentException("tgtServer may not be null or empty");
       return getArchiveSummaries(tgtServer, null);
    }
 
@@ -132,43 +133,36 @@ public class PSLogHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   public Iterator getArchiveSummaries(String tgtServer, String archiveRef)
-        throws PSDeployException
-   {
-      if (tgtServer != null && tgtServer.trim().length() == 0)
+   public Iterator<PSArchiveSummary> getArchiveSummaries(String tgtServer, String archiveRef)
+         throws PSDeployException {
+      if (tgtServer != null && tgtServer.trim().isEmpty())
          throw new IllegalArgumentException("tgtServer may not be empty");
-
-      if (archiveRef != null && archiveRef.trim().length() == 0)
+      if (archiveRef != null && archiveRef.trim().isEmpty())
          throw new IllegalArgumentException("archiveRef may not be empty");
-      
-      List<PSArchiveSummary> asList = new ArrayList<>();
 
+      var asList = new ArrayList<PSArchiveSummary>();
       if (tgtServer == null)
          tgtServer = PSServer.getHostName() + ":" + PSServer.getListenerPort();
-      
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(ALS_TGT_SERVER_NAME,
+
+      var filter = new PSJdbcSelectFilter(ALS_TGT_SERVER_NAME,
          PSJdbcSelectFilter.EQUALS, tgtServer, Types.VARCHAR);
 
-      if (archiveRef != null)
-      {
-         PSJdbcFilterContainer container = new PSJdbcFilterContainer();
+      if (archiveRef != null) {
+         var container = new PSJdbcFilterContainer();
          container.doAND(filter);
          filter = new PSJdbcSelectFilter(ALS_ARCHIVE_REF,
             PSJdbcSelectFilter.EQUALS, archiveRef, Types.VARCHAR);
          container.doAND(filter);
          filter = container;
       }
-      
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
+
+      var tData = m_dbmsHandle.catalogTableData(
          m_archiveLogSummarySchema, null, filter);
 
-      // collect the result set if any
-      if (tData != null)
-      {
-         Iterator rows = tData.getRows();
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      if (tData != null) {
+         var rows = tData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
             asList.add(getArchiveSummary(row));
          }
       }
@@ -190,34 +184,27 @@ public class PSLogHandler
     * <code>null</code> or empty.
     * @throws PSDeployException if any other errors occur.
     */
-   public PSArchiveSummary getArchiveSummary(String archiveRef) 
-      throws PSDeployException
-   {
-      if (archiveRef == null || archiveRef.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "archiveRef may not be null or empty");
+   public PSArchiveSummary getArchiveSummary(String archiveRef)
+         throws PSDeployException {
+      if (archiveRef == null || archiveRef.trim().isEmpty())
+         throw new IllegalArgumentException("archiveRef may not be null or empty");
 
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(ALS_ARCHIVE_REF,
+      var filter = new PSJdbcSelectFilter(ALS_ARCHIVE_REF,
          PSJdbcSelectFilter.EQUALS, archiveRef, Types.VARCHAR);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
+      var tData = m_dbmsHandle.catalogTableData(
          m_archiveLogSummarySchema, null, filter);
 
       PSArchiveSummary archiveSummary = null;
-      // collect the result set if any
-      if (tData != null)
-      {
+      if (tData != null) {
          Date latestDate = null;
          PSJdbcRowData latestRow = null;
-         Iterator rows = tData.getRows();
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
-            Date date = m_dbmsHandle.getColumnDate(ALS_TABLE_NAME, 
-               ALS_INSTALL_DATE, row);
-            if ((latestDate == null) || (date.compareTo(latestDate) > 0))
-            {
-               date = latestDate;
+         var rows = tData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
+            var date = m_dbmsHandle.getColumnDate(ALS_TABLE_NAME, ALS_INSTALL_DATE, row);
+            if ((latestDate == null) || (date.compareTo(latestDate) > 0)) {
+               latestDate = date;
                latestRow = row;
             }
          }
@@ -238,26 +225,21 @@ public class PSLogHandler
     * @throws PSDeployException if any error occurs.
     */
    public PSArchiveSummary getArchiveSummary(int archiveId)
-      throws PSDeployException
-   {
+         throws PSDeployException {
       PSArchiveSummary arSummary = null;
-
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(ALS_ARCHIVE_LOG_ID,
+      var filter = new PSJdbcSelectFilter(ALS_ARCHIVE_LOG_ID,
          PSJdbcSelectFilter.EQUALS, Integer.toString(archiveId), Types.INTEGER);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
+      var tData = m_dbmsHandle.catalogTableData(
          m_archiveLogSummarySchema, null, filter);
 
-      if (tData != null)
-      {
-         Iterator rows = tData.getRows();
-         if ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      if (tData != null) {
+         var rows = tData.getRows();
+         if (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
             arSummary = getArchiveSummary(row);
          }
       }
-
       return arSummary;
    }
 
@@ -272,27 +254,18 @@ public class PSLogHandler
     * @throws PSDeployException if any error occurs
     */
    private PSArchiveSummary getArchiveSummary(PSJdbcRowData row)
-      throws PSDeployException
-   {
-      int archiveId = m_dbmsHandle.getColumnInt(ALS_TABLE_NAME,
-         ALS_ARCHIVE_LOG_ID, row);
+         throws PSDeployException {
+      int archiveId = m_dbmsHandle.getColumnInt(ALS_TABLE_NAME, ALS_ARCHIVE_LOG_ID, row);
+      Date dateTime = m_dbmsHandle.getColumnDate(ALS_TABLE_NAME, ALS_INSTALL_DATE, row);
 
-      Date dateTime = m_dbmsHandle.getColumnDate(ALS_TABLE_NAME,
-         ALS_INSTALL_DATE, row);
+      var archiveInfo = (PSArchiveInfo) getColumnClob(ALS_TABLE_NAME, ALS_ARCHIVE_INFO, row, PSArchiveInfo.class);
+      var archiveMan = (PSArchiveManifest) getColumnClob(ALS_TABLE_NAME, ALS_ARCHIVE_MANIFEST, row, PSArchiveManifest.class);
 
-      PSArchiveInfo archiveInfo = (PSArchiveInfo) getColumnClob(ALS_TABLE_NAME,
-         ALS_ARCHIVE_INFO, row, PSArchiveInfo.class);
-      PSArchiveManifest archiveMan = (PSArchiveManifest) getColumnClob(
-         ALS_TABLE_NAME, ALS_ARCHIVE_MANIFEST, row, PSArchiveManifest.class);
+      var pkgList = getArchivePackages(archiveId);
 
-      Iterator pkgList = getArchivePackages(archiveId);
-
-      PSArchiveSummary arSummary = new PSArchiveSummary(archiveInfo, dateTime,
-         pkgList);
+      var arSummary = new PSArchiveSummary(archiveInfo, dateTime, pkgList);
       arSummary.setArchiveManifest(archiveMan);
-      arSummary.setId( m_dbmsHandle.getColumnInt(ALS_TABLE_NAME,
-         ALS_ARCHIVE_LOG_ID, row) );
-
+      arSummary.setId(m_dbmsHandle.getColumnInt(ALS_TABLE_NAME, ALS_ARCHIVE_LOG_ID, row));
       return arSummary;
    }
 
@@ -307,33 +280,22 @@ public class PSLogHandler
     *
     * @throws PSDeployException if any error occurs.
     */
-   private Iterator getArchivePackages(int archiveId) throws PSDeployException
-   {
-      List<PSArchivePackage> pkgList = new ArrayList<>();
-
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(AP_ARCHIVE_LOG_ID,
+   private Iterator<PSArchivePackage> getArchivePackages(int archiveId) throws PSDeployException {
+      var pkgList = new ArrayList<PSArchivePackage>();
+      var filter = new PSJdbcSelectFilter(AP_ARCHIVE_LOG_ID,
          PSJdbcSelectFilter.EQUALS, Integer.toString(archiveId), Types.INTEGER);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
-         m_archivePackageSchema, null, filter);
+      var tData = m_dbmsHandle.catalogTableData(m_archivePackageSchema, null, filter);
 
-      if (tData != null)
-      {
-         Iterator rows = tData.getRows();
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
-            String name = m_dbmsHandle.getColumnString(AP_TABLE_NAME,
-               AP_PACKAGE_NAME, row);
-            String type = m_dbmsHandle.getColumnString(AP_TABLE_NAME,
-               AP_PACKAGE_TYPE, row);
-            int status = m_dbmsHandle.getColumnInt(AP_TABLE_NAME,
-               AP_STATUS, row);
-            int logId = m_dbmsHandle.getColumnInt(AP_TABLE_NAME,
-               AP_LOG_SUMMARY_ID, row);
-               
-            PSArchivePackage pkg = new PSArchivePackage(name, type, status, 
-               logId);
+      if (tData != null) {
+         var rows = tData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
+            var name = m_dbmsHandle.getColumnString(AP_TABLE_NAME, AP_PACKAGE_NAME, row);
+            var type = m_dbmsHandle.getColumnString(AP_TABLE_NAME, AP_PACKAGE_TYPE, row);
+            int status = m_dbmsHandle.getColumnInt(AP_TABLE_NAME, AP_STATUS, row);
+            int logId = m_dbmsHandle.getColumnInt(AP_TABLE_NAME, AP_LOG_SUMMARY_ID, row);
+            var pkg = new PSArchivePackage(name, type, status, logId);
             pkgList.add(pkg);
          }
       }
@@ -356,22 +318,17 @@ public class PSLogHandler
     * @throws IllegalArgumentException if <code>tgtServer</code> is not valid.
     * @throws PSDeployException if any error occurs.
     */
-   public Iterator getLogSummaries(String tgtServer) throws PSDeployException
-   {
-      if (tgtServer == null || tgtServer.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "tgtServer may not be null or empty");
+   public Iterator<PSLogSummary> getLogSummaries(String tgtServer) throws PSDeployException {
+      if (tgtServer == null || tgtServer.trim().isEmpty())
+         throw new IllegalArgumentException("tgtServer may not be null or empty");
 
-      List<PSLogSummary> logSmryList = new ArrayList<>();
+      var logSmryList = new ArrayList<PSLogSummary>();
+      var tableData = getLogSummariesTableData(tgtServer);
 
-      PSJdbcTableData tableData = getLogSummariesTableData(tgtServer);
-
-      if (tableData != null)
-      {
-         Iterator rows = tableData.getRows();
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      if (tableData != null) {
+         var rows = tableData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
             logSmryList.add(getLogSummary(row, false));
          }
       }
@@ -393,45 +350,36 @@ public class PSLogHandler
     * @throws PSDeployException if an error occurs.
     */
    private PSJdbcTableData getLogSummariesTableData(String tgtServer)
-      throws PSDeployException
-   {
-      StringBuilder sArchiveIds = new StringBuilder(0);
+         throws PSDeployException {
+      var sArchiveIds = new StringBuilder(0);
 
       // get a list of archive summary id from archive log summary table first.
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(ALS_TGT_SERVER_NAME,
+      var filter = new PSJdbcSelectFilter(ALS_TGT_SERVER_NAME,
          PSJdbcSelectFilter.EQUALS, tgtServer, Types.VARCHAR);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
-         m_archiveLogSummarySchema, new String[] {ALS_ARCHIVE_LOG_ID}, filter);         
+      var tData = m_dbmsHandle.catalogTableData(
+         m_archiveLogSummarySchema, new String[] {ALS_ARCHIVE_LOG_ID}, filter);
 
       // build the IN clause for later use.
-      if (tData != null)
-      {
-         Iterator rows = tData.getRows();
-         String archiveId;
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
-            archiveId = m_dbmsHandle.getColumnString(ALS_TABLE_NAME,
-               ALS_ARCHIVE_LOG_ID, row);
-            if ( sArchiveIds.length() == 0 )
-               sArchiveIds.append("(" + archiveId);
+      if (tData != null) {
+         var rows = tData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
+            var archiveId = m_dbmsHandle.getColumnString(ALS_TABLE_NAME, ALS_ARCHIVE_LOG_ID, row);
+            if (sArchiveIds.length() == 0)
+               sArchiveIds.append("(").append(archiveId);
             else
-               sArchiveIds.append("," + archiveId);
+               sArchiveIds.append(",").append(archiveId);
          }
          sArchiveIds.append(")");
       }
-      if ( sArchiveIds.length() != 0 )
-      {
+      if (sArchiveIds.length() != 0) {
          // now get the specified data from log summary table
          filter = new PSJdbcSelectFilter(LS_ARCHIVE_LOG_ID,
             PSJdbcSelectFilter.IN, sArchiveIds.toString(), Types.INTEGER);
 
-         return m_dbmsHandle.catalogTableData(m_logSummarySchema, 
-            LS_SUM_COLS_NO_DETAIL, filter);
-      }
-      else
-      {
+         return m_dbmsHandle.catalogTableData(m_logSummarySchema, LS_SUM_COLS_NO_DETAIL, filter);
+      } else {
          return null; // cannot find any
       }
    }
@@ -441,8 +389,7 @@ public class PSLogHandler
     * {@link #getLogSummary(int, boolean) getLogSummary(logId, true)} to return
     * the full log summary including the log detail.
     */
-   public PSLogSummary getLogSummary(int logId) throws PSDeployException
-   {
+   public PSLogSummary getLogSummary(int logId) throws PSDeployException {
       return getLogSummary(logId, true);
    }
 
@@ -459,24 +406,19 @@ public class PSLogHandler
     *
     * @throws PSDeployException if any error occurs.
     */
-   public PSLogSummary getLogSummary(int logId, boolean includeDetail) 
-      throws PSDeployException
-   {
+   public PSLogSummary getLogSummary(int logId, boolean includeDetail)
+         throws PSDeployException {
       PSLogSummary logSummary = null;
-
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(LS_LOG_SUMMARY_ID,
+      var filter = new PSJdbcSelectFilter(LS_LOG_SUMMARY_ID,
          PSJdbcSelectFilter.EQUALS, Integer.toString(logId), Types.INTEGER);
 
       String[] cols = includeDetail ? null : LS_SUM_COLS_NO_DETAIL;
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
-         m_logSummarySchema, cols, filter);
+      var tData = m_dbmsHandle.catalogTableData(m_logSummarySchema, cols, filter);
 
-      if (tData != null)
-      {
-         Iterator rows = tData.getRows();
-         if ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      if (tData != null) {
+         var rows = tData.getRows();
+         if (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
             logSummary = getLogSummary(row, includeDetail);
          }
       }
@@ -498,39 +440,30 @@ public class PSLogHandler
     * @throws PSDeployException if any error occurs.
     */
    private PSLogSummary getLogSummary(PSJdbcRowData row, boolean includeDetail)
-      throws PSDeployException
-   {
+         throws PSDeployException {
 
-      PSDeployableElement pkg = (PSDeployableElement) getColumnClob(
-         LS_TABLE_NAME, LS_PACKAGE_DETAIL, row, PSDeployableElement.class);
-      int archiveId = m_dbmsHandle.getColumnInt(LS_TABLE_NAME,
-         LS_ARCHIVE_LOG_ID, row);
-      int logId = m_dbmsHandle.getColumnInt(LS_TABLE_NAME, LS_LOG_SUMMARY_ID,
-         row);
+      var pkg = (PSDeployableElement) getColumnClob(LS_TABLE_NAME, LS_PACKAGE_DETAIL, row, PSDeployableElement.class);
+      int archiveId = m_dbmsHandle.getColumnInt(LS_TABLE_NAME, LS_ARCHIVE_LOG_ID, row);
+      int logId = m_dbmsHandle.getColumnInt(LS_TABLE_NAME, LS_LOG_SUMMARY_ID, row);
 
-      PSArchiveSummary arSummary = getArchiveSummary(archiveId);
-      PSLogSummary logSummary = new PSLogSummary(pkg, arSummary);      
+      var arSummary = getArchiveSummary(archiveId);
+      var logSummary = new PSLogSummary(pkg, arSummary);
       logSummary.setId(logId);
 
 
       // load detail if required
-      if (includeDetail)
-      {
+      if (includeDetail) {
          // get the dbms map, which could be null
-         PSDbmsMap dbmsMap = (PSDbmsMap) getColumnClobNullable(LS_TABLE_NAME,
-            LS_DBMS_MAP, row, PSDbmsMap.class);
+         var dbmsMap = (PSDbmsMap) getColumnClobNullable(LS_TABLE_NAME, LS_DBMS_MAP, row, PSDbmsMap.class);
 
          // get the id map, which could be null
-         PSIdMap idMap = (PSIdMap) getColumnClobNullable(LS_TABLE_NAME, 
-            LS_ID_MAP, row, PSIdMap.class);;
+         var idMap = (PSIdMap) getColumnClobNullable(LS_TABLE_NAME, LS_ID_MAP, row, PSIdMap.class);;
 
-         PSValidationResults vr = (PSValidationResults) getColumnClob(
-            LS_TABLE_NAME, LS_VALIDATION_RESULTS, row, 
-            PSValidationResults.class);
+         var vr = (PSValidationResults) getColumnClob(LS_TABLE_NAME, LS_VALIDATION_RESULTS, row, PSValidationResults.class);
 
-         PSTransactionLogSummary txns = getTxnLogSummary(logId);
+         var txns = getTxnLogSummary(logId);
 
-         PSLogDetail logDetail = new PSLogDetail(vr, idMap, dbmsMap, txns);
+         var logDetail = new PSLogDetail(vr, idMap, dbmsMap, txns);
          logSummary.setLogDetail(logDetail);
       }
 
@@ -550,66 +483,45 @@ public class PSLogHandler
     * @throws PSDeployException if any error occurs.
     */
    private PSTransactionLogSummary getTxnLogSummary(int logId)
-      throws PSDeployException
-   {
-      PSTransactionLogSummary txns = new PSTransactionLogSummary();
-
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(TXN_LOG_SUMMARY_ID,
+         throws PSDeployException {
+      var txns = new PSTransactionLogSummary();
+      var filter = new PSJdbcSelectFilter(TXN_LOG_SUMMARY_ID,
          PSJdbcSelectFilter.EQUALS, Integer.toString(logId), Types.INTEGER);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
-         m_logTxnSchema, null, filter);
+      var tData = m_dbmsHandle.catalogTableData(m_logTxnSchema, null, filter);
 
-      if (tData != null)
-      {
-         // build sorted map
-         TreeMap<Integer, PSTransactionSummary> txnMap = 
-                                 new TreeMap<>();
+      if (tData != null) {
+         var txnMap = new TreeMap<Integer, PSTransactionSummary>();
          boolean hasSeq = true;
          int seq = 0;
-         
-         Iterator rows = tData.getRows();
-         while ( rows.hasNext() )
-         {
-            PSJdbcRowData row = (PSJdbcRowData) rows.next();
 
-            String depDesc = m_dbmsHandle.getColumnString(TXN_TABLE_NAME,
-               TXN_DEPENDENCY, row);
-            String name = m_dbmsHandle.getColumnString(TXN_TABLE_NAME,
-               TXN_ELEMENT_NAME, row);
-            String type = m_dbmsHandle.getColumnString(TXN_TABLE_NAME,
-               TXN_ELEMENT_TYPE, row);
-            int action = m_dbmsHandle.getColumnInt(TXN_TABLE_NAME,
-               TXN_ACTION_TOOK, row);
+         var rows = tData.getRows();
+         while (rows.hasNext()) {
+            var row = (PSJdbcRowData) rows.next();
+            var depDesc = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_DEPENDENCY, row);
+            var name = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_ELEMENT_NAME, row);
+            var type = m_dbmsHandle.getColumnString(TXN_TABLE_NAME, TXN_ELEMENT_TYPE, row);
+            int action = m_dbmsHandle.getColumnInt(TXN_TABLE_NAME, TXN_ACTION_TOOK, row);
 
-            PSTransactionSummary txn = new PSTransactionSummary(logId, depDesc,            
-               name, type, action);
-               
-            // we'll either have a sequence or not, to support backward compat            
-            if (hasSeq)
-            {
-               try
-               {
-                  seq = m_dbmsHandle.getColumnInt(TXN_TABLE_NAME, TXN_SEQUENCE, 
-                     row);
-               }
-               catch (PSDeployException e)
-               {
+            var txn = new PSTransactionSummary(logId, depDesc, name, type, action);
+
+            // we'll either have a sequence or not, to support backward compat
+            if (hasSeq) {
+               try {
+                  seq = m_dbmsHandle.getColumnInt(TXN_TABLE_NAME, TXN_SEQUENCE, row);
+               } catch (PSDeployException e) {
                   // only try once if we don't have it
                   hasSeq = false;
                }
             }
-            
             // if not using sequence, maintain order from db
             if (!hasSeq)
                seq++;
-            
-            txnMap.put(new Integer(seq), txn);            
+            txnMap.put(seq, txn);
          }
-         
-         Iterator transactions = txnMap.values().iterator();
-         while (transactions.hasNext())
-            txns.addTransaction((PSTransactionSummary)transactions.next());
+         for (var transaction : txnMap.values()) {
+            txns.addTransaction(transaction);
+         }
       }
       return txns;
    }
@@ -630,30 +542,17 @@ public class PSLogHandler
     * @throws PSDeployException if any error occurs.
     */
    private IPSDeployComponent getColumnClob(String table, String column,
-      PSJdbcRowData row, Class compClass) throws PSDeployException
-   {
-      String xml = m_dbmsHandle.getColumnString(table, column, row);
-
-      StringReader sReader = new StringReader(xml);
-
-      IPSDeployComponent component = null;
-      try
-      {
-         Document resultDoc = PSXmlDocumentBuilder.createXmlDocument(sReader,
-             false);
-         Element root = resultDoc.getDocumentElement();
-
-         Constructor compCtor = compClass.getConstructor( new Class[]
-            { Element.class });
-         component = (IPSDeployComponent) compCtor.newInstance(
-            new Object[] {root} );
+      PSJdbcRowData row, Class<?> compClass) throws PSDeployException {
+      var xml = m_dbmsHandle.getColumnString(table, column, row);
+      var sReader = new StringReader(xml);
+      try {
+         var resultDoc = PSXmlDocumentBuilder.createXmlDocument(sReader, false);
+         var root = resultDoc.getDocumentElement();
+         var compCtor = compClass.getConstructor(Element.class);
+         return (IPSDeployComponent) compCtor.newInstance(root);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
-      }
-      return component;
    }
 
    /**
@@ -668,22 +567,15 @@ public class PSLogHandler
     * detail info.
     */
    private IPSDeployComponent getColumnClobNullable(String table, String column,
-      PSJdbcRowData row, Class compClass) throws PSDeployException
-   {
-      IPSDeployComponent comp = null;
-
-      PSJdbcColumnData cdata= row.getColumn(column);
-
-      if (cdata == null) // the column not exist
-      {
+      PSJdbcRowData row, Class<?> compClass) throws PSDeployException {
+      var cdata = row.getColumn(column);
+      if (cdata == null) {
          Object[] args = {table, column, "null"};
-         throw new PSDeployException(
-             IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
+         throw new PSDeployException(IPSDeploymentErrors.INVALID_REPOSITORY_COLUMN_VALUE, args);
       }
-      if ( cdata.getValue() != null && cdata.getValue().trim().length() != 0 )
-         comp = getColumnClob(table, column, row, compClass);
-
-      return comp;
+      if (cdata.getValue() != null && !cdata.getValue().trim().isEmpty())
+         return getColumnClob(table, column, row, compClass);
+      return null;
    }
 
    /**
@@ -754,19 +646,18 @@ public class PSLogHandler
     */
    public void deleteAllLogs(String archiveRef) throws PSDeployException
    {
-      if (archiveRef == null || archiveRef.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "archiveRef may not be null or empty");
-      
+      if (archiveRef == null || archiveRef.trim().isEmpty())
+         throw new IllegalArgumentException("archiveRef may not be null or empty");
+
       // get all summaries for this ref
-      Iterator summmaries = getArchiveSummaries(null, archiveRef);
+      Iterator<PSArchiveSummary> summmaries = getArchiveSummaries(null, archiveRef);
       while (summmaries.hasNext())
       {
          PSArchiveSummary sum = (PSArchiveSummary)summmaries.next();
          int archiveId = sum.getId();
          
          // walk the packages and delete their logs
-         Iterator pkgs = sum.getPackageList();
+         Iterator<PSArchivePackage> pkgs = sum.getPackageList();
          while (pkgs.hasNext())
          {
             PSArchivePackage pkg = (PSArchivePackage)pkgs.next();
@@ -839,10 +730,10 @@ public class PSLogHandler
    private boolean archiveIdExistInLogSummary(int archiveId)
       throws PSDeployException
    {
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(LS_ARCHIVE_LOG_ID,
+      var filter = new PSJdbcSelectFilter(LS_ARCHIVE_LOG_ID,
          PSJdbcSelectFilter.EQUALS, Integer.toString(archiveId), Types.INTEGER);
 
-      PSJdbcTableData tData = m_dbmsHandle.catalogTableData(
+      var tData = m_dbmsHandle.catalogTableData(
          m_logSummarySchema, new String[]{LS_LOG_SUMMARY_ID}, filter);
 
       return ((tData != null) && tData.getRows().hasNext());
@@ -863,14 +754,13 @@ public class PSLogHandler
    public boolean doesArchiveRefExist(String archiveRef)
       throws PSDeployException
    {
-      if (archiveRef == null || archiveRef.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "archiveRef may not be null or empty");
+      if (archiveRef == null || archiveRef.trim().isEmpty())
+         throw new IllegalArgumentException("archiveRef may not be null or empty");
 
-      PSJdbcSelectFilter filter = new PSJdbcSelectFilter(ALS_ARCHIVE_REF,
+      var filter = new PSJdbcSelectFilter(ALS_ARCHIVE_REF,
          PSJdbcSelectFilter.EQUALS, archiveRef, Types.VARCHAR);
 
-      PSJdbcTableData tableData = m_dbmsHandle.catalogTableData(
+      var tableData = m_dbmsHandle.catalogTableData(
          m_archiveLogSummarySchema, new String[]{ALS_ARCHIVE_LOG_ID}, filter);
 
       return ((tableData != null) && tableData.getRows().hasNext());
@@ -1054,9 +944,9 @@ public class PSLogHandler
          throw new IllegalArgumentException("archiveId may not be < 0");
        if (logId < 0)
          throw new IllegalArgumentException("logId may not be < 0");
-       if (pkgType == null || pkgType.trim().length() == 0)
+       if (pkgType == null || pkgType.trim().isEmpty())
          throw new IllegalArgumentException("pkgType may not be null or empty");
-       if (pkgId == null || pkgId.trim().length() == 0)
+       if (pkgId == null || pkgId.trim().isEmpty())
          throw new IllegalArgumentException("pkgId may not be null or empty");
       if (! PSArchivePackage.validateStatus(status))
          throw new IllegalArgumentException("status value is not a valid");
@@ -1257,7 +1147,7 @@ public class PSLogHandler
     * @return The created table data object, never <code>null</code>.
     */
    private PSJdbcTableData getTableDataForAddPackages(int archiveLogId,
-      Iterator pkgList)
+      Iterator<PSDependency> pkgList)
    {
       List<PSJdbcRowData> rowDataList = new ArrayList<>();
       PSJdbcRowData rowData;
@@ -1338,13 +1228,13 @@ public class PSLogHandler
    {  
       if (logId < 0)
          throw new IllegalArgumentException("logId may not be < 0");
-      if (depString == null || depString.trim().length() ==0)
+      if (depString == null || depString.trim().isEmpty())
          throw new IllegalArgumentException(
             "depString may not be null or empty");
-      if (elementName == null || elementName.trim().length() ==0)
+      if (elementName == null || elementName.trim().isEmpty())
          throw new IllegalArgumentException(
             "elementName may not be null or empty");
-      if (elementType == null || elementType.trim().length() ==0)
+      if (elementType == null || elementType.trim().isEmpty())
          throw new IllegalArgumentException(
             "elementType may not be null or empty");
       if (! PSTransactionSummary.isActionValid(action))

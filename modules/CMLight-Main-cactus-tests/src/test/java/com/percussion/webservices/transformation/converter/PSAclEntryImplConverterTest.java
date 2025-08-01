@@ -24,40 +24,34 @@ import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Test case for the {@link PSAclEntryImplConverter}.
  */
 @Category(IntegrationTest.class)
-public class PSAclEntryImplConverterTest extends PSConverterTestBase
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if the test fails.
-    */
-   public void testConverter() throws Exception
-   {
-      PSAclEntryImpl src = new PSAclEntryImpl(new PSTypedPrincipal("admin1",
-         PrincipalTypes.ROLE));
-      src.setAclId(123);
-      src.setId(456);
-      
-      PSAccessLevelImpl level;
-      
-      int count = 0;
-      for (PSPermissions perm : PSPermissions.values())
-      {
-         level = new PSAccessLevelImpl();
-         level.setPermission(perm);
-         level.setId(700 + count++);
-         src.addPermission(level);
-      }
-      
-      PSAclEntryImpl tgt = (PSAclEntryImpl) roundTripConversion(
-         PSAclEntryImpl.class, 
-         com.percussion.webservices.system.PSAclEntryImpl.class, src);
-      
-      assertEquals(src, tgt);
-   }
-}
+public class PSAclEntryImplConverterTest extends PSConverterTestBase {
 
+    /**
+     * Test the converter.
+     */
+    public void testConverter() throws Exception {
+        var src = new PSAclEntryImpl(new PSTypedPrincipal("admin1", PrincipalTypes.ROLE));
+        src.setAclId(123);
+        src.setId(456);
+
+        int count = 0;
+        for (var perm : PSPermissions.values()) {
+            var level = new PSAccessLevelImpl();
+            level.setPermission(perm);
+            level.setId(700 + count++);
+            src.addPermission(level);
+        }
+
+        var tgt = (PSAclEntryImpl) roundTripConversion(
+                PSAclEntryImpl.class,
+                com.percussion.webservices.system.PSAclEntryImpl.class, src);
+
+        assertEquals(src, tgt);
+    }
+}

@@ -21,86 +21,42 @@ import java.util.Set;
 
 import org.json.JSONException;
 
-public interface IPSMetadataEntry
-{
+public interface IPSMetadataEntry {
+    String getName();
 
-   /**
-    * @return the name
-    */
-   public String getName();
+    void setName(String name);
 
-   /**
-    * @param name the name to set
-    */
-   public void setName(String name);
+    String getFolder();
 
-   /**
-    * @return the folder
-    */
-   public String getFolder();
+    void setFolder(String folder);
 
-   /**
-    * @param folder the folder to set
-    */
-   public void setFolder(String folder);
+    String getPagepath();
 
-   /**
-    * @return the page path
-    */
-   public String getPagepath();
+    void setPagepath(String path);
 
-   /**
-    * @param path the pagepath to set
-    */
-   public void setPagepath(String path);
+    String getLinktext();
 
-   /**
-    * @return the linktext
-    */
-   public String getLinktext();
+    void setLinktext(String linktext);
 
-   /**
-    * @param linktext the linktext to set
-    */
-   public void setLinktext(String linktext);
+    String getType();
 
-   /**
-    * @return the type
-    */
-   public String getType();
+    void setType(String type);
 
-   /**
-    * @param type the type to set
-    */
-   public void setType(String type);
+    String getSite();
 
-   /**
-    * @return the site
-    */
-   public String getSite();
+    void setSite(String site);
 
-   /**
-    * @param site the site to set
-    */
-   public void setSite(String site);
+    /**
+     * Returns a cloned set of properties. Changing the returned set does not affect the entry.
+     * To change property values, use {@link #setProperties(Set)}.
+     */
+    Set<IPSMetadataProperty> getProperties();
 
-   /**
-    * @return the properties. This returns a cloned set of properties changing
-    *         the value of these directly will not affect the property values in
-    *         the entry. To change property values on the entry you must passed
-    *         the properties back to the entries {@link #setProperties(Set)}
-    *         method.
-    */
-   public Set<IPSMetadataProperty> getProperties();
+    void setProperties(Set<IPSMetadataProperty> properties);
 
-   /**
-    * @param properties the properties to set
-    */
-   public void setProperties(Set<IPSMetadataProperty> properties);
+    void addProperty(IPSMetadataProperty prop);
 
-   public void addProperty(IPSMetadataProperty prop);
+    void clearProperties();
 
-   public void clearProperties();
-
-   public String getJson() throws JSONException;
+    String getJson() throws JSONException;
 }

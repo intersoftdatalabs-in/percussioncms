@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Class to encapsulate low-level archive detail added at completion of
@@ -140,17 +141,12 @@ public class PSArchiveDetail implements IPSDeployComponent
     * 
     * @return iterator over zero or more <code>PSDbmsInfo</code> objects
     */
-   public Iterator getExternalDbmsList(PSDeployableElement pkg)
+   public Iterator<PSDatasourceMap> getExternalDbmsList(PSDeployableElement pkg)
    {
-      if (pkg == null)
-         throw new IllegalArgumentException("pkg may not be null");
-      
-      List result = null;
-      
-      refreshDbmsInfoMap();
-      result = (List)m_externalDbmsMap.get(pkg.getKey());
-         
-      return result.iterator();
+      if (pkg == null) throw new IllegalArgumentException("pkg may not be null");
+      return Optional.ofNullable(m_externalDbmsMap.get(pkg.getKey()))
+          .orElseGet(ArrayList::new)
+          .iterator();
    }
 
    /**
@@ -326,34 +322,22 @@ public class PSArchiveDetail implements IPSDeployComponent
     * @param desc The descriptor used to init the map.  Assumed not 
     * <code>null</code>.
     */
-   private void initDbmsInfoMap(PSExportDescriptor desc)
-   {
+   private void initDbmsInfoMap(PSExportDescriptor desc) {
       m_externalDbmsMap.clear();
-      Iterator pkgs = desc.getPackages();
-      while (pkgs.hasNext())
-      {
-         PSDeployableElement pkg = (PSDeployableElement)pkgs.next();
-         m_externalDbmsMap.put(pkg.getKey(), new ArrayList());
-      }
+      desc.getPackages().forEachRemaining(pkg -> m_externalDbmsMap.put(pkg.getKey(), new ArrayList<>()));
    }
    
    /**
     * Ensures the external dbms info map has all packages currently in the
     * export descriptor.
     */
-   private void refreshDbmsInfoMap()
-   {
-      Iterator pkgs = m_exportDescriptor.getPackages();
-      Map newMap = new HashMap();
-      while (pkgs.hasNext())
-      {
-         PSDeployableElement pkg = (PSDeployableElement)pkgs.next();
-         String pkgKey = pkg.getKey();
-         List pkgList = (List)m_externalDbmsMap.get(pkgKey);
-         if (pkgList == null)
-            pkgList = new ArrayList();
-         newMap.put(pkgKey, pkgList);         
-      }
+   private void refreshDbmsInfoMap() {
+      var newMap = new HashMap<String, List<PSDbmsInfo>>();
+      m_exportDescriptor.getPackages().forEachRemaining(pkg -> {
+          var pkgKey = pkg.getKey();
+          var pkgList = Optional.ofNullable(m_externalDbmsMap.get(pkgKey)).orElseGet(ArrayList::new);
+          newMap.put(pkgKey, pkgList);
+      });
       m_externalDbmsMap = newMap;
    }
    

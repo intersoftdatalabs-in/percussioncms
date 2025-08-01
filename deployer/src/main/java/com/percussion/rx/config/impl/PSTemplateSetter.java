@@ -40,6 +40,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
+// REFACTORED: CP-JAVA11
 public class PSTemplateSetter extends PSSimplePropertySetter
 {
    @Override
@@ -49,8 +50,8 @@ public class PSTemplateSetter extends PSSimplePropertySetter
    {
       if (! (obj instanceof IPSAssemblyTemplate))
          throw new IllegalArgumentException("obj type must be IPSAssemblyTemplate.");
-      
-      PSAssemblyTemplate template = (PSAssemblyTemplate) obj;
+
+      var template = (PSAssemblyTemplate) obj;
       if (GLOBAL_TEMPLATE.equals(propName))
       {
          setGlobalTemplate(template, propValue);
@@ -72,7 +73,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter
       {
          super.applyProperty(obj, state, aSets, propName, propValue);
       }
-      
+
       return true;
    }
 
@@ -84,14 +85,14 @@ public class PSTemplateSetter extends PSSimplePropertySetter
          Object pvalue, Map<String, Object> defs) throws PSNotFoundException {
       if (super.addPropertyDefs(obj, propName, pvalue, defs))
          return true;
-      
+
       if (SLOTS.equals(propName) || BINDING_SET.equals(propName))
       {
          addFixmePropertyDefsForList(propName, pvalue, defs);
       }
       else if (BINDINGS.equals(propName))
       {
-         IPSAssemblyTemplate tp = (IPSAssemblyTemplate) obj;
+         var tp = (IPSAssemblyTemplate) obj;
          addPropertyDefsForMap(propName, pvalue, getBindings(tp), defs);
       }
       return true;
@@ -102,23 +103,21 @@ public class PSTemplateSetter extends PSSimplePropertySetter
     */
    @Override
    protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
-      IPSAssemblyTemplate template = (IPSAssemblyTemplate) obj;
+      var template = (IPSAssemblyTemplate) obj;
       if (GLOBAL_TEMPLATE.equals(propName))
       {
          if (template.getGlobalTemplate() == null)
             return null;
-         
-         IPSAssemblyService srv = PSAssemblyServiceLocator
-               .getAssemblyService();
-         IPSAssemblyTemplate t = srv
-               .findTemplate(template.getGlobalTemplate());
+
+         var srv = PSAssemblyServiceLocator.getAssemblyService();
+         var t = srv.findTemplate(template.getGlobalTemplate());
 
          return t == null ? null : t.getName();
       }
       else if (SLOTS.equals(propName))
       {
-         List<String> slots = new ArrayList<>();
-         for (IPSTemplateSlot s : template.getSlots())
+         var slots = new ArrayList<String>();
+         for (var s : template.getSlots())
          {
             slots.add(s.getName());
          }
@@ -126,11 +125,10 @@ public class PSTemplateSetter extends PSSimplePropertySetter
       }
       else if (BINDING_SET.equals(propName))
       {
-         List<PSPair<String, String>> bList = new ArrayList<>();
-         for (IPSTemplateBinding b : template.getBindings())
+         var bList = new ArrayList<PSPair<String, String>>();
+         for (var b : template.getBindings())
          {
-            bList.add(new PSPair<>(b.getVariable(), b
-                  .getExpression()));
+            bList.add(new PSPair<>(b.getVariable(), b.getExpression()));
          }
          return bList;
       }
@@ -152,9 +150,9 @@ public class PSTemplateSetter extends PSSimplePropertySetter
     */
    private Map<String, Object> getBindings(IPSAssemblyTemplate template)
    {
-      List<String> seq = new ArrayList<>();
-      Map<String, Object> bindings = new HashMap<>();
-      for (IPSTemplateBinding b : template.getBindings())
+      var seq = new ArrayList<String>();
+      var bindings = new HashMap<String, Object>();
+      for (var b : template.getBindings())
       {
          bindings.put(b.getVariable(), b.getExpression());
          seq.add(b.getVariable());
@@ -178,13 +176,12 @@ public class PSTemplateSetter extends PSSimplePropertySetter
    private void setGlobalTemplate(IPSAssemblyTemplate template,
          Object propValue) throws PSAssemblyException
    {
-      IPSAssemblyService srv = PSAssemblyServiceLocator.getAssemblyService();
-      IPSAssemblyTemplate t = srv.findTemplateByName((String)propValue);
+      var srv = PSAssemblyServiceLocator.getAssemblyService();
+      var t = srv.findTemplateByName((String)propValue);
 
       if (t == null)
-         throw new PSConfigException("Cannot find global template \""
-               + propValue + "\".");
-      
+         throw new PSConfigException("Cannot find global template \"" + propValue + "\".");
+
       template.setGlobalTemplate(t.getGUID());
    }
    
@@ -202,13 +199,13 @@ public class PSTemplateSetter extends PSSimplePropertySetter
       if (!(propValue instanceof Map))
          throw new PSConfigException("The value type of the " + BINDINGS
                + " must be Map");
-      
-      Map<String, Object> props = (Map<String, Object>) propValue;
+
+      var props = (Map<String, Object>) propValue;
       if (props.isEmpty())
          return;
-      
-      List<String> seq = mergeBinding(template, props);
-      reorderBindings(template, seq);      
+
+      var seq = mergeBinding(template, props);
+      reorderBindings(template, seq);
    }
    
    /**
@@ -222,15 +219,15 @@ public class PSTemplateSetter extends PSSimplePropertySetter
    {
       if (seq == null)
          return;
-      
-      List<PSTemplateBinding> src = template.getBindings();
-      List<PSTemplateBinding> target = new ArrayList<>();
-      
+
+      var src = template.getBindings();
+      var target = new ArrayList<PSTemplateBinding>();
+
       // add bindings from "src" to "target" according to "seq"
       int index = 1; // it is 1 based index/sequence
-      for (String var : seq)
+      for (var varName : seq)
       {
-         PSTemplateBinding b = getBinding(src, var);
+         var b = getBinding(src, varName);
          if (b != null)
          {
             target.add(b);
@@ -239,7 +236,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter
          }
       }
       // append whatever left in "src" into "target"
-      for (PSTemplateBinding b : src)
+      for (var b : src)
       {
          b.setExecutionOrder(index++);
          target.add(b);
@@ -257,13 +254,13 @@ public class PSTemplateSetter extends PSSimplePropertySetter
     * @return the sequence property specified in the binding properties. It may
     * be <code>null</code> if there is no sequence property specified.
     */
-   private List<String> mergeBinding(IPSAssemblyTemplate template, 
+   private List<String> mergeBinding(IPSAssemblyTemplate template,
          Map<String, Object> map)
    {
       List<String> seqList = null;
-      for (Map.Entry<String, Object> entry : map.entrySet())
+      for (var entry : map.entrySet())
       {
-         PSTemplateBinding binding = getBinding(template.getBindings(), entry.getKey());
+         var binding = getBinding(template.getBindings(), entry.getKey());
          if (binding != null)
          {
             binding.setExpression((String)entry.getValue());
@@ -276,7 +273,7 @@ public class PSTemplateSetter extends PSSimplePropertySetter
          {
             binding = new PSTemplateBinding(template.getBindings().size(),
                   entry.getKey(), (String)entry.getValue());
-            template.addBinding(binding);            
+            template.addBinding(binding);
          }
       }
       return seqList;
@@ -311,10 +308,10 @@ public class PSTemplateSetter extends PSSimplePropertySetter
    private PSTemplateBinding getBinding(List<PSTemplateBinding> bindings,
                                         String name)
    {
-      for (IPSTemplateBinding binding : bindings)
+      for (var binding : bindings)
       {
          if (binding.getVariable().equals(name))
-            return (PSTemplateBinding) binding;
+            return binding;
       }
       return null;
    }
@@ -332,14 +329,13 @@ public class PSTemplateSetter extends PSSimplePropertySetter
       if (!(obj instanceof List))
          throw new PSConfigException("The value type of the " + BINDING_SET
                + " must be List");
-      
-      List<PSPair<String, String>> bindings = (List<PSPair<String, String>>) obj;
+
+      var bindings = (List<PSPair<String, String>>) obj;
       template.getBindings().clear();
-      for (int i=0;  i < bindings.size(); i++)
+      for (int i = 0; i < bindings.size(); i++)
       {
-         PSPair<String, String> b = bindings.get(i);
-         PSTemplateBinding binding = new PSTemplateBinding(i + 1,
-               b.getFirst(), b.getSecond());
+         var b = bindings.get(i);
+         var binding = new PSTemplateBinding(i + 1, b.getFirst(), b.getSecond());
          template.addBinding(binding);
       }
    }

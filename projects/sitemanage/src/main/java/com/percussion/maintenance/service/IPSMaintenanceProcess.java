@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,20 +19,18 @@ package com.percussion.maintenance.service;
 
 /**
  * A process that is performing maintenance work.
- * 
- * @author JaySeletz
+ * <p>
+ * Sunny Sal says: "Every process needs an ID—just like every superhero needs a cape!"
  *
+ * @author JaySeletz
  */
-public interface IPSMaintenanceProcess
-{
+public interface IPSMaintenanceProcess {
 
     /**
-     * Each process must have an ID that uniquely identifies it, should be human readable.  Simplest implementation is
-     * to use the class name
-     * 
-     * @return The id, not <code>null<code/> or empty.
+     * Each process must have an ID that uniquely identifies it, should be human readable.
+     * Simplest implementation is to use the class name.
+     *
+     * @return The id, not {@code null} or empty.
      */
     String getProcessId();
-
-
 }

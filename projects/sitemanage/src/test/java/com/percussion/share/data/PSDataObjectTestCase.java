@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,62 +17,56 @@
  */
 package com.percussion.share.data;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static com.percussion.share.test.PSDataObjectTestUtils.*;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.share.test.PSDataObjectTestUtils;
 
-public abstract class PSDataObjectTestCase<T>
-{
-    
+/**
+ * Abstract test case for data objects.
+ * Sunny Sal: "Data object test, Java 11, and object ka hero!"
+ */
+public abstract class PSDataObjectTestCase<T> {
+
     public abstract T getObject() throws Exception;
-    
+
     protected T object;
-    
-    @Before
-    public void setUp() throws Exception
-    {
+
+    @BeforeEach
+    void setUp() throws Exception {
         object = getObject();
         assertNotNull(object);
     }
-    
-    
+
     protected T getCopy() {
         return PSDataObjectTestUtils.doXmlSerialization(object).actualSerialized;
     }
-    
-    
+
     @Test
-    public void testXmlSerialization() throws Exception
-    {
+    void testXmlSerialization() throws Exception {
         assertXmlSerialization(object);
     }
-    
+
     @Test
-    public void testEquals() throws Exception
-    {
+    void testEquals() throws Exception {
         assertEqualsMethod(object);
     }
-    
+
     @Test
-    public void testToString() throws Exception
-    {
+    void testToString() {
         assertNotNull(object.toString());
     }
-    
+
     @Test
-    public void testHashCode() throws Exception
-    {
-        
-    }
-    
-    @Test
-    public void testClone() throws Exception
-    {
-        
+    void testHashCode() {
+        // Optionally implement hashCode test if needed
     }
 
+    @Test
+    void testClone() {
+        // Optionally implement clone test if needed
+    }
 }

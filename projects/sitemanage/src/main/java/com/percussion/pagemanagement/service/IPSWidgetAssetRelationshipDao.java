@@ -15,24 +15,24 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 /**
- * The service used to update Page & Asset relationships.
- * 
+ * Service used to update Page & Asset relationships.
+ *
  * @author YuBingChen
  */
-public interface IPSWidgetAssetRelationshipDao
-{
+public interface IPSWidgetAssetRelationshipDao {
+
     /**
      * Updates the widget name (of the given template) for all relationships
-     * where the owners are the pages that use the given template
-     *  
-     * @param templateId the ID of the template, not blank.
-     * @param widgetName the new name of the widget, may be null or empty.
-     * @param widgetId the ID of the widget, not blank.
-     * 
-     * @return number of relationships have been updated.
+     * where the owners are the pages that use the given template.
+     *
+     * @param templateId The ID of the template, not blank.
+     * @param widgetName The new name of the widget, may be null or empty.
+     * @param widgetId The ID of the widget, not blank.
+     * @return Number of relationships that have been updated.
      */
     int updateWidgetNameForRelatedPages(String templateId, String widgetName, long widgetId);
 }

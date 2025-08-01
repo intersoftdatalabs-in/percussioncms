@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,122 +22,120 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * 
  * Utility methods for working with legacy Percussion CM System extensions.
- * Many methods convert parameter objects like {@link IPSRequestContext}
- * into a {@link Map}.
- * Once you convert parameters to a Map you can take advantage of 
- * <a href="http://commons.apache.org/collections/api/org/apache/commons/collections/MapUtils.html">
- * Apache Commons MapUtils</a>
- * Or Apache Commons BeanUtils.
- * 
- * @author adamgent
+ * Converts parameter objects like {@link IPSRequestContext} into a {@link Map}.
+ * Once converted, you can use Apache Commons MapUtils or BeanUtils.
  *
+ * @author adamgent
  */
-public class PSLegacyExtensionUtils
-{
+public class PSLegacyExtensionUtils {
+
     /**
-     * Adds the parameters specified by the extension def and contained in the parameters
+     * Adds parameters specified by the extension def and contained in the parameters
      * array to the given map.
-     * @param paramMap never <code>null</code>.
-     * @param def never <code>null</code>.
-     * @param params never <code>null</code>.
+     *
+     * @param paramMap never null
+     * @param def      never null
+     * @param params   never null
      */
     public static void addParameters(Map<String, String> paramMap, IPSExtensionDef def, Object[] params) {
         addParameters(paramMap, getParameterNames(def), params);
     }
 
-    public static String getGUID(String id){
-        if(id != null && id.contains("-")){
+    /**
+     * Returns a GUID string for the given id.
+     * If the id is already a GUID, returns it as-is.
+     */
+    public static String getGUID(String id) {
+        if (id != null && id.contains("-")) {
             return id;
-        }else{
-            PSLegacyGuid guid = new PSLegacyGuid(Integer.valueOf(id), 1);
-            return guid.toString();
         }
+        var guid = new PSLegacyGuid(Integer.parseInt(id), 1);
+        return guid.toString();
     }
 
-    public static String getGUID(String id,String revId){
-        if(id != null && id.contains("-")){
+    /**
+     * Returns a GUID string for the given id and revision.
+     * If the id is already a GUID, returns it as-is.
+     */
+    public static String getGUID(String id, String revId) {
+        if (id != null && id.contains("-")) {
             return id;
-        }else{
-            PSLegacyGuid guid = new PSLegacyGuid(Integer.valueOf(id), Integer.valueOf(revId));
-            return guid.toString();
         }
+        var guid = new PSLegacyGuid(Integer.parseInt(id), Integer.parseInt(revId));
+        return guid.toString();
     }
-    
+
     /**
      * Adds object parameters to a map.
-     * @param paramMap self never <code>null</code>.
+     *
+     * @param paramMap       never null
      * @param parameterNames the keys of the map
-     * @param parameters the values of the map.
+     * @param parameters     the values of the map
      */
     public static void addParameters(Map<String, String> paramMap, List<String> parameterNames, Object[] parameters) {
-        notNull(paramMap);
-        notNull(parameterNames);
-        notNull(parameters);
-        for (int i = 0; i < parameters.length; i++) {
-            if (parameterNames.size() > i) {
+        notNull(paramMap, "paramMap");
+        notNull(parameterNames, "parameterNames");
+        notNull(parameters, "parameters");
+        for (var i = 0; i < parameters.length; i++) {
+            if (parameterNames.size() > i && parameters[i] != null) {
                 paramMap.put(parameterNames.get(i), parameters[i].toString());
             }
         }
     }
-    
+
     /**
      * Add parameters from request context.
-     * @param paramMap never <code>null</code>.
-     * @param request never <code>null</code>.
+     *
+     * @param paramMap never null
+     * @param request  never null
      */
-    @SuppressWarnings("unchecked")
     public static void addParameters(Map<String, String> paramMap, IPSRequestContext request) {
-        notNull(paramMap);
-        notNull(request);
-        Iterator<Entry<String, ?>> iterator = request.getParametersIterator();
-        while(iterator.hasNext()) {
-            String p = iterator.next().getKey();
-            paramMap.put(p, request.getParameter(p));
+        notNull(paramMap, "paramMap");
+        notNull(request, "request");
+        var iterator = request.getParametersIterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            var key = entry.getKey();
+            var value = request.getParameter(key);
+            paramMap.put(key, value);
         }
     }
-    
+
     /**
      * Get parameter names from the request.
-     * @param request never <code>null</code>.
-     * @return never <code>null</code>.
+     *
+     * @param request never null
+     * @return never null
      */
-    @SuppressWarnings("unchecked")
     public static List<String> getParameterNames(IPSRequestContext request) {
-        notNull(request);
-        Iterator<Entry<String, ?>> iterator = request.getParametersIterator();
-        List<String> parameterNames = new ArrayList<>();
-        while(iterator.hasNext()) {
-            String p = iterator.next().getKey();
-            parameterNames.add(p);
+        notNull(request, "request");
+        var iterator = request.getParametersIterator();
+        var parameterNames = new ArrayList<String>();
+        while (iterator.hasNext()) {
+            var key = iterator.next().getKey();
+            parameterNames.add(key);
         }
         return parameterNames;
     }
-    
+
     /**
-     * Gets the parameters names from an extension definition.
-     * @param extensionDef never <code>null</code>.
-     * @return never <code>null</code>.
+     * Gets the parameter names from an extension definition.
+     *
+     * @param extensionDef never null
+     * @return never null
      */
-    @SuppressWarnings("unchecked")
     public static List<String> getParameterNames(IPSExtensionDef extensionDef) {
-        notNull(extensionDef);
-        List<String> rvalue = new ArrayList<>();
-        Iterator<String> it = extensionDef.getRuntimeParameterNames();
+        notNull(extensionDef, "extensionDef");
+        var rvalue = new ArrayList<String>();
+        var it = extensionDef.getRuntimeParameterNames();
         CollectionUtils.addAll(rvalue, it);
         return rvalue;
     }
-    
-
 }
-

@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import com.percussion.itemmanagement.data.IPSEditableItem;
@@ -21,169 +23,154 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a summary of comments for a page.
+ */
 @XmlRootElement(name = "commentsSummary")
-public class PSCommentsSummary
-	extends PSAbstractDataObject
-	implements IPSEditableItem {
+public class PSCommentsSummary extends PSAbstractDataObject implements IPSEditableItem {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String id;
-
-	private String pagePath;
-	
-	private String path;
-	
-	private String pageLinkTitle;
-
+    private String id;
+    private String pagePath;
+    private String path;
+    private String pageLinkTitle;
     private int commentCount = 0;
-
-	private int approvedCount = 0;
-
+    private int approvedCount = 0;
     private int newCount = 0;
-    
     private String datePosted;
-    
     private String summary;
-    
-	/**
-	 * @param id The id number identifying that page.
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-	
-	/**
+
+    /**
+     * @param id The id number identifying that page.
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
      * @return The id number identifying that page.
      */
-	public String getId() {
-		return id;
-	}
-	
-	/**
-	 * @return The type of the object, in this case ASSET_TYPE.
-	 */
-	public String getType() {
-		return IPSEditableItem.ASSET_TYPE;
-	}
+    public String getId() {
+        return id;
+    }
 
-	/**
-	 * @return The path of the page which has a comment. Relative to the delivery tier server.
-	 */
-	public String getPagePath() {
-		return pagePath;
-	}
+    /**
+     * @return The type of the object, in this case ASSET_TYPE.
+     */
+    public String getType() {
+        return IPSEditableItem.ASSET_TYPE;
+    }
 
-	/**
-	 * @param pagePath The path of the page which has a comment. Relative to the delivery tier server.
-	 */
-	public void setPagePath(String pagePath) {
-		this.pagePath = pagePath;
-	}
+    /**
+     * @return The path of the page which has a comment. Relative to the delivery tier server.
+     */
+    public String getPagePath() {
+        return pagePath;
+    }
 
-	/**
-	 * @return The CMS path of the page which has a comment.
-	 */
-	public String getPath() {
-		return path;
-	}
+    /**
+     * @param pagePath The path of the page which has a comment. Relative to the delivery tier server.
+     */
+    public void setPagePath(String pagePath) {
+        this.pagePath = pagePath;
+    }
 
-	/**
-	 * @param path The CMS path of the page which has a comment.
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
+    /**
+     * @return The CMS path of the page which has a comment.
+     */
+    public String getPath() {
+        return path;
+    }
 
-	/**
-	 * @return The total number of comments for that page.
-	 */
-	public int getCommentCount() {
-		return commentCount;
-	}
+    /**
+     * @param path The CMS path of the page which has a comment.
+     */
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	/**
-	 * @param commentCount The total number of comments for that page.
-	 */
-	public void setCommentCount(int commentCount) {
-		this.commentCount = commentCount;
-	}
+    /**
+     * @return The total number of comments for that page.
+     */
+    public int getCommentCount() {
+        return commentCount;
+    }
 
-	/**
-	 * @return The number of approved comments for that page.
-	 */
-	public int getApprovedCount() {
-		return approvedCount;
-	}
+    /**
+     * @param commentCount The total number of comments for that page.
+     */
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
 
-	/**
-	 * @param approvedCount The number of approved comments for that page.
-	 */
-	public void setApprovedCount(int approvedCount) {
-		this.approvedCount = approvedCount;
-	}
-	
-	/**
+    /**
+     * @return The number of approved comments for that page.
+     */
+    public int getApprovedCount() {
+        return approvedCount;
+    }
+
+    /**
+     * @param approvedCount The number of approved comments for that page.
+     */
+    public void setApprovedCount(int approvedCount) {
+        this.approvedCount = approvedCount;
+    }
+
+    /**
      * @return the pageTitle
      */
-    public String getPageLinkTitle()
-    {
+    public String getPageLinkTitle() {
         return pageLinkTitle;
     }
 
     /**
      * @param pageLinkTitle the link title to set
      */
-    public void setPageLinkTitle(String pageLinkTitle)
-    {
+    public void setPageLinkTitle(String pageLinkTitle) {
         this.pageLinkTitle = pageLinkTitle;
     }
 
     /**
      * @return the newCount
      */
-    public int getNewCount()
-    {
+    public int getNewCount() {
         return newCount;
     }
 
     /**
      * @param newCount the newCount to set
      */
-    public void setNewCount(int newCount)
-    {
+    public void setNewCount(int newCount) {
         this.newCount = newCount;
     }
 
     /**
      * @return the datePosted
      */
-    public String getDatePosted()
-    {
+    public String getDatePosted() {
         return datePosted;
     }
 
     /**
      * @param datePosted the datePosted to set
      */
-    public void setDatePosted(String datePosted)
-    {
+    public void setDatePosted(String datePosted) {
         this.datePosted = datePosted;
     }
 
     /**
      * @return the summary
      */
-    public String getSummary()
-    {
+    public String getSummary() {
         return summary;
     }
 
     /**
      * @param summary the summary to set
      */
-    public void setSummary(String summary)
-    {
+    public void setSummary(String summary) {
         this.summary = summary;
     }
 }

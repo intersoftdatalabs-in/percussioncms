@@ -56,6 +56,6 @@ public interface IPSSearchResultsProcessor extends IPSExtension
     * @throws PSExtensionProcessingException implementation can throw this
     *            exception if any error occurs during processing.
     */
-   List processRows(Object[] params, List rows, IPSRequestContext request)
+   List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
          throws PSExtensionProcessingException;
 }

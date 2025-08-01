@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -71,7 +72,6 @@ import static org.apache.commons.lang.Validate.notNull;
 @Lazy
 public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteContentDao {
 
-
     private IPSFolderHelper folderHelper;
 
     private IPSContentItemDao contentItemDao;
@@ -97,7 +97,6 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
     @Autowired
     private IPSRecycleService recyclerService;
 
-
     @Autowired
     public PSSiteContentDao(
             IPSAssemblyService assemblyService,
@@ -110,8 +109,7 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
             IPSManagedNavService navService,
             IPSRenderAssemblyBridge asmBridge,
             IPSContentDesignWs contentDesignWs,
-            IPSContentWs contentWs)
-    {
+            IPSContentWs contentWs) {
         super();
         this.assemblyService = assemblyService;
         this.contentItemDao = contentItemDao;
@@ -135,89 +133,61 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      * @throws PSAssemblyException If an error occurs finding the base template.
      */
     @Override
-    public void createRelatedItems(PSSite site)
-    {
-        if (site == null)
-        {
+    public void createRelatedItems(PSSite site) {
+        if (site == null) {
             throw new IllegalArgumentException("site may not be null");
         }
-
-        String folderRoot = site.getFolderPath();
-        IPSGuid navtreeId = null;
-        try
-        {
+        var folderRoot = site.getFolderPath();
+        try {
             folderHelper.createFolder(folderRoot, PSFolderPermission.Access.WRITE);
-
-            PSComponentSummary navSummary = navService.findNavSummary(folderRoot);
-            // Means Site with the same name already existed before but was deleted, so returns all items back
-            if (navSummary != null)
-            {
-                PSPage homepage = this.getHomePage(site);
-                if(homepage != null && !recyclerService.isInRecycler(homepage.getId())){
-                    // As all dependent Objects are already existing.
+            var navSummary = navService.findNavSummary(folderRoot);
+            // If navSummary exists, check for homepage and return if already present
+            if (navSummary != null) {
+                var homepage = this.getHomePage(site);
+                if (homepage != null && !recyclerService.isInRecycler(homepage.getId())) {
                     return;
-                }else{
+                } else {
                     PSTemplateSummary templateSummary = null;
                     try {
-                        IPSAssemblyTemplate baseTemplate = assemblyService.findTemplateByName(site.getTemplateName());
-                        IPSGuid tempId = templateService.findUserTemplateIdByName(site.getTemplateName(), site.getName());
+                        var baseTemplate = assemblyService.findTemplateByName(site.getTemplateName());
+                        var tempId = templateService.findUserTemplateIdByName(site.getTemplateName(), site.getName());
                         templateSummary = templateService.find(idMapper.getString(tempId));
-                    }catch (Exception e){
-                        //if no template found for the site.. then create new one.
+                    } catch (Exception e) {
+                        // If no template found, will create new one below
                     }
-
-                    createHomePageAndTemplate(site,folderRoot,idMapper.getGuid(navSummary.getCurrentLocator()),templateSummary);
+                    createHomePageAndTemplate(site, folderRoot, idMapper.getGuid(navSummary.getCurrentLocator()), templateSummary);
                     return;
                 }
-                // @Sony
             }
-            // else Create NavTree
-            navtreeId = navService.addNavTreeToFolder(folderRoot, site.getName() + "-NavTree",
+            // Else create NavTree
+            var navtreeId = navService.addNavTreeToFolder(folderRoot, site.getName() + "-NavTree",
                     site.getNavigationTitle(), pageDaoHelper.getWorkflowIdForPath(folderRoot));
-            createHomePageAndTemplate(site,folderRoot,navtreeId,null);
+            createHomePageAndTemplate(site, folderRoot, navtreeId, null);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating site items", e);
         }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Error creating site items",e);
-        }
-
-
     }
-    private void createHomePageAndTemplate(PSSite site,String folderRoot,IPSGuid navtreeId,  PSTemplateSummary templateSummary){
-        // Create Home Page template
-        try
-        {
-            if(templateSummary == null) {
+
+    private void createHomePageAndTemplate(PSSite site, String folderRoot, IPSGuid navtreeId, PSTemplateSummary templateSummary) {
+        try {
+            if (templateSummary == null) {
                 templateSummary = createSiteTemplate(site);
             }
-
-            // Create Home Page
-            PSPage page = new PSPage();
+            var page = new PSPage();
             page.setName(HOME_PAGE_NAME);
             page.setFolderPath(folderRoot);
             page.setTitle(site.getHomePageTitle());
             page.setTemplateId(templateSummary.getId());
             page.setLinkTitle(site.getHomePageTitle());
-
-            pageDaoHelper.setWorkflowAccordingToParentFolder(page);
-
-            String pageId = pageDao.save(page).getId();
-            IPSGuid pageGuid = idMapper.getGuid(pageId);
-
-            // Link the Home Page to NavTree
-            PSItemStatus status = contentWs.prepareForEdit(navtreeId);
+            pageDaoHelper.setWorkflowAccordingtoParentFolder(page);
+            var pageId = pageDao.save(page).getId();
+            var pageGuid = idMapper.getGuid(pageId);
+            var status = contentWs.prepareForEdit(navtreeId);
             navService.addLandingPageToNavnode(pageGuid, navtreeId, asmBridge.getDispatchTemplate());
             contentWs.releaseFromEdit(status, false);
-
-            // Check in the Home Page
             contentWs.checkinItems(Collections.singletonList(pageGuid), null);
-
-            // Add items to Site Folder
-
             folderHelper.addItem(folderRoot, pageId);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -229,38 +199,27 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      * @param destSite The destination site, may not be <code>null</code>.
      */
     @Override
-    public void copy(PSSite srcSite, PSSite destSite)
-    {
-        if (srcSite == null)
-        {
+    public void copy(PSSite srcSite, PSSite destSite) {
+        if (srcSite == null) {
             throw new IllegalArgumentException("srcSite may not be null");
         }
-
-        if (destSite == null)
-        {
+        if (destSite == null) {
             throw new IllegalArgumentException("destSite may not be null");
         }
-
-        String srcName = srcSite.getName();
-        String destName = destSite.getName();
-
-        PSServerFolderProcessor fp = PSServerFolderProcessor.getInstance();
-
-        try
-        {
-            IPSItemSummary srcSum = folderHelper.findFolder(srcSite.getFolderPath());
-            PSLocator srcLoc = idMapper.getLocator(srcSum.getId());
-            IPSItemSummary tgtSum = folderHelper.findFolder(PSPathUtils.getFolderPath(PSPathUtils.SITES_FINDER_ROOT));
-            PSLocator tgtLoc = idMapper.getLocator(tgtSum.getId());
-            PSCloningOptions options = new PSCloningOptions(PSCloningOptions.TYPE_SITE, srcName, destName, destName,
+        var srcName = srcSite.getName();
+        var destName = destSite.getName();
+        var fp = PSServerFolderProcessor.getInstance();
+        try {
+            var srcSum = folderHelper.findFolder(srcSite.getFolderPath());
+            var srcLoc = idMapper.getLocator(srcSum.getId());
+            var tgtSum = folderHelper.findFolder(PSPathUtils.getFolderPath(PSPathUtils.SITES_FINDER_ROOT));
+            var tgtLoc = idMapper.getLocator(tgtSum.getId());
+            var options = new PSCloningOptions(PSCloningOptions.TYPE_SITE, srcName, destName, destName,
                     PSCloningOptions.COPY_ALL_CONTENT, PSCloningOptions.COPYCONTENT_AS_NEW_COPY, null);
             options.setUseSrcItemWorkflow(true);
-
-            fp.copyFolder(srcLoc, tgtLoc, options,true,asmBridge.getDispatchTemplate());
-        }
-        catch (Exception e)
-        {
-            throw new RuntimeException("Error occurred during copy of content from site '" + srcName + "' to site '" + destName + "':",e);
+            fp.copyFolder(srcLoc, tgtLoc, options, true, asmBridge.getDispatchTemplate());
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred during copy of content from site '" + srcName + "' to site '" + destName + "':", e);
         }
     }
 
@@ -274,24 +233,20 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      * @throws PSAssemblyException if failed to find the base template specified in the site object.
      */
     private PSTemplateSummary createSiteTemplate(PSSite site) throws PSAssemblyException, PSDataServiceException {
-        IPSAssemblyTemplate baseTemplate = assemblyService.findTemplateByName(site.getBaseTemplateName());
+        var baseTemplate = assemblyService.findTemplateByName(site.getBaseTemplateName());
         PSTemplateSummary templateSummary = null;
         IPSGuid tempId = null;
-
         try {
             tempId = templateService.findUserTemplateIdByName(site.getTemplateName(), site.getName());
-        }catch (PSValidationException | IPSDataService.DataServiceLoadException e) {
-            //That means template doesn't exist and needs to be created below.
+        } catch (PSValidationException | IPSDataService.DataServiceLoadException e) {
+            // Template doesn't exist, will create below
         }
-
-        if (tempId == null){
+        if (tempId == null) {
             templateSummary = templateService.createTemplate(site.getTemplateName(),
-                    idMapper.getString(baseTemplate.getGUID()),
-                    site.getId());
-        }else{
+                    idMapper.getString(baseTemplate.getGUID()), site.getId());
+        } else {
             templateSummary = templateService.find(tempId.toString());
         }
-
         return templateSummary;
     }
 
@@ -313,8 +268,7 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
         notEmpty(contentType, "contentType");
         notNull(fields, "fields");
         notEmpty(path, "path");
-
-        PSContentItem item = new PSContentItem();
+        var item = new PSContentItem();
         item.setFields(fields);
         item.setType(contentType);
         item.setFolderPaths(asList(path));
@@ -329,23 +283,16 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      */
     public void deleteRelatedItems(PSSiteSummary site) throws DeleteException {
         notNull(site, "site");
-        PSSearchIndexEventQueue indexer = PSSearchIndexEventQueue.getInstance();
-
+        var indexer = PSSearchIndexEventQueue.getInstance();
         indexer.pause();
-
-        // delete site folder
-        try
-        {
+        try {
             log.info("Deleting items for site in {}", site.getFolderPath());
             deleteFolder(site.getFolderPath());
-        }
-        catch (Exception e)
-        {
-            log.error("Error deleting site related items from folder: {}, Error: {}", site.getFolderPath(),PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("Error deleting site related items from folder: {}, Error: {}", site.getFolderPath(), PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new DeleteException("Failed to delete site folder: " + site.getFolderPath() + " while deleting site", e);
-        }
-        finally {
+        } finally {
             indexer.resume();
         }
     }
@@ -364,22 +311,15 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
     @Override
     public PSPage getHomePage(PSSiteSummary site) throws PSNavException, PSDataServiceException {
         notNull(site, "site");
-
         PSPage homePage = null;
-
-        PSContentItem navTree = getNavTree(site);
-        if (navTree != null)
-        {
-            IPSGuid pageId = navService.getLandingPageFromNavnode(idMapper.getGuid(navTree.getId()));
-
-            // get current revision
-            if(pageId != null) {
+        var navTree = getNavTree(site);
+        if (navTree != null) {
+            var pageId = navService.getLandingPageFromNavnode(idMapper.getGuid(navTree.getId()));
+            if (pageId != null) {
                 pageId = contentDesignWs.getItemGuid(pageId);
-
                 homePage = pageDao.find(idMapper.getString(pageId));
             }
         }
-
         return homePage;
     }
 
@@ -394,16 +334,12 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
     @Override
     public String getNavTitle(PSSiteSummary siteSummary) throws PSNavException, PSDataServiceException {
         notNull(siteSummary, "siteSummary");
-
-        String navTitle = "";
-
-        PSContentItem navTree = getNavTree(siteSummary);
-        if (navTree != null)
-        {
-            navTitle = (String) navTree.getFields().get("displaytitle");
+        var navTree = getNavTree(siteSummary);
+        if (navTree != null) {
+            var navTitle = navTree.getFields().get("displaytitle");
+            return navTitle != null ? navTitle.toString() : "";
         }
-
-        return navTitle;
+        return "";
     }
 
     /**
@@ -415,27 +351,22 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      * @throws Exception if an error occurs finding the item.
      */
     private PSContentItem getNavTree(PSSiteSummary siteSummary) throws PSNavException, PSDataServiceException {
-
         PSContentItem navTree = null;
-
-        PSComponentSummary navSummary = navService.findNavSummary(siteSummary.getFolderPath());
-        if (navSummary != null)
-        {
-            PSLegacyGuid id = new PSLegacyGuid(navSummary.getCurrentLocator());
+        var navSummary = navService.findNavSummary(siteSummary.getFolderPath());
+        if (navSummary != null) {
+            var id = new PSLegacyGuid(navSummary.getCurrentLocator());
             navTree = contentItemDao.find(idMapper.getString(id));
         }
-
         return navTree;
     }
 
     @Override
     public void loadTemplateInfo(PSSite site) throws PSDataServiceException {
         if (site.getBaseTemplateName() != null) {
-            PSTemplateSummary tempSummary = templateService.find(site.getBaseTemplateName());
+            var tempSummary = templateService.find(site.getBaseTemplateName());
             site.setBaseTemplateName(tempSummary.getSourceTemplateName());
             site.setTemplateName(tempSummary.getName());
-        }
-        else {
+        } else {
             log.warn("Site: {}, does not have a base template.", site.getName());
         }
     }
@@ -447,9 +378,8 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      *
      * @throws Exception if an error occurs deleting the folder
      */
-    private void deleteFolder(String folderPath) throws Exception
-    {
-        deleteFolder(folderPath,DELETE_FOLDER_RETRY_COUNT);
+    private void deleteFolder(String folderPath) throws Exception {
+        deleteFolder(folderPath, DELETE_FOLDER_RETRY_COUNT);
     }
 
     /**
@@ -463,26 +393,8 @@ public class PSSiteContentDao implements com.percussion.sitemanage.dao.IPSSiteCo
      *
      * @throws Exception if an error occurs deleting the folder
      */
-    private void deleteFolder(String folderPath, int retryCount) throws Exception
-    {
-        // Changed to cleanly purge when deleting site.  Local content items are not
-        // handled in purge helper.  As all content is removed for site no extra processing is
-        // needed to clean up templates this should remove all items referencing template.
-        //NO Need to Purge Items, We are moving them to Recycle Folder
-//        IPSItemSummary folder = null;
-//        try {
-//            folder = folderHelper.findFolder(folderPath);
-//            if (folder != null)
-//            {
-//                IPSSqlPurgeHelper purgeHelper = PSSqlPurgeHelperLocator.getPurgeHelper();
-//                purgeHelper.purge(idMapper.getLocator(folder.getId()));
-//            }
-//        } catch (Exception e)
-//        {
-//            log.warn("Cannot find folder: " + folderPath + " to delete, may already be deleted.");
-//            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-//        }
-
+    private void deleteFolder(String folderPath, int retryCount) throws Exception {
+        // Not implemented: see comments in original code.
     }
 
     private static final int DELETE_FOLDER_RETRY_COUNT = 2;

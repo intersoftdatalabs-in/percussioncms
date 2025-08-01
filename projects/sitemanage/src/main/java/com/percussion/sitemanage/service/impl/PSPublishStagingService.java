@@ -36,56 +36,54 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * Service for managing staging server publishing feature.
+ */
 @Path("/publish/staging")
 @Component("publishStagingService")
 @Lazy
 public class PSPublishStagingService {
 
     private static final Logger log = LogManager.getLogger(PSPublishStagingService.class);
-
     private IPSSystemProperties systemProps;
-    
     private IPSMetadataService metadata;
     private static final String STAGING_SERVER_ENABLED = "STAGING_SERVER_ENABLED";
 
     @Autowired
     public PSPublishStagingService(IPSMetadataService metadata) {
-	Validate.notNull(metadata);
-	this.metadata = metadata;
+        Validate.notNull(metadata);
+        this.metadata = metadata;
     }
 
     /**
      * Set the system properties on this service. This service will always use
-     * the the values provided by the most recently set instance of the
-     * properties.
-     * 
-     * @param systemProps
-     *            the system properties
+     * the values provided by the most recently set instance of the properties.
+     *
+     * @param systemProps the system properties
      */
     @Autowired
     public void setSystemProps(IPSSystemProperties systemProps) {
-	this.systemProps = systemProps;
+        this.systemProps = systemProps;
     }
 
     /**
      * Gets the system properties used by this service.
-     * 
+     *
      * @return The properties
      */
     public IPSSystemProperties getSystemProps() {
-	return systemProps;
+        return systemProps;
     }
 
     @GET
     @Path("/feature/enabled")
     @Produces(MediaType.TEXT_PLAIN)
     public boolean isStagingFeatureEnabled() {
-	String enabled = getSystemProps().getProperty("isStagingEnabled");
-	if (enabled == null) {
-	    enabled = "false";
-	}
-	return Boolean.parseBoolean(enabled);
-
+        var enabled = getSystemProps().getProperty("isStagingEnabled");
+        if (enabled == null) {
+            enabled = "false";
+        }
+        return Boolean.parseBoolean(enabled);
     }
 
     @GET
@@ -94,13 +92,12 @@ public class PSPublishStagingService {
     public boolean isStagingServerEnabled() {
         try {
             boolean stagingServerEnabled = false;
-            PSMetadata metadataItem = metadata.find(STAGING_SERVER_ENABLED);
+            var metadataItem = metadata.find(STAGING_SERVER_ENABLED);
             if (metadataItem == null) {
                 setStagingOff();
             } else {
                 try {
-                    stagingServerEnabled = Boolean.parseBoolean(metadataItem
-                            .getData());
+                    stagingServerEnabled = Boolean.parseBoolean(metadataItem.getData());
                 } catch (Exception e) {
                     setStagingOff();
                 }
@@ -137,17 +134,17 @@ public class PSPublishStagingService {
         }
     }
 
-    private void setStagingServerEnabledMetadataState(boolean state) throws IPSGenericDao.LoadException, IPSGenericDao.SaveException {
-	PSMetadata metadataItem = new PSMetadata();
-	metadataItem.setKey(STAGING_SERVER_ENABLED);
-	metadataItem.setData(Boolean.toString(state));
-	metadata.save(metadataItem);
+    private void setStagingServerEnabledMetadataState(boolean state)
+            throws IPSGenericDao.LoadException, IPSGenericDao.SaveException {
+        var metadataItem = new PSMetadata();
+        metadataItem.setKey(STAGING_SERVER_ENABLED);
+        metadataItem.setData(Boolean.toString(state));
+        metadata.save(metadataItem);
     }
 
     @GET
     @Path("/active")
     public boolean isStagingActive() {
-	return (isStagingFeatureEnabled() && isStagingServerEnabled());
+        return isStagingFeatureEnabled() && isStagingServerEnabled();
     }
-
 }

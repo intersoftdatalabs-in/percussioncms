@@ -20,25 +20,39 @@ package com.percussion.services.audit.data;
 import com.percussion.services.audit.IPSDesignObjectAuditConfig;
 
 /**
- * Implementation of {@link IPSDesignObjectAuditConfig}.  
+ * Implementation of {@link IPSDesignObjectAuditConfig} using modern Java 11 features.
+ *
+ * <p>This configuration class manages audit service settings with improved
+ * validation and cleaner code structure.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
-public class PSDesignObjectAuditConfig implements IPSDesignObjectAuditConfig
-{
+public class PSDesignObjectAuditConfig implements IPSDesignObjectAuditConfig {
+
+   /**
+    * Flag to determine if the audit service is configured as enabled.
+    */
+   private boolean enabled;
+
+   /**
+    * The number of days to retain logs, -1 indicates auto-pruning is disabled.
+    */
+   private int logRetentionDays = -1;
+
    /**
     * Configure if the auditing service is enabled.
     * 
     * @param enabled <code>true</code> to enable the service, <code>false</code>
     * to disable it.
     */
-   public void setEnabled(boolean enabled)
-   {
-      m_enabled = enabled;
+   public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
    }
    
-   // see interface
-   public boolean isEnabled()
-   {
-      return m_enabled;
+   @Override
+   public boolean isEnabled() {
+      return enabled;
    }
 
    /**
@@ -47,29 +61,18 @@ public class PSDesignObjectAuditConfig implements IPSDesignObjectAuditConfig
     * @param days The number of days to keep the logs, greater than zero, or a
     * number less than or equal to zero to disable auto-pruning of logs.
     */
-   public void setLogRetentionDays(int days)
-   {
-      if (days <= 0)
-         m_logRetentionDays = -1;
-      else
-         m_logRetentionDays = days;
+   public void setLogRetentionDays(int days) {
+      this.logRetentionDays = days <= 0 ? -1 : days;
    }
 
-   // see interface
-   public int getLogRetentionDays()
-   {
-      return m_logRetentionDays;
+   @Override
+   public int getLogRetentionDays() {
+      return logRetentionDays;
    }
 
-   /**
-    * Flag to determine if the audit service is configured as enabled.  Modified
-    * by the value supplied to {@link #setEnabled(boolean)}.
-    */
-   private boolean m_enabled;
-   
-   /**
-    * The number of days to retain logs, modified by the value supplied to
-    * {@link #setLogRetentionDays(int)}.
-    */
-   private int m_logRetentionDays = -1;
+   @Override
+   public String toString() {
+      return String.format("PSDesignObjectAuditConfig{enabled=%s, logRetentionDays=%d}",
+         enabled, logRetentionDays);
+   }
 }

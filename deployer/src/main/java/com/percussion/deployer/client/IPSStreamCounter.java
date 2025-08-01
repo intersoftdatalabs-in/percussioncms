@@ -28,8 +28,8 @@ public interface IPSStreamCounter
     * 
     * @return The number of bytes, always greater than or equal to zero.
     */
-   public int getByteCount();
-   
+   long getByteCount();
+
    /**
     * Attempts to close the underlying stream.  May be called while the stream
     * is being written to or read from, in order to abort that process, as long

@@ -16,70 +16,105 @@
  */
 package com.percussion.error;
 
+import java.util.Objects;
 
 /**
  * Used to return error information about an invalid entry in the rule
  * table model. A string describing the problem and the row/col# of the cell
- * containing the error. This info can be used to hilite/activate the offending
- * cell to aid the user. It is a wrapper around a data structure.
+ * containing the error. This info can be used to highlight/activate the offending
+ * cell to aid the user. It is an immutable wrapper around error data.
  */
-public class PSTableCellValidationError
-{
+public final class PSTableCellValidationError {
+
    /**
     * Constructor
     *
     * @param errorText the text string to be used as the displayed error message
     * @param row the table cell's row index
-    * @param row the table cell's column index
+    * @param col the table cell's column index
+    * @throws IllegalArgumentException if row or col is negative
     */
-   public PSTableCellValidationError( String errorText, int row, int col )
-   {
-      m_errorText = errorText;
-      m_errorRow = row;
-      m_errorCol = col;
-   }
+   public PSTableCellValidationError(String errorText, int row, int col) {
+      if (row < 0) {
+         throw new IllegalArgumentException("Row index cannot be negative: " + row);
+      }
+      if (col < 0) {
+         throw new IllegalArgumentException("Column index cannot be negative: " + col);
+      }
 
+      this.errorText = errorText;
+      this.errorRow = row;
+      this.errorCol = col;
+   }
 
    /**
     * Returns the row index for this error.
+    *
+    * @return the row index, always >= 0
     */
-   public int getErrorRow()
-   {
-      return m_errorRow;
+   public int getErrorRow() {
+      return errorRow;
    }
 
    /**
     * Returns the column index for this error.
+    *
+    * @return the column index, always >= 0
     */
-   public int getErrorCol()
-   {
-      return m_errorCol;
+   public int getErrorCol() {
+      return errorCol;
    }
 
    /**
     * Returns the error text string for this error.
-    * May be <code>null</code> or empty.
+    *
+    * @return the error text, may be {@code null} or empty
     */
-   public String getErrorText()
-   {
-      return m_errorText;
+   public String getErrorText() {
+      return errorText;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+         return false;
+      }
+
+      var other = (PSTableCellValidationError) obj;
+      return errorRow == other.errorRow &&
+             errorCol == other.errorCol &&
+             Objects.equals(errorText, other.errorText);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(errorRow, errorCol, errorText);
+   }
+
+   @Override
+   public String toString() {
+      return String.format("PSTableCellValidationError{row=%d, col=%d, text='%s'}",
+                          errorRow, errorCol, errorText);
    }
 
    /**
-    * The table cells row index for this error.
-    * Defaults to -1. Modified in ctor.
+    * The table cell's row index for this error.
+    * Always >= 0.
     */
-   private int m_errorRow = -1;
+   private final int errorRow;
 
    /**
-    * The table cells column index for this error.
-    * Defaults to -1. Modified in ctor.
+    * The table cell's column index for this error.
+    * Always >= 0.
     */
-   private int m_errorCol = -1;
+   private final int errorCol;
 
    /**
-    * The table cells text message for this error.
-    * May be <code>null</code> or empty.
+    * The table cell's text message for this error.
+    * May be {@code null} or empty.
     */
-   private String m_errorText = null;
+   private final String errorText;
 }

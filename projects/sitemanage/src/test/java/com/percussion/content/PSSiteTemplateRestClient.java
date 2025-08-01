@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,12 +30,11 @@ public class PSSiteTemplateRestClient extends PSObjectRestClient {
 
     public PSSiteTemplateRestClient(String baseUrl) {
         super(baseUrl);
-	}
-
-    public List<PSTemplateSummary> save(PSSiteTemplates data)
-    {
-        notNull(data);
-        return postObjectToPathAndGetObjects("/Rhythmyx/services/sitemanage/sitetemplates/", data, PSTemplateSummary.class);
     }
 
+    public List<PSTemplateSummary> save(PSSiteTemplates data) {
+        notNull(data);
+        return postObjectToPathAndGetObjects(
+                "/Rhythmyx/services/sitemanage/sitetemplates/", data, PSTemplateSummary.class);
+    }
 }

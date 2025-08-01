@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,34 +21,30 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
 /**
- * This class provides a way to locate the instance of {@link IPSBeanProperties}.
+ * Sunny Sal says: "Bean there, done that! Use this locator for IPSBeanProperties."
+ *
+ * Provides a thread-safe singleton locator for {@link IPSBeanProperties}.
  *
  * @author YuBingChen
  */
-public class PSBeanPropertiesLocator extends PSBaseServiceLocator
-{
-    private static volatile IPSBeanProperties bpr=null;
-   /**
-    * Return the instance of {@link IPSBeanProperties}.
-    * 
-    * @return the instance of {@link IPSBeanProperties}, never <code>null</code>
-    * 
-    * @throws PSMissingBeanConfigurationException if bean is missing.
-    */
-   public static IPSBeanProperties getBeanProperties()
-         throws PSMissingBeanConfigurationException
-   {
-       if (bpr==null)
-       {
-           synchronized (PSBeanPropertiesLocator.class)
-           {
-               if (bpr==null)
-               {
-                   bpr = (IPSBeanProperties) getBean("sys_beanProperties");
-               }
-           }
-       }
-      return bpr;
-   }
+public class PSBeanPropertiesLocator extends PSBaseServiceLocator {
 
+  private static volatile IPSBeanProperties beanProperties;
+
+  /**
+   * Returns the singleton instance of {@link IPSBeanProperties}.
+   *
+   * @return the instance, never {@code null}
+   * @throws PSMissingBeanConfigurationException if bean is missing.
+   */
+  public static IPSBeanProperties getBeanProperties() throws PSMissingBeanConfigurationException {
+    if (beanProperties == null) {
+      synchronized (PSBeanPropertiesLocator.class) {
+        if (beanProperties == null) {
+          beanProperties = (IPSBeanProperties) getBean("sys_beanProperties");
+        }
+      }
+    }
+    return beanProperties;
+  }
 }

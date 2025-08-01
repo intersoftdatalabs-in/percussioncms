@@ -94,7 +94,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a content type definition.
@@ -314,56 +316,37 @@ public class PSContentTypeDependencyHandler
    @Override
    public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+        throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var childDeps = new HashSet<PSDependency>();
+      var node = findNodeDefByDependencyID(dep.getDependencyId());
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      Set<PSDependency> childDeps = new HashSet<>();
-      IPSNodeDefinition node = findNodeDefByDependencyID(dep.getDependencyId());
-
-      String appName = PSDependencyUtils
-            .getColumnAppName(((PSNodeDefinition) node).getNewRequest());
-      if (StringUtils.isBlank(appName))
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "App name was null");
+      var appName = PSDependencyUtils.getColumnAppName(((PSNodeDefinition) node).getNewRequest());
+      if (StringUtils.isBlank(appName)) {
+        throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "App name was null");
+      }
       childDeps.addAll(getCEChildDependencies(tok, appName));
-   
-      // Acl deps
-      addAclDependency(tok, PSTypeEnum.NODEDEF, dep, childDeps);
 
-      // Package the template deps
+      addAclDependency(tok, PSTypeEnum.NODEDEF, dep, childDeps);
       childDeps.addAll(getTemplateDependencies(tok, dep));
 
-      // Don't forget the idTypes
-      if(dep.supportsIdTypes()) {
-         childDeps.addAll(PSIdTypeDependencyHandler.getIdTypeDependencies(tok,
-                 dep, this));
+      if (dep.supportsIdTypes()) {
+        childDeps.addAll(PSIdTypeDependencyHandler.getIdTypeDependencies(tok, dep, this));
       }
-      
-      // Package the icon file
-      PSItemDefinition item = findContentTypeByNodeDef(node);
-      PSContentEditor editor = item.getContentEditor();
-      String source = editor.getIconSource();
-      if (source.equals(PSContentEditor.ICON_SOURCE_SPECIFIED))
-      {      
-         String iconFile = PSItemDefManager.RX_ICON_FOLDER +
-            editor.getIconValue();
 
-         PSDependency fileDep = getDependencyHandler(
-               PSImageFileDependencyHandler.DEPENDENCY_TYPE).getDependency(
-                     tok, iconFile);
-         if (fileDep != null)
-         {
-            fileDep.setDependencyType(PSDependency.TYPE_LOCAL);
-            childDeps.add(fileDep);
-         }
+      var item = findContentTypeByNodeDef(node);
+      var editor = item.getContentEditor();
+      if (editor.getIconSource().equals(PSContentEditor.ICON_SOURCE_SPECIFIED)) {
+        var iconFile = PSItemDefManager.RX_ICON_FOLDER + editor.getIconValue();
+        var fileDep = getDependencyHandler(PSImageFileDependencyHandler.DEPENDENCY_TYPE).getDependency(tok, iconFile);
+        Optional.ofNullable(fileDep).ifPresent(d -> {
+            d.setDependencyType(PSDependency.TYPE_LOCAL);
+            childDeps.add(d);
+        });
       }
-      
+
       return childDeps.iterator();
    }
 
@@ -465,11 +448,9 @@ public class PSContentTypeDependencyHandler
    @Override
    public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+        throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
       // Before building list of files, check content type for System controls.
       // These are not allowed to be packaged.
@@ -478,15 +459,11 @@ public class PSContentTypeDependencyHandler
       // Now build list of dependency files
       List<PSDependencyFile> files = new ArrayList<>();
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      PSItemDefinition item = findItemDefByDependencyID(dep.getDependencyId());
-      if (item != null)
-         files.add(getDepFileFromItemDef(item));
+      var item = findItemDefByDependencyID(dep.getDependencyId());
+      Optional.ofNullable(item).ifPresent(i -> files.add(getDepFileFromItemDef(i)));
 
-      IPSNodeDefinition node = findNodeDefByDependencyID(dep.getDependencyId());
-      if (node != null)
-         files.add(getDepFileFromNodeDef(node));
+      var node = findNodeDefByDependencyID(dep.getDependencyId());
+      Optional.ofNullable(node).ifPresent(n -> files.add(getDepFileFromNodeDef(n)));
       files.addAll(getSchemaDepFiles(tok, dep));
       
       return files.iterator();
@@ -1612,11 +1589,11 @@ public class PSContentTypeDependencyHandler
                   false);
             while (mappings.hasNext())
             {
-               PSApplicationIDTypeMapping mapping =
-                  (PSApplicationIDTypeMapping) mappings.next();
+               PSApplicationIDMapping mapping =
+                  (PSApplicationIDMapping) mappings.next();
 
                if (mapping.getType().equals(
-                     PSApplicationIDTypeMapping.TYPE_NONE))
+                     PSApplicationIDMapping.TYPE_NONE))
                {
                   continue;
                }
@@ -1812,11 +1789,13 @@ public class PSContentTypeDependencyHandler
                String targetId = idMap.getTargetId();
                wf = ms_wfSvc.loadWorkflow(
                      PSGuidUtils.makeGuid(targetId, PSTypeEnum.WORKFLOW));                  
-            }
-            
-            if (wf == null)
-            {
-               ids.remove();
+
+               // If the workflow exists on the target system, add it to the
+               // content editor's workflow info
+               if (wf != null)
+               {
+                  ids.remove();
+               }
             }
          }
          

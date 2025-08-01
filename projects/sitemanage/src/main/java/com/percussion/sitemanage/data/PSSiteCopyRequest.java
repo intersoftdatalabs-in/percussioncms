@@ -21,53 +21,52 @@ import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
- * Request object used for copying a site.  The source and destination site names are required, however, the asset
- * folder path is not.
+ * Request object used for copying a site.
+ * The source and destination site names are required; the asset folder path is optional.
  */
 @XmlRootElement(name = "SiteCopyRequest")
 @JsonRootName("SiteCopyRequest")
-public class PSSiteCopyRequest
-{
-    public String getSrcSite()
-    {
-        return srcSite;
-    }
-
-    public void setSrcSite(String srcSite)
-    {
-        this.srcSite = srcSite;
-    }
-
-    public String getCopySite()
-    {
-        return copySite;
-    }
-
-    public void setCopySite(String copySite)
-    {
-        this.copySite = copySite;
-    }
-
-    public String getAssetFolder()
-    {
-        return assetFolder;
-    }
-
-    public void setAssetFolder(String assetFolder)
-    {
-        this.assetFolder = assetFolder;
-    }
+public class PSSiteCopyRequest {
 
     @NotNull
     @NotEmpty
     private String srcSite;
-    
+
     @NotNull
     @NotEmpty
     private String copySite;
-    
+
     private String assetFolder;
-   
+
+    public String getSrcSite() {
+        return srcSite;
+    }
+
+    public void setSrcSite(String srcSite) {
+        this.srcSite = srcSite;
+    }
+
+    public String getCopySite() {
+        return copySite;
+    }
+
+    public void setCopySite(String copySite) {
+        this.copySite = copySite;
+    }
+
+    /**
+     * Gets the asset folder path, if present.
+     *
+     * @return Optional asset folder path.
+     */
+    public Optional<String> getAssetFolder() {
+        return Optional.ofNullable(assetFolder);
+    }
+
+    public void setAssetFolder(String assetFolder) {
+        this.assetFolder = assetFolder;
+    }
 }

@@ -23,84 +23,64 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
-import static org.junit.Assert.*;
-import org.junit.Test;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author JaySeletz
- *
+ * Tests for PSTokenReplacingReader.
  */
-public class PSTokenReplacingReaderTest
-{
+public class PSTokenReplacingReaderTest {
 
-    private static final String[] TOKENS = new String[] {"${TOKEN1}", "${TOKEN2}"};
-    private static final String[] TOKENS_XML = new String[] {"$XML{TOKEN1}", "$XML{TOKEN2}"};
-    private static final String[] VALUES = new String[] {"TOKEN1_REP&LACED", "TOKEN2_REP&LACED"};
-    private static final String[] VALUES_XML = new String[] {"TOKEN1_REP&amp;LACED", "TOKEN2_REP&amp;LACED"};
+    private static final String[] TOKENS = {"${TOKEN1}", "${TOKEN2}"};
+    private static final String[] TOKENS_XML = {"$XML{TOKEN1}", "$XML{TOKEN2}"};
+    private static final String[] VALUES = {"TOKEN1_REP&LACED", "TOKEN2_REP&LACED"};
+    private static final String[] VALUES_XML = {"TOKEN1_REP&amp;LACED", "TOKEN2_REP&amp;LACED"};
     private static final String SRC = "This is a test with some tokens in it. The are ${TOKEN1} and also '${TOKEN2}'";
     private static final String SRC_XML = "This is a test with some tokens in it. The are $XML{TOKEN1} and also '$XML{TOKEN2}'";
-    
-    
+
     @Test
-    public void test() throws Exception
-    {
-        final Set<String> tokens = new HashSet<String>();
-        
-        Reader reader = new PSTokenReplacingReader(new StringReader(SRC), new IPSTokenResolver()
-        {
-            
-            @Override
-            public String resolveToken(String tokenName)
-            {
-                tokens.add("${" + tokenName + "}");
-                return tokenName + "_REP&LACED";
-            }
+    public void test() throws Exception {
+        Set<String> tokens = new HashSet<>();
+
+        Reader reader = new PSTokenReplacingReader(new StringReader(SRC), tokenName -> {
+            tokens.add("${" + tokenName + "}");
+            return tokenName + "_REP&LACED";
         });
-        
+
         Writer writer = new StringWriter();
         IOUtils.copy(reader, writer);
-        
+
         assertEquals(TOKENS.length, tokens.size());
         assertTrue(tokens.containsAll(Arrays.asList(TOKENS)));
-        
+
         String result = writer.toString();
-        assertFalse(SRC.equals(result));
-        
+        assertNotEquals(SRC, result);
+
         String replaced = StringUtils.replaceEach(SRC, TOKENS, VALUES);
         assertEquals(replaced, result);
     }
-    
+
     @Test
-    public void testXmlEncode() throws Exception
-    {
-        final Set<String> tokens = new HashSet<String>();
-        
-        Reader reader = new PSTokenReplacingReader(new StringReader(SRC_XML), new IPSTokenResolver()
-        {
-            
-            @Override
-            public String resolveToken(String tokenName)
-            {
-                tokens.add("$XML{" + tokenName + "}");
-                return tokenName + "_REP&LACED";
-            }
+    public void testXmlEncode() throws Exception {
+        Set<String> tokens = new HashSet<>();
+
+        Reader reader = new PSTokenReplacingReader(new StringReader(SRC_XML), tokenName -> {
+            tokens.add("$XML{" + tokenName + "}");
+            return tokenName + "_REP&LACED";
         });
-        
+
         Writer writer = new StringWriter();
         IOUtils.copy(reader, writer);
-        
+
         assertEquals(TOKENS_XML.length, tokens.size());
         assertTrue(tokens.containsAll(Arrays.asList(TOKENS_XML)));
-        
+
         String result = writer.toString();
-        assertFalse(SRC_XML.equals(result));
-        
+        assertNotEquals(SRC_XML, result);
+
         String replaced = StringUtils.replaceEach(SRC_XML, TOKENS_XML, VALUES_XML);
         assertEquals(replaced, result);
     }
-    
 }

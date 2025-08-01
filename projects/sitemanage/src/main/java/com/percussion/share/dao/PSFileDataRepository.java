@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,305 +36,212 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.text.MessageFormat.format;
 
-
 /**
- * 
  * Loads files from a directory into data objects.
- * <p>
- * The files are read-only and are not modified.
- * <p>
- * Once the class is instantiated the expected use is:
- * <p>
- * For the first time:
+ * Files are read-only and are not modified.
+ * Once instantiated, use:
  * <pre>
  * repo.init();
  * repo.getData();
  * </pre>
- * After initialized use poll: 
+ * After initialized, use poll:
  * <pre>
  * repo.poll();
  * repo.getData();
  * </pre>
- * 
- * @author adamgent
  *
  * @param <T> the data type that the files are read into.
  * @see #poll()
  * @see #getData()
  */
-public abstract class PSFileDataRepository<T>
-{
+public abstract class PSFileDataRepository<T> {
 
     private String repositoryDirectory;
-
     private File root;
-
     private String fileExt = "xml";
-    
-    private AtomicReference<Data<T>> data = new AtomicReference<>();
-    
+    private final AtomicReference<Data<T>> data = new AtomicReference<>();
     private boolean initialized = false;
-    
+
     private static class Data<T> {
         protected Set<PSFileDataRepository.PSFileEntry> files;
         protected T data;
-        public Data(T data, Set<PSFileDataRepository.PSFileEntry> files)
-        {
-            super();
+
+        public Data(T data, Set<PSFileDataRepository.PSFileEntry> files) {
             this.data = data;
             this.files = files;
         }
     }
-    
-    
 
     /**
-     * 
      * Represents a single file in the repository.
-     * 
-     * @author adamgent
-     *
      */
     public static class PSFileEntry {
-        private String id;
-        private String fileName;
-        private Long lastModifiedDate;
-        
-        public PSFileEntry(String id, String fileName, Long lastModifiedDate)
-        {
-            super();
+        private final String id;
+        private final String fileName;
+        private final Long lastModifiedDate;
+
+        public PSFileEntry(String id, String fileName, Long lastModifiedDate) {
             this.id = id;
             this.fileName = fileName;
             this.lastModifiedDate = lastModifiedDate;
         }
-    
-        public String getId()
-        {
+
+        public String getId() {
             return id;
         }
-    
-        public String getFileName()
-        {
+
+        public String getFileName() {
             return fileName;
         }
-    
-        public Long getLastModifiedDate()
-        {
+
+        public Long getLastModifiedDate() {
             return lastModifiedDate;
         }
-        
+
         public InputStream getInputStream() throws IOException {
-            File w = new File(getFileName());
-            return new FileInputStream(w);
-    
+            return new FileInputStream(new File(getFileName()));
         }
-    
+
         @Override
-        public int hashCode()
-        {
-            final int prime = 31;
+        public int hashCode() {
             int result = 1;
-            result = prime * result + ((fileName == null) ? 0 : fileName.hashCode());
-            result = prime * result + ((id == null) ? 0 : id.hashCode());
-            result = prime * result + ((lastModifiedDate == null) ? 0 : lastModifiedDate.hashCode());
+            result = 31 * result + (fileName == null ? 0 : fileName.hashCode());
+            result = 31 * result + (id == null ? 0 : id.hashCode());
+            result = 31 * result + (lastModifiedDate == null ? 0 : lastModifiedDate.hashCode());
             return result;
         }
-    
+
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj)
                 return true;
-            if (obj == null)
+            if (obj == null || getClass() != obj.getClass())
                 return false;
-            if (getClass() != obj.getClass())
-                return false;
-            PSFileEntry other = (PSFileEntry) obj;
-            if (fileName == null)
-            {
-                if (other.fileName != null)
-                    return false;
-            }
-            else if (!fileName.equals(other.fileName))
-                return false;
-            if (id == null)
-            {
-                if (other.id != null)
-                    return false;
-            }
-            else if (!id.equals(other.id))
-                return false;
-            if (lastModifiedDate == null)
-            {
-                if (other.lastModifiedDate != null)
-                    return false;
-            }
-            else if (!lastModifiedDate.equals(other.lastModifiedDate))
-                return false;
-            return true;
+            var other = (PSFileEntry) obj;
+            return java.util.Objects.equals(fileName, other.fileName)
+                    && java.util.Objects.equals(id, other.id)
+                    && java.util.Objects.equals(lastModifiedDate, other.lastModifiedDate);
         }
     }
 
-
-
     /**
-     * Called to initialize the directory that represents the file repository
-     * by polling the files for the first time.
+     * Initializes the directory that represents the file repository by polling the files for the first time.
      */
     public void init() throws PSDataServiceException {
-        if (initialized == true) return;
-        
-        try
-        {
+        if (initialized) return;
+        try {
             poll();
-        }
-        catch (IOException | PSValidationException | PSXmlFileDataRepository.PSXmlFileDataRepositoryException e)
-        {
+        } catch (IOException | PSValidationException | PSXmlFileDataRepository.PSXmlFileDataRepositoryException e) {
             log.error("{}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new PSDataServiceException(e);
-
         }
-        
         initialized = true;
-
     }
 
     /**
      * Retrieve the currently loaded repository data.
-     * @return never <code>null</code>.
+     *
+     * @return never {@code null}.
      */
     public T getData() throws PSDataServiceException {
         init();
         return data.get().data;
     }
-    
+
     private File getRoot() throws IOException {
         if (root != null) return root;
         root = new File(getRepositoryDirectory());
         if (!root.exists()) {
-            log.error("Repository directory: {} does not exist.",getRepositoryDirectory());
-            log.info("Creating directory: {}",  root);
+            log.error("Repository directory: {} does not exist.", getRepositoryDirectory());
+            log.info("Creating directory: {}", root);
             FileUtils.forceMkdir(root);
         }
-        
         return root;
     }
-    
-    
+
     /**
      * Reloads the files if any changes have been made to them.
-     * <p>
-     * Poll should be called from quartz or some other scheduler.
-     * @throws IOException 
+     * Poll should be called from a scheduler.
      */
     public synchronized void poll() throws IOException, PSValidationException, PSXmlFileDataRepository.PSXmlFileDataRepositoryException {
         if (log.isTraceEnabled()) {
             log.trace(format("Polling folder: {0} for file ext: {1}", getRoot(), getFileExt()));
         }
-        
         Collection<File> files = getFiles();
-        
         Set<PSFileDataRepository.PSFileEntry> fileEntries = new HashSet<>();
-        
-        for( File file : files) {
-            PSFileDataRepository.PSFileEntry fileEntry = new PSFileDataRepository.PSFileEntry(toId(file.getName()), file.getAbsolutePath(), file.lastModified());
+        for (File file : files) {
+            var fileEntry = new PSFileDataRepository.PSFileEntry(toId(file.getName()), file.getAbsolutePath(), file.lastModified());
             fileEntries.add(fileEntry);
         }
-        
-        Set<PSFileDataRepository.PSFileEntry> oldEntries;
-        if (data.get() != null)
-            oldEntries = data.get().files;
-        else
-            oldEntries = new HashSet<>();
-        
-        if ( ! oldEntries.equals(fileEntries)  || 
-                (fileEntries.isEmpty())) {
+        Set<PSFileDataRepository.PSFileEntry> oldEntries = data.get() != null ? data.get().files : new HashSet<>();
+        if (!oldEntries.equals(fileEntries) || fileEntries.isEmpty()) {
             if (initialized) {
-                log.debug("Files have changed under: {} reloading",getRoot() );
-            }
-            else {
-                log.debug("Loading files from: {}" ,getRoot());
+                log.debug("Files have changed under: {} reloading", getRoot());
+            } else {
+                log.debug("Loading files from: {}", getRoot());
             }
             T object = update(fileEntries);
-            data.set(new Data<> (object, fileEntries));
+            data.set(new Data<>(object, fileEntries));
+        } else {
+            log.trace("Files have not changed under: {}", getRoot());
         }
-        else {
-            log.trace("Files have not changed under: {}",  getRoot());
-        }
-
     }
-    
+
     /**
      * The collection of all files to read from.
-     * <p>
-     * This method is safe to override if it is
-     * {@link #getRepositoryDirectory()} and {@link #getFileExt()}
-     * may not be applicable.
-     * 
-     * @return never <code>null</code>.
-     * @throws IOException
+     * This method is safe to override if {@link #getRepositoryDirectory()} and {@link #getFileExt()} may not be applicable.
+     *
+     * @return never {@code null}.
      */
     @SuppressWarnings("unchecked")
     protected Collection<File> getFiles() throws IOException {
-        return FileUtils.listFiles(getRoot(), new String[] { getFileExt() } , false);
+        return FileUtils.listFiles(getRoot(), new String[]{getFileExt()}, false);
     }
-    
+
     /**
      * Reloads data from the set of given files.
-     * <p>
-     * This method is safe to override. <em>For thread safety the returned object
-     * should be a newly created object and not mutation 
-     * of the current {@link #getData()}.</em>
-     * @param files never <code>null</code>.
-     * @return recommended that it not be <code>null</code>.
-     * 
-     * @throws IOException
+     * This method is safe to override. For thread safety, the returned object should be a newly created object and not mutation of the current {@link #getData()}.
+     *
+     * @param files never {@code null}.
+     * @return recommended that it not be {@code null}.
      */
     protected abstract T update(Set<PSFileDataRepository.PSFileEntry> files) throws IOException, PSValidationException, PSXmlFileDataRepository.PSXmlFileDataRepositoryException;
 
     /**
      * Turns the filename into an id.
-     * <p>
      * This method is safe to override.
-     * @param fileName never <code>null</code>.
-     * @return never <code>null</code>.
+     *
+     * @param fileName never {@code null}.
+     * @return never {@code null}.
      */
-    protected String toId(String fileName)
-    {
+    protected String toId(String fileName) {
         return FilenameUtils.getBaseName(fileName);
     }
 
     /**
      * The directory to load files from.
-     * 
-     * @return never <code>null</code>.
+     *
+     * @return never {@code null}.
      */
-    protected String getRepositoryDirectory()
-    {
+    protected String getRepositoryDirectory() {
         return repositoryDirectory;
     }
 
-    public void setRepositoryDirectory(String widgetsRepositoryDirectory)
-    {
+    public void setRepositoryDirectory(String widgetsRepositoryDirectory) {
         this.repositoryDirectory = widgetsRepositoryDirectory;
     }
 
-    
-    protected String getFileExt()
-    {
+    protected String getFileExt() {
         return fileExt;
     }
 
-    public void setFileExt(String fileExt)
-    {
+    public void setFileExt(String fileExt) {
         this.fileExt = fileExt;
     }
-    
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
     protected final Logger log = LogManager.getLogger(getClass());
-
 }

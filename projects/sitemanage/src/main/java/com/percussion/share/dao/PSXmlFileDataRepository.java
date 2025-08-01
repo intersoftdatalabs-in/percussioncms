@@ -14,17 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,143 +39,83 @@ import java.util.stream.Collectors;
  * @see #fileToObject(com.percussion.share.dao.PSFileDataRepository.PSFileEntry)
  * 
  */
-public abstract class PSXmlFileDataRepository<T, ITEM> extends PSFileDataRepository<T>
-{
+public abstract class PSXmlFileDataRepository<T, ITEM> extends PSFileDataRepository<T> {
     protected static Logger log = LogManager.getLogger(PSXmlFileDataRepository.class);
 
     private Class<ITEM> type;
-    
-    /**
-     * The class is passed into determine what object to build from the XML.
-     * <p>
-     * @param type a class that supports JAXB serialization.
-     */
-    public PSXmlFileDataRepository(Class<ITEM> type)
-    {
+
+    public PSXmlFileDataRepository(Class<ITEM> type) {
         super();
         this.type = type;
     }
 
-
-    /**
-     * Converts a file into an Object using JAXB. Implementations should call this method
-     * in {@link #update(java.util.Set)} for each file.
-     * @param fileEntry
-     * @return never <code>null</code>.
-     * @throws IOException Cannot read the xml file.
-     * @throws PSXmlFileDataRepositoryException Failure to load the XML file because its invalid.
-     */
     protected ITEM fileToObject(PSFileDataRepository.PSFileEntry fileEntry) throws IOException, PSXmlFileDataRepositoryException {
-
-
-
-        InputStream data = fileEntry.getInputStream();
+        var data = fileEntry.getInputStream();
         ITEM object;
-        try
-        {
-            //Remove the BOM if it is present so it doesn't break serialization.
-            Path p = Paths.get(fileEntry.getFileName());
-            if(isContainBOM(p)){
+        try {
+            var p = Paths.get(fileEntry.getFileName());
+            if (isContainBOM(p)) {
                 removeBom(p);
             }
-
-            String text = new BufferedReader(
-                    new InputStreamReader(data))
+            var text = new BufferedReader(new InputStreamReader(data))
                     .lines()
                     .collect(Collectors.joining("\n"));
-
             object = PSSerializerUtils.unmarshal(text.trim(), type);
-            if(object == null){
-                log.debug("Unable to process XML {}",data);
+            if (object == null) {
+                log.debug("Unable to process XML {}", data);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new PSXmlFileDataRepositoryException("Failed to parse file: " + fileEntry.getFileName()
                     + ".  The file is invalid.", e);
         }
         return object;
     }
-    
-    /**
-     * A failure in reading the XML.
-     * @author adamgent
-     *
-     */
-    public static class PSXmlFileDataRepositoryException extends Exception
-    {
 
+    public static class PSXmlFileDataRepositoryException extends Exception {
         private static final long serialVersionUID = 1L;
 
-        public PSXmlFileDataRepositoryException(String message)
-        {
+        public PSXmlFileDataRepositoryException(String message) {
             super(message);
         }
 
-        public PSXmlFileDataRepositoryException(String message, Throwable cause)
-        {
+        public PSXmlFileDataRepositoryException(String message, Throwable cause) {
             super(message, cause);
         }
 
-        public PSXmlFileDataRepositoryException(Throwable cause)
-        {
+        public PSXmlFileDataRepositoryException(Throwable cause) {
             super(cause);
         }
-
     }
 
     private static void removeBom(Path path) throws IOException {
-
         if (isContainBOM(path)) {
-
-            byte[] bytes = Files.readAllBytes(path);
-
-            ByteBuffer bb = ByteBuffer.wrap(bytes);
-
+            var bytes = Files.readAllBytes(path);
+            var bb = ByteBuffer.wrap(bytes);
             log.debug("Found BOM!");
-
-            byte[] bom = new byte[3];
-            // get the first 3 bytes
+            var bom = new byte[3];
             bb.get(bom, 0, bom.length);
-
-            // remaining
-            byte[] contentAfterFirst3Bytes = new byte[bytes.length - 3];
+            var contentAfterFirst3Bytes = new byte[bytes.length - 3];
             bb.get(contentAfterFirst3Bytes, 0, contentAfterFirst3Bytes.length);
-
             log.debug("Remove the first 3 bytes, and overwrite the file!");
-
-            // override the same path
             Files.write(path, contentAfterFirst3Bytes);
-
         } else {
             log.debug("This file doesn't contains UTF-8 BOM!");
         }
-
     }
 
     private static boolean isContainBOM(Path path) throws IOException {
-
         if (Files.notExists(path)) {
             throw new IllegalArgumentException("Path: " + path + " does not exists!");
         }
-
         boolean result = false;
-
-        byte[] bom = new byte[3];
+        var bom = new byte[3];
         try (InputStream is = new FileInputStream(path.toFile())) {
-
-            // read 3 bytes of a file.
             is.read(bom);
-
-            // BOM encoded as ef bb bf
-            String content = new String(Hex.encodeHex(bom));
+            var content = new String(Hex.encodeHex(bom));
             if ("efbbbf".equalsIgnoreCase(content)) {
                 result = true;
             }
-
         }
-
         return result;
     }
-
 }

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A visitor for any jexl expression or script. This will call the jexl's parser
@@ -48,18 +49,11 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor
     * @see ParserVisitor#visit(ASTStringLiteral, Object)
     */
    @Override
-   public Object visit(ASTStringLiteral arg0, Object arg1)
-   {
-      String value = null;
-      try
-      {
-         value = arg0.getLiteral();
-      }
-      catch (Exception e)
-      {
-      }
-      if (StringUtils.isNotBlank(value) && StringUtils.isNumeric(value))
+   public Object visit(ASTStringLiteral arg0, Object arg1) {
+      var value = Optional.ofNullable(arg0.getLiteral()).orElse("");
+      if (StringUtils.isNotBlank(value) && StringUtils.isNumeric(value)) {
          addID(value);
+      }
       return arg1;
    }
    
@@ -68,16 +62,9 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor
     * 
     * @see ParserVisitor#visit(ASTIntegerLiteral, Object)
     */
-   public Object visit(ASTNumberLiteral arg0, Object arg1)
-   {
-      Number value = null;
-      try
-      {
-         value = arg0.getLiteral();
-      }
-      catch (Exception e)
-      { 
-      }
+   @Override
+   public Object visit(ASTNumberLiteral arg0, Object arg1) {
+      var value = Optional.ofNullable(arg0.getLiteral()).orElse(0);
       addID(String.valueOf(value));
       return arg1;
    }
@@ -129,20 +116,16 @@ public class PSGetIDsJexlVisitor extends PSBaseJexlParserVisitor
     * @param child the current node never <code>null</code>
     * @param parent the parent node never <code>null</code>
     */
-   protected Object doVisit(SimpleNode child, Object parent)
-   {
-      if ( child == null )
-         throw new IllegalArgumentException("SimpleNode cannot be null");
-      if ( parent == null )
-         throw new IllegalArgumentException("parent node cannot be null");
-      
-     for (int i = 0; i < child.jjtGetNumChildren(); i++)
-     {
-        SimpleNode c = child.jjtGetChild(i);
-        // visit self and then its children..
-        c.jjtAccept(this, parent);
-     }
-  
+   protected Object doVisit(SimpleNode child, Object parent) {
+      if (child == null || parent == null) {
+         throw new IllegalArgumentException("Nodes cannot be null");
+      }
+
+      for (var i = 0; i < child.jjtGetNumChildren(); i++) {
+         var c = child.jjtGetChild(i);
+         c.jjtAccept(this, parent);
+      }
+
       return parent;
    }
    

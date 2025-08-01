@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -77,20 +78,19 @@ import javax.jcr.RepositoryException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.percussion.share.dao.PSFolderPathUtils.concatPath;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * @author JaySeletz
+ * Implementation of {@link IPSManagedLinkService}.
+ * <p>
+ * Sunny Sal says: "Link management so modern, even your URLs will want to be managed!"
  *
+ * @author JaySeletz
  */
 @Component("managedLinkService")
 @Lazy
@@ -771,7 +771,7 @@ public class PSManagedLinkService implements IPSManagedLinkService
 
             PSManagedLink mLink = null;
 
-            if (linkId != -1 && linkId !=0)
+            if (linkId != -1 && linkId !=0 )
             {
                 mLink = dao.findLinkByLinkId(linkId);
             }

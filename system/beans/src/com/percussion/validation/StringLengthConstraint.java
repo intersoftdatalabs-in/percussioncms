@@ -18,6 +18,7 @@ package com.percussion.validation;
 
 import java.text.MessageFormat;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.swing.JComboBox;
@@ -27,89 +28,83 @@ import javax.swing.text.JTextComponent;
  * Constraint for validating String-based component values.
  * @see ValidationConstraint
  */
-public class StringLengthConstraint implements ComponentValidationConstraint
-{
+public class StringLengthConstraint implements ComponentValidationConstraint {
+
    /**
     * Constructs a new maximum length constraint.
     * 
-    * @param maxLen the maximum length to be enforced, must be > 0.
+    * @param maxLength the maximum length to be enforced, must be > 0.
+    * @throws IllegalArgumentException if maxLength is less than 1
     */
-   public StringLengthConstraint(int maxLen)
-   {
-      if (maxLen < 1)
-         throw new IllegalArgumentException(
-            "Maximum length must be greater than 0");
-      
-      m_maxLen = maxLen;
+   public StringLengthConstraint(int maxLength) {
+      if (maxLength < 1) {
+         throw new IllegalArgumentException("Maximum length must be greater than 0");
+      }
+      this.maxLength = maxLength;
    }
 
-   // implementing interface ValidationConstraint
-   public String getErrorText()
-   {
+   @Override
+   public String getErrorText() {
       return getErrorText(null);
    }
 
-   // implementing interface ComponentValidationConstraint
-   public String getErrorText(String label)
-   {
-      if (label == null || label.trim().length() == 0)
-         label = "?";
-      label = "<" + label.trim() + ">";
+   @Override
+   public String getErrorText(String label) {
+      var effectiveLabel = Optional.ofNullable(label)
+         .filter(l -> !l.trim().isEmpty())
+         .map(String::trim)
+         .map(l -> "<" + l + ">")
+         .orElse("<?>");
 
-      Object[] args =
-      {
-         label,
-         Integer.toString(m_maxLen)
-      };
+      var args = new Object[] { effectiveLabel, String.valueOf(maxLength) };
       return MessageFormat.format(
-         ms_res.getString("stringlengthconstraint.exceeds"), args);
+         RESOURCE_BUNDLE.getString("stringlengthconstraint.exceeds"), args);
    }
 
-   // implementing interface ValidationConstraint
-   public void checkComponent(Object suspect) throws ValidationException
-   {
-      // assume the supplied text is empty
-      String text = "";
-      if (suspect instanceof JTextComponent)
-      {
-         JTextComponent test = (JTextComponent) suspect;
-         if (test.getDocument() != null)
-            text = test.getText();
-      }
-      else if (suspect instanceof JComboBox)
-      {
-         JComboBox test = (JComboBox) suspect;
-         if (test.getSelectedItem() != null)
-            text = test.getSelectedItem().toString();
-      }
-      else
-      {
-         // this should never happen
-         throw new IllegalArgumentException(
-            "Component null or not text field or combo box");
-      }
+   @Override
+   public void checkComponent(Object suspect) throws ValidationException {
+      var text = extractTextFromComponent(suspect);
 
-      // begin validation
-      if (text.length() > m_maxLen)
+      if (text.length() > maxLength) {
          throw new ValidationException();
+      }
    }
 
    /**
-    * Tha maximum allowed lenght, initialized in constructor and never changed
+    * Extracts text from the given component.
+    *
+    * @param component the component to extract text from
+    * @return the text content, never {@code null}
+    * @throws IllegalArgumentException if component is not supported
+    */
+   private String extractTextFromComponent(Object component) {
+      if (component instanceof JTextComponent) {
+         var textComponent = (JTextComponent) component;
+         return Optional.ofNullable(textComponent.getDocument())
+            .map(doc -> textComponent.getText())
+            .orElse("");
+      } else if (component instanceof JComboBox) {
+         var comboBox = (JComboBox<?>) component;
+         return Optional.ofNullable(comboBox.getSelectedItem())
+            .map(Object::toString)
+            .orElse("");
+      } else {
+         throw new IllegalArgumentException(
+            "Component must be a text field or combo box, but was: " +
+            (component != null ? component.getClass().getSimpleName() : "null"));
+      }
+   }
+
+   /**
+    * The maximum allowed length, initialized in constructor and never changed
     * after that. Always > 0.
     */
-   private int m_maxLen;
+   private final int maxLength;
 
    /**
-    * The validation framework resource bundle. Initialized while constructed,
+    * The validation framework resource bundle. Initialized statically,
     * never changed after that.
     */
-   private static ResourceBundle ms_res = null;
-   static
-   {
-      ms_res = ResourceBundle.getBundle(
-         ValidationFramework.VALIDATION_RESOURCES, Locale.getDefault());
-   }
+   private static final ResourceBundle RESOURCE_BUNDLE =
+      ResourceBundle.getBundle(ValidationFramework.VALIDATION_RESOURCES, Locale.getDefault());
 }
-
-

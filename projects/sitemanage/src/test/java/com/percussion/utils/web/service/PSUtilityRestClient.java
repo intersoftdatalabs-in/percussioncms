@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,22 +21,35 @@ package com.percussion.utils.web.service;
 import com.percussion.share.data.PSMapWrapper;
 import com.percussion.share.test.PSObjectRestClient;
 
-public class PSUtilityRestClient extends PSObjectRestClient
-{
-    private String path = "/Rhythmyx/services/utils/utility/";
+/**
+ * REST client for utility service.
+ * Refactored for Java 11 and Google Java Style.
+ */
+public class PSUtilityRestClient extends PSObjectRestClient {
 
-    public PSUtilityRestClient(String baseUrl)
-    {
+    private final String path = "/Rhythmyx/services/utils/utility/";
+
+    public PSUtilityRestClient(String baseUrl) {
         super(baseUrl);
     }
 
-    public PSMapWrapper encryptString(PSMapWrapper mapWrapper)
-    {
+    /**
+     * Encrypts a string using the utility REST service.
+     *
+     * @param mapWrapper the map wrapper containing the string and key
+     * @return the encrypted string in a map wrapper
+     */
+    public PSMapWrapper encryptString(PSMapWrapper mapWrapper) {
         return postObjectToPath(concatPath(path, "encryptstring"), mapWrapper, PSMapWrapper.class);
     }
 
-    public PSMapWrapper decryptString(PSMapWrapper mapWrapper)
-    {
+    /**
+     * Decrypts a string using the utility REST service.
+     *
+     * @param mapWrapper the map wrapper containing the encrypted string and key
+     * @return the decrypted string in a map wrapper
+     */
+    public PSMapWrapper decryptString(PSMapWrapper mapWrapper) {
         return postObjectToPath(concatPath(path, "decryptstring"), mapWrapper, PSMapWrapper.class);
     }
 }

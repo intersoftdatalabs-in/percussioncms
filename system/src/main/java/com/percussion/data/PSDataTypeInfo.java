@@ -29,8 +29,8 @@ import java.sql.DatabaseMetaData;
  * or method invocation, but it does not keep any JDBC resources open
  * after the method returns, and caches meta data wherever possible.
  */
-public class PSDataTypeInfo
-{
+// REFACTORED: CP-JAVA11
+public class PSDataTypeInfo {
    /**
     * Create a data type info object.
     *
@@ -58,11 +58,9 @@ public class PSDataTypeInfo
     *   @see      java.sql.DatabaseMetaData
     */
    PSDataTypeInfo(String typeName, short jdbcType, int maxPrecision,
-      String literalPrefix, String literalSuffix, short nullable,
-      short searchable, boolean autoIncrement, short minScale,
-      short maxScale)
-   {
-      super();
+                  String literalPrefix, String literalSuffix, short nullable,
+                  short searchable, boolean autoIncrement, short minScale,
+                  short maxScale) {
       m_typeName = typeName;
       m_jdbcType = jdbcType;
       m_maxPrecision = maxPrecision;
@@ -72,24 +70,27 @@ public class PSDataTypeInfo
       m_literalSuffix = literalSuffix;
       m_flags = 0;
 
-      if (nullable == DatabaseMetaData.typeNoNulls)
+      if (nullable == DatabaseMetaData.typeNoNulls) {
          m_flags |= FLAG_NO_NULLS;
-      else if (nullable == DatabaseMetaData.typeNullable)
+      } else if (nullable == DatabaseMetaData.typeNullable) {
          m_flags |= FLAG_NULLABLE;
-      else
+      } else {
          m_flags |= FLAG_NULL_UNKNOWN;
+      }
 
-      if (autoIncrement)
+      if (autoIncrement) {
          m_flags |= FLAG_AUTO_INCREMENT;
+      }
 
-      if (searchable == DatabaseMetaData.typeSearchable)
+      if (searchable == DatabaseMetaData.typeSearchable) {
          m_flags |= FLAG_SEARCH_ALL;
-      else if (searchable == DatabaseMetaData.typePredChar)
+      } else if (searchable == DatabaseMetaData.typePredChar) {
          m_flags |= FLAG_SEARCH_CHAR;
-      else if (searchable == DatabaseMetaData.typePredBasic)
+      } else if (searchable == DatabaseMetaData.typePredBasic) {
          m_flags |= FLAG_SEARCH_BASIC;
-      else
+      } else {
          m_flags |= FLAG_SEARCH_NONE;
+      }
    }
 
    /**
@@ -202,34 +203,33 @@ public class PSDataTypeInfo
     *
     * @return      the maximum scale supported
     */
-   public short getmaximumScale()
-   {
+   public short getMaximumScale() {
       return m_maxScale;
    }
 
 
-   // the native data type name
-   private String      m_typeName;
+   // The native data type name
+   private String m_typeName;
 
-   // the JDBC data type (Types.xxx)
-   private short      m_jdbcType;
+   // The JDBC data type (Types.xxx)
+   private short m_jdbcType;
 
-   // max precision
-   private int         m_maxPrecision;
+   // Max precision
+   private int m_maxPrecision;
 
-   // the minimum scale supported
-   private short      m_minScale;
-   
-   // the maximum scale supported
-   private short      m_maxScale;
+   // The minimum scale supported
+   private short m_minScale;
 
-   // the prefix to use when quoting literals
-   private String      m_literalPrefix;
+   // The maximum scale supported
+   private short m_maxScale;
 
-   // the suffix to use when quoting literals
-   private String      m_literalSuffix;
+   // The prefix to use when quoting literals
+   private String m_literalPrefix;
 
-   /* this contains the flags for:
+   // The suffix to use when quoting literals
+   private String m_literalSuffix;
+
+   /* This contains the flags for:
     *
     * null values: DatabaseMetaData.typeNoNulls, typeNullable or
     *              typeNullableUnknown
@@ -239,14 +239,14 @@ public class PSDataTypeInfo
     *
     * autoIncrement
     */
-   private int         m_flags;
+   private int m_flags;
 
-   private static final int      FLAG_NO_NULLS         = 0x0001;
-   private static final int      FLAG_NULLABLE         = 0x0002;
-   private static final int      FLAG_NULL_UNKNOWN     = 0x0004;
-   private static final int      FLAG_AUTO_INCREMENT   = 0x0008;
-   private static final int      FLAG_SEARCH_NONE      = 0x0010;
-   private static final int      FLAG_SEARCH_CHAR      = 0x0020;
-   private static final int      FLAG_SEARCH_BASIC     = 0x0040;
-   private static final int      FLAG_SEARCH_ALL       = 0x0080;
+   private static final int FLAG_NO_NULLS = 0x0001;
+   private static final int FLAG_NULLABLE = 0x0002;
+   private static final int FLAG_NULL_UNKNOWN = 0x0004;
+   private static final int FLAG_AUTO_INCREMENT = 0x0008;
+   private static final int FLAG_SEARCH_NONE = 0x0010;
+   private static final int FLAG_SEARCH_CHAR = 0x0020;
+   private static final int FLAG_SEARCH_BASIC = 0x0040;
+   private static final int FLAG_SEARCH_ALL = 0x0080;
 }

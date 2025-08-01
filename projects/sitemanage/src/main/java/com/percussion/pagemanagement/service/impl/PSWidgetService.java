@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.metadata.data.PSMetadata;
@@ -49,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.json.JSONArray;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,44 +62,36 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import net.sf.json.JSONArray;
-
 
 @Component("widgetService")
 public class PSWidgetService implements IPSWidgetService {
-    
-    private IPSWidgetDao widgetDao;
-    private IPSPkgInfoService pkgInfoSvc;
-    private IPSMetadataService mdService;
-    
-    
+
+    private final IPSWidgetDao widgetDao;
+    private final IPSPkgInfoService pkgInfoSvc;
+    private final IPSMetadataService mdService;
+
     @Value("${widgetService.baseTemplate:perc.widget}")
     private String baseTemplate;
-    
-    private PSAbstractPropertiesValidator<PSWidgetItem> widgetUserPropertiesValidator = new PSWidgetUserPropertiesValidator(this);
-    private PSAbstractPropertiesValidator<PSWidgetItem> widgetCssPropertiesValidator = new PSWidgetCssPropertiesValidator(this);
-    
-    //Private data variable initialized in getWidgetType method.
-    private Map<String,String> widgetTypeMap = null;
-    
+
+    private final PSAbstractPropertiesValidator<PSWidgetItem> widgetUserPropertiesValidator = new PSWidgetUserPropertiesValidator(this);
+    private final PSAbstractPropertiesValidator<PSWidgetItem> widgetCssPropertiesValidator = new PSWidgetCssPropertiesValidator(this);
+
+    // Private data variable initialized in getWidgetType method.
+    private Map<String, String> widgetTypeMap = null;
+
     @Autowired
-    public PSWidgetService(IPSWidgetDao widgetDao, IPSPkgInfoService pkgInfoSvc, IPSMetadataService mdService)
-    {
+    public PSWidgetService(IPSWidgetDao widgetDao, IPSPkgInfoService pkgInfoSvc, IPSMetadataService mdService) {
         super();
         this.widgetDao = widgetDao;
         this.pkgInfoSvc = pkgInfoSvc;
         this.mdService = mdService;
     }
 
-    
-    public PSSpringValidationException validateWidgetItem(PSWidgetItem widgetItem)
-    {
-        PSSpringValidationException e = widgetUserPropertiesValidator.validate(widgetItem);
+    public PSSpringValidationException validateWidgetItem(PSWidgetItem widgetItem) {
+        var e = widgetUserPropertiesValidator.validate(widgetItem);
         widgetCssPropertiesValidator.validate(widgetItem, e);
         return e;
-        
     }
-    
 
     /**
      * Prepares the widget item for assembly.
@@ -105,19 +99,18 @@ public class PSWidgetService implements IPSWidgetService {
      * @param item never <code>null</code>.
      */
     public void normalizeWidgetItem(PSWidgetItem item) throws PSDataServiceException {
-        PSWidgetDefinition def = load(item.getDefinitionId());
+        var def = load(item.getDefinitionId());
         PSWidgetUtils.setDefaultValuesFromDefinition(item, def);
     }
 
-    public PSWidgetSummary find(String id) throws PSDataServiceException
-    {
-        PSWidgetDefinition full = load(id);
+    public PSWidgetSummary find(String id) throws PSDataServiceException {
+        var full = load(id);
         if (full == null) throw new DataServiceLoadException("Cannot find widget for id: " + id);
-        PSWidgetSummary summary = createWidgetSummary();
+        var summary = createWidgetSummary();
         convertFullToSummary(full, summary);
         return summary;
     }
-    
+
     public List<PSWidgetSummary> findAll() throws PSDataServiceException {
         return findByType("All");
     }
@@ -126,43 +119,41 @@ public class PSWidgetService implements IPSWidgetService {
     public List<PSWidgetSummary> findByType(String type) throws PSDataServiceException {
         return findByType(type, null);
     }
-    
+
     public List<PSWidgetSummary> findByType(String type, String filterDisabledWidgets) throws PSDataServiceException {
-    	if(StringUtils.isBlank(type))
-    		type = "All";
-    	List<String> disabledWidgets = new ArrayList<>();
-    	boolean filter = StringUtils.isNotBlank(filterDisabledWidgets) && filterDisabledWidgets.equalsIgnoreCase("yes");
-    	//If filter get the disabled widgets from metadata service
-    	if(filter){
-    		PSMetadata md = mdService.find("percwidgetconfiguration");
-    		if(md != null){
-    			String data = md.getData();
-	    		if(StringUtils.isNotBlank(data)){
-	    			JSONArray jsonArray =  JSONArray.fromObject(data);
-	    			@SuppressWarnings("unchecked")
-					Iterator<String> iter = jsonArray.iterator();
-	    			while(iter.hasNext()){
-	    				disabledWidgets.add(iter.next());
-	    			}
-	    		}
-    		}
-    	}
-        
-        List<PSWidgetSummary> summaries = new ArrayList<>();
-        List<PSWidgetDefinition> fulls = widgetDao.findAll();
-        for (PSWidgetDefinition full : fulls) {
-            PSWidgetSummary sum = createWidgetSummary();
-            convertFullToSummary(full, sum);
-            if(type.equalsIgnoreCase("All") || type.equalsIgnoreCase(sum.getType())){
-            	if(!filter || !disabledWidgets.contains(sum.getId()))
-            		summaries.add(sum);
+        if (StringUtils.isBlank(type))
+            type = "All";
+        var disabledWidgets = new ArrayList<String>();
+        var filter = StringUtils.isNotBlank(filterDisabledWidgets) && filterDisabledWidgets.equalsIgnoreCase("yes");
+        // If filter get the disabled widgets from metadata service
+        if (filter) {
+            var md = mdService.find("percwidgetconfiguration");
+            if (md != null) {
+                var data = md.getData();
+                if (StringUtils.isNotBlank(data)) {
+                    var jsonArray = JSONArray.fromObject(data);
+                    for (var iter = jsonArray.iterator(); iter.hasNext(); ) {
+                        disabledWidgets.add((String) iter.next());
+                    }
+                }
             }
         }
-        Collections.sort(summaries, summaryComp);
+
+        var summaries = new ArrayList<PSWidgetSummary>();
+        var fulls = widgetDao.findAll();
+        for (var full : fulls) {
+            var sum = createWidgetSummary();
+            convertFullToSummary(full, sum);
+            if (type.equalsIgnoreCase("All") || type.equalsIgnoreCase(sum.getType())) {
+                if (!filter || !disabledWidgets.contains(sum.getId()))
+                    summaries.add(sum);
+            }
+        }
+        summaries.sort(summaryComp);
         return summaries;
     }
-    
-    //TODO: A PSWidgetDefinition should be a subclass of PSWidgetSummary
+
+    // TODO: A PSWidgetDefinition should be a subclass of PSWidgetSummary
     private void convertFullToSummary(PSWidgetDefinition full, PSWidgetSummary summary) {
         if (full.getWidgetPrefs() != null) {
             summary.setId(full.getId());
@@ -175,142 +166,115 @@ public class PSWidgetService implements IPSWidgetService {
             summary.setCategory(full.getWidgetPrefs().getCategory());
             summary.setDescription(full.getWidgetPrefs().getDescription());
             summary.setResponsive(full.getWidgetPrefs().isResponsive());
-        }
-        else {
+        } else {
             log.error("Widget definition does not have user prefs, definitionId: " + full.getId());
         }
     }
-    
-    private PSWidgetSummary createWidgetSummary()
-    {
+
+    private PSWidgetSummary createWidgetSummary() {
         return new PSWidgetSummary();
     }
-    
+
     /**
      * Helper method to get the widget type for the supplied widget name. If the
      * widgetTypeMap is <code>null</code>, then initializes it by loading
      * WidgetRegistry.xml. If the supplied widget is not a registered widget
      * then returns the type as "Custom".
-     * 
+     *
      * @param widgetName The name of the widget for which the type needs to be
      *            found, assumed not blank.
      * @return The widget type, never <code>null</code>, will be "Custom" if the
      *         widget is not found in the registry.
      */
-    private String getWidgetType(String widgetName)
-    {
+    private String getWidgetType(String widgetName) {
         // Load the map if needed
-        if (widgetTypeMap == null)
-        {
+        if (widgetTypeMap == null) {
             widgetTypeMap = loadWidgetTypeMap();
         }
 
-        String widgetType = widgetTypeMap.get(widgetName);
+        var widgetType = widgetTypeMap.get(widgetName);
         if (widgetType == null)
             widgetType = "Custom";
         return widgetType;
     }
 
     /**
-     * Helper method that loads the WidgetRegistry.xml and creates a map of widget name as key and 
+     * Helper method that loads the WidgetRegistry.xml and creates a map of widget name as key and
      * widget type as value.
      * @return Map of widget name and type, never <code>null</code> may be empty.
      */
-    private Map<String, String> loadWidgetTypeMap()
-    {
-        Map<String, String> widgetTypeMap = new HashMap<>();
-        try(InputStream in = this.getClass().getClassLoader()
-                .getResourceAsStream("com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")){
-            Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-            NodeList groupElems = doc.getElementsByTagName("group");
+    private Map<String, String> loadWidgetTypeMap() {
+        var widgetTypeMap = new HashMap<String, String>();
+        try (var in = this.getClass().getClassLoader()
+                .getResourceAsStream("com/percussion/pagemanagement/service/impl/WidgetRegistry.xml")) {
+            var doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+            var groupElems = doc.getElementsByTagName("group");
             for (int i = 0; i < groupElems.getLength(); i++) {
-                Element groupElem = (Element) groupElems.item(i);
-                String groupName = groupElem.getAttribute("name");
-                NodeList widgetElems = groupElem.getElementsByTagName("widget");
+                var groupElem = (Element) groupElems.item(i);
+                var groupName = groupElem.getAttribute("name");
+                var widgetElems = groupElem.getElementsByTagName("widget");
                 for (int j = 0; j < widgetElems.getLength(); j++) {
-                    Element widgetElem = (Element) widgetElems.item(j);
-                    String wdgName = widgetElem.getAttribute("name");
+                    var widgetElem = (Element) widgetElems.item(j);
+                    var wdgName = widgetElem.getAttribute("name");
                     widgetTypeMap.put(wdgName, groupName);
                 }
             }
-
-        }
-        catch (IOException e)
-        {
+        } catch (IOException | SAXException e) {
             // This should not happen as we are reading the file from JAR
-            // incase if it happens logging it and returning empty widget
+            // in case if it happens logging it and returning empty widget
             // map.
-            log.error("Failed to load WidgetRegistry.xml file:", e);
-
-        }
-        catch (SAXException e)
-        {
-            // This should not happen as we are reading the file from JAR
-            // incase if it happens logging it and returning empty widget
-            // map.
-            log.error("Failed to parse WidgetRegistry.xml file:", e);
+            log.error("Failed to load or parse WidgetRegistry.xml file:", e);
         }
         return widgetTypeMap;
     }
-    
-    public void delete(String id) throws com.percussion.share.service.IPSDataService.DataServiceDeleteException
-    {
+
+    public void delete(String id) throws com.percussion.share.service.IPSDataService.DataServiceDeleteException {
         throw new UnsupportedOperationException("delete is not yet supported");
     }
 
-
-    public PSWidgetDefinition load(String id) throws PSDataServiceException
-    {
-        PSWidgetDefinition wd =  widgetDao.find(id);
+    public PSWidgetDefinition load(String id) throws PSDataServiceException {
+        var wd = widgetDao.find(id);
         if (wd == null) throw new DataServiceLoadException("No widget found for id: " + id);
         return wd;
     }
 
     @Override
-    public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request)
-    {
-        PSWidgetPackageInfoResult results = new PSWidgetPackageInfoResult();
-        
-        for (String widgetName : request.getWidgetNames())
-        {
-            PSPkgInfo info = findPackageInfo(widgetName);
+    public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request) {
+        var results = new PSWidgetPackageInfoResult();
+
+        for (var widgetName : request.getWidgetNames()) {
+            var info = findPackageInfo(widgetName);
             if (info == null)
                 continue;
-            
-            PSWidgetPackageInfo result = new PSWidgetPackageInfo();
+
+            var result = new PSWidgetPackageInfo();
             result.setWidgetName(widgetName);
             result.setProviderUrl(info.getPublisherUrl());
             result.setVersion(info.getPackageVersion());
             results.getPackageInfoList().add(result);
         }
-        
+
         return results;
     }
 
-
     /**
      * Find the package info for the specified widget
-     * 
+     *
      * @param widgetName The name of the widget, not <code>null</code>.
-     * 
+     *
      * @return  The info, or null if not found.
      */
-    private PSPkgInfo findPackageInfo(String widgetName)
-    {
+    private PSPkgInfo findPackageInfo(String widgetName) {
         PSPkgInfo pkgInfo = null;
 
-        String filepath = widgetDao.getBaseConfigDir() + "/" + widgetName + ".xml";
-        PSPkgElement pkgElem = pkgInfoSvc.findPkgElementByObject(PSIdNameHelper.getGuid(filepath, PSTypeEnum.USER_DEPENDENCY));
+        var filepath = widgetDao.getBaseConfigDir() + "/" + widgetName + ".xml";
+        var pkgElem = pkgInfoSvc.findPkgElementByObject(PSIdNameHelper.getGuid(filepath, PSTypeEnum.USER_DEPENDENCY));
 
-        if (pkgElem != null)
-        {
-            IPSGuid pkgGuid = pkgElem.getPackageGuid();
-            try
-            {
+        if (pkgElem != null) {
+            var pkgGuid = pkgElem.getPackageGuid();
+            try {
                 pkgInfo = pkgInfoSvc.loadPkgInfo(pkgGuid);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // noop, fall thru
             }
         }
@@ -318,74 +282,62 @@ public class PSWidgetService implements IPSWidgetService {
         return pkgInfo;
     }
 
-
     public PSWidgetDefinition save(PSWidgetDefinition object) throws PSBeanValidationException,
-            com.percussion.share.service.IPSDataService.DataServiceSaveException
-    {
+            com.percussion.share.service.IPSDataService.DataServiceSaveException {
         throw new UnsupportedOperationException("save is not yet supported");
     }
 
-    public PSValidationErrors validate(PSWidgetDefinition object)
-    {
+    public PSValidationErrors validate(PSWidgetDefinition object) {
         // TODO Auto-generated method stub
-        //return null;
         throw new UnsupportedOperationException("validate is not yet supported");
     }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.pagemanagement.service.IPSWidgetService#getBaseTemplate()
-    */
-   public String getBaseTemplate()
-   {
-      return baseTemplate;
-   }
+    /*
+     * (non-Javadoc)
+     * @see com.percussion.pagemanagement.service.IPSWidgetService#getBaseTemplate()
+     */
+    public String getBaseTemplate() {
+        return baseTemplate;
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.pagemanagement.service.IPSWidgetService#setBaseTemplate(java.lang.String)
-    */
-   public void setBaseTemplate(String baseTemplate)
-   {
-      this.baseTemplate = baseTemplate;
-   }
-   
-   /**
-    * Used for sorting of {@link PSWidgetSummary} objects.  Sorts alphabetically by label (case-sensitive).
-    */
-   private static class SummaryComparator implements Comparator<PSWidgetSummary>
-   {
-       public int compare(PSWidgetSummary s1, PSWidgetSummary s2)
-       {
-           if(s1==null && s2 == null)
-               return 0;
-           else if(s1 == null && s2 != null)
-               return -1;
-           else if(s1 != null && s2==null)
-               return 1;
+    /*
+     * (non-Javadoc)
+     * @see com.percussion.pagemanagement.service.IPSWidgetService#setBaseTemplate(java.lang.String)
+     */
+    public void setBaseTemplate(String baseTemplate) {
+        this.baseTemplate = baseTemplate;
+    }
 
-           if(s1.getLabel()==null && s2.getLabel()==null)
-               return 0;
-           else if(s1.getLabel()!= null && s2.getLabel()!=null)
+    /**
+     * Used for sorting of {@link PSWidgetSummary} objects.  Sorts alphabetically by label (case-sensitive).
+     */
+    private static class SummaryComparator implements Comparator<PSWidgetSummary> {
+        public int compare(PSWidgetSummary s1, PSWidgetSummary s2) {
+            if (s1 == null && s2 == null)
+                return 0;
+            else if (s1 == null)
+                return -1;
+            else if (s2 == null)
+                return 1;
+
+            if (s1.getLabel() == null && s2.getLabel() == null)
+                return 0;
+            else if (s1.getLabel() != null && s2.getLabel() != null)
                 return s1.getLabel().compareTo(s2.getLabel());
-           else if(s1.getLabel()!= null && s2.getLabel()==null)
-               return 1;
-           else
-               return -1;
-       }
-   }
-   
-   /**
-    * Used for widget summary sorting.  Never <code>null</code>.
-    */
-   private SummaryComparator summaryComp = new SummaryComparator();
+            else if (s1.getLabel() != null)
+                return 1;
+            else
+                return -1;
+        }
+    }
 
-   /**
- * The log instance to use for this class, never <code>null</code>.
- */
-   private static final Logger log = LogManager.getLogger(PSWidgetService.class);
+    /**
+     * Used for widget summary sorting.  Never <code>null</code>.
+     */
+    private final SummaryComparator summaryComp = new SummaryComparator();
 
-
-    
-
+    /**
+     * The log instance to use for this class, never <code>null</code>.
+     */
+    private static final Logger log = LogManager.getLogger(PSWidgetService.class);
 }

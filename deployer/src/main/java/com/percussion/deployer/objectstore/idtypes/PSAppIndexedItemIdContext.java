@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 
 /**
  * ID Context to represent an item whose context is determined only by its
@@ -124,18 +125,15 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_INDEX, String.valueOf(m_index));
       root.setAttribute(XML_ATTR_TYPE, TYPE_ENUM[m_type]);
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-         root.appendChild(parent.toXml(doc));
-
+      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
       return root;
    }
    
@@ -145,59 +143,46 @@ public class PSAppIndexedItemIdContext extends PSApplicationIdContext
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      String strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_INDEX);
-      m_index = -1;
-      try 
-      {
-         m_index = Integer.parseInt(strIndex);
-      }
-      catch (NumberFormatException ex) 
-      {
-         // fall thru
-      }
-      
-      if (!validateIndex(m_index))
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_INDEX, strIndex};
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
-      
-      String strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_TYPE);
-      m_type = -1;
-      for (int i = 0; i < TYPE_ENUM.length && m_type == -1; i++) 
-      {
-         if (TYPE_ENUM[i].equals(strType))
-            m_type = i;
-      }
-      if (!validateType(m_type))
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_TYPE, strType};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      }
-      
-      
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (ctxEl != null)
-         setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+
+      var strIndex = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_INDEX);
+      m_index = Optional.ofNullable(strIndex)
+         .map(Integer::parseInt)
+         .filter(this::validateIndex)
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_INDEX, strIndex}
+         ));
+
+      var strType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
+      m_type = Optional.ofNullable(strType)
+         .map(type -> {
+            for (var i = 0; i < TYPE_ENUM.length; i++) {
+               if (TYPE_ENUM[i].equals(type)) {
+                  return i;
+               }
+            }
+            return -1;
+         })
+         .filter(this::validateType)
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_TYPE, strType}
+         ));
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
    }
    
    // see IPSDeployComponent interface

@@ -18,304 +18,423 @@
 package com.percussion.services.widgetbuilder;
 
 import com.percussion.share.data.PSAbstractDataObject;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import org.apache.commons.lang.Validate;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
- * 
+ * Widget Builder Definition entity representing widget configurations and metadata with modern Java 11 patterns.
+ * This JPA entity stores all the necessary information for building and rendering widgets with enhanced
+ * validation, Optional-based safe access, and comprehensive utility methods.
+ *
  * @author matthewernewein
- * 
  */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-region = "PSWidgetBuilderDefinition")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSWidgetBuilderDefinition")
 @Table(name = "PSX_WIDGETBUILDERDEFINITION")
-public class PSWidgetBuilderDefinition extends PSAbstractDataObject
+public class PSWidgetBuilderDefinition extends PSAbstractDataObject {
 
-{
     @Id
-    @Column(name = "WIDGETBUILDERDEFINITIONID")  
+    @Column(name = "WIDGETBUILDERDEFINITIONID")
     private long widgetBuilderDefinitionId = -1L;
 
     @Basic
-    @Column(name = "PREFIX", nullable=true)
+    @Column(name = "PREFIX", nullable = true)
     private String prefix;
 
     @Basic
-    @Column(name="AUTHOR", nullable=true)
+    @Column(name = "AUTHOR", nullable = true)
     private String author;
 
-   @Basic
-    @Column(name = "LABEL", nullable=true)
+    @Basic
+    @Column(name = "LABEL", nullable = true)
     private String label;
 
     @Basic
-    @Column(name = "PUBLISHERURL", nullable=true)
+    @Column(name = "PUBLISHERURL", nullable = true)
     private String publisherUrl;
 
     @Basic
-    @Column(name = "DESCRIPTION", nullable=true)
+    @Column(name = "DESCRIPTION", nullable = true)
     private String description;
 
     @Basic
-    @Column(name = "VERSION", nullable=true)
+    @Column(name = "VERSION", nullable = true)
     private String version;
-    
-    @Basic
-    @Column(name = "FIELDS", nullable=true)
-    private String fields = "";    
-    
-    @Basic
-    @Column(name = "WIDGET_HTML", nullable=true)
-    private String widgetHtml = "";    
 
     @Basic
-    @Column(name = "CSS_FILES", nullable=true)
-    private String cssFiles = "";    
-    
+    @Column(name = "FIELDS", nullable = true)
+    private String fields = "";
+
     @Basic
-    @Column(name = "JS_FILES", nullable=true)
-    private String jsFiles = "";    
-    
+    @Column(name = "WIDGET_HTML", nullable = true)
+    private String widgetHtml = "";
+
     @Basic
-    @Column(name="IS_RESPONSIVE", nullable=true)
+    @Column(name = "CSS_FILES", nullable = true)
+    private String cssFiles = "";
+
+    @Basic
+    @Column(name = "JS_FILES", nullable = true)
+    private String jsFiles = "";
+
+    @Basic
+    @Column(name = "IS_RESPONSIVE", nullable = true)
     private String isResponsive;
 
     @Basic
-    @Column(name="WIDGET_TRAY_CUSTOMIZED_ICON_PATH", nullable=true)
+    @Column(name = "WIDGET_TRAY_CUSTOMIZED_ICON_PATH", nullable = true)
     private String widgetTrayCustomizedIconPath;
 
     @Basic
-    @Column(name="TOOLTIP_MESSAGE", nullable=true)
+    @Column(name = "TOOLTIP_MESSAGE", nullable = true)
     private String toolTipMessage;
 
-    public String getWidgetTrayCustomizedIconPath() {
-        return widgetTrayCustomizedIconPath;
+    // Enhanced getters and setters with modern Java 11 patterns
+
+    /**
+     * Gets the widget builder definition ID.
+     *
+     * @return the widget builder definition ID
+     */
+    public long getWidgetBuilderDefinitionId() {
+        return widgetBuilderDefinitionId;
     }
 
+    /**
+     * Sets the widget builder definition ID with validation.
+     *
+     * @param widgetBuilderDefinitionId the widget builder definition ID to set
+     * @throws IllegalArgumentException if the ID is negative (except -1 for new entities)
+     */
+    public void setWidgetBuilderDefinitionId(long widgetBuilderDefinitionId) {
+        if (widgetBuilderDefinitionId < -1) {
+            throw new IllegalArgumentException("Widget builder definition ID cannot be less than -1");
+        }
+        this.widgetBuilderDefinitionId = widgetBuilderDefinitionId;
+    }
+
+    /**
+     * Checks if this is a new entity (not yet persisted).
+     *
+     * @return true if this is a new entity, false otherwise
+     */
+    public boolean isNew() {
+        return widgetBuilderDefinitionId == -1L;
+    }
+
+    /**
+     * Gets the widget prefix with safe access.
+     *
+     * @return Optional containing the prefix, empty if not set
+     */
+    public Optional<String> getPrefix() {
+        return Optional.ofNullable(prefix).filter(p -> !p.trim().isEmpty());
+    }
+
+    /**
+     * Sets the widget prefix with validation.
+     *
+     * @param prefix the prefix to set, may be null
+     * @throws IllegalArgumentException if prefix is blank when not null
+     */
+    public void setPrefix(String prefix) {
+        if (prefix != null && prefix.trim().isEmpty()) {
+            throw new IllegalArgumentException("Widget prefix cannot be blank");
+        }
+        this.prefix = prefix;
+    }
+
+    /**
+     * Gets the widget author with safe access.
+     *
+     * @return Optional containing the author, empty if not set
+     */
+    public Optional<String> getAuthor() {
+        return Optional.ofNullable(author).filter(a -> !a.trim().isEmpty());
+    }
+
+    /**
+     * Sets the widget author.
+     *
+     * @param author the author to set, may be null
+     */
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    /**
+     * Gets the widget label with safe access.
+     *
+     * @return Optional containing the label, empty if not set
+     */
+    public Optional<String> getLabel() {
+        return Optional.ofNullable(label).filter(l -> !l.trim().isEmpty());
+    }
+
+    /**
+     * Sets the widget label with validation.
+     *
+     * @param label the label to set, may be null
+     * @throws IllegalArgumentException if label is blank when not null
+     */
+    public void setLabel(String label) {
+        if (label != null && label.trim().isEmpty()) {
+            throw new IllegalArgumentException("Widget label cannot be blank");
+        }
+        this.label = label;
+    }
+
+    /**
+     * Gets the publisher URL with safe access.
+     *
+     * @return Optional containing the publisher URL, empty if not set
+     */
+    public Optional<String> getPublisherUrl() {
+        return Optional.ofNullable(publisherUrl).filter(url -> !url.trim().isEmpty());
+    }
+
+    /**
+     * Sets the publisher URL.
+     *
+     * @param publisherUrl the publisher URL to set, may be null
+     */
+    public void setPublisherUrl(String publisherUrl) {
+        this.publisherUrl = publisherUrl;
+    }
+
+    /**
+     * Gets the widget description with safe access.
+     *
+     * @return Optional containing the description, empty if not set
+     */
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description).filter(d -> !d.trim().isEmpty());
+    }
+
+    /**
+     * Sets the widget description.
+     *
+     * @param description the description to set, may be null
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * Gets the widget version with safe access.
+     *
+     * @return Optional containing the version, empty if not set
+     */
+    public Optional<String> getVersion() {
+        return Optional.ofNullable(version).filter(v -> !v.trim().isEmpty());
+    }
+
+    /**
+     * Sets the widget version with validation.
+     *
+     * @param version the version to set, may be null
+     * @throws IllegalArgumentException if version is blank when not null
+     */
+    public void setVersion(String version) {
+        if (version != null && version.trim().isEmpty()) {
+            throw new IllegalArgumentException("Widget version cannot be blank");
+        }
+        this.version = version;
+    }
+
+    /**
+     * Gets the customized icon path with safe access.
+     *
+     * @return Optional containing the icon path, empty if not set
+     */
+    public Optional<String> getWidgetTrayCustomizedIconPath() {
+        return Optional.ofNullable(widgetTrayCustomizedIconPath).filter(path -> !path.trim().isEmpty());
+    }
+
+    /**
+     * Sets the customized icon path.
+     *
+     * @param widgetTrayCustomizedIconPath the icon path to set, may be null
+     */
     public void setWidgetTrayCustomizedIconPath(String widgetTrayCustomizedIconPath) {
         this.widgetTrayCustomizedIconPath = widgetTrayCustomizedIconPath;
     }
 
-    public String getToolTipMessage() {
-        return toolTipMessage;
+    /**
+     * Gets the tooltip message with safe access.
+     *
+     * @return Optional containing the tooltip message, empty if not set
+     */
+    public Optional<String> getToolTipMessage() {
+        return Optional.ofNullable(toolTipMessage).filter(msg -> !msg.trim().isEmpty());
     }
 
+    /**
+     * Sets the tooltip message.
+     *
+     * @param toolTipMessage the tooltip message to set, may be null
+     */
     public void setToolTipMessage(String toolTipMessage) {
         this.toolTipMessage = toolTipMessage;
     }
 
     /**
-     * @return the widgetBuilderDefinitionId
+     * Checks if the widget is responsive.
+     *
+     * @return true if responsive, false otherwise
      */
-    public long getWidgetBuilderDefinitionId()
-    {
-        return widgetBuilderDefinitionId;
+    public boolean isResponsive() {
+        return "y".equals(isResponsive);
     }
 
     /**
-     * @param widgetBuilderDefinitionId the widgetBuilderDefinitionId to set
+     * Sets the responsive flag for the widget.
+     *
+     * @param responsive true if responsive, false otherwise
      */
-    public void setWidgetBuilderDefinitionId(long widgetBuilderDefinitionId)
-    {
-        this.widgetBuilderDefinitionId = widgetBuilderDefinitionId;
+    public void setResponsive(boolean responsive) {
+        this.isResponsive = responsive ? "y" : "n";
     }
 
     /**
-     * @return the prefix
+     * Gets the fields configuration as a string.
+     *
+     * @return the fields string, never null but may be empty
      */
-    public String getPrefix()
-    {
-        return prefix;
+    public String getFields() {
+        return fields != null ? fields : "";
     }
 
     /**
-     * @param prefix the prefix to set
+     * Sets the fields configuration.
+     *
+     * @param fields the fields string to set, may be null
      */
-    public void setPrefix(String prefix)
-    {
-        this.prefix = prefix;
+    public void setFields(String fields) {
+        this.fields = fields;
     }
 
     /**
-     * @return the label
+     * Gets the widget HTML content.
+     *
+     * @return the widget HTML, never null but may be empty
      */
-    public String getLabel()
-    {
-        return label;
+    public String getWidgetHtml() {
+        return widgetHtml != null ? widgetHtml : "";
     }
 
     /**
-     * @return the author
+     * Sets the widget HTML content.
+     *
+     * @param widgetHtml the widget HTML to set, may be null
      */
-    public String getAuthor()
-    {
-       return author;
+    public void setWidgetHtml(String widgetHtml) {
+        this.widgetHtml = widgetHtml;
     }
 
     /**
-     * @param author the author to set
+     * Gets the CSS files configuration.
+     *
+     * @return the CSS files string, never null but may be empty
      */
-    public void setAuthor(String author)
-    {
-       this.author = author;
-    }
-    
-    /**
-     * @param label the label to set
-     */
-    public void setLabel(String label)
-    {
-        this.label = label;
+    public String getCssFiles() {
+        return cssFiles != null ? cssFiles : "";
     }
 
     /**
-     * @return the publisherUrl
+     * Sets the CSS files configuration.
+     *
+     * @param cssFiles the CSS files string to set, may be null
      */
-    public String getPublisherUrl()
-    {
-        return publisherUrl;
+    public void setCssFiles(String cssFiles) {
+        this.cssFiles = cssFiles;
     }
 
     /**
-     * @param publisherUrl the publisherUrl to set
+     * Gets the JavaScript files configuration.
+     *
+     * @return the JS files string, never null but may be empty
      */
-    public void setPublisherUrl(String publisherUrl)
-    {
-        this.publisherUrl = publisherUrl;
+    public String getJsFiles() {
+        return jsFiles != null ? jsFiles : "";
     }
 
     /**
-     * @return the description
+     * Sets the JavaScript files configuration.
+     *
+     * @param jsFiles the JS files string to set, may be null
      */
-    public String getDescription()
-    {
-        return description;
+    public void setJsFiles(String jsFiles) {
+        this.jsFiles = jsFiles;
     }
 
     /**
-     * @param description the description to set
+     * Validates this widget definition ensuring all required fields are properly set.
+     *
+     * @throws IllegalArgumentException if validation fails
      */
-    public void setDescription(String description)
-    {
-        this.description = description;
+    public void validate() {
+        if (!getPrefix().isPresent()) {
+            throw new IllegalArgumentException("Widget prefix is required");
+        }
+        if (!getLabel().isPresent()) {
+            throw new IllegalArgumentException("Widget label is required");
+        }
+        if (!getVersion().isPresent()) {
+            throw new IllegalArgumentException("Widget version is required");
+        }
     }
 
     /**
-     * @return the version
+     * Checks if this widget definition is complete and valid.
+     *
+     * @return true if all required fields are present, false otherwise
      */
-    public String getVersion()
-    {
-        return version;
+    public boolean isValid() {
+        return getPrefix().isPresent() && getLabel().isPresent() && getVersion().isPresent();
     }
 
     /**
-     * @param version the version to set
+     * Gets a display name for this widget definition.
+     *
+     * @return a display name combining label and version, or ID if no label
      */
-    public void setVersion(String version)
-    {
-        this.version = version;
+    public String getDisplayName() {
+        return getLabel()
+            .map(l -> getVersion().map(v -> l + " (v" + v + ")").orElse(l))
+            .orElse("Widget " + widgetBuilderDefinitionId);
     }
 
-   public boolean isResponsive()
-   {
-      return "y".equals(isResponsive);
-   }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        var other = (PSWidgetBuilderDefinition) obj;
+        return widgetBuilderDefinitionId == other.widgetBuilderDefinitionId;
+    }
 
-   public void setResponsive(boolean responsive)
-   {
-      this.isResponsive = responsive ? "y" : "n";
-   }
+    @Override
+    public int hashCode() {
+        return Objects.hash(widgetBuilderDefinitionId);
+    }
 
-   /**
-    * Get the string that represents the collection of fields 
-    * 
-    * @return The field data, not <code>null</code>, may be empty.
-    */
-   public String getFields()
-   {
-      return fields == null ? "" : fields;
-   }
-
-   /**
-    * Set the string that represents the collection of fields
-    * 
-    * @param fields The field data, not <code>null</code>, may be empty.
-    */
-   public void setFields(String fields)
-   {
-      Validate.notEmpty(fields);
-      this.fields = fields;
-   }
-
-   /**
-    * Get the html that renders the widget
-    * 
-    * @return The html, may be <code>null<code/> or empty
-    */
-   public String getWidgetHtml()
-   {
-      return widgetHtml;
-   }
-
-   /**
-    * Set the html that renders the widget.
-    * 
-    * @param widgetHtml The html, may be <code>null<code/> or empty
-    */
-   public void setWidgetHtml(String widgetHtml)
-   {
-      this.widgetHtml = widgetHtml;
-   }
-
-   /**
-    * Get the string that represents the collection of css files 
-    * 
-    * @return The file data, not <code>null</code>, may be empty.
-    */
-   public String getCssFiles()
-   {
-      return cssFiles == null ? "" : cssFiles;
-   }
-
-   /**
-    * Set the string that represents the collection of css files
-    * 
-    * @param cssFiles The file data, not <code>null</code>, may be empty.
-    */
-   public void setCssFiles(String cssFiles)
-   {
-      Validate.notEmpty(cssFiles);
-      this.cssFiles = cssFiles;
-   }
-
-   /**
-    * Get the string that represents the collection of js files 
-    * 
-    * @return The file data, not <code>null</code>, may be empty.
-    */
-   public String getJsFiles()
-   {
-      return jsFiles == null ? "" : jsFiles;
-   }
-
-   /**
-    * Set the string that represents the collection of js files
-    * 
-    * @param jsFiles The file data, not <code>null</code>, may be empty.
-    */
-   public void setJsFiles(String jsFiles)
-   {
-      Validate.notEmpty(jsFiles);
-      this.jsFiles = jsFiles;
-   }
-    
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", PSWidgetBuilderDefinition.class.getSimpleName() + "[", "]")
+            .add("id=" + widgetBuilderDefinitionId)
+            .add("prefix='" + prefix + "'")
+            .add("label='" + label + "'")
+            .add("version='" + version + "'")
+            .add("responsive=" + isResponsive())
+            .toString();
+    }
 }

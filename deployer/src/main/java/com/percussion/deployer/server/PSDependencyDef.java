@@ -23,12 +23,13 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
+import java.util.Optional;
+
 /**
- * Represents the definition of a dependency type.  Each dependency instance
+ * Represents the definition of a dependency type. Each dependency instance
  * represents one of the types defined by this class.
  */
-public class PSDependencyDef
-{
+public class PSDependencyDef {
    /**
     * Construct this object from its member values.
     * 
@@ -64,20 +65,16 @@ public class PSDependencyDef
    public PSDependencyDef(String objectType, String objectTypeName, 
       String handlerClass, boolean supportsIdTypes, boolean supportsIdMapping,
          boolean supportsUserDependencies, boolean isDeployableElement, 
-         boolean canBeAncestor, boolean supportsParentId, boolean autoExpand)
-   {
-      if (objectType == null || objectType.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "objectType may not be null or empty");
-      
-      if (objectTypeName == null || objectTypeName.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "objectTypeName may not be null or empty");
-            
-      if (handlerClass == null || handlerClass.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "handlerClass may not be null or empty");
-            
+         boolean canBeAncestor, boolean supportsParentId, boolean autoExpand) {
+      if (Optional.ofNullable(objectType).map(String::trim).orElse("").isEmpty())
+         throw new IllegalArgumentException("objectType may not be null or empty");
+
+      if (Optional.ofNullable(objectTypeName).map(String::trim).orElse("").isEmpty())
+         throw new IllegalArgumentException("objectTypeName may not be null or empty");
+
+      if (Optional.ofNullable(handlerClass).map(String::trim).orElse("").isEmpty())
+         throw new IllegalArgumentException("handlerClass may not be null or empty");
+
       m_objectType = objectType;
       m_objectTypeName = objectTypeName;
       m_handlerClass = handlerClass;
@@ -118,40 +115,26 @@ public class PSDependencyDef
     * @throws PSUnknownNodeTypeException if <code>sourceNOde</code> is 
     * malformed.
     */
-   public PSDependencyDef(Element sourceNode) throws PSUnknownNodeTypeException
-   {
+   public PSDependencyDef(Element sourceNode) throws PSUnknownNodeTypeException {
       if (sourceNode == null)
          throw new IllegalArgumentException("sourceNode may not be null");
          
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         var args = new Object[]{XML_NODE_NAME, sourceNode.getNodeName()};
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
       
-      m_objectType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, 
-         XML_ATTR_OBJECT_TYPE);
-      m_objectTypeName = PSDeployComponentUtils.getRequiredAttribute(sourceNode, 
-         XML_ATTR_OBJECT_TYPE_NAME);
-      m_handlerClass = PSDeployComponentUtils.getRequiredAttribute(sourceNode, 
-         XML_ATTR_HANDLER_CLASS);
-      m_isDeployableElement = XML_ATTR_TRUE.equals(sourceNode.getAttribute(
-         XML_ATTR_IS_DEPLOYABLE_ELEMENT));
-      m_supportsIdTypes = XML_ATTR_TRUE.equals(sourceNode.getAttribute(
-         XML_ATTR_SUPPORTS_ID_TYPES));
-      m_supportsIdMapping = XML_ATTR_TRUE.equals(sourceNode.getAttribute(
-         XML_ATTR_SUPPORTS_ID_MAPPING));
-      m_supportsUserDependencies = XML_ATTR_TRUE.equals(sourceNode.getAttribute(
-         XML_ATTR_SUPPORTS_USER_DEPENDENCIES));
-      m_canBeAncestor = !XML_ATTR_FALSE.equals(sourceNode.getAttribute(
-         XML_ATTR_CAN_BE_ANCESTOR));
-      m_supportsParentId = XML_ATTR_TRUE.equals(sourceNode.getAttribute(
-         XML_ATTR_SUPPORTS_PARENT_ID));
-      // this should default to true if not specified
-      m_autoExpand = !XML_ATTR_FALSE.equals(sourceNode.getAttribute(
-         XML_ATTR_AUTO_EXPAND));
-      String guidType = sourceNode.getAttribute(XML_ATTR_GUID_TYPE);
+      m_objectType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OBJECT_TYPE);
+      m_objectTypeName = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_OBJECT_TYPE_NAME);
+      m_handlerClass = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_HANDLER_CLASS);
+      m_isDeployableElement = XML_ATTR_TRUE.equals(sourceNode.getAttribute(XML_ATTR_IS_DEPLOYABLE_ELEMENT));
+      m_supportsIdTypes = XML_ATTR_TRUE.equals(sourceNode.getAttribute(XML_ATTR_SUPPORTS_ID_TYPES));
+      m_supportsIdMapping = XML_ATTR_TRUE.equals(sourceNode.getAttribute(XML_ATTR_SUPPORTS_ID_MAPPING));
+      m_supportsUserDependencies = XML_ATTR_TRUE.equals(sourceNode.getAttribute(XML_ATTR_SUPPORTS_USER_DEPENDENCIES));
+      m_canBeAncestor = !XML_ATTR_FALSE.equals(sourceNode.getAttribute(XML_ATTR_CAN_BE_ANCESTOR));
+      m_supportsParentId = XML_ATTR_TRUE.equals(sourceNode.getAttribute(XML_ATTR_SUPPORTS_PARENT_ID));
+      m_autoExpand = !XML_ATTR_FALSE.equals(sourceNode.getAttribute(XML_ATTR_AUTO_EXPAND));
+      var guidType = sourceNode.getAttribute(XML_ATTR_GUID_TYPE);
       if (!StringUtils.isBlank(guidType))
          m_guidType = guidType;
    }
@@ -383,4 +366,3 @@ public class PSDependencyDef
    private static final String XML_ATTR_FALSE = "no";
    private static final String XML_ATTR_GUID_TYPE = "guidType";
 }
-

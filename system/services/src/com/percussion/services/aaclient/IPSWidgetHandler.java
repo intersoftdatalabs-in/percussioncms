@@ -15,16 +15,28 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * todo
+ * Interface for handling widget requests in the AA client system.
+ * Implementations of this interface process HTTP requests and generate
+ * appropriate responses for specific widget types.
+ *
+ * @author Percussion Software
  */
-public interface IPSWidgetHandler
-{
-   void handleRequest(HttpServletRequest request, HttpServletResponse response)
-      throws Exception;
+@FunctionalInterface
+public interface IPSWidgetHandler {
+
+    /**
+     * Handles an HTTP request for a specific widget type.
+     *
+     * @param request the HTTP servlet request, must not be null
+     * @param response the HTTP servlet response, must not be null
+     * @throws Exception if an error occurs during request processing
+     */
+    void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

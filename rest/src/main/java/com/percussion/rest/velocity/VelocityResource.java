@@ -39,35 +39,39 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-/***
- * Provides a resource for dealing with Velocity related activities
+/**
+ * Provides a resource for dealing with Velocity related activities.
+ * Sunny Sal: "Velocity resource, template engine ka force!"
  */
-@PSSiteManageBean(value="restVelocityResource")
+@PSSiteManageBean(value = "restVelocityResource")
 @Path("/velocity")
 @XmlRootElement
 @Tag(name = "Velocity Template Engine", description = "Velocity related operations")
 public class VelocityResource {
 
     @Autowired
-    IExtensionAdaptor extensionAdaptor;
+    private IExtensionAdaptor extensionAdaptor;
 
     @Context
     private UriInfo uriInfo;
 
+    /**
+     * Returns a list of all registered Velocity extensions on the system.
+     */
     @GET
     @Path("/tools")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary="Returns a list of all registered Jexl extensions on the System",
-            responses= {
-            @ApiResponse(responseCode = "200", description = "OK", content=@Content(
-                    array=@ArraySchema(schema=@Schema(implementation = Extension.class))
+    @Operation(
+        summary = "Returns a list of all registered Velocity extensions on the System",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(
+                array = @ArraySchema(schema = @Schema(implementation = Extension.class))
             ))
-            })
-    public List<Extension> listVelocityExtensions(){
-        ExtensionFilterOptions filter = new ExtensionFilterOptions();
-
+        }
+    )
+    public List<Extension> listVelocityExtensions() {
+        var filter = new ExtensionFilterOptions();
         filter.setContext("global/percussion/velocity/");
-        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(),filter));
+        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
     }
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,36 +17,25 @@
  */
 package com.percussion.share.service;
 
-import static org.junit.Assert.*;
-
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.share.dao.impl.PSItemSummaryService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Scenario description: 
- * ItemSummaryService 
- * @author adamgent, Oct 2, 2009
+ * Scenario description:
+ * Unit tests for PSItemSummaryService.
+ * Sunny Sal: "Item summary service, Java 11, and icon path ka hero!"
  */
-@RunWith(JMock.class)
-public class PSItemSummaryServiceTest
-{
-
-    Mockery context = new JUnit4Mockery();
+public class PSItemSummaryServiceTest {
 
     PSItemSummaryService sut;
-
     IPSContentWs collaborator;
     IPSIdMapper idMapper;
     IPSContentDesignWs contentDs;
@@ -53,82 +43,61 @@ public class PSItemSummaryServiceTest
     TestIconPSItemSummaryService testIconService;
     IPSManagedNavService navService;
 
-    @Before
-    public void setUp() throws Exception
-    {
-        collaborator = context.mock(IPSContentWs.class);
-        guid = context.mock(IPSGuid.class);
-        idMapper = context.mock(IPSIdMapper.class);
-        contentDs = context.mock(IPSContentDesignWs.class);
-        navService = context.mock(IPSManagedNavService.class);
-        sut = new PSItemSummaryService(collaborator,null,idMapper,navService);
+    @BeforeEach
+    void setUp() {
+        collaborator = Mockito.mock(IPSContentWs.class);
+        guid = Mockito.mock(IPSGuid.class);
+        idMapper = Mockito.mock(IPSIdMapper.class);
+        contentDs = Mockito.mock(IPSContentDesignWs.class);
+        navService = Mockito.mock(IPSManagedNavService.class);
+        sut = new PSItemSummaryService(collaborator, null, idMapper, navService);
         testIconService = new TestIconPSItemSummaryService();
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void shouldFailForNullPath() throws Exception
-    {
-
-        assertNotNull(sut.pathToId(null));
-        
-    }
-    
-    
     @Test
-    public void shouldFixIconPath() throws Exception
-    {
+    void shouldFailForNullPath() {
+        assertThrows(IllegalArgumentException.class, () -> sut.pathToId(null));
+    }
+
+    @Test
+    void shouldFixIconPath() {
         testIconService.setExpectedIconPath("../rx_resources/stuff/image.png");
         String id = "doesn'tmatter";
         String path = testIconService.getIcon(id);
-        assertEquals("path should be corrected.", "/Rhythmyx/rx_resources/stuff/image.png", path);
+        assertEquals("/Rhythmyx/rx_resources/stuff/image.png", path, "path should be corrected.");
     }
-    
+
     @Test
-    public void shouldNotFixIconPathIfSystemPathIsNull() throws Exception
-    {
+    void shouldNotFixIconPathIfSystemPathIsNull() {
         testIconService.setExpectedIconPath(null);
         String id = "doesn'tmatter";
         String path = testIconService.getIcon(id);
-        assertEquals("path should not be corrected as it null.", null, path);
+        assertEquals(null, path, "path should not be corrected as it null.");
     }
-    
-    
-    
-    public class TestIconPSItemSummaryService extends PSItemSummaryService {
 
+    public class TestIconPSItemSummaryService extends PSItemSummaryService {
         private String expectedIconPath;
-        
-        public TestIconPSItemSummaryService()
-        {
+
+        public TestIconPSItemSummaryService() {
             super(null, null, null, null);
         }
 
-        
         @Override
-        protected String getIcon(String id)
-        {
+        protected String getIcon(String id) {
             return super.getIcon(id);
         }
 
-
         @Override
-        protected String getIconFromSystem(String id)
-        {
+        protected String getIconFromSystem(String id) {
             return getExpectedIconPath();
         }
 
-        public String getExpectedIconPath()
-        {
+        public String getExpectedIconPath() {
             return expectedIconPath;
         }
 
-        public void setExpectedIconPath(String expectedIconPath)
-        {
+        public void setExpectedIconPath(String expectedIconPath) {
             this.expectedIconPath = expectedIconPath;
         }
-    
-    } 
-    
-    
-    
+    }
 }

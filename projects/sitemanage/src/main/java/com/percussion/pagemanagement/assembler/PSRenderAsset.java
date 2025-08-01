@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,55 +18,43 @@
 package com.percussion.pagemanagement.assembler;
 
 import javax.jcr.Node;
-
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.share.service.IPSLinkableItem;
 import com.percussion.utils.guid.IPSGuid;
 
 /**
- * 
  * A special version of asset used in rendering mode.
- * 
  * @author adamgent
- *
  */
-public class PSRenderAsset extends PSAsset implements IPSLinkableItem
-{
-    
+public class PSRenderAsset extends PSAsset implements IPSLinkableItem {
+
     private Node node;
     private String folderPath;
     private IPSGuid ownerId;
-    
-    public Node getNode()
-    {
+
+    public Node getNode() {
         return node;
     }
 
-    public void setNode(Node node)
-    {
+    public void setNode(Node node) {
         this.node = node;
-    }    
-    
-    public String getFolderPath()
-    {
+    }
+
+    public String getFolderPath() {
         return folderPath;
     }
 
-    public void setFolderPath(String folderPath)
-    {
+    public void setFolderPath(String folderPath) {
         this.folderPath = folderPath;
     }
 
-    public IPSGuid getOwnerId()
-    {
+    public IPSGuid getOwnerId() {
         return ownerId;
     }
 
-    public void setOwnerId(IPSGuid id)
-    {
+    public void setOwnerId(IPSGuid id) {
         ownerId = id;
     }
-    
-    private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
 }

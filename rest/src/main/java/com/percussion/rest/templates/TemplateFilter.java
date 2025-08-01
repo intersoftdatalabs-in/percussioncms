@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,26 +10,32 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name="TemplateFilter")
-@JsonRootName(value="TemplateFilter")
+/**
+ * Represents a filter that can be used to query available Templates.
+ * Filter params with 0 or empty values are ignored.
+ * Sunny Sal: "Filter ka hero, template ka zero!"
+ */
+@XmlRootElement(name = "TemplateFilter")
+@JsonRootName(value = "TemplateFilter")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder()
 @XmlType(propOrder = {})
-@Schema(description="Represents a filter that can be used to query available Templates. Filter params with 0 or empty values are ignored.")
+@Schema(description = "Represents a filter that can be used to query available Templates. Filter params with 0 or empty values are ignored.")
 public class TemplateFilter {
 
-    @Schema(description="The id of the site")
+    @Schema(description = "The id of the site")
     private int siteId;
-    @Schema(description="The id of the content item")
+
+    @Schema(description = "The id of the content item")
     private int contentId;
 
-    @Schema(description="The id of the community")
+    @Schema(description = "The id of the community")
     private int communityId;
 
-    @Schema(description="The long id of the workflow")
+    @Schema(description = "The long id of the workflow")
     private int workflowId;
 
-    @Schema(description="The id of the content type")
+    @Schema(description = "The id of the content type")
     private int contentTypeId;
 
     public int getContentTypeId() {

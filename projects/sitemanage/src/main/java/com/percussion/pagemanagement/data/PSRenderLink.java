@@ -14,53 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
+import java.util.Objects;
+import java.util.Optional;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
 
 /**
- * 
  * Represents a rendered link.
- * 
  * @author adamgent
- *
  */
 @XmlRootElement(name = "RenderLink")
-public class PSRenderLink
-{
-
+public class PSRenderLink {
 
     private String url;
     private transient PSResourceDefinition resourceDefinition;
-    
     private PSResourceDefinitionType resourceType;
     private String resourceDefinitionId;
 
-    
-
-    public PSRenderLink()
-    {
+    public PSRenderLink() {
+        // Default constructor
     }
-    
-    public PSRenderLink(String url, PSResourceDefinition resourceDefinition)
-    {
-        super();
+
+    public PSRenderLink(String url, PSResourceDefinition resourceDefinition) {
         this.url = url;
         setResourceDefinition(resourceDefinition);
     }
 
     @XmlTransient
-    public PSResourceDefinition getResourceDefinition()
-    {
-        return resourceDefinition;
+    public Optional<PSResourceDefinition> getResourceDefinition() {
+        return Optional.ofNullable(resourceDefinition);
     }
 
-    public void setResourceDefinition(PSResourceDefinition resourceDefinition)
-    {
+    public void setResourceDefinition(PSResourceDefinition resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
         if (resourceDefinition != null) {
             setResourceType(resourceDefinition.getResourceType());
@@ -68,68 +59,49 @@ public class PSRenderLink
         }
     }
 
-/**
-    * Gets value set by setter.
-    * see setUrl
-    * @return maybe <code>null</code>.
-    */
-    public String getUrl()
-    {
+    /**
+     * Gets the URL for this link.
+     * @return maybe {@code null}.
+     */
+    public String getUrl() {
         return url;
     }
 
     /**
-     * Sets url for link item
-     * 
-     * @param url
+     * Sets the URL for this link.
+     * @param url the URL string
      */
-    public void setUrl(String url)
-    {
+    public void setUrl(String url) {
         this.url = url;
     }
-    
-    
+
     /**
      * Gets the resource definition unique id for this link.
-     * This maybe null if the link was created outside
-     * of the link service.
-     * 
-     * @return maybe <code>null</code>.
+     * This may be null if the link was created outside of the link service.
+     * @return maybe {@code null}.
      */
-    public String getResourceDefinitionId()
-    {
+    public String getResourceDefinitionId() {
         return resourceDefinitionId;
     }
 
-    public void setResourceDefinitionId(String resourceDefinitionId)
-    {
+    public void setResourceDefinitionId(String resourceDefinitionId) {
         this.resourceDefinitionId = resourceDefinitionId;
     }
 
     /**
-     * Gets value set by setter.
-     * see setResourceType
-     * @return maybe <code>null</code>.
+     * Gets the resource type.
+     * @return maybe {@code null}.
      */
-    public PSResourceDefinitionType getResourceType()
-    {
+    public PSResourceDefinitionType getResourceType() {
         return resourceType;
     }
-    
-    
 
-    
-    public void setResourceType(PSResourceDefinitionType resourceType)
-    {
+    public void setResourceType(PSResourceDefinitionType resourceType) {
         this.resourceType = resourceType;
     }
 
     @Override
-    public String toString()
-    {
-        return url;
+    public String toString() {
+        return Objects.toString(url, "");
     }
-
-
-   
 }

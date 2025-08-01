@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,88 +18,143 @@
 
 package com.percussion.rest.communities;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a Community in Percussion CMS.
+ */
 @XmlRootElement
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema
 public class Community {
 
     private long id;
-
     @Schema
     private Guid guid;
-
     @Schema
     private String name;
-
     @Schema
     private String description;
-
     private String label;
-
     private CommunityRoleList roleList;
 
-    public Community(){}
+    public Community() {}
 
-    public Community(long id, Guid guid, String name, String description, String label){
-        this.id=id;
+    public Community(long id, Guid guid, String name, String description, String label) {
+        this.id = id;
         this.guid = guid;
         this.name = name;
         this.description = description;
         this.label = label;
     }
 
+    public Community(long id, Guid guid, String name, String description, String label, CommunityRoleList roleList) {
+        this(id, guid, name, description, label);
+        this.roleList = roleList;
+    }
+
+    /**
+     * Gets the community ID.
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Sets the community ID.
+     */
     public void setId(long id) {
         this.id = id;
     }
 
-    public Guid getGuid() {
-        return guid;
+    /**
+     * Gets the community GUID.
+     */
+    public Optional<Guid> getGuid() {
+        return Optional.ofNullable(guid);
     }
 
     public void setGuid(Guid guid) {
         this.guid = guid;
     }
 
-    public String getName() {
-        return name;
+    /**
+     * Gets the community name.
+     */
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    /**
+     * Gets the community description.
+     */
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getLabel() {
-        return label;
+    /**
+     * Gets the community label.
+     */
+    public Optional<String> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     public void setLabel(String label) {
         this.label = label;
     }
 
-    public CommunityRoleList getRoleList() {
-        return roleList;
+    /**
+     * Gets the list of roles associated with this community.
+     */
+    public Optional<CommunityRoleList> getRoleList() {
+        return Optional.ofNullable(roleList);
     }
 
     public void setRoleList(CommunityRoleList roleList) {
         this.roleList = roleList;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Community)) return false;
+        var that = (Community) o;
+        return id == that.id &&
+                Objects.equals(guid, that.guid) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(label, that.label) &&
+                Objects.equals(roleList, that.roleList);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, guid, name, description, label, roleList);
+    }
+
+    @Override
+    public String toString() {
+        return "Community{" +
+                "id=" + id +
+                ", guid=" + guid +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", label='" + label + '\'' +
+                ", roleList=" + roleList +
+                '}';
     }
 }

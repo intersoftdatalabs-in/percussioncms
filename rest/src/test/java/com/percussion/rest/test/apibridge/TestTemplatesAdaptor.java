@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.templates.ITemplatesAdaptor;
@@ -25,15 +27,12 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Test adaptor for Templates API bridge.
+ */
 @Component
 public class TestTemplatesAdaptor implements ITemplatesAdaptor {
 
-
-    /**
-     * @param baseUri
-     * @param filter
-     * @return
-     */
     @Override
     public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
         return null;

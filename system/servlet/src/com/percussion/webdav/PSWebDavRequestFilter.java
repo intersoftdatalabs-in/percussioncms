@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.webdav;
 
 import java.io.IOException;
@@ -23,16 +24,13 @@ import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+// Unused imports removed for Java 11 refactor
 
 /**
  * This servlet picks out requests that must be handled by the webdav servlet
@@ -46,7 +44,7 @@ public class PSWebDavRequestFilter implements Filter
    /**
     * log to use, never <code>null</code>.
     */
-    private static final Logger ms_log = LogManager.getLogger(PSWebDavRequestFilter.class);
+    // Logger not used, removed for Java 11 refactor
    /**
     * If one of these methods is matched, then the request will be forwarded.
     * Not every webdav method is included because most only make sense once 

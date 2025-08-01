@@ -31,9 +31,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The parser to parse <code>&lt;psx:list></code> elements (assume 
+ * The parser to parse <code>&lt;psx:list></code> elements (assume
  * <code>psx</code> is the prefix) defined in Spring bean file. This parser is
- * registered by {@link PSNamespacehandler}. The format of the element is: 
+ * registered by {@link PSNamespacehandler}. The format of the element is:
  *
  * <pre><code>
  *    &lt;!ELEMENT list EMPTY
@@ -44,55 +44,29 @@ import java.util.List;
  * @see PSNamespacehandler
  * @author YuBingChen
  */
-public class PSListBeanDefinitionParser extends
-      AbstractSingleBeanDefinitionParser
-{
-   @SuppressWarnings("unchecked")
-   @Override
-   protected Class getBeanClass(@SuppressWarnings("unused")
-   Element element)
-   {
-      return ArrayList.class;
-   }
-   
-   @SuppressWarnings("unchecked")
-   @Override
-   protected void doParse(Element element, BeanDefinitionBuilder bean)
-   {
-      String lookupKey = element.getAttribute("lookupKey");
-      
-      
-      IPSBeanProperties pMgr = PSBeanPropertiesLocator.getBeanProperties();
-      PSPair<Object, Boolean> result = PSConfigMapper
-            .resolveSimplePlaceholder(lookupKey, pMgr.getProperties());
-      List list = null;
-      if (result.getSecond())
-      {
-         // treat null value as an empty list
-         if (result.getFirst() == null)
-         {
-            list = Collections.emptyList();
-         }
-         else if (!(result.getFirst() instanceof List))
-         {
-            ms_log
-                  .warn("The \"List\" type is expected for the replaced value of \""
-                        + lookupKey
-                        + "\". However, the type of the replaced value is: "
-                        + list.getClass().getName());
-         }
-         else
-         {
-            list = (List) result.getFirst();
-         }
-      }
+public class PSListBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+    @Override
+    protected Class<?> getBeanClass(Element element) {
+        return ArrayList.class;
+    }
 
-      bean.addConstructorArgValue(list);
-   }
-   
-   /**
-    * Logger for this class.
-    */
-   private static final Logger ms_log = LogManager.getLogger("PSListBeanDefinitionParser");
-   
+    @Override
+    protected void doParse(Element element, BeanDefinitionBuilder bean) {
+        var lookupKey = element.getAttribute("lookupKey");
+        var pMgr = PSBeanPropertiesLocator.getBeanProperties();
+        var result = PSConfigMapper.resolveSimplePlaceholder(lookupKey, pMgr.getProperties());
+        List<?> list = null;
+        if (result.getSecond()) {
+            if (result.getFirst() == null) {
+                list = Collections.emptyList();
+            } else if (!(result.getFirst() instanceof List)) {
+                ms_log.warn("The 'List' type is expected for the replaced value of '{}'. However, the type of the replaced value is: {}", lookupKey, result.getFirst().getClass().getName());
+            } else {
+                list = (List<?>) result.getFirst();
+            }
+        }
+        bean.addConstructorArgValue(list);
+    }
+
+    private static final Logger ms_log = LogManager.getLogger("PSListBeanDefinitionParser");
 }

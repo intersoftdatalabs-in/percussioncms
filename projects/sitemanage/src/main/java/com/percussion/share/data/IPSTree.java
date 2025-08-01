@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,15 +18,18 @@
 
 package com.percussion.share.data;
 
-
-/***
- * Defines a simple generic tree  for handling tree like data structures. 
- * 
- * @author natechadwick
+/**
+ * Defines a simple, generic tree for handling tree-like data structures.
  *
+ * @param <T> the type of value stored in the tree nodes
+ * @author natechadwick
  */
 public interface IPSTree<T> {
 
-	public IPSTreeNode<T> getRoot();
-	
+    /**
+     * Returns the root node of the tree.
+     *
+     * @return the root node, never null
+     */
+    IPSTreeNode<T> getRoot();
 }

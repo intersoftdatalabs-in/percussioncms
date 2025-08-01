@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,45 +26,28 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class contains all properties of a given folder.
+ * Contains all properties of a given folder.
  *
  * @author yubingchen
  */
 @XmlRootElement(name = "FolderProperties")
 @JsonRootName("FolderProperties")
-public class PSFolderProperties extends PSAbstractDataObject 
-{
+public class PSFolderProperties extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
 
-    private PSObjectAcl acl = null;
+    private PSObjectAcl acl;
     private String locale = PSI18nUtils.DEFAULT_LANG;
-    private String communityName = null;
+    private String communityName;
     private int communityId;
-    private String displayFormatName = null;
-
+    private String displayFormatName;
     private String id;
-    
-    /**
-     * The name of the folder.
-     */
     private String name;
-    
-    /**
-     * The permission of the folder.
-     */
     private PSFolderPermission permission;
-    
-    /**
-     * The workflow ID associated with the folder.
-     */
     private int workflowId;
-    
     /**
-     * The list of allowed sites used by the publishing service to check
-     * if the assets must be published.
-     * 
-     * If this list is null, then the assets are published to all sites by default.
-     */    
+     * Comma-separated list of allowed sites for publishing assets.
+     * If null, assets are published to all sites by default.
+     */
     private String allowedSites;
 
     public PSObjectAcl getAcl() {
@@ -107,53 +91,43 @@ public class PSFolderProperties extends PSAbstractDataObject
     }
 
     @XmlElement
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
-    
-    public void setId(String id)
-    {
+
+    public void setId(String id) {
         this.id = id;
     }
-    
-    public int getWorkflowId()
-    {
+
+    public int getWorkflowId() {
         return workflowId;
     }
 
-    public void setWorkflowId(int workflowId)
-    {
+    public void setWorkflowId(int workflowId) {
         this.workflowId = workflowId;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
-    
-    public void setName(String name)
-    {
+
+    public void setName(String name) {
         this.name = name;
     }
-    
-    public PSFolderPermission getPermission()
-    {
+
+    public PSFolderPermission getPermission() {
         return permission;
     }
-    
-    public void setPermission(PSFolderPermission permission)
-    {
+
+    public void setPermission(PSFolderPermission permission) {
         this.permission = permission;
     }
-    
-    public String getAllowedSites()
-    {
+
+    public String getAllowedSites() {
         return allowedSites;
     }
-    
-    public void setAllowedSites(String allowedSites)
-    {
+
+    public void setAllowedSites(String allowedSites) {
         this.allowedSites = allowedSites;
     }
 }

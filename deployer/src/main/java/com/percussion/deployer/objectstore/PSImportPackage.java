@@ -23,6 +23,8 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import java.util.Optional;
+
 /**
  * Represents a package included in an import descriptor.  Can contain the 
  * validation results for the package, as well as any other extra package
@@ -107,17 +109,16 @@ public class PSImportPackage implements IPSDeployComponent
     * 
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   @Override
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
-         
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.appendChild(m_pkg.toXml(doc));
-      if (m_validationResults != null)
-         root.appendChild(m_validationResults.toXml(doc));
+      }
 
-      return root;      
+      var root = doc.createElement(XML_NODE_NAME);
+      root.appendChild(m_pkg.toXml(doc));
+      Optional.ofNullable(m_validationResults).ifPresent(results -> root.appendChild(results.toXml(doc)));
+      return root;
    }
 
    /**
@@ -126,38 +127,27 @@ public class PSImportPackage implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   @Override
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      int firstFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      int nextFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-         
-      Element pkgEl = tree.getNextElement(PSDeployableElement.XML_NODE_NAME, 
-         firstFlags);
-      if (pkgEl == null)
-      {
+
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, 
-               PSImportPackage.XML_NODE_NAME);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var pkgEl = Optional.ofNullable(tree.getNextElement(PSDeployableElement.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSImportPackage.XML_NODE_NAME));
       m_pkg = new PSDeployableElement(pkgEl);
-      
-      Element valEl = tree.getNextElement(PSValidationResults.XML_NODE_NAME, 
-         nextFlags);
-      if (valEl != null)
-         m_validationResults = new PSValidationResults(valEl);
+
+      var valEl = tree.getNextElement(PSValidationResults.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      m_validationResults = valEl != null ? new PSValidationResults(valEl) : null;
    }
 
    // see IPSDeployComponent interface

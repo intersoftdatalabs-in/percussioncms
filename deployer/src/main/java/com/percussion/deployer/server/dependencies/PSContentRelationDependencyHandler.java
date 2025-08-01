@@ -77,7 +77,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a content relation definition.
@@ -104,116 +106,75 @@ public class PSContentRelationDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      Set childDeps = new HashSet();
-
-      com.percussion.deployer.server.dependencies.PSDependencyHandler ctHandler = getDependencyHandler(
-         PSContentDefDependencyHandler.DEPENDENCY_TYPE);
-
-      String id = dep.getDependencyId();
-      Iterator relationships = getRelationships(tok, id);
-      while (relationships.hasNext())
-      {
-         PSRelationship relationship = (PSRelationship)relationships.next();
-         PSLocator loc = relationship.getDependent();
-
-         PSDependency child = ctHandler.getDependency(tok, String.valueOf(
-            loc.getId()));
-         if (child != null)
-            childDeps.add(child);
-
-         // get property deps
-         Iterator props = relationship.getUserProperties().entrySet().iterator();
-         while (props.hasNext())
-         {
-            Map.Entry prop = (Map.Entry)props.next();
-            String type = (String) ms_propertyTypes.get(prop.getKey());
-            String value = (String) prop.getValue();
-            if (type != null && value != null && value.trim().length() > 0)
-            {
-               com.percussion.deployer.server.dependencies.PSDependencyHandler handler = getDependencyHandler(type);
-               if (type.equals(PSFolderDefDependencyHandler.DEPENDENCY_TYPE))
-               {
-                  PSFolderDefDependencyHandler folderHandler = 
-                     (PSFolderDefDependencyHandler)handler;
-                  value = folderHandler.getFolderPathFromId(tok, value);
-               }
-               
-               if (value != null)
-               {
-                  PSDependency childDep = handler.getDependency(tok, value);
-                  if (childDep != null)
-                     childDeps.add(childDep);
-               }
-            }
-         }
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
       }
 
-      // get relationship dep
-      PSDependencyHandler relHandler = getDependencyHandler(
-         com.percussion.deployer.server.dependencies.PSRelationshipDependencyHandler.DEPENDENCY_TYPE);
-      com.percussion.deployer.server.dependencies.PSPairDependencyId pairId = new com.percussion.deployer.server.dependencies.PSPairDependencyId(id);
-      PSDependency relDep = relHandler.getDependency(tok, pairId.getChildId());
-      if (relDep != null)
-         childDeps.add(relDep);
+      var childDeps = new HashSet<PSDependency>();
+      var ctHandler = getDependencyHandler(PSContentDefDependencyHandler.DEPENDENCY_TYPE);
 
-      // this will add all dependencies specified by id types
+      var relationships = getRelationships(tok, dep.getDependencyId());
+      relationships.forEachRemaining(rel -> {
+         var loc = rel.getDependent();
+         var child = ctHandler.getDependency(tok, String.valueOf(loc.getId()));
+         Optional.ofNullable(child).ifPresent(childDeps::add);
+
+         rel.getUserProperties().entrySet().stream()
+            .filter(entry -> ms_propertyTypes.containsKey(entry.getKey()))
+            .forEach(entry -> {
+               var type = ms_propertyTypes.get(entry.getKey());
+               var value = entry.getValue();
+               if (type != null && value != null && !value.trim().isEmpty()) {
+                  var handler = getDependencyHandler(type);
+                  if (type.equals(PSFolderDefDependencyHandler.DEPENDENCY_TYPE)) {
+                     var folderHandler = (PSFolderDefDependencyHandler) handler;
+                     value = folderHandler.getFolderPathFromId(tok, value);
+                  }
+                  Optional.ofNullable(handler.getDependency(tok, value)).ifPresent(childDeps::add);
+               }
+            });
+      });
+
+      var relHandler = getDependencyHandler(PSRelationshipDependencyHandler.DEPENDENCY_TYPE);
+      var pairId = new PSPairDependencyId(dep.getDependencyId());
+      Optional.ofNullable(relHandler.getDependency(tok, pairId.getChildId())).ifPresent(childDeps::add);
+
       childDeps.addAll(getIdTypeDependencies(tok, dep));
-
       return childDeps.iterator();
     }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      // not supported
+      }
       return PSIteratorUtils.emptyIterator();
    }
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      PSDependency dep = null;
-
-      // get all relationships of the child type and see if any is of the
-      // AA category.  Return a dependency as soon as one is found.
-      Iterator relationships = getRelationships(tok, id);
-      if (relationships.hasNext())
-      {
-         com.percussion.deployer.server.dependencies.PSPairDependencyId pairId = new com.percussion.deployer.server.dependencies.PSPairDependencyId(id);
-         dep = createDependency(m_def, id, pairId.getChildId());
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.trim().isEmpty()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
       }
 
-      return dep;
+      var relationships = getRelationships(tok, id);
+      if (relationships.hasNext()) {
+         var pairId = new PSPairDependencyId(id);
+         return createDependency(m_def, id, pairId.getChildId());
+      }
+      return null;
    }
 
    // see base class
-   public boolean doesDependencyExist(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
+   @Override
+   public boolean doesDependencyExist(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.trim().isEmpty()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
       return getDependency(tok, id) != null;
    }
    
@@ -273,55 +234,40 @@ public class PSContentRelationDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    // see base class
-   public String getType()
-   {
+   @Override
+   public String getType() {
       return DEPENDENCY_TYPE;
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var files = new ArrayList<PSDependencyFile>();
+      var folderHandler = (PSFolderDefDependencyHandler) getDependencyHandler(PSFolderDefDependencyHandler.DEPENDENCY_TYPE);
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List files = new ArrayList();
-      PSFolderDefDependencyHandler folderHandler = 
-         (PSFolderDefDependencyHandler)getDependencyHandler(
-            PSFolderDefDependencyHandler.DEPENDENCY_TYPE);
-      
-      Iterator relationships = getRelationships(tok, dep.getDependencyId());
-      while (relationships.hasNext())
-      {
-         PSRelationship rel = (PSRelationship)relationships.next();
-         
-         // switch folder id to path when saved in archive
-         String folderId = rel.getProperty(IPSHtmlParameters.SYS_FOLDERID);
-         if (folderId != null && folderId.trim().length() > 0)
-         {
-            String folderPath = folderHandler.getFolderPathFromId(tok, 
-               folderId);
+      var relationships = getRelationships(tok, dep.getDependencyId());
+      relationships.forEachRemaining(rel -> {
+         var folderId = rel.getProperty(IPSHtmlParameters.SYS_FOLDERID);
+         if (folderId != null && !folderId.trim().isEmpty()) {
+            var folderPath = folderHandler.getFolderPathFromId(tok, folderId);
             rel.setProperty(IPSHtmlParameters.SYS_FOLDERID, folderPath);
          }
-         
-         Document doc = PSXmlDocumentBuilder.createXmlDocument();
+
+         var doc = PSXmlDocumentBuilder.createXmlDocument();
          PSXmlDocumentBuilder.replaceRoot(doc, rel.toXml(doc));
-         File file = createXmlFile(doc);
-         files.add(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML,
-            file));
-      }
+         var file = createXmlFile(doc);
+         files.add(new PSDependencyFile(PSDependencyFile.TYPE_COMPONENT_XML, file));
+      });
 
       return files.iterator();
    }
@@ -461,7 +407,8 @@ public class PSContentRelationDependencyHandler
    }
 
    // see IPSIdTypeHandler interface
-   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep) 
+   @Override
+   public PSApplicationIDTypes getIdTypes(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
       if (tok == null)
@@ -494,7 +441,8 @@ public class PSContentRelationDependencyHandler
    }
 
    // see IPSIdTypeHandler interface
-   public void transformIds(Object object, PSApplicationIDTypes idTypes, 
+   @Override
+   public void transformIds(Object object, PSApplicationIDTypes idTypes,
       PSIdMap idMap) throws PSDeployException
    {
       if (object == null)

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,55 +28,53 @@ import java.io.IOException;
 
 /**
  * @deprecated Seems unused as of 8.0.2
+ * Sunny Sal says: "Deprecated, but still dancing in the code!"
  */
 @Deprecated
-public class PSFileSystemTree implements IPSTree {
+public class PSFileSystemTree implements IPSTree<PSFileSystemItem> {
 
-	private static final Logger log = LogManager.getLogger(PSFileSystemTree.class);
+    private static final Logger log = LogManager.getLogger(PSFileSystemTree.class);
 
-	private IPSTreeNode<PSFileSystemItem> root;
-	
-	public PSFileSystemTree(File f)  {
-		PSFileSystemTreeNode<PSFileSystemItem> rt = new PSFileSystemTreeNode<>();
-		rt.setParent(null);
-		try {
-			rt.setValue(new PSFileSystemItem(f.getCanonicalPath(), PSFileSystemItemType.DIRECTORY));
-		} catch (IOException e) {
-			log.error(PSExceptionUtils.getMessageForLog(e));
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		}
-		this.root = rt;
-		initTree();
-	}
+    private IPSTreeNode<PSFileSystemItem> root;
 
-	@Override
-	public IPSTreeNode<PSFileSystemItem> getRoot() {
-		return root;
-	}
+    public PSFileSystemTree(File f) {
+        var rt = new PSFileSystemTreeNode<PSFileSystemItem>();
+        rt.setParent(null);
+        try {
+            rt.setValue(new PSFileSystemItem(f.getCanonicalPath(), PSFileSystemItemType.DIRECTORY));
+        } catch (IOException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
+        this.root = rt;
+        initTree();
+    }
 
-	private void initTree(){
-		File f = new File(root.getValue().getAbsolutePath());
-	
-		if(f.exists()){
-			
-		File[] files = f.listFiles();
-		if(files != null) {
-			for (int i = 0; i < files.length; i++) {
-				try {
-					PSFileSystemItem fi = null;
-					if (files[i].isFile())
-						fi = new PSFileSystemItem(files[i].getCanonicalPath(), PSFileSystemItem.PSFileSystemItemType.FILE);
-					else
-						fi = new PSFileSystemItem(files[i].getCanonicalPath(), PSFileSystemItem.PSFileSystemItemType.FILE);
-				} catch (IOException e) {
-					log.error(PSExceptionUtils.getMessageForLog(e));
-					log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-				}
-			}
-		}
-		
+    @Override
+    public IPSTreeNode<PSFileSystemItem> getRoot() {
+        return root;
+    }
 
-		}
-	}
-	
+    private void initTree() {
+        var f = new File(root.getValue().getAbsolutePath());
+        if (f.exists()) {
+            var files = f.listFiles();
+            if (files != null) {
+                for (var file : files) {
+                    try {
+                        PSFileSystemItem fi;
+                        if (file.isFile()) {
+                            fi = new PSFileSystemItem(file.getCanonicalPath(), PSFileSystemItemType.FILE);
+                        } else {
+                            fi = new PSFileSystemItem(file.getCanonicalPath(), PSFileSystemItemType.DIRECTORY);
+                        }
+                        // Sunny Sal: You could add fi to a tree node here if needed!
+                    } catch (IOException e) {
+                        log.error(PSExceptionUtils.getMessageForLog(e));
+                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                    }
+                }
+            }
+        }
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,92 +21,79 @@ package com.percussion.theme.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * The summary information of a Theme
- *
- * @author YuBingChen
+ * The summary information of a Theme.
  */
 @XmlRootElement(name = "ThemeSummary")
-public class PSThemeSummary
-{
+public class PSThemeSummary {
     /**
      * Gets the name of the Theme.
-     * 
+     *
      * @return theme name. It should not be blank if it is properly created;
      * otherwise it may be blank.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
-    
-    
+
     /**
-     * Gets the URL of the thumb image of the Theme.
-     * 
-     * @return URL of the thumb image of the theme. It should not be blank if 
+     * Gets the URL of the thumbnail image of the Theme.
+     *
+     * @return URL of the thumbnail image of the theme. It should not be blank if
      * it is properly created; otherwise it may be blank.
      */
-    public String getThumbUrl()
-    {
+    public String getThumbUrl() {
         return thumbUrl;
     }
-    
+
     /**
      * Sets the name of the Theme.
-     * 
+     *
      * @param name the new name of the Theme, it should not be blank if this is
      * not called by serializer of JAXB.
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
-    
+
     /**
-     * Sets the URL of the thumb image of the Theme.
-     * 
-     * @param thumbUrl the new URL of the thumb image of the Theme, it should not 
+     * Sets the URL of the thumbnail image of the Theme.
+     *
+     * @param thumbUrl the new URL of the thumbnail image of the Theme, it should not
      * be blank if this is not called by serializer of JAXB.
      */
-    public void setThumbUrl(String thumbUrl)
-    {
+    public void setThumbUrl(String thumbUrl) {
         this.thumbUrl = thumbUrl;
     }
 
     /**
      * Gets the CSS file path that is relative to the root of all themes parent
      * folder.
-     *  
+     *
      * @return the CSS file path, not blank for a valid CSS file path.
      */
-    public String getCssFilePath()
-    {
+    public String getCssFilePath() {
         return cssFilePath;
     }
 
-
     /**
      * Sets the CSS file path.
-     * 
+     *
      * @param cssFilePath the new CSS file path, not blank for a valid CSS file path.
      */
-    public void setCssFilePath(String cssFilePath)
-    {
+    public void setCssFilePath(String cssFilePath) {
         this.cssFilePath = cssFilePath;
     }
 
     /**
-     * The region CSS file path, which contains all region specific CSS styles or rules.
+     * The region CSS file path, which contains all region-specific CSS styles or rules.
      * This path is relative to all themes parent folder, not the fully qualified path.
-     * @return the region CSS file path. It may be <code>null</code> if such file does not exist.
+     * @return the region CSS file path. It may be {@code null} if such file does not exist.
      */
-    public String getRegionCssFilePath()
-    {
+    public String getRegionCssFilePath() {
         return regionCssFilePath;
     }
-    
-    public void setRegionCssFilePath(String regionCss)
-    {
+
+    public void setRegionCssFilePath(String regionCss) {
         regionCssFilePath = regionCss;
     }
 
@@ -113,19 +101,17 @@ public class PSThemeSummary
      * The name of the Theme. See {@link #getName()} for detail.
      */
     private String name;
-    
+
     /**
-     * The URL of the thumb image of the Theme. See {@link #getThumbUrl()}
+     * The URL of the thumbnail image of the Theme. See {@link #getThumbUrl()}
      * for detail.
      */
     private String thumbUrl;
-    
-    
+
     /**
      * See {@link #getCssFilePath()} for detail.
      */
     private String cssFilePath;
-    
+
     private String regionCssFilePath;
-    
 }

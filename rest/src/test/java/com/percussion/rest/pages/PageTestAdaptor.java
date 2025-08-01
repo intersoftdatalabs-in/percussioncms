@@ -29,95 +29,78 @@ import java.util.List;
 
 @Component
 @Lazy
-public class PageTestAdaptor implements IPageAdaptor
-{
+public class PageTestAdaptor implements IPageAdaptor {
 
     @Override
-    public Page getPage(URI baseUri,String id)
-    {
-        Page page = Examples.SAMPLE_PAGE;
+    public Page getPage(URI baseUri, String id) {
+        var page = Examples.SAMPLE_PAGE;
         page.setId(id);
-        if (id.equals("invalidId"))
-        {
+        if ("invalidId".equals(id)) {
             throw new PageNotFoundException();
         }
         return page;
-
     }
 
     @Override
-    public Page getPage(URI baseUri, String siteName, String path, String pageName)
-    {
-
-        Page page = Examples.SAMPLE_PAGE;
-
+    public Page getPage(URI baseUri, String siteName, String path, String pageName) {
+        var page = Examples.SAMPLE_PAGE;
         page.setName(pageName);
         page.setFolderPath(path);
         page.setSiteName(siteName);
 
-        if (siteName.equals("testNotFound"))
+        if ("testNotFound".equals(siteName)) {
             throw new SiteNotFoundException();
-
-        if (path.contains("testNotFound"))
+        }
+        if (path.contains("testNotFound")) {
             throw new FolderNotFoundException();
-
-        if (pageName.equals("testNotFound"))
+        }
+        if ("testNotFound".equals(pageName)) {
             throw new PageNotFoundException();
-
+        }
         return page;
     }
 
     @Override
-    public Page updatePage(URI baseUri, Page page)
-    {
+    public Page updatePage(URI baseUri, Page page) {
         return page;
     }
 
     @Override
-    public void deletePage(URI baseUri, String siteName, String path, String pageName)
-    {
-        if (pageName.equals("testNotFound"))
+    public void deletePage(URI baseUri, String siteName, String path, String pageName) {
+        if ("testNotFound".equals(pageName)) {
             throw new PageNotFoundException();
+        }
     }
 
-	@Override
-	public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
-		//Not really sure how useful these tests are
-		Page p = new Page();
-		p.setName(name);
-		return p;
-	}
-
+    @Override
+    public Page renamePage(URI baseURI, String siteName, String path, String pageName, String name) {
+        var p = new Page();
+        p.setName(name);
+        return p;
+    }
 
     @Override
     public int approveAllPages(URI baseURI, String folderPath) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public Page changePageTemplate(URI baseUri, Page p) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public List<String> allPagesReport(URI baseUri, String siteFolderPath) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public int archiveAllPages(URI baseUri, String folderPath) {
-        // TODO Auto-generated method stub
         return 0;
     }
 
     @Override
     public int submitForReviewAllPages(URI baseUri, String folderPath) {
-        // TODO Auto-generated method stub
         return 0;
     }
-
-
 }

@@ -19,37 +19,32 @@ package com.percussion.proxyconfig.service;
 import com.percussion.proxyconfig.data.PSProxyConfig;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author LucasPiccoli
  * 
  */
-public interface IPSProxyConfigService
-{
+public interface IPSProxyConfigService {
+    /**
+     * Finds all proxy configurations in the file.
+     *
+     * @return a list containing all located proxy configurations, will be empty if none are found. Never {@code null}. The list is sorted in the order found in the file.
+     */
+    List<PSProxyConfig> findAll();
 
-   /**
-    * Finds all proxy configurations in the file.
-    * 
-    * @return a list containing all of the located proxy configurations, will be
-    *         empty if none were found. Never <code>null</code>. The list will
-    *         be sorted in order found in the file.
-    */
-   public List<PSProxyConfig> findAll();
+    /**
+     * Finds the proxy configuration that supports the given protocol.
+     *
+     * @param protocol The name of the protocol for which a proxy configuration needs to be retrieved. Cannot be {@code null} or empty. If more than one server runs the specified service, only the first found is returned.
+     * @return An {@link Optional} containing the proxy configuration found for the protocol, or empty if no matches were found.
+     */
+    Optional<PSProxyConfig> findByProtocol(String protocol);
 
-   /**
-    * Finds the proxy configuration that supports the protocol.
-    * 
-    * @param protocol The name of the protocol for which a proxy configuration
-    *           needs to be retrieved. Cannot be <code>null</code>, or empty.
-    *           Note, if there are more than one servers that run the specified
-    *           service, this will only return the 1st one it found, ignore the
-    *           rest.
-    * 
-    * @return The proxy configuration found for the protocol. May be
-    *         <code>null</code> if no matches were found.
-    */
-   public PSProxyConfig findByProtocol(String protocol);
-   
-   public boolean configFileExists(); 
-
+    /**
+     * Checks if the proxy configuration file exists.
+     *
+     * @return {@code true} if the configuration file exists, {@code false} otherwise.
+     */
+    boolean configFileExists();
 }

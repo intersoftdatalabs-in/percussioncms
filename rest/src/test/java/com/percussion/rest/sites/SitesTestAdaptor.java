@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.sites;
 
 import org.springframework.context.annotation.Lazy;
@@ -23,8 +25,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class SitesTestAdaptor implements ISiteAdaptor {
-    /***
+
+    /**
      * Find all sites.
+     *
      * @return SiteList
      */
     @Override
@@ -32,51 +36,55 @@ public class SitesTestAdaptor implements ISiteAdaptor {
         return null;
     }
 
-    /***
-     * Save a site
-     * @param site
+    /**
+     * Save a site.
+     *
+     * @param site the site to save
      */
     @Override
     public void saveSite(Site site) {
-
+        // No-op for test adaptor
     }
 
-    /***
+    /**
+     * Find site by name.
      *
-     * @param name
-     * @return
+     * @param name the site name
+     * @return the site, or null if not found
      */
     @Override
     public Site findByName(String name) {
         return null;
     }
 
-    /***
-     * find By Guid
-     * @param guid
-     * @return
+    /**
+     * Find site by GUID.
+     *
+     * @param guid the site GUID
+     * @return the site, or null if not found
      */
     @Override
     public Site findByGuid(String guid) {
         return null;
     }
 
-    /***
-     * Delete the site
-     * @param site
+    /**
+     * Delete the site.
+     *
+     * @param site the site to delete
      */
     @Override
     public void deleteSite(Site site) {
-
+        // No-op for test adaptor
     }
 
-    /***
-     * Create a new Site
-     * @return
+    /**
+     * Create a new site.
+     *
+     * @return the new site
      */
     @Override
     public Site createSite() {
         return null;
     }
-
 }

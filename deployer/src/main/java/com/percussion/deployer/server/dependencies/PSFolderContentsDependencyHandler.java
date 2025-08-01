@@ -49,6 +49,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Class to handle packaging and deploying a folder's relationships to its child
@@ -79,49 +81,35 @@ public class PSFolderContentsDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var sum = getFolderSummary(getRelationshipProcessor(tok), dep.getDependencyId());
+      if (sum == null) {
+         return PSIteratorUtils.emptyIterator();
+      }
 
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List childDeps = new ArrayList();
-
-      PSComponentSummary sum = getFolderSummary(getRelationshipProcessor(tok),
-         dep.getDependencyId());
-      if (sum != null)
-      {
-         PSDependencyHandler handler = getDependencyHandler(
-            PSContentDefDependencyHandler.DEPENDENCY_TYPE);
-         Iterator sums = getChildItemSummaries(getRelationshipProcessor(tok),
-            sum.getCurrentLocator());
-         while (sums.hasNext())
-         {
-            PSComponentSummary itemSum = (PSComponentSummary)sums.next();
-            PSDependency itemDep=null;
+      var handler = getDependencyHandler(PSContentDefDependencyHandler.DEPENDENCY_TYPE);
+      return getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator()).stream()
+         .map(itemSum -> {
             try {
-                itemDep = handler.getDependency(tok, String.valueOf(
-                       itemSum.getCurrentLocator().getId()));
+               var itemDep = handler.getDependency(tok, String.valueOf(itemSum.getCurrentLocator().getId()));
+               if (itemDep != null) {
+                  itemDep.setDependencyType(PSDependency.TYPE_LOCAL);
+               }
+               return itemDep;
             } catch (PSNotFoundException e) {
                log.warn(PSExceptionUtils.getMessageForLog(e));
                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+               return null;
             }
-
-            if (itemDep != null)
-            {
-               itemDep.setDependencyType(PSDependency.TYPE_LOCAL);
-               childDeps.add(itemDep);
-            }
-         }
-      }
-
-      return childDeps.iterator();
+         })
+         .filter(Objects::nonNull)
+         .iterator();
     }
 
    // see base class

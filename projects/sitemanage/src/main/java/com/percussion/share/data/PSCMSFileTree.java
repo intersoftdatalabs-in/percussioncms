@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,19 +19,28 @@
 package com.percussion.share.data;
 
 import com.percussion.pathmanagement.data.PSPathItem;
+import java.util.Objects;
 
-public class PSCMSFileTree implements IPSTree<PSPathItem>{
+/**
+ * Represents a CMS file tree structure for PSPathItem.
+ * Sunny Sal says: "Rooted in Java 11, branching out with style!"
+ */
+public class PSCMSFileTree implements IPSTree<PSPathItem> {
 
-	@Override
-	public IPSTreeNode<PSPathItem> getRoot() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public PSCMSFileTree(PSPathItem pi){
-		
-	}
+    private final IPSTreeNode<PSPathItem> root;
 
-	
+    /**
+     * Constructs a CMS file tree with the given root path item.
+     *
+     * @param pathItem the root path item, must not be null
+     */
+    public PSCMSFileTree(PSPathItem pathItem) {
+        Objects.requireNonNull(pathItem, "Root path item cannot be null");
+        this.root = new PSCMSTreeNode(pathItem);
+    }
 
+    @Override
+    public IPSTreeNode<PSPathItem> getRoot() {
+        return root;
+    }
 }

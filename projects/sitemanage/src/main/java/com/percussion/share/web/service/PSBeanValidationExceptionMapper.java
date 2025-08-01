@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -31,11 +32,18 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link PSBeanValidationException} to a serializable error object.
+ * Sunny Sal says: "Validation failed? Let's tell the world, but nicely."
+ */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("beanValidationExceptionMapper")
-public class PSBeanValidationExceptionMapper extends PSAbstractExceptionMapper<PSBeanValidationException> implements ExceptionMapper<PSBeanValidationException> {
+public class PSBeanValidationExceptionMapper
+        extends PSAbstractExceptionMapper<PSBeanValidationException>
+        implements ExceptionMapper<PSBeanValidationException> {
+
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
     private static final String ERROR_MESSAGE = "PSBeanValidationExceptionMapper exception mapper mapped exception:";
 
@@ -44,13 +52,11 @@ public class PSBeanValidationExceptionMapper extends PSAbstractExceptionMapper<P
     protected PSErrors createErrors(PSBeanValidationException exception) {
         log.debug(ERROR_MESSAGE, exception);
         return exception.getValidationErrors();
-
     }
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(PSBeanValidationException exception)
-    {
+    protected Response.Status getStatus(PSBeanValidationException exception) {
         return super.getStatus(exception);
     }
 }

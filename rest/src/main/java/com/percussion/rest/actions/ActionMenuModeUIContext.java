@@ -17,11 +17,15 @@
 
 package com.percussion.rest.actions;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a UI Context that can be used to scope a Menu.
+ */
 @XmlRootElement(name = "ActionMenuModeUIContext")
 @Schema(description = "Represents a UI Context that can be used to scope a Menu")
 public class ActionMenuModeUIContext {
@@ -32,45 +36,73 @@ public class ActionMenuModeUIContext {
     private String contextName;
     private String description;
 
-    public ActionMenuModeUIContext(){}
+    public ActionMenuModeUIContext() {}
 
-    public String getModeId() {
-        return modeId;
+    public Optional<String> getModeId() {
+        return Optional.ofNullable(modeId);
     }
 
     public void setModeId(String modeId) {
         this.modeId = modeId;
     }
 
-    public String getModeName() {
-        return modeName;
+    public Optional<String> getModeName() {
+        return Optional.ofNullable(modeName);
     }
 
     public void setModeName(String modeName) {
         this.modeName = modeName;
     }
 
-    public String getContextId() {
-        return contextId;
+    public Optional<String> getContextId() {
+        return Optional.ofNullable(contextId);
     }
 
     public void setContextId(String contextId) {
         this.contextId = contextId;
     }
 
-    public String getContextName() {
-        return contextName;
+    public Optional<String> getContextName() {
+        return Optional.ofNullable(contextName);
     }
 
     public void setContextName(String contextName) {
         this.contextName = contextName;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ActionMenuModeUIContext)) return false;
+        var that = (ActionMenuModeUIContext) o;
+        return Objects.equals(modeId, that.modeId) &&
+                Objects.equals(modeName, that.modeName) &&
+                Objects.equals(contextId, that.contextId) &&
+                Objects.equals(contextName, that.contextName) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(modeId, modeName, contextId, contextName, description);
+    }
+
+    @Override
+    public String toString() {
+        return "ActionMenuModeUIContext{" +
+                "modeId='" + modeId + '\'' +
+                ", modeName='" + modeName + '\'' +
+                ", contextId='" + contextId + '\'' +
+                ", contextName='" + contextName + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

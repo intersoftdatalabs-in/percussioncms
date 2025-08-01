@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,23 +20,41 @@ package com.percussion.sitemanage.error;
 import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
- * @author LucasPiccoli
- *
+ * Exception thrown when a template import operation fails.
  */
-public class PSTemplateImportException extends PSDataServiceException
-{
+public class PSTemplateImportException extends PSDataServiceException {
+
+    /**
+     * Constructs a new exception with no detail message.
+     */
     public PSTemplateImportException() {
         super();
     }
 
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message the detail message.
+     */
     public PSTemplateImportException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message the detail message.
+     * @param cause   the cause.
+     */
     public PSTemplateImportException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Constructs a new exception with the specified cause.
+     *
+     * @param cause the cause.
+     */
     public PSTemplateImportException(Throwable cause) {
         super(cause);
     }

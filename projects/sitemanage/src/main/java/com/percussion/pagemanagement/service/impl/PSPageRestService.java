@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.design.objectstore.PSRelationshipConfig;
@@ -82,10 +83,8 @@ import static org.apache.commons.lang.Validate.isTrue;
 @Path("/page")
 @Component("pageRestService")
 @Lazy
-public class PSPageRestService
-{
-
-    private static final Logger log =  LogManager.getLogger(PSPageRestService.class);
+public class PSPageRestService {
+    private static final Logger log = LogManager.getLogger(PSPageRestService.class);
 
     /**
      * The page service.
@@ -125,9 +124,7 @@ public class PSPageRestService
      */
     @DELETE
     @Path(DELETE_PATH)
-    public void delete(@PathParam("id")
-                                   String id) throws PSValidationException
-    {
+    public void delete(@PathParam("id") String id) throws PSValidationException {
         try {
             pageService.delete(id);
         } catch (PSValidationException e) {
@@ -184,13 +181,12 @@ public class PSPageRestService
     @POST
     @Path("/copy/{id}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String copy(@PathParam("id") String id, @QueryParam("addToRecent") boolean addToRecent) throws PSBeanValidationException
-    {
+    public String copy(@PathParam("id") String id, @QueryParam("addToRecent") boolean addToRecent) throws PSBeanValidationException {
         try {
             return pageService.copy(id, addToRecent);
-        }catch (PSBeanValidationException ex){
+        } catch (PSBeanValidationException ex) {
             log.error(ex.getMessage());
-            log.debug(ex.getMessage(),ex);
+            log.debug(ex.getMessage(), ex);
             throw ex;
         } catch (IPSPathService.PSPathNotFoundServiceException | PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -341,16 +337,15 @@ public class PSPageRestService
     @Path(SAVE_PATH)
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPage save(PSPage page) throws PSBeanValidationException
-    {
+    public PSPage save(PSPage page) throws PSBeanValidationException {
         try {
-            if(page.getTitle().isEmpty())
+            if (page.getTitle().isEmpty())
                 page.setTitle(page.getLinkTitle());
 
             return pageService.save(page);
-        }catch (PSBeanValidationException bve){
-            throw  bve;
-        }catch (PSDataServiceException e) {
+        } catch (PSBeanValidationException bve) {
+            throw bve;
+        } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new WebApplicationException(e);

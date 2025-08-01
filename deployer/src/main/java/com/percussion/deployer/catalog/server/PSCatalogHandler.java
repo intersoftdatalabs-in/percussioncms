@@ -50,6 +50,7 @@ import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -93,13 +94,10 @@ public class PSCatalogHandler
       PSXmlTreeWalker tree = new PSXmlTreeWalker(doc);
       Properties props = new Properties();
       NodeList children = doc.getDocumentElement().getChildNodes();
-      for (int i = 0; i < children.getLength(); i++) 
-      {
-         Node child = children.item(i);
-         if(child instanceof Element)
-         {
-            props.setProperty(((Element)child).getTagName(), 
-               tree.getElementData(child));         
+      for (var i = 0; i < children.getLength(); i++) {
+         var child = children.item(i);
+         if (child instanceof Element element) {
+            props.setProperty(element.getTagName(), tree.getElementData(child));
          }
       }
 
@@ -182,28 +180,21 @@ public class PSCatalogHandler
       PSLogHandler logHandler = ms_depHandler.getLogHandler();
       String serverName = 
          PSServer.getHostName() + ":" + PSServer.getListenerPort();     
-      Iterator logs = logHandler.getArchiveSummaries(serverName);
-      PSCatalogResultSet resultSet = new PSCatalogResultSet(getArchiveColumns());         
-      
-      while(logs.hasNext())
-      {
-         PSArchiveSummary summary = (PSArchiveSummary)logs.next();
-         PSArchiveInfo info = summary.getArchiveInfo();
-
-         File archiveFile = ms_depHandler.getImportArchiveFile(
-            info.getArchiveRef());
-         if (archiveFile.exists())
-         {
-            PSCatalogResult result = new PSCatalogResult(
-               String.valueOf(summary.getId()), info.getArchiveRef());
+      Iterator<PSArchiveSummary> logs = logHandler.getArchiveSummaries(serverName);
+      var resultSet = new PSCatalogResultSet(getArchiveColumns());
+      logs.forEachRemaining(summary -> {
+         var info = summary.getArchiveInfo();
+         var archiveFile = ms_depHandler.getImportArchiveFile(info.getArchiveRef());
+         if (archiveFile.exists()) {
+            var result = new PSCatalogResult(String.valueOf(summary.getId()), info.getArchiveRef());
             result.addTextColumn(info.getArchiveRef());
             result.addDateColumn(summary.getInstallDate().getTime());
             result.addTextColumn(info.getServerName());
             result.addTextColumn(info.getServerVersion());
-            result.addTextColumn(info.getServerBuildNumber());         
+            result.addTextColumn(info.getServerBuildNumber());
             resultSet.addResult(result);
          }
-      }      
+      });
       return resultSet;
    }
    
@@ -260,13 +251,11 @@ public class PSCatalogHandler
       PSCatalogResultSet dataSources = new PSCatalogResultSet();
 
       IPSDatasourceManager dsMgr = PSDatasourceMgrLocator.getDatasourceMgr();
-      Iterator<String> it = dsMgr.getDatasources().iterator();
-      while(it.hasNext())
-      {
-         String dsName = it.next();
-         PSCatalogResult res = new PSCatalogResult(dsName, dsName);
+      var it = dsMgr.getDatasources().iterator();
+      it.forEachRemaining(dsName -> {
+         var res = new PSCatalogResult(dsName, dsName);
          dataSources.addResult(res);
-      }
+      });
       return dataSources;
    }
 
@@ -288,15 +277,11 @@ public class PSCatalogHandler
       throws PSDeployException    
    {
       PSDependencyManager mgr = (PSDependencyManager) ms_depHandler.getDependencyManager();
-      Iterator customTypes = mgr.getCustomElementTypes();
       PSCatalogResultSet customElemTypes = new PSCatalogResultSet();
-      while(customTypes.hasNext())
-      {
-         PSDependencyDef def = (PSDependencyDef)customTypes.next();
-         PSCatalogResult result = new PSCatalogResult(def.getObjectType(), 
-            def.getObjectTypeName());
+      mgr.getCustomElementTypes().forEachRemaining(def -> {
+         var result = new PSCatalogResult(def.getObjectType(), def.getObjectTypeName());
          customElemTypes.addResult(result);
-      }
+      });
       return customElemTypes;
    }
    
@@ -318,15 +303,11 @@ public class PSCatalogHandler
       throws PSDeployException       
    {
       PSDependencyManager mgr = (PSDependencyManager) ms_depHandler.getDependencyManager();
-      Iterator elemTypes = mgr.getElementTypes();
       PSCatalogResultSet deplElemTypes = new PSCatalogResultSet();
-      while(elemTypes.hasNext())
-      {
-         PSDependencyDef def = (PSDependencyDef)elemTypes.next();
-         PSCatalogResult result = new PSCatalogResult(def.getObjectType(), 
-            def.getObjectTypeName());
+      mgr.getElementTypes().forEachRemaining(def -> {
+         var result = new PSCatalogResult(def.getObjectType(), def.getObjectTypeName());
          deplElemTypes.addResult(result);
-      }
+      });
       return deplElemTypes;
    }
    
@@ -361,24 +342,17 @@ public class PSCatalogHandler
          File exportDescDir = PSDeploymentHandler.EXPORT_DESC_DIR;      
          if(exportDescDir.exists())
          {
-            File[] descFiles = exportDescDir.listFiles(
-               new PSFilenameFilter("xml", false));
-            if(descFiles != null)
-            {
-               for (int i = 0; i < descFiles.length; i++) 
-               {
-                  Document descDoc = PSDeploymentHandler.getDocumentFromFile(
-                     descFiles[i], "export descriptor");
-                  PSExportDescriptor descriptor = new PSExportDescriptor(
-                     descDoc.getDocumentElement(), true);            
-                  PSCatalogResult result = 
-                     new PSCatalogResult(descriptor.getName(), descriptor.getName());
-                  result.addTextColumn(descriptor.getName());
-                  result.addTextColumn(descriptor.getDescription()); 
-                  result.addDateColumn(descFiles[i].lastModified());
-                  result.addTextColumn(descriptor.getVersion()); 
-                  descriptors.addResult(result);   
-               }
+            File[] descFiles = Optional.ofNullable(exportDescDir.listFiles(new PSFilenameFilter("xml", false)))
+    .orElse(new File[0]);
+            for (var descFile : descFiles) {
+               var descDoc = PSDeploymentHandler.getDocumentFromFile(descFile, "export descriptor");
+               var descriptor = new PSExportDescriptor(descDoc.getDocumentElement(), true);
+               var result = new PSCatalogResult(descriptor.getName(), descriptor.getName());
+               result.addTextColumn(descriptor.getName());
+               result.addTextColumn(descriptor.getDescription());
+               result.addDateColumn(descFile.lastModified());
+               result.addTextColumn(descriptor.getVersion());
+               descriptors.addResult(result);
             }
          }
       }
@@ -434,19 +408,14 @@ public class PSCatalogHandler
       throws PSDeployException    
    {
       PSDependencyManager mgr = (PSDependencyManager) ms_depHandler.getDependencyManager();
-      Iterator idTypes = mgr.getObjectTypes();
       PSCatalogResultSet literalIDTypes = new PSCatalogResultSet();
-      while(idTypes.hasNext())
-      {
-         PSDependencyDef def = (PSDependencyDef)idTypes.next();
-         if(def.supportsIdMapping())
-         {
-            PSCatalogResult result = new PSCatalogResult(def.getObjectType(), 
-               def.getObjectTypeName());
+      mgr.getObjectTypes().forEachRemaining(def -> {
+         if (def.supportsIdMapping()) {
+            var result = new PSCatalogResult(def.getObjectType(), def.getObjectTypeName());
             literalIDTypes.addResult(result);
          }
-      }
-      return literalIDTypes;   
+      });
+      return literalIDTypes;
    }
    
    /**
@@ -473,15 +442,11 @@ public class PSCatalogHandler
       String type = (String)props.getProperty("type");
       PSCatalogResultSet typeObjects = new PSCatalogResultSet();
       PSDependencyManager mgr = (PSDependencyManager) ms_depHandler.getDependencyManager();
-      Iterator objects = mgr.getDependencies(tok, type);
-      while(objects.hasNext())
-      {
-         PSDependency object = (PSDependency)objects.next();
-         PSCatalogResult result = new PSCatalogResult(object.getDependencyId(), 
-            object.getDisplayName());
+      mgr.getDependencies(tok, type).forEachRemaining(object -> {
+         var result = new PSCatalogResult(object.getDependencyId(), object.getDisplayName());
          typeObjects.addResult(result);
-      }
-      
+      });
+
       return typeObjects;         
    }
    
@@ -616,15 +581,11 @@ public class PSCatalogHandler
                new String[]{directory});
 
       PSCatalogResultSet resultSet = new PSCatalogResultSet();             
-      File[] dirFiles = catalogDir.listFiles();
-      for (int i = 0; i < dirFiles.length; i++) 
-      {
-         File file = dirFiles[i];
-         String path = file.getPath().substring(curDirectory.length()+1);      
-         if(file.isDirectory())
-            path += IPSDeployConstants.CAT_FILE_SEP;
-         PSCatalogResult result = 
-            new PSCatalogResult(path, dirFiles[i].getName());
+      var dirFiles = Optional.ofNullable(catalogDir.listFiles()).orElse(new File[0]);
+      for (var file : dirFiles) {
+         var path = file.getPath().substring(curDirectory.length() + 1);
+         if (file.isDirectory()) path += IPSDeployConstants.CAT_FILE_SEP;
+         var result = new PSCatalogResult(path, file.getName());
          resultSet.addResult(result);
       }
       

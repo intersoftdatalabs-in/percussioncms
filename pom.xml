@@ -58,7 +58,7 @@
         <module>modules/servletutils</module>
         <module>modules/perc-rxapps</module>
         <module>modules/perc-checkboxtree</module>
-        <!-- <module>modules/DesktopContentExplorer</module>-->
+        <module>modules/DesktopContentExplorer</module>
         <module>modules/perc-jetty</module>
 		<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
@@ -81,8 +81,11 @@
        <buildNumber>${maven.build.timestamp}</buildNumber>
        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
-       <jdk.version>1.8</jdk.version>
-       <java.source.version>1.8</java.source.version>
+       <jdk.version>11</jdk.version>
+       <java.source.version>11</java.source.version>
+       <java.version>11</java.version>
+       <maven.compiler.source>11</maven.compiler.source>
+       <maven.compiler.target>11</maven.compiler.target>
        <slf4j.version>1.7.26</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
@@ -102,7 +105,7 @@
        <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
        <gwt.maven.plugin.version>2.8.2</gwt.maven.plugin.version>
        <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
-       <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+       <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
        <maven.clean.plugin.version>3.2.0</maven.clean.plugin.version>
        <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
@@ -130,11 +133,8 @@
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-       <java.version>1.8.0</java.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <activemq.version>5.16.8</activemq.version><!-- 5.17.x and up require Java 11 -->
@@ -156,7 +156,7 @@
        <myfaces.version>1.1.8</myfaces.version>
        <simplexml.version>2.7.1</simplexml.version>
        <stax.version>1.0.1</stax.version>
-        <poi.version>5.2.2</poi.version>
+        <poi.version>5.4.0</poi.version>
         <esapi.version>2.6.0.0</esapi.version>
         <esapi.encoder.version>1.2.3</esapi.encoder.version>
         <ant.version>1.10.14</ant.version>
@@ -169,6 +169,7 @@
         <jackson.version>2.15.0</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
+       <junit5.version>5.13.3</junit5.version>
         <junit.version>4.13.1</junit.version>
         <cactus.version>13-1.7.1</cactus.version>
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
@@ -398,59 +399,52 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.plugin.version}</version>
-                 <dependencies>
-                     <dependency>
-                         <groupId>org.apache.maven.surefire</groupId>
-                         <artifactId>common-junit48</artifactId>
-                         <version>${maven.surefire.plugin.version}</version>
-                     </dependency>
-                 </dependencies>
-                <executions>
-                    <execution>
-                        <id>unit-tests</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the VM argument line used when integration tests are run. -->
-                            <!--suppress UnresolvedMavenProperty -->
-                            <argLine>${failsafeArgLine}</argLine>
-
-                            <systemPropertyVariables>
-                                <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                                <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                            </systemPropertyVariables>
-
-                            <systemProperties>
-                                <property>
-                                    <name>javax.xml.parsers.SAXParserFactory</name>
-                                    <value>com.percussion.xml.PSSaxParserFactoryImpl</value>
-                                </property>
-                            </systemProperties>
-                            <skipTests>${skip.unit.tests}</skipTests>
-                            <testFailureIgnore>false</testFailureIgnore>
-                            <groups>com.percussion.utils.testing.UnitTest</groups>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
-                        </configuration>
-                    </execution>
-                </executions>
                 <configuration>
-                     <skipTests>${skip.unit.tests}</skipTests>
-                     <!--suppress UnresolvedMavenProperty -->
+                    <skipTests>${skip.unit.tests}</skipTests>
                     <argLine>${surefireArgLine}</argLine>
-                     <systemPropertyVariables>
-                         <cactus.contextURL>http://localhost:9992/Rhythmyx/</cactus.contextURL>
-                         <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                         <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                     </systemPropertyVariables>
-
-                     <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
+                    <systemPropertyVariables>
+                        <cactus.contextURL>http://localhost:9992/Rhythmyx/</cactus.contextURL>
+                        <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
+                        <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
+                    </systemPropertyVariables>
+                    <excludedGroups>com.percussion.utils.testing.IntegrationTest,com.percussion.utils.testing.BackloggedTest</excludedGroups>
                     <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
                 </configuration>
-              </plugin>
+            </plugin>
+            <!-- Modern Failsafe plugin for JUnit5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe.plugin.version}</version>
+                <configuration>
+                    <skipTests>${skip.integration.tests}</skipTests>
+                    <argLine>${failsafeArgLine}</argLine>
+                    <systemPropertyVariables>
+                        <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
+                        <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
+                    </systemPropertyVariables>
+                    <excludedGroups>com.percussion.utils.testing.BackloggedTest</excludedGroups>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <configuration>
+                    <configLocation>google_checks.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>false</failsOnError>
+                    <linkXRef>true</linkXRef>
+                </configuration>
+            </plugin>
             <!-- Used for integration tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -614,8 +608,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <fork>true</fork>
                          <debug>true</debug>
                         <debuglevel>lines,vars,source</debuglevel> 
@@ -918,19 +912,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions>
-       <!-- Not released yet     <extension>
-                <groupId>org.apache.maven.extensions</groupId>
-                <artifactId>maven-build-cache-extension</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </extension>
-            -->
-            <extension>
-                <groupId>fi.yle.tools</groupId>
-                <artifactId>aws-maven</artifactId>
-                <version>1.4.1</version>
-            </extension>
-        </extensions>
     </build>
     <reporting>
         <plugins>
@@ -1074,12 +1055,6 @@
         <pluginRepository>
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>yle-public</id>
-            <name>Yle public repository</name>
-            <url>https://maven.yle.fi/release</url>
-            <layout>default</layout>
         </pluginRepository>
     </pluginRepositories>
 
@@ -2970,26 +2945,27 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <!--
+     <distributionManagement>
+     <repository>
+             <id>github</id>
+             <name>GitHub Percussion Apache Maven Release Packages</name>
+             <url>https://maven.pkg.github.com/percussion/percussioncms</url>
+         </repository>
+         <snapshotRepository>
+             <id>github</id>
+             <name>GitHub Percussion Apache Maven Snapshot Packages </name>
+             <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
+         </snapshotRepository>
 
-    <distributionManagement>
-   <!--     <repository>
-            <id>github</id>
-            <name>GitHub Percussion Apache Maven Release Packages</name>
-            <url>https://maven.pkg.github.com/percussion/percussioncms</url>
-        </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Percussion Apache Maven Snapshot Packages </name>
-            <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
-        </snapshotRepository>
-        -->
-            <snapshotRepository>
-                <id>intersoft.s3.repo</id>
-                <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-            </snapshotRepository>
-            <repository>
-                <id>intersoft.s3.repo</id>
-                <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-            </repository>
-    </distributionManagement>
+             <snapshotRepository>
+                 <id>intersoft.s3.repo</id>
+                 <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
+             </snapshotRepository>
+             <repository>
+                 <id>intersoft.s3.repo</id>
+                 <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
+             </repository>
+     </distributionManagement>
+            -->
 </project>

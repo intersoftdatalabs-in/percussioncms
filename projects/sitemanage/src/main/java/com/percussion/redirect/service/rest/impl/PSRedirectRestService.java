@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -30,27 +31,31 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+/**
+ * REST endpoint for redirect validation.
+ */
 @Path("/redirect")
 @Component("pSRedirectRestService")
 @Lazy
-public class PSRedirectRestService
-{
-    private PSRedirectService redirectService;
+public class PSRedirectRestService {
+
+    private final PSRedirectService redirectService;
 
     @Autowired
-    public PSRedirectRestService(PSRedirectService redirectService)
-    {
+    public PSRedirectRestService(PSRedirectService redirectService) {
         this.redirectService = redirectService;
     }
-    
+
+    /**
+     * Validates a redirect request.
+     * @param data the redirect validation data
+     * @return the validation response
+     */
     @POST
-    @Produces(
-    {MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     @Path("/validate")
-    public PSRedirectValidationResponse validate(PSRedirectValidationData data)
-    {
+    public PSRedirectValidationResponse validate(PSRedirectValidationData data) {
         return redirectService.validate(data);
     }
-
 }

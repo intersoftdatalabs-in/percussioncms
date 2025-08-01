@@ -150,20 +150,18 @@ public class PSTransactionSummary  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
-
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_DEPDESC, m_depDesc);
       root.setAttribute(XML_ATTR_EL_NAME, m_elementName);
       root.setAttribute(XML_ATTR_EL_TYPE, m_elementType);
       root.setAttribute(XML_ATTR_ACTION, Integer.toString(m_action));
       root.setAttribute(XML_ATTR_LOGID, Integer.toString(m_logId));
 
-      
       return root;
    }
 
@@ -173,53 +171,30 @@ public class PSTransactionSummary  implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
-      m_depDesc = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_DEPDESC);
-
-      m_elementName = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_EL_NAME);
-
-      String sLogId = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_LOGID);
-      try
-      {
-         m_logId = Integer.parseInt(sLogId);
-      }
-      catch (NumberFormatException ne)
-      {
-         Object[] args = { XML_NODE_NAME, XML_ATTR_LOGID, sLogId };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
       }
 
-      String sAction = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_ACTION);
-      m_action = Integer.parseInt(sAction);
-      if ( !isActionValid(m_action))
-      {
-         Object[] args = { XML_NODE_NAME, XML_ATTR_ACTION, sAction };
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
 
-      m_elementType = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_EL_TYPE);
-      if ( ! validateElementType(m_elementType) )
-      {
-         Object[] args = { XML_NODE_NAME, XML_ATTR_EL_TYPE, m_elementType };
+      m_depDesc = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_DEPDESC);
+      m_elementName = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_EL_NAME);
+      m_elementType = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_EL_TYPE);
+
+      m_logId = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_LOGID));
+      m_action = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ACTION));
+
+      if (!validateElementType(m_elementType) || !isActionValid(m_action)) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_EL_TYPE, m_elementType}
+         );
       }
    }
 

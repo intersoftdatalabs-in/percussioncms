@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.helpers;
 
-import static org.junit.Assert.*;
 import static com.percussion.share.dao.PSFolderPathUtils.concatPath;
 import static com.percussion.share.dao.PSFolderPathUtils.pathSeparator;
 import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.PAGE_CATALOG;
 import static com.percussion.sitemanage.service.IPSSiteSectionMetaDataService.SECTION_SYSTEM_FOLDER_NAME;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.dao.IPSPageDao;
@@ -42,213 +43,174 @@ import com.percussion.sitemanage.importer.theme.PSURLConverter;
 import com.percussion.sitemanage.importer.utils.PSLinkExtractor;
 import com.percussion.sitemanage.importer.helpers.PSLinkExtractionHelperTest.TestablePSLinkExtractionHelper.PSLinkExtractionTestConnectivity;
 import com.percussion.theme.service.IPSThemeService;
-
-import java.io.IOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class PSLinkExtractionHelperTest {
 
-    protected class TestablePSLinkExtractionHelper extends
-            PSLinkExtractionHelper {
-        /**
-         * 
-         * Test IPSConnectivity implementation
-         *
-         */
-        protected class PSLinkExtractionTestConnectivity implements
-                IPSConnectivity {
+    protected static class TestablePSLinkExtractionHelper extends PSLinkExtractionHelper {
+        protected static class PSLinkExtractionTestConnectivity implements IPSConnectivity {
+            private int statusCode = 200;
+            private String responseUrl = "http://local/";
+            private Document document = null;
 
-            private int mi_StatusCode = 200;
-
-            private String mi_ResponseUrl = "http://local/";
-            private Document mi_Document = null;
-
-            public Document get() throws IOException {
-                if (mi_Document != null)
-                    return mi_Document;
-                else
-                    throw new IOException("Unhandled content type \"application/pdf\" on URL");
+            @Override
+            public Document get() throws java.io.IOException {
+                if (document != null)
+                    return document;
+                throw new java.io.IOException("Unhandled content type \"application/pdf\" on URL");
             }
 
             public void setDocument(Document document) {
-                mi_Document = document;
+                this.document = document;
             }
 
+            @Override
             public int getResponseStatusCode() {
-                return mi_StatusCode;
+                return statusCode;
             }
 
             public void setResponseStatusCode(int statusCode) {
-                mi_StatusCode = statusCode;
+                this.statusCode = statusCode;
             }
 
+            @Override
             public String getResponseUrl() {
-                return mi_ResponseUrl;
+                return responseUrl;
             }
 
             public void setResponseUrl(String responseUrl) {
-                mi_ResponseUrl = responseUrl;
+                this.responseUrl = responseUrl;
             }
-
         }
 
-        private IPSConnectivity m_Connectivity = new PSLinkExtractionTestConnectivity();
+        private final IPSConnectivity connectivity = new PSLinkExtractionTestConnectivity();
 
         public TestablePSLinkExtractionHelper(
-                IPSPageCatalogService pageCatalogService, IPSThemeService themeService, IPSPageDao pageDao,  IPSItemWorkflowService itemWorkflowService, IPSFolderHelper folderHelper) {
+                IPSPageCatalogService pageCatalogService, IPSThemeService themeService, IPSPageDao pageDao,
+                IPSItemWorkflowService itemWorkflowService, IPSFolderHelper folderHelper) {
             super(pageCatalogService, themeService, pageDao, itemWorkflowService, folderHelper);
         }
 
-        protected IPSConnectivity getConnectivity(String url,
-                boolean ignoreContentType, boolean followRedirects,
-                String userAgent) {
-            return m_Connectivity;
+        @Override
+        protected IPSConnectivity getConnectivity(String url, boolean ignoreContentType, boolean followRedirects, String userAgent) {
+            return connectivity;
         }
-        
+
+        @Override
         protected void downloadAsset(String remoteUrl, String fullThemePath) {
-            
+            // No-op for test
         }
 
-       
-        protected String getCmsFolderPathForImageAssetsSiteName(String siteName,
-                PSURLConverter urlConverter, String remoteUrl) {
-           return  PSLinkExtractionHelper.ASSETS_DIR_PREFIX;
+        @Override
+        protected String getCmsFolderPathForImageAssetsSiteName(String siteName, PSURLConverter urlConverter, String remoteUrl) {
+            return PSLinkExtractionHelper.ASSETS_DIR_PREFIX;
         }
 
-        protected String getRemoteUrlConverted(PSLink link,
-                PSURLConverter urlConverter) {
+        @Override
+        protected String getRemoteUrlConverted(PSLink link, PSURLConverter urlConverter) {
             return link.getAbsoluteLink();
         }
-        
-        protected PSURLConverter getURLConverter(final PSSiteImportCtx context,
-                final IPSSiteImportLogger log, String themeRootDirectory,
-                String themeRootUrl, String siteName) {
-           return null;
-        }
-        
-        protected String getPathForTargetItem(String siteName, PSLink link)
-        {
-            // Determine the path
-            String pathToTargetItem = getFinderPathForTargetItem(siteName, link.getRelativePathWithFileName());
-            
-            pathToTargetItem = getCatalogedItemPath(siteName,link.getLinkPath(), link.getPageName());
 
+        @Override
+        protected PSURLConverter getURLConverter(final PSSiteImportCtx context, final IPSSiteImportLogger log,
+                                                 String themeRootDirectory, String themeRootUrl, String siteName) {
+            return null;
+        }
+
+        @Override
+        protected String getPathForTargetItem(String siteName, PSLink link) {
+            var pathToTargetItem = getFinderPathForTargetItem(siteName, link.getRelativePathWithFileName());
+            pathToTargetItem = getCatalogedItemPath(siteName, link.getLinkPath(), link.getPageName());
             return pathToTargetItem;
         }
-        
-        protected String getFinderPathForTargetItem(String siteName, String targetPathUrl)
-        {
-            String targetPath = targetPathUrl;
-            if (!targetPath.startsWith("/"))
-            {
-                targetPath = "/" + targetPathUrl;
-            }
-            
-            return "/Sites"+ "/" + siteName + targetPath;
+
+        protected String getFinderPathForTargetItem(String siteName, String targetPathUrl) {
+            var targetPath = targetPathUrl.startsWith("/") ? targetPathUrl : "/" + targetPathUrl;
+            return "/Sites/" + siteName + targetPath;
         }
-        
-        protected String getCatalogedItemPath(String siteName, String folderPath, String pageName)
-        {
-            // determine paths
-            String catalogRoot = concatPath("/Sites/", siteName, pathSeparator() + concatPath(SECTION_SYSTEM_FOLDER_NAME, PAGE_CATALOG));
-            String fullFolderPath = concatPath(catalogRoot, folderPath);
-            String catItemPath = concatPath(fullFolderPath, pageName);
-            
-            return catItemPath;
+
+        protected String getCatalogedItemPath(String siteName, String folderPath, String pageName) {
+            var catalogRoot = concatPath("/Sites/", siteName, pathSeparator() + concatPath(SECTION_SYSTEM_FOLDER_NAME, PAGE_CATALOG));
+            var fullFolderPath = concatPath(catalogRoot, folderPath);
+            return concatPath(fullFolderPath, pageName);
         }
 
         public IPSConnectivity getConnectivity() {
-            return m_Connectivity;
+            return connectivity;
         }
-        
-        /**
-         * Extracted for test
-         * @param context
-         * @return the theme root URL
-         */
+
+        @Override
         protected String getThemeRootUrl(final PSSiteImportCtx context) {
             return "";
         }
 
-        /**
-         * Extracted for test
-         * @param context
-         * @return the theme root directory
-         */
+        @Override
         protected String getThemeRootDirectory(final PSSiteImportCtx context) {
             return "";
         }
-
     }
 
-    PSSiteImportCtx mContext;
-    PSPageContent mPageContent;
-    static final String PERC_MANAGED_ATTR = "perc-managed";
+    private PSSiteImportCtx context;
+    private PSPageContent pageContent;
+    private static final String PERC_MANAGED_ATTR = "perc-managed";
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        mContext = new PSSiteImportCtx();
-        mContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
-        PSSite site = new PSSite();
+        context = new PSSiteImportCtx();
+        context.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
+        var site = new PSSite();
         site.setName("Test Site");
-        mContext.setSite(site);
+        context.setSite(site);
         try {
-            PSHelperTestUtils testHelper = new PSHelperTestUtils();
-            mPageContent = testHelper.createTempPageBasedOnResource(
+            var testHelper = new PSHelperTestUtils();
+            pageContent = testHelper.createTempPageBasedOnResource(
                     "PSLinkExtractionHelperTest.html",
-                    PSLinkExtractionHelperTest.class, mContext);
+                    PSLinkExtractionHelperTest.class, context);
         } catch (Exception e) {
-            fail("Couldn'create page content #tragic");
+            fail("Couldn't create page content #tragic");
         }
     }
 
-    @Ignore("Test relied on broken error handling that has been fixed")
+    @Disabled("Test relied on broken error handling that has been fixed")
     public void testFileUpload() throws PSSiteImportException, IPSGenericDao.SaveException {
-        PSLinkExtractionHelper linkExtractionHelper = new TestablePSLinkExtractionHelper(
+        var linkExtractionHelper = new TestablePSLinkExtractionHelper(
                 null, null, null, null, null);
-        // IOException catalog files - Document is null - Mock throws an
-        // IOException per the Jsoup contract for binaries
-        linkExtractionHelper.process(mPageContent, mContext);
-        Document doc = mPageContent.getSourceDocument();
-        Elements links = doc.select(PSLinkExtractor.A_HREF);
-        assertTrue(links.size() == 5);
+        linkExtractionHelper.process(pageContent, context);
+        var doc = pageContent.getSourceDocument();
+        var links = doc.select(PSLinkExtractor.A_HREF);
+        assertEquals(5, links.size());
         for (Element link : links) {
-            assertTrue(link.attr(PSLinkExtractor.HREF).contains(
-                    PSLinkExtractionHelper.ASSETS_DIR_PREFIX));
+            assertTrue(link.attr(PSLinkExtractor.HREF).contains(PSLinkExtractionHelper.ASSETS_DIR_PREFIX));
         }
     }
 
-    @Ignore("Awkward Coupling")
+    @Disabled("Awkward Coupling")
     public void testStandardPath() throws PSSiteImportException, IPSGenericDao.SaveException {
-        PSLinkExtractionHelper linkExtractionHelper = new TestablePSLinkExtractionHelper(
+        var linkExtractionHelper = new TestablePSLinkExtractionHelper(
                 null, null, null, null, null);
-        PSLinkExtractionTestConnectivity testConn = (PSLinkExtractionTestConnectivity) ((TestablePSLinkExtractionHelper) linkExtractionHelper)
+        var testConn = (PSLinkExtractionTestConnectivity) ((TestablePSLinkExtractionHelper) linkExtractionHelper)
                 .getConnectivity();
 
-        testConn.setDocument(mPageContent.getSourceDocument());
-        // IOException catalog files - Document is null - Mock throws an
-        // IOException per the Jsoup contract for binaries
-        linkExtractionHelper.process(mPageContent, mContext);
-        Document doc = mPageContent.getSourceDocument();
-        Elements links = doc.select(PSLinkExtractor.A_HREF);
-        assertTrue(links.size() == 5);
-        for (Element link : links)
-        {
+        testConn.setDocument(pageContent.getSourceDocument());
+        linkExtractionHelper.process(pageContent, context);
+        var doc = pageContent.getSourceDocument();
+        var links = doc.select(PSLinkExtractor.A_HREF);
+        assertEquals(5, links.size());
+        for (Element link : links) {
             assertFalse(link.attr(PSLinkExtractor.HREF).contains(PSLinkExtractionHelper.ASSETS_DIR_PREFIX));
         }
-        for (Element link : links)
-        {
+        for (Element link : links) {
             assertTrue(link.attr(PERC_MANAGED_ATTR).contains("true"));
         }
     }
 
     @Test
-    public void testDummy()
-    {
+    public void testDummy() {
+        // Just a dummy test to keep the test runner happy
     }
 }

@@ -28,41 +28,43 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
 
-public class PSSitePublishStatusRestClient extends PSObjectRestClient implements IPSSitePublishStatusService
-{
-    private String path = "/Rhythmyx/services/sitemanage/pubstatus";
-    
-    public List<PSSitePublishJob> getCurrentJobs() throws PSDataServiceException
-    {
-        return getObjectsFromPath(concatPath(path,"current"), PSSitePublishJob.class);
-    }
-    
-    public List<PSSitePublishJob> getCurrentJobsBySite(String siteId) throws PSDataServiceException
-    {
-        return getObjectsFromPath(concatPath(path,"current",siteId), PSSitePublishJob.class);
-    }
+/**
+ * REST client for site publish status service.
+ * // REFACTORED: CP-JAVA11
+ */
+public class PSSitePublishStatusRestClient extends PSObjectRestClient implements IPSSitePublishStatusService {
 
-    public List<PSSitePublishItem> getJobDetails(PSSitePublishLogDetailsRequest request) throws PSDataServiceException
-    {
-        String response = postObjectToPath(concatPath(path,"details"), request);
-        return objectsFromResponseBody(response, PSSitePublishItem.class);
-    }
+    private final String path = "/Rhythmyx/services/sitemanage/pubstatus";
 
-    public List<PSSitePublishJob> getLogs(PSSitePublishLogRequest request) throws PSDataServiceException
-    {
-        String response = postObjectToPath(concatPath(path,"logs"), request);
-        return objectsFromResponseBody(response, PSSitePublishJob.class);
-    }
-
-    public void purgeLog(PSSitePublishPurgeRequest purgeReq) throws PSDataServiceException
-    {
-        postObjectToPath(concatPath(path,"purge"), purgeReq);
+    @Override
+    public List<PSSitePublishJob> getCurrentJobs() throws PSDataServiceException {
+        return getObjectsFromPath(concatPath(path, "current"), PSSitePublishJob.class);
     }
 
     @Override
-    public boolean isSitePublished(IPSGuid siteId) throws PSDataServiceException
-    {
+    public List<PSSitePublishJob> getCurrentJobsBySite(String siteId) throws PSDataServiceException {
+        return getObjectsFromPath(concatPath(path, "current", siteId), PSSitePublishJob.class);
+    }
+
+    @Override
+    public List<PSSitePublishItem> getJobDetails(PSSitePublishLogDetailsRequest request) throws PSDataServiceException {
+        var response = postObjectToPath(concatPath(path, "details"), request);
+        return objectsFromResponseBody(response, PSSitePublishItem.class);
+    }
+
+    @Override
+    public List<PSSitePublishJob> getLogs(PSSitePublishLogRequest request) throws PSDataServiceException {
+        var response = postObjectToPath(concatPath(path, "logs"), request);
+        return objectsFromResponseBody(response, PSSitePublishJob.class);
+    }
+
+    @Override
+    public void purgeLog(PSSitePublishPurgeRequest purgeReq) throws PSDataServiceException {
+        postObjectToPath(concatPath(path, "purge"), purgeReq);
+    }
+
+    @Override
+    public boolean isSitePublished(IPSGuid siteId) throws PSDataServiceException {
         return true;
     }
 }
-

@@ -24,56 +24,45 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 /**
  * Represents a region in a template code.
- * 
  * @author adamgent
  * @see PSAbstractRegion
  */
-@JsonRootName("Region" )
+@JsonRootName("Region")
 public class PSRegion extends PSAbstractRegion {
-
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public void accept(IPSRegionNodeVisitor visitor)
-    {
+    public void accept(IPSRegionNodeVisitor visitor) {
         visitor.visit(this);
-        //We do not visit the subnodes like in the classic visitor pattern.
-        //This keeps the order of the visitor flexibible.
-    }    
-    
+        // We do not visit the subnodes like in the classic visitor pattern.
+        // This keeps the order of the visitor flexible.
+    }
+
     /**
-     * Gets all regions, which includes the region of itself and all descendant regions.
-     * The 1st element is the region itself, followed by its direct child region, and so forth.
-     * @return the regions described above, never <code>null</code> or empty.
+     * Gets all regions, which includes the region itself and all descendant regions.
+     * The first element is the region itself, followed by its direct child regions, and so forth.
+     * @return the regions described above, never {@code null} or empty.
      */
     @JsonIgnoreProperties("allRegions")
-    public List<PSRegion> getAllRegions()
-    {
-        List<PSRegion> results = new ArrayList<>();
+    public List<PSRegion> getAllRegions() {
+        var results = new ArrayList<PSRegion>();
         collectRegions(this, results);
         return results;
     }
-    
-    private void collectRegions(PSRegion parent, List<PSRegion> results)
-    {   
+
+    private void collectRegions(PSRegion parent, List<PSRegion> results) {
         results.add(parent);
         collectRegions(parent.getChildren(), results);
     }
-    
-    private void collectRegions(List<PSRegionNode> nodes, List<PSRegion> results)
-    {
-        for (PSRegionNode node : nodes)
-        {
-            if (node instanceof PSRegion)
-            {
+
+    private void collectRegions(List<PSRegionNode> nodes, List<PSRegion> results) {
+        for (var node : nodes) {
+            if (node instanceof PSRegion) {
                 collectRegions((PSRegion) node, results);
             }
         }
     }
-
-
 }

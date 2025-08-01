@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,48 +19,39 @@
 package com.percussion.integritymanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Represents a single integrity task with status and properties.
+ */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSIntegrityTask")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSIntegrityTask")
 @Table(name = "PSX_INTEGRITYTASK")
 @XmlRootElement(name = "task")
-public class PSIntegrityTask  extends PSAbstractDataObject
-{
+public class PSIntegrityTask extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
+
     public enum TaskStatus {
-        SUCCESS, FAILED;
+        SUCCESS, FAILED
     }
 
     @Id
     @Column(name = "TASKID")
     private long taskId = -1L;
-    
+
     @Basic
-    @Column(name = "TOKEN" ,nullable = false, insertable = false, updatable = false)
+    @Column(name = "TOKEN", nullable = false, insertable = false, updatable = false)
     private String token;
-    
+
     @Basic
     @Column(name = "NAME")
     private String name;
@@ -73,117 +65,88 @@ public class PSIntegrityTask  extends PSAbstractDataObject
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
 
-
     @Basic
     @Column(name = "MESSAGE")
     private String message;
 
-    @OneToMany(targetEntity = PSIntegrityTaskProperty.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            targetEntity = PSIntegrityTaskProperty.class,
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JoinColumn(name = "TASKID", nullable = false, insertable = false, updatable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSIntegrityTaskProperty")
-    @Fetch(FetchMode. SUBSELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<PSIntegrityTaskProperty> taskProperties = new HashSet<>();
 
-    public long getTaskId()
-    {
+    public long getTaskId() {
         return taskId;
     }
 
-
-    public void setTaskId(long taskId)
-    {
+    public void setTaskId(long taskId) {
         this.taskId = taskId;
     }
 
-
-    public String getToken()
-    {
+    public String getToken() {
         return token;
     }
 
-
-    public void setToken(String token)
-    {
+    public void setToken(String token) {
         this.token = token;
     }
 
-
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
-
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
-
-    public TaskStatus getStatus()
-    {
+    public TaskStatus getStatus() {
         return status;
     }
 
-
-    public void setStatus(TaskStatus status)
-    {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
-
-    public String getMessage()
-    {
+    public String getMessage() {
         return message;
     }
 
-
-    public void setMessage(String message)
-    {
+    public void setMessage(String message) {
         this.message = message;
     }
-    
-    public Set<PSIntegrityTaskProperty> getTaskProperties()
-    {
+
+    public Set<PSIntegrityTaskProperty> getTaskProperties() {
         return taskProperties;
     }
 
-
-    public void setTaskProperties(Set<PSIntegrityTaskProperty> taskProperties)
-    {
-        this.taskProperties = taskProperties;
+    public void setTaskProperties(Set<PSIntegrityTaskProperty> taskProperties) {
+        this.taskProperties = taskProperties == null ? new HashSet<>() : new HashSet<>(taskProperties);
     }
-
 
     @Override
-    public boolean equals(Object obj)
-    {
-       if ( !(obj instanceof PSIntegrityTask) ) {
-           return false;
-       }
-       
-       // use "name" & "value" should be enough to avoid same pair more than once to make sure the property names are unique for a task
-       PSIntegrityTask b = (PSIntegrityTask) obj;
-       return new EqualsBuilder().append(name, b.name).append(type, b.type).isEquals();
-    }
-    
-    @Override
-    public int hashCode()
-    {
-       // use "name" should be enough to avoid same pair more than once to make sure the property names are unique for a task
-       return new HashCodeBuilder().append(name).append(type).toHashCode();
+    public boolean equals(Object obj) {
+        if (!(obj instanceof PSIntegrityTask)) {
+            return false;
+        }
+        var other = (PSIntegrityTask) obj;
+        return Objects.equals(name, other.name) && Objects.equals(type, other.type);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type);
+    }
 }

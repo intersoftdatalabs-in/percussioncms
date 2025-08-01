@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,33 +21,30 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
 /**
- * Locator for getting the config service.
- * @author bjoginipally
+ * Sunny Sal says: "Need config? This locator's got your back!"
  *
+ * Locator for getting the config service.
+ *
+ * @author bjoginipally
  */
-public class PSConfigServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSConfigService csr = null;
-   /**
-    * Find and return the config service
-    * 
-    * @return config service, never <code>null</code>
-    * @throws PSMissingBeanConfigurationException if bean is missing
-    */
-   public static IPSConfigService getConfigService()
-         throws PSMissingBeanConfigurationException
-   {
-       if (csr==null)
-       {
-           synchronized (PSConfigServiceLocator.class)
-           {
-               if (csr==null)
-               {
-                   csr = (IPSConfigService) getBean("sys_configService");
-               }
-           }
-       }
-      return csr; 
-   }
+public class PSConfigServiceLocator extends PSBaseServiceLocator {
 
+  private static volatile IPSConfigService configService;
+
+  /**
+   * Finds and returns the config service.
+   *
+   * @return config service, never {@code null}
+   * @throws PSMissingBeanConfigurationException if bean is missing
+   */
+  public static IPSConfigService getConfigService() throws PSMissingBeanConfigurationException {
+    if (configService == null) {
+      synchronized (PSConfigServiceLocator.class) {
+        if (configService == null) {
+          configService = (IPSConfigService) getBean("sys_configService");
+        }
+      }
+    }
+    return configService;
+  }
 }

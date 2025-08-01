@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import net.sf.oval.constraint.NotNull;
@@ -21,24 +22,17 @@ import net.sf.oval.constraint.NotNull;
 /**
  * Represents the physical location of an asset resource.
  * @author adamgent
- *
  */
-public class PSResourceLocation
-{
+public class PSResourceLocation {
+
     @NotNull
     private String filePath;
 
-    public String getFilePath()
-    {
+    public String getFilePath() {
         return filePath;
     }
 
-    public void setFilePath(String filePath)
-    {
+    public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-    
-    
-
 }
-

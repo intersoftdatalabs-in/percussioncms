@@ -16,40 +16,37 @@
  */
 package com.percussion.pathmanagement.data;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.data.PSDataItemSummary;
-import com.percussion.pathmanagement.data.PSFolderProperties;
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.share.test.PSDataObjectTestUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class PSPathDataObjectsTests
-{
-    public static class PSPathItemTest extends PSDataObjectTestCase<PSPathItem> {
+/**
+ * Unit tests for path management data objects.
+ * Sunny Sal says: "Testing data objects is like checking your pizza dough—get it right, and the rest is easy!"
+ */
+public class PSPathDataObjectsTests {
 
+    public static class PSPathItemTest extends PSDataObjectTestCase<PSPathItem> {
         @Override
-        public PSPathItem getObject() throws Exception
-        {
-            PSPathItem pathItem = new PSPathItem();
+        public PSPathItem getObject() {
+            var pathItem = new PSPathItem();
             PSDataObjectTestUtils.fillObject(pathItem);
             pathItem.setCategory(IPSItemSummary.Category.PAGE);
-            pathItem.setFolderPaths(asList("blah","stuff"));
+            pathItem.setFolderPaths(asList("blah", "stuff"));
             return pathItem;
         }
-        
     }
-    
-    public static class PSItemSummaryTest extends PSDataObjectTestCase<PSDataItemSummary> {
 
-        
+    public static class PSItemSummaryTest extends PSDataObjectTestCase<PSDataItemSummary> {
         @Override
-        public PSDataItemSummary getObject() throws Exception
-        {
-            PSDataItemSummary sum = new PSDataItemSummary();
+        public PSDataItemSummary getObject() {
+            var sum = new PSDataItemSummary();
             sum.setIcon("/Rx/image/icon.gif");
             sum.setFolderPaths(asList("//Sites/aaa"));
             sum.setCategory(IPSItemSummary.Category.PAGE);
@@ -58,44 +55,36 @@ public class PSPathDataObjectsTests
             sum.setType("percPage");
             return sum;
         }
-    
     }
-    
-    public static class PSPathItemEmptyListTest extends PSDataObjectTestCase<PSPathItem> {
 
+    public static class PSPathItemEmptyListTest extends PSDataObjectTestCase<PSPathItem> {
         @Override
-        public PSPathItem getObject() throws Exception
-        {
-            PSPathItem pathItem = new PSPathItem();
+        public PSPathItem getObject() {
+            var pathItem = new PSPathItem();
             PSDataObjectTestUtils.fillObject(pathItem);
-            pathItem.setFolderPaths(new ArrayList<String>());
+            pathItem.setFolderPaths(new ArrayList<>());
             return pathItem;
         }
     }
-    
+
     public static class PSFolderPropertiesTest extends PSDataObjectTestCase<PSFolderProperties> {
-       
         @Override
-        public PSFolderProperties getObject() throws Exception
-        {
-            PSFolderProperties props = new PSFolderProperties();
+        public PSFolderProperties getObject() {
+            var props = new PSFolderProperties();
             props.setId("01-03-02");
             props.setName("Folder name");
             props.setPermission(createFolderPermission());
-            
             return props;
         }
-        
-        private PSFolderPermission createFolderPermission()
-        {
-            PSFolderPermission permission = new PSFolderPermission();
+
+        private PSFolderPermission createFolderPermission() {
+            var permission = new PSFolderPermission();
             permission.setAccessLevel(PSFolderPermission.Access.WRITE);
-            PSFolderPermission.Principal adminSub = new PSFolderPermission.Principal();
+            var adminSub = new PSFolderPermission.Principal();
             adminSub.setName("editor1");
             adminSub.setType(PSFolderPermission.PrincipalType.USER);
             permission.setAdminPrincipals(Collections.singletonList(adminSub));
             return permission;
         }
     }
-    
 }

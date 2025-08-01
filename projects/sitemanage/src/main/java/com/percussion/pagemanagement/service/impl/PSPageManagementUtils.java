@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.assetmanagement.data.PSAsset;
@@ -29,46 +30,29 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class PSPageManagementUtils
-{
+public class PSPageManagementUtils {
     private static final String CONTENT_ATTR_NAME = "content";
-    private final static String NAME_SEPARATOR = "-";
+    private static final String NAME_SEPARATOR = "-";
     public static final String TEMPLATE_NAME = "Template";
     public static final String PAGE_NAME = "Page";
     public static final String UNASSIGNED_WIDGET_NAME = "perc-unassigned.widget";
-    /**
-     * Takes name and appends count at the end if necessary. Uses a name
-     * separator.
-     * 
-     * @param name The initial name to which a number will be appended.
-     * @param count The number that will be appended at the end of the name.
-     * @return The new name, consisting of initial name, a separator and a count
-     *         modifier. Example: "New_Template-3".
-     */
-    public static String getNameForCount(String name, int count)
-    {
-        String nameForCount = name;
 
-        if (count != 0)
-        {
+    /**
+     * Takes name and appends count at the end if necessary. Uses a name separator.
+     */
+    public static String getNameForCount(String name, int count) {
+        var nameForCount = name;
+        if (count != 0) {
             nameForCount += NAME_SEPARATOR + count;
         }
-
         return nameForCount;
     }
 
     /**
-     * Create a Raw HTML widget item, and its corresponding asset, with the
-     * given widget slot id (or widget id). The asset is saved into the system.
-     * 
-     * @param slotid {@link String} with the widget id. May be blank.
-     * @return {@link PSPair}<{@link PSWidgetItem}, {@link PSAsset}> never
-     *         <code>null</code>, contains the widget item in the first place,
-     *         and the asset in the second place.
+     * Create a Raw HTML widget item, and its corresponding asset, with the given widget slot id (or widget id).
      */
-    public static PSWidgetItem createRawHtmlWidgetItem(String slotid)
-    {
-        PSWidgetItem widget = new PSWidgetItem();
+    public static PSWidgetItem createRawHtmlWidgetItem(String slotid) {
+        var widget = new PSWidgetItem();
         widget.setDefinitionId("percRawHtml");
         widget.setName(PSPageManagementUtils.UNASSIGNED_WIDGET_NAME);
         widget.setId(slotid);
@@ -76,63 +60,41 @@ public class PSPageManagementUtils
     }
 
     /**
-     * Extracts scripts after body start and before body end from the document
-     * body in memory and sets them to afterBodyStart and beforeBodyClose in
-     * pageContent. Removes title from the head of imported document in memory
-     * and updates headContent in pageContent.
-     * 
-     * @param pageContent Current page content in memory to process
-     * @param logger {@link IPSSiteImportLogger} to log the commented tags.
-     *            Assumed not <code>null</code>.
+     * Extracts scripts after body start and before body end from the document body in memory and sets them to afterBodyStart and beforeBodyClose in pageContent.
+     * Removes title from the head of imported document in memory and updates headContent in pageContent.
      */
-    public static void extractMetadata(PSPageContent pageContent, IPSSiteImportLogger logger)
-    {
-        String headContent = commentOutManagedTags(pageContent, logger);
+    public static void extractMetadata(PSPageContent pageContent, IPSSiteImportLogger logger) {
+        var headContent = commentOutManagedTags(pageContent, logger);
         pageContent.setHeadContent(StringEscapeUtils.unescapeHtml4(headContent));
 
-        Element docBody = pageContent.getSourceDocument().body();
-        Elements bodyElems = docBody.children();
+        var docBody = pageContent.getSourceDocument().body();
+        var bodyElems = docBody.children();
 
-        StringBuilder afterBodyStart = extractAfterBodyStartContent(bodyElems, logger);
-        StringBuilder beforeBodyClose = extractBeforeBodyClose(bodyElems, logger);
+        var afterBodyStart = extractAfterBodyStartContent(bodyElems, logger);
+        var beforeBodyClose = extractBeforeBodyClose(bodyElems, logger);
 
         pageContent.setAfterBodyStart(StringEscapeUtils.unescapeHtml4(afterBodyStart.toString()));
         pageContent.setBeforeBodyClose(StringEscapeUtils.unescapeHtml4(beforeBodyClose.toString()));
         pageContent.setBodyContent(StringEscapeUtils.unescapeHtml4(docBody.html()));
     }
 
-    /**
-     * Extracts the Before Body Close content from the body elements.
-     * 
-     * @param bodyElems {@link Elements} with the elements that belong to the
-     *            body. Assumed not <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to use. Assumed not
-     *            <code>null</code>.
-     * @return {@link StringBuilder}, never <code>null</code> but may be empty.
-     */
-    private static StringBuilder extractBeforeBodyClose(Elements bodyElems, IPSSiteImportLogger logger)
-    {
-        Elements beforeBodyCloseElems = new Elements();
-        for (int i = bodyElems.size(); i > 0; i--)
-        {
-            Element element = bodyElems.get(i - 1);
+    private static StringBuilder extractBeforeBodyClose(Elements bodyElems, IPSSiteImportLogger logger) {
+        var beforeBodyCloseElems = new Elements();
+        for (int i = bodyElems.size(); i > 0; i--) {
+            var element = bodyElems.get(i - 1);
             if (!element.tagName().equalsIgnoreCase("script"))
                 break;
             beforeBodyCloseElems.add(element);
         }
 
-        StringBuilder beforeBodyClose = new StringBuilder();
-        for (int j = beforeBodyCloseElems.size(); j > 0; j--)
-        {
-            Element element = beforeBodyCloseElems.get(j - 1);
+        var beforeBodyClose = new StringBuilder();
+        for (int j = beforeBodyCloseElems.size(); j > 0; j--) {
+            var element = beforeBodyCloseElems.get(j - 1);
 
-            if (PSManagedTagsUtils.isManagedJSReference(element))
-            {
+            if (PSManagedTagsUtils.isManagedJSReference(element)) {
                 beforeBodyClose.append(PSManagedTagsUtils.commentTagText(element.outerHtml()));
                 logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_JS_REFERENCE_FROM_BODY, element.toString());
-            }
-            else
-            {
+            } else {
                 beforeBodyClose.append(element.outerHtml());
             }
             element.remove();
@@ -140,59 +102,29 @@ public class PSPageManagementUtils
         return beforeBodyClose;
     }
 
-    /**
-     * Extracts the After Body Start Content from the body elements.
-     * 
-     * @param bodyElems {@link Elements} with the elements that belong to the
-     *            body. Assumed not <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to use. Assumed not
-     *            <code>null</code>.
-     * @return {@link StringBuilder}, never <code>null</code> but may be empty.
-     */
-    private static StringBuilder extractAfterBodyStartContent(Elements bodyElems, IPSSiteImportLogger logger)
-    {
-        StringBuilder afterBodyStart = new StringBuilder();
-        for (Element element : bodyElems)
-        {
+    private static StringBuilder extractAfterBodyStartContent(Elements bodyElems, IPSSiteImportLogger logger) {
+        var afterBodyStart = new StringBuilder();
+        for (var element : bodyElems) {
             if (!element.tagName().equalsIgnoreCase("script"))
                 break;
 
-            if (PSManagedTagsUtils.isManagedJSReference(element))
-            {
+            if (PSManagedTagsUtils.isManagedJSReference(element)) {
                 afterBodyStart.append(PSManagedTagsUtils.commentTagText(element.outerHtml()));
                 logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_JS_REFERENCE_FROM_BODY, element.toString());
-            }
-            else
-            {
+            } else {
                 afterBodyStart.append(element.outerHtml());
             }
             element.remove();
-
         }
         return afterBodyStart;
     }
 
-    /**
-     * Process the header element to comment out those tags that are managed by
-     * CMS.
-     * 
-     * @param pageContent The page content being modified.. Assumed not
-     *            <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to log the commented tags.
-     *            Assumed not <code>null</code>.
-     * @return {@link String} with the html code from the header element. Never
-     *         <code>null</code> but may be empty.
-     */
-    private static String commentOutManagedTags(PSPageContent pageContent, IPSSiteImportLogger logger)
-    {
-        Element docHead = pageContent.getSourceDocument().head();
-        
-        // first comment the title tag
-        for (Element title : docHead.select("title"))
-        {
-            logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_OUT_ELEMENT, title.toString());
+    private static String commentOutManagedTags(PSPageContent pageContent, IPSSiteImportLogger logger) {
+        var docHead = pageContent.getSourceDocument().head();
 
-            // this should only happen once
+        // first comment the title tag
+        for (var title : docHead.select("title")) {
+            logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_OUT_ELEMENT, title.toString());
             PSManagedTagsUtils.commentTag(docHead, title);
         }
 
@@ -201,48 +133,23 @@ public class PSPageManagementUtils
         return docHead.html();
     }
 
-    /**
-     * Comments out the managed js referenced from the element passed as
-     * parameter.
-     * 
-     * @param element {@link Element} to comment the references from. Assumed
-     *            not <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to append the message. Assumed
-     *            not <code>null</code>.
-     */
-    private static void commentManagedJSReferences(Element element, IPSSiteImportLogger logger)
-    {
-        Elements scriptTags = element.select("script");
-        for (Element scriptTag : scriptTags)
-        {
-            if (PSManagedTagsUtils.isManagedJSReference(scriptTag))
-            {
+    private static void commentManagedJSReferences(Element element, IPSSiteImportLogger logger) {
+        var scriptTags = element.select("script");
+        for (var scriptTag : scriptTags) {
+            if (PSManagedTagsUtils.isManagedJSReference(scriptTag)) {
                 logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_JS_REFERENCE_FROM_HEAD, scriptTag.toString());
                 PSManagedTagsUtils.commentTag(element, scriptTag);
             }
         }
     }
 
-    /**
-     * Comments out the managed metadata tags from the head element.
-     * 
-     * @param pageContent The page content being modified, assumed not <code>null</code>. 
-     * 
-     * @param docHead {@link Element} to comment the references from. Assumed
-     *            not <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to append the message. Assumed
-     *            not <code>null</code>.
-     */
-    private static void commentMetadataTags(PSPageContent pageContent, Element docHead, IPSSiteImportLogger logger)
-    {
-        Elements metaTags = docHead.select("meta");
-        for (Element metaTag : metaTags)
-        {
-            if (PSManagedTagsUtils.isManagedMetadataTag(metaTag))
-            {
+    private static void commentMetadataTags(PSPageContent pageContent, Element docHead, IPSSiteImportLogger logger) {
+        var metaTags = docHead.select("meta");
+        for (var metaTag : metaTags) {
+            if (PSManagedTagsUtils.isManagedMetadataTag(metaTag)) {
                 if (PSManagedTagsUtils.isDescriptionMetaTag(metaTag))
                     pageContent.setDescription(metaTag.attr(CONTENT_ATTR_NAME));
-                
+
                 logger.appendLogMessage(PSLogEntryType.STATUS, IPSImportHelper.COMMENTED_OUT_ELEMENT, metaTag.toString());
                 PSManagedTagsUtils.commentTag(docHead, metaTag);
             }

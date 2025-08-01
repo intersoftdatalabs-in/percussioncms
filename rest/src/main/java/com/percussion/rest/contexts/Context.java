@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,7 +18,6 @@
 
 package com.percussion.rest.contexts;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.percussion.rest.Guid;
 import com.percussion.rest.locationscheme.LocationScheme;
@@ -25,81 +25,122 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a publishing Context in Percussion CMS.
+ */
 @XmlRootElement(name = "Context")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents a publishing Context")
 public class Context {
 
-    @Schema(name = "id", description = "The unique identifier for the Context use string value to persist the id.")
+    @Schema(name = "id", description = "The unique identifier for the Context. Use string value to persist the id.")
     private Guid id;
 
-    @Schema(name="version", description="Ignored")
+    @Schema(name = "version", description = "Ignored")
     private Integer version;
 
-    @Schema(name="name", description="The unique name for the publishing Context",required=true)
-    private
-    String name;
+    @Schema(name = "name", description = "The unique name for the publishing Context", required = true)
+    private String name;
 
-    @Schema(name="description", description="Human friendly description for the publishing Context")
-    private
-    String description;
+    @Schema(name = "description", description = "Human-friendly description for the publishing Context")
+    private String description;
 
-    @Schema(name="defaultScheme", description="The default Location Scheme to use when publishing to this Context")
-    private
-    LocationScheme defaultScheme;
+    @Schema(name = "defaultScheme", description = "The default Location Scheme to use when publishing to this Context")
+    private LocationScheme defaultScheme;
 
-    @Schema(name="locationSchemes", description="The list of Location Schemes configured for this publishing Context")
-    private
-    List<LocationScheme> locationSchemes;
+    @Schema(name = "locationSchemes", description = "The list of Location Schemes configured for this publishing Context")
+    private List<LocationScheme> locationSchemes;
 
-    public Context(){}
+    public Context() {}
 
-    public Guid getId() {
-        return id;
+    public Context(Guid id, Integer version, String name, String description,
+                  LocationScheme defaultScheme, List<LocationScheme> locationSchemes) {
+        this.id = id;
+        this.version = version;
+        this.name = name;
+        this.description = description;
+        this.defaultScheme = defaultScheme;
+        this.locationSchemes = locationSchemes;
+    }
+
+    public Optional<Guid> getId() {
+        return Optional.ofNullable(id);
     }
 
     public void setId(Guid id) {
         this.id = id;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Optional<Integer> getVersion() {
+        return Optional.ofNullable(version);
     }
 
     public void setVersion(Integer version) {
         this.version = version;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public LocationScheme getDefaultScheme() {
-        return defaultScheme;
+    public Optional<LocationScheme> getDefaultScheme() {
+        return Optional.ofNullable(defaultScheme);
     }
 
     public void setDefaultScheme(LocationScheme defaultScheme) {
         this.defaultScheme = defaultScheme;
     }
 
-    public List<LocationScheme> getLocationSchemes() {
-        return locationSchemes;
+    public Optional<List<LocationScheme>> getLocationSchemes() {
+        return Optional.ofNullable(locationSchemes);
     }
 
     public void setLocationSchemes(List<LocationScheme> locationSchemes) {
         this.locationSchemes = locationSchemes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Context)) return false;
+        var that = (Context) o;
+        return Objects.equals(id, that.id)
+                && Objects.equals(version, that.version)
+                && Objects.equals(name, that.name)
+                && Objects.equals(description, that.description)
+                && Objects.equals(defaultScheme, that.defaultScheme)
+                && Objects.equals(locationSchemes, that.locationSchemes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, version, name, description, defaultScheme, locationSchemes);
+    }
+
+    @Override
+    public String toString() {
+        return "Context{" +
+                "id=" + id +
+                ", version=" + version +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", defaultScheme=" + defaultScheme +
+                ", locationSchemes=" + locationSchemes +
+                '}';
     }
 }

@@ -47,26 +47,26 @@ public class PSContentMgrTest extends ServletTestCase
     */
    public void testPropertyDefinitions() throws Exception
    {
-      IPSContentMgr cmgr = PSContentMgrLocator.getContentMgr();
-      
+      var cmgr = PSContentMgrLocator.getContentMgr();
+
       // Test that a definition contains unmapped system fields in the
       // property definition
-      List<IPSNodeDefinition> defs = cmgr
+      var defs = cmgr
          .loadNodeDefinitions(Collections.singletonList((IPSGuid)
                new PSGuid(PSTypeEnum.NODEDEF, 311)));
-      NodeDefinition def = defs.get(0); 
-      NodeType type = def.getDefaultPrimaryType();
-      PropertyDefinition props[] = type.getPropertyDefinitions();
-      Set<String> names = new HashSet<String>();
-      for(PropertyDefinition prop : props)
+      var def = defs.get(0);
+      var type = def.getDefaultPrimaryType();
+      var props = type.getPropertyDefinitions();
+      var names = new HashSet<String>();
+      for(var prop : props)
       {
          assertNotNull(prop.getName());
          assertNotNull(prop.getDeclaringNodeType());
          assertEquals(type, prop.getDeclaringNodeType());
          names.add(prop.getName());
       }
-      IPSContentRepository rep = PSContentInternalLocator.getLegacyRepository();
-      for(String name : rep.getUnmappedSystemFields())
+      var rep = PSContentInternalLocator.getLegacyRepository();
+      for(var name : rep.getUnmappedSystemFields())
       {
          assertTrue(names.contains(name));   
       }

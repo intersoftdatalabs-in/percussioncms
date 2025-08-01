@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,13 +22,14 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSIntegrityStatus objects.
+ */
 @XmlRootElement(name = "integritystatus")
-@ArraySchema(schema=@Schema(implementation = PSIntegrityStatus.class))
-public class PSIntegrityStatusList extends ArrayList<PSIntegrityStatus> {
+@ArraySchema(schema = @Schema(implementation = PSIntegrityStatus.class))
+public class PSIntegrityStatusList extends java.util.ArrayList<PSIntegrityStatus> {
     public PSIntegrityStatusList(Collection<? extends PSIntegrityStatus> c) {
         super(c);
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
 import static org.junit.Assert.*;
@@ -21,6 +22,8 @@ import static org.junit.Assert.*;
 import java.beans.PropertyDescriptor;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -32,79 +35,68 @@ import com.percussion.share.dao.PSSerializerUtils;
  * @author adamgent
  *
  */
-public class PSDataObjectTestUtils
-{
-    
+public class PSDataObjectTestUtils {
+
     public static class DataObjectXmlTestResults<T> {
         public String expectedXml;
         public String actualXml;
         public T original;
         public T actualSerialized;
-        
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <T> DataObjectXmlTestResults<T> doXmlSerialization(T object) {
-        String s = PSSerializerUtils.marshal(object);
-        Class<T> klass = (Class<T>) object.getClass();
-        T copy = PSSerializerUtils.unmarshal(s, klass);
-        String sCopy = PSSerializerUtils.marshal(copy);
-        
-        DataObjectXmlTestResults<T> r = new DataObjectXmlTestResults<T>();
+        var s = PSSerializerUtils.marshal(object);
+        var klass = (Class<T>) object.getClass();
+        var copy = PSSerializerUtils.unmarshal(s, klass);
+        var sCopy = PSSerializerUtils.marshal(copy);
+
+        var r = new DataObjectXmlTestResults<T>();
         r.original = object;
         r.actualSerialized = copy;
         r.expectedXml = s;
         r.actualXml = sCopy;
-        
+
         return r;
     }
-    
+
     public static <T> void assertXmlSerialization(T object) {
-        DataObjectXmlTestResults<T> r = doXmlSerialization(object);
+        var r = doXmlSerialization(object);
         assertEquals("Expected Xml serialization to be the same", r.expectedXml, r.actualXml);
     }
-    
+
     public static <T> void assertEqualsMethod(T object) {
-        DataObjectXmlTestResults<T> r = doXmlSerialization(object);
+        var r = doXmlSerialization(object);
         assertEquals("Expected serialized object to be equal", r.original, r.actualSerialized);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <T> void fillObject(T bean) {
-        Map<String, String> props = getPropertiesOfType(bean, String.class);
-        for(String prop : props.keySet()) {
-            if (props.get(prop) == null) {
-                props.put(prop, "test");
-            }
-        }
+        var props = getPropertiesOfType(bean, String.class);
+        props.replaceAll((k, v) -> v == null ? "test" : v);
         try {
-            Map<String, String> map = BeanUtils.describe(bean);
+            var map = BeanUtils.describe(bean);
             map.putAll(props);
             BeanUtils.populate(bean, props);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
-    public static <T,P> Map<String, P> getPropertiesOfType(T bean, Class<P> pt) {
-        try
-        {
-            PropertyDescriptor[] props = PropertyUtils.getPropertyDescriptors(bean);
-            Map<String, String> map = BeanUtils.describe(bean);
-            Map<String, P> defaults = new HashMap<String, P>();
-            for(PropertyDescriptor pd : props) {
-                if (pt.equals(pd.getPropertyType()) ) {
-                    defaults.put(pd.getName(), (P) map.get(pd.getName()));
-                }
-            }        
-            return defaults;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T, P> Map<String, P> getPropertiesOfType(T bean, Class<P> pt) {
+        try {
+            var props = PropertyUtils.getPropertyDescriptors(bean);
+            var map = BeanUtils.describe(bean);
+            var defaults = new HashMap<String, P>();
+            for (var pd : props) {
+                if (pt.equals(pd.getPropertyType())) {
+                    defaults.put(pd.getName(), (P) map.get(pd.getName()));
+                }
+            }
+            return defaults;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

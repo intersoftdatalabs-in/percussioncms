@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,35 +20,37 @@
 package com.percussion.search;
 
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
-public class PSSearchIndexEventQueueTest extends ServletTestCase
-{
-   public void testPause() throws Exception
-   {
-      PSSearchIndexEventQueue eventQueue = PSSearchIndexEventQueue.getInstance();
-      
-      try
-      {
-         assertEquals("Running", eventQueue.getStatus());
-         
-         eventQueue.clearQueues();
-         
-         eventQueue.pause();
-         assertEquals("Paused", eventQueue.getStatus());
-         assertEquals(0, eventQueue.size());
-         eventQueue.queueEvent(new PSSearchEditorChangeEvent(PSSearchEditorChangeEvent.ACTION_DELETE, 999999, 1, 310, true));
-         assertEquals(1, eventQueue.size());
-         Thread.sleep(3000);
-         assertEquals(1, eventQueue.size());
-           
-      }
-      finally
-      {
-         eventQueue.resume();
-      }
-      assertEquals("Running", eventQueue.getStatus());
-   }
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Integration test for {@link PSSearchIndexEventQueue}.
+ */
+@Tag("IntegrationTest")
+public class PSSearchIndexEventQueueTest {
+
+    @Test
+    public void testPause() throws Exception {
+        var eventQueue = PSSearchIndexEventQueue.getInstance();
+
+        try {
+            assertEquals("Running", eventQueue.getStatus());
+
+            eventQueue.clearQueues();
+
+            eventQueue.pause();
+            assertEquals("Paused", eventQueue.getStatus());
+            assertEquals(0, eventQueue.size());
+            eventQueue.queueEvent(new PSSearchEditorChangeEvent(
+                    PSSearchEditorChangeEvent.ACTION_DELETE, 999999, 1, 310, true));
+            assertEquals(1, eventQueue.size());
+            Thread.sleep(3000);
+            assertEquals(1, eventQueue.size());
+        } finally {
+            eventQueue.resume();
+        }
+        assertEquals("Running", eventQueue.getStatus());
+    }
 }

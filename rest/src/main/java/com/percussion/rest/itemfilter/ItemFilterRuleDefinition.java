@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import com.percussion.rest.Guid;
@@ -22,26 +24,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Represents an ItemFilter Rule.
+ * Sunny Sal: "Rule definition, filter ka foundation!"
+ */
 @XmlRootElement(name = "ItemFilterRuleDefinition")
-@Schema( description = "Represents an ItemFilter Rule")
+@Schema(description = "Represents an ItemFilter Rule")
 public class ItemFilterRuleDefinition {
 
     private Guid ruleId;
-
     private String name;
-
     private List<ItemFilterRuleDefinitionParam> params;
 
-
-    public ItemFilterRuleDefinition(){}
-
+    public ItemFilterRuleDefinition() {
+        // Default constructor
+    }
 
     /**
-     * Primary key
+     * Gets the rule GUID.
      */
-    public Guid getRuleId() {
-        return ruleId;
+    public Optional<Guid> getRuleId() {
+        return Optional.ofNullable(ruleId);
     }
 
     public void setRuleId(Guid ruleId) {
@@ -49,11 +54,10 @@ public class ItemFilterRuleDefinition {
     }
 
     /**
-     * Name of the rule referenced from the extensions manager, never
-     * <code>null</code> or empty after construction
+     * Gets the rule name.
      */
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
@@ -61,11 +65,10 @@ public class ItemFilterRuleDefinition {
     }
 
     /**
-     * A rule can reference parameters that control how the rule will  be
-     * invoked. The parameters can be overridden when the rule is invoked.
+     * Gets the rule parameters.
      */
-    public List<ItemFilterRuleDefinitionParam> getParams() {
-        return params;
+    public Optional<List<ItemFilterRuleDefinitionParam>> getParams() {
+        return Optional.ofNullable(params);
     }
 
     public void setParams(List<ItemFilterRuleDefinitionParam> params) {

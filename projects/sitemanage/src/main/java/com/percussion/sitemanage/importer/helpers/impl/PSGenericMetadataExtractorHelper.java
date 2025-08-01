@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -38,47 +39,41 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * @author Santiago M. Murchio
- *
+ * Abstract helper for extracting and applying metadata during site import.
+ * Sunny Sal says: "Meta-data is like salt—don't forget to sprinkle it!"
  */
-public abstract class PSGenericMetadataExtractorHelper extends PSImportHelper
-{
+public abstract class PSGenericMetadataExtractorHelper extends PSImportHelper {
 
     public static final Logger log = LogManager.getLogger(PSGenericMetadataExtractorHelper.class);
-    
-    protected static final String ADD_HTML_WIDGET = "Add HTML Widget to Template";
 
+    protected static final String ADD_HTML_WIDGET = "Add HTML Widget to Template";
     protected static final String EXTRACT_METADATA = "Extract Metadata";
 
     protected IPSTemplateService templateService;
-    
 
-    public PSGenericMetadataExtractorHelper(IPSTemplateService templateService)
-    {
+    public PSGenericMetadataExtractorHelper(IPSTemplateService templateService) {
         this.templateService = templateService;
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.IPSImportHelper#process(com.percussion.sitemanage.data.PSPageContent, com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
+
     @Override
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException
-    {
+    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException {
         startTimer();
         doExtractMetaData(pageContent, context);
         endTimer();
     }
-    
-    
-    public void doExtractMetaData(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException
-    {
-        if(context.isCanceled())
-        {
+
+    /**
+     * Extracts metadata from the page content and applies it to the target item.
+     *
+     * @param pageContent The page content to extract metadata from.
+     * @param context     The import context.
+     * @throws PSSiteImportException if extraction fails.
+     */
+    public void doExtractMetaData(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException {
+        if (context.isCanceled()) {
             return;
         }
-
-        try
-        {
+        try {
             notNull(context.getSite());
             notNull(pageContent.getSourceDocument());
 
@@ -86,86 +81,84 @@ public abstract class PSGenericMetadataExtractorHelper extends PSImportHelper
                     "Beginning to extract metadata.");
 
             PSPageManagementUtils.extractMetadata(pageContent, context.getLogger());
-            
-            if (isBlank(pageContent.getTitle()))
-            {
+
+            if (isBlank(pageContent.getTitle())) {
                 context.getLogger().appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
                         "No title could be extracted from the page.");
             }
 
-            IPSHtmlMetadata targetItem = getTargetItem(context);
+            var targetItem = getTargetItem(context);
             setMetadataToTargetItem(pageContent, context.getLogger(), targetItem);
             saveTargetItem(targetItem);
-            
+
             addHtmlWidgetToTemplate(context);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             context.getLogger().appendLogMessage(PSLogEntryType.ERROR, EXTRACT_METADATA, "Page metadata could not be extracted.");
             context.getLogger().appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
                     "Page metadata could not be extracted: " + e.getMessage());
             log.error("Error extracting metadata while importing a page", e);
         }
     }
-    
+
     @Override
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
-    {
+    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * @param targetItem
+     * Saves the target item after metadata extraction.
+     *
+     * @param targetItem The item to save.
      */
-    protected abstract void saveTargetItem(IPSHtmlMetadata targetItem) throws PSDataServiceException, IPSItemWorkflowService.PSItemWorkflowServiceException;
+    protected abstract void saveTargetItem(IPSHtmlMetadata targetItem)
+            throws PSDataServiceException, IPSItemWorkflowService.PSItemWorkflowServiceException;
 
     /**
-     * @param context
+     * Adds an HTML widget to the template if needed.
+     *
+     * @param context The import context.
      */
-    protected abstract void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException, PSSiteImportException;
+    protected abstract void addHtmlWidgetToTemplate(PSSiteImportCtx context)
+            throws PSDataServiceException, PSSiteImportException;
 
     /**
-     * @param context
-     * @return
+     * Gets the target item for metadata application.
+     *
+     * @param context The import context.
+     * @return The target item.
      */
     protected abstract IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws PSDataServiceException;
 
-
     /**
-     * Set the meta-data from the page content to the target item
-     * 
-     * @param pageContent not <code>null</code>
-     * @param logger not <code>null</code>
-     * @param targetItem not <code>null</code>
+     * Sets the meta-data from the page content to the target item.
+     *
+     * @param pageContent not null
+     * @param logger      not null
+     * @param targetItem  not null
      */
     protected void setMetadataToTargetItem(PSPageContent pageContent, IPSSiteImportLogger logger,
-            IPSHtmlMetadata targetItem)
-    {
+            IPSHtmlMetadata targetItem) {
         notNull(pageContent);
         notNull(logger);
         notNull(targetItem);
-        
+
         // Update template's metadata with pageContent extracted metadata
-        if (isBlank(pageContent.getHeadContent()))
-        {
+        if (isBlank(pageContent.getHeadContent())) {
             logger.appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
                     "No head content was extracted from the page.");
         }
         targetItem.setAdditionalHeadContent(pageContent.getHeadContent());
 
-        if (isBlank(pageContent.getAfterBodyStart()))
-        {
+        if (isBlank(pageContent.getAfterBodyStart())) {
             logger.appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
                     "No script content after body start was extracted from the page.");
         }
         targetItem.setAfterBodyStartContent(pageContent.getAfterBodyStart());
 
-        if (isBlank(pageContent.getBeforeBodyClose()))
-        {
+        if (isBlank(pageContent.getBeforeBodyClose())) {
             logger.appendLogMessage(PSLogEntryType.STATUS, EXTRACT_METADATA,
                     "No script content before body close was extracted from the page.");
         }
-        targetItem.setBeforeBodyCloseContent(pageContent.getBeforeBodyClose());        
+        targetItem.setBeforeBodyCloseContent(pageContent.getBeforeBodyClose());
     }
-
 }

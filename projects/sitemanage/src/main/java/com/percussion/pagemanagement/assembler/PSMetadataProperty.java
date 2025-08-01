@@ -14,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * 
- */
 package com.percussion.pagemanagement.assembler;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,83 +28,54 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Optional;
 
 /**
- * @author davidpardini
- * 
+ * Represents a metadata property with a name, type, and value.
  */
-public class PSMetadataProperty
-{
+public class PSMetadataProperty {
 
     private PropertyId id;
-
     private VALUETYPE valuetype;
-
     private String stringvalue;
-
     private String textvalue;
-
     private Date datevalue;
-
     private Double numbervalue;
 
-    private PSMetadataProperty()
-    {
-
+    private PSMetadataProperty() {
+        // For JPA/Hibernate
     }
 
-    /**
-     * Ctor to create a property of the specified valuetype.
-     * 
-     * @param name the property name, cannot be <code>null</code> or empty.
-     * @param type the {@link #valuetype} for the property. Cannot be
-     *            <code>null</code>.
-     * @param value the value to be stored in the property. May be
-     *            <code>null</code> or empty.
-     */
-    public PSMetadataProperty(String name, VALUETYPE type, Object value)
-    {
+    public PSMetadataProperty(String name, VALUETYPE type, Object value) {
         this();
-
-        if (name == null || name.length() == 0) {
+        if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("name cannot be null or empty.");
         }
         if (type == null) {
             throw new IllegalArgumentException("type cannot be null.");
         }
-        this.setName(name);
+        setName(name);
         boolean nan = true;
-        if (type == VALUETYPE.DATE)
-        {
+        if (type == VALUETYPE.DATE) {
             if (!(value instanceof Date)) {
                 throw new IllegalArgumentException(
                         "Value type 'Date' was specified but the passed in value is not a date object.");
             }
             setDatevalue((Date) value);
-        }
-        else if (type == VALUETYPE.NUMBER)
-        {
+        } else if (type == VALUETYPE.NUMBER) {
             Double d = null;
-            if (value instanceof Integer || value instanceof Float || value instanceof Long || value instanceof Short)
-            {
-                d = new Double(value.toString());
+            if (value instanceof Integer || value instanceof Float || value instanceof Long || value instanceof Short) {
+                d = Double.valueOf(value.toString());
                 nan = false;
-            }
-            else if (value instanceof Double)
-            {
+            } else if (value instanceof Double) {
                 d = (Double) value;
                 nan = false;
-            }
-            else if (value instanceof String)
-            {
-                try
-                {
+            } else if (value instanceof String) {
+                try {
                     d = Double.parseDouble(value.toString());
                     nan = false;
-                }
-                catch (NumberFormatException ignore)
-                {
-
+                } catch (NumberFormatException ignore) {
+                    // Ignore parse error
                 }
             }
             if (nan) {
@@ -116,14 +83,10 @@ public class PSMetadataProperty
                         "The valuetype specified is 'NUMBER', but the passed in value is not a number.");
             }
             setNumbervalue(d);
-        }
-        else if (type == VALUETYPE.TEXT)
-        {
+        } else if (type == VALUETYPE.TEXT) {
             String val = value.toString();
             setTextvalue(val);
-        }
-        else if (type == VALUETYPE.STRING)
-        {
+        } else if (type == VALUETYPE.STRING) {
             String val = value.toString();
             if (val.length() > 4000) {
                 throw new IllegalArgumentException(
@@ -133,332 +96,158 @@ public class PSMetadataProperty
         }
     }
 
-    /**
-     * Convenience ctor to create a string value type property.
-     * 
-     * @param name cannot be <code>null</code> or empty.
-     * @param value the value, may be <code>null</code>.
-     */
-    public PSMetadataProperty(String name, String value)
-    {
+    public PSMetadataProperty(String name, String value) {
         this(name, VALUETYPE.STRING, value);
     }
 
-    /**
-     * Convenience ctor to create a number value type property from an int
-     * value.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value
-     */
-    public PSMetadataProperty(String name, int value)
-    {
+    public PSMetadataProperty(String name, int value) {
         this(name, VALUETYPE.NUMBER, value);
     }
 
-    /**
-     * Convenience ctor to create a number value type property from a double
-     * value.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value
-     */
-    public PSMetadataProperty(String name, double value)
-    {
+    public PSMetadataProperty(String name, double value) {
         this(name, VALUETYPE.NUMBER, value);
     }
 
-    /**
-     * Convenience ctor to create a number value type property from a float
-     * value.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value
-     */
-    public PSMetadataProperty(String name, float value)
-    {
+    public PSMetadataProperty(String name, float value) {
         this(name, VALUETYPE.NUMBER, value);
     }
 
-    /**
-     * Convenience ctor to create a number value type property from a long
-     * value.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value
-     */
-    public PSMetadataProperty(String name, long value)
-    {
+    public PSMetadataProperty(String name, long value) {
         this(name, VALUETYPE.NUMBER, value);
     }
 
-    /**
-     * Convenience ctor to create a number value type property from a short
-     * value.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value
-     */
-    public PSMetadataProperty(String name, short value)
-    {
+    public PSMetadataProperty(String name, short value) {
         this(name, VALUETYPE.NUMBER, value);
     }
 
-    /**
-     * Convenience ctor to create a Date value type property.
-     * 
-     * @param name name cannot be <code>null</code> or empty.
-     * @param value may be <code>null</code>.
-     */
-    public PSMetadataProperty(String name, Date value)
-    {
+    public PSMetadataProperty(String name, Date value) {
         this(name, VALUETYPE.DATE, value);
     }
 
-    /**
-     * @return the id
-     */
-    public PropertyId getId()
-    {
+    public PropertyId getId() {
         return id;
     }
 
-    /**
-     * @param id the id to set
-     */
-    public void setId(PropertyId id)
-    {
+    public void setId(PropertyId id) {
         this.id = id;
     }
 
-    /**
-     * @return the metadataEntry
-     */
-    public PSMetadataEntry getMetadataEntry()
-    {
-        if (id != null) {
-            return id.getMetadataEntry();
-        }
-
-        return null;
+    public PSMetadataEntry getMetadataEntry() {
+        return Optional.ofNullable(id).map(PropertyId::getMetadataEntry).orElse(null);
     }
 
-    /**
-     * @param metadataEntry the metadataEntry to set
-     */
-    public void setMetadataEntry(PSMetadataEntry metadataEntry)
-    {
+    public void setMetadataEntry(PSMetadataEntry metadataEntry) {
         createIdIfNull();
         id.setMetadataEntry(metadataEntry);
     }
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        if (id != null) {
-            return id.getName();
-        }
-
-        return null;
+    public String getName() {
+        return Optional.ofNullable(id).map(PropertyId::getName).orElse(null);
     }
 
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         createIdIfNull();
         id.setName(name);
     }
 
-    public String getHash()
-    {
-        if (id != null) {
-            return id.getValueHash();
-        }
-
-        return null;
+    public String getHash() {
+        return Optional.ofNullable(id).map(PropertyId::getValueHash).orElse(null);
     }
 
-    /**
-     * @return the valuetype
-     */
-    public VALUETYPE getValuetype()
-    {
+    public VALUETYPE getValuetype() {
         return valuetype;
     }
 
-    /**
-     * @param valuetype the valuetype to set
-     */
-    public void setValuetype(VALUETYPE valuetype)
-    {
+    public void setValuetype(VALUETYPE valuetype) {
         this.valuetype = valuetype;
     }
 
     /**
      * Returns the untyped value.
-     * 
-     * @return May be <code>null</code>.
+     * @return May be null.
      */
-    public Object getValue()
-    {
-        Object result = null;
-        switch (getValuetype())
-        {
-            case STRING :
-                result = getStringvalue();
-                break;
-
-            case TEXT :
-                result = getTextvalue();
-                break;
-
-            case DATE :
-                result = getDatevalue();
-                break;
-
-            case NUMBER :
-                result = getNumbervalue();
-                break;
-        }
-
-        return result;
+    public Object getValue() {
+        return switch (getValuetype()) {
+            case STRING -> getStringvalue();
+            case TEXT -> getTextvalue();
+            case DATE -> getDatevalue();
+            case NUMBER -> getNumbervalue();
+        };
     }
 
-    /**
-     * @return the stringvalue
-     */
-    public String getStringvalue()
-    {
+    public String getStringvalue() {
         if (valuetype == VALUETYPE.STRING) {
             return stringvalue;
         }
         if (valuetype == VALUETYPE.TEXT) {
             return textvalue;
         }
-        if (valuetype == VALUETYPE.DATE)
-        {
-            return datevalue.toString();
+        if (valuetype == VALUETYPE.DATE) {
+            return datevalue != null ? datevalue.toString() : "";
         }
-        if (valuetype == VALUETYPE.NUMBER)
-        {
-            return numbervalue.toString();
+        if (valuetype == VALUETYPE.NUMBER) {
+            return numbervalue != null ? numbervalue.toString() : "";
         }
         return "";
     }
 
-    /**
-     * @param stringvalue the stringvalue to set
-     */
-    public void setStringvalue(String stringvalue)
-    {
+    public void setStringvalue(String stringvalue) {
         this.valuetype = VALUETYPE.STRING;
         this.stringvalue = stringvalue;
-
         id.calculateHash(this.stringvalue);
     }
 
-    /**
-     * @return the textvalue
-     */
-    public String getTextvalue()
-    {
+    public String getTextvalue() {
         return textvalue;
     }
 
-    /**
-     * @param textvalue the textvalue to set
-     */
-    public void setTextvalue(String textvalue)
-    {
+    public void setTextvalue(String textvalue) {
         this.valuetype = VALUETYPE.TEXT;
         this.textvalue = textvalue;
-
         id.calculateHash(this.textvalue);
     }
 
-    /**
-     * @return the datevalue
-     */
-    public Date getDatevalue()
-    {
+    public Date getDatevalue() {
         return datevalue;
     }
 
-    /**
-     * @param datevalue the datevalue to set
-     */
-    public void setDatevalue(Date datevalue)
-    {
+    public void setDatevalue(Date datevalue) {
         this.valuetype = VALUETYPE.DATE;
         this.datevalue = datevalue;
-
         id.calculateHash(this.datevalue);
     }
 
-    /**
-     * @return the numbervalue
-     */
-    public Double getNumbervalue()
-    {
+    public Double getNumbervalue() {
         return numbervalue;
     }
 
-    /**
-     * @param numbervalue the numbervalue to set
-     */
-    public void setNumbervalue(Double numbervalue)
-    {
+    public void setNumbervalue(Double numbervalue) {
         this.valuetype = VALUETYPE.NUMBER;
         this.numbervalue = numbervalue;
-
         id.calculateHash(this.numbervalue);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (!(obj instanceof PSMetadataProperty) || obj == null) {
             return false;
         }
-
-        PSMetadataProperty other = (PSMetadataProperty) obj;
-
+        var other = (PSMetadataProperty) obj;
         if (this.id == null || other.id == null) {
             return false;
         }
-
         return this.id.equals(other.id);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
-    public int hashCode()
-    {
-        if (this.id != null) {
-            return this.id.hashCode();
-        }
-
-        return 0;
+    public int hashCode() {
+        return Optional.ofNullable(this.id).map(Object::hashCode).orElse(0);
     }
 
     /**
      * Creates a new PropertyId if the current is null.
      */
-    private void createIdIfNull()
-    {
+    private void createIdIfNull() {
         if (id == null) {
             id = new PropertyId();
         }
@@ -470,187 +259,115 @@ public class PSMetadataProperty
 }
 
 /**
- * Class that represents a composite key for PSMetadataProperty. The composite
- * key for a metadata property consists in a metadata entry (which the property
- * belongs to) and the property name.
- * 
- * @author davidpardini
- * 
+ * Class that represents a composite key for PSMetadataProperty.
+ * The composite key for a metadata property consists of a metadata entry (which the property belongs to)
+ * and the property name.
  */
 @Embeddable
-class PropertyId implements Serializable
-{
+class PropertyId implements Serializable {
 
-    /**
-     * HashCalculator instance used to get the hash of the metadata property's
-     * value.
-     */
-    private static HashCalculator hashCalculator = new HashCalculator();
+    private static final HashCalculator hashCalculator = new HashCalculator();
 
-    /**
-     * Metadata entry that owns the property.
-     */
     @ManyToOne
     @JoinColumns(@JoinColumn(name = "ENTRY_ID", referencedColumnName = "pagePath"))
     private PSMetadataEntry metadataEntry;
 
-    /**
-     * Property name. For example: dcterms:creator
-     */
     @Column(nullable = false, length = 100)
     private String name;
 
     @Column(name = "VALUE_HASH", nullable = false, length = 40)
     private String valueHash;
 
-    /**
-     * @return the metadataEntry
-     */
-    public PSMetadataEntry getMetadataEntry()
-    {
+    public PSMetadataEntry getMetadataEntry() {
         return metadataEntry;
     }
 
-    /**
-     * @param metadataEntry the metadataEntry to set
-     */
-    public void setMetadataEntry(PSMetadataEntry metadataEntry)
-    {
+    public void setMetadataEntry(PSMetadataEntry metadataEntry) {
         this.metadataEntry = metadataEntry;
     }
 
-    /**
-     * @return the propertyName
-     */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    /**
-     * @param propertyName the propertyName to set
-     */
-    public void setName(String name)
-    {
-        if (StringUtils.isEmpty(name)) {
-            this.name = null;
-        }
-        else {
-            this.name = name;
-        }
+    public void setName(String name) {
+        this.name = StringUtils.isEmpty(name) ? null : name;
     }
 
-    /**
-     * @return the hash over the metadata property's value.
-     */
-    public String getValueHash()
-    {
+    public String getValueHash() {
         return valueHash;
     }
 
     /**
-     * Calculates the hash of the given value, using HashCalculator. If the
-     * parameter is null, then the hash is calculated over an empty string. If
-     * not, the hash is calculated over the result of 'toString' method on the
-     * parameter.
+     * Calculates the hash of the given value, using HashCalculator.
+     * If the parameter is null, then the hash is calculated over an empty string.
+     * Otherwise, the hash is calculated over the result of 'toString' method on the parameter.
      */
-    public void calculateHash(Object value)
-    {
-        if (value == null) {
-            valueHash = hashCalculator.calculateHash(StringUtils.EMPTY);
-        }
-        else {
-            valueHash = hashCalculator.calculateHash(value.toString());
-        }
+    public void calculateHash(Object value) {
+        valueHash = hashCalculator.calculateHash(value == null ? StringUtils.EMPTY : value.toString());
     }
 
     @Override
-    public int hashCode()
-    {
-        int pagePathHashCode = (metadataEntry != null && metadataEntry.getPagepath() != null) ? metadataEntry
-                .getPagepath().hashCode() : 0;
+    public int hashCode() {
+        int pagePathHashCode = (metadataEntry != null && metadataEntry.getPagepath() != null)
+                ? metadataEntry.getPagepath().hashCode() : 0;
         int propertyNameHashCode = name != null ? name.hashCode() : 0;
         int hashCode = valueHash != null ? valueHash.hashCode() : 0;
-
         return pagePathHashCode + propertyNameHashCode + hashCode;
     }
 
     @Override
-    public boolean equals(Object obj)
-    {
+    public boolean equals(Object obj) {
         if (!(obj instanceof PropertyId) || obj == null) {
             return false;
         }
-
-        PropertyId other = (PropertyId) obj;
-
+        var other = (PropertyId) obj;
         if (this.metadataEntry == null || other.metadataEntry == null) {
             return false;
         }
-
         return StringUtils.equals(this.metadataEntry.getPagepath(), other.metadataEntry.getPagepath())
-                && StringUtils.equals(this.name, other.name) && StringUtils.equals(this.valueHash, other.valueHash);
+                && StringUtils.equals(this.name, other.name)
+                && StringUtils.equals(this.valueHash, other.valueHash);
     }
 }
 
 /**
- * Responsible for calculating a hash over a value. It uses SHA-1 by default and
- * UTF-8 to convert the string value.
- * 
- * @author davidpardini
- * 
+ * Responsible for calculating a hash over a value.
+ * It uses SHA-256 by default and UTF-8 to convert the string value.
  */
-class HashCalculator
-{
+class HashCalculator {
     private static final String HEXES = "0123456789ABCDEF";
-
     private static final String HASH_ALGORITHM = "SHA-256";
-
     private static final String CONTENT_ENCODING = "UTF-8";
-
     private MessageDigest digest;
 
-    public HashCalculator()
-    {
-        try
-        {
+    public HashCalculator() {
+        try {
             digest = MessageDigest.getInstance(HASH_ALGORITHM);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
+        } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public String calculateHash(String value)
-    {
+    public String calculateHash(String value) {
         digest.reset();
-        byte[] hashResult = null;
-
-        try
-        {
+        byte[] hashResult;
+        try {
             hashResult = digest.digest(value.getBytes(CONTENT_ENCODING));
             return getHex(hashResult);
-        }
-        catch (UnsupportedEncodingException e)
-        {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private String getHex(byte[] raw)
-    {
+    private String getHex(byte[] raw) {
         if (raw == null) {
             return null;
         }
-
         final StringBuilder hex = new StringBuilder(2 * raw.length);
-
-        for (final byte b : raw)
-        {
+        for (final byte b : raw) {
             hex.append(HEXES.charAt((b & 0xF0) >> 4)).append(HEXES.charAt((b & 0x0F)));
         }
-
         return hex.toString();
     }
 }

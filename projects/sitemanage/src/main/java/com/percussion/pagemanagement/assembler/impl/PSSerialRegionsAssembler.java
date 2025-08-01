@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -42,22 +43,17 @@ import static com.percussion.util.IPSHtmlParameters.SYS_OVERWRITE_PREVIEW_URL_GE
  * A non-concurrent batch regions assembler.
  * The regions will be assembled in order and with the same
  * thread as the caller.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
 @PSSiteManageBean
-public class PSSerialRegionsAssembler implements IPSRegionsAssembler
-{
+public class PSSerialRegionsAssembler implements IPSRegionsAssembler {
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-
+    // The log instance to use for this class, never <code>null</code>.
     private static final Logger log = LogManager.getLogger(PSSerialRegionsAssembler.class);
 
     public PSSerialRegionsAssembler() {
-
+        // Default constructor
     }
 
     /**
@@ -65,45 +61,40 @@ public class PSSerialRegionsAssembler implements IPSRegionsAssembler
      */
     @Override
     public void assembleRegions(
-            IPSRegionAssembler regionAssembler, 
+            IPSRegionAssembler regionAssembler,
             IPSAssemblyItem assemblyItem,
-            PSPageAssemblyContext context, 
-            Collection<PSMergedRegion> mergedRegions) throws IPSTemplateService.PSTemplateException, PSAssemblyException {
-        // hack pulled in from PSConcurrentRegionsAssembler
+            PSPageAssemblyContext context,
+            Collection<PSMergedRegion> mergedRegions)
+            throws IPSTemplateService.PSTemplateException, PSAssemblyException {
+        // Set the preview URL generator for friendly preview URLs.
         setPreviewUrlGenerator();
-        
-        for(PSMergedRegion mr : mergedRegions ) {
-            List<PSRegionResult> results = 
-                regionAssembler.assembleRegion(assemblyItem, context, mr);
+
+        for (var mr : mergedRegions) {
+            var results = regionAssembler.assembleRegion(assemblyItem, context, mr);
             context.getRegions().put(mr.getRegionId(), results);
         }
     }
-    
 
     /**
-     * Set the "custom" preview URL generator on the request, as a parameter to signal location generator, PSGeneratePubLocation, 
-     * to use PSGeneratePreviewLink to generate "friendly URL" in the content of a previewed page.
-     **/
-    private void setPreviewUrlGenerator()
-    {
-        IPSAssemblyService service = PSAssemblyServiceLocator.getAssemblyService();
-        try
-        {
-            // As we don't have a good way to use "friendly URL" to preview the thumbnail, 
-            // so we don't want to generate "friendly URL" if the template is used to render a thumbnail image.  
-            IPSAssemblyTemplate template = service.findTemplateByName("perc.imageThumbBinary");
-            if (template != null)
-            {
-                int imageThumbTemplateId = template.getGUID().getUUID();
-                String[] values = new String[] { "global/percussion/contentassembler/perc_casGeneratePreviewLink",
-                        String.valueOf(imageThumbTemplateId) };
-                PSRequest req = (PSRequest) PSRequestInfo
-                        .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-                req.setPrivateObject(SYS_OVERWRITE_PREVIEW_URL_GEN,  values);
+     * Set the "custom" preview URL generator on the request, as a parameter to signal location generator,
+     * PSGeneratePubLocation, to use PSGeneratePreviewLink to generate "friendly URL" in the content of a previewed page.
+     */
+    private void setPreviewUrlGenerator() {
+        var service = PSAssemblyServiceLocator.getAssemblyService();
+        try {
+            // As we don't have a good way to use "friendly URL" to preview the thumbnail,
+            // so we don't want to generate "friendly URL" if the template is used to render a thumbnail image.
+            var template = service.findTemplateByName("perc.imageThumbBinary");
+            if (template != null) {
+                var imageThumbTemplateId = template.getGUID().getUUID();
+                var values = new String[] {
+                        "global/percussion/contentassembler/perc_casGeneratePreviewLink",
+                        String.valueOf(imageThumbTemplateId)
+                };
+                var req = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+                req.setPrivateObject(SYS_OVERWRITE_PREVIEW_URL_GEN, values);
             }
-        }
-        catch (PSAssemblyException e)
-        {
+        } catch (PSAssemblyException e) {
             log.error("Failed to find \"perc.imageThumbBinary\" template", e);
         }
     }

@@ -20,107 +20,92 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * Represents a "row" of analytics data returned from the analytics provider.
- * @author erikserating
- *
+ * Represents a row of analytics data returned from the analytics provider.
+ * Sunny Sal says: "Analytics never lies, but it sure can confuse!"
  */
-public interface IPSAnalyticsQueryResult
-{
-   /**
-    * Retrieves the data for the specified field as a string. This will
-    * work for any data type.
-    * @param key the field key that specifies the data to be returned, Cannot
-    * be <code>null</code> or empty. The key is case insensitive.
-    * @return the string representation of the data. May be <code>null</code> or
-    * empty.
-    */
-   public String getString(String key);
+public interface IPSAnalyticsQueryResult {
 
     /**
-     * Retrieves the data for the specified field as an Integer. This will only
-     * work for Integer, Float and Long dataTypes. Float and Long will be
-     * converted to Integers and truncation may occur.
-     * 
-     * @param key the field key that specifies the data to be returned, Cannot
-     * be <code>null</code> or empty. The key is case insensitive.
+     * Retrieves the data for the specified field as a string.
+     * Works for any data type.
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return the string representation of the data, may be null or empty.
+     */
+    String getString(String key);
+
+    /**
+     * Retrieves the data for the specified field as an int.
+     * Works for Integer, Float, and Long data types. Float and Long will be converted to int (truncation may occur).
+     *
+     * @param key the field key (case-insensitive), not null or empty.
      * @return the int representation of the data.
-     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if
-     * the dataType is not a numeric type.
+     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric.
      */
-   public int getInt(String key);
+    int getInt(String key);
 
     /**
-     * Retrieves the data for the specified field as a Date. This will only work
-     * for Date dataTypes.
-     * 
-     * @param key the field key that specifies the data to be returned, Cannot
-     * be <code>null</code> or empty. The key is case insensitive.
-     * @return the date representation of the data. May be <code>null</code>.
-     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if
-     * the dataType is not a date type.
+     * Retrieves the data for the specified field as a Date.
+     * Only works for Date data types.
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return the date representation of the data, may be null.
+     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not a date.
      */
-   public Date getDate(String key);
+    Date getDate(String key);
 
     /**
-     * Retrieves the data for the specified field as a Float. This will only
-     * work for Integer, Float and Long dataTypes. Integer and Long will be
-     * converted to Float and truncation may occur.
-     * 
-     * @param key the field key that specifies the data to be returned, Cannot
-     * be <code>null</code> or empty. The key is case insensitive.
-     * @return the Float representation of the data.
-     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if
-     * the dataType is not a numeric type.
+     * Retrieves the data for the specified field as a float.
+     * Works for Integer, Float, and Long data types. Integer and Long will be converted to float (truncation may occur).
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return the float representation of the data.
+     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric.
      */
-   public float getFloat(String key);
+    float getFloat(String key);
 
     /**
-     * Retrieves the data for the specified field as a Long. This will only work
-     * for Integer, Float and Date dataTypes. Float and Integer will be
-     * converted to Long and truncation may occur. Dates will be returned in
-     * their Long date/time representation.
-     * 
-     * @param key the field key that specifies the data to be returned, Cannot
-     * be <code>null</code> or empty. The key is case insensitive.
-     * @return the Long representation of the data.
-     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if
-     * the dataType is not a numeric or date type.
+     * Retrieves the data for the specified field as a long.
+     * Works for Integer, Float, and Date data types. Float and Integer will be converted to long (truncation may occur).
+     * Dates will be returned in their long date/time representation.
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return the long representation of the data.
+     * @throws com.percussion.analytics.error.PSAnalyticsQueryResultException if the data type is not numeric or date.
      */
-   public long getLong(String key);
-   
-   /**
-    * Retrieves the data type of the data field specified.
-    * @param key the field key that specifies the data to be returned, Cannot
-    * be <code>null</code> or empty. The key is case insensitive.
-    * @return the dataType enum value or <code>null</code> if the the specified
-    * key does not exist.
-    */
-   public DataType getDataType(String key);
-   
-   /**
-    * Indicates that the specified field has a value, in other words
-    * it is not <code>null</code>.
-    * @param key the field key that specifies the data to be returned, Cannot
-    * be <code>null</code> or empty. The key is case insensitive.
-    * @return <code>true</code> if the field value is not <code>null</code>.
-    */
-   public boolean hasValue(String key);
-   
-   /**
-    * The set of keys for each data field in the result.
-    * @return the key set, never <code>null</code>, may be empty.
-    */
-   public Set<String> keySet();
-   
-   /**
-    * The data type enumeration.
-    */
-   public enum DataType
-   {
-      DATE,
-      FLOAT,
-      LONG,
-      INT,
-      STRING      
-   }
+    long getLong(String key);
+
+    /**
+     * Retrieves the data type of the specified field.
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return the DataType enum value, or null if the key does not exist.
+     */
+    DataType getDataType(String key);
+
+    /**
+     * Indicates whether the specified field has a value (not null).
+     *
+     * @param key the field key (case-insensitive), not null or empty.
+     * @return true if the field value is not null.
+     */
+    boolean hasValue(String key);
+
+    /**
+     * Returns the set of keys for each data field in the result.
+     *
+     * @return the key set, never null, may be empty.
+     */
+    Set<String> keySet();
+
+    /**
+     * The data type enumeration.
+     */
+    enum DataType {
+        DATE,
+        FLOAT,
+        LONG,
+        INT,
+        STRING
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,11 +25,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
-
+/**
+ * List wrapper for site sections.
+ */
 @XmlRootElement(name = "SiteSection")
-@ArraySchema(schema=@Schema(implementation = PSSiteSection.class))
+@ArraySchema(schema = @Schema(implementation = PSSiteSection.class))
 public class PSSiteSectionList extends ArrayList<PSSiteSection> {
+    private static final long serialVersionUID = 1L;
+
     public PSSiteSectionList(Collection<? extends PSSiteSection> c) {
         super(c);
     }

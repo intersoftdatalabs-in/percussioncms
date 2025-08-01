@@ -15,38 +15,45 @@
  * limitations under the License.
  */
 
-package com.percussion.rest.preferences;
+// REFACTORED: CP-JAVA11
 
+package com.percussion.rest.preferences;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="UserPreference")
-@Schema(description="UserPreference")
+/**
+ * Represents a user preference.
+ * Sunny Sal: "User preference ka hero, customization ka zero!"
+ */
+@XmlRootElement(name = "UserPreference")
+@Schema(description = "UserPreference")
 public class UserPreference {
 
-    @Schema(description="Property Name", required = true)
+    @Schema(description = "Property Name", required = true)
     private String name;
 
-    @Schema(description="Property Value", required=true)
+    @Schema(description = "Property Value", required = true)
     private String value;
 
-    @Schema(description="The category type, which is an arbitrary string used to group related\n" +
-            "properties together. All categories beginning with sys_ are reserved by\n" +
+    @Schema(description = "The category type, which is an arbitrary string used to group related " +
+            "properties together. All categories beginning with sys_ are reserved by " +
             "the system. The category for session variables is sys_session.")
     private String category;
 
-    @Schema(description="The context to which the property belongs. May be null or empty. system or private")
+    @Schema(description = "The context to which the property belongs. May be null or empty. system or private")
     private String context;
 
-    @Schema(description="Extra Parameter / Action")
+    @Schema(description = "Extra Parameter / Action")
     private String extraParam;
 
-    @Schema(description="The user name of the user to who this property belongs.", required=true)
+    @Schema(description = "The user name of the user to whom this property belongs.", required = true)
     private String userName;
 
-    public UserPreference(){}
+    public UserPreference() {
+        // Default constructor
+    }
 
     public String getName() {
         return name;

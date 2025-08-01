@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 import com.percussion.pagemanagement.data.PSPage;
@@ -24,26 +25,28 @@ import com.percussion.pagemanagement.data.PSPage;
  *   
  * @author YuBingChen
  */
-public interface IPSPageRestService
-{
-   
-   /**
-    * Creates a page.
-    *
-    * @param page the new page info, not <code>null</code>.
-    * 
-    * @return the created page ID, not blank.
-    */
-   String create(PSPage page);
-   
-   /**
-    * Loads the specified page.
-    * 
-    * @param id the ID of the page, not blank.
-    * 
-    * @return the loaded page, not <code>null</code>.
-    */
-   PSPage load(String id);
-   
-   void delete(String id);
+public interface IPSPageRestService {
+
+    /**
+     * Creates a page.
+     *
+     * @param page The new page info, not <code>null</code>.
+     * @return The created page ID, not blank.
+     */
+    String create(PSPage page);
+
+    /**
+     * Loads the specified page.
+     *
+     * @param id The ID of the page, not blank.
+     * @return The loaded page, not <code>null</code>.
+     */
+    PSPage load(String id);
+
+    /**
+     * Deletes the specified page.
+     *
+     * @param id The ID of the page, not blank.
+     */
+    void delete(String id);
 }

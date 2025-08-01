@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,56 +17,57 @@
  */
 package com.percussion.pagemanagement.parser;
 
+import com.percussion.pagemanagement.data.PSRegion;
+import com.percussion.pagemanagement.data.PSRegionCode;
+import com.percussion.pagemanagement.data.PSRegionTree;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSRegion;
-import com.percussion.pagemanagement.data.PSRegionCode;
-import com.percussion.pagemanagement.data.PSRegionNode;
-import com.percussion.pagemanagement.data.PSRegionTree;
+/**
+ * Region parser for templates.
+ * @author adamgent, Sunny Sal
+ */
+public class PSTemplateRegionParser extends PSRegionParserAdapter<PSRegion, PSRegionCode> {
 
-public class PSTemplateRegionParser extends PSRegionParserAdapter<PSRegion, PSRegionCode>
-{
+    private final Map<String, PSRegion> regions;
 
-    PSRegionTree regionTree;
-    Map<String, PSRegion> regions;
-    
-    
-    public PSTemplateRegionParser(Map<String, PSRegion> regions)
-    {
-        super();
-        this.regions = regions;
+    public PSTemplateRegionParser(Map<String, PSRegion> regions) {
+        this.regions = regions == null ? Collections.emptyMap() : Collections.unmodifiableMap(new HashMap<>(regions));
     }
 
-    public PSRegion createRegion(String regionId)
-    {
-        PSRegion region = regions.get(regionId);
-        if(region != null) {
+    @Override
+    public PSRegion createRegion(String regionId) {
+        var region = regions.get(regionId);
+        if (region != null) {
             region.setChildren(new ArrayList<>());
-        }
-        else {
+        } else {
             region = new PSRegion();
         }
         region.setRegionId(regionId);
         return region;
     }
 
-    public PSRegionCode createRegionCode()
-    {
+    @Override
+    public PSRegionCode createRegionCode() {
         return new PSRegionCode();
     }
 
-    public PSRegion createRootRegion()
-    {
+    @Override
+    public PSRegion createRootRegion() {
         return new PSRegion();
     }
-    
-    public static PSParsedRegionTree<PSRegion, PSRegionCode> parse(Map<String, PSRegion> regions, String html) {
-        regions = regions == null ? new HashMap<>() : regions;
-        PSTemplateRegionParser parser = new PSTemplateRegionParser(regions);
-        PSParsedRegionTree<PSRegion, PSRegionCode> pt = parser.parse(html);
-        return pt;
-    }
 
+    /**
+     * Static utility for parsing HTML with region map.
+     * @param regions region map, may be null.
+     * @param html HTML string, never null.
+     * @return parsed region tree.
+     */
+    public static PSParsedRegionTree<PSRegion, PSRegionCode> parse(Map<String, PSRegion> regions, String html) {
+        var parser = new PSTemplateRegionParser(regions);
+        return parser.parse(html);
+    }
 }

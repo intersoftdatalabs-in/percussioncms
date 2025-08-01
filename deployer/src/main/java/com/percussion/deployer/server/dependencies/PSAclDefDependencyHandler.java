@@ -53,6 +53,7 @@ import java.security.acl.NotOwnerException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class to handle packaging and deploying an ACL definition.
@@ -97,51 +98,26 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler
 
    // see base class
    @Override
-   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+    if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+        throw new IllegalArgumentException("Invalid arguments provided");
+    }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+    var childDeps = new ArrayList<PSDependency>();
+    var acl = findAclByDependencyID(dep.getDependencyId());
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+    if (acl != null) {
+        var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
+        acl.getEntries().stream()
+            .filter(entry -> entry.getType() == IPSTypedPrincipal.PrincipalTypes.COMMUNITY && !entry.getName().equals(PSTypedPrincipal.ANY_COMMUNITY_ENTRY))
+            .map(entry -> roleMgr.findCommunitiesByName(entry.getName()))
+            .filter(cList -> !cList.isEmpty())
+            .map(cList -> getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE).getDependency(tok, String.valueOf(cList.get(0).getGUID().getUUID())))
+            .filter(java.util.Objects::nonNull)
+            .forEach(childDeps::add);
+    }
 
-      List<PSDependency> childDeps = new ArrayList<>();
-      PSAclImpl acl = findAclByDependencyID(dep.getDependencyId());
-
-      if ( acl != null )    
-      {
-         Iterator<IPSAclEntry> it = acl.getEntries().iterator();
-         PSDependencyHandler ch = 
-            getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE);
-
-         while (it.hasNext())
-         {
-            PSDependency d = null;
-            PSAclEntryImpl e = (PSAclEntryImpl)it.next();
-            String name = e.getName();
-            if ( e.getType() == IPSTypedPrincipal.PrincipalTypes.COMMUNITY)
-            {
-               if ( !e.getName().equals(PSTypedPrincipal.ANY_COMMUNITY_ENTRY))
-               {
-                  IPSBackEndRoleMgr mgr = 
-                     PSRoleMgrLocator.getBackEndRoleManager();
-                  List<PSCommunity> cList = mgr.findCommunitiesByName(name);
-                  if ( cList.size() > 0 )
-                  {
-                     PSCommunity c = cList.get(0); 
-                     d = ch.getDependency(tok, String.valueOf(c.getGUID()
-                           .getUUID()));
-                     if ( d != null )
-                        childDeps.add(d);
-                  }
-               }
-            }  
-         }
-      }
-      return childDeps.iterator();
+    return childDeps.iterator();
    }
 
    /**
@@ -151,26 +127,19 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler
     * @throws PSDeployException
     * 
     */
-   private PSAclImpl findAclByDependencyID(String depId)
-         throws PSDeployException
-   {
-      if (depId == null || depId.trim().length() == 0)
-         throw new IllegalArgumentException(
-               "dependency ID may not be null or empty");
-      PSGuid guid = new PSGuid(PSTypeEnum.ACL, PSDependencyUtils
-            .getGuidValFromString(depId, m_def.getObjectTypeName())); 
-      PSAclImpl acl  = null;
-      try
-      {
-         acl = (PSAclImpl) m_aclSvc.loadAcl(guid);
-      }
-      catch (PSSecurityException e)
-      {
-      }
-      return acl;
-   }
+   private PSAclImpl findAclByDependencyID(String depId) throws PSDeployException {
+    if (depId == null || depId.isBlank()) {
+        throw new IllegalArgumentException("dependency ID may not be null or empty");
+    }
 
-   
+    var guid = new PSGuid(PSTypeEnum.ACL, PSDependencyUtils.getGuidValFromString(depId, m_def.getObjectTypeName()));
+    try {
+        return (PSAclImpl) m_aclSvc.loadAcl(guid);
+    } catch (PSSecurityException e) {
+        return null;
+    }
+}
+
    // see base class
    // return an empty set, since you donot want to catalog all the existing
    // ACLs
@@ -285,24 +254,16 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler
 
    // see base class
    @Override
-   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+    if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+        throw new IllegalArgumentException("Invalid arguments provided");
+    }
 
-      // pack the data into the files
-      List<PSDependencyFile> files = new ArrayList<>();
+    var files = new ArrayList<PSDependencyFile>();
+    var acl = findAclByDependencyID(dep.getDependencyId());
 
-      PSAclImpl acl = findAclByDependencyID(dep.getDependencyId());
-
-      if ( acl != null )    
-         files.add(getDepFileFromAcl(acl));
-      return files.iterator();
+    Optional.ofNullable(acl).ifPresent(a -> files.add(getDepFileFromAcl(a)));
+    return files.iterator();
    }
    
    /**

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,6 +17,7 @@
  */
 package com.percussion.licensemanagement.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -24,56 +26,59 @@ import javax.xml.bind.annotation.XmlType;
 /**
  * Container for status and message from calls to Netsuite.
  * Will be serialized to JSON.
- *
+ * Sunny Sal says: "Netsuite responses: because even APIs need to talk back!"
  */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder = {
-    "status","message"
-})
+@XmlType(name = "", propOrder = {"status", "message"})
 @XmlRootElement(name = "netsuiteResponse")
-public class PSNetsuiteResponse
-{
+public class PSNetsuiteResponse {
+
     private String status;
     private String message;
-   
-    public PSNetsuiteResponse(String status, String message){
+
+    public PSNetsuiteResponse(String status, String message) {
         this.status = status;
         this.message = message;
     }
-    
-    public PSNetsuiteResponse()
-    {
-        this.status = new String();
-        this.message = new String();
+
+    public PSNetsuiteResponse() {
+        this.status = "";
+        this.message = "";
     }
-    
+
     /**
-     * @return the status
+     * Gets the status.
+     *
+     * @return the status, never null
      */
-    public String getStatus()
-    {
-        return status;
+    public Optional<String> getStatus() {
+        return Optional.ofNullable(status);
     }
+
     /**
+     * Sets the status.
+     *
      * @param status the status to set
      */
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status = status;
     }
+
     /**
-     * @return the message
+     * Gets the message.
+     *
+     * @return the message, never null
      */
-    public String getMessage()
-    {
-        return message;
+    public Optional<String> getMessage() {
+        return Optional.ofNullable(message);
     }
+
     /**
+     * Sets the message.
+     *
      * @param message the message to set
      */
-    public void setMessage(String message)
-    {
+    public void setMessage(String message) {
         this.message = message;
     }
-    
 }

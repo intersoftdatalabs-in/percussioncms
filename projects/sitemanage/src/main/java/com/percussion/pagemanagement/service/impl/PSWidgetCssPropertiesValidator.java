@@ -14,41 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
+
+import com.percussion.pagemanagement.data.PSWidgetDefinition;
+import com.percussion.pagemanagement.data.PSWidgetDefinition.CssPref;
+import com.percussion.pagemanagement.data.PSWidgetItem;
+import com.percussion.pagemanagement.service.IPSWidgetService;
 
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSWidgetDefinition;
-import com.percussion.pagemanagement.data.PSWidgetItem;
-import com.percussion.pagemanagement.data.PSWidgetDefinition.CssPref;
-import com.percussion.pagemanagement.service.IPSWidgetService;
-
 /**
- * Validates the Css properties of a widget.
- * 
+ * Validates the CSS properties of a widget.
+ *
  * @see PSWidgetItem#getCssProperties()
  * @author adamgent
- *
  */
-public class PSWidgetCssPropertiesValidator extends PSWidgetPropertiesValidator<CssPref>
-{
+public class PSWidgetCssPropertiesValidator extends PSWidgetPropertiesValidator<CssPref> {
 
-    public PSWidgetCssPropertiesValidator(IPSWidgetService widgetService)
-    {
+    public PSWidgetCssPropertiesValidator(IPSWidgetService widgetService) {
         super(widgetService);
     }
 
     @Override
-    protected Map<String, Object> getProperties(PSWidgetItem widgetItem)
-    {
+    protected Map<String, Object> getProperties(PSWidgetItem widgetItem) {
         return widgetItem.getCssProperties();
     }
 
     @Override
-    protected Map<String, CssPref> getPropertyDefinitions(PSWidgetDefinition definition)
-    {
+    protected Map<String, CssPref> getPropertyDefinitions(PSWidgetDefinition definition) {
         return PSWidgetUtils.getCssPrefs(definition);
     }
-
 }
-

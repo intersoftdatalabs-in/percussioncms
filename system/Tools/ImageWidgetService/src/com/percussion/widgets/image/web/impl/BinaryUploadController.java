@@ -21,12 +21,13 @@ import com.percussion.server.PSServer;
 import com.percussion.util.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
+import com.percussion.widgets.image.data.MimeUtils;
 import com.percussion.widgets.image.services.ImageCacheManager;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,186 +46,358 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
+/**
+ * Spring REST controller for handling binary image file uploads.
+ * Supports multipart file uploads with image validation, processing, and caching.
+ *
+ * @since Java 11
+ */
 @RestController
 @PSBaseBean("imageWidgetBinaryUpload")
-public class BinaryUploadController
-{
-   private static final Logger log = LogManager.getLogger(BinaryUploadController.class);
+public class BinaryUploadController {
 
-   @Autowired
-   private ImageCacheManager cacheManager = null;
+    private static final Logger log = LogManager.getLogger(BinaryUploadController.class);
 
-   private String modelObjectName="results";
+    /** Default model object name for responses */
+    private static final String DEFAULT_MODEL_OBJECT_NAME = "results";
 
-   private String viewName = "imageWidgetJSONView";
+    /** Default view name for JSON responses */
+    private static final String DEFAULT_VIEW_NAME = "imageWidgetJSONView";
 
-   private static final String MESSAGE_BAD_CONTENT_TYPE = "Invalid or unsupported image type \"{0}\"";
+    /** Default thumbnail width */
+    private static final String DEFAULT_THUMB_WIDTH = "50";
 
-   private static final String MESSAGE_UNABLE_TO_COMPUTE_SIZE = "Possibly invalid image. Unable to determine image height and width.";
+    /** Maximum file size in bytes (10MB) */
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-   @RequestMapping("/imageWidget/upload")
-   @PostMapping(consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-   public ModelAndView handle(HttpServletRequest request,
-         HttpServletResponse response) throws PSBinaryUploadException
-   {
+    /** Server property key for thumbnail width */
+    private static final String THUMB_WIDTH_PROPERTY = "imageThumbnailWidth";
 
-      ModelAndView modelAndView = new ModelAndView(getViewName());
-      modelAndView.addAllObjects(RequestContextUtils.getInputFlashMap(request));
+    // Error message templates
+    private static final String MESSAGE_BAD_CONTENT_TYPE = "Invalid or unsupported image type \"{0}\"";
+    private static final String MESSAGE_UNABLE_TO_COMPUTE_SIZE = "Possibly invalid image. Unable to determine image height and width.";
+    private static final String MESSAGE_FILE_TOO_LARGE = "File size exceeds maximum allowed size of {0} MB";
+    private static final String MESSAGE_EMPTY_FILE = "Uploaded file is empty";
+    private static final String MESSAGE_NO_FILES = "No files found in request";
 
-      JSONArray results;
+    @Autowired
+    private ImageCacheManager cacheManager;
 
-      try
-      {
-         results = buildResults(request);
-      }
-      catch (Exception ex)
-      {
+    private String modelObjectName = DEFAULT_MODEL_OBJECT_NAME;
+    private String viewName = DEFAULT_VIEW_NAME;
 
-         String emsg = "Unexpected Exception " + ex.getMessage();
-         log.error(ex.getMessage());
-         log.debug(ex);
-         JSONObject error = new JSONObject();
-         error.put("error", emsg);
-         modelAndView.addObject(getModelObjectName(), error);
-         return modelAndView;
-      }
-      modelAndView.addObject(getModelObjectName(), results);
-      return modelAndView;
-   }
+    /**
+     * Handles multipart file upload requests for images.
+     *
+     * @param request the HTTP request containing multipart data
+     * @param response the HTTP response
+     * @return ModelAndView containing upload results or error information
+     * @throws PSBinaryUploadException if upload processing fails
+     */
+    @RequestMapping("/imageWidget/upload")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response)
+            throws PSBinaryUploadException {
 
-   protected JSONArray buildResults(HttpServletRequest request)
-         throws PSBinaryUploadException
-   {
-      JSONArray results = new JSONArray();
-      if ((request instanceof MultipartHttpServletRequest))
-      {
-         try
-         {
-            log.debug("found multipart form");
-            MultipartHttpServletRequest mRequest = (MultipartHttpServletRequest) request;
-            Map<String, MultipartFile> fileMap = mRequest.getFileMap();
-            for (Map.Entry<String, MultipartFile> entry : fileMap.entrySet())
-            {
-               MultipartFile mpFile = entry.getValue();
-               log.debug("processing file {}" , mpFile.getOriginalFilename());
-               String mimeType = mpFile.getContentType();
-               if ((StringUtils.isNotBlank(mimeType))
-                     && (mimeType.toLowerCase().startsWith("image")))
+        var modelAndView = new ModelAndView(getViewName());
 
-               {
-                  CachedImageMetaData cachedData = storeImage(mpFile);
-                  JSON json = JSONSerializer.toJSON(cachedData);
-                  results.add(json);
-               }
-               else
-               {
-                  String emsg = MessageFormat.format(
-                          MESSAGE_BAD_CONTENT_TYPE,
-                          mimeType);
-                  throw new PSBinaryUploadException(emsg);
-               }
+        // Add flash attributes if present
+        Optional.ofNullable(RequestContextUtils.getInputFlashMap(request))
+            .ifPresent(modelAndView::addAllObjects);
+
+        try {
+            var results = buildResults(request);
+            modelAndView.addObject(getModelObjectName(), results);
+
+            log.debug("Successfully processed {} file(s)", results.size());
+
+        } catch (Exception ex) {
+            var errorMessage = "Unexpected exception during file upload: " +
+                Optional.ofNullable(ex.getMessage()).orElse("Unknown error");
+
+            log.error("File upload failed", ex);
+
+            var errorResponse = createErrorResponse(errorMessage);
+            modelAndView.addObject(getModelObjectName(), errorResponse);
+        }
+
+        return modelAndView;
+    }
+
+    /**
+     * Builds the results array from multipart request files.
+     *
+     * @param request the HTTP request
+     * @return JSONArray containing upload results
+     * @throws PSBinaryUploadException if processing fails
+     */
+    protected JSONArray buildResults(HttpServletRequest request) throws PSBinaryUploadException {
+        var results = new JSONArray();
+
+        if (!(request instanceof MultipartHttpServletRequest multipartRequest)) {
+            throw new PSBinaryUploadException("Request is not a multipart request");
+        }
+
+        log.debug("Processing multipart form request");
+
+        var fileMap = multipartRequest.getFileMap();
+        if (fileMap.isEmpty()) {
+            throw new PSBinaryUploadException(MESSAGE_NO_FILES);
+        }
+
+        for (var entry : fileMap.entrySet()) {
+            var mpFile = entry.getValue();
+            var filename = Optional.ofNullable(mpFile.getOriginalFilename())
+                .filter(StringUtils::isNotBlank)
+                .orElse("unknown");
+
+            log.debug("Processing file: {}", filename);
+
+            try {
+                var validationResult = validateFile(mpFile);
+                if (validationResult.isPresent()) {
+                    results.add(buildError(validationResult.get()));
+                    continue;
+                }
+
+                var cachedData = storeImage(mpFile);
+                var json = JSONSerializer.toJSON(cachedData);
+                results.add(json);
+
+                log.debug("Successfully processed file: {}", filename);
+
+            } catch (Exception ex) {
+                var errorMsg = String.format("Failed to process file '%s': %s",
+                    filename, ex.getMessage());
+                log.warn(errorMsg, ex);
+                results.add(buildError(errorMsg));
             }
-         }
-         catch (Exception ex)
-         {
-            if (StringUtils.isNotBlank(ex.getMessage()))
+        }
 
-            {
-               String emsg = ex.getMessage();
-               results.add(buildError(emsg));
+        return results;
+    }
+
+    /**
+     * Validates the uploaded file.
+     *
+     * @param file the multipart file to validate
+     * @return Optional containing error message, or empty if valid
+     */
+    private Optional<String> validateFile(MultipartFile file) {
+        // Check if file is empty
+        if (file.isEmpty()) {
+            return Optional.of(MESSAGE_EMPTY_FILE);
+        }
+
+        // Check file size
+        if (file.getSize() > MAX_FILE_SIZE) {
+            var maxSizeMB = MAX_FILE_SIZE / (1024 * 1024);
+            return Optional.of(MessageFormat.format(MESSAGE_FILE_TOO_LARGE, maxSizeMB));
+        }
+
+        // Validate MIME type
+        var mimeType = file.getContentType();
+        if (StringUtils.isBlank(mimeType) || !isValidImageMimeType(mimeType)) {
+            return Optional.of(MessageFormat.format(MESSAGE_BAD_CONTENT_TYPE, mimeType));
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Checks if the MIME type is a valid image type.
+     *
+     * @param mimeType the MIME type to check
+     * @return {@code true} if valid image MIME type
+     */
+    private boolean isValidImageMimeType(String mimeType) {
+        return mimeType.toLowerCase().startsWith("image/") &&
+               MimeUtils.isSupportedMimeType(mimeType);
+    }
+
+    /**
+     * Creates an error JSON object.
+     *
+     * @param message the error message
+     * @return JSON error object
+     */
+    protected JSON buildError(String message) {
+        var json = new JSONObject();
+        json.element("error", message);
+        json.element("success", false);
+        json.element("timestamp", System.currentTimeMillis());
+        return json;
+    }
+
+    /**
+     * Creates an error response for the entire request.
+     *
+     * @param message the error message
+     * @return JSON error response
+     */
+    private JSON createErrorResponse(String message) {
+        var errorJson = new JSONObject();
+        errorJson.put("error", message);
+        errorJson.put("success", false);
+        errorJson.put("timestamp", System.currentTimeMillis());
+        return errorJson;
+    }
+
+    /**
+     * Stores the uploaded image in cache and creates metadata.
+     *
+     * @param mpFile the multipart file to store
+     * @return cached image metadata
+     * @throws PSBinaryUploadException if storage fails
+     */
+    protected CachedImageMetaData storeImage(MultipartFile mpFile) throws PSBinaryUploadException {
+        Objects.requireNonNull(mpFile, "Multipart file must not be null");
+
+        var imageData = new ImageData();
+
+        try {
+            // Set binary data
+            imageData.setBinary(mpFile.getBytes());
+            imageData.setSize(mpFile.getSize());
+
+            // Set file information
+            extractFileInformation(mpFile, imageData);
+
+            // Extract image dimensions
+            extractImageDimensions(mpFile, imageData);
+
+            // Store in cache
+            var key = cacheManager.addImage(imageData);
+            log.debug("Stored image with cache key: {}", key);
+
+            return new CachedImageMetaData(imageData, key);
+
+        } catch (IOException e) {
+            throw new PSBinaryUploadException("Failed to read file data", e);
+        } catch (Exception e) {
+            throw new PSBinaryUploadException("Failed to store image", e);
+        }
+    }
+
+    /**
+     * Extracts file information from multipart file.
+     *
+     * @param mpFile the multipart file
+     * @param imageData the image data to populate
+     */
+    private void extractFileInformation(MultipartFile mpFile, ImageData imageData) {
+        // Set filename and extension
+        Optional.ofNullable(mpFile.getOriginalFilename())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(filename -> {
+                imageData.setFilename(filename);
+
+                // Extract extension
+                var ext = StringUtils.substringAfterLast(filename, ".");
+                if (StringUtils.isNotBlank(ext)) {
+                    imageData.setExt(ext);
+                }
+            });
+
+        // Set MIME type
+        Optional.ofNullable(mpFile.getContentType())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(imageData::setMimeType);
+    }
+
+    /**
+     * Extracts image dimensions from the file.
+     *
+     * @param mpFile the multipart file
+     * @param imageData the image data to populate
+     * @throws PSBinaryUploadException if dimension extraction fails
+     */
+    private void extractImageDimensions(MultipartFile mpFile, ImageData imageData)
+            throws PSBinaryUploadException {
+
+        try (var inputStream = mpFile.getInputStream()) {
+            var image = ImageIO.read(inputStream);
+
+            if (image == null) {
+                throw new PSBinaryUploadException(MESSAGE_UNABLE_TO_COMPUTE_SIZE);
             }
-         }
-      }
-      return results;
-   }
 
-   protected JSON buildError(String message)
+            imageData.setWidth(image.getWidth());
+            imageData.setHeight(image.getHeight());
 
-   {
-      JSONObject json = new JSONObject();
-      json.element("error", message);
-      return json;
-   }
+            // Set thumbnail width from server properties
+            var thumbWidth = getConfiguredThumbnailWidth();
+            imageData.setThumbWidth(thumbWidth);
 
-   protected CachedImageMetaData storeImage(MultipartFile mpFile)
-         throws PSBinaryUploadException
+            log.debug("Extracted image dimensions: {}x{}, thumb width: {}",
+                image.getWidth(), image.getHeight(), thumbWidth);
 
-   {
-      ImageData iData = new ImageData();
-      try {
-         iData.setBinary(mpFile.getBytes());
-      } catch (IOException e) {
-         throw new PSBinaryUploadException(e);
-      }
-      iData.setSize(mpFile.getSize());
-      String filename = mpFile.getOriginalFilename();
-      if (StringUtils.isNotBlank(filename))
+        } catch (IOException e) {
+            throw new PSBinaryUploadException("Failed to read image dimensions", e);
+        }
+    }
 
-      {
-         iData.setFilename(filename);
-         String ext = StringUtils.substringAfterLast(filename, ".");
-         iData.setExt(ext);
-      }
-      iData.setMimeType(mpFile.getContentType());
+    /**
+     * Gets the configured thumbnail width from server properties.
+     *
+     * @return thumbnail width
+     */
+    private int getConfiguredThumbnailWidth() {
+        return Optional.ofNullable(PSServer.getServerProps())
+            .map(props -> props.getProperty(THUMB_WIDTH_PROPERTY, DEFAULT_THUMB_WIDTH))
+            .filter(StringUtils::isNotBlank)
+            .map(width -> {
+                try {
+                    return Integer.parseInt(width);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid thumbnail width '{}', using default", width);
+                    return Integer.parseInt(DEFAULT_THUMB_WIDTH);
+                }
+            })
+            .orElse(Integer.parseInt(DEFAULT_THUMB_WIDTH));
+    }
 
-      Properties serverProps = PSServer.getServerProps();
-      String thumbWidth = serverProps.getProperty("imageThumbnailWidth", "50");
-      BufferedImage image = null;
-      try {
-         image = ImageIO.read(mpFile.getInputStream());
-      } catch (IOException e) {
-         throw new PSBinaryUploadException(e);
-      }
-      if (image != null)
+    // Getters and setters with validation
 
-      {
-         iData.setWidth(image.getWidth());
-         iData.setHeight(image.getHeight());
-         iData.setThumbWidth(Integer.parseInt(thumbWidth));
-      }
-      else
-      {
-         throw new PSBinaryUploadException(
-               MESSAGE_UNABLE_TO_COMPUTE_SIZE);
-      }
-      String key = this.cacheManager.addImage(iData);
-      log.debug("storing image for key {}" , key);
-      return new CachedImageMetaData(iData, key);
+    public ImageCacheManager getCacheManager() {
+        return cacheManager;
+    }
 
-   }
+    public void setCacheManager(ImageCacheManager cacheManager) {
+        this.cacheManager = Objects.requireNonNull(cacheManager,
+            "ImageCacheManager must not be null");
+    }
 
-   public ImageCacheManager getCacheManager()
+    public String getModelObjectName() {
+        return modelObjectName;
+    }
 
-   {
-      return this.cacheManager;
-   }
+    public void setModelObjectName(String modelObjectName) {
+        this.modelObjectName = StringUtils.isNotBlank(modelObjectName)
+            ? modelObjectName.trim()
+            : DEFAULT_MODEL_OBJECT_NAME;
+    }
 
-   public void setCacheManager(ImageCacheManager cacheManager)
+    public String getViewName() {
+        return viewName;
+    }
 
-   {
-      this.cacheManager = cacheManager;
-   }
+    public void setViewName(String viewName) {
+        this.viewName = StringUtils.isNotBlank(viewName)
+            ? viewName.trim()
+            : DEFAULT_VIEW_NAME;
+    }
 
-   public String getModelObjectName()
-
-   {
-      return this.modelObjectName;
-   }
-
-   public void setModelObjectName(String modelObjectName)
-
-   {
-      this.modelObjectName = modelObjectName;
-   }
-
-   public String getViewName() { return this.viewName; }
-
-   public void setViewName(String viewName)
-   {
-      this.viewName = viewName;
-   }
-
+    /**
+     * Checks if the controller is properly configured.
+     *
+     * @return {@code true} if all required dependencies are set
+     */
+    public boolean isConfigured() {
+        return cacheManager != null;
+    }
 }

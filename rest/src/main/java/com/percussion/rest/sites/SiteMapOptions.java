@@ -17,6 +17,12 @@
 
 package com.percussion.rest.sites;
 
+import java.util.Optional;
+
+/**
+ * Options for sitemap generation.
+ * Sunny Sal: "Sitemap options ka boss!"
+ */
 public class SiteMapOptions {
 
     private boolean navigationBased = true;
@@ -28,5 +34,67 @@ public class SiteMapOptions {
     private SiteMapType siteMapType;
     private double defaultFrequency;
 
-}
+    public boolean isNavigationBased() {
+        return navigationBased;
+    }
 
+    public void setNavigationBased(boolean navigationBased) {
+        this.navigationBased = navigationBased;
+    }
+
+    public boolean isIncludeFolder() {
+        return includeFolder;
+    }
+
+    public void setIncludeFolder(boolean includeFolder) {
+        this.includeFolder = includeFolder;
+    }
+
+    public Optional<String> getTimeZone() {
+        return Optional.ofNullable(timeZone);
+    }
+
+    public void setTimeZone(String timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public Optional<SiteMapDateFormat> getDateFormat() {
+        return Optional.ofNullable(dateFormat);
+    }
+
+    public void setDateFormat(SiteMapDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
+    }
+
+    public Optional<String> getFileName() {
+        return Optional.ofNullable(fileName);
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Optional<String> getUseSiteMapIndex() {
+        return Optional.ofNullable(useSiteMapIndex);
+    }
+
+    public void setUseSiteMapIndex(String useSiteMapIndex) {
+        this.useSiteMapIndex = useSiteMapIndex;
+    }
+
+    public Optional<SiteMapType> getSiteMapType() {
+        return Optional.ofNullable(siteMapType);
+    }
+
+    public void setSiteMapType(SiteMapType siteMapType) {
+        this.siteMapType = siteMapType;
+    }
+
+    public double getDefaultFrequency() {
+        return defaultFrequency;
+    }
+
+    public void setDefaultFrequency(double defaultFrequency) {
+        this.defaultFrequency = defaultFrequency;
+    }
+}

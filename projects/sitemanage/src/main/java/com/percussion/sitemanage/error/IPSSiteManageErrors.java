@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,10 +19,16 @@
 package com.percussion.sitemanage.error;
 
 /**
- * Defines the error codes produced by the site manage service.
+ * Defines the error codes produced by the site management service.
  */
 public interface IPSSiteManageErrors {
-    int SITEMANAGE_SERVICE_CATEGORY=18251; // through 1900
-    int SITEMANAGE_SERVICE_DELETING_BAD_SITE_RECORD=SITEMANAGE_SERVICE_CATEGORY+1;
+    /**
+     * Error code category for site management service errors.
+     */
+    int SITE_MANAGE_SERVICE_CATEGORY = 18251; // through 1900
 
+    /**
+     * Error code for deleting a bad site record.
+     */
+    int SITE_MANAGE_SERVICE_DELETING_BAD_SITE_RECORD = SITE_MANAGE_SERVICE_CATEGORY + 1;
 }

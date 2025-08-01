@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -260,25 +261,13 @@ public abstract class PSDependency implements IPSDependencyBaseline, IPSDeployCo
     * @return Iterator over zero or more <code>PSDependency</code> objects, or
     * <code>null</code> if the dependencies have not been set on this object.
     */
-   public Iterator<PSDependency> getDependencies(int type)
-   {
-      Iterator<PSDependency> deps = null;
-
-      if (m_dependencies != null)
-      {
-         List<PSDependency> results = new ArrayList<>();
-
-         Iterator<PSDependency> i = m_dependencies.iterator();
-         while (i.hasNext())
-         {
-            PSDependency dep = i.next();
-            if (dep.getDependencyType() == type)
-               results.add(dep);
-         }
-         deps = results.iterator();
-      }
-
-      return deps;
+   public Iterator<PSDependency> getDependencies(int type) {
+    if (m_dependencies == null) {
+        return Optional.empty().stream().iterator();
+    }
+    return m_dependencies.stream()
+        .filter(dep -> dep.getDependencyType() == type)
+        .iterator();
    }
 
    /**
@@ -292,24 +281,15 @@ public abstract class PSDependency implements IPSDependencyBaseline, IPSDeployCo
     * 
     * @throws IllegalArgumentException if any param is invalid.
     */
-   public Iterator<PSDependency> getDependencies(String objectType)
-   {
-      if (objectType == null || objectType.trim().length() == 0)
-         throw new IllegalArgumentException(" may not be null or empty");
-      
-      List<PSDependency> result = new ArrayList<>();
-      if (m_dependencies != null)
-      {
-         Iterator<PSDependency> deps = m_dependencies.iterator();
-         while (deps.hasNext())
-         {
-            PSDependency dep = deps.next();
-            if (dep.getObjectType().equals(objectType))
-               result.add(dep);
-         }         
-      }
-      
-      return result.iterator();
+   public Iterator<PSDependency> getDependencies(String objectType) {
+    if (objectType == null || objectType.isBlank()) {
+        throw new IllegalArgumentException("objectType may not be null or empty");
+    }
+    return Optional.ofNullable(m_dependencies)
+        .orElseGet(TreeSet::new)
+        .stream()
+        .filter(dep -> dep.getObjectType().equals(objectType))
+        .iterator();
    }
    
    
@@ -482,46 +462,22 @@ public abstract class PSDependency implements IPSDependencyBaseline, IPSDeployCo
     * @param prefix Used to indent for each level of the tree, assumed not 
     * <code>null</code>, may be empty.
     */
-   private void printDependencyTree(StringBuilder buf, List processed,
-      String prefix)
-   {
-      Iterator checkedDeps = processed.iterator();
-      while (checkedDeps.hasNext())
-      {
-         PSDependency processedDep = (PSDependency)checkedDeps.next();
-         if (processedDep == this)
-            return;
-      }   
-      processed.add(this);
-      
-      buf.append(prefix);
-      buf.append(toString());
-      buf.append("\n");
-      prefix += "-";
-      if (m_dependencies != null)
-      {
-         buf.append(prefix);
-         buf.append("deps:");
-         buf.append("\n");
-
-         Iterator deps = m_dependencies.iterator();
-         while (deps.hasNext())
-            ((PSDependency)deps.next()).printDependencyTree(buf, processed, 
-               prefix);
-      }
-      
-      if (m_ancestors != null)
-      {
-         buf.append(prefix);
-         buf.append("ancs:");
-         buf.append("\n");
-
-         Iterator ancs = m_ancestors.iterator();
-         while (ancs.hasNext())
-            ((PSDependency)ancs.next()).printDependencyTree(buf, processed, 
-               prefix);
-      }      
-   }
+   private void printDependencyTree(StringBuilder buf, List<PSDependency> processed, String prefix) {
+    if (processed.contains(this)) {
+        return;
+    }
+    processed.add(this);
+    buf.append(prefix).append(toString()).append("\n");
+    var newPrefix = prefix + "-";
+    Optional.ofNullable(m_dependencies).ifPresent(deps -> {
+        buf.append(newPrefix).append("deps:\n");
+        deps.forEach(dep -> dep.printDependencyTree(buf, processed, newPrefix));
+    });
+    Optional.ofNullable(m_ancestors).ifPresent(ancs -> {
+        buf.append(newPrefix).append("ancs:\n");
+        ancs.forEach(anc -> anc.printDependencyTree(buf, processed, newPrefix));
+    });
+}
 
    /**
     * Determines if this dependency can be passed to retrieve an ID type map.

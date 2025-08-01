@@ -158,31 +158,22 @@ public class PSExportDescriptor extends PSDescriptor
     * @throws IllegalArgumentException if <code>packages</code> is 
     * <code>null</code> or contains an invalid entry.
     */
-   public void setPackages(Iterator packages)
-   {
-      if (packages == null)
+   public void setPackages(Iterator<PSDeployableElement> packages) {
+      if (packages == null) {
          throw new IllegalArgumentException("packages may not be null");
-
+      }
       m_packages.clear();
-      while (packages.hasNext())
-      {
-         Object obj = packages.next();
-         if (!(obj instanceof PSDeployableElement))
-            throw new IllegalArgumentException("Invalid entry in packages");
-         PSDeployableElement dep = (PSDeployableElement)obj;
-         if (!dep.isIncluded())
-         {
-            if (dep.canBeIncludedExcluded())
+      packages.forEachRemaining(dep -> {
+         if (!dep.isIncluded()) {
+            if (dep.canBeIncludedExcluded()) {
                dep.setIsIncluded(true);
-            else
-            {
+            } else {
                throw new IllegalArgumentException(
-                  "pakages must be included or be settable as included");
+                  "packages must be included or be settable as included");
             }
          }
-         
          m_packages.add(dep);
-      }
+      });
    }
 
    /**
@@ -205,19 +196,14 @@ public class PSExportDescriptor extends PSDescriptor
     * @return The package, or <code>null</code> if the specified package is not
     * defined by this descriptor.
     */
-   public PSDeployableElement getPackage(String pkgKey)
-   {
-      PSDeployableElement pkg = null;
-      
-      Iterator pkgs = m_packages.iterator();
-      while (pkgs.hasNext() && pkg == null)
-      {
-         PSDeployableElement test = (PSDeployableElement)pkgs.next();
-         if (test.getKey().equals(pkgKey))
-            pkg = test;
+   public PSDeployableElement getPackage(String pkgKey) {
+      if (pkgKey == null || pkgKey.isBlank()) {
+         throw new IllegalArgumentException("pkgKey may not be null or empty");
       }
-      
-      return pkg;
+      return m_packages.stream()
+         .filter(pkg -> pkg.getKey().equals(pkgKey))
+         .findFirst()
+         .orElse(null);
    }
 
    /**
@@ -241,17 +227,12 @@ public class PSExportDescriptor extends PSDescriptor
     * a dependency that should not be added to the exported archive.  May not
     * be <code>null</code>, but may be empty.
     */
-   public void setDepKeysToExclude(Iterator depKeys)
-   {
-      if (depKeys == null)
+   public void setDepKeysToExclude(Iterator<String> depKeys) {
+      if (depKeys == null) {
          throw new IllegalArgumentException("depKeys may not be null");
-
-      m_depKeysToExclude.clear();
-      while (depKeys.hasNext())
-      {
-         String depKey = (String) depKeys.next();
-         m_depKeysToExclude.add(depKey);
       }
+      m_depKeysToExclude.clear();
+      depKeys.forEachRemaining(m_depKeysToExclude::add);
    }
 
    /**
@@ -276,16 +257,12 @@ public class PSExportDescriptor extends PSDescriptor
     * @throws IllegalArgumentException if <code>names</code> is
     * <code>null</code>.
     */
-   public void setModifiedPackages(Iterator names)
-   {
-      if (names == null)
+   public void setModifiedPackages(Iterator<String> names) {
+      if (names == null) {
          throw new IllegalArgumentException("names may not be null");
-
-      m_modifiedPackageNames.clear();
-      while (names.hasNext())
-      {
-         m_modifiedPackageNames.add(names.next().toString());
       }
+      m_modifiedPackageNames.clear();
+      names.forEachRemaining(name -> m_modifiedPackageNames.add(name.toString()));
    }
 
 
@@ -329,14 +306,11 @@ public class PSExportDescriptor extends PSDescriptor
     * @throws IllegalArgumentException if <code>names</code> is 
     * <code>null</code>.
     */
-   public void addMissingPackages(Iterator names)
-   {
-      if (names == null)
+   public void addMissingPackages(Iterator<String> names) {
+      if (names == null) {
          throw new IllegalArgumentException("names may not be null");
-      while (names.hasNext())
-      {
-         m_missingPackageNames.add(names.next().toString());
       }
+      names.forEachRemaining(name -> m_missingPackageNames.add(name.toString()));
    }
    
    /**
@@ -363,59 +337,26 @@ public class PSExportDescriptor extends PSDescriptor
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-
-      // add base class
+      }
+      var root = doc.createElement(XML_NODE_NAME);
       root.appendChild(super.toXml(doc));
-
-      // add the archiveType atttribute
       root.setAttribute(XML_ATTR_ARCHIVE_TYPE, ARCHIVE_TYPE_ENUM[m_archiveType]);
 
-      // add packages
-      Element packages = PSXmlDocumentBuilder.addEmptyElement(doc, root,
-         XML_EL_PACKAGES);
-      Iterator pkgs = m_packages.iterator();
-      while (pkgs.hasNext())
-      {
-         PSDeployableElement dep = (PSDeployableElement)pkgs.next();
-         packages.appendChild(dep.toXml(doc));
-      }
+      var packages = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_PACKAGES);
+      m_packages.forEach(dep -> packages.appendChild(dep.toXml(doc)));
 
-      // add modified packages
-      Element modsEl = PSXmlDocumentBuilder.addEmptyElement(doc, root,
-         XML_EL_MODIFIED_PACKAGES);
-      Iterator names = m_modifiedPackageNames.iterator();
-      while (names.hasNext())
-      {
-         PSXmlDocumentBuilder.addElement(doc, modsEl, XML_EL_PACKAGE_NAME,
-            names.next().toString());
-      }
+      var modsEl = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_MODIFIED_PACKAGES);
+      m_modifiedPackageNames.forEach(name -> PSXmlDocumentBuilder.addElement(doc, modsEl, XML_EL_PACKAGE_NAME, name));
 
-      // add missing packages
-      Element missingEl = PSXmlDocumentBuilder.addEmptyElement(doc, root,
-         XML_EL_MISSING_PACKAGES);
-      names = m_missingPackageNames.iterator();
-      while (names.hasNext())
-      {
-         PSXmlDocumentBuilder.addElement(doc, missingEl, XML_EL_PACKAGE_NAME,
-            names.next().toString());
-      }
+      var missingEl = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_MISSING_PACKAGES);
+      m_missingPackageNames.forEach(name -> PSXmlDocumentBuilder.addElement(doc, missingEl, XML_EL_PACKAGE_NAME, name));
 
-      // add suppressed dependencies
-      if (!m_depKeysToExclude.isEmpty())
-      {
-         Element suppressedEl = PSXmlDocumentBuilder.addEmptyElement(doc, root,
-               XML_EL_SUPPRESSED_DEPENDENCIES);
-         for (Iterator keys = m_depKeysToExclude.iterator(); keys.hasNext(); )
-         {
-            PSXmlDocumentBuilder.addElement(doc, suppressedEl, XML_EL_DEP_KEY,
-                  keys.next().toString());
-         }  
+      if (!m_depKeysToExclude.isEmpty()) {
+         var suppressedEl = PSXmlDocumentBuilder.addEmptyElement(doc, root, XML_EL_SUPPRESSED_DEPENDENCIES);
+         m_depKeysToExclude.forEach(key -> PSXmlDocumentBuilder.addElement(doc, suppressedEl, XML_EL_DEP_KEY, key));
       }
       return root;
    }

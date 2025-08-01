@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,58 +15,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * 
- */
 package com.percussion.pagemanagement.data;
 
+/**
+ * Abstract base for region node tree visitors.
+ * Provides default start/end region node visitor implementations.
+ * Subclasses should implement visitStart/visitEnd for region and region code.
+ */
 public abstract class PSAbstractRegionNodeTreeVisitor implements IPSRegionNodeTreeVisitor {
 
-    private IPSRegionNodeVisitor startRegionNodeVisitor = new IPSRegionNodeVisitor() {
-
-        public void visit(PSRegionCode regionCode)
-        {
+    private final IPSRegionNodeVisitor startRegionNodeVisitor = new IPSRegionNodeVisitor() {
+        @Override
+        public void visit(PSRegionCode regionCode) {
             visitStart(regionCode);
         }
 
-        public void visit(PSRegion region)
-        {
+        @Override
+        public void visit(PSRegion region) {
             visitStart(region);
         }
     };
-    
-    private IPSRegionNodeVisitor endRegionNodeVisitor = new IPSRegionNodeVisitor() {
 
-        public void visit(PSRegionCode regionCode)
-        {
+    private final IPSRegionNodeVisitor endRegionNodeVisitor = new IPSRegionNodeVisitor() {
+        @Override
+        public void visit(PSRegionCode regionCode) {
             visitEnd(regionCode);
         }
 
-        public void visit(PSRegion region)
-        {
+        @Override
+        public void visit(PSRegion region) {
             visitEnd(region);
         }
     };
-    
-    
-    
-    public IPSRegionNodeVisitor getStartRegionNodeVisitor()
-    {
+
+    @Override
+    public IPSRegionNodeVisitor getStartRegionNodeVisitor() {
         return startRegionNodeVisitor;
     }
 
-    public IPSRegionNodeVisitor getEndRegionNodeVisitor()
-    {
+    @Override
+    public IPSRegionNodeVisitor getEndRegionNodeVisitor() {
         return endRegionNodeVisitor;
     }
 
+    /**
+     * Called when ending a region code node.
+     * @param regionCode the region code node, never {@code null}
+     */
     protected abstract void visitEnd(PSRegionCode regionCode);
 
+    /**
+     * Called when ending a region node.
+     * @param region the region node, never {@code null}
+     */
     protected abstract void visitEnd(PSRegion region);
 
+    /**
+     * Called when starting a region code node.
+     * @param regionCode the region code node, never {@code null}
+     */
     protected abstract void visitStart(PSRegionCode regionCode);
 
+    /**
+     * Called when starting a region node.
+     * @param region the region node, never {@code null}
+     */
     protected abstract void visitStart(PSRegion region);
-    
-
 }

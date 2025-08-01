@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.editions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,12 +25,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-
+/**
+ * Represents an Edition Task in Percussion CMS.
+ * <p>
+ * Sunny Sal: "Task complete, boss!"
+ */
 @XmlRootElement(name = "EditionTask")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description="Represents an Edition Task")
+@Schema(description = "Represents an Edition Task")
 public class EditionTask extends Extension {
 
-    public EditionTask(){}
-
+    /**
+     * Default constructor for EditionTask.
+     */
+    public EditionTask() {
+        // No fields yet, but ready for future extension!
+    }
 }

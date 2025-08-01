@@ -82,35 +82,34 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper
 
 	@Override
 	public Collection<Integer> findRelatedItemIds(Set<Integer> contentIds) {
-		Set<Integer> results = new HashSet<>();
-		if (contentIds.isEmpty()) {
-			return results;
-		}
-		Session sess = getSession();
-		try {
-			Set<Integer> cids = new HashSet<>();
-			cids.addAll(contentIds);
-			int l=0;
-			for (; l<MAX_LOOPS; l++) {
-				Set<Integer> relatedIds = getRelatedItemIds(sess, cids);
-				if (relatedIds.isEmpty()) {
-					break;
-				}
-				relatedIds.removeAll(contentIds);
-				relatedIds.removeAll(results);
-				results.addAll(relatedIds);
-				cids.clear();
-				cids.addAll(relatedIds);
-			}
-			if (l == MAX_LOOPS) {
-				throw new RuntimeException("Could not find the related items within the number of iterations. Looks like the items are deeply related.");
-			}
-		} catch (SQLException e) {
-			String errMsg = "SQL error occurred while getting related content ids for incremental publishing.";
-			ms_logger.error(errMsg, e);
-			throw new PSRuntimeException(errMsg, e);
-		}
-		return results;
+        var results = new HashSet<Integer>();
+        if (contentIds.isEmpty()) {
+            return results;
+        }
+        var sess = getSession();
+        try {
+            var cids = new HashSet<>(contentIds);
+            int l = 0;
+            for (; l < MAX_LOOPS; l++) {
+                var relatedIds = getRelatedItemIds(sess, cids);
+                if (relatedIds.isEmpty()) {
+                    break;
+                }
+                relatedIds.removeAll(contentIds);
+                relatedIds.removeAll(results);
+                results.addAll(relatedIds);
+                cids.clear();
+                cids.addAll(relatedIds);
+            }
+            if (l == MAX_LOOPS) {
+                throw new RuntimeException("Could not find the related items within the number of iterations. Looks like the items are deeply related.");
+            }
+        } catch (SQLException e) {
+            var errMsg = "SQL error occurred while getting related content ids for incremental publishing.";
+            ms_logger.error(errMsg, e);
+            throw new PSRuntimeException(errMsg, e);
+        }
+        return results;
 	}
 
 
@@ -146,15 +145,15 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper
 	}
 	
     private Set<Integer> getPublishableRelatedItemIds(Session sess, Set<Integer> cids) throws SQLException{
-    	String sql = String.format(
-        		"SELECT DISTINCT REL.DEPENDENT_ID FROM %s as CS1, %s as CS2, "
-        	    		+ "%s as ST, %s as REL  WHERE REL.OWNER_ID IN (%s) AND "
-        	    		+ "REL.OWNER_ID = CS1.CONTENTID AND REL.OWNER_REVISION = CS1.CURRENTREVISION AND "
-        	    		+ "REL.DEPENDENT_ID = CS2.CONTENTID	AND CS2.CONTENTTYPEID in (%s) AND ST.WORKFLOWAPPID = CS2.WORKFLOWAPPID AND "
-        	    		+ "ST.STATEID = CS2.CONTENTSTATEID AND ST.CONTENTVALID IN('n','i')", qualifyTableName("CONTENTSTATUS"),
-        	    		qualifyTableName("CONTENTSTATUS"), qualifyTableName("STATES"), qualifyTableName("PSX_OBJECTRELATIONSHIP"),
-        	    		join(cids, ","), join(getPublishableContentTypeIds(sess), ","));
-        SQLQuery query = sess.createSQLQuery(sql);
+        var sql = String.format(
+                "SELECT DISTINCT REL.DEPENDENT_ID FROM %s as CS1, %s as CS2, "
+                        + "%s as ST, %s as REL  WHERE REL.OWNER_ID IN (%s) AND "
+                        + "REL.OWNER_ID = CS1.CONTENTID AND REL.OWNER_REVISION = CS1.CURRENTREVISION AND "
+                        + "REL.DEPENDENT_ID = CS2.CONTENTID	AND CS2.CONTENTTYPEID in (%s) AND ST.WORKFLOWAPPID = CS2.WORKFLOWAPPID AND "
+                        + "ST.STATEID = CS2.CONTENTSTATEID AND ST.CONTENTVALID IN('n','i')", qualifyTableName("CONTENTSTATUS"),
+                qualifyTableName("CONTENTSTATUS"), qualifyTableName("STATES"), qualifyTableName("PSX_OBJECTRELATIONSHIP"),
+                join(cids, ","), join(getPublishableContentTypeIds(sess), ","));
+        var query = sess.createSQLQuery(sql);
         return new HashSet(query.list());
     }
 
@@ -222,18 +221,18 @@ public class PSSitePublishServiceHelper implements IPSSitePublishServiceHelper
 	}
 
 	private List<Integer> getPublishableContentTypeIds(Session sess) {
-		if (publishableContentTypeIds == null) {
-			initTypeIds(sess);
-		}
-		return publishableContentTypeIds;
-	}
+        if (publishableContentTypeIds == null) {
+            initTypeIds(sess);
+        }
+        return publishableContentTypeIds;
+    }
 
-	private List<Integer> getNonPublishableContentTypeIds(Session sess) {
-		if (nonBinaryContentTypeIds == null) {
-			initTypeIds(sess);
-		}
-		return nonBinaryContentTypeIds;
-	}
+    private List<Integer> getNonPublishableContentTypeIds(Session sess) {
+        if (nonBinaryContentTypeIds == null) {
+            initTypeIds(sess);
+        }
+        return nonBinaryContentTypeIds;
+    }
 
 
 

@@ -230,38 +230,18 @@ public class PSIdMapping implements IPSDeployComponent
    public void setTarget(String targetId, String targetName, 
       String targetParentId, String targetParentName)
    {
-      if ( targetId == null || targetId.trim().length() == 0 )
-         throw new IllegalArgumentException(
-            "targetId may not be null or empty");
-      if ( targetName == null || targetName.trim().length() == 0 )
-         throw new IllegalArgumentException(
-            "targetName may not be null or empty");
-      
-      if (targetParentId != null)
-      {
-         if (m_parentType == null)
-           throw new IllegalArgumentException(
-            "targetParentId must be null if no source parent is set");
-         else if (targetParentId.trim().length() == 0)
-           throw new IllegalArgumentException(
-            "targetParentId may not be empty");
+      if (targetId == null || targetId.isBlank()) {
+         throw new IllegalArgumentException("targetId may not be null or empty");
       }
-      else if (m_parentType != null)
-         throw new IllegalArgumentException(
-            "targetParentId may not be null if source parent is set");      
-      
-      if (targetParentId != null)
-      {
-         if(targetParentName == null || targetParentName.trim().length() == 0)
-         {
-            throw new IllegalArgumentException(
-               "targetParentName may not be null or empty if source parent is set");
-         }
+      if (targetName == null || targetName.isBlank()) {
+         throw new IllegalArgumentException("targetName may not be null or empty");
       }
-      else if (targetParentName != null)
-         throw new IllegalArgumentException(
-            "targetParentName must be null if source parent is not set.");                      
-
+      if (targetParentId != null && targetParentId.isBlank()) {
+         throw new IllegalArgumentException("targetParentId may not be empty");
+      }
+      if (targetParentId != null && (targetParentName == null || targetParentName.isBlank())) {
+         throw new IllegalArgumentException("targetParentName may not be null or empty if source parent is set");
+      }
       m_targetId = targetId;
       m_targetName = targetName;
       m_targetParentId = targetParentId;
@@ -410,36 +390,29 @@ public class PSIdMapping implements IPSDeployComponent
     */
    public Element toXml(Document doc)
    {
-      if (doc == null)
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
+      }
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_SRC_ID, m_sourceId);
       root.setAttribute(XML_ATTR_SRC_NAME, m_sourceName);
       root.setAttribute(XML_ATTR_OBJ_TYPE, m_objectType);
-      String sIsNewObject = m_isNewObject ? "true" : "false";
-      root.setAttribute(XML_ATTR_IS_NEW_OBJECT, sIsNewObject);
-      if (m_parentType != null)
-      {
+      root.setAttribute(XML_ATTR_IS_NEW_OBJECT, m_isNewObject ? "true" : "false");
+      if (m_parentType != null) {
          root.setAttribute(XML_ATTR_PARENT_TYPE, m_parentType);
          root.setAttribute(XML_ATTR_SRC_PARENT_ID, m_sourceParentId);
-         root.setAttribute(XML_ATTR_SRC_PARENT_NAME, m_sourceParentName);         
+         root.setAttribute(XML_ATTR_SRC_PARENT_NAME, m_sourceParentName);
       }
-
-      // ignore the targetId and targetName for a new object
-      if ( (!m_isNewObject) && m_targetId != null )
-      {
-         Element targetNode = doc.createElement(XML_NODE_TARGET);
+      if (!m_isNewObject && m_targetId != null) {
+         var targetNode = doc.createElement(XML_NODE_TARGET);
          targetNode.setAttribute(XML_ATTR_TGT_ID, m_targetId);
          targetNode.setAttribute(XML_ATTR_TGT_NAME, m_targetName);
-         if (m_targetParentId != null)
-         {
+         if (m_targetParentId != null) {
             targetNode.setAttribute(XML_ATTR_TGT_PARENT_ID, m_targetParentId);
-            targetNode.setAttribute(XML_ATTR_TGT_PARENT_NAME, m_targetParentName);            
+            targetNode.setAttribute(XML_ATTR_TGT_PARENT_NAME, m_targetParentName);
          }
          root.appendChild(targetNode);
       }
-
       return root;
    }
 

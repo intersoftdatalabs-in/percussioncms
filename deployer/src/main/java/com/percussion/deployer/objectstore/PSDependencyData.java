@@ -149,42 +149,17 @@ public class PSDependencyData implements IPSDeployComponent
    public void fromXml(Element sourceNode, PSJdbcDataTypeMap typeMap)
       throws PSUnknownNodeTypeException
    {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      if (sourceNode == null || typeMap == null) {
+         throw new IllegalArgumentException("sourceNode and typeMap may not be null");
       }
-
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-
-      Element schemaEl = PSDeployComponentUtils.getNextRequiredElement(tree,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN,
-         PSJdbcTableSchema.NODE_NAME);
-
-      Element dataEl = PSDeployComponentUtils.getNextRequiredElement(tree,
-         PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS,
-         PSJdbcTableData.NODE_NAME);
-
-      m_schema = null;
-      try
-      {
-         m_schema = new PSJdbcTableSchema(schemaEl, typeMap);
-         m_data = new PSJdbcTableData(dataEl);
-      }
-      catch (PSJdbcTableFactoryException e)
-      {
-         Object[] args;
-         if (m_schema == null)
-            args = new Object[] { XML_NODE_NAME, schemaEl.getNodeName() };
-         else
-            args = new Object[] { XML_NODE_NAME, dataEl.getNodeName() };
-
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var schemaEl = PSDeployComponentUtils.getNextRequiredElement(tree, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN, PSJdbcTableSchema.NODE_NAME);
+      var dataEl = PSDeployComponentUtils.getNextRequiredElement(tree, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS, PSJdbcTableData.NODE_NAME);
+      try {
+          m_schema = new PSJdbcTableSchema(schemaEl, typeMap);
+          m_data = new PSJdbcTableData(dataEl);
+      } catch (PSJdbcTableFactoryException e) {
+          throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, e.getMessage()});
       }
 
    }

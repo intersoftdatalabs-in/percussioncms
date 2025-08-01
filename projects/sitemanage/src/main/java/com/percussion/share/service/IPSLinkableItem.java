@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,18 +20,24 @@ package com.percussion.share.service;
 import com.percussion.share.data.IPSFolderPath;
 
 /**
- * A marker for items that are capable of having a link
- * generated for them.
- * 
+ * Marker for items that are capable of having a link generated for them.
  * See the page module for more info.
- * @author adamgent
  *
+ * @author adamgent
  */
-public interface IPSLinkableItem extends IPSFolderPath
-{
-    
-    public String getId();
-    
-    public String getType();
+public interface IPSLinkableItem extends IPSFolderPath {
 
+    /**
+     * Gets the id of the linkable item.
+     *
+     * @return the id, never null
+     */
+    String getId();
+
+    /**
+     * Gets the type of the linkable item.
+     *
+     * @return the type, never null
+     */
+    String getType();
 }

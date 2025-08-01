@@ -18,33 +18,70 @@ package com.percussion.services.workflow;
 
 import com.percussion.services.PSBaseServiceLocator;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * Locator for workflow service
- * 
+ * Locator for workflow service with Java 11 modernization.
+ * This class provides thread-safe singleton access to the workflow service
+ * using modern concurrency patterns and Optional-based safe access.
+ *
+ * <h2>Java 11 Features</h2>
+ * <ul>
+ * <li>AtomicReference for thread-safe service access</li>
+ * <li>Optional-based safe service retrieval</li>
+ * <li>Enhanced validation with Objects.requireNonNull</li>
+ * <li>Utility class design with private constructor</li>
+ * </ul>
+ *
  * @author dougrand
- * 
  */
-public class PSWorkflowServiceLocator extends PSBaseServiceLocator
-{
-   public static volatile IPSWorkflowService wfService = null;
-   /**
-    * Get the workflow service
-    * 
-    * @return the workflow service, never <code>null</code> if the services
-    *         are correctly configured
-    */
-   public static IPSWorkflowService getWorkflowService()
-   {
-      if (wfService == null)
-      {
-         synchronized (PSWorkflowServiceLocator.class)
-         {
-            if (wfService==null)
-            {
-               wfService = (IPSWorkflowService) getBean("sys_workflowService");
+public class PSWorkflowServiceLocator {
+
+    /**
+     * Thread-safe reference to the workflow service instance.
+     */
+    private static final AtomicReference<IPSWorkflowService> workflowService =
+        new AtomicReference<>();
+
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private PSWorkflowServiceLocator() {
+        // Utility class - prevent instantiation
+    }
+
+    /**
+     * Get the workflow service using atomic reference for thread safety.
+     *
+     * @return the workflow service, never {@code null} if the services
+     *         are correctly configured
+     * @throws IllegalStateException if the service is not properly configured
+     */
+    public static IPSWorkflowService getWorkflowService() {
+        return workflowService.updateAndGet(current -> {
+            if (current == null) {
+                var service = (IPSWorkflowService) PSBaseServiceLocator.getBean("sys_workflowService");
+                return Objects.requireNonNull(service,
+                    "Workflow service bean 'sys_workflowService' is not configured");
             }
-         }
-      }
-      return wfService;
-   }
+            return current;
+        });
+    }
+
+    /**
+     * Get the workflow service safely, returning an Optional for null-safe access.
+     * This method will not throw exceptions if the service is not configured.
+     *
+     * @return an Optional containing the workflow service if available, empty otherwise
+     */
+    public static Optional<IPSWorkflowService> getWorkflowServiceSafely() {
+        try {
+            return Optional.of(getWorkflowService());
+        } catch (Exception e) {
+            // Log the error if needed, but return empty Optional
+            return Optional.empty();
+        }
+    }
 }

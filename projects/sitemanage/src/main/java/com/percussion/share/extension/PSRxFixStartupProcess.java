@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.share.extension;
 
 import com.percussion.cms.IPSConstants;
@@ -26,7 +27,7 @@ import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.cache.PSCacheManager;
 import com.percussion.server.cache.PSCacheProxy;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,102 +36,72 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-public class PSRxFixStartupProcess implements IPSStartupProcess
-{
+/**
+ * Startup process to run RxFix data updates at server startup.
+ * Only runs fixes specified in the RXFIX property.
+ */
+public class PSRxFixStartupProcess implements IPSStartupProcess {
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 
-    IPSStartupProcessManager startupProcessManager;
+    private IPSStartupProcessManager startupProcessManager;
 
     @Override
-    public void doStartupWork(Properties startupProps) throws Exception
-    {
-        String propName = getPropName();
-        String propValue = startupProps.getProperty(propName);
-        if (StringUtils.isEmpty(propValue))
-        {
+    public void doStartupWork(Properties startupProps) {
+        var propName = getPropName();
+        var propValue = startupProps.getProperty(propName);
+        if (StringUtils.isEmpty(propValue)) {
             log.info("Nothing to process");
             return;
         }
-        List<String> fixes = Arrays.asList(propValue.split(",\\s*"));
+        var fixes = Arrays.asList(propValue.split(",\\s*"));
+        try {
+            var fixer = getFixer(fixes);
+            fixer.doFix(false, startupProcessManager);
 
-        PSRxFix fixer = getFixer(fixes);
-
-        fixer.doFix(false,startupProcessManager);
-
-
-        List<PSRxFix.Entry> entries = fixer.getEntries();
-
-        // Print out results
-        for (PSRxFix.Entry e : entries)
-        {
-            log.info("Running RxFix Fix: {}" ,e.getFixname());
-            List<PSFixResult> result = e.getResults();
-            if (result != null)
-            {
-                for (PSFixResult r : result)
-                {
-                    log.info(r);
+            var entries = fixer.getEntries();
+            for (var e : entries) {
+                log.info("Running RxFix Fix: {}", e.getFixname());
+                var result = e.getResults();
+                if (result != null) {
+                    for (var r : result) {
+                        log.info(r);
+                    }
                 }
             }
-        }
-        
-        try {
+
             if (PSCacheManager.isAvailable()) {
-                PSCacheManager cacheManager = PSCacheManager.getInstance();
+                var cacheManager = PSCacheManager.getInstance();
                 cacheManager.flush();
                 PSCacheProxy.flushFolderCache();
             }
+        } catch (Exception e) {
+            log.error("Error running RxFix startup process. Error: {}", PSExceptionUtils.getMessageForLog(e));
         }
-        catch (Exception e) {
-            log.error("Error flushing folder cache. Error: {}",
-                    PSExceptionUtils.getMessageForLog(e));
-        }
-
         log.info("Finished running data updates.");
     }
 
-    private PSRxFix getFixer(List<String> fixes) throws Exception
-    {
-        PSRxFix fixer = new PSRxFix();
-
-        // TODO: only test running fixes that are used by the installer since
-        // others fail, and we aren't going to take the time to fix them now.
-        Iterator<Entry> iter = fixer.getEntries().iterator();
-        while (iter.hasNext())
-        {
-            Entry entry = iter.next();
-            if (fixes.contains(entry.getFix().getSimpleName()))
-            {
-                // keep these
+    private PSRxFix getFixer(List<String> fixes) throws Exception {
+        var fixer = new PSRxFix();
+        var iter = fixer.getEntries().iterator();
+        while (iter.hasNext()) {
+            var entry = iter.next();
+            if (fixes.contains(entry.getFix().getSimpleName())) {
                 continue;
             }
-
-            // remove others
             iter.remove();
         }
         return fixer;
     }
 
-    static String getPropName()
-    {
+    static String getPropName() {
         return "RXFIX";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.percussion.server.IPSStartupProcess#setStartupProcessManager(com.
-     * percussion.server.IPSStartupProcessManager)
-     */
     @Override
-    public void setStartupProcessManager(IPSStartupProcessManager mgr)
-    {
-        if(mgr != null ){
+    public void setStartupProcessManager(IPSStartupProcessManager mgr) {
+        if (mgr != null) {
             startupProcessManager = mgr;
             mgr.addStartupProcess(this);
         }
-
     }
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,9 +25,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * Represents a list of rich text custom styles.
+ */
 @XmlRootElement(name = "RichTextCustomStyle")
-@ArraySchema(schema=@Schema(implementation = PSRichTextCustomStyle.class))
+@ArraySchema(schema = @Schema(implementation = PSRichTextCustomStyle.class))
 public class PSRichTextCustomStyleList extends ArrayList<PSRichTextCustomStyle> {
     public PSRichTextCustomStyleList(Collection<? extends PSRichTextCustomStyle> c) {
         super(c);

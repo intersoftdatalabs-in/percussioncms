@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -41,56 +42,43 @@ import java.util.Map;
 
 import static org.apache.commons.lang.Validate.notNull;
 
-
 /**
- * @author LucasPiccoli
- *
+ * Helper responsible for creating a site and related elements during import.
+ * Sunny Sal says: "A site a day keeps the 404s away!"
  */
 @Component("siteCreationHelper")
 @Lazy
-public class PSSiteCreationHelper extends PSImportHelper
-{
+public class PSSiteCreationHelper extends PSImportHelper {
 
-    /**
-     * Server logger for the helper (It's a mandatory helper so context log will
-     * be erased if an error occurs).
-     */
     public static final Logger log = LogManager.getLogger(PSSiteCreationHelper.class);
-    
-    private IPSiteDao siteDao;
-    
-    private IPSPageService pageService;
-    
-    private final String DEFAULT_TEMPLATE_NAME = "Home";
 
-    private final String DEFAULT_LANDING_PAGE_NAME = "Home";
+    private final IPSiteDao siteDao;
+    private final IPSPageService pageService;
 
-    private final String STATUS_MESSAGE = "creating site";
-    
+    private static final String DEFAULT_TEMPLATE_NAME = "Home";
+    private static final String DEFAULT_LANDING_PAGE_NAME = "Home";
+    private static final String STATUS_MESSAGE = "creating site";
+
     @Autowired
-    public PSSiteCreationHelper(IPSiteDao siteDao, IPSPageService pageService){
+    public PSSiteCreationHelper(IPSiteDao siteDao, IPSPageService pageService) {
         this.siteDao = siteDao;
         this.pageService = pageService;
     }
-    
+
     @Override
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException
-    {
+    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException {
         startTimer();
         context.getLogger().appendLogMessage(PSLogEntryType.STATUS, "Create Site", "The site creation has started.");
 
-        // Create site and related elements
-        PSSite newSite = context.getSite();
-     
-        //Set plain template as base template
+        var newSite = context.getSite();
+
+        // Set plain template as base template
         newSite.setBaseTemplateName(IPSSitemanageConstants.PLAIN_BASE_TEMPLATE_NAME);
         newSite.setTemplateName(DEFAULT_TEMPLATE_NAME);
-        
-        //If page title could be extracted get it from pageContent. 
-        //Otherwise default to page name and log a message.
-        String importedPageTitle = pageContent.getTitle();
-        if (StringUtils.isBlank(importedPageTitle))
-        {
+
+        // If page title could be extracted, get it from pageContent. Otherwise default to page name and log a message.
+        var importedPageTitle = pageContent.getTitle();
+        if (StringUtils.isBlank(importedPageTitle)) {
             importedPageTitle = DEFAULT_LANDING_PAGE_NAME;
             context.getLogger().appendLogMessage(PSLogEntryType.STATUS,
                     "Extract page title",
@@ -98,69 +86,58 @@ public class PSSiteCreationHelper extends PSImportHelper
         }
         newSite.setHomePageTitle(importedPageTitle);
         newSite.setNavigationTitle(importedPageTitle);
-        
-        try
-        {
-            // save and create related elements
+
+        try {
+            // Save and create related elements
             context.setSite(siteDao.save(newSite));
             context.getLogger().appendLogMessage(PSLogEntryType.STATUS, "Create site",
                     "The site was created successfully.");
-            
-            // set the template id on the context
-            PSPage homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, context.getSite().getFolderPath());
-            if (homePage != null)
-            {
+
+            // Set the template id on the context
+            var homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, context.getSite().getFolderPath());
+            if (homePage != null) {
                 context.setTemplateId(homePage.getTemplateId());
                 context.setPageName(PSSiteContentDao.HOME_PAGE_NAME);
             }
 
-            //Create site import summary entry
+            // Create site import summary entry
             context.getSummaryService().create(context.getSite().getSiteId().intValue());
-            
-            //Update the template count
-            Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> summaryStats = 
-                    new HashMap<>();
-            if(context.getSummaryStats()!=null)
-            {
+
+            // Update the template and page count
+            var summaryStats = new HashMap<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer>();
+            if (context.getSummaryStats() != null) {
                 summaryStats.putAll(context.getSummaryStats());
                 context.setSummaryStats(null);
             }
-            summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.TEMPLATES, new Integer(1));
-            summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.PAGES, new Integer(1));
-            context.getSummaryService().update(context.getSite().getSiteId().intValue(), summaryStats);        
-            
-        }
-        catch (RuntimeException | PSDataServiceException e)
-        {
+            summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.TEMPLATES, 1);
+            summaryStats.put(IPSSiteImportSummaryService.SiteImportSummaryTypeEnum.PAGES, 1);
+            context.getSummaryService().update(context.getSite().getSiteId().intValue(), summaryStats);
+
+        } catch (RuntimeException | PSDataServiceException e) {
             // Errors in mandatory helpers are not logged in siteImportLogger,
             // because that log is discarded. Log the error in the server log.
-            String message = "There was an unexpected error creating the new site.";
+            var message = "There was an unexpected error creating the new site.";
             log.error(message + ". Caused by: " + e.getMessage() + ExceptionUtils.getFullStackTrace(e));
             throw new PSSiteImportException(message, e);
         }
         endTimer();
     }
-    
+
     @Override
     @SuppressWarnings("unused")
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
-    {
+    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
         notNull(context.getSite());
-        try
-        {
+        try {
             // Delete site and related content
             siteDao.delete(context.getSite().getId());
-        }
-        catch (PSDataServiceException e)
-        {
+        } catch (PSDataServiceException e) {
             context.getLogger().appendLogMessage(PSLogEntryType.ERROR, "Delete Site",
                     "Failed to roll back site creation: " + e.getLocalizedMessage());
         }
     }
 
     @Override
-    public String getHelperMessage()
-    {
+    public String getHelperMessage() {
         return STATUS_MESSAGE;
     }
 }

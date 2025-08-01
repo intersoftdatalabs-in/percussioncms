@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -70,25 +71,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 
 /**
  * Provides services to search {@link PSPathItem} objects through Lucene.
- * 
- * @author leonardohildt
- *
+ * Sunny Sal says: "Search like a pro, but don't search for bugs!"
  */
 @Component("searchService")
-public class PSSearchService implements IPSSearchService
-{
+public class PSSearchService implements IPSSearchService {
     /**
      * TODO:  This service needs refactored to not use the Web Services API for calling the backend search
      * it should just be calling the spring service instead.  The way it is coded now it is interacting with the
@@ -100,571 +94,338 @@ public class PSSearchService implements IPSSearchService
     IPSPageDaoHelper ipsPageDaoHelper;
 
     @Autowired
-    public PSSearchService(IPSFolderHelper folderHelper, IPSIdMapper idMapper,
-            IPSItemWorkflowService itemWorkflowService,  @Qualifier("cm1SearchListViewHelper") IPSListViewHelper listViewHelper, IPSUiService uiService,IPSRecycleService recycleService, IPSSystemService systemService)
-    {
+    public PSSearchService(
+            IPSFolderHelper folderHelper,
+            IPSIdMapper idMapper,
+            IPSItemWorkflowService itemWorkflowService,
+            @Qualifier("cm1SearchListViewHelper") IPSListViewHelper listViewHelper,
+            IPSUiService uiService,
+            IPSRecycleService recycleService,
+            IPSSystemService systemService) {
         this.folderHelper = folderHelper;
         this.idMapper = idMapper;
         this.itemWorkflowService = itemWorkflowService;
         this.listViewHelper = listViewHelper;
         this.workflowService = PSWorkflowServiceLocator.getWorkflowService();
         this.uiService = uiService;
-        this.recycleService=recycleService;
-        if(systemService != null) {
-            this.systemService = systemService;
-        }else{
-            this.systemService = PSSystemServiceLocator.getSystemService();
-        }
+        this.recycleService = recycleService;
+        this.systemService = Optional.ofNullable(systemService).orElseGet(PSSystemServiceLocator::getSystemService);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.percussion.searchmanagement.service.IPSSearchService#search(java.
-     * lang.String)
-     */
     @Override
-    public PSPagedItemList search(PSSearchCriteria criteria) throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException {
-        List<Integer> contentIdList = searchForIds(criteria);
+    public PSPagedItemList search(PSSearchCriteria criteria)
+            throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException {
+        var contentIdList = searchForIds(criteria);
         return search(criteria, contentIdList);
     }
 
     @Override
-    public List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria){
+    public List<Integer> getContentIdsForFetchingByStatus(PSSearchCriteria criteria) {
         return getContentIdsForSearchByStatus(criteria);
     }
 
-    private List<Integer> getContentIdsForSearchByStatus(PSSearchCriteria criteria){
-        if (criteria.getFormatId() == null)
+    private List<Integer> getContentIdsForSearchByStatus(PSSearchCriteria criteria) {
+        if (criteria.getFormatId() == null) {
             throw new IllegalArgumentException("format Id cannot be blank.");
-        try
-        {
-            // Build a FTS query
-            PSSearchHandler searchHandler = new PSSearchHandler();
-            PSWSSearchParams searchParams = new PSWSSearchParams();
+        }
+        try {
+            var searchHandler = new PSSearchHandler();
+            var searchParams = new PSWSSearchParams();
 
-            // get params
-            Map<String, String> searchFields = criteria.getSearchFields();
-            if (searchFields != null && !searchFields.isEmpty())
-            {
-                List<PSWSSearchField> wsSearchFields = new ArrayList<PSWSSearchField>();
-                for (Map.Entry<String, String> entry : searchFields.entrySet())
-                {
-                    wsSearchFields.add(new PSWSSearchField(entry.getKey(), "=", entry.getValue(), PSWSSearchField.CONN_ATTR_AND));
-                }
-
+            var searchFields = criteria.getSearchFields();
+            if (searchFields != null && !searchFields.isEmpty()) {
+                var wsSearchFields = searchFields.entrySet().stream()
+                        .map(entry -> new PSWSSearchField(entry.getKey(), "=", entry.getValue(), PSWSSearchField.CONN_ATTR_AND))
+                        .collect(Collectors.toList());
                 searchParams.setSearchFields(wsSearchFields);
             }
-            String folderPath = criteria.getFolderPath();
-            if (!StringUtils.isBlank(folderPath))
-            {
+            var folderPath = criteria.getFolderPath();
+            if (!StringUtils.isBlank(folderPath)) {
                 searchParams.setFolderPathFilter(folderPath, true);
             }
 
-            PSWSSearchRequest search = new PSWSSearchRequest(searchParams);
+            var search = new PSWSSearchRequest(searchParams);
+            var request = PSWebserviceUtils.getRequest();
 
-            PSRequest request = PSWebserviceUtils.getRequest();
-
-            // Lucene search
-            List<Integer> contentIdList = searchHandler.searchAndGetContentIdsForSearchByStatus(request,search);
-            List<Integer> newContentIdList=new ArrayList<>();
-
-            for(Integer contentID:contentIdList){
-
-                if(!recycleService.isInRecycler(contentID.toString()))
-                    newContentIdList.add(contentID);
-            }
-
-            return newContentIdList;
-        }
-        catch (NumberFormatException nfe)
-        {
-
+            var contentIdList = searchHandler.searchAndGetContentIdsForSearchByStatus(request, search);
+            return contentIdList.stream()
+                    .filter(contentID -> !recycleService.isInRecycler(contentID.toString()))
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException nfe) {
             log.error("Error occurred while trying to parse the sys_contentid: {}", nfe.getMessage());
             log.debug(nfe);
             throw new PSSearchServiceException(nfe);
-        }
-        catch (Exception e)
-        {
-            log.error("Error occurred while trying to perform a full text search: {}",PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("Error occurred while trying to perform a full text search: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new PSSearchServiceException(e);
         }
     }
 
     @Override
-    public PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria)
-            throws PSSearchServiceException
-    {
-        List<Integer> contentIds = searchForIds(criteria);
-        List<IPSItemEntry> allItemEntries = getSortedEntries(criteria, contentIds);
-        Integer resultingStartIndex = 1;
-        Integer startIndex = criteria.getStartIndex() == null ? 1 : criteria.getStartIndex();
-        
-        // Paginate
-        PSPagedObjectList<IPSItemEntry> result = PSPagedObjectList.getPage(allItemEntries, startIndex, criteria.getMaxResults());
-        
-        List<IPSItemEntry> pagedItemEntries = result.getChildrenInPage();
-        resultingStartIndex = result.getStartIndex();
-        
-        List<Integer> pagedContentIdList = new ArrayList<>();
-        List<PSItemProperties> itemsInPage = new ArrayList<>();
-        for (IPSItemEntry itemEntry : pagedItemEntries)
-        {
-            try
-            {
-            IPSGuid myGuid = PSGuidUtils.makeGuid(itemEntry.getContentId(), PSTypeEnum.LEGACY_CONTENT);
-            if (folderHelper.getParentFolderId(myGuid, false) == null)
-            {
-                log.debug("Item (id = {}) is not in a folder.  It will not be included in the search results.",itemEntry.getContentId());
-                continue;
-            }
-            
-            PSItemProperties itemProps;
+    public PSPagedItemPropertiesList getExtendedSearchResults(PSSearchCriteria criteria) throws PSSearchServiceException {
+        var contentIds = searchForIds(criteria);
+        var allItemEntries = getSortedEntries(criteria, contentIds);
+        var startIndex = Optional.ofNullable(criteria.getStartIndex()).orElse(1);
 
-                itemProps = folderHelper.findItemPropertiesById(idMapper.getString(myGuid));
+        var result = PSPagedObjectList.getPage(allItemEntries, startIndex, criteria.getMaxResults());
+        var pagedItemEntries = result.getChildrenInPage();
+        var resultingStartIndex = result.getStartIndex();
 
-   
-            itemsInPage.add(itemProps);
-            pagedContentIdList.add(itemEntry.getContentId());
-            }
-            catch (Exception e)
-            {
+        var itemsInPage = new ArrayList<PSItemProperties>();
+        for (var itemEntry : pagedItemEntries) {
+            try {
+                var myGuid = PSGuidUtils.makeGuid(itemEntry.getContentId(), PSTypeEnum.LEGACY_CONTENT);
+                if (folderHelper.getParentFolderId(myGuid, false) == null) {
+                    log.debug("Item (id = {}) is not in a folder. It will not be included in the search results.", itemEntry.getContentId());
+                    continue;
+                }
+                var itemProps = folderHelper.findItemPropertiesById(idMapper.getString(myGuid));
+                itemsInPage.add(itemProps);
+            } catch (Exception e) {
                 log.warn(PSExceptionUtils.getMessageForLog(e));
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
         }
-        
         return new PSPagedItemPropertiesList(itemsInPage, allItemEntries.size(), resultingStartIndex);
     }
-    
+
+    @Override
     public PSPagedItemList search(PSSearchCriteria criteria, List<Integer> contentIdList)
             throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException {
-        if (criteria.getFormatId() == null)
+        if (criteria.getFormatId() == null) {
             throw new IllegalArgumentException("format Id cannot be blank.");
-        List<IPSItemEntry> allItemEntries = getSortedEntries(criteria, contentIdList);
-        
+        }
+        var allItemEntries = getSortedEntries(criteria, contentIdList);
         return formatResults(criteria, allItemEntries);
     }
 
     @Override
     public PSPagedItemList searchByStatus(PSSearchCriteria criteria, List<Integer> contentIdList)
             throws PSSearchServiceException, PSValidationException, PSNotFoundException, IPSDataService.DataServiceLoadException {
-        if (criteria.getFormatId() == null)
+        if (criteria.getFormatId() == null) {
             throw new IllegalArgumentException("format Id cannot be blank.");
-        List<Integer> finalContentIdList = (List<Integer>) ipsPageDaoHelper.getContentIdsForFetchingByStatus(criteria, contentIdList);
-        List<IPSItemEntry> allItemEntries = getSortedEntries(criteria, finalContentIdList);
+        }
+        var finalContentIdList = ipsPageDaoHelper.getContentIdsForFetchingByStatus(criteria, contentIdList);
+        var allItemEntries = getSortedEntries(criteria, finalContentIdList);
         return formatResults(criteria, allItemEntries);
     }
 
-    private List<Integer> searchForIds(PSSearchCriteria criteria)
-    {
-        if (criteria.getFormatId() == null)
+    private List<Integer> searchForIds(PSSearchCriteria criteria) {
+        if (criteria.getFormatId() == null) {
             throw new IllegalArgumentException("format Id cannot be blank.");
-        
-        try
-        {
-            // Build a FTS query
-            PSSearchHandler searchHandler = new PSSearchHandler();
-            PSWSSearchParams searchParams = new PSWSSearchParams();
-            
-            // get params
-            Map<String, String> searchFields = criteria.getSearchFields();
-            if (searchFields != null && !searchFields.isEmpty())
-            {
-                List<PSWSSearchField> wsSearchFields = new ArrayList<>();
-                for (Map.Entry<String, String> entry : searchFields.entrySet())
-                {
-                    wsSearchFields.add(new PSWSSearchField(entry.getKey(), "=", entry.getValue(), PSWSSearchField.CONN_ATTR_AND));
-                }
-                
+        }
+        try {
+            var searchHandler = new PSSearchHandler();
+            var searchParams = new PSWSSearchParams();
+
+            var searchFields = criteria.getSearchFields();
+            if (searchFields != null && !searchFields.isEmpty()) {
+                var wsSearchFields = searchFields.entrySet().stream()
+                        .map(entry -> new PSWSSearchField(entry.getKey(), "=", entry.getValue(), PSWSSearchField.CONN_ATTR_AND))
+                        .collect(Collectors.toList());
                 searchParams.setSearchFields(wsSearchFields);
             }
 
-            // Decode the URLencoded query, workaround for jQuery bug http://bugs.jquery.com/ticket/8417
+            // Decode the URL-encoded query, workaround for jQuery bug http://bugs.jquery.com/ticket/8417
             // Then escape it for Lucene
-            String urlDecodedQuery = URLDecoder.decode(criteria.getQuery(), "UTF-8");
-            String query = escapeLuceneQuery(urlDecodedQuery);
-            
-            // exclude local content from the search
+            var urlDecodedQuery = URLDecoder.decode(criteria.getQuery(), "UTF-8");
+            var query = escapeLuceneQuery(urlDecodedQuery);
+
+            // Exclude local content from the search
             query = excludeLocalWorkflow(query, searchParams);
             searchParams.setFTSQuery(query);
-            
-            String folderPath = criteria.getFolderPath();
-            if (!StringUtils.isBlank(folderPath))
-            {
+
+            var folderPath = criteria.getFolderPath();
+            if (!StringUtils.isBlank(folderPath)) {
                 searchParams.setFolderPathFilter(folderPath, true);
             }
 
-            PSWSSearchRequest search = new PSWSSearchRequest(searchParams);
-            // Needs to set the externalsearchengine, since search will happen
-            // through lucene and from the database
+            var search = new PSWSSearchRequest(searchParams);
             search.setUseExternalSearchEngine(true);
-            PSRequest request = PSWebserviceUtils.getRequest();
-            
-            // Lucene search
-            List<Integer> contentIdList = searchHandler.searchAndGetContentIds(request, search);
-            List<Integer> newContentIdList=new ArrayList<>();
+            var request = PSWebserviceUtils.getRequest();
 
-            for(Integer contentID:contentIdList){
-
-                if(!recycleService.isInRecycler(contentID.toString()))
-                    newContentIdList.add(contentID);
-            }
-
-            return newContentIdList;
-        }
-        catch (NumberFormatException nfe)
-        {
+            var contentIdList = searchHandler.searchAndGetContentIds(request, search);
+            return contentIdList.stream()
+                    .filter(contentID -> !recycleService.isInRecycler(contentID.toString()))
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException nfe) {
             log.error("Error occurred while trying to parse the sys_contentid: {}", nfe.getMessage());
             log.debug(nfe);
             throw new PSSearchServiceException(nfe);
+        } catch (Exception e) {
+            log.error("Error occurred while trying to perform a full text search: {}", PSExceptionUtils.getMessageForLog(e));
+            throw new PSSearchServiceException(e);
         }
-        catch (Exception e)
-        {
-            log.error("Error occurred while trying to perform a full text search: {}",PSExceptionUtils.getMessageForLog(e));
-            throw new PSSearchServiceException( e);
-        }
-        
     }
+
     /**
-     * Creates the paged item list w/the expected display properties
-     * 
-     * @param criteria The search critieria, assumed not <code>null</code>.
-     * @param allItemEntries All items returned from the search.
-     * 
-     * @return The paged item list, not <code>null</code>.
+     * Creates the paged item list with the expected display properties.
      */
-    private PSPagedItemList formatResults(PSSearchCriteria criteria, List<IPSItemEntry> allItemEntries) throws PSValidationException, IPSDataService.DataServiceLoadException, PSNotFoundException {
-        Integer resultingStartIndex = 1;
-        Integer startIndex = criteria.getStartIndex() == null ? 1 : criteria.getStartIndex();
-        
-        // Paginate
-        PSPagedObjectList<IPSItemEntry> result = PSPagedObjectList.getPage(allItemEntries, startIndex, criteria.getMaxResults());
-        
-        List<IPSItemEntry> pagedItemEntries = result.getChildrenInPage();
-        resultingStartIndex = result.getStartIndex();
-        
-        // PSItemEntry -> PSPathItem
-        List<Integer> pagedContentIdList = new ArrayList<>();
-        List<PSPathItem> itemsInPage = new ArrayList<>();
-        for (IPSItemEntry itemEntry : pagedItemEntries)
-        {
-            IPSGuid myGuid = PSGuidUtils.makeGuid(itemEntry.getContentId(), PSTypeEnum.LEGACY_CONTENT);
-            if (folderHelper.getParentFolderId(myGuid, false) == null)
-            {
-                log.debug("Item (id = " + itemEntry.getContentId() + ") is not in a folder.  It will not be "
-                        + "included in the search results.");
+    private PSPagedItemList formatResults(PSSearchCriteria criteria, List<IPSItemEntry> allItemEntries)
+            throws PSValidationException, IPSDataService.DataServiceLoadException, PSNotFoundException {
+        var startIndex = Optional.ofNullable(criteria.getStartIndex()).orElse(1);
+
+        var result = PSPagedObjectList.getPage(allItemEntries, startIndex, criteria.getMaxResults());
+        var pagedItemEntries = result.getChildrenInPage();
+        var resultingStartIndex = result.getStartIndex();
+
+        var itemsInPage = new ArrayList<PSPathItem>();
+        for (var itemEntry : pagedItemEntries) {
+            var myGuid = PSGuidUtils.makeGuid(itemEntry.getContentId(), PSTypeEnum.LEGACY_CONTENT);
+            if (folderHelper.getParentFolderId(myGuid, false) == null) {
+                log.debug("Item (id = {}) is not in a folder. It will not be included in the search results.", itemEntry.getContentId());
                 continue;
             }
-            
-            PSPathItem pathItem = folderHelper.findItemById(idMapper.getString(myGuid));
-   
+            var pathItem = folderHelper.findItemById(idMapper.getString(myGuid));
             pathItem.setRelatedObject(itemEntry);
             itemsInPage.add(pathItem);
-            pagedContentIdList.add(itemEntry.getContentId());
         }
-        
-        PSSimpleDisplayFormat format = uiService.getDisplayFormat(criteria.getFormatId());
+
+        var format = uiService.getDisplayFormat(criteria.getFormatId());
         listViewHelper.fillDisplayProperties(new PSDisplayPropertiesCriteria(itemsInPage, format));
-        
+
         return new PSPagedItemList(itemsInPage, allItemEntries.size(), resultingStartIndex);
     }
 
     /**
-     * Gets the item entries for all of the supplied content ids sorted based on the supplied critieria
-     * 
-     * @param criteria The search critieria, assumed not <code>null</code>.
-     * @param contentIdList The list of content ids, assumed not <code>null</code>.
-     * 
-     * @return The sorted list of item entries, not <code>null</code>.
+     * Gets the item entries for all of the supplied content ids sorted based on the supplied criteria.
      */
-    private List<IPSItemEntry> getSortedEntries(PSSearchCriteria criteria, List<Integer> contentIdList)
-    {
-        // Get cached items with display properties
+    private List<IPSItemEntry> getSortedEntries(PSSearchCriteria criteria, List<Integer> contentIdList) {
         CompareItemEntry compare = null;
-        
-        if (criteria.getSortColumn() != null && criteria.getSortOrder() != null)
+        if (criteria.getSortColumn() != null && criteria.getSortOrder() != null) {
             compare = new CompareItemEntry(criteria.getSortColumn(), criteria.getSortOrder());
-        
-       return cmsObjectMgr.findItemEntries(contentIdList, compare);
+        }
+        return cmsObjectMgr.findItemEntries(contentIdList, compare);
     }
 
-    private class CompareItemEntry implements Comparator<IPSItemEntry>
-    {
+    private class CompareItemEntry implements Comparator<IPSItemEntry> {
         String sortColumn;
         int sortOrderNumber;
-        
-        private CompareItemEntry(String sortColumn, String sortOrder)
-        {
+
+        private CompareItemEntry(String sortColumn, String sortOrder) {
             this.sortColumn = sortColumn;
-            this.sortOrderNumber =  equalsIgnoreCase(sortOrder, "desc") ? -1 : 1;
+            this.sortOrderNumber = equalsIgnoreCase(sortOrder, "desc") ? -1 : 1;
         }
-        
-        public int compare(IPSItemEntry o1, IPSItemEntry o2)
-        {
-           Object prop1 = null, prop2 = null;
 
-           // Group folders (at the top or bottom). Makes sorting to behave as
-           // the Window explorer.
-           // It's commented out for now, as UX doesn't want to behave like
-           // that.
-           
-//            String o1type = o1.getDisplayProperties().get(PSUiHelper.CONTENTTYPE_NAME);
-//            String o2type = o2.getDisplayProperties().get(PSUiHelper.CONTENTTYPE_NAME);
-//
-//            if (!StringUtils.equals(o1type, o2type))
-//            {
-//                if (PSUiHelper.FOLDER_CONTENTTYPE.equals(o1type))
-//                    return sortOrderNumber * -1;
-//                else if (PSUiHelper.FOLDER_CONTENTTYPE.equals(o2type))
-//                    return sortOrderNumber * 1;
-//            }
-
-           // The following code was used to dynamically sort by a specified
-           // column. This was disabled due to some design limitations, but
-           // could be useful in the future when the user is able to select
-           // the display columns.
-           
-//           String prop1str = StringUtils.EMPTY;
-//           String prop2str = StringUtils.EMPTY;
-//
-//           if (o1.getDisplayProperties() != null)
-//              prop1str = o1.getDisplayProperties().get(sortColumn);
-//
-//           if (o2.getDisplayProperties() != null)
-//              prop2str = o2.getDisplayProperties().get(sortColumn);
-
-//           prop1 = getRealDataType(prop1str);
-//           prop2 = getRealDataType(prop2str);
-
-           
-           if (StringUtils.equals(sortColumn, CONTENT_CREATEDBY_NAME))
-           {
-              prop1 = o1.getCreatedBy();
-              prop2 = o2.getCreatedBy();
-           }
-           else if (StringUtils.equals(sortColumn, CONTENT_CREATEDDATE_NAME))
-           {
-              prop1 = o1.getCreatedDate();
-              prop2 = o2.getCreatedDate();
-           }
-           else if (StringUtils.equals(sortColumn, POSTDATE_NAME))
-           {
-              prop1 = o1.getPostDate();
-              prop2 = o2.getPostDate();
-           }
-           else if (StringUtils.equals(sortColumn, CONTENT_LAST_MODIFIED_DATE_NAME))
-           {
-              prop1 = o1.getLastModifiedDate();
-              prop2 = o2.getLastModifiedDate();
-           }
-           else if (StringUtils.equals(sortColumn, STATE_NAME))
-           {
-              prop1 = o1.getStateName();
-              prop2 = o2.getStateName();
-           }
-           else if (StringUtils.equals(sortColumn, TITLE_NAME))
-           {
-              prop1 = o1.getName();
-              prop2 = o2.getName();
-           }
-           else if (StringUtils.equals(sortColumn, CONTENTTYPE_NAME))
-           {
-              prop1 = o1.getContentTypeLabel();
-              prop2 = o2.getContentTypeLabel();
-           }
-           else if (StringUtils.equals(sortColumn, WORKFLOW_NAME))
-           {
-              PSWorkflow wf1 = getWorkflow(o1.getWorkflowAppId());
-              PSWorkflow wf2 = getWorkflow(o2.getWorkflowAppId());
-              prop1 = wf1.getName();
-              prop2 = wf2.getName();
-           }           
-           else
-           {
-              throw new IllegalArgumentException("The specified sort column is not supported");
-           }
-           
-           int compareResult =
-                 new CompareToBuilder()
-                    .append(prop1, prop2)
-                    .toComparison();
-
-           return sortOrderNumber * compareResult;
+        @Override
+        public int compare(IPSItemEntry o1, IPSItemEntry o2) {
+            Object prop1 = null, prop2 = null;
+            if (StringUtils.equals(sortColumn, CONTENT_CREATEDBY_NAME)) {
+                prop1 = o1.getCreatedBy();
+                prop2 = o2.getCreatedBy();
+            } else if (StringUtils.equals(sortColumn, CONTENT_CREATEDDATE_NAME)) {
+                prop1 = o1.getCreatedDate();
+                prop2 = o2.getCreatedDate();
+            } else if (StringUtils.equals(sortColumn, POSTDATE_NAME)) {
+                prop1 = o1.getPostDate();
+                prop2 = o2.getPostDate();
+            } else if (StringUtils.equals(sortColumn, CONTENT_LAST_MODIFIED_DATE_NAME)) {
+                prop1 = o1.getLastModifiedDate();
+                prop2 = o2.getLastModifiedDate();
+            } else if (StringUtils.equals(sortColumn, STATE_NAME)) {
+                prop1 = o1.getStateName();
+                prop2 = o2.getStateName();
+            } else if (StringUtils.equals(sortColumn, TITLE_NAME)) {
+                prop1 = o1.getName();
+                prop2 = o2.getName();
+            } else if (StringUtils.equals(sortColumn, CONTENTTYPE_NAME)) {
+                prop1 = o1.getContentTypeLabel();
+                prop2 = o2.getContentTypeLabel();
+            } else if (StringUtils.equals(sortColumn, WORKFLOW_NAME)) {
+                var wf1 = getWorkflow(o1.getWorkflowAppId());
+                var wf2 = getWorkflow(o2.getWorkflowAppId());
+                prop1 = wf1.getName();
+                prop2 = wf2.getName();
+            } else {
+                throw new IllegalArgumentException("The specified sort column is not supported");
+            }
+            var compareResult = new CompareToBuilder().append(prop1, prop2).toComparison();
+            return sortOrderNumber * compareResult;
         }
     }
-    
-    /**
-     * Gets the display format object ({@link PSSimpleDisplayFormat} according
-     * to the given display format id. It returns the default value if the
-     * display format id passed in is null.
-     * 
-     * @param displayFormatId
-     * @return The {@link PSSimpleDisplayFormat} object according to the given
-     * display format id.
-     */
-    private PSSimpleDisplayFormat getDisplayFormat(Integer displayFormatId)
-    {
-        int id = -1;
-        
-        if (displayFormatId != null)
-            id = displayFormatId;
-        
-        return uiService.getDisplayFormat(id);
-    }
-    
-    /**
-     * 
-     * @param query query that to be escaped for the first character for the
-     *            special characters supported for Lucene.
-     * @return returns the escaped query
-     */
-    private String escapeLuceneQuery(String query)
-    {
-        String escapedQuery = query;
 
-        for (String specialCharacter : luceneSpecialCharacters)
-        {
-            if (escapedQuery.startsWith(specialCharacter))
-            {
-                String replacement = "\\" + specialCharacter;
-                escapedQuery = replacement + escapedQuery.substring(1, escapedQuery.length());
+    private String escapeLuceneQuery(String query) {
+        var escapedQuery = query;
+        for (var specialCharacter : luceneSpecialCharacters) {
+            if (escapedQuery.startsWith(specialCharacter)) {
+                var replacement = "\\" + specialCharacter;
+                escapedQuery = replacement + escapedQuery.substring(1);
                 break;
             }
         }
         return escapedQuery;
     }
 
-    /**
-     * Generates the clause used to exclude items based on the local workflow id.  Returns
-     * the query unmodified if the search params include the workflow id field.
-     * 
-     * @param searchParams The search params, assumed not <code>null</code>.
-     * @param query The query, may be <code>null<code/> or empty.
-     * 
-     * @return The query possibly modified to add an exclude clause, may be <code>null<code/> or empty if
-     * the supplied query was and if the params include the workflow id field.
-     */
-    private String excludeLocalWorkflow(String query, PSWSSearchParams searchParams) throws IPSItemWorkflowService.PSItemWorkflowServiceException, PSValidationException {
-        int localId = getLocalContentWfId();
-        // if we have a query, just add NOT condition
-        if (!StringUtils.isBlank(query))
+    private String excludeLocalWorkflow(String query, PSWSSearchParams searchParams)
+            throws IPSItemWorkflowService.PSItemWorkflowServiceException, PSValidationException {
+        var localId = getLocalContentWfId();
+        if (!StringUtils.isBlank(query)) {
             query += EXCLUDE_WORKFLOW + localId;
-        else
-        {
-            // if no query, can't pass "NOT" alone, get back nothing, so add workflow condition if not in params
-            if (!hasWorkflowParam(searchParams))
-            {
+        } else {
+            if (!hasWorkflowParam(searchParams)) {
                 query += "(";
-                List<Integer> wfIds = getSearchableWorkflowIds();
-                Iterator<Integer> iter = wfIds.iterator();
-                while(iter.hasNext())
-                {
-                    Integer wfId = iter.next();
-
+                var wfIds = getSearchableWorkflowIds();
+                var iter = wfIds.iterator();
+                while (iter.hasNext()) {
+                    var wfId = iter.next();
                     query += WORKFLOW_ID + ":" + wfId;
-                    if (iter.hasNext())
+                    if (iter.hasNext()) {
                         query += " OR ";
+                    }
                 }
                 query += ")";
             }
         }
-
-        
         return query;
     }
-    
-    /**
-     * Determine if the supplied search params include a field query on the workflow id field.
-     * 
-     * @param searchParams The params, assumed not <code>null</code>.
-     * 
-     * @return <code>true</code> if the the params contain the workflow id field, <code>false</code> otherwise.
-     */
-    private boolean hasWorkflowParam(PSWSSearchParams searchParams)
-    {
-        List<PSWSSearchField> fields = searchParams.getSearchFields();
-        for (PSWSSearchField field : fields)
-        {
-            if (field.getName().equalsIgnoreCase(WORKFLOW_ID))
+
+    private boolean hasWorkflowParam(PSWSSearchParams searchParams) {
+        for (var field : searchParams.getSearchFields()) {
+            if (field.getName().equalsIgnoreCase(WORKFLOW_ID)) {
                 return true;
+            }
         }
-        
         return false;
     }
 
-    /**
-     * Gets the id of the workflow used for local content.
-     * 
-     * @return the id.
-     */
     private int getLocalContentWfId() throws PSValidationException, IPSItemWorkflowService.PSItemWorkflowServiceException {
-        if (localContentWfId == -1)
-        {
+        if (localContentWfId == -1) {
             localContentWfId = itemWorkflowService.getWorkflowId(PSWorkflowHelper.LOCAL_WORKFLOW_NAME);
         }
-        
         return localContentWfId;
     }
-    
+
     private List<Integer> getSearchableWorkflowIds() throws IPSItemWorkflowService.PSItemWorkflowServiceException, PSValidationException {
-        List<Integer> wfIds = new ArrayList<>();
-        int localWorkflowId = getLocalContentWfId();
-        
-        List<PSObjectSummary> workflowSums = workflowService.findWorkflowSummariesByName(null);
-        for (PSObjectSummary summary : workflowSums)
-        {
-            int wfId = summary.getGUID().getUUID(); 
-            if (wfId == localWorkflowId )
+        var wfIds = new ArrayList<Integer>();
+        var localWorkflowId = getLocalContentWfId();
+        var workflowSums = workflowService.findWorkflowSummariesByName(null);
+        for (var summary : workflowSums) {
+            var wfId = summary.getGUID().getUUID();
+            if (wfId == localWorkflowId) {
                 continue;
+            }
             wfIds.add(wfId);
         }
-        
         return wfIds;
     }
-    
-    /**
-     * The folder helper manager, initialized by constructor.
-     */
+
     private IPSFolderHelper folderHelper;
-    
-    /**
-     * The id mapper, initialized by constructor.
-     */
     private IPSIdMapper idMapper;
-    
-    /**
-     * The item workflow service, initialized by constructor.
-     */
     private IPSItemWorkflowService itemWorkflowService;
-    
     private IPSListViewHelper listViewHelper;
-    
     private static IPSUiService uiService;
-    
     private static IPSCmsObjectMgr cmsObjectMgr = PSCmsObjectMgrLocator.getObjectManager();
-    
     private IPSWorkflowService workflowService;
-
     private IPSRecycleService recycleService;
-
     private IPSSystemService systemService = PSSystemServiceLocator.getSystemService();
-    
-    /**
-     * The id of the workflow used for local content, set in {@link #getLocalContentWfId()}.
-     */
     private int localContentWfId = -1;
-    
-    private static final List<String> luceneSpecialCharacters = Arrays.asList("+", "-", "&&", "||", "!", "(", ")", "{",
-            "}", "[", "]", "^", "'", "~", "*", "?", ":");
 
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
+    private static final List<String> luceneSpecialCharacters = Arrays.asList(
+            "+", "-", "&&", "||", "!", "(", ")", "{", "}", "[", "]", "^", "'", "~", "*", "?", ":");
+
     private static final Logger log = LogManager.getLogger(PSSearchService.class);
-    
+
     private static final String CONTENT_CREATEDBY_NAME = "sys_contentcreatedby";
     private static final String CONTENT_CREATEDDATE_NAME = "sys_contentcreateddate";
     private static final String POSTDATE_NAME = "sys_postdate";
@@ -674,81 +435,59 @@ public class PSSearchService implements IPSSearchService
     private static final String CONTENTTYPE_NAME = "sys_contenttypename";
     private static final String WORKFLOW_NAME = "sys_workflow";
     private static final String WORKFLOW_ID = "sys_workflowid";
-
-    /**
-     * The query added to the criteria query in order to exclude a workflow.
-     */
     private static final String EXCLUDE_WORKFLOW = " NOT " + WORKFLOW_ID + ":";
-
-    /**
-     * Query to include shared workflows using ranges, {0} should be localWFId - 1, {1} localWFId + 1, {2} max value possible
-     */
-    private static final String SHARED_WORKFLOW_RANGE = "(" + WORKFLOW_ID + ":[0 TO {0}] OR " + WORKFLOW_ID + ":[{1} TO {2}])";
 
     @Override
     public PSSearchCriteria validateSearchCriteria(PSSearchCriteria criteria) {
-
-        SecureStringUtils.DatabaseType type=null;
-
-        if(systemService.isMySQL())
+        SecureStringUtils.DatabaseType type = null;
+        if (systemService.isMySQL()) {
             type = SecureStringUtils.DatabaseType.MYSQL;
-        else if(systemService.isOracle())
+        } else if (systemService.isOracle()) {
             type = SecureStringUtils.DatabaseType.ORACLE;
-        else if(systemService.isDB2())
+        } else if (systemService.isDB2()) {
             type = SecureStringUtils.DatabaseType.DB2;
-        else if(systemService.isMsSQL())
+        } else if (systemService.isMsSQL()) {
             type = SecureStringUtils.DatabaseType.MSSQL;
-        else if(systemService.isDerby()){
+        } else if (systemService.isDerby()) {
             type = SecureStringUtils.DatabaseType.DERBY;
         }
 
-        if(criteria.getQuery() !=null && !criteria.getQuery().trim().isEmpty()){
+        if (criteria.getQuery() != null && !criteria.getQuery().trim().isEmpty()) {
             criteria.setQuery(SecureStringUtils.sanitizeStringForSQLStatement(criteria.getQuery(), type));
         }
-
-        if(criteria.getSearchType() != null && !criteria.getSearchType().trim().isEmpty()){
+        if (criteria.getSearchType() != null && !criteria.getSearchType().trim().isEmpty()) {
             criteria.setSearchType(SecureStringUtils.sanitizeStringForSQLStatement(criteria.getSearchType(), type));
         }
-
-        if(criteria.getStartIndex() != null){
+        if (criteria.getStartIndex() != null) {
             if (!org.apache.commons.lang3.StringUtils.isNumeric(criteria.getStartIndex().toString())) {
                 throw new IllegalArgumentException(criteria.getStartIndex() + " must have a numeric value for search");
             }
         }
-
-        if(criteria.getMaxResults() != null){
+        if (criteria.getMaxResults() != null) {
             if (!org.apache.commons.lang3.StringUtils.isNumeric(criteria.getMaxResults().toString())) {
                 throw new IllegalArgumentException(criteria.getMaxResults() + " must have a numeric value for search");
             }
         }
-
-        if(criteria.getSortColumn() != null && !criteria.getSortColumn().trim().isEmpty()){
+        if (criteria.getSortColumn() != null && !criteria.getSortColumn().trim().isEmpty()) {
             criteria.setSortColumn(SecureStringUtils.sanitizeStringForSQLStatement(criteria.getSortColumn(), type));
         }
-
-        if(criteria.getSortOrder() != null && !criteria.getSortOrder().trim().isEmpty()){
+        if (criteria.getSortOrder() != null && !criteria.getSortOrder().trim().isEmpty()) {
             criteria.setSortOrder(SecureStringUtils.sanitizeStringForSQLStatement(criteria.getSortOrder(), type));
         }
-
-        if(criteria.getFolderPath() != null && !criteria.getFolderPath().trim().isEmpty()){
+        if (criteria.getFolderPath() != null && !criteria.getFolderPath().trim().isEmpty()) {
             criteria.setFolderPath(SecureStringUtils.sanitizeStringForSQLStatement(criteria.getFolderPath(), type));
         }
-
-        if(criteria.getFormatId() != null && -1 !=criteria.getFormatId()){
+        if (criteria.getFormatId() != null && -1 != criteria.getFormatId()) {
             if (!org.apache.commons.lang3.StringUtils.isNumeric(criteria.getFormatId().toString())) {
                 throw new IllegalArgumentException(criteria.getFormatId() + " must have a numeric value for search");
             }
         }
-
-        Map<String,String> fields = criteria.getSearchFields();
-        if(fields != null){
-            PSFieldSet systemFieldSet =
-                    PSServer.getContentEditorSystemDef().getFieldSet();
-
-            for(Map.Entry<String,String> field : fields.entrySet()){
-
-                PSField f = systemFieldSet.findFieldByName(field.getKey(), false);
-                if(f!= null) {
+        var fields = criteria.getSearchFields();
+        if (fields != null) {
+            var systemFieldSet = PSServer.getContentEditorSystemDef().getFieldSet();
+            for (var field : fields.entrySet()) {
+                var f = systemFieldSet.findFieldByName(field.getKey(), false);
+                if (f != null) {
                     if (f.getDataType().equalsIgnoreCase(PSField.DT_INTEGER) || f.getDataType().equalsIgnoreCase(PSField.DT_FLOAT)) {
                         if (!org.apache.commons.lang3.StringUtils.isNumeric(field.getValue())) {
                             throw new IllegalArgumentException(field.getKey() + " must have a numeric value for search");
@@ -758,26 +497,23 @@ public class PSSearchService implements IPSSearchService
                         if (b == null) {
                             throw new IllegalArgumentException(field.getKey() + " requires a boolean value.");
                         }
-
                     } else if (f.getDataType().equalsIgnoreCase(PSField.DT_DATE)) {
                         if (!SecureStringUtils.isValidDate(field.getValue())) {
                             throw new IllegalArgumentException(field.getKey() + " must be a valid date.");
                         }
                     } else if (f.getDataType().equalsIgnoreCase(PSField.DT_TIME)) {
-                        if (!SecureStringUtils.isValidTime((field.getValue()))) {
+                        if (!SecureStringUtils.isValidTime(field.getValue())) {
                             throw new IllegalArgumentException(field.getKey() + " must be a valid time.");
                         }
                     } else if (f.getDataType().equalsIgnoreCase(PSField.DT_BINARY) || f.getDataType().equalsIgnoreCase(PSField.DT_IMAGE)) {
                         throw new IllegalArgumentException("Can't use Binary fields in Search criteria.");
                     } else {
-                        //Unsure on data type so just make sure there is no SQL injection possible DT_TEXT is covered here.
                         field.setValue(SecureStringUtils.sanitizeStringForSQLStatement(field.getValue(), type));
                     }
-                }else{
+                } else {
                     field.setValue(SecureStringUtils.sanitizeStringForSQLStatement(field.getValue(), type));
                 }
             }
-            //Update the criteria with any sanitized inputs
             criteria.setSearchFields(fields);
         }
         return criteria;

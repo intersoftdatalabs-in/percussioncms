@@ -35,6 +35,7 @@ import java.util.ArrayList;
 * buffer. Furthermore, we need to peek ahead so we can tell whether
 * or not to move ahead. As such we're also creating a next row buffer.
 */
+// REFACTORED: CP-JAVA11
 public class PSIndexStatistics {
    private PSIndexStatistics(
       PSBackEndTable table, String indexName, short indexType,
@@ -46,7 +47,7 @@ public class PSIndexStatistics {
       m_indexType = indexType;
       m_isUnique = isUnique;
       m_cardinality = cardinality;
-      m_columns = new ArrayList();
+      m_columns = new ArrayList<>();
    }
 
    /**
@@ -70,12 +71,11 @@ public class PSIndexStatistics {
     * in the returned array is the first sorted column, the second is the
     * second, etc.
     */
-   public String[] getSortedColumns()
-   {
-      if (m_columns == null)
+   public String[] getSortedColumns() {
+      if (m_columns == null) {
          return new String[0];
-
-      String[] ret = new String[m_columns.size()];
+      }
+      var ret = new String[m_columns.size()];
       m_columns.toArray(ret);
       return ret;
    }
@@ -159,12 +159,12 @@ public class PSIndexStatistics {
       if (table == null)
          throw new IllegalArgumentException("table may not be null");
       
-      ArrayList statsArray = new ArrayList();
+      var statsArray = new ArrayList<PSIndexStatistics>();
       ResultSet rs = null;
 
       PSMetaDataCache.loadConnectionDetail(table);
       PSConnectionDetail connDetail = table.getConnectionDetail(); 
-      String driverName    = connDetail.getDriver();
+      // String driverName    = connDetail.getDriver(); // Unused
       String databaseName  = connDetail.getDatabase();
       String schemaName    = connDetail.getOrigin();
       String tableName     = table.getTable();
@@ -198,7 +198,7 @@ public class PSIndexStatistics {
          
          PSIndexStatistics stats = null;
          boolean isUnique;
-         String indexName, colName, colSorting;
+         String indexName, colName; // colSorting unused
          String lastIndexName = "nosuchindexname!!!";
          short indexType, lastIndexType = 0;
          int cardinality;
@@ -211,7 +211,7 @@ public class PSIndexStatistics {
                indexName = "";
             indexType = rs.getShort(7);      // col 7 = TYPE
             colName = rs.getString(9);       // col 9 = COLUMN_NAME
-            colSorting = rs.getString(10);   // col 10 = ASC_OR_DESC
+            /* colSorting = rs.getString(10); // col 10 = ASC_OR_DESC (unused) */
             cardinality = rs.getInt(11);     // col 11 = CARDINALITY
 
             if (!indexName.equals(lastIndexName) ||
@@ -225,8 +225,9 @@ public class PSIndexStatistics {
                lastIndexType = indexType;
             }
 
-            if (colName != null)
+            if (stats != null && colName != null) {
                stats.m_columns.add(colName);
+            }
          }
       } finally {
          try {
@@ -235,14 +236,14 @@ public class PSIndexStatistics {
          } catch (Exception e) { /* done anyway, ignore it */ }
       }
 
-      PSIndexStatistics[] ret = new PSIndexStatistics[statsArray.size()];
+      var ret = new PSIndexStatistics[statsArray.size()];
       statsArray.toArray(ret);
       return ret;
    }
    
    private boolean            m_isUnique;
    private String             m_indexName;
-   private ArrayList          m_columns;
+   private ArrayList<String> m_columns;
    private short              m_indexType;
    private int                m_cardinality;
    private PSBackEndTable     m_table;

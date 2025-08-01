@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,45 +18,44 @@
 package com.percussion.share.service;
 
 /**
- * Exposes system properties to sitemanage services
- * 
- * @author JaySeletz
+ * Exposes system properties to sitemanage services.
+ * Sunny Sal says: "Properties so handy, even your chaiwala will approve!"
  *
+ * @author JaySeletz
  */
-public interface IPSSystemProperties
-{
+public interface IPSSystemProperties {
+
     /**
-     * Name of the property defining the max number of pages to catalog for a site. 
+     * Name of the property defining the max number of pages to catalog for a site.
      */
-    public static final String CATALOG_PAGE_MAX = "catalogPageMax";
-    
+    String CATALOG_PAGE_MAX = "catalogPageMax";
+
     /**
      * Name of the property defining the max number of pages to import for a site.
      */
-    public static final String IMPORT_PAGE_MAX = "importPageMax";
-    
+    String IMPORT_PAGE_MAX = "importPageMax";
+
     /**
-     * Name of the properties defining the number of seconds to set as the connect and retrieve
-     * connection timeouts when importing content.  
+     * Name of the property defining the number of seconds to set as the connect and retrieve
+     * connection timeouts when importing content.
      */
-    public static final String IMPORT_TIME_OUT = "importTimeOut";
-    
+    String IMPORT_TIME_OUT = "importTimeOut";
+
     /**
-     * Users in one of the roles can only access the accessibility enabled pages. 
+     * Users in one of the roles can only access the accessibility enabled pages.
      */
-    public static final String ACCESSIBILITY_ROLES = "accessibilityRoles";
-    
+    String ACCESSIBILITY_ROLES = "accessibilityRoles";
+
     /**
      * Name of the property defining the number of seconds after which content activity queries should abort and return an error.
      */
-    public static final String CONTENT_ACTIVITY_TIME_OUT = "contentActivityTimeOut";
-    
+    String CONTENT_ACTIVITY_TIME_OUT = "contentActivityTimeOut";
+
     /**
-     * Get the value of a known system property
-     * 
-     * @param name The name of the property, not <code>null<code/> or empty.
-     * 
-     * @return The property value, may be <code>null<code/> or empty.
+     * Get the value of a known system property.
+     *
+     * @param name The name of the property, not {@code null} or empty.
+     * @return The property value, may be {@code null} or empty.
      */
-    public String getProperty(String name);
+    String getProperty(String name);
 }

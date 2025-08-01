@@ -14,92 +14,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.design.impl;
 
 import com.percussion.rx.design.IPSAssociationSet;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public class PSAssociationSet implements IPSAssociationSet
-{
+/**
+ * Java 11 refactored implementation of IPSAssociationSet.
+ * Maintains a set of associations for a design object.
+ */
+public class PSAssociationSet implements IPSAssociationSet {
 
-   /**
-    * Ctor for the association set.
-    * 
-    * @param associationType, the association type must not be <code>null</code>.
-    */
-   public PSAssociationSet(AssociationType associationType)
-   {
-      if (associationType == null)
-         throw new IllegalArgumentException("associationType must not be null");
-      m_associationType = associationType;
-   }
+    private List<Object> associations = new ArrayList<>();
+    private final AssociationType associationType;
+    private AssociationAction action = AssociationAction.REPLACE;
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.design.IPSAssociationSet#getAssociationType()
-    */
-   public AssociationType getType()
-   {
-      return m_associationType;
-   }
+    /**
+     * Constructs an association set.
+     *
+     * @param associationType the association type, must not be null
+     */
+    public PSAssociationSet(AssociationType associationType) {
+        this.associationType = Objects.requireNonNull(associationType, "associationType must not be null");
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.design.IPSAssociationSet#getAssociations()
-    */
-   public List getAssociations()
-   {
-      return m_associations;
-   }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AssociationType getType() {
+        return associationType;
+    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.rx.design.IPSAssociationSet#setAssociations(java.util.List)
-    */
-   public void setAssociations(List associations)
-   {
-      m_associations = associations;
-   }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object> getAssociations() {
+        return Collections.unmodifiableList(associations);
+    }
 
-   /**
-    * The action, default to {@link AssociationAction#REPLACE}.
-    * 
-    * @return the action, never <code>null</code>.
-    */
-   public AssociationAction getAction()
-   {
-      return m_action;
-   }
-   
-   /**
-    * Sets the action.
-    * 
-    * @param action the new action, never <code>null</code>.
-    */
-   public void setAction(AssociationAction action)
-   {
-      if (action == null)
-         throw new IllegalArgumentException(
-               "Association Action may not be null.");
-      
-      m_action = action;
-   }
-   
-   /**
-    * The list of associations set through the set method may be
-    * <code>null</code>.
-    */
-   private List m_associations = null;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @SuppressWarnings("rawtypes")
+    public void setAssociations(List associations) {
+        if (associations == null) {
+            this.associations = new ArrayList<>();
+        } else {
+            this.associations = new ArrayList<>();
+            for (Object obj : associations) {
+                this.associations.add(obj);
+            }
+        }
+    }
 
-   /**
-    * The association type initialized in ctor and never <code>null</code>
-    * after that.
-    */
-   private AssociationType m_associationType;
-   
-   /**
-    * The action, default to {@link AssociationAction#REPLACE}.
-    */
-   private AssociationAction m_action = AssociationAction.REPLACE;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AssociationAction getAction() {
+        return action;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAction(AssociationAction action) {
+        this.action = Objects.requireNonNull(action, "Association Action may not be null.");
+    }
 }

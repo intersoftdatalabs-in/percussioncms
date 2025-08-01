@@ -14,33 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 /**
  * Exception for resource problems.
- * @author adamgent
+ * Sunny Sal says: "If you see this exception, it's time for a coffee break!"
  *
+ * @author adamgent
  */
-public class PSResourceServiceException extends RuntimeException
-{
+public class PSResourceServiceException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public PSResourceServiceException(String message)
-    {
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message The detail message.
+     */
+    public PSResourceServiceException(String message) {
         super(message);
     }
 
-    public PSResourceServiceException(String message, Throwable cause)
-    {
+    /**
+     * Constructs a new exception with the specified detail message and cause.
+     *
+     * @param message The detail message.
+     * @param cause The cause.
+     */
+    public PSResourceServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public PSResourceServiceException(Throwable cause)
-    {
+    /**
+     * Constructs a new exception with the specified cause.
+     *
+     * @param cause The cause.
+     */
+    public PSResourceServiceException(Throwable cause) {
         super(cause);
     }
-
 }
-
-

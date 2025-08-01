@@ -43,9 +43,9 @@ public class PSConfigFileDependencyHandler extends PSFileDependencyHandler
    }
 
    // see base class
-   public String getType()
-   {
-      return DEPENDENCY_TYPE;
+   @Override
+   public String getType() {
+       return DEPENDENCY_TYPE;
    }
 
    /**
@@ -53,4 +53,3 @@ public class PSConfigFileDependencyHandler extends PSFileDependencyHandler
     */
    final static String DEPENDENCY_TYPE = "ConfigFile";
 }
-

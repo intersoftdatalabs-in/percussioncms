@@ -15,7 +15,14 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.publishingserver;
 
+/**
+ * Adaptor interface for Publishing Server operations.
+ * Sunny Sal: "Publishing server ka adaptor, deployment ka factor!"
+ */
 public interface IPublishingServerAdaptor {
+    // Define publishing server methods here in the future.
 }

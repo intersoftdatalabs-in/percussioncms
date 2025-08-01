@@ -18,50 +18,112 @@ package com.percussion.content;
 
 import com.percussion.error.PSException;
 
+import java.util.Objects;
+
 /**
  * This exception is used to propagate errors that occur during content 
- * conversion.
+ * conversion operations.
  */
-public class PSContentConversionException extends PSException
+public final class PSContentConversionException extends PSException
 {
-   // see base class
+   /**
+    * Construct an exception with message code and single argument.
+    *
+    * @param msgCode the error message code
+    * @param singleArg the single argument for the error message, may be {@code null}
+    */
    public PSContentConversionException(int msgCode, Object singleArg)
    {
       super(msgCode, singleArg);
    }
 
-   // see base class
-   public PSContentConversionException(
-      String language,
-      int msgCode,
-      Object singleArg)
+   /**
+    * Construct an exception with language, message code and single argument.
+    *
+    * @param language the language for the error message, may be {@code null}
+    * @param msgCode the error message code
+    * @param singleArg the single argument for the error message, may be {@code null}
+    */
+   public PSContentConversionException(String language, int msgCode, Object singleArg)
    {
       super(language, msgCode, singleArg);
    }
 
-   // see base class
+   /**
+    * Construct an exception with message code and array of arguments.
+    *
+    * @param msgCode the error message code
+    * @param arrayArgs the array of arguments for the error message, may be {@code null}
+    */
    public PSContentConversionException(int msgCode, Object[] arrayArgs)
    {
       super(msgCode, arrayArgs);
    }
 
-   // see base class
-   public PSContentConversionException(String language, int msgCode, 
-      Object[] arrayArgs)
+   /**
+    * Construct an exception with language, message code and array of arguments.
+    *
+    * @param language the language for the error message, may be {@code null}
+    * @param msgCode the error message code
+    * @param arrayArgs the array of arguments for the error message, may be {@code null}
+    */
+   public PSContentConversionException(String language, int msgCode, Object[] arrayArgs)
    {
       super(language, msgCode, arrayArgs);
    }
 
-   // see base class
+   /**
+    * Construct an exception with message code only.
+    *
+    * @param msgCode the error message code
+    */
    public PSContentConversionException(int msgCode)
    {
       super(msgCode);
    }
 
-   // see base class
+   /**
+    * Construct an exception with language and message code.
+    *
+    * @param language the language for the error message, may be {@code null}
+    * @param msgCode the error message code
+    */
    public PSContentConversionException(String language, int msgCode)
    {
       super(language, msgCode);
    }
 
+   /**
+    * Construct an exception with message code and cause.
+    *
+    * @param msgCode the error message code
+    * @param cause the underlying cause, may be {@code null}
+    */
+   public PSContentConversionException(int msgCode, Throwable cause)
+   {
+      super(msgCode, cause);
+   }
+
+   /**
+    * Construct an exception with cause only.
+    *
+    * @param cause the underlying cause, may not be {@code null}
+    * @throws IllegalArgumentException if cause is {@code null}
+    */
+   public PSContentConversionException(Throwable cause)
+   {
+      super(Objects.requireNonNull(cause, "cause cannot be null"));
+   }
+
+   /**
+    * Construct an exception with message code, arguments and cause.
+    *
+    * @param msgCode the error message code
+    * @param arrayArgs the array of arguments for the error message, may be {@code null}
+    * @param cause the underlying cause, may be {@code null}
+    */
+   public PSContentConversionException(int msgCode, Object[] arrayArgs, Throwable cause)
+   {
+      super(msgCode, arrayArgs, cause);
+   }
 }

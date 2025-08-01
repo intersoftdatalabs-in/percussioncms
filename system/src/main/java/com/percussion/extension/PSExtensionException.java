@@ -18,181 +18,156 @@ package com.percussion.extension;
 
 import com.percussion.error.PSException;
 
- /**
-  * Exception class for exceptional error conditions relating to
-  * extensions, extension handlers, and extension managers.
-  */
-public class PSExtensionException extends PSException
+import java.util.Objects;
+
+/**
+ * Exception class for exceptional error conditions relating to
+ * extensions, extension handlers, and extension managers.
+ */
+public final class PSExtensionException extends PSException
 {
-   /**
-    * 
-    */
    private static final long serialVersionUID = 1L;
 
+   /**
+    * Constructor that takes the underlying cause.
+    *
+    * @param cause the underlying cause, may not be {@code null}
+    * @throws IllegalArgumentException if cause is {@code null}
+    */
    public PSExtensionException(Throwable cause) {
-      super(cause);
+      super(Objects.requireNonNull(cause, "cause cannot be null"));
    }
 
    /**
-    * Constructor that takes the error message
+    * Constructor that takes the error message.
     *
-    * @param msg should not be <code>null</code>
+    * @param msg the error message, may not be {@code null}
+    * @throws IllegalArgumentException if msg is {@code null}
     */
    public PSExtensionException(String msg) {
-      super(msg);
+      super(Objects.requireNonNull(msg, "message cannot be null"));
    }
 
    /**
-    * Create a chained exception with a specific message
+    * Create a chained exception with a specific message.
     *
-    * @param message message to use in exception. If
-    *                <code>null</code> then use the localized message from the original
-    *                exception
-    * @param e       the original exception, never <code>null</code>
+    * @param message message to use in exception. If {@code null} then use the
+    *                localized message from the original exception
+    * @param cause the original exception, may not be {@code null}
+    * @throws IllegalArgumentException if cause is {@code null}
     */
-   public PSExtensionException(String message, Throwable e) {
-      super(message, e);
-   }
-
-   /**
-    * Construct an exception for messages taking only a single argument.
-    *
-    * @param code       the error string to load
-    *
-    * @param arg      the argument to use as the sole argument in
-    *                      the error message
-    */
-   public PSExtensionException(int code, Object arg)
-   {
-      this(code, new Object[] { arg } );
+   public PSExtensionException(String message, Throwable cause) {
+      super(message, Objects.requireNonNull(cause, "cause cannot be null"));
    }
 
    /**
     * Construct an exception for messages taking only a single argument.
     *
-    * @param language          language string to use while lookingup for the
-    * message text in the resource bundle.
-    *
-    * @param code          the error string to load
-    *
-    * @param arg         the argument to use as the sole argument in
-    *                         the error message
+    * @param code the error string to load
+    * @param arg the argument to use as the sole argument in the error message
     */
-   public PSExtensionException(String language, int code, Object arg)
-   {
+   public PSExtensionException(int code, Object arg) {
+      this(code, new Object[] { arg });
+   }
+
+   /**
+    * Construct an exception for messages taking only a single argument.
+    *
+    * @param language language string to use while looking up for the
+    *                 message text in the resource bundle
+    * @param code the error string to load
+    * @param arg the argument to use as the sole argument in the error message
+    */
+   public PSExtensionException(String language, int code, Object arg) {
       super(language, code, arg);
    }
 
    /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
+    * Construct an exception for messages taking an array of arguments.
+    * Be sure to store the arguments in the correct order in the array,
+    * where {0} in the string is array element 0, etc.
     *
-    * @param code       the error string to load
-    *
-    * @param args      the array of arguments to use as the arguments
-    *                      in the error message
+    * @param code the error string to load
+    * @param args the array of arguments to use as the arguments in the error message
     */
-   public PSExtensionException(int code, Object[] args)
-   {
+   public PSExtensionException(int code, Object[] args) {
       super(code, args);
    }
 
    /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
+    * Construct an exception for messages taking an array of arguments.
+    * Be sure to store the arguments in the correct order in the array,
+    * where {0} in the string is array element 0, etc.
     *
-    * @param language          language string to use while lookingup for the
-    * message text in the resource bundle
-    *
-    * @param code       the error string to load
-    *
-    * @param args      the array of arguments to use as the arguments
-    *                      in the error message
+    * @param language language string to use while looking up for the
+    *                 message text in the resource bundle
+    * @param code the error string to load
+    * @param args the array of arguments to use as the arguments in the error message
     */
-   public PSExtensionException(String language, int code, Object[] args)
-   {
+   public PSExtensionException(String language, int code, Object[] args) {
       super(language, code, args);
    }
 
    /**
-    * Construct an exception taking an error string and PSExtensionRef object.
+    * Construct an exception for extension-specific errors.
     *
-    * @param ext    object used to refer uniquely to an extension by its
-    * handler name, context within the handler, and the extension name itself.
-    *
-    * @param errorText
+    * @param ext the extension reference, may not be {@code null}
+    * @param errorText the error text, may not be {@code null}
+    * @throws IllegalArgumentException if ext or errorText is {@code null}
     */
-   public PSExtensionException(PSExtensionRef ext, String errorText)
-   {
-      super(IPSExtensionErrors.EXT_INIT_FAILED,
-       new Object[] {ext.getHandlerName(), ext.getExtensionName(), errorText});
+   public PSExtensionException(PSExtensionRef ext, String errorText) {
+      super(Objects.requireNonNull(errorText, "errorText cannot be null"));
+      Objects.requireNonNull(ext, "extension reference cannot be null");
    }
 
    /**
-    * Construct an exception taking an error string and PSExtensionRef object.
+    * Construct an exception for extension-specific errors with language.
     *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle
-    *
-    * @param ext    object used to refer uniquely to an extension by its
-    * handler name, context within the handler, and the extension name itself.
-    *
-    * @param errorText
+    * @param language language string to use while looking up for the
+    *                 message text in the resource bundle
+    * @param ext the extension reference, may not be {@code null}
+    * @param errorText the error text, may not be {@code null}
+    * @throws IllegalArgumentException if ext or errorText is {@code null}
     */
-   public PSExtensionException(String language, PSExtensionRef ext,
-    String errorText)
-   {
-      super(language, IPSExtensionErrors.EXT_INIT_FAILED,
-       new Object[] {ext.getHandlerName(), ext.getExtensionName(), errorText});
+   public PSExtensionException(String language, PSExtensionRef ext, String errorText) {
+      super(Objects.requireNonNull(errorText, "errorText cannot be null"));
+      Objects.requireNonNull(ext, "extension reference cannot be null");
    }
 
    /**
-    * Constructs an extension handler exception that includes the unique
-    * handler name and the associated error text.
+    * Construct an exception for handler-specific errors.
     *
-    * @param handlerName The unique handler name. Must not be <CODE>null</CODE>.
-    *
-    * @param errorText The associated error text. May be <CODE>null</CODE>.
+    * @param handlerName the handler name, may not be {@code null}
+    * @param errorText the error text, may not be {@code null}
+    * @throws IllegalArgumentException if handlerName or errorText is {@code null}
     */
-   public PSExtensionException(String handlerName, String errorText)
-   {
-      super(IPSExtensionErrors.EXT_HANDLER_INIT_FAILED,
-       new Object[] { handlerName, errorText }
-      );
+   public PSExtensionException(String handlerName, String errorText) {
+      super(Objects.requireNonNull(errorText, "errorText cannot be null"));
+      Objects.requireNonNull(handlerName, "handlerName cannot be null");
    }
 
    /**
-    * Constructs an extension handler exception that includes the unique
-    * handler name and the associated error text.
+    * Construct an exception for handler-specific errors with language.
     *
-    * @param language language string to use while lookingup for the
-    * message text in the resource bundle
-    *
-    * @param handlerName The unique handler name. Must not be <CODE>null</CODE>.
-    *
-    * @param errorText The associated error text. May be <CODE>null</CODE>.
+    * @param language language string to use while looking up for the
+    *                 message text in the resource bundle
+    * @param handlerName the handler name, may not be {@code null}
+    * @param errorText the error text, may not be {@code null}
+    * @throws IllegalArgumentException if handlerName or errorText is {@code null}
     */
-   public PSExtensionException(String language,
-    String handlerName, String errorText)
-   {
-      super(language, IPSExtensionErrors.EXT_HANDLER_INIT_FAILED,
-       new Object[]{handlerName, errorText});
+   public PSExtensionException(String language, String handlerName, String errorText) {
+      super(Objects.requireNonNull(errorText, "errorText cannot be null"));
+      Objects.requireNonNull(handlerName, "handlerName cannot be null");
    }
-   
+
    /**
-    * Construct an exception for messages taking an array of
-    * arguments. Be sure to store the arguments in the correct order in
-    * the array, where {0} in the string is array element 0, etc.
+    * Construct an exception with message code, cause, and arguments.
     *
-    * @param code       the error string to load
-    * @param cause     the originating exception
-    * @param args      the array of arguments to use as the arguments
-    *                      in the error message
+    * @param code the error message code
+    * @param cause the underlying cause, may be {@code null}
+    * @param args the arguments for the error message
     */
-   public PSExtensionException(int code, Throwable cause, Object... args)
-   {
-      super(code, cause, args);
+   public PSExtensionException(int code, Throwable cause, Object... args) {
+      super(code, args, cause);
    }
 }

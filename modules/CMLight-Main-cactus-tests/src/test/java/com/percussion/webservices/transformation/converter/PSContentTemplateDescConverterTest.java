@@ -25,48 +25,44 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit test for the {@link PSContentTemplateDescConverter}
  */
 @Category(IntegrationTest.class)
-public class PSContentTemplateDescConverterTest extends PSConverterTestBase
-{
-   /**
-    * Test the converter
-    * 
-    * @throws Exception if the test fails
-    */
-   @SuppressWarnings(value={"unchecked"})
-   public void testConverter() throws Exception
-   {
-      PSContentTemplateDesc ctd = new PSContentTemplateDesc();
-      ctd.setId(new Long(123));
-      ctd.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, 456));
-      ctd.setTemplateId(new PSGuid(PSTypeEnum.TEMPLATE, 789));
-      
-      PSContentTemplateDesc result = 
-         (PSContentTemplateDesc) roundTripConversion(
-            PSContentTemplateDesc.class, 
-            com.percussion.webservices.content.PSContentTemplateDesc.class, 
-            ctd);
-      
-      assertEquals(ctd, result);
-      
-      PSContentTemplateDesc ctd2 = new PSContentTemplateDesc();
-      ctd2.setId(new Long(1232));
-      ctd2.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, 4562));
-      ctd2.setTemplateId(new PSGuid(PSTypeEnum.TEMPLATE, 7892));      
-      
-      List<PSContentTemplateDesc> srcList = 
-         new ArrayList<PSContentTemplateDesc>();
-      srcList.add(ctd);
-      srcList.add(ctd2);
-      
-      List<PSContentTemplateDesc> tgtList = roundTripListConversion(
-         com.percussion.webservices.content.PSContentTemplateDesc[].class, 
-         srcList);
-      
-      assertEquals(srcList, tgtList);
-   }
-}
+public class PSContentTemplateDescConverterTest extends PSConverterTestBase {
 
+    /**
+     * Test the converter.
+     */
+    @SuppressWarnings("unchecked")
+    public void testConverter() throws Exception {
+        var ctd = new PSContentTemplateDesc();
+        ctd.setId(123L);
+        ctd.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, 456));
+        ctd.setTemplateId(new PSGuid(PSTypeEnum.TEMPLATE, 789));
+
+        var result = (PSContentTemplateDesc) roundTripConversion(
+                PSContentTemplateDesc.class,
+                com.percussion.webservices.content.PSContentTemplateDesc.class,
+                ctd);
+
+        assertEquals(ctd, result);
+
+        var ctd2 = new PSContentTemplateDesc();
+        ctd2.setId(1232L);
+        ctd2.setContentTypeId(new PSGuid(PSTypeEnum.NODEDEF, 4562));
+        ctd2.setTemplateId(new PSGuid(PSTypeEnum.TEMPLATE, 7892));
+
+        var srcList = new ArrayList<PSContentTemplateDesc>();
+        srcList.add(ctd);
+        srcList.add(ctd2);
+
+        var tgtList = roundTripListConversion(
+                com.percussion.webservices.content.PSContentTemplateDesc[].class,
+                srcList);
+
+        assertEquals(srcList, tgtList);
+    }
+}

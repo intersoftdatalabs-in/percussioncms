@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,30 +15,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.share.data;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 
+/**
+ * Abstract filter for filtering collections using a predicate.
+ *
+ * @param <T> the type of resource to filter
+ */
 public abstract class PSAbstractFilter<T> implements Predicate {
 
-    
+    /**
+     * Filters the given collection using this predicate.
+     *
+     * @param resources the collection to filter
+     * @return a new list containing only the elements that should be kept
+     */
     public List<T> filter(Collection<T> resources) {
-        List<T> rvalue = new ArrayList<>(resources);
+        var rvalue = new ArrayList<>(resources);
         CollectionUtils.filter(rvalue, this);
         return rvalue;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    public boolean evaluate(Object obj)
-    {
+    public boolean evaluate(Object obj) {
         return shouldKeep((T) obj);
     }
-    
+
+    /**
+     * Determines if the given resource should be kept.
+     *
+     * @param resource the resource to check
+     * @return true if the resource should be kept, false otherwise
+     */
     public abstract boolean shouldKeep(T resource);
 }

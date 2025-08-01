@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Custom dependency handler implementation.
+ */
 public class PSCustomDependencyHandler extends PSDependencyHandler
 {
    /**
@@ -58,22 +61,20 @@ public class PSCustomDependencyHandler extends PSDependencyHandler
     * <li>SharedGroup</li>
     * <li>SystemDefElement</li>
     * </ol>
-    * 
-    * @return An iterator over zero or more types as <code>String</code> 
-    * objects, never <code>null</code>, does not contain <code>null</code> or 
+    *
+    * @return An iterator over zero or more types as <code>String</code>
+    * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
-   
+
    /**
     * The same as {@link #getChildTypes()}, except this returns a list.
     * @return the list of child types, never <code>null</code> or empty.
     */
-   public static List<String> getChildTypeList()
-   {
+   public static List<String> getChildTypeList() {
       return ms_childTypes;
    }
    
@@ -215,16 +216,12 @@ public class PSCustomDependencyHandler extends PSDependencyHandler
     * List of child types supported by this handler, never <code>null</code> or
     * empty.
     */
-   private static List<String> ms_childTypes = new ArrayList<>();
-
-   static
-   {
-      ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSDataDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSSharedGroupDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSUserDependencyHandler.DEPENDENCY_TYPE);
-   }
-   
+   private static final List<String> ms_childTypes = List.of(
+      PSApplicationDependencyHandler.DEPENDENCY_TYPE,
+      PSDataDependencyHandler.DEPENDENCY_TYPE,
+      PSExitDefDependencyHandler.DEPENDENCY_TYPE,
+      PSSchemaDependencyHandler.DEPENDENCY_TYPE,
+      PSSharedGroupDependencyHandler.DEPENDENCY_TYPE,
+      PSUserDependencyHandler.DEPENDENCY_TYPE
+   );
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,14 +26,34 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 @XmlRootElement(name = "AclList")
 @XmlSeeAlso(Acl.class)
 @ArraySchema(schema = @Schema(implementation = Acl.class))
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AclList extends ArrayList<Acl> {
+
     public AclList(Collection<? extends Acl> c) {
         super(c);
     }
-    public AclList(){}
+
+    public AclList() {
+        super();
+    }
+
+    @Override
+    public String toString() {
+        return "AclList" + super.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof AclList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
 }

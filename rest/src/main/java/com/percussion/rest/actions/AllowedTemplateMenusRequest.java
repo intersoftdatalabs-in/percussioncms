@@ -20,18 +20,46 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Request object for allowed template menus.
+ */
 @XmlRootElement
 @Schema
 public class AllowedTemplateMenusRequest {
 
     private int[] contentIds;
 
-    public int[] getContentIds() {
-        return contentIds;
+    public AllowedTemplateMenusRequest() {}
+
+    public Optional<int[]> getContentIds() {
+        return Optional.ofNullable(contentIds);
     }
 
     public void setContentIds(int[] contentIds) {
         this.contentIds = contentIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AllowedTemplateMenusRequest)) return false;
+        var that = (AllowedTemplateMenusRequest) o;
+        return Arrays.equals(contentIds, that.contentIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(contentIds);
+    }
+
+    @Override
+    public String toString() {
+        return "AllowedTemplateMenusRequest{" +
+                "contentIds=" + Arrays.toString(contentIds) +
+                '}';
     }
 }

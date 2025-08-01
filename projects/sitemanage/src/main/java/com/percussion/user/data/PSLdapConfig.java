@@ -29,44 +29,36 @@ import javax.xml.bind.annotation.XmlType;
 import java.util.Set;
 
 /**
- * 
  * Directory Service Configuration loaded from a configuration file.
- * 
  * @author adamgent
- *
  */
-@XmlRootElement(name="LdapConfig")
+@XmlRootElement(name = "LdapConfig")
 @JsonRootName("LdapConfig")
-public class PSLdapConfig extends PSAbstractDataObject
-{
-    
+public class PSLdapConfig extends PSAbstractDataObject {
 
     private static final long serialVersionUID = 1L;
     private PSLdapServer server;
-    
+
     /**
      * A single directory service.
-     * If <code>null</code> then directory service is disabled.
-     * @return maybe <code>null</code>.
+     * If {@code null} then directory service is disabled.
+     * @return maybe {@code null}.
      */
     @XmlElement(name = "LdapServer")
-    public PSLdapServer getServer()
-    {
+    public PSLdapServer getServer() {
         return server;
     }
 
-    public void setServer(PSLdapServer server)
-    {
+    public void setServer(PSLdapServer server) {
         this.server = server;
     }
 
     /**
      * A single Directory Server configuration.
-     * @author adamgent
      */
     @XmlType(propOrder = {
             "host", "port", "user",
-            "password", 
+            "password",
             "catalogType",
             "objectAttributeName",
             "emailAttributeName",
@@ -74,7 +66,7 @@ public class PSLdapConfig extends PSAbstractDataObject
             "secure",
             "debug",
             "timeout"
-            })
+    })
     public static class PSLdapServer extends PSAbstractDataObject {
 
         private static final long serialVersionUID = 1L;
@@ -82,29 +74,29 @@ public class PSLdapConfig extends PSAbstractDataObject
         @NotNull
         @NotBlank
         private String host;
-        
+
         @NotNull
         @NotBlank
         @Min(1)
         private Integer port;
-        
+
         @NotNull
         @NotBlank
         private String user;
-        
+
         private String password;
-        
+
         @NotNull
         private String objectAttributeName;
-        
+
         private String emailAttributeName;
-        
+
         @NotNull
         @NotEmpty
         private Set<String> organizationalUnits;
-        
-        private boolean secure;        
-        
+
+        private boolean secure;
+
         @NotNull
         private CatalogType catalogType;
 
@@ -136,108 +128,83 @@ public class PSLdapConfig extends PSAbstractDataObject
             this.timeout = timeout;
         }
 
-        public String getHost()
-        {
+        public String getHost() {
             return host;
         }
-        
-        public void setHost(String host)
-        {
+
+        public void setHost(String host) {
             this.host = host;
         }
 
-        public Integer getPort()
-        {
+        public Integer getPort() {
             return port;
         }
 
-        public void setPort(Integer port)
-        {
+        public void setPort(Integer port) {
             this.port = port;
         }
 
-
-        public String getUser()
-        {
+        public String getUser() {
             return user;
         }
 
-        public void setUser(String user)
-        {
+        public void setUser(String user) {
             this.user = user;
         }
 
-        public String getPassword()
-        {
+        public String getPassword() {
             return password;
         }
 
-        public void setPassword(String password)
-        {
+        public void setPassword(String password) {
             this.password = password;
         }
 
-        public String getObjectAttributeName()
-        {
+        public String getObjectAttributeName() {
             return objectAttributeName;
         }
 
-        public void setObjectAttributeName(String objectAttributeName)
-        {
+        public void setObjectAttributeName(String objectAttributeName) {
             this.objectAttributeName = objectAttributeName;
         }
-        
-        public String getEmailAttributeName()
-        {
+
+        public String getEmailAttributeName() {
             return emailAttributeName;
         }
 
-        public void setEmailAttributeName(String emailAttributeName)
-        {
+        public void setEmailAttributeName(String emailAttributeName) {
             this.emailAttributeName = emailAttributeName;
         }
 
-
-        @XmlElement(name="organizationalUnit", required=true)
-        public Set<String> getOrganizationalUnits()
-        {
+        @XmlElement(name = "organizationalUnit", required = true)
+        public Set<String> getOrganizationalUnits() {
             return organizationalUnits;
         }
 
-        public void setOrganizationalUnits(Set<String> organizationalUnits)
-        {
+        public void setOrganizationalUnits(Set<String> organizationalUnits) {
             this.organizationalUnits = organizationalUnits;
         }
 
-        public Boolean getSecure()
-        {
+        public Boolean getSecure() {
             return secure;
         }
 
-        public void setSecure(Boolean secure)
-        {
+        public void setSecure(Boolean secure) {
             this.secure = secure;
         }
-        
-        @XmlElement(name="catalog")
-        public CatalogType getCatalogType()
-        {
+
+        @XmlElement(name = "catalog")
+        public CatalogType getCatalogType() {
             return catalogType;
         }
 
-        public void setCatalogType(CatalogType catalogType)
-        {
+        public void setCatalogType(CatalogType catalogType) {
             this.catalogType = catalogType;
         }
-        
-        public static enum CatalogType {
+
+        public enum CatalogType {
             shallow,
-            deep;
+            deep
         }
-    
     }
-    
-
-
 }
-

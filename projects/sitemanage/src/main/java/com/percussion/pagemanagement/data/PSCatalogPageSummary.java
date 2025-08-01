@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,54 +18,61 @@
 package com.percussion.pagemanagement.data;
 
 /**
+ * Summary information for a cataloged page.
+ * Immutable data object for use in page listings.
  * @author JaySeletz
- *
  */
-public class PSCatalogPageSummary
-{
+public class PSCatalogPageSummary {
+
     private String id;
     private String path;
     private String name;
+
     /**
-     * @return the id
+     * Gets the unique ID of the page.
+     * @return the ID, may be {@code null} if not set.
      */
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
+
     /**
-     * @param id the id to set
+     * Sets the unique ID of the page.
+     * @param id the ID to set, may be {@code null}.
      */
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
+
     /**
-     * @return the path
+     * Gets the path of the page.
+     * @return the path, may be {@code null} if not set.
      */
-    public String getPath()
-    {
+    public String getPath() {
         return path;
     }
+
     /**
-     * @param path the path to set
+     * Sets the path of the page.
+     * @param path the path to set, may be {@code null}.
      */
-    public void setPath(String path)
-    {
+    public void setPath(String path) {
         this.path = path;
     }
+
     /**
-     * @return the name
+     * Gets the name of the page.
+     * @return the name, may be {@code null} if not set.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
+
     /**
-     * @param name the name to set
+     * Sets the name of the page.
+     * @param name the name to set, may be {@code null}.
      */
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 }

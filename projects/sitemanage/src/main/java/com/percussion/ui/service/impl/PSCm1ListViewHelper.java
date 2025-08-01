@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.ui.service.impl;
 
 import com.percussion.design.objectstore.PSLocator;
@@ -46,37 +47,27 @@ import java.util.Map;
 import static com.percussion.webservices.PSWebserviceUtils.getStateById;
 import static com.percussion.webservices.PSWebserviceUtils.getWorkflow;
 
-
 /**
  * A "CMS objects" implementation of the {@link IPSListViewHelper} interface.
- * 
+ *
  * @author federicoromanelli
- * 
  */
 @PSSiteManageBean("cm1ListViewHelper")
 @Lazy
-public class PSCm1ListViewHelper extends PSBaseListViewHelper
-{
+public class PSCm1ListViewHelper extends PSBaseListViewHelper {
     public static final String FOLDER_CONTENTTYPE = "Folder";
     public static final String SITE_CONTENTTYPE = "Site";
     public static final String PAGE_CONTENTTYPE = "Page";
     public static final String ASSET_CONTENTTYPE = "Asset";
-    
+
     private final IPSDataItemSummaryService dataItemSummaryService;
-    
     private final IPSCmsObjectMgr cmsObjectMgr;
-    
     private final IPSIdMapper idMapper;
-    
     private final IPSFolderHelper folderHelper;
-    
-    private static Map<String, String> contentIdMap = new HashMap<>();
-    
-    /*
-     * Initialization of content type map values
-     */
-    static
-    {
+
+    private static final Map<String, String> contentIdMap = new HashMap<>();
+
+    static {
         contentIdMap.put("SITE", SITE_CONTENTTYPE);
         contentIdMap.put("FOLDER", FOLDER_CONTENTTYPE);
         contentIdMap.put("PAGE", PAGE_CONTENTTYPE);
@@ -85,165 +76,124 @@ public class PSCm1ListViewHelper extends PSBaseListViewHelper
         contentIdMap.put("EXTERNAL_SECTION_FOLDER", FOLDER_CONTENTTYPE);
         contentIdMap.put("SYSTEM", FOLDER_CONTENTTYPE);
     }
+
     @Autowired
-    public PSCm1ListViewHelper(IPSDataItemSummaryService dataItemSummaryService, IPSIdMapper idMapper, IPSFolderHelper folderHelper)
-    {
+    public PSCm1ListViewHelper(IPSDataItemSummaryService dataItemSummaryService, IPSIdMapper idMapper, IPSFolderHelper folderHelper) {
         this.cmsObjectMgr = PSCmsObjectMgrLocator.getObjectManager();
         this.dataItemSummaryService = dataItemSummaryService;
         this.idMapper = idMapper;
         this.folderHelper = folderHelper;
     }
-    
+
     /**
      * Returns the content type given a specific category (retrieved previously from a loaded PSPathItem object)
-     * 
+     *
      * @param name the category retrieved from the PSPathItem object
      * @return a string with the corresponding content type: Page, Asset, Folder, Site
-     */   
-    private static String getContentType(String name)
-    {
-        String type = contentIdMap.get(name);
-        if (type == null || type.equals(""))
+     */
+    private static String getContentType(String name) {
+        var type = contentIdMap.get(name);
+        if (type == null || type.isEmpty())
             return ASSET_CONTENTTYPE;
         return type;
     }
 
-    /**
-     * @param pathItem
-     * @return
-     */
-    private Integer getContentId(PSPathItem pathItem)
-    {
-        try
-        {
-            String path = pathItem.getPath();
-            
-            if (path.startsWith(PSSitePathItemService.SITE_ROOT_SUB))
-            {
+    private Integer getContentId(PSPathItem pathItem) {
+        try {
+            var path = pathItem.getPath();
+
+            if (path.startsWith(PSSitePathItemService.SITE_ROOT_SUB)) {
                 path = "/" + path;
-            }
-            else if (path.startsWith(PSSearchPathItemService.SEARCH_ROOT_SUB))
-            {
+            } else if (path.startsWith(PSSearchPathItemService.SEARCH_ROOT_SUB)) {
                 return null;
-            }
-            else
-            {
+            } else {
                 path = PSAssetPathItemService.ASSET_ROOT_SUB + path;
             }
-            
-            String id = dataItemSummaryService.pathToId("/" + path);
-            
+
+            var id = dataItemSummaryService.pathToId("/" + path);
             return ((PSLegacyGuid) idMapper.getGuid(id)).getContentId();
-        }
-        catch (Exception e)
-        {
-            log.error("Error in getting the content id for path item: {}" , pathItem.getPath());
+        } catch (Exception e) {
+            log.error("Error in getting the content id for path item: {}", pathItem.getPath());
             return null;
         }
     }
 
-    private String getCategory(PSPathItem pathItem)
-    {
-        String category = "SITE";
-        if (pathItem.getCategory() != null)
-        {
+    private String getCategory(PSPathItem pathItem) {
+        var category = "SITE";
+        if (pathItem.getCategory() != null) {
             category = pathItem.getCategory().name();
         }
-        
         return category;
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#getDisplayProperties(com.percussion.pathmanagement.data.PSPathItem)
-     */
+
     @Override
-    protected Map<String, String> getDisplayProperties(PSPathItem pathItem)
-    {
-        Map<String, String> displayProperties = new HashMap<>();
-        
+    protected Map<String, String> getDisplayProperties(PSPathItem pathItem) {
+        var displayProperties = new HashMap<String, String>();
         IPSItemEntry itemEntry = null;
-        Object relatedObject = getRelatedObject(pathItem);
-        
+        var relatedObject = getRelatedObject(pathItem);
+
         // If the relatedObject was not specified, find it
         if (relatedObject != null)
             itemEntry = (IPSItemEntry) relatedObject;
-        else
-        {
-            Integer cid = getContentId(pathItem);
-            if(cid != null) {
+        else {
+            var cid = getContentId(pathItem);
+            if (cid != null) {
                 itemEntry = cmsObjectMgr.findItemEntry(cid);
-            }else{
+            } else {
                 log.warn("Unable to locate a content record for {}", pathItem);
                 return null;
             }
         }
-        
+
         if (StringUtils.isNotBlank(itemEntry.getName()))
             displayProperties.put(TITLE_NAME, itemEntry.getName());
-        
+
         if (StringUtils.isNotBlank(itemEntry.getStateName()))
             displayProperties.put(STATE_NAME, itemEntry.getStateName());
 
         // get workflow name and fixup last modified info if item is workflowed
-        String stateName = itemEntry.getStateName();
-        String lastModifier = itemEntry.getLastModifier();
-        Date lastModifiedDate = itemEntry.getLastModifiedDate();
-        if (StringUtils.isNotBlank(stateName))
-        {
-            PSWorkflow wf = getWorkflow(itemEntry.getWorkflowAppId());
+        var stateName = itemEntry.getStateName();
+        var lastModifier = itemEntry.getLastModifier();
+        var lastModifiedDate = itemEntry.getLastModifiedDate();
+        if (StringUtils.isNotBlank(stateName)) {
+            var wf = getWorkflow(itemEntry.getWorkflowAppId());
             displayProperties.put(WORKFLOW_NAME, wf.getName());
-            
+
             // if we have last modified info, then fix it up to last real user mod
-            if (lastModifiedDate != null && StringUtils.isNotBlank(lastModifier))
-            {
+            if (lastModifiedDate != null && StringUtils.isNotBlank(lastModifier)) {
                 displayProperties.put(CONTENT_LAST_MODIFIER_NAME, lastModifier);
                 displayProperties.put(CONTENT_LAST_MODIFIED_DATE_NAME, PSDateUtils.getDateToString(lastModifiedDate));
-                //Removed the call that was replacing modifier name "rxserver" with previous modifier due to performance issues.
+                // Removed the call that was replacing modifier name "rxserver" with previous modifier due to performance issues.
             }
-
         }
 
         if (StringUtils.isNotBlank(getCategory(pathItem)))
             displayProperties.put(CONTENTTYPE_NAME, getContentType(getCategory(pathItem)));
-        
+
         if (StringUtils.isNotBlank(itemEntry.getCreatedBy()))
             displayProperties.put(CONTENT_CREATEDBY_NAME, itemEntry.getCreatedBy());
 
-        
         if (itemEntry.getPostDate() != null)
             displayProperties.put(POSTDATE_NAME, PSDateUtils.getDateToString(itemEntry.getPostDate()));
-        
+
         if (itemEntry.getCreatedDate() != null)
             displayProperties.put(CONTENT_CREATEDDATE_NAME, PSDateUtils.getDateToString(itemEntry.getCreatedDate()));
-        
+
         return displayProperties;
     }
-    
-
 
     @Override
-    public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria)
-    {
+    public void fillDisplayProperties(PSDisplayPropertiesCriteria criteria) {
         super.fillDisplayProperties(criteria);
     }
 
-
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#expectedRelatedObjectType()
-     */
     @Override
-    protected Class<?> expectedRelatedObjectType()
-    {
+    protected Class<?> expectedRelatedObjectType() {
         return IPSItemEntry.class;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#areEmptyRelatedObjectsSupported()
-     */
     @Override
-    protected boolean areEmptyRelatedObjectsSupported()
-    {
+    protected boolean areEmptyRelatedObjectsSupported() {
         return true;
     }
-
 }

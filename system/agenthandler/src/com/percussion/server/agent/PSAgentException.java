@@ -18,24 +18,56 @@
 package com.percussion.server.agent;
 
 /**
- * This exception is thrown by the <code>IPSAgent</code> or its implementation
- * object when it fails to get initialized.
+ * Exception thrown when agent operations fail.
+ * This is a checked exception that should be used for recoverable conditions
+ * related to agent processing.
+ *
+ * @since Java 11
  */
-public class PSAgentException extends Exception
-{
+public class PSAgentException extends Exception {
+
+   private static final long serialVersionUID = 1L;
+
    /**
-    * Default constructor.
+    * Constructs a new agent exception with {@code null} as its detail message.
     */
-   public PSAgentException()
-   {
+   public PSAgentException() {
       super();
    }
 
    /**
-    * Constructor taking the error message.
+    * Constructs a new agent exception with the specified detail message.
+    *
+    * @param message the detail message (which is saved for later retrieval
+    *                by the {@link #getMessage()} method)
     */
-   public PSAgentException(String msg)
-   {
-      super(msg);
+   public PSAgentException(String message) {
+      super(message);
+   }
+
+   /**
+    * Constructs a new agent exception with the specified detail message and cause.
+    *
+    * @param message the detail message (which is saved for later retrieval
+    *                by the {@link #getMessage()} method)
+    * @param cause the cause (which is saved for later retrieval by the
+    *              {@link #getCause()} method). A {@code null} value is
+    *              permitted, and indicates that the cause is nonexistent or unknown
+    */
+   public PSAgentException(String message, Throwable cause) {
+      super(message, cause);
+   }
+
+   /**
+    * Constructs a new agent exception with the specified cause and a detail
+    * message of {@code (cause==null ? null : cause.toString())} (which
+    * typically contains the class and detail message of {@code cause}).
+    *
+    * @param cause the cause (which is saved for later retrieval by the
+    *              {@link #getCause()} method). A {@code null} value is
+    *              permitted, and indicates that the cause is nonexistent or unknown
+    */
+   public PSAgentException(Throwable cause) {
+      super(cause);
    }
 }

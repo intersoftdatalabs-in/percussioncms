@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,43 +20,39 @@ package com.percussion.category.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
-@XmlRootElement(name="Tree")
+/**
+ * Represents a transformable category tree for migration or upgrade.
+ */
+@XmlRootElement(name = "Tree")
 public class PSTransformCategory {
 
-   private String label;
-   private List<PSTransformCategoryNode> topNodes = new ArrayList<>();
-   
-   @XmlAttribute(name="label")
-   public String getLabel()
-   {
-      return label;
-   }
-   
-   public void setLabel(String label)
-   {
-      this.label = label;
-   }
-   
-   @XmlElement(name="Node")
-   public List<PSTransformCategoryNode> getTopNodes()
-   {
-      return topNodes;
-   }
-   
-   public void setTopNodes(List<PSTransformCategoryNode> topNodes)
-   {
-      this.topNodes = topNodes;
-   }
+    private String label;
+    private List<PSTransformCategoryNode> topNodes = new ArrayList<>();
 
-   @Override
-   public String toString()
-   {
-      return "PSUpgradePluginCategory [label=" + label + ", topNodes=" + topNodes + "]";
-   }
+    @XmlAttribute(name = "label")
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    @XmlElement(name = "Node")
+    public List<PSTransformCategoryNode> getTopNodes() {
+        return topNodes;
+    }
+
+    public void setTopNodes(List<PSTransformCategoryNode> topNodes) {
+        this.topNodes = topNodes;
+    }
+
+    @Override
+    public String toString() {
+        return "PSTransformCategory [label=" + label + ", topNodes=" + topNodes + "]";
+    }
 }

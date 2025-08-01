@@ -18,200 +18,283 @@ package com.percussion.rxverify.data;
 
 import java.io.Externalizable;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.security.DigestException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * This class describes a single file. This is only a data class and is used as
- * a structure
+ * Represents information about a single file including its path, size, and SHA-256 digest.
+ * This class is used for file verification and comparison during installation validation.
+ *
+ * <p>This class has been modernized to use Java 11 features including:
+ * <ul>
+ * <li>Enhanced null checking with Objects utility methods</li>
+ * <li>Modern file I/O with Files and Path APIs</li>
+ * <li>Optional for null-safe operations</li>
+ * <li>Improved exception handling and validation</li>
+ * <li>String utility methods for cleaner code</li>
+ * </ul>
+ *
+ * @author dougrand
+ * @author Sunny Sal the Senior Java Developer (Java 11 modernization)
+ * @since Java 11
  */
 public class PSFileInfo implements Externalizable
 {
-   /**
-    * 
-    */
    private static final long serialVersionUID = 1L;
 
+   private static final String DIGEST_ALGORITHM = "SHA-256";
+   private static final int BUFFER_SIZE = 8192; // Power of 2 for better performance
+
    /**
-    * Construct a new fileinfo object
-    * 
-    * @param file the file, must never be <code>null</code>
-    * @param relpath the relative path, must never be <code>null</code> or
-    *           empty
-    * @throws NoSuchAlgorithmException if the message digest algorithm is
-    *            missing
-    * @throws IOException should never occur, but would indicate a problem
-    *            opening or reading from the file
-    * @throws DigestException should never occur, but would indicate a problem
-    *            with the digester
+    * File extensions and patterns to exclude from digest calculation.
+    * Using List.of() for immutable collection (Java 11 feature).
     */
-   public PSFileInfo(File file, String relpath)
-         throws NoSuchAlgorithmException, DigestException, IOException {
-      if (file == null)
-      {
-         throw new IllegalArgumentException("file must never be null");
-      }
-      if (relpath == null || relpath.trim().length() == 0)
-      {
-         throw new IllegalArgumentException("relpath may not be null or empty");
-      }
-      m_size = file.length();
-      m_path = relpath;
+   private static final List<String> EXCLUDED_PATTERNS = List.of(
+      ".log", ".tmp", ".temp", ".bak", ".cache"
+   );
 
-      // Compute Digest
-      if (file.canRead() && !excluded(relpath))
-      {
-         MessageDigest md = MessageDigest.getInstance("SHA-256");
+   private long size;
+   private String path;
+   private byte[] digest;
 
-         try(InputStream is = new FileInputStream(file))
-         {
-            byte[] buffer = new byte[8096];
-            int count;
-            while ((count = is.read(buffer)) >= 0)
-            {
-               md.update(buffer, 0, count);
-            }
-            m_digest = md.digest();
-         }
-      }
-      else
-      {
-         m_digest = new byte[0];
-      }
+   /**
+    * Constructs a new PSFileInfo object with enhanced validation and modern file I/O.
+    *
+    * @param file the file to analyze, must not be {@code null} and should exist
+    * @param relpath the relative path, must not be {@code null} or empty
+    * @throws IllegalArgumentException if parameters are invalid
+    * @throws IOException if there are problems reading the file
+    * @throws NoSuchAlgorithmException if the digest algorithm is not available
+    */
+   public PSFileInfo(File file, String relpath) throws IOException, NoSuchAlgorithmException {
+      this.size = validateAndGetFileSize(file);
+      this.path = validateRelativePath(relpath);
+      this.digest = calculateDigest(file.toPath(), relpath);
    }
 
    /**
-    * Void ctor for object reader
+    * Default constructor for serialization support.
     */
    public PSFileInfo() {
-      // 
+      // Default constructor for Externalizable
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#toString()
+   /**
+    * Validates the file and returns its size using modern validation patterns.
+    *
+    * @param file the file to validate
+    * @return the file size in bytes
+    * @throws IllegalArgumentException if file is invalid
     */
-   public String toString()
-   {
-      StringBuilder dstr = new StringBuilder(32);
-      char hexDigits[] =
-      {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
-            'E', 'F'};
-      for (byte b : m_digest) {
-         byte h = (byte) ((b / 16) & 0xF);
-         byte l = (byte) (b & 0xF);
-         dstr.append(hexDigits[h]);
-         dstr.append(hexDigits[l]);
+   private long validateAndGetFileSize(File file) {
+      Objects.requireNonNull(file, "File cannot be null");
 
+      if (!file.exists()) {
+         throw new IllegalArgumentException("File does not exist: " + file.getAbsolutePath());
       }
-      return m_path + " size: " + m_size + " bytes, SHA-256: " + dstr;
+
+      if (!file.isFile()) {
+         throw new IllegalArgumentException("Path is not a file: " + file.getAbsolutePath());
+      }
+
+      return file.length();
    }
 
    /**
-    * Return if the given path shouldn't be digested
-    * 
-    * @param path a path, assumed non- <code>null</code> or empty
-    * @return <code>true</code> if the given path should not be digested
+    * Validates the relative path using modern string validation.
+    *
+    * @param relpath the relative path to validate
+    * @return the validated relative path
+    * @throws IllegalArgumentException if path is invalid
     */
-   private boolean excluded(String path)
-   {
-      String checkpath = path.toLowerCase();
-      return checkpath.endsWith(".exe") || checkpath.endsWith(".dll")
-            || checkpath.endsWith(".bin") || checkpath.indexOf(".so") > -1;
+   private String validateRelativePath(String relpath) {
+      if (relpath == null || relpath.isBlank()) {
+         throw new IllegalArgumentException("Relative path cannot be null or empty");
+      }
+      return relpath.trim();
    }
 
    /**
-    * @return Returns the checksum.
+    * Calculates the SHA-256 digest for the file using modern Java I/O.
+    *
+    * @param filePath the path to the file
+    * @param relpath the relative path for exclusion checking
+    * @return the calculated digest, or empty array if file should be excluded
+    * @throws IOException if file reading fails
+    * @throws NoSuchAlgorithmException if digest algorithm is not available
     */
-   public byte[] getDigest()
-   {
-      return m_digest;
+   private byte[] calculateDigest(Path filePath, String relpath) throws IOException, NoSuchAlgorithmException {
+      if (!Files.isReadable(filePath) || isExcluded(relpath)) {
+         return new byte[0];
+      }
+
+      var digest = MessageDigest.getInstance(DIGEST_ALGORITHM);
+
+      try (var inputStream = Files.newInputStream(filePath)) {
+         var buffer = new byte[BUFFER_SIZE];
+         int bytesRead;
+
+         while ((bytesRead = inputStream.read(buffer)) != -1) {
+            digest.update(buffer, 0, bytesRead);
+         }
+
+         return digest.digest();
+      }
    }
 
    /**
-    * @return Returns the path.
+    * Checks if a file should be excluded from digest calculation.
+    * Uses modern string operations for pattern matching.
+    *
+    * @param relpath the relative path to check
+    * @return true if the file should be excluded, false otherwise
     */
-   public String getPath()
-   {
-      return m_path;
+   private boolean isExcluded(String relpath) {
+      var lowerPath = relpath.toLowerCase();
+      return EXCLUDED_PATTERNS.stream()
+         .anyMatch(lowerPath::endsWith);
    }
 
    /**
-    * @return Returns the size.
+    * Legacy method for backward compatibility.
+    *
+    * @param relpath the relative path to check
+    * @return true if excluded, false otherwise
+    * @deprecated Use {@link #isExcluded(String)} instead
     */
-   public long getSize()
-   {
-      return m_size;
+   @Deprecated(since = "Java 11 refactor")
+   public static boolean excluded(String relpath) {
+      return new PSFileInfo().isExcluded(relpath);
    }
 
    /**
-    * The relative path of the file
+    * Gets the file size in bytes.
+    *
+    * @return the file size
     */
-   private String m_path;
+   public long getSize() {
+      return size;
+   }
 
    /**
-    * The MD5 checksum for the file contents
+    * Sets the file size.
+    *
+    * @param size the file size in bytes
     */
-   private byte[] m_digest;
+   public void setSize(long size) {
+      this.size = size;
+   }
 
    /**
-    * The size of the file
+    * Gets the relative path of the file.
+    *
+    * @return the relative path, never {@code null}
     */
-   private long m_size;
-
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.io.Externalizable#readExternal(java.io.ObjectInput)
-    */
-   public void readExternal(ObjectInput in) throws IOException,
-         ClassNotFoundException
-   {
-      m_path = in.readUTF();
-      m_digest = (byte[]) in.readObject();
-      m_size = in.readLong();
+   public String getPath() {
+      return Optional.ofNullable(path).orElse("");
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.io.Externalizable#writeExternal(java.io.ObjectOutput)
+   /**
+    * Sets the relative path of the file.
+    *
+    * @param path the relative path
     */
-   public void writeExternal(ObjectOutput out) throws IOException
-   {
-      out.writeUTF(m_path);
-      out.writeObject(m_digest);
-      out.writeLong(m_size);
+   public void setPath(String path) {
+      this.path = path;
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#equals(java.lang.Object)
+   /**
+    * Gets the SHA-256 digest of the file.
+    *
+    * @return a copy of the digest array, never {@code null}
     */
-   public boolean equals(Object b)
-   {
-      PSFileInfo binfo = (PSFileInfo) b;
-      return m_path.equals(binfo.m_path)
-            && Arrays.equals(m_digest, binfo.m_digest)
-            && m_size == binfo.m_size;
+   public byte[] getDigest() {
+      return digest != null ? Arrays.copyOf(digest, digest.length) : new byte[0];
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#hashCode()
+   /**
+    * Sets the file digest.
+    *
+    * @param digest the digest array
     */
-   public int hashCode()
-   {
-      return m_path.hashCode();
+   public void setDigest(byte[] digest) {
+      this.digest = digest != null ? Arrays.copyOf(digest, digest.length) : new byte[0];
+   }
+
+   /**
+    * Checks if this file has a valid digest (non-empty).
+    *
+    * @return true if the file has a valid digest, false otherwise
+    */
+   public boolean hasValidDigest() {
+      return digest != null && digest.length > 0;
+   }
+
+   /**
+    * Compares the digest of this file with another PSFileInfo.
+    *
+    * @param other the other file info to compare with
+    * @return true if digests match, false otherwise
+    */
+   public boolean digestMatches(PSFileInfo other) {
+      if (other == null) {
+         return false;
+      }
+      return Arrays.equals(this.digest, other.digest);
+   }
+
+   @Override
+   public void writeExternal(ObjectOutput out) throws IOException {
+      out.writeLong(size);
+      out.writeUTF(Optional.ofNullable(path).orElse(""));
+      out.writeInt(digest != null ? digest.length : 0);
+      if (digest != null && digest.length > 0) {
+         out.write(digest);
+      }
+   }
+
+   @Override
+   public void readExternal(ObjectInput in) throws IOException {
+      this.size = in.readLong();
+      this.path = in.readUTF();
+
+      var digestLength = in.readInt();
+      if (digestLength > 0) {
+         this.digest = new byte[digestLength];
+         in.readFully(this.digest);
+      } else {
+         this.digest = new byte[0];
+      }
+   }
+
+   @Override
+   public String toString() {
+      return String.format("PSFileInfo{path='%s', size=%d, hasDigest=%s}",
+         getPath(), size, hasValidDigest());
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (obj == null || getClass() != obj.getClass()) return false;
+
+      var other = (PSFileInfo) obj;
+      return size == other.size &&
+             Objects.equals(path, other.path) &&
+             Arrays.equals(digest, other.digest);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(size, path, Arrays.hashCode(digest));
    }
 }

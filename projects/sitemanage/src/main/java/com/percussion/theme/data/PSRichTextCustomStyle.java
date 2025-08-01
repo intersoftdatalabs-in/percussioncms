@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,24 +28,25 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Data object for rich text custom styles.
  */
 @XmlRootElement(name = "RichTextCustomStyle")
-public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable
-{
+public class PSRichTextCustomStyle extends PSAbstractDataObject implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String className;
     private String classLabel;
-    public String getClassName()
-    {
+
+    public String getClassName() {
         return className;
     }
-    public void setClassName(String className)
-    {
+
+    public void setClassName(String className) {
         this.className = className;
     }
-    public String getClassLabel()
-    {
+
+    public String getClassLabel() {
         return classLabel;
     }
-    public void setClassLabel(String classLabel)
-    {
+
+    public void setClassLabel(String classLabel) {
         this.classLabel = classLabel;
     }
 }
