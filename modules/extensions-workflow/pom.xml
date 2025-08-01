@@ -83,7 +83,7 @@
        </dependency>
        <dependency>
            <groupId>jakarta.mail</groupId>
-           <artifactId>jakarta.mail-api</artifactId>
+           <artifactId>jakarta.mail</artifactId>
            <scope>provided</scope>
        </dependency>
        <dependency>
