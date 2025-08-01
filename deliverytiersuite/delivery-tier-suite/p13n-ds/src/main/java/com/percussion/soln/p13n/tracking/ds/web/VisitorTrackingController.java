@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -40,96 +39,106 @@ import com.percussion.soln.p13n.tracking.VisitorTrackingResponse;
 import com.percussion.soln.p13n.tracking.web.IVisitorTrackingHttpService;
 import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils;
 
-/**
- * Controller for visitor tracking actions.
- * Sunny Sal says: "VisitorTrackingController: code ka hero ban gaya tu!"
- */
 @Controller
-@RequestMapping(path = {"/track*"})
-public class VisitorTrackingController {
+@RequestMapping(path={"/track*"})
+public class VisitorTrackingController{
 
-    private static final Log log = LogFactory.getLog(VisitorTrackingController.class);
+	/**
+	 * The log instance to use for this class, never <code>null</code>.
+	 */
+	private static final Log log = LogFactory.getLog(VisitorTrackingController.class);
 
-    @Autowired
-    private IVisitorTrackingHttpService visitorTrackingHttpService;
+	@Autowired
+	private IVisitorTrackingHttpService visitorTrackingHttpService;
 
-    private boolean returnProfile = false;
-    private boolean autoSave = true;
+	private boolean returnProfile = false;
 
+	private boolean autoSave = true;
+	
+	
     private static final byte[] image = {
         71,73,70,56,57,97,01,00,01,00,-128,-1,00,-64,-64,
         00,00,00,33,-7,04,01,00,00,00,00,44,00,00,00,00,
         01,00,01,00,00,02,02,68,01,00,59
     };
 
-    @RequestMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response, Object command, BindException errors) throws IOException {
-        log.trace("Handling delivery request command : " + command);
-        if (errors.hasErrors()) {
-            return outputError(errors, response);
-        }
-        var trackingRequest = (VisitorTrackingActionRequest) command;
-        trackingRequest.setAutoSave(isAutoSave());
-        var mediator = getVisitorTrackingHttpService();
-        var trackResponse = mediator.track(trackingRequest, request, response);
-        if (!isReturnProfile()) {
-            trackResponse.setVisitorProfile(null);
-        }
-        if (request.getRequestURI().contains(".gif")) {
-            outputImage(response);
-        } else {
-            log.debug("Generating JSON Response");
-            outputJSON(trackResponse, response);
-        }
-        return null;
-    }
+	@RequestMapping
+	public ModelAndView handleRequest(HttpServletRequest request,
+			HttpServletResponse response, Object command,
+			BindException errors) throws IOException {
 
-    protected ModelAndView outputJSON(VisitorTrackingResponse visitorTrackingResponse, HttpServletResponse response) throws IOException {
-        var jsonResponse = VisitorTrackingWebUtils.responseToJson(visitorTrackingResponse);
-        PrintWriter writer = response.getWriter();
-        writer.print(jsonResponse);
-        return null;
-    }
+		log.trace("Handling delivery request command : " + command);
+		if (errors.hasErrors()) {
+			return outputError(errors, response);
+		}
 
-    protected ModelAndView outputError(Exception e, HttpServletResponse response) throws IOException {
-        var visitorTrackingResponse = new VisitorTrackingResponse();
-        visitorTrackingResponse.setErrorMessage(e.getLocalizedMessage());
-        visitorTrackingResponse.setStatus("ERROR");
-        log.warn("Bad visitor tracking request: ", e);
-        return outputJSON(visitorTrackingResponse, response);
-    }
+		VisitorTrackingActionRequest trackingRequest = (VisitorTrackingActionRequest) command;
+		trackingRequest.setAutoSave(isAutoSave());
+		IVisitorTrackingHttpService mediator = getVisitorTrackingHttpService();
+		
+		VisitorTrackingResponse trackResponse = mediator.track(trackingRequest, request, response);
+		if ( ! isReturnProfile() ) {
+			trackResponse.setVisitorProfile(null);
+		}
+		if (request.getRequestURI().contains(".gif")) {
+			outputImage(response);
+		} else {
+			log.debug("Generating JSON Response");
+			outputJSON(trackResponse, response);
+		}
+		return null;
+	}
+	
+	protected ModelAndView outputJSON(VisitorTrackingResponse visitorTrackingResponse,
+			HttpServletResponse response) throws IOException {
+		String jsonResponse = VisitorTrackingWebUtils.responseToJson(visitorTrackingResponse);
+	    PrintWriter writer = response.getWriter();
+	    writer.print(jsonResponse);
+		return null;
+	}
 
-    protected void onBindAndValidate(HttpServletRequest request, Object command, BindException errors) throws Exception {
-        super.onBindAndValidate(request, command, errors);
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "actionName", "field.required");
-        var trackingRequest = (VisitorTrackingActionRequest) command;
+
+	protected ModelAndView outputError(Exception e, HttpServletResponse response) 
+	throws IOException {
+		VisitorTrackingResponse visitorTrackingResponse = new VisitorTrackingResponse();
+		visitorTrackingResponse.setErrorMessage(e.getLocalizedMessage());
+		visitorTrackingResponse.setStatus("ERROR");
+		log.warn("Bad visitor tracking request: ",e);
+		return outputJSON(visitorTrackingResponse, response);
+	}
+
+	protected void onBindAndValidate(HttpServletRequest request, 
+			Object command, BindException errors) throws Exception {
+	    super.onBindAndValidate(request, command, errors);
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "actionName", "field.required"); 
+        /*
+         * Get the locale, src url, and referrer url.
+         */
+        VisitorTrackingActionRequest trackingRequest = (VisitorTrackingActionRequest) command;
         convertServletRequestToTrackingRequest(request, trackingRequest);
-    }
+	}
 
-    protected ModelAndView outputImage(HttpServletResponse response) throws IOException {
-        log.debug("Returning single pixel image");
-        response.setContentType("image/gif");
-        response.getOutputStream().write(image);
-        response.flushBuffer();
-        return null;
-    }
-
+	protected ModelAndView outputImage(HttpServletResponse response) throws IOException {
+		log.debug("Returning single pixel image");
+		response.setContentType("image/gif");
+		response.getOutputStream().write(image);
+		response.flushBuffer();
+		return null;
+	}
+	
     public boolean isAutoSave() {
         return autoSave;
     }
-
     public void setAutoSave(boolean autoSave) {
         this.autoSave = autoSave;
     }
-
+    
     public boolean isReturnProfile() {
         return returnProfile;
     }
-
     public void setReturnProfile(boolean returnProfile) {
         this.returnProfile = returnProfile;
     }
-
     public VisitorTrackingController() {
         //setCommandClass(VisitorTrackingActionRequest.class);
     }
@@ -138,7 +147,8 @@ public class VisitorTrackingController {
         return visitorTrackingHttpService;
     }
 
-    public void setVisitorTrackingHttpService(IVisitorTrackingHttpService visitorTrackingWebMediator) {
+    public void setVisitorTrackingHttpService(
+            IVisitorTrackingHttpService visitorTrackingWebMediator) {
         this.visitorTrackingHttpService = visitorTrackingWebMediator;
     }
 }

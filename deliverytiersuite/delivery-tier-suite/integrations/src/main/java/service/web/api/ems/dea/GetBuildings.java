@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,18 +16,34 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import java.util.Objects;
-import java.util.Optional;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Java 11+ refactored SOAP request for GetBuildings.
- * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
- * Sunny Sal: "Buildings, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -34,75 +51,59 @@ import javax.xml.bind.annotation.*;
     "password"
 })
 @XmlRootElement(name = "GetBuildings")
-public final class GetBuildings {
+public class GetBuildings {
 
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
 
-    private GetBuildings(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Builder for GetBuildings (Java 11+ style).
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-
-        public Builder userName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public GetBuildings build() {
-            return new GetBuildings(this);
-        }
+    public void setPassword(String value) {
+        this.password = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBuildings)) return false;
-        var that = (GetBuildings) o;
-        return Objects.equals(userName, that.userName)
-                && Objects.equals(password, that.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(userName, password);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBuildings{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                '}';
-    }
 }

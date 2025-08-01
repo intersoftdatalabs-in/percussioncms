@@ -17,24 +17,43 @@
 package com.percussion.delivery.metadata.error;
 
 /**
- * Exception thrown when a metadata query is malformed.
- * Sunny Sal says: "Malformed query? Mogambo khush nahi hua!"
+ * @author erikserating
+ *
  */
-public class PSMalformedMetadataQueryException extends Exception {
+public class PSMalformedMetadataQueryException extends Exception
+{
 
-    public PSMalformedMetadataQueryException() {
-        super();
-    }
+   /**
+    * 
+    */
+   public PSMalformedMetadataQueryException()
+   {
+      super();
+   }
 
-    public PSMalformedMetadataQueryException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   /**
+    * @param message
+    * @param cause
+    */
+   public PSMalformedMetadataQueryException(String message, Throwable cause)
+   {
+      super(message, cause);
+   }
 
-    public PSMalformedMetadataQueryException(String message) {
-        super(message);
-    }
+   /**
+    * @param message
+    */
+   public PSMalformedMetadataQueryException(String message)
+   {
+      super(message);
+   }
 
-    public PSMalformedMetadataQueryException(Throwable cause) {
-        super(cause);
-    }
+   /**
+    * @param cause
+    */
+   public PSMalformedMetadataQueryException(Throwable cause)
+   {
+      super(cause);
+   }
+   
 }

@@ -1,120 +1,203 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License")
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.percussion.delivery.feeds.services.rdbms;
 
 import com.percussion.delivery.feeds.services.IPSConnectionInfo;
-import java.util.Objects;
-import java.util.Optional;
-import javax.persistence.*;
+
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * JPA entity for storing secure connection information.
- * Contains sensitive data that must be handled securely.
- * Sunny Sal: "Passwords are like secrets, keep them safe and never in logs!"
+ * @author erikserating
+ *
  */
 @Entity
 @Table(name = "PERC_CONNECTION_INFO")
-public class PSConnectionInfo implements IPSConnectionInfo {
-
+public class PSConnectionInfo implements IPSConnectionInfo
+{
     @Id
-    private final long id = 1L; // Single instance per table design
-
-    @Column(name = "url")
+    private long id = 1; // this will always be one as there will only be one info entry in table
+    
+    @Basic
     private String url;
-
-    @Column(name = "username")
+    
+    @Basic
     private String username;
-
-    @Column(name = "password")
+    
+    @Basic
     private String password;
-
-    @Column(name = "encrypted", nullable = false)
-    private boolean encrypted;
-
-    protected PSConnectionInfo() {
-        // Required by JPA, do not use directly
+    
+    @Basic
+    private String encrypted;
+    
+    
+    public PSConnectionInfo()
+    {
+        
     }
 
     /**
-     * Creates connection info with the specified credentials.
-     *
-     * @param url Service URL (not null)
-     * @param username Username for authentication
-     * @param password Encrypted password
-     * @param encrypted Whether the password is encrypted
+     * @param url
+     * @param user
+     * @param password
+     * @param encrypted
      */
-    public PSConnectionInfo(String url, String username, String password, boolean encrypted) {
-        this.url = Objects.requireNonNull(url, "URL must not be null");
-        this.username = username;
+    public PSConnectionInfo(String url, String user, String password, boolean encrypted)
+    {
+        this.url = url;
+        this.username = user;
         this.password = password;
-        this.encrypted = encrypted;
+        this.encrypted = Boolean.toString(encrypted);
     }
 
-    @Override
-    public Optional<String> getUrl() {
-        return Optional.ofNullable(url);
+    /**
+     * @return the url
+     */
+    public String getUrl()
+    {
+        return url;
     }
 
-    @Override
-    public Optional<String> getUsername() {
-        return Optional.ofNullable(username);
-    }
-
-    @Override
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
-    }
-
-    @Override
-    public boolean isEncrypted() {
-        return encrypted;
-    }
-
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    // These setters are required by JPA but should be used with caution
-    protected void setUrl(String url) {
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUrl(java.lang.String)
+     */
+    public void setUrl(String url)
+    {
         this.url = url;
     }
 
-    protected void setUsername(String username) {
-        this.username = username;
+    /**
+     * @return the user
+     */
+    public String getUsername()
+    {
+        return username;
     }
 
-    protected void setPassword(String password) {
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setUser(java.lang.String)
+     */
+    public void setUsername(String user)
+    {
+        this.username = user;
+    }
+
+    /**
+     * @return the password
+     */
+    public String getPassword()
+    {
+        return password;
+    }
+
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setPassword(java.lang.String)
+     */
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 
-    protected void setEncrypted(boolean encrypted) {
+    /**
+     * @return the encrypted
+     */
+    public String getEncrypted()
+    {
+        return encrypted;
+    }
+
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setEncrypted(java.lang.String)
+     */
+    public void setEncrypted(String encrypted)
+    {
         this.encrypted = encrypted;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSConnectionInfo)) return false;
-        PSConnectionInfo that = (PSConnectionInfo) o;
-        return id == that.id &&
-               encrypted == that.encrypted &&
-               Objects.equals(url, that.url) &&
-               Objects.equals(username, that.username);
-        // Intentionally exclude password from equals
+    /**
+     * @return the id
+     */
+    public long getId()
+    {
+        return id;
     }
 
-    @Override
-    public int hashCode() {
-        // Exclude password from hash calculation for security
-        return Objects.hash(id, url, username, encrypted);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.services.rdbms.IPSConnectionInfo#setId(long)
+     */
+    public void setId(long id)
+    {
+        this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return toSafeString(); // Use the safe version from interface
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PSConnectionInfo other = (PSConnectionInfo) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PSConnectionInfo [id=");
+		builder.append(id);
+		builder.append(", ");
+		if (url != null) {
+			builder.append("url=");
+			builder.append(url);
+			builder.append(", ");
+		}
+		if (username != null) {
+			builder.append("username=");
+			builder.append(username);
+			builder.append(", ");
+		}
+		if (password != null) {
+			builder.append("password=");
+			builder.append(password);
+			builder.append(", ");
+		}
+		if (encrypted != null) {
+			builder.append("encrypted=");
+			builder.append(encrypted);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
+    
+    
+    
+    
 }

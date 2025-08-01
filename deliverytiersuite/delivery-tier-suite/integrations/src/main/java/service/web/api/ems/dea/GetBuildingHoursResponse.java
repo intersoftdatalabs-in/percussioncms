@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,74 +16,66 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import java.util.Objects;
-import java.util.Optional;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Java 11+ refactored SOAP response for GetBuildingHours.
- * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
- * Sunny Sal: "Building hours response, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetBuildingHoursResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getBuildingHoursResult"
 })
 @XmlRootElement(name = "GetBuildingHoursResponse")
-public final class GetBuildingHoursResponse {
+public class GetBuildingHoursResponse {
 
     @XmlElement(name = "GetBuildingHoursResult")
-    private final String getBuildingHoursResult;
+    protected String getBuildingHoursResult;
 
-    private GetBuildingHoursResponse(Builder builder) {
-        this.getBuildingHoursResult = builder.getBuildingHoursResult;
+    /**
+     * Gets the value of the getBuildingHoursResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetBuildingHoursResult() {
+        return getBuildingHoursResult;
     }
 
     /**
-     * Gets the building hours result.
-     * @return Optional result
+     * Sets the value of the getBuildingHoursResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getGetBuildingHoursResult() {
-        return Optional.ofNullable(getBuildingHoursResult);
+    public void setGetBuildingHoursResult(String value) {
+        this.getBuildingHoursResult = value;
     }
 
-    /**
-     * Builder for GetBuildingHoursResponse (Java 11+ style).
-     */
-    public static class Builder {
-        private String getBuildingHoursResult;
-
-        public Builder getBuildingHoursResult(String getBuildingHoursResult) {
-            this.getBuildingHoursResult = getBuildingHoursResult;
-            return this;
-        }
-
-        public GetBuildingHoursResponse build() {
-            return new GetBuildingHoursResponse(this);
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBuildingHoursResponse)) return false;
-        var that = (GetBuildingHoursResponse) o;
-        return Objects.equals(getBuildingHoursResult, that.getBuildingHoursResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getBuildingHoursResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBuildingHoursResponse{" +
-                "getBuildingHoursResult='" + getBuildingHoursResult + '\'' +
-                '}';
-    }
 }

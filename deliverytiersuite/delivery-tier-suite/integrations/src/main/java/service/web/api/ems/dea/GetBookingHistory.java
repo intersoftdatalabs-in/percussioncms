@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -65,135 +66,236 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "a7",
     "a8"
 })
-// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingHistory")
 public class GetBookingHistory {
+
     @XmlElement(name = "A_0")
-    private String a0;
+    protected String a0;
     @XmlElement(name = "A_1")
-    private String a1;
+    protected String a1;
     @XmlElement(name = "A_2", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar a2;
+    protected XMLGregorianCalendar a2;
     @XmlElement(name = "A_3", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar a3;
+    protected XMLGregorianCalendar a3;
     @XmlElement(name = "A_4")
-    private ArrayOfInt a4;
+    protected ArrayOfInt a4;
     @XmlElement(name = "A_5")
-    private ArrayOfInt a5;
+    protected ArrayOfInt a5;
     @XmlElement(name = "A_6")
-    private ArrayOfInt a6;
+    protected ArrayOfInt a6;
     @XmlElement(name = "A_7")
-    private ArrayOfInt a7;
+    protected ArrayOfInt a7;
     @XmlElement(name = "A_8")
-    private boolean a8;
+    protected boolean a8;
 
-    public java.util.Optional<String> getA0() {
-        return java.util.Optional.ofNullable(a0);
+    /**
+     * Gets the value of the a0 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getA0() {
+        return a0;
     }
 
+    /**
+     * Sets the value of the a0 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setA0(String value) {
-        a0 = value;
+        this.a0 = value;
     }
 
-    public java.util.Optional<String> getA1() {
-        return java.util.Optional.ofNullable(a1);
+    /**
+     * Gets the value of the a1 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getA1() {
+        return a1;
     }
 
+    /**
+     * Sets the value of the a1 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setA1(String value) {
-        a1 = value;
+        this.a1 = value;
     }
 
+    /**
+     * Gets the value of the a2 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public XMLGregorianCalendar getA2() {
         return a2;
     }
 
+    /**
+     * Sets the value of the a2 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public void setA2(XMLGregorianCalendar value) {
-        a2 = value;
+        this.a2 = value;
     }
 
+    /**
+     * Gets the value of the a3 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public XMLGregorianCalendar getA3() {
         return a3;
     }
 
+    /**
+     * Sets the value of the a3 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public void setA3(XMLGregorianCalendar value) {
-        a3 = value;
+        this.a3 = value;
     }
 
+    /**
+     * Gets the value of the a4 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public ArrayOfInt getA4() {
         return a4;
     }
 
+    /**
+     * Sets the value of the a4 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public void setA4(ArrayOfInt value) {
-        a4 = value;
+        this.a4 = value;
     }
 
+    /**
+     * Gets the value of the a5 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public ArrayOfInt getA5() {
         return a5;
     }
 
+    /**
+     * Sets the value of the a5 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public void setA5(ArrayOfInt value) {
-        a5 = value;
+        this.a5 = value;
     }
 
+    /**
+     * Gets the value of the a6 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public ArrayOfInt getA6() {
         return a6;
     }
 
+    /**
+     * Sets the value of the a6 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public void setA6(ArrayOfInt value) {
-        a6 = value;
+        this.a6 = value;
     }
 
+    /**
+     * Gets the value of the a7 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public ArrayOfInt getA7() {
         return a7;
     }
 
+    /**
+     * Sets the value of the a7 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfInt }
+     *     
+     */
     public void setA7(ArrayOfInt value) {
-        a7 = value;
+        this.a7 = value;
     }
 
+    /**
+     * Gets the value of the a8 property.
+     * 
+     */
     public boolean isA8() {
         return a8;
     }
 
+    /**
+     * Sets the value of the a8 property.
+     * 
+     */
     public void setA8(boolean value) {
-        a8 = value;
+        this.a8 = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBookingHistory)) return false;
-        var that = (GetBookingHistory) o;
-        return a8 == that.a8
-                && java.util.Objects.equals(a0, that.a0)
-                && java.util.Objects.equals(a1, that.a1)
-                && java.util.Objects.equals(a2, that.a2)
-                && java.util.Objects.equals(a3, that.a3)
-                && java.util.Objects.equals(a4, that.a4)
-                && java.util.Objects.equals(a5, that.a5)
-                && java.util.Objects.equals(a6, that.a6)
-                && java.util.Objects.equals(a7, that.a7);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(a0, a1, a2, a3, a4, a5, a6, a7, a8);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBookingHistory{"
-                + "a0='" + a0 + '\''
-                + ", a1='" + a1 + '\''
-                + ", a2=" + a2
-                + ", a3=" + a3
-                + ", a4=" + a4
-                + ", a5=" + a5
-                + ", a6=" + a6
-                + ", a7=" + a7
-                + ", a8=" + a8
-                + '}';
-    }
 }

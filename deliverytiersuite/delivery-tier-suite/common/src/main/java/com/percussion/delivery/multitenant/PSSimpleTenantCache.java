@@ -14,132 +14,212 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.ServletRequest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.percussion.delivery.multitenant.IPSTenantAuthorization.Status;
 
 /**
- * Provides a simple in-memory cache for tenant information, usage, and authorizations.
+ * Provides a very simple in memory cache for tenant information
+ * , usage, and authorizations.
+ * 
+ * 
+ * @author natechadwick
+ *
  */
 public class PSSimpleTenantCache implements IPSTenantCache {
 
-    private final ConcurrentHashMap<String, IPSTenantInfo> cache = new ConcurrentHashMap<>();
-    private long ttl;
+	/***
+	 * Thread safe Hash map to hold the cache
+	 */
+	private ConcurrentHashMap<String, IPSTenantInfo> cache = new ConcurrentHashMap<>();
+	
+	/***
+	 * Minutes cache entries have before needing re-authorization
+	 */
+	private long ttl;
+	
+	  /**
+     * Log for this class.
+     */
     private static final Logger log = LogManager.getLogger(PSSimpleTenantCache.class);
+    
     private boolean authorizeExpiredTTL;
     private IPSTenantAuthorization auth;
+    
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#setMaxTTL(int)
+	 */
+	@Override
+	public void setMaxTTL(long minutes) {
+		this.ttl = minutes;
+	}
+	
+	/*** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#getMaxTTL()
+	 */
+	@Override
+	public long getMaxTTL() {
+		return this.ttl;
+	}
 
-    @Override
-    public void setMaxTTL(long minutes) {
-        this.ttl = minutes;
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#get(java.lang.String)
+	 */
+	@Override
+	public IPSTenantInfo get(String id, ServletRequest req) {
 
-    @Override
-    public long getMaxTTL() {
-        return this.ttl;
-    }
+			IPSTenantInfo t = cache.get(id);
+			
+			//Record overall calls
+			if(t!=null){
+				t.addAPIUsage(1);
+				cache.put(id, t);
+			}
+			
+			if(t!=null && ttl<checkTTLAge(t.getLastAuthorizationCheckDate())){
+				log.debug("Cached Authorization expired for Tenant " + id);
+				if(authorizeExpiredTTL)
+				{
+					reauthorize(t,req);
+					return cache.get(id);
+				}
+			}	
+	
+		return t;
 
-    @Override
-    public IPSTenantInfo get(String id, ServletRequest req) {
-        var t = cache.get(id);
-        if (t != null) {
-            t.addAPIUsage(1);
-            cache.put(id, t);
-            if (ttl < checkTTLAge(t.getLastAuthorizationCheckDate())) {
-                log.debug("Cached Authorization expired for Tenant {}", id);
-                if (authorizeExpiredTTL) {
-                    reauthorize(t, req);
-                    return cache.get(id);
-                }
-            }
-        }
-        return t;
-    }
+	}
 
-    @Override
-    public void put(IPSTenantInfo tenant) {
-        cache.put(tenant.getTenantId(), tenant);
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#put(com.percussion.delivery.multitenant.IPSTenantInfo)
+	 */
+	@Override
+	public void put(IPSTenantInfo tenant) {
+		if(cache.replace(tenant.getTenantId(), tenant)==null)
+			cache.put(tenant.getTenantId(), tenant);
+	}
 
-    @Override
-    public void remove(String id) {
-        cache.remove(id);
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#remove(java.lang.String)
+	 */
+	@Override
+	public void remove(String id) {
+		cache.remove(id);
+	}
 
-    @Override
-    public void clear() {
-        cache.clear();
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#clear()
+	 */
+	@Override
+	public void clear() {
+		cache.clear();	
+	}
 
-    @Override
-    public void scavenge(ServletRequest req) {
-        log.debug("Initiating scavenge for expired entries...");
-        for (var entry : cache.entrySet()) {
-            var t = entry.getValue();
-            if (ttl < checkTTLAge(t.getLastAuthorizationCheckDate())) {
-                log.debug("Authorization expired for tenant {} reauthorizing", t.getTenantId());
-                reauthorize(t, req);
-            }
-        }
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#scavenge()
+	 */
+	@Override
+	public void scavenge(ServletRequest req) {
+		
+		log.debug("Initiating scavenge for expired entries...");
+		
+		Iterator<Entry<String, IPSTenantInfo>> it = cache.entrySet().iterator();
+	    IPSTenantInfo t;
+	    
+		while (it.hasNext()) {
+			Map.Entry<String, IPSTenantInfo> pairs = it.next();
+	    
+	        t = (IPSTenantInfo)pairs.getValue();
 
-    /**
-     * Helper method to determine if a TTL date has expired.
-     */
-    private long checkTTLAge(Date last) {
-        return ((new Date().getTime() - last.getTime()) / 1000) / 60;
-    }
+	   	    if(ttl<checkTTLAge(t.getLastAuthorizationCheckDate())){
+	   	    	log.debug("Authorization expired for tenant " + t.getTenantId() + " reauthorizing");	
+	   	    	reauthorize(t,req);
+	   	    }
+		}
+		
+	}	
 
-    @Override
-    public boolean getAuthorizeExpiredTTL() {
-        return this.authorizeExpiredTTL;
-    }
+	/***
+	 * Helper method to determine if a TTL date has expired. 
+	 * 
+	 * @param last
+	 * @return
+	 */
+	private long checkTTLAge(Date last){	     
+		return ((new Date().getTime() - last.getTime())/1000)/60;
+	}
 
-    @Override
-    public void setAuthorizeExpiredTTL(boolean ret) {
-        this.authorizeExpiredTTL = ret;
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#getAuthorizeExpiredTTL()
+	 */
+	@Override
+	public boolean getAuthorizeExpiredTTL() {
+		return this.authorizeExpiredTTL;
+	}
 
-    @Override
-    public IPSTenantAuthorization getAuthorizationProvider() {
-        return this.auth;
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#setAuthorizeExpiredTTL(boolean)
+	 */
+	@Override
+	public void setAuthorizeExpiredTTL(boolean ret) {
+		this.authorizeExpiredTTL = ret;
+	}
 
-    @Override
-    public void setAuthorizationProvider(IPSTenantAuthorization auth) {
-        this.auth = auth;
-    }
+	/** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#getAuthorizationProvider()
+	 */
+	@Override
+	public IPSTenantAuthorization getAuthorizationProvider() {
+		return this.auth;
+	}
 
-    /**
-     * Re-authorizes the specified tenant with the authorization provider if configured.
-     *
-     * @param t tenant info
-     * @param req servlet request
-     * @return true if the tenant has been authorized and refreshed, false otherwise
-     */
-    private boolean reauthorize(IPSTenantInfo t, ServletRequest req) {
-        if (this.auth == null) {
-            log.warn("Tenant Authorization service not initialized.");
-            return false;
-        }
-        log.debug("Reauthorizing tenant {}", t.getTenantId());
-        var s = auth.authorize(t.getTenantId(), t.getAPIUsage(), req);
-        if (s.getStatusCode() == Status.SUCCESS) {
-            t.setLastAuthorizationCheckDate(new Date());
-            cache.put(t.getTenantId(), t);
-            return true;
-        } else {
-            log.debug("Tenant {} not authorized", t.getTenantId());
-            cache.remove(t.getTenantId());
-            return false;
-        }
-    }
+	/*** 
+	 * @see com.percussion.delivery.multitenant.IPSTenantCache#setAuthorizationProvider(com.percussion.delivery.multitenant.IPSTenantAuthorization)
+	 */
+	@Override
+	public void setAuthorizationProvider(IPSTenantAuthorization auth) {
+		this.auth = auth;
+	}
+
+	/***
+	 * Re-authorizes the specified tenant with the authorization provider 
+	 * if configured. 
+	 * 
+	 * @param t
+	 * @return true if the tenant has been authorized and refreshed, false if not.
+	 */
+	private boolean reauthorize(IPSTenantInfo t, ServletRequest req){
+		boolean ret = false;
+		
+		if(this.auth!=null){
+			log.warn("Tenant Authorization service not initialized.");
+		}else{
+			log.debug("Reauthorizing tenant " + t.getTenantId());
+			
+			PSLicenseStatus s = auth.authorize(t.getTenantId(),t.getAPIUsage(),null);
+			
+			if(s.getStatusCode() == Status.SUCCESS){
+				t.setLastAuthorizationCheckDate(new Date());
+				cache.put(t.getTenantId(), t);
+				ret = true;
+			}else{
+				log.debug("Tenanant " + t.getTenantId() + "Not authorized");
+				cache.remove(t.getTenantId());
+				ret = false;
+			}
+		}
+		
+		return ret;
+	}
+	
 }

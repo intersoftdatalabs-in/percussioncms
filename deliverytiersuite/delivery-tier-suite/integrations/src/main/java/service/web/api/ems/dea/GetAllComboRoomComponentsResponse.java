@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,67 +26,56 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Java 11+ refactored version of GetAllComboRoomComponentsResponse SOAP response.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
- * <p>
- * // REFACTORED: CP-JAVA11
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetAllComboRoomComponentsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getAllComboRoomComponentsResult"
 })
 @XmlRootElement(name = "GetAllComboRoomComponentsResponse")
-public final class GetAllComboRoomComponentsResponse {
+public class GetAllComboRoomComponentsResponse {
+
     @XmlElement(name = "GetAllComboRoomComponentsResult")
-    private final String getAllComboRoomComponentsResult;
+    protected String getAllComboRoomComponentsResult;
 
-    private GetAllComboRoomComponentsResponse(Builder builder) {
-        this.getAllComboRoomComponentsResult = builder.getAllComboRoomComponentsResult;
+    /**
+     * Gets the value of the getAllComboRoomComponentsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetAllComboRoomComponentsResult() {
+        return getAllComboRoomComponentsResult;
     }
 
     /**
-     * @return Optional result string for all combo room components.
+     * Sets the value of the getAllComboRoomComponentsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getAllComboRoomComponentsResult() {
-        return java.util.Optional.ofNullable(getAllComboRoomComponentsResult);
+    public void setGetAllComboRoomComponentsResult(String value) {
+        this.getAllComboRoomComponentsResult = value;
     }
 
-    @Override
-    public String toString() {
-        return "GetAllComboRoomComponentsResponse{" +
-                "getAllComboRoomComponentsResult='" + getAllComboRoomComponentsResult + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllComboRoomComponentsResponse that = (GetAllComboRoomComponentsResponse) o;
-        return java.util.Objects.equals(getAllComboRoomComponentsResult, that.getAllComboRoomComponentsResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getAllComboRoomComponentsResult);
-    }
-
-    /**
-     * Builder for GetAllComboRoomComponentsResponse. Use for safe, immutable construction.
-     */
-    public static class Builder {
-        private String getAllComboRoomComponentsResult;
-
-        public Builder() {}
-
-        public Builder getAllComboRoomComponentsResult(String getAllComboRoomComponentsResult) {
-            this.getAllComboRoomComponentsResult = getAllComboRoomComponentsResult;
-            return this;
-        }
-
-        public GetAllComboRoomComponentsResponse build() {
-            return new GetAllComboRoomComponentsResponse(this);
-        }
-    }
 }

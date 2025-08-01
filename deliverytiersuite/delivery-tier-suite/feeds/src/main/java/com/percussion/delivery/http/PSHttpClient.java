@@ -87,9 +87,11 @@ public class PSHttpClient {
                 .head()
                 .setUri(url)
                 .build();
-            try (var response = httpClient.execute(request)) {
-                return response.getStatusLine().getStatusCode() == 200;
-            }
+            var response = httpClient.execute(request);
+            var statusCode = response.getStatusLine().getStatusCode();
+            // Consume entity to ensure connection can be reused
+            org.apache.http.util.EntityUtils.consumeQuietly(response.getEntity());
+            return statusCode == 200;
         } catch (Exception e) {
             // Sunny Sal: "Network issues? Blame the WiFi, not the code!"
             return false;

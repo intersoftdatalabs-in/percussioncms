@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,39 +25,56 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 modernized: ArrayOfString for EMS SOAP API.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant.
+ * <p>Java class for ArrayOfString complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="ArrayOfString"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="string" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ArrayOfString", propOrder = {
     "string"
 })
-public final class ArrayOfString {
+public class ArrayOfString {
 
     @XmlElement(nillable = true)
-    private List<String> string;
+    protected List<String> string;
 
     /**
      * Gets the value of the string property.
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the string property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getString().add(newItem);
      * </pre>
-     *
+     * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     *
-     * @return live List of strings (never null)
+     * 
+     * 
      */
     public List<String> getString() {
         if (string == null) {
@@ -65,30 +83,4 @@ public final class ArrayOfString {
         return this.string;
     }
 
-    /**
-     * @return Optional containing the internal list if initialized
-     */
-    public java.util.Optional<List<String>> getStringOptional() {
-        return java.util.Optional.ofNullable(string);
-    }
-
-    @Override
-    public String toString() {
-        return "ArrayOfString{" +
-                "string=" + string +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ArrayOfString that = (ArrayOfString) o;
-        return java.util.Objects.equals(string, that.string);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(string);
-    }
 }

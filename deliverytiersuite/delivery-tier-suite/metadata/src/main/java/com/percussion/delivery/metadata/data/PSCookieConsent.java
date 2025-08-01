@@ -15,33 +15,48 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.delivery.metadata.data;
 
 import com.percussion.delivery.metadata.IPSCookieConsent;
+
 import java.util.Date;
 import java.util.Optional;
 
 /**
- * Model for cookie consent entries.
+ * Provides model for cookie consent
+ * entries.  Statistics include:
+ * <ul>
+ * <li>siteName</li>
+ * <li>IP</li>
+ * <li>serviceName</li>
+ * <li>optIn</li>
+ * <li>consentDate</li>
+ * </ul>
+ * 
+ * @author chriswright
+ *
  */
 public class PSCookieConsent implements IPSCookieConsent {
-
+    
     private String siteName;
     private String ip;
     private String serviceName;
     private boolean optIn;
     private Date consentDate;
 
-    public PSCookieConsent() {}
-
-    public PSCookieConsent(String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
-        if (siteName == null) throw new IllegalArgumentException("siteName may not be null");
-        if (serviceName == null) throw new IllegalArgumentException("serviceName may not be null");
-        if (consentDate == null) throw new IllegalArgumentException("consentDate may not be null");
-        if (ip == null) throw new IllegalArgumentException("ip may not be null");
-
+    public PSCookieConsent(){}
+    public PSCookieConsent(String siteName, String serviceName,
+            Date consentDate, String ip, boolean optIn) {
+        
+        if (siteName == null)
+            throw new IllegalArgumentException("siteName may not be null");
+        if (serviceName == null)
+            throw new IllegalArgumentException("serviceName may not be null");
+        if (consentDate == null)
+            throw new IllegalArgumentException("consentDate may not be null");
+        if (ip == null)
+            throw new IllegalArgumentException("ip may not be null");
+        
         setSiteName(siteName);
         setService(serviceName);
         setConsentDate(consentDate);
@@ -68,10 +83,11 @@ public class PSCookieConsent implements IPSCookieConsent {
     public String getIP() {
         return ip;
     }
-
+    
     @Override
     public void setConsentDate(Date consentDate) {
-        this.consentDate = Optional.ofNullable(consentDate)
+        this.consentDate = Optional
+                .ofNullable(consentDate)
                 .map(Date::getTime)
                 .map(Date::new)
                 .orElse(null);
@@ -79,7 +95,8 @@ public class PSCookieConsent implements IPSCookieConsent {
 
     @Override
     public Date getConsentDate() {
-        return Optional.ofNullable(consentDate)
+        return Optional
+                .ofNullable(consentDate)
                 .map(Date::getTime)
                 .map(Date::new)
                 .orElse(null);
@@ -104,4 +121,5 @@ public class PSCookieConsent implements IPSCookieConsent {
     public boolean getOptIn() {
         return optIn;
     }
+
 }

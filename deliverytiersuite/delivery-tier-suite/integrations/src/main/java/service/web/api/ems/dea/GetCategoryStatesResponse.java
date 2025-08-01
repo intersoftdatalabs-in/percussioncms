@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,53 +49,33 @@ import javax.xml.bind.annotation.XmlType;
     "getCategoryStatesResult"
 })
 @XmlRootElement(name = "GetCategoryStatesResponse")
-public final class GetCategoryStatesResponse {
+public class GetCategoryStatesResponse {
 
     @XmlElement(name = "GetCategoryStatesResult")
-    private final String getCategoryStatesResult;
-
-    private GetCategoryStatesResponse(Builder builder) {
-        this.getCategoryStatesResult = builder.getCategoryStatesResult;
-    }
+    protected String getCategoryStatesResult;
 
     /**
      * Gets the value of the getCategoryStatesResult property.
-     *
-     * @return the category states result, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetCategoryStatesResult() {
         return getCategoryStatesResult;
     }
 
     /**
-     * Builder for GetCategoryStatesResponse.
-     * <p>
-     * Example usage:
-     * <pre>
-     * var response = new GetCategoryStatesResponse.Builder()
-     *     .withCategoryStatesResult("Active")
-     *     .build();
-     * </pre>
+     * Sets the value of the getCategoryStatesResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String getCategoryStatesResult;
-
-        /**
-         * Sets the category states result value.
-         * @param getCategoryStatesResult the result string
-         * @return this builder instance
-         */
-        public Builder withCategoryStatesResult(String getCategoryStatesResult) {
-            this.getCategoryStatesResult = getCategoryStatesResult;
-            return this;
-        }
-
-        /**
-         * Builds a new immutable GetCategoryStatesResponse instance.
-         * @return a new GetCategoryStatesResponse
-         */
-        public GetCategoryStatesResponse build() {
-            return new GetCategoryStatesResponse(this);
-        }
+    public void setGetCategoryStatesResult(String value) {
+        this.getCategoryStatesResult = value;
     }
+
 }

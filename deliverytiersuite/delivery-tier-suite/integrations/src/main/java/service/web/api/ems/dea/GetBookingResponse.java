@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -47,37 +48,34 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "getBookingResult"
 })
-// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingResponse")
 public class GetBookingResponse {
+
     @XmlElement(name = "GetBookingResult")
-    private String getBookingResult;
+    protected String getBookingResult;
 
-    public java.util.Optional<String> getGetBookingResult() {
-        return java.util.Optional.ofNullable(getBookingResult);
+    /**
+     * Gets the value of the getBookingResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetBookingResult() {
+        return getBookingResult;
     }
 
+    /**
+     * Sets the value of the getBookingResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setGetBookingResult(String value) {
-        getBookingResult = value;
+        this.getBookingResult = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBookingResponse)) return false;
-        var that = (GetBookingResponse) o;
-        return java.util.Objects.equals(getBookingResult, that.getBookingResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getBookingResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBookingResponse{"
-                + "getBookingResult='" + getBookingResult + '\''
-                + '}';
-    }
 }

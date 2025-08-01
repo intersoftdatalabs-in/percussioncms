@@ -18,39 +18,43 @@
 package com.percussion.delivery.polls.data;
 
 /**
- * Generic response object for polls. Contains status and result.
- * Sunny Sal says: "Polls response: success or error, never boring!"
+ * Generic response object for polls responses. It has a status and result.
+ * When there is an error, the ajax response will be success full but the response object will have the 
+ * status as error and the result object will be a String of error message.
+ *
  */
-public class PSPollsResponse {
+public class PSPollsResponse
+{
     private PollResponseStatus status;
     private Object result;
 
-    public PSPollsResponse() {
-        // Default constructor
-    }
+    public PSPollsResponse(){
 
-    public PSPollsResponse(PollResponseStatus status, Object result) {
+    }
+    public PSPollsResponse(PollResponseStatus status, Object result)
+    {
         this.status = status;
         this.result = result;
     }
-
-    public PollResponseStatus getStatus() {
+    public PollResponseStatus getStatus()
+    {
         return status;
     }
-
-    public void setStatus(PollResponseStatus status) {
+    public void setStatus(PollResponseStatus status)
+    {
         this.status = status;
     }
-
-    public Object getResult() {
+    public Object getResult()
+    {
         return result;
     }
-
-    public void setResult(Object result) {
+    public void setResult(Object result)
+    {
         this.result = result;
     }
-
-    public enum PollResponseStatus {
+    public static enum PollResponseStatus
+    {
         SUCCESS, ERROR
     }
+
 }

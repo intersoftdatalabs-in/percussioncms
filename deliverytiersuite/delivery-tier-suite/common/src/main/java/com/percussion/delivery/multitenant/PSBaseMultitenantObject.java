@@ -15,30 +15,37 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * Base class for POJOs intended to be multi-tenant capable.
+ * This class must be extended by any pojo's that are intending to be multi tenant capable.
+ * @author erikserating
+ *
  */
 public abstract class PSBaseMultitenantObject {
 
+	
     protected String tenantId;
-
+    
     /**
-     * Returns the tenant ID, or {@code null} if used in non-multi-tenant mode.
+     * @return may be <code>null</code> if the pojo is being used in 
+     * non multi tenant mode.
      */
-    @XmlElement(name = "tenantid")
-    public String getTenantId() {
-        return tenantId;
-    }
+    @XmlElement(name="tenantid")
+	public String getTenantId() 
+	{
+		return tenantId;
+	}
 
-    /**
-     * Sets the tenant ID, or {@code null} if used in non-multi-tenant mode.
-     */
-    public void setTenantId(String tenantId) {
-        this.tenantId = tenantId;
-    }
+	/**
+	 * @param tenantId may be <code>null</code> if the pojo is 
+	 * being used in non multi tenant mode.
+	 */
+	public void setTenantId(String tenantId)
+	{
+		this.tenantId = tenantId;
+	}
+
 }

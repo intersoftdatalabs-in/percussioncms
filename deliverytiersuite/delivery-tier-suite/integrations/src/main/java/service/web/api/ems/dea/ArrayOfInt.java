@@ -1,4 +1,4 @@
-// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,39 +25,56 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 modernized: ArrayOfInt for EMS SOAP API.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant.
+ * <p>Java class for ArrayOfInt complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType name="ArrayOfInt"&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="int" type="{http://www.w3.org/2001/XMLSchema}int" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ArrayOfInt", propOrder = {
     "_int"
 })
-public final class ArrayOfInt {
+public class ArrayOfInt {
 
     @XmlElement(name = "int", type = Integer.class)
-    private List<Integer> _int;
+    protected List<Integer> _int;
 
     /**
      * Gets the value of the int property.
+     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the int property.
-     *
+     * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getInt().add(newItem);
      * </pre>
-     *
+     * 
+     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Integer }
-     *
-     * @return live List of integers (never null)
+     * 
+     * 
      */
     public List<Integer> getInt() {
         if (_int == null) {
@@ -66,30 +83,4 @@ public final class ArrayOfInt {
         return this._int;
     }
 
-    /**
-     * @return Optional containing the internal list if initialized
-     */
-    public java.util.Optional<List<Integer>> getIntOptional() {
-        return java.util.Optional.ofNullable(_int);
-    }
-
-    @Override
-    public String toString() {
-        return "ArrayOfInt{" +
-                "_int=" + _int +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ArrayOfInt that = (ArrayOfInt) o;
-        return java.util.Objects.equals(_int, that._int);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(_int);
-    }
 }

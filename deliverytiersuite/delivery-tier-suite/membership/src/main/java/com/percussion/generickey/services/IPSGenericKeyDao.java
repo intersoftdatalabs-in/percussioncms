@@ -17,45 +17,49 @@
 package com.percussion.generickey.services;
 
 import com.percussion.generickey.data.IPSGenericKey;
-import java.util.Optional;
 
 /**
  * DAO service for the reset key service.
- * Sunny Sal: "DAOs are like chai - keep them hot and transactional!"
+ * 
+ * @author LeonardoHildt
  */
-public interface IPSGenericKeyDao {
-
+public interface IPSGenericKeyDao
+{
     /**
-     * Creates an instance of a generic key. Not yet persisted.
-     * Factory method for switching between Mongo and RDBMS.
-     *
-     * @return The generic key object, never null.
+     * Create an instance of a generic key.  The generic key is not yet persisted.
+     * This method is used to work as a factory and switch easily between mongo and rdbms.
+     * 
+     * @return The generic key object, never <code>null</code>.
      */
-    IPSGenericKey createKey();
-
+    public IPSGenericKey createKey();
+    
     /**
-     * Searches for a reset key matching the supplied key.
-     *
-     * @param resetKey The key to use, must not be null or empty.
-     * @return Optional containing the member if found, empty otherwise.
+     * Search for a reset key matching the supplied password reset key.
+     * 
+     * @param pwdResetKey The key to use, may not be <code>null</code> or empty.
+     * 
+     * @return The member, or <code>null</code> if not found. 
      */
-    Optional<IPSGenericKey> findByResetKey(String resetKey);
-
+    public IPSGenericKey findByResetKey(String resetKey);
+    
     /**
-     * Saves the supplied reset key.
-     *
-     * @param resetKey The reset key to save, must not be null.
-     * @throws PSGenericKeyExistsException if a key already exists.
+     * Save the supplied reset key.  
+     * 
+     * @param resetKey The reset key to save, may not be <code>null</code>.
+     * 
+     * @throws PSMemberExistsException if a member with that user name already exists.
      * @throws Exception if there are any errors.
      */
-    void saveKey(IPSGenericKey resetKey) throws Exception;
-
+    public void saveKey(IPSGenericKey resetKey) throws Exception;
+    
     /**
-     * Deletes the supplied reset key.
-     *
-     * @param resetKey The reset key to delete, must not be null.
-     * @throws PSGenericKeyExistsException if a key already exists.
+     * Delete the supplied reset key.  
+     * 
+     * @param resetKey The reset key to delete, may not be <code>null</code>.
+     * 
+     * @throws PSMemberExistsException if a member with that user name already exists.
      * @throws Exception if there are any errors.
      */
-    void deleteKey(IPSGenericKey resetKey) throws Exception;
+    public void deleteKey(IPSGenericKey resetKey) throws Exception;
+    
 }

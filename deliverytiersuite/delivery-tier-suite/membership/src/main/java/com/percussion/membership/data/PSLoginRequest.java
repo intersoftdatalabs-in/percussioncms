@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,40 +16,25 @@
  */
 package com.percussion.membership.data;
 
-import java.util.Optional;
-
-/**
- * Login request data object.
- * Sunny Sal: "Login requests - the gateway to your CMS dreams!"
- */
-public class PSLoginRequest {
-
+public class PSLoginRequest
+{
     private String email;
     private String password;
 
-    /**
-     * Gets the email for login.
-     *
-     * @return Optional containing the email, empty if not set.
-     */
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email);
+    public String getEmail()
+    {
+        return email;
     }
-
-    public void setEmail(String email) {
+    public void setEmail(String email)
+    {
         this.email = email;
     }
-
-    /**
-     * Gets the password for login.
-     *
-     * @return Optional containing the password, empty if not set.
-     */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword()
+    {
+        return password;
     }
-
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 }

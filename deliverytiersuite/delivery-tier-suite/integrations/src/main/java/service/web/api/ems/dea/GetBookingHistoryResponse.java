@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -47,37 +48,34 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "getBookingHistoryResult"
 })
-// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBookingHistoryResponse")
 public class GetBookingHistoryResponse {
+
     @XmlElement(name = "GetBookingHistoryResult")
-    private String getBookingHistoryResult;
+    protected String getBookingHistoryResult;
 
-    public java.util.Optional<String> getGetBookingHistoryResult() {
-        return java.util.Optional.ofNullable(getBookingHistoryResult);
+    /**
+     * Gets the value of the getBookingHistoryResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetBookingHistoryResult() {
+        return getBookingHistoryResult;
     }
 
+    /**
+     * Sets the value of the getBookingHistoryResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setGetBookingHistoryResult(String value) {
-        getBookingHistoryResult = value;
+        this.getBookingHistoryResult = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBookingHistoryResponse)) return false;
-        var that = (GetBookingHistoryResponse) o;
-        return java.util.Objects.equals(getBookingHistoryResult, that.getBookingHistoryResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getBookingHistoryResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBookingHistoryResponse{"
-                + "getBookingHistoryResult='" + getBookingHistoryResult + '\''
-                + '}';
-    }
 }

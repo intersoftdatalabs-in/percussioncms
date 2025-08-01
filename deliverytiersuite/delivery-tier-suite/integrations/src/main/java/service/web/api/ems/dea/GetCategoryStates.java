@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -52,70 +53,77 @@ import javax.xml.bind.annotation.XmlType;
     "categoryID"
 })
 @XmlRootElement(name = "GetCategoryStates")
-public final class GetCategoryStates {
+public class GetCategoryStates {
 
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "CategoryID")
-    private final int categoryID;
-
-    private GetCategoryStates(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.categoryID = builder.categoryID;
-    }
+    protected int categoryID;
 
     /**
      * Gets the value of the userName property.
-     * @return the user name, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getUserName() {
         return userName;
     }
 
     /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserName(String value) {
+        this.userName = value;
+    }
+
+    /**
      * Gets the value of the password property.
-     * @return the password, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPassword() {
         return password;
     }
 
     /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
+    }
+
+    /**
      * Gets the value of the categoryID property.
-     * @return category ID as int
+     * 
      */
     public int getCategoryID() {
         return categoryID;
     }
 
     /**
-     * Builder for GetCategoryStates.
+     * Sets the value of the categoryID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int categoryID;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withCategoryID(int categoryID) {
-            this.categoryID = categoryID;
-            return this;
-        }
-
-        public GetCategoryStates build() {
-            return new GetCategoryStates(this);
-        }
+    public void setCategoryID(int value) {
+        this.categoryID = value;
     }
+
 }

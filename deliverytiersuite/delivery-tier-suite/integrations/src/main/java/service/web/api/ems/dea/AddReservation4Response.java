@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,46 +49,33 @@ import javax.xml.bind.annotation.XmlType;
     "addReservation4Result"
 })
 @XmlRootElement(name = "AddReservation4Response")
-public final class AddReservation4Response {
+public class AddReservation4Response {
 
     @XmlElement(name = "AddReservation4Result")
-    private String addReservation4Result;
+    protected String addReservation4Result;
 
     /**
      * Gets the value of the addReservation4Result property.
-     *
-     * @return Optional containing the result string if present
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getAddReservation4Result() {
-        return java.util.Optional.ofNullable(addReservation4Result);
+    public String getAddReservation4Result() {
+        return addReservation4Result;
     }
 
     /**
      * Sets the value of the addReservation4Result property.
-     *
-     * @param value allowed object is {@link String }
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setAddReservation4Result(String value) {
         this.addReservation4Result = value;
     }
 
-    @Override
-    public String toString() {
-        return "AddReservation4Response{" +
-                "addReservation4Result='" + addReservation4Result + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddReservation4Response that = (AddReservation4Response) o;
-        return java.util.Objects.equals(addReservation4Result, that.addReservation4Result);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(addReservation4Result);
-    }
 }

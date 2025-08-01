@@ -64,154 +64,210 @@ public class PSCookieConsentDao implements IPSCookieConsentDao {
     }
     private static final Logger log = LogManager.getLogger(PSCookieConsentDao.class);
 
+
     @Override
     public void save(Collection<PSDbCookieConsent> consents) {
         Validate.notNull(consents, "Cookie consent object cannot be null");
-        if (consents.isEmpty()) return;
+        
+        if (consents.isEmpty())
+            return;
 
         try {
-            var session = getSession();
+            Session session = getSession();
+            
             int i = 0;
-            for (var consent : consents) {
+            
+            for (PSDbCookieConsent consent : consents) {
                 session.saveOrUpdate(consent);
-                if (++i % 50 == 0) {
+                if (++i % 50 == 0)
+                {
                     session.flush();
                     session.clear();
-                    if (Thread.currentThread().isInterrupted()) return;
+                    if (Thread.currentThread().isInterrupted()) {
+                        return;
+                    }
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Error when saving cookie consent entry. Error: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public Collection<IPSCookieConsent> getAllCookieConsentStats() {
-        var consents = new ArrayList<IPSCookieConsent>();
+        
+        Collection<IPSCookieConsent> consents = new ArrayList<>();
+        
         try {
-            var session = getSession();
-            var crit = session.createCriteria(PSDbCookieConsent.class);
+            Session session = getSession();
+            
+            Criteria crit = session.createCriteria(PSDbCookieConsent.class);
+
             @SuppressWarnings("unchecked")
-            var result = crit.list();
-            consents.addAll(result);
-        } catch (Exception e) {
+            List<IPSCookieConsent> result = crit.list();
+            
+            for(IPSCookieConsent res : result) {
+                consents.add(res);
+            }
+        }
+        catch (Exception e) {
             log.error("Error retrieving list of cookie consent entries from database. Error: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
+
         return consents;
     }
-
-    @Override
+    
     @Transactional
+    @Override
     public Collection<IPSCookieConsent> getAllCookieStatsForSite(String siteName) {
-        var consents = new ArrayList<IPSCookieConsent>();
+        Collection<IPSCookieConsent> consents = new ArrayList<>();
         try {
-            var session = getSession();
-            var crit = session.createCriteria(PSDbCookieConsent.class);
+            Session session = getSession();
+            
+            Criteria crit = session.createCriteria(PSDbCookieConsent.class);
+
             crit.add(Restrictions.eq("siteName", siteName));
+            
             @SuppressWarnings("unchecked")
-            var result = crit.list();
-            consents.addAll(result);
-        } catch (Exception e) {
+            List<IPSCookieConsent> result = crit.list();
+            
+            for(IPSCookieConsent res : result) {
+                consents.add(res);
+            }
+        }
+        catch (Exception e) {
             log.error("Error retrieving list of cookie consent entries from database. Error: {}", PSExceptionUtils.getMessageForLog(e));
         }
+
         return consents;
     }
-
-    @Override
+    
     @Transactional
+    @Override
     public void deleteAll() throws Exception {
         try {
-            var session = getSession();
-            var builder = session.getCriteriaBuilder();
-            var deleteQuery = builder.createCriteriaDelete(PSDbCookieConsent.class);
+            Session session = getSession();
+
+
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<PSDbCookieConsent> deleteQuery = builder.createCriteriaDelete(PSDbCookieConsent.class);
             deleteQuery.from(PSDbCookieConsent.class);
             session.createQuery(deleteQuery).executeUpdate();
-        } catch (Exception e) {
+
+        }
+        catch (Exception e) {
             throw new Exception("Error deleting cookie consent entries from DB.", e);
         }
     }
-
-    @Override
+    
     @Transactional
+    @Override
     public void deleteForSite(String siteName) throws Exception {
         try {
-            var session = getSession();
-            var builder = session.getCriteriaBuilder();
-            var deleteQuery = builder.createCriteriaDelete(PSDbCookieConsent.class);
-            var root = deleteQuery.from(PSDbCookieConsent.class);
+            Session session = getSession();
+
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaDelete<PSDbCookieConsent> deleteQuery = builder.createCriteriaDelete(PSDbCookieConsent.class);
+            Root<PSDbCookieConsent> root = deleteQuery.from(PSDbCookieConsent.class);
             deleteQuery.where(builder.like(root.get("siteName"), siteName));
             session.createQuery(deleteQuery).executeUpdate();
-        } catch (Exception e) {
+
+        }
+        catch (Exception e) {
             throw new Exception("Error deleting cookie consent entries for site: " + siteName, e);
         }
     }
-
-    @Override
+    
     @Transactional
+    @Override
     public Map<String, Integer> getTotalsForAllSites() throws Exception {
         try {
-            var results = new HashMap<String, Integer>();
-            var session = getSession();
-            var criteriaBuilder = session.getCriteriaBuilder();
-            var criteriaQuery = criteriaBuilder.createQuery(PSDbCookieConsent.class);
-            var root = criteriaQuery.from(PSDbCookieConsent.class);
+            Map<String, Integer> results = new HashMap<>();
+            Session session = getSession();
+
+            CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+            CriteriaQuery<PSDbCookieConsent> criteriaQuery = criteriaBuilder.createQuery(PSDbCookieConsent.class);
+            Root<PSDbCookieConsent> root = criteriaQuery.from(PSDbCookieConsent.class);
             criteriaQuery.select(root);
-            var cookieConsents = session.createQuery(criteriaQuery).getResultList();
-            for (var cookieConsent : cookieConsents) {
-                var s = cookieConsent.getSiteName();
-                var c = results.get(s);
-                results.put(s, c == null ? 1 : c + 1);
+
+            List<PSDbCookieConsent> cookieConsents = session.createQuery(criteriaQuery).
+                    getResultList();
+
+            for (PSDbCookieConsent cookieConsent : cookieConsents) {
+                String s = cookieConsent.getSiteName();
+                Integer c = results.get(s);
+                if(c == null){
+                    c = new Integer(1);
+                }else{
+                    c = c + 1;
+                }
+                results.put(s, c);
             }
+            
             return results;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new Exception("Error getting total cookie consents", e);
         }
     }
-
-    @Override
+    
     @Transactional
+    @Override
     public Map<String, Integer> getTotalsForSite(String siteName) throws Exception {
         try {
-            var results = new HashMap<String, Integer>();
-            var session = getSession();
-            var crit = session.createCriteria(PSDbCookieConsent.class);
+            Map<String, Integer> results = new HashMap<>();
+            
+            Session session = getSession();
+            
+            Criteria crit = session.createCriteria(PSDbCookieConsent.class);
             crit.add(Restrictions.eq("siteName", siteName));
             crit.setProjection(Projections.projectionList().add(Projections.property("serviceName")));
             @SuppressWarnings("unchecked")
-            var serviceNames = crit.list();
-            for (var sName : serviceNames) {
+            List<String> serviceNames = crit.list();
+            
+            for (String sName : serviceNames) {
                 crit = session.createCriteria(PSDbCookieConsent.class);
                 crit.setProjection(Projections.rowCount());
                 crit.add(Restrictions.eq("serviceName", sName));
                 crit.add(Restrictions.eq("siteName", siteName));
+                
                 @SuppressWarnings("unchecked")
-                var res = crit.list();
+                List<Long> res = crit.list();
+                
                 results.put(siteName, res.get(0).intValue());
             }
+            
             return results;
-        } catch (Exception e) {
-            log.error("Error getting cookie consent entries for site: {} Error: {}", siteName, PSExceptionUtils.getMessageForLog(e));
+        }
+        catch (Exception e) {
+
+            log.error("Error getting cookie consent entries for site: {} Error: {}", siteName,PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new Exception("Error getting cookie consent entries for site: " + siteName, e);
         }
     }
 
-    @Override
     @Transactional
+    @Override
     public void updateOldSiteName(String oldSiteName, String newSiteName) throws Exception {
-        var session = getSession();
-        var criteriaBuilder = session.getCriteriaBuilder();
-        var criteriaUpdate = criteriaBuilder.createCriteriaUpdate(PSDbCookieConsent.class);
-        var root = criteriaUpdate.from(PSDbCookieConsent.class);
-        criteriaUpdate.set(root.get("siteName"), newSiteName)
-            .where(criteriaBuilder.equal(root.get("siteName"), oldSiteName));
+        Session session = getSession();
+
+        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+
+        CriteriaUpdate<PSDbCookieConsent> criteriaUpdate = criteriaBuilder.createCriteriaUpdate(PSDbCookieConsent.class);
+        Root<PSDbCookieConsent> root = criteriaUpdate.from(PSDbCookieConsent.class);
+        criteriaUpdate.set(root.get("siteName"), newSiteName).where(criteriaBuilder.equal(root.get("siteName"), oldSiteName));
         session.createQuery(criteriaUpdate).executeUpdate();
+
+
     }
 
-    private Session getSession() {
+    private Session getSession(){
         return sessionFactory.getCurrentSession();
+
     }
 }

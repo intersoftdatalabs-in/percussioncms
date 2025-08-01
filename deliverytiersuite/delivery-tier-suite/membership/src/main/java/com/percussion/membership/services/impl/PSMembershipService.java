@@ -1,5 +1,3 @@
-// REFACTORED: CP-JAVA11
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -33,9 +31,9 @@ import com.percussion.membership.services.IPSMembershipService;
 import com.percussion.membership.services.PSAuthenticationFailedException;
 import com.percussion.membership.services.PSMemberExistsException;
 import com.percussion.membership.services.PSResetPwdException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
-import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.Validate;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +48,12 @@ import java.util.UUID;
 /**
  * Provides services to create and manage membership accounts, and provides authentication
  * services for those accounts.
- * Sunny Sal: "Membership management - like a Bollywood blockbuster, full of drama and happy endings!"
+ *
+ * @author JaySeletz
+ *
  */
-public class PSMembershipService implements IPSMembershipService {
+public class PSMembershipService implements IPSMembershipService
+{
 
     private IPSAuthProvider authProvider;
     private IPSMembershipDao dao;
@@ -61,37 +62,50 @@ public class PSMembershipService implements IPSMembershipService {
     private IPSEmailHelper emailHelper;
     private IPSGenericKeyService genericKeyService;
 
-    @Context
-    HttpServletRequest request;
-
-    public IPSGenericKeyService getGenericKeyService() {
+    @Context HttpServletRequest request;
+    /**
+     * @return the genericKeyService
+     */
+    public IPSGenericKeyService getGenericKeyService()
+    {
         return genericKeyService;
     }
 
-    public void setGenericKeyService(IPSGenericKeyService genericKeyService) {
+    /**
+     * @param genericKeyService the genericKeyService to set
+     */
+    public void setGenericKeyService(IPSGenericKeyService genericKeyService)
+    {
         this.genericKeyService = genericKeyService;
     }
 
     @Autowired
-    public PSMembershipService(IPSMembershipDao dao) {
-        Validate.notNull(dao, "dao must not be null");
+    public PSMembershipService(IPSMembershipDao dao)
+    {
+        Validate.notNull(dao);
         this.dao = dao;
     }
 
     @Override
-    public PSUserSummary getUser(String sessionId) throws Exception {
-        Validate.notBlank(sessionId, "sessionId must not be empty");
+    public PSUserSummary getUser(String sessionId) throws Exception
+    {
+        Validate.notEmpty(sessionId);
+
         PSUserSummary userSum = null;
-        var now = new Date();
-        var member = dao.findMemberBySessionId(sessionId);
-        if (member != null) {
-            var currentSession = "";
-            if (hasValidSession(member, now)) {
+        Date now = new Date();
+        IPSMembership member = dao.findMemberBySessionId(sessionId);
+        if (member != null)
+        {
+            String currentSession = "";
+            if (hasValidSession(member, now))
+            {
                 currentSession = sessionId;
                 userSum = new PSUserSummary(member);
             }
+
             touchMemberSession(member, currentSession, now);
         }
+
         return userSum;
     }
 
@@ -100,130 +114,185 @@ public class PSMembershipService implements IPSMembershipService {
      *
      * @param member The member to check
      * @param now The "current" date-time to use
-     * @return true if the session is valid, false if it has expired.
+     *
+     * @return <code>true</code> if the session is valid, <code>false</code> if it has expired.
      */
-    private boolean hasValidSession(IPSMembership member, Date now) {
-        var lastAccessed = member.getLastAccessed().orElse(now);
-        var expires = DateUtils.addMinutes(lastAccessed, sessionTimeOut);
+    private boolean hasValidSession(IPSMembership member, Date now)
+    {
+        Date lastAccessed = member.getLastAccessed();
+        Date expires = DateUtils.addMinutes(lastAccessed, sessionTimeOut);
+
         return expires.after(now);
     }
 
     public String createAccount(String email, String password, boolean confirmationRequired,
-                               String confirmationPage, String customerSite) throws Exception {
-        Validate.notBlank(email, "email must not be empty");
-        Validate.notBlank(password, "password must not be empty");
-        Validate.notNull(confirmationRequired, "confirmationRequired must not be null");
+                                String confirmationPage, String customerSite) throws Exception
+    {
+        Validate.notEmpty(email);
+        Validate.notEmpty(password);
+        Validate.notNull(confirmationRequired);
 
-        var escapedEmail = org.apache.commons.text.StringEscapeUtils.escapeHtml4(email);
-        if (!email.equals(escapedEmail)) {
+
+        // ensure no html elements in the email
+        String escapedEmail = StringEscapeUtils.escapeHtml4(email);
+        if (!email.equals(escapedEmail))
+        {
             throw new IllegalArgumentException("Invalid email address");
         }
 
-        var encryptedPassword = encryptPassword(password);
-        var status = confirmationRequired ? PSMemberStatus.Unconfirmed : PSMemberStatus.Active;
+        // create the account
+        String encryptedPassword = encryptPassword(password);
+        PSMemberStatus status = confirmationRequired ? PSMemberStatus.Unconfirmed : PSMemberStatus.Active;
 
-        var member = dao.findMemberByUserId(email);
+        IPSMembership member = dao.findMemberByUserId(email);
         String resetKey = StringUtils.EMPTY;
-        if (member == null) {
+        if (member == null)
+        {
             member = dao.createMember(email, encryptedPassword, status);
             member.setEmailAddress(email);
             member.setCreatedDate(new Date());
+            // create the confirmation key if needed
             resetKey = confirmationRequired ? this.genericKeyService.generateKey(
-                IPSGenericKeyService.DAY_IN_MILLISECONDS) : null;
+                    IPSGenericKeyService.DAY_IN_MILLISECONDS) : null;
             member.setPwdResetKey(resetKey);
             dao.saveMember(member);
-        } else if (member.getStatus().equals(PSMemberStatus.Unconfirmed)) {
-            resetKey = member.getPwdResetKey().orElse("");
-        } else if (member.getStatus().equals(PSMemberStatus.Active)
-                || member.getStatus().equals(PSMemberStatus.Blocked)) {
+        }
+        else if (member.getStatus().equals(PSMemberStatus.Unconfirmed))
+        {
+            resetKey = member.getPwdResetKey();
+        }
+        else if (member.getStatus().equals(PSMemberStatus.Active)
+                || member.getStatus().equals(PSMemberStatus.Blocked))
+        {
             throw new PSMemberExistsException(email);
         }
 
-        if (confirmationRequired) {
-            var resetUrl = confirmationPage + "?rvkey=" + resetKey;
-            var emailMessage = getConfirmationEmailBodyMessage(email, resetUrl, customerSite);
+        if (confirmationRequired)
+        {
+            //Send the email and set the URL for the confirmation page
+            String resetUrl = confirmationPage + "?rvkey=" + resetKey;
+            String emailMessage = getConfirmationEmailBodyMessage(email, resetUrl, customerSite);
 
-            var emailRequest = new PSEmailRequest();
+            IPSEmailRequest emailRequest = new PSEmailRequest();
             emailRequest.setToList(email);
             emailRequest.setSubject("Thank you for registering with " + customerSite);
             emailRequest.setBody(emailMessage);
 
             emailHelper.sendMail(emailRequest);
-        } else {
+        }
+        else
+        {
+            // authenticate the user
             getAuthProvider().authenticate(email, password);
         }
+        // create the session
         return createSession(member);
     }
 
     @Override
-    public void changeStateAccount(PSAccountSummary account) throws Exception {
-        Validate.notBlank(account.getEmail().orElse(""), "User email may not be empty");
-        Validate.notBlank(account.getAction().orElse(""), "Action may not be empty");
+    public void changeStateAccount(PSAccountSummary account) throws Exception
+    {
+        Validate.notEmpty(account.getEmail());
+        Validate.notEmpty(account.getAction());
+
         dao.changeStatusAccount(account);
     }
 
     @Override
-    public void deleteAccount(String email) throws Exception {
-        Validate.notBlank(email, "email must not be empty");
-        var escapedEmail = org.apache.commons.text.StringEscapeUtils.escapeHtml4(email);
-        if (!email.equals(escapedEmail)) {
+    public void deleteAccount(String email) throws Exception
+    {
+        Validate.notEmpty(email);
+
+        // ensure no html elements in the email
+        String escapedEmail = StringEscapeUtils.escapeHtml4(email);
+        if (!email.equals(escapedEmail))
+        {
             throw new IllegalArgumentException("Invalid email address");
         }
+
         dao.deleteAccount(email);
     }
 
     /**
      * Create a session for the supplied member
      *
-     * @param member The member, assumed not null.
-     * @return The session id, never null or empty.
+     * @param member The member, assumed not <code>null</code>.
+     *
+     * @return The session id, never <code>null</code> or empty.
+     *
      * @throws Exception if there are any unexpected errors.
      */
-    private String createSession(IPSMembership member) throws Exception {
-        var sessionId = generateSessionId();
+    private String createSession(IPSMembership member) throws Exception
+    {
+        String sessionId = generateSessionId();
         member.setSessionId(sessionId);
         member.setLastAccessed(new Date());
         dao.saveMember(member);
+
         return sessionId;
     }
 
+
     @Override
-    public String login(String email, String password) throws PSAuthenticationFailedException, Exception {
-        Validate.notBlank(email, "email must not be empty");
-        Validate.notBlank(password, "password must not be empty");
+    public String login(String email, String password) throws PSAuthenticationFailedException, Exception
+    {
+        Validate.notEmpty(email);
+        Validate.notEmpty(password);
+
+        // authenticate the user
         getAuthProvider().authenticate(email, password);
-        var member = dao.findMemberByUserId(email);
-        if (member == null) {
+
+        // create the session
+        IPSMembership member = dao.findMemberByUserId(email);
+        if (member == null)
+        {
+            // should not have been able to authenticate
             throw new PSAuthenticationFailedException("Unable to locate account for email: " + email);
         }
+
         return createSession(member);
     }
 
     @Override
-    public void logout(String sessionId) throws Exception {
-        if (StringUtils.isBlank(sessionId)) return;
-        var member = dao.findMemberBySessionId(sessionId);
-        if (member == null) return;
+    public void logout(String sessionId) throws Exception
+    {
+        if (sessionId == null || sessionId.isEmpty())
+            return;
+
+        IPSMembership member = dao.findMemberBySessionId(sessionId);
+        if (member == null)
+            return;
+
         member.setSessionId("");
         member.setLastAccessed(new Date());
         dao.saveMember(member);
     }
 
     @Override
-    public String setResetKey(String email, String resetLinkUrl) throws PSAuthenticationFailedException, Exception {
-        Validate.notBlank(email, "email must not be empty");
-        var member = dao.findMemberByUserId(email);
-        if (member == null || !member.getStatus().equals(PSMemberStatus.Active)) {
+    public String setResetKey(String email, String resetLinkUrl) throws PSAuthenticationFailedException, Exception
+    {
+        Validate.notEmpty(email);
+
+        // create the session
+        IPSMembership member = dao.findMemberByUserId(email);
+        if (member == null || !member.getStatus().equals(PSMemberStatus.Active))
+        {
             throw new PSAuthenticationFailedException("Unable to locate account for email: " + email);
         }
-        var resetKey = this.genericKeyService.generateKey(IPSGenericKeyService.DAY_IN_MILLISECONDS);
+
+        String resetKey = this.genericKeyService.generateKey(IPSGenericKeyService.DAY_IN_MILLISECONDS);
+
+        // set the reset key
         member.setPwdResetKey(resetKey);
+
+        // save the member
         dao.saveMember(member);
 
-        var resetUrl = resetLinkUrl + "?resetkey=" + resetKey;
-        var emailMessage = getResetEmailBodyMessage(email, resetUrl);
+        //Send the email and fix the URL for the redirect page
+        String resetUrl = resetLinkUrl + "?resetkey=" + resetKey;
+        String emailMessage = getResetEmailBodyMessage(email, resetUrl);
 
-        var emailRequest = new PSEmailRequest();
+        IPSEmailRequest emailRequest = new PSEmailRequest();
         emailRequest.setToList(email);
         emailRequest.setSubject("Request to reset your password");
         emailRequest.setBody(emailMessage);
@@ -234,153 +303,308 @@ public class PSMembershipService implements IPSMembershipService {
     }
 
     @Override
-    public PSUserSummary validatePwdResetKey(String resetKey) throws PSResetPwdException, Exception {
-        Validate.notBlank(resetKey, "resetKey must not be empty");
-        var member = dao.findMemberByPwdResetKey(resetKey);
-        if (member == null || !member.getStatus().equals(PSMemberStatus.Active)) {
+    public PSUserSummary validatePwdResetKey(String resetKey) throws PSResetPwdException, Exception
+    {
+        Validate.notEmpty(resetKey);
+
+        // Found the member by the reset key.
+        IPSMembership member = dao.findMemberByPwdResetKey(resetKey);
+        if (member == null || !member.getStatus().equals(PSMemberStatus.Active))
+        {
             throw new PSAuthenticationFailedException("Unable to process the reset password request.");
         }
-        var isValid = this.genericKeyService.isValidKey(resetKey);
-        if (!isValid) {
+        boolean isValid = this.genericKeyService.isValidKey(resetKey);
+
+        if(!isValid)
+        {
             throw new PSResetPwdException("The reset password token you have provided has timed out. You can request for a new token on the login page.");
         }
+
         return new PSUserSummary(member);
     }
 
+    /**
+     * (non-Javadoc)
+     * @see com.percussion.membership.services.IPSMembershipService#resetPwd(java.lang.String, java.lang.String, java.lang.String)
+     */
     @Override
     public String resetPwd(String resetKey, String email, String password) throws PSResetPwdException,
-            PSAuthenticationFailedException, Exception {
-        Validate.notBlank(resetKey, "resetKey must not be empty");
-        Validate.notBlank(email, "email must not be empty");
-        Validate.notBlank(password, "password must not be empty");
-        var member = dao.findMemberByPwdResetKey(resetKey);
-        if (member == null || !member.getStatus().equals(PSMemberStatus.Active)) {
+            PSAuthenticationFailedException, Exception
+    {
+        Validate.notEmpty(resetKey);
+        Validate.notEmpty(email);
+        Validate.notEmpty(password);
+
+        // Found the member by the reset key.
+        IPSMembership member = dao.findMemberByPwdResetKey(resetKey);
+        if (member == null || !member.getStatus().equals(PSMemberStatus.Active))
+        {
             throw new PSAuthenticationFailedException("Unable to process the reset password.");
         }
-        var isValid = this.genericKeyService.isValidKey(resetKey);
-        if (!isValid) {
+        // Call the key service to validate the reset key
+        boolean isValid = this.genericKeyService.isValidKey(resetKey);
+
+        if(!isValid)
+        {
             throw new PSResetPwdException("The reset password token you have provided has timed out. You can request for a new token on the login page.");
         }
-        var memberEmail = member.getEmailAddress().orElse("");
-        if (!email.equalsIgnoreCase(memberEmail)) {
+
+        // Retrieves the user email.
+        String memberEmail = member.getEmailAddress();
+        if (!email.equalsIgnoreCase(memberEmail))
+        {
             throw new PSResetPwdException("The email doesn't match.");
         }
-        var encryptedPassword = encryptPassword(password);
+
+        // Resets the user password.
+        String encryptedPassword = encryptPassword(password);
         member.setPassword(encryptedPassword);
         member.setPwdResetKey(null);
         dao.saveMember(member);
+
+        // Call the key service to delete the reset key.
         genericKeyService.deleteKey(resetKey);
+
+        // Authenticates the user.
         return login(email, password);
     }
 
-    public void setAuthProvider(IPSAuthProvider authProvider) {
-        Validate.notNull(authProvider, "authProvider must not be null");
+    public void setAuthProvider(IPSAuthProvider authProvider)
+    {
+        Validate.notNull(authProvider);
         this.authProvider = authProvider;
     }
 
     @Override
-    public String confirmAccount(String confirmKey) throws PSAuthenticationFailedException, Exception {
-        Validate.notBlank(confirmKey, "confirmKey must not be empty");
-        var member = dao.findMemberByPwdResetKey(confirmKey);
-        if (member == null) {
+    public String confirmAccount(String confirmKey) throws PSAuthenticationFailedException, Exception
+    {
+        Validate.notEmpty(confirmKey);
+        String memberEmail = StringUtils.EMPTY;
+
+        // Found the member by the reset key.
+        IPSMembership member = dao.findMemberByPwdResetKey(confirmKey);
+        if (member == null)
+        {
             throw new PSAuthenticationFailedException("Unable to find the member by the key provided.");
         }
-        var isValid = this.genericKeyService.isValidKey(confirmKey);
-        if (!isValid) {
-            if (member.getStatus().equals(PSMemberStatus.Active)) {
+        // Call the key service to validate the reset key
+        boolean isValid = this.genericKeyService.isValidKey(confirmKey);
+
+        if((!isValid))
+        {
+            // Key is invalid but the user is Enabled
+            if (member.getStatus().equals(PSMemberStatus.Active))
+            {
                 throw new PSResetPwdException("User has already been confirmed.");
-            } else {
+            }
+            else
+            {
+                // Key is invalid and the user is not Enabled
                 throw new PSResetPwdException("The confirmation token you have provided has timed out. You can request for a new token on the register page.");
             }
         }
-        var memberEmail = member.getEmailAddress().orElse("");
+
+        // Retrieves the user email.
+        memberEmail = member.getEmailAddress();
+
+        // Resets the user password.
         member.setPwdResetKey(null);
         member.setStatus(PSMemberStatus.Active);
         dao.saveMember(member);
+
+        // Call the key service to delete the reset key.
         genericKeyService.deleteKey(confirmKey);
+
         return memberEmail;
     }
 
     @Override
-    public List<PSUserSummary> findUsers() throws Exception {
-        var users = new ArrayList<PSUserSummary>();
-        var members = dao.findMembers();
-        for (var member : members) {
+    public List<PSUserSummary> findUsers() throws Exception
+    {
+        List<PSUserSummary> users = new ArrayList<>();
+
+        List<IPSMembership> members = dao.findMembers();
+        for (IPSMembership member : members)
+        {
             users.add(new PSUserSummary(member));
         }
+
         return users;
     }
 
     @Override
-    public void setUserGroups(String email, String groups) throws PSAuthenticationFailedException, Exception {
-        Validate.notBlank(email, "email must not be empty");
-        var member = dao.findMemberByUserId(email);
-        if (member == null) {
+    public void setUserGroups(String email, String groups) throws PSAuthenticationFailedException, Exception
+    {
+        Validate.notEmpty(email);
+
+        // create the session
+        IPSMembership member = dao.findMemberByUserId(email);
+        if (member == null)
+        {
             throw new PSAuthenticationFailedException("Unable to locate account for email: " + email);
         }
+
+        // sets the groups
         member.setGroups(groups);
+
+        // save the member
         dao.saveMember(member);
     }
 
-    public void setSessionTimeoutMinutes(int mins) {
+    /**
+     * Set the number of minutes to use for session timeout
+     *
+     * @param mins The number of mins, a value < 1 means no timeout
+     */
+    public void setSessionTimeoutMinutes(int mins)
+    {
         sessionTimeOut = mins;
     }
 
-    private String generateSessionId() {
-        return java.util.UUID.randomUUID().toString();
+
+    /**
+     * Generates a unique session id
+     *
+     * @return The id, never <code>null</code> or empty.
+     */
+    private String generateSessionId()
+    {
+        return UUID.randomUUID().toString();
     }
 
-    private IPSAuthProvider getAuthProvider() {
+
+    /**
+     * Internal accessor method to enable future plugable strategy for auth providers.
+     *
+     * @return The currently configured auth provider, never <code>null</code>.
+     */
+    private IPSAuthProvider getAuthProvider()
+    {
         return authProvider;
     }
 
-    private PSHttpClient getClient() {
+    /**
+     * Internal accessor method to get the http client
+     *
+     * @return The currently configured http client, never <code>null</code>.
+     */
+    private PSHttpClient getClient()
+    {
         return client;
     }
 
-    public void setClient(PSHttpClient client) {
+    /**
+     * Sets http client
+     * @param client
+     */
+    public void setClient(PSHttpClient client)
+    {
         this.client = client;
     }
 
-    public IPSEmailHelper getEmailHelper() {
+    /**
+     * Internal accessor method to the email helper
+     *
+     * @return The currently configured email helper client, never <code>null</code>.
+     */
+    public IPSEmailHelper getEmailHelper()
+    {
         return emailHelper;
     }
 
-    public void setEmailHelper(IPSEmailHelper emailHelper) {
+    /**
+     * Sets the email helper
+     * @param emailHelper
+     */
+    public void setEmailHelper(IPSEmailHelper emailHelper)
+    {
         this.emailHelper = emailHelper;
     }
-
-    private void touchMemberSession(IPSMembership member, String sessionId, Date lastAccessed) throws Exception {
+    /**
+     * Update the member's session id and last access time
+     *
+     * @param member The member, assumed not <code>null</code>
+     * @param sessionId The session id to use, assumed not <code>null</code>, may be empty.
+     * @param lastAccessed The date-time to use for last accessed, assumed not <code>null</code>
+     *
+     * @throws Exception if there are any unexpected errors.
+     */
+    private void touchMemberSession(IPSMembership member, String sessionId, Date lastAccessed) throws Exception
+    {
         member.setSessionId(sessionId);
         member.setLastAccessed(lastAccessed);
         dao.saveMember(member);
     }
 
-    private String encryptPassword(String password) {
-        var passwordEncryptor = PSMembershipPasswordEncryptorFactory.getPasswordEncryptor();
-        return passwordEncryptor.encryptPassword(password);
+    /**
+     * Helper method that returns an encrypted password.
+     *
+     * @param password the password to encrypt, assumed not <code>null</code> or empty.
+     *
+     * @return String the encrypted password
+     */
+    private String encryptPassword(String password)
+    {
+        String encryptedPassword = StringUtils.EMPTY;
+        PasswordEncryptor passwordEncryptor = PSMembershipPasswordEncryptorFactory.getPasswordEncryptor();
+        encryptedPassword = passwordEncryptor.encryptPassword(password);
+
+        // return the encrypted password
+        return encryptedPassword;
     }
 
-    private String getResetEmailBodyMessage(String userEmail, String redirectLink) {
-        var sb = new StringBuilder();
-        sb.append("A password reset has been requested for the following account:\r\n");
-        sb.append(userEmail).append("\r\n");
-        sb.append("If you did not initiate a password reset, please ignore this email.\r\n\r\n");
-        sb.append("To reset the password, click the link below or copy and paste the link into your browser:\r\n");
+    /**
+     * Helper method to build the email message to be sent to the user
+     *
+     * @param userEmail The email account of the user.
+     * @param redirectLink The redirect link to be added into the message.
+     *
+     * @return The text of the message key, never blank.
+     */
+    private String getResetEmailBodyMessage(String userEmail, String redirectLink)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("A password reset has been requested for the following account:");
+        sb.append("\r\n");
+        sb.append(userEmail);
+        sb.append("\r\n");
+        sb.append("If you did not initiate a password reset, please ignore this email.");
+        sb.append("\r\n");
+        sb.append("\r\n");
+        sb.append("To reset the password, click the link below or copy and paste the link into your browser:");
+        sb.append("\r\n");
         sb.append(redirectLink);
+
         return sb.toString();
     }
 
-    private String getConfirmationEmailBodyMessage(String userEmail, String redirectLink, String customerSite) {
-        var sb = new StringBuilder();
-        sb.append("Welcome and thank you for registering with us.\r\n\n");
-        sb.append("To complete the registration process and activate your account, simply visit the link below:\r\n");
-        sb.append(redirectLink).append("\r\n");
-        sb.append("If clicking the link does not work, just copy and paste the entire link into your browser.\r\n\n");
-        sb.append("We're excited to have you on board!\r\n\n");
-        sb.append("Sincerely,\r\n");
+    /**
+     * Helper method to build the confirmation email message to be sent to the user
+     *
+     * @param userEmail The email account of the user.
+     * @param redirectLink The redirect link to be added into the message.
+     * @param customerSite The customer website host address.
+     *
+     * @return The text of the message key, never blank.
+     */
+    private String getConfirmationEmailBodyMessage(String userEmail, String redirectLink, String customerSite)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Welcome and thank you for registering with us.");
+        sb.append("\r\n\n");
+        sb.append("To complete the registration process and activate your account, simply visit the link below:");
+        sb.append("\r\n");
+        sb.append(redirectLink);
+        sb.append("\r\n");
+        sb.append("If clicking the link does not work, just copy and paste the entire link into your browser.");
+        sb.append("\r\n\n");
+        sb.append("We're excited to have you on board!");
+        sb.append("\r\n\n");
+        sb.append("Sincerely,");
+        sb.append("\r\n");
         sb.append("The ").append(customerSite).append(" Team");
         return sb.toString();
     }
+
 
 }

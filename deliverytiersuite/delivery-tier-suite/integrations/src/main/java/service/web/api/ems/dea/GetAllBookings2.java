@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,13 +18,40 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+
 /**
- * Java 11+ refactored version of GetAllBookings2 SOAP request.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="StartDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="EndDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ViewComboRoomComponents" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
+ *         &lt;element name="UDFDefID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="UDFValue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -37,155 +65,193 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "udfValue"
 })
 @XmlRootElement(name = "GetAllBookings2")
-public final class GetAllBookings2 {
+public class GetAllBookings2 {
+
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "StartDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private final XMLGregorianCalendar startDate;
+    protected XMLGregorianCalendar startDate;
     @XmlElement(name = "EndDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private final XMLGregorianCalendar endDate;
+    protected XMLGregorianCalendar endDate;
     @XmlElement(name = "BuildingID")
-    private final int buildingID;
+    protected int buildingID;
     @XmlElement(name = "ViewComboRoomComponents")
-    private final boolean viewComboRoomComponents;
+    protected boolean viewComboRoomComponents;
     @XmlElement(name = "UDFDefID")
-    private final int udfDefID;
+    protected int udfDefID;
     @XmlElement(name = "UDFValue")
-    private final String udfValue;
+    protected String udfValue;
 
-    private GetAllBookings2(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.startDate = builder.startDate;
-        this.endDate = builder.endDate;
-        this.buildingID = builder.buildingID;
-        this.viewComboRoomComponents = builder.viewComboRoomComponents;
-        this.udfDefID = builder.udfDefID;
-        this.udfValue = builder.udfValue;
-    }
-
-    /** @return Optional user name for authentication. */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
-    }
-    /** @return Optional password for authentication. */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
-    }
-    /** @return Optional start date for bookings. */
-    public java.util.Optional<XMLGregorianCalendar> getStartDate() {
-        return java.util.Optional.ofNullable(startDate);
-    }
-    /** @return Optional end date for bookings. */
-    public java.util.Optional<XMLGregorianCalendar> getEndDate() {
-        return java.util.Optional.ofNullable(endDate);
-    }
-    /** @return Building ID for which bookings are requested. */
-    public int getBuildingID() {
-        return buildingID;
-    }
-    /** @return true if combo room components should be viewed. */
-    public boolean isViewComboRoomComponents() {
-        return viewComboRoomComponents;
-    }
-    /** @return UDF definition ID. */
-    public int getUDFDefID() {
-        return udfDefID;
-    }
-    /** @return Optional UDF value. */
-    public java.util.Optional<String> getUDFValue() {
-        return java.util.Optional.ofNullable(udfValue);
-    }
-
-    @Override
-    public String toString() {
-        return "GetAllBookings2{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", buildingID=" + buildingID +
-                ", viewComboRoomComponents=" + viewComboRoomComponents +
-                ", udfDefID=" + udfDefID +
-                ", udfValue='" + udfValue + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetAllBookings2)) return false;
-        var that = (GetAllBookings2) o;
-        return buildingID == that.buildingID &&
-                viewComboRoomComponents == that.viewComboRoomComponents &&
-                udfDefID == that.udfDefID &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(startDate, that.startDate) &&
-                java.util.Objects.equals(endDate, that.endDate) &&
-                java.util.Objects.equals(udfValue, that.udfValue);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, startDate, endDate, buildingID, viewComboRoomComponents, udfDefID, udfValue);
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Builder for GetAllBookings2. Use for safe, immutable construction.
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private XMLGregorianCalendar startDate;
-        private XMLGregorianCalendar endDate;
-        private int buildingID;
-        private boolean viewComboRoomComponents;
-        private int udfDefID;
-        private String udfValue;
-
-        public Builder() {}
-
-        public Builder userName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-        public Builder startDate(XMLGregorianCalendar startDate) {
-            this.startDate = startDate;
-            return this;
-        }
-        public Builder endDate(XMLGregorianCalendar endDate) {
-            this.endDate = endDate;
-            return this;
-        }
-        public Builder buildingID(int buildingID) {
-            this.buildingID = buildingID;
-            return this;
-        }
-        public Builder viewComboRoomComponents(boolean viewComboRoomComponents) {
-            this.viewComboRoomComponents = viewComboRoomComponents;
-            return this;
-        }
-        public Builder udfDefID(int udfDefID) {
-            this.udfDefID = udfDefID;
-            return this;
-        }
-        public Builder udfValue(String udfValue) {
-            this.udfValue = udfValue;
-            return this;
-        }
-        public GetAllBookings2 build() {
-            if (startDate == null) throw new IllegalArgumentException("StartDate is required");
-            if (endDate == null) throw new IllegalArgumentException("EndDate is required");
-            return new GetAllBookings2(this);
-        }
+    public void setUserName(String value) {
+        this.userName = value;
     }
+
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
+    }
+
+    /**
+     * Gets the value of the startDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getStartDate() {
+        return startDate;
+    }
+
+    /**
+     * Sets the value of the startDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setStartDate(XMLGregorianCalendar value) {
+        this.startDate = value;
+    }
+
+    /**
+     * Gets the value of the endDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * Sets the value of the endDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setEndDate(XMLGregorianCalendar value) {
+        this.endDate = value;
+    }
+
+    /**
+     * Gets the value of the buildingID property.
+     * 
+     */
+    public int getBuildingID() {
+        return buildingID;
+    }
+
+    /**
+     * Sets the value of the buildingID property.
+     * 
+     */
+    public void setBuildingID(int value) {
+        this.buildingID = value;
+    }
+
+    /**
+     * Gets the value of the viewComboRoomComponents property.
+     * 
+     */
+    public boolean isViewComboRoomComponents() {
+        return viewComboRoomComponents;
+    }
+
+    /**
+     * Sets the value of the viewComboRoomComponents property.
+     * 
+     */
+    public void setViewComboRoomComponents(boolean value) {
+        this.viewComboRoomComponents = value;
+    }
+
+    /**
+     * Gets the value of the udfDefID property.
+     * 
+     */
+    public int getUDFDefID() {
+        return udfDefID;
+    }
+
+    /**
+     * Sets the value of the udfDefID property.
+     * 
+     */
+    public void setUDFDefID(int value) {
+        this.udfDefID = value;
+    }
+
+    /**
+     * Gets the value of the udfValue property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUDFValue() {
+        return udfValue;
+    }
+
+    /**
+     * Sets the value of the udfValue property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUDFValue(String value) {
+        this.udfValue = value;
+    }
+
 }

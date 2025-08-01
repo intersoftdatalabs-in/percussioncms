@@ -34,7 +34,9 @@ import java.util.Date;
 import java.util.Optional;
 
 /**
- * Represents a cookie consent entry for a site/service.
+ * 
+ * @author chriswright
+ *
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSCookieConsent")
@@ -47,17 +49,20 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
     private long consentId;
 
     @Basic
-    @Column(length = 100, name = "IP_ADDRESS")
+    @Column(length = 100,
+            name = "IP_ADDRESS")
     private String ip;
 
     @Basic
-    @Column(length = 2000, name = "SERVICE_NAME")
+    @Column(length = 2000,
+            name = "SERVICE_NAME")
     private String serviceName;
-
+    
     @Basic
-    @Column(length = 255, name = "SITE_NAME")
+    @Column(length = 255,
+            name = "SITE_NAME")
     private String siteName;
-
+    
     @Basic
     @Column(name = "OPT_IN")
     private boolean optIn;
@@ -66,10 +71,12 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CONSENT_DATE")
     private Date consentDate;
-
+    
     public PSDbCookieConsent() {}
-
-    public PSDbCookieConsent(String siteName, String serviceName, Date consentDate, String ip, boolean optIn) {
+    
+    public PSDbCookieConsent(String siteName, String serviceName,
+            Date consentDate, String ip, boolean optIn) {
+        
         if (siteName == null)
             throw new IllegalArgumentException("siteName may not be null");
         if (serviceName == null)
@@ -78,7 +85,7 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
             throw new IllegalArgumentException("consentDate may not be null");
         if (ip == null)
             throw new IllegalArgumentException("ip may not be null");
-
+        
         setSiteName(siteName);
         setService(serviceName);
         setConsentDate(consentDate);
@@ -108,18 +115,20 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
 
     @Override
     public void setConsentDate(Date consentDate) {
-        this.consentDate = Optional.ofNullable(consentDate)
-            .map(Date::getTime)
-            .map(Date::new)
-            .orElse(null);
+        this.consentDate = Optional
+                .ofNullable(consentDate)
+                .map(Date::getTime)
+                .map(Date::new)
+                .orElse(null);
     }
 
     @Override
     public Date getConsentDate() {
-        return Optional.ofNullable(consentDate)
-            .map(Date::getTime)
-            .map(Date::new)
-            .orElse(null);
+        return Optional
+                .ofNullable(consentDate)
+                .map(Date::getTime)
+                .map(Date::new)
+                .orElse(null);
     }
 
     @Override
@@ -152,9 +161,16 @@ public class PSDbCookieConsent implements IPSCookieConsent, Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        var other = (PSDbCookieConsent) obj;
-        return consentId == other.consentId;
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        PSDbCookieConsent other = (PSDbCookieConsent) obj;
+        if (consentId != other.consentId)
+            return false;
+        return true;
     }
+    
 }

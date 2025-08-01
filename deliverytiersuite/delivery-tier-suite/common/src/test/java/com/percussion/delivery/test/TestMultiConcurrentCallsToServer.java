@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.test;
 
 import com.percussion.error.PSExceptionUtils;
@@ -23,111 +22,107 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Ignore;
 
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 /**
- * Performs simulation of multiple clients making calls to DTS.
- * Sunny Sal says: "Concurrency ka test, server ka stress!"
- *
+ * Performs simulation of multiple clients making calls to DTS
  * @author Santosh Dhariwal
+ *
  */
-@Disabled
+@Ignore
 public class TestMultiConcurrentCallsToServer {
 
     private static final Logger log = LogManager.getLogger(TestMultiConcurrentCallsToServer.class);
-    private static final String deliveryServerUrl = "http://localhost:9980/perc-metadata-services/metadata/indexedDirectories";
+    private static String deliveryServerUrl = "http://localhost:9980/perc-metadata-services/metadata/indexedDirectories";
 
-    @Test
-    public void makeConcurrentClientRequests() {
-        var executor = Executors.newFixedThreadPool(150);
-        var list = new ArrayList<Future<String>>();
+        public void makeConcurrentClientRequests(){
 
-        for (int i = 0; i < 200; i++) {
-            var httpClient = new HttpClient();
-            var callable = new ThreadLocalRunner(i + 1, httpClient);
-            var future = executor.submit(callable);
-            list.add(future);
-        }
-        for (var fut : list) {
-            try {
-                log.info("{} :: {}", new Date(), fut.get());
-            } catch (InterruptedException | ExecutionException e) {
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                Assertions.fail();
-                Thread.currentThread().interrupt();
+            ExecutorService executor = Executors.newFixedThreadPool(150);
+            List<Future<String>> list = new ArrayList<Future<String>>();
+
+            for(int i=0; i< 200; i++){
+                HttpClient  httpClient = new HttpClient();
+                Callable<String> callable = new ThreadLocalRunner(i+1,httpClient);
+                Future<String> future = executor.submit(callable);
+                list.add(future);
             }
-        }
-        executor.shutdown();
-    }
-
-    public String makeRestRequest(int num, HttpClient httpClient) {
-        try {
-            var get = new GetMethod(deliveryServerUrl);
-            get.setRequestHeader("Content-Type", MediaType.APPLICATION_JSON);
-            get.setRequestHeader("Accept", MediaType.APPLICATION_JSON);
-
-            try {
-                httpClient.executeMethod(get);
-                var resp = get.getResponseBodyAsString();
-
-                Assertions.assertEquals(200, get.getStatusCode());
-                return "Request Was :" + num + " : " + get.getStatusCode();
-            } finally {
-                get.releaseConnection();
+            for(Future<String> fut : list){
+                try {
+                    log.info("{} :: {}", new Date(), fut.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    log.error(PSExceptionUtils.getMessageForLog(e));
+                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                    Assert.assertFalse(true);
+                    Thread.currentThread().interrupt();
+                }
             }
-        } catch (Exception e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            Assertions.fail();
-        }
-        return "ERROR";
-    }
-
-    static class ThreadLocalRunner implements Callable<String> {
-        private final int num;
-        private final HttpClient httpClient;
-
-        @Override
-        public String call() {
-            return makeRestRequest(num, httpClient);
+            //shut down the executor service now
+            executor.shutdown();
         }
 
-        public ThreadLocalRunner(int num, HttpClient httpClient) {
-            this.num = num;
-            this.httpClient = httpClient;
-        }
-
-        private String makeRestRequest(int num, HttpClient httpClient) {
-            try {
-                var get = new GetMethod(deliveryServerUrl);
+        public String makeRestRequest(int num,HttpClient httpClient){
+            try
+            {
+                GetMethod get = new GetMethod(deliveryServerUrl);
                 get.setRequestHeader("Content-Type", MediaType.APPLICATION_JSON);
                 get.setRequestHeader("Accept", MediaType.APPLICATION_JSON);
 
-                try {
+                try
+                {
                     httpClient.executeMethod(get);
-                    var resp = get.getResponseBodyAsString();
+                    String resp =  get.getResponseBodyAsString();
 
-                    Assertions.assertEquals(200, get.getStatusCode());
-                    return "Request Was :" + num + " : " + get.getStatusCode();
-                } finally {
+                    Assert.assertEquals(200, get.getStatusCode());
+                    String returnVal = "Request Was :" + num + " : "  + get.getStatusCode();
+                    return returnVal;
+                }
+                finally
+                {
                     get.releaseConnection();
                 }
-            } catch (Exception e) {
+
+
+            }
+            catch (Exception e)
+            {
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-                Assertions.fail();
+                Assert.assertFalse(true);
             }
             return "ERROR";
         }
+
+
+    class ThreadLocalRunner implements Callable<String> {
+        private int num;
+        private HttpClient httpClient;
+
+        @Override
+        public String call() throws Exception {
+            return makeRestRequest(num,httpClient);
+        }
+
+        public ThreadLocalRunner(int num,HttpClient httpClient)
+        {
+            this.num = num;
+            this.httpClient = httpClient;
+
+        }
+
+
     }
 }
+
+

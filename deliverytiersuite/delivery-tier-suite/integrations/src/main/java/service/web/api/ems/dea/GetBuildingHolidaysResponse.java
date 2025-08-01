@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,74 +16,66 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import java.util.Objects;
-import java.util.Optional;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Java 11+ refactored SOAP response for GetBuildingHolidays.
- * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
- * Sunny Sal: "Building holidays response, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetBuildingHolidaysResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getBuildingHolidaysResult"
 })
 @XmlRootElement(name = "GetBuildingHolidaysResponse")
-public final class GetBuildingHolidaysResponse {
+public class GetBuildingHolidaysResponse {
 
     @XmlElement(name = "GetBuildingHolidaysResult")
-    private final String getBuildingHolidaysResult;
+    protected String getBuildingHolidaysResult;
 
-    private GetBuildingHolidaysResponse(Builder builder) {
-        this.getBuildingHolidaysResult = builder.getBuildingHolidaysResult;
+    /**
+     * Gets the value of the getBuildingHolidaysResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetBuildingHolidaysResult() {
+        return getBuildingHolidaysResult;
     }
 
     /**
-     * Gets the building holidays result.
-     * @return Optional result
+     * Sets the value of the getBuildingHolidaysResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getGetBuildingHolidaysResult() {
-        return Optional.ofNullable(getBuildingHolidaysResult);
+    public void setGetBuildingHolidaysResult(String value) {
+        this.getBuildingHolidaysResult = value;
     }
 
-    /**
-     * Builder for GetBuildingHolidaysResponse (Java 11+ style).
-     */
-    public static class Builder {
-        private String getBuildingHolidaysResult;
-
-        public Builder getBuildingHolidaysResult(String getBuildingHolidaysResult) {
-            this.getBuildingHolidaysResult = getBuildingHolidaysResult;
-            return this;
-        }
-
-        public GetBuildingHolidaysResponse build() {
-            return new GetBuildingHolidaysResponse(this);
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBuildingHolidaysResponse)) return false;
-        var that = (GetBuildingHolidaysResponse) o;
-        return Objects.equals(getBuildingHolidaysResult, that.getBuildingHolidaysResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getBuildingHolidaysResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBuildingHolidaysResponse{" +
-                "getBuildingHolidaysResult='" + getBuildingHolidaysResult + '\'' +
-                '}';
-    }
 }

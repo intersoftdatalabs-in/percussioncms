@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,46 +17,43 @@
 package com.percussion.membership.data;
 
 /**
- * Base class for membership REST call results.
- * Sunny Sal: "Membership results - the box office verdict for your API calls!"
+ * Base class for membership rest call results
+ * 
+ * @author JaySeletz
  */
-public class PSMembershipResult {
+public class PSMembershipResult
+{
 
     protected STATUS status;
     protected String message;
 
-    public PSMembershipResult(STATUS status, String message) {
+    public PSMembershipResult(STATUS status, String message)
+    {
         this.status = status;
         this.message = message;
     }
-
-    /**
-     * Gets the result status.
-     *
-     * @return The status.
-     */
-    public STATUS getStatus() {
+    
+    public STATUS getStatus()
+    {
         return status;
     }
 
-    /**
-     * Gets the result message.
-     *
-     * @return The message.
-     */
-    public String getMessage() {
+    public String getMessage()
+    {
         return message;
     }
 
     /**
      * Enumeration of result status.
      */
-    public enum STATUS {
-        SUCCESS,
-        INVALID_PARAM,
-        UNEXPECTED_ERROR,
-        MEMBER_EXISTS,
-        AUTH_FAILED,
-        INVALID_RESET_KEY
+    public enum STATUS
+    {
+       SUCCESS,
+       INVALID_PARAM,
+       UNEXPECTED_ERROR, 
+       MEMBER_EXISTS, 
+       AUTH_FAILED,
+       INVALID_RESET_KEY
     }
+
 }

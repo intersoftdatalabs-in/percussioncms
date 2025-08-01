@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,66 +19,64 @@ package com.percussion.membership.data;
 
 import com.percussion.delivery.services.PSCustomDateSerializer;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
-import java.util.Objects;
-import java.util.Optional;
+
+import org.apache.commons.lang.Validate;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Object to hold summary data about a registered user.
- * Sunny Sal: "User summaries - like movie trailers, short and informative!"
+ * 
+ * @author JaySeletz
  */
-public class PSUserSummary {
-
-    private final String email;
-    private final Date createdDate;
-    private final PSMemberStatus status;
-    private final String groups;
-
-    public PSUserSummary(IPSMembership member) {
-        Objects.requireNonNull(member, "member may not be null");
-        this.email = member.getEmailAddress().orElse(null);
-        this.createdDate = member.getCreatedDate().orElse(null);
+public class PSUserSummary
+{
+    private String email;
+    private Date createdDate;
+    private PSMemberStatus status;
+    private String groups;
+    
+    public PSUserSummary(IPSMembership member)
+    {
+        Validate.notNull(member);
+        
+        this.email = member.getEmailAddress();
+        this.createdDate = member.getCreatedDate();
         this.status = member.getStatus();
-        this.groups = member.getGroups().orElse("");
+        this.groups = member.getGroups() != null ? member.getGroups() : "";
     }
 
     /**
-     * Gets the user's email.
-     *
-     * @return Optional containing the email, empty if not set.
+     * Get the user's email.
+     * 
+     * @return The email, not <code>null</code> or empty.
      */
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email).filter(StringUtils::isNotBlank);
+    public String getEmail()
+    {
+        return email;
     }
 
-    /**
-     * Gets the user's account creation date.
-     *
-     * @return Optional containing the creation date, empty if not set.
-     */
     @JsonSerialize(using = PSCustomDateSerializer.class)
-    public Optional<Date> getCreatedDate() {
-        return Optional.ofNullable(createdDate);
+    public Date getCreatedDate()
+    {
+        return createdDate;
     }
 
     /**
-     * Gets the user's status.
-     *
-     * @return The status, never null.
+     * @return The status, a {@link PSMemberStatus} object, never or 
+	 * <code>null</code>.
      */
-    public PSMemberStatus getStatus() {
+    public PSMemberStatus getStatus()
+    {
         return status;
     }
-
+    
     /**
-     * Gets a comma separated list of groups.
-     *
-     * @return Optional containing the groups, empty if not set.
+     * @return a comma separated list of groups
      */
-    public Optional<String> getGroups() {
-        return Optional.ofNullable(groups).filter(StringUtils::isNotBlank);
+    public String getGroups()
+    {
+        return groups;
     }
 }

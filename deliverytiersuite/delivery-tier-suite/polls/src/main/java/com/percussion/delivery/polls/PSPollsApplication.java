@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.polls;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -31,23 +32,20 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-/**
- * Jersey application configuration for polls REST API.
- * Sunny Sal says: "REST assured, your polls are configured!"
- */
-@ApplicationPath("/")
-public class PSPollsApplication extends ResourceConfig {
-    public PSPollsApplication() {
-        register(RequestContextFilter.class);
-        register(SpringComponentProvider.class);
-        register(AutowiredInjectResolver.class);
-        register(SpringLifecycleListener.class);
-        register(SpringWebApplicationInitializer.class);
-        register(PSPollsRestService.class);
-        register(LoggingFeature.class);
-        register(RolesAllowedDynamicFeature.class);
-        register(PSJsonMappingErrorResponse.class);
-        register(PSUncaughtError.class);
-        register(JacksonJaxbJsonProvider.class);
+    @ApplicationPath("/")
+    public class PSPollsApplication extends  ResourceConfig {
+        public PSPollsApplication() {
+            register(RequestContextFilter.class);
+            register(SpringComponentProvider.class);
+            register(AutowiredInjectResolver.class);
+            register(SpringLifecycleListener.class);
+            register(SpringWebApplicationInitializer.class);
+            register(PSPollsRestService.class);
+            register(LoggingFeature.class);
+            register(RolesAllowedDynamicFeature.class);
+            register(PSJsonMappingErrorResponse.class);
+            register(PSUncaughtError.class);
+            register(JacksonJaxbJsonProvider.class);
+
+        }
     }
-}

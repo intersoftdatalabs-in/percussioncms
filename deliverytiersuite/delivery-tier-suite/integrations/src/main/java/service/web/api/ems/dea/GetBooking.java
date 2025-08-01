@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -51,51 +52,67 @@ import javax.xml.bind.annotation.XmlType;
     "password",
     "bookingID"
 })
-// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetBooking")
 public class GetBooking {
+
     @XmlElement(name = "UserName")
-    private String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
     @XmlElement(name = "BookingID")
-    private int bookingID;
+    protected int bookingID;
 
     /**
      * Gets the value of the userName property.
-     * @return Optional of userName
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    public String getUserName() {
+        return userName;
     }
 
     /**
      * Sets the value of the userName property.
-     * @param value allowed object is {@link String }
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setUserName(String value) {
-        userName = value;
+        this.userName = value;
     }
 
     /**
      * Gets the value of the password property.
-     * @return Optional of password
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
      * Sets the value of the password property.
-     * @param value allowed object is {@link String }
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPassword(String value) {
-        password = value;
+        this.password = value;
     }
 
     /**
      * Gets the value of the bookingID property.
-     * @return bookingID
+     * 
      */
     public int getBookingID() {
         return bookingID;
@@ -103,33 +120,10 @@ public class GetBooking {
 
     /**
      * Sets the value of the bookingID property.
-     * @param value bookingID
+     * 
      */
     public void setBookingID(int value) {
-        bookingID = value;
+        this.bookingID = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBooking)) return false;
-        var that = (GetBooking) o;
-        return bookingID == that.bookingID
-                && java.util.Objects.equals(userName, that.userName)
-                && java.util.Objects.equals(password, that.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, bookingID);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBooking{"
-                + "userName='" + userName + '\''
-                + ", password='[PROTECTED]'"
-                + ", bookingID=" + bookingID
-                + '}';
-    }
 }

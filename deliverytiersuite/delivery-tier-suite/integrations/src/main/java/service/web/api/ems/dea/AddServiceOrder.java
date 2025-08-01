@@ -1,4 +1,4 @@
-// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -28,8 +28,33 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * Java 11+ refactored SOAP request for AddServiceOrder.
- * Immutable, Google Java Style, OWASP-compliant.
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="CategoryID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="BookingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="TimeStart" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="TimeEnd" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="ServiceTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="StateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="EstimatedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="GuaranteedCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ActualCount" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -46,148 +71,239 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "actualCount"
 })
 @XmlRootElement(name = "AddServiceOrder")
-public final class AddServiceOrder {
+public class AddServiceOrder {
+
     @XmlElement(name = "UserName")
-    private String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
     @XmlElement(name = "CategoryID")
-    private int categoryID;
+    protected int categoryID;
     @XmlElement(name = "BookingID")
-    private int bookingID;
+    protected int bookingID;
     @XmlElement(name = "TimeStart", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar timeStart;
+    protected XMLGregorianCalendar timeStart;
     @XmlElement(name = "TimeEnd", required = true)
     @XmlSchemaType(name = "dateTime")
-    private XMLGregorianCalendar timeEnd;
+    protected XMLGregorianCalendar timeEnd;
     @XmlElement(name = "ServiceTypeID")
-    private int serviceTypeID;
+    protected int serviceTypeID;
     @XmlElement(name = "StateID")
-    private int stateID;
+    protected int stateID;
     @XmlElement(name = "EstimatedCount")
-    private int estimatedCount;
+    protected int estimatedCount;
     @XmlElement(name = "GuaranteedCount")
-    private int guaranteedCount;
+    protected int guaranteedCount;
     @XmlElement(name = "ActualCount")
-    private int actualCount;
+    protected int actualCount;
 
     /**
-     * @return Optional user name
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    public String getUserName() {
+        return userName;
     }
+
+    /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setUserName(String value) {
         this.userName = value;
     }
+
     /**
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setPassword(String value) {
         this.password = value;
     }
+
+    /**
+     * Gets the value of the categoryID property.
+     * 
+     */
     public int getCategoryID() {
         return categoryID;
     }
+
+    /**
+     * Sets the value of the categoryID property.
+     * 
+     */
     public void setCategoryID(int value) {
         this.categoryID = value;
     }
+
+    /**
+     * Gets the value of the bookingID property.
+     * 
+     */
     public int getBookingID() {
         return bookingID;
     }
+
+    /**
+     * Sets the value of the bookingID property.
+     * 
+     */
     public void setBookingID(int value) {
         this.bookingID = value;
     }
+
     /**
-     * @return Optional timeStart
+     * Gets the value of the timeStart property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
-    public java.util.Optional<XMLGregorianCalendar> getTimeStart() {
-        return java.util.Optional.ofNullable(timeStart);
+    public XMLGregorianCalendar getTimeStart() {
+        return timeStart;
     }
+
+    /**
+     * Sets the value of the timeStart property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public void setTimeStart(XMLGregorianCalendar value) {
         this.timeStart = value;
     }
+
     /**
-     * @return Optional timeEnd
+     * Gets the value of the timeEnd property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
-    public java.util.Optional<XMLGregorianCalendar> getTimeEnd() {
-        return java.util.Optional.ofNullable(timeEnd);
+    public XMLGregorianCalendar getTimeEnd() {
+        return timeEnd;
     }
+
+    /**
+     * Sets the value of the timeEnd property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
     public void setTimeEnd(XMLGregorianCalendar value) {
         this.timeEnd = value;
     }
+
+    /**
+     * Gets the value of the serviceTypeID property.
+     * 
+     */
     public int getServiceTypeID() {
         return serviceTypeID;
     }
+
+    /**
+     * Sets the value of the serviceTypeID property.
+     * 
+     */
     public void setServiceTypeID(int value) {
         this.serviceTypeID = value;
     }
+
+    /**
+     * Gets the value of the stateID property.
+     * 
+     */
     public int getStateID() {
         return stateID;
     }
+
+    /**
+     * Sets the value of the stateID property.
+     * 
+     */
     public void setStateID(int value) {
         this.stateID = value;
     }
+
+    /**
+     * Gets the value of the estimatedCount property.
+     * 
+     */
     public int getEstimatedCount() {
         return estimatedCount;
     }
+
+    /**
+     * Sets the value of the estimatedCount property.
+     * 
+     */
     public void setEstimatedCount(int value) {
         this.estimatedCount = value;
     }
+
+    /**
+     * Gets the value of the guaranteedCount property.
+     * 
+     */
     public int getGuaranteedCount() {
         return guaranteedCount;
     }
+
+    /**
+     * Sets the value of the guaranteedCount property.
+     * 
+     */
     public void setGuaranteedCount(int value) {
         this.guaranteedCount = value;
     }
+
+    /**
+     * Gets the value of the actualCount property.
+     * 
+     */
     public int getActualCount() {
         return actualCount;
     }
+
+    /**
+     * Sets the value of the actualCount property.
+     * 
+     */
     public void setActualCount(int value) {
         this.actualCount = value;
     }
 
-    @Override
-    public String toString() {
-        return "AddServiceOrder{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", categoryID=" + categoryID +
-                ", bookingID=" + bookingID +
-                ", timeStart=" + timeStart +
-                ", timeEnd=" + timeEnd +
-                ", serviceTypeID=" + serviceTypeID +
-                ", stateID=" + stateID +
-                ", estimatedCount=" + estimatedCount +
-                ", guaranteedCount=" + guaranteedCount +
-                ", actualCount=" + actualCount +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddServiceOrder that = (AddServiceOrder) o;
-        return categoryID == that.categoryID &&
-                bookingID == that.bookingID &&
-                serviceTypeID == that.serviceTypeID &&
-                stateID == that.stateID &&
-                estimatedCount == that.estimatedCount &&
-                guaranteedCount == that.guaranteedCount &&
-                actualCount == that.actualCount &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(timeStart, that.timeStart) &&
-                java.util.Objects.equals(timeEnd, that.timeEnd);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, categoryID, bookingID, timeStart, timeEnd, serviceTypeID, stateID, estimatedCount, guaranteedCount, actualCount);
-    }
 }

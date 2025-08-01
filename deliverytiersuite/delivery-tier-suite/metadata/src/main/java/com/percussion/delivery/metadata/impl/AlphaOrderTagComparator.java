@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
-
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -27,23 +25,28 @@ import org.json.JSONObject;
 import java.util.Comparator;
 
 /**
- * Comparator for sorting JSONObjects by tag name in ascending (alphabetical) order.
  * @author davidpardini
+ * 
  */
-public class AlphaOrderTagComparator implements Comparator<JSONObject> {
-
+public class AlphaOrderTagComparator implements Comparator<JSONObject>
+{
     private static final Logger log = LogManager.getLogger(AlphaOrderTagComparator.class);
 
-    @Override
-    public int compare(JSONObject o1, JSONObject o2) {
-        try {
-            var tag1 = o1.optString(PSMetadataTagsHelper.TAG_NAME, "");
-            var tag2 = o2.optString(PSMetadataTagsHelper.TAG_NAME, "");
-            return tag1.compareTo(tag2);
-        } catch (Exception e) {
-            log.error("Error comparing tag names: {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            return 0;
+    public int compare(JSONObject o1, JSONObject o2)
+    {
+        JSONObject ob1 = o1;
+        JSONObject ob2 = o2;
+        int returnCompare = 0;
+        try
+        {
+            returnCompare = ((String) ob1.get(PSMetadataTagsHelper.TAG_NAME)).compareTo((String) ob2
+                    .get(PSMetadataTagsHelper.TAG_NAME));
         }
+        catch (JSONException e)
+        {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
+        return returnCompare;
     }
 }

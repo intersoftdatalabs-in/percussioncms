@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,6 +19,7 @@ package com.percussion.delivery.likes.service.rdbms;
 
 import com.percussion.delivery.likes.data.IPSLikes;
 import com.percussion.delivery.likes.services.IPSLikesDao;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * DAO implementation for PSLikes using Hibernate.
- * Thread-safe, Google Java Style, and Java 11 features.
- */
 @Repository
 @Scope("singleton")
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
@@ -55,161 +51,136 @@ public class PSLikesDao implements IPSLikesDao {
         this.sessionFactory = sessionFactory;
     }
 
-    /**
-     * Deletes likes by their IDs.
-     *
-     * @param ids collection of like IDs
-     * @throws Exception if deletion fails
-     */
-    public void delete(Collection<String> ids) throws Exception {
-        var longIds = ids.stream()
-                .map(Long::valueOf)
-                .collect(Collectors.toList());
-        var session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaDelete<PSLikes> deleteQuery = builder.createCriteriaDelete(PSLikes.class);
-        Root<PSLikes> root = deleteQuery.from(PSLikes.class);
-        deleteQuery.where(root.get("id").in(longIds));
-        session.createQuery(deleteQuery).executeUpdate();
-    }
 
-    private Session getSession() {
-        return sessionFactory.getCurrentSession();
-    }
+    public void delete(Collection<String> ids) throws Exception
+	{
+		Collection<Long> longIds = new ArrayList<>(ids.size());
+    	for(String s : ids)
+    		longIds.add(Long.valueOf(s));
+    	Session session = getSession();
+        try
+        {
+			CriteriaBuilder builder = session.getCriteriaBuilder();
+			CriteriaDelete<PSLikes> deleteQuery = builder.createCriteriaDelete(PSLikes.class);
+			Root<PSLikes> root = deleteQuery.from(PSLikes.class);
+			root.get("id").in(longIds);
+			session.createQuery(deleteQuery).executeUpdate();
 
-    /**
-     * Finds likes for a given site.
-     *
-     * @param siteName the site name
-     * @return list of likes
-     * @throws Exception if query fails
-     */
+        }
+        finally
+        {
+            //session.close();
+        }
+
+	}
+
+	private Session getSession(){
+		return sessionFactory.getCurrentSession();
+	}
+
     public List<IPSLikes> findLikesForSite(String siteName) throws Exception {
-        var session = getSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
-        Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
-        criteriaQuery.select(root).where(criteriaBuilder.like(root.get("site"), siteName));
-        return session.createQuery(criteriaQuery).getResultList();
-    }
+        Session session = getSession();
+		try {
+			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+			CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
+			Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
+			criteriaQuery.select(root).where(criteriaBuilder.like(root.get("site"), siteName));
 
-    /**
-     * Saves a list of likes.
-     *
-     * @param likes list of likes to save
-     * @throws Exception if save fails
-     */
-    public void save(List<IPSLikes> likes) throws Exception {
-        var session = getSession();
-        int i = 0;
-        for (var like : likes) {
-            session.saveOrUpdate(like);
-            if (++i % 50 == 0) {
-                session.flush();
-                session.clear();
-            }
+			List<IPSLikes> results = session.createQuery(criteriaQuery).getResultList();
+            return results;
+        } finally {
+            //session.close();
         }
     }
 
-    /**
-     * Finds likes by site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return list of matching likes
-     * @throws Exception if query fails
-     */
-    public List<IPSLikes> find(String site, String likeId, String type) throws Exception {
-        var session = getSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
-        Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
-        criteriaQuery.select(root).where(
-                criteriaBuilder.and(
-                        criteriaBuilder.like(root.get("site"), site),
-                        criteriaBuilder.equal(root.get("type"), type),
-                        criteriaBuilder.equal(root.get("likeId"), likeId)
-                )
-        );
-        return session.createQuery(criteriaQuery).getResultList();
+    public void save(List<IPSLikes> likes) throws Exception
+    {
+        Session session = getSession();
+        try {
+			int i = 0;
+			for (IPSLikes like : likes) {
+				session.saveOrUpdate(like);
+				if (++i % 50 == 0) {
+					session.flush();
+					session.clear();
+				}
+			}
+		}finally {
+        	//session.close();
+		}
     }
 
-    /**
-     * Saves a single like.
-     *
-     * @param like the like to save
-     * @throws Exception if save fails
-     */
-    public void save(IPSLikes like) throws Exception {
-        var hlike = new PSLikes(like);
-        hlike.setLikeId(like.getLikeId());
+	public List<IPSLikes> find(String site, String likeId, String type)
+			throws Exception 
+	{
+		Session session = getSession();
+
+		try
+		{
+			CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+			CriteriaQuery<IPSLikes> criteriaQuery = criteriaBuilder.createQuery(IPSLikes.class);
+			Root<PSLikes> root = criteriaQuery.from(PSLikes.class);
+			criteriaQuery.select(root).where(
+					criteriaBuilder.and(criteriaBuilder.like(root.get("site"), site),
+							criteriaBuilder.equal(root.get("type"), type),
+							criteriaBuilder.equal(root.get("likeId"), likeId)));
+			List<IPSLikes> results =session.createQuery(criteriaQuery).getResultList();
+			return results;
+			
+		}
+		finally
+		{
+			//session.close();
+		}
+	}
+    
+
+	public void save(IPSLikes like) throws Exception
+	{
+		PSLikes hlike = new PSLikes(like);
+		hlike.setLikeId(like.getLikeId());
         getSession().saveOrUpdate(hlike);
-        like.setLikeId(hlike.getLikeId());
-    }
+		like.setLikeId(hlike.getLikeId());
+	}
 
-    /**
-     * Creates a new PSLikes instance.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return new PSLikes instance
-     * @throws Exception if creation fails
-     */
-    public IPSLikes create(String site, String likeId, String type) throws Exception {
-        return PSLikes.of(site, likeId, type);
-    }
+	public IPSLikes create(String site, String likeId, String type)
+			throws Exception {
+		return new PSLikes(site, likeId, type);
+	}
+	
+	public int decrementTotal(String site, String likeId, String type)
+			throws Exception 
+	{
+		return incDecTotal(site, likeId, type, false);		
+	}
+    
+	public int incrementTotal(String site, String likeId, String type)
+			throws Exception 
+	{
+		return incDecTotal(site, likeId, type, true);		
+	}
 
-    /**
-     * Decrements the total likes for a given site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return new total after decrement
-     * @throws Exception if update fails
-     */
-    public int decrementTotal(String site, String likeId, String type) throws Exception {
-        return incDecTotal(site, likeId, type, false);
-    }
+	int incDecTotal(String site, String likeId, String type, boolean isInc)
+			throws Exception {
+		String query = "update PSLikes set total = :total where likeid = :likeId and site = :site and type = :type";
 
-    /**
-     * Increments the total likes for a given site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return new total after increment
-     * @throws Exception if update fails
-     */
-    public int incrementTotal(String site, String likeId, String type) throws Exception {
-        return incDecTotal(site, likeId, type, true);
-    }
-
-    /**
-     * Helper method to increment or decrement total likes.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @param isInc true to increment, false to decrement
-     * @return new total
-     * @throws Exception if update fails
-     */
-    int incDecTotal(String site, String likeId, String type, boolean isInc) throws Exception {
-        var existing = find(site, likeId, type);
-        if (!existing.isEmpty()) {
-            var like = existing.get(0);
-            var count = like.getTotal();
-            if (isInc || count > 0) {
-                var session = getSession();
-                var newTotal = isInc ? count + 1 : count - 1;
+		List<IPSLikes> existing = find(site, likeId, type);
+		if (!existing.isEmpty()) {
+            IPSLikes like = existing.get(0);
+		    int count = like.getTotal();
+			if (isInc || count > 0) {
+				Session session = getSession();
+				
+				int newTotal = isInc ? count + 1 : count - 1;
                 like.setTotal(newTotal);
                 session.saveOrUpdate(like);
+
                 return newTotal;
-            }
-        }
-        return 0;
-    }
+			}
+		}
+		return 0;
+	}
+	
+	
+
 }

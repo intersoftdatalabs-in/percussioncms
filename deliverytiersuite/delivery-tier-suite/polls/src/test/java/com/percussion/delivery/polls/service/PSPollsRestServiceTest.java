@@ -23,9 +23,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
@@ -41,53 +41,62 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 
 /**
- * JUnit5 integration test for PSPollsRestService.
- * Sunny Sal says: "REST assured, your polls are tested!"
+ * @author natechadwick
+ *
  */
 @ContextConfiguration(locations = {"classpath:/test-beans.xml"})
-class PSPollsRestServiceTest extends JerseyTest {
+public class PSPollsRestServiceTest extends JerseyTest {
 
-    @Override
-    protected Application configure() {
-        var resourceConfig = new ResourceConfig(PSPollsService.class);
-        resourceConfig.property("contextClass", PSConfigurableApplicationContext.class);
-        return resourceConfig;
-    }
 
-    @Override
-    protected URI getBaseUri() {
-        return URI.create("http://localhost:9980");
-    }
+	/***
+	 * Takes the context file as an arg and spins up grizzly to
+	 * test rest methods.
+	 *
+	 * @param appContext
+	 */
+	@Override
+	protected Application configure() {
+		ResourceConfig resourceConfig =  new ResourceConfig(PSPollsService.class);
+		resourceConfig.property("contextClass", PSConfigurableApplicationContext.class);
+		return resourceConfig;
+	}
 
-    @Override
-    protected DeploymentContext configureDeployment() {
-        return ServletDeploymentContext
-                .forPackages("com.percussion.delivery.polls.services")
-                .servletClass(HttpServlet.class)
-                .contextPath("perc-polls-services")
-                .addListener(ContextLoaderListener.class)
-                .addListener(RequestContextListener.class)
-                .addFilter(org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
-                .build();
-    }
+	@Override
+	protected URI getBaseUri() {
+		return URI.create("http://localhost:9980");
+	}
 
-    @Test
-    @Disabled("Integration test: requires running server and configuration")
-    void testGetRestVersion() {
-        Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target("/polls/version");
-        Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
 
-        Assertions.assertNotNull(response);
-        Assertions.assertEquals(200, response.getStatus());
-        Assertions.assertEquals(testGetVersion(), response.getEntity());
-    }
+	@Override
+	protected DeploymentContext configureDeployment(){
+		return ServletDeploymentContext
+				.forPackages("com.percussion.delivery.polls.services")
+				.servletClass(HttpServlet.class)
+				.contextPath("perc-polls-services")
+				.addListener(ContextLoaderListener.class)
+				.addListener(RequestContextListener.class)
+				.addFilter(org.springframework.web.filter.DelegatingFilterProxy.class, "tenantAuthorizationFilter")
+				.build();
+	}
 
-    private String testGetVersion() {
-        var version = PSVersionHelper.getVersion(this.getClass());
-        Assertions.assertNotNull(version);
-        System.out.print(version);
-        return version;
-    }
+	@Test
+	@Ignore
+	public void testGetRestVersion(){
+		Client client = ClientBuilder.newClient();
+		WebTarget webTarget = client.target("/polls/version");
+		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
+		Response response = invocationBuilder.get();
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200,response.getStatus());
+        Assert.assertEquals(testGetVersion(), response.getEntity());
+	}
+
+
+	private String testGetVersion(){
+		String version = PSVersionHelper.getVersion(this.getClass());
+		Assert.assertNotNull(version);
+		System.out.print(version);
+		return version;
+	}
 }

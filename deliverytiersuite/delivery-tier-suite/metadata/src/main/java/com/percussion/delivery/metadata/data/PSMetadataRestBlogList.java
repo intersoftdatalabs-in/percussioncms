@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,26 +18,19 @@ package com.percussion.delivery.metadata.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * Represents a list of blog years for REST responses.
- */
-public class PSMetadataRestBlogList {
-
+public class PSMetadataRestBlogList
+{
     private List<PSMetadataBlogYear> years = new ArrayList<>();
 
-    public List<PSMetadataBlogYear> getYears() {
+    public List<PSMetadataBlogYear> getYears()
+    {
         return years;
     }
 
-    public void setYears(List<PSMetadataBlogYear> years) {
+    public void setYears(List<PSMetadataBlogYear> years)
+    {
         this.years = years;
     }
-
-    public Optional<PSMetadataBlogYear> findYear(int year) {
-        return years.stream()
-                .filter(y -> y.getYear() != null && y.getYear() == year)
-                .findFirst();
-    }
+    
 }

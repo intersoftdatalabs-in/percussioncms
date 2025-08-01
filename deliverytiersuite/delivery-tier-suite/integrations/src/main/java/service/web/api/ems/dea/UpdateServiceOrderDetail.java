@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,141 +18,265 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
+import java.math.BigDecimal;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: UpdateServiceOrderDetail SOAP request model.
- * <p>
- * Represents the request payload for the UpdateServiceOrderDetail endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Details matter—especially in service orders and in code!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ServiceOrderDetailID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ResourceID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="Quantity" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *         &lt;element name="PricingMethodID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="UnitPrice" type="{http://www.w3.org/2001/XMLSchema}decimal"/&gt;
+ *         &lt;element name="Notes" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="SpecialInstructions" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "",
-    propOrder = {
-        "userName",
-        "password",
-        "serviceOrderDetailId",
-        "newStatus",
-        "notes"
-    }
-)
+@XmlType(name = "", propOrder = {
+    "userName",
+    "password",
+    "serviceOrderDetailID",
+    "resourceID",
+    "quantity",
+    "pricingMethodID",
+    "unitPrice",
+    "notes",
+    "specialInstructions"
+})
 @XmlRootElement(name = "UpdateServiceOrderDetail")
 public class UpdateServiceOrderDetail {
 
     @XmlElement(name = "UserName")
-    private String userName;
-
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
-
-    @XmlElement(name = "ServiceOrderDetailId")
-    private int serviceOrderDetailId;
-
-    @XmlElement(name = "NewStatus")
-    private String newStatus;
-
+    protected String password;
+    @XmlElement(name = "ServiceOrderDetailID")
+    protected int serviceOrderDetailID;
+    @XmlElement(name = "ResourceID")
+    protected int resourceID;
+    @XmlElement(name = "Quantity", required = true)
+    protected BigDecimal quantity;
+    @XmlElement(name = "PricingMethodID")
+    protected int pricingMethodID;
+    @XmlElement(name = "UnitPrice", required = true)
+    protected BigDecimal unitPrice;
     @XmlElement(name = "Notes")
-    private String notes;
+    protected String notes;
+    @XmlElement(name = "SpecialInstructions")
+    protected String specialInstructions;
 
-    private UpdateServiceOrderDetail(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.serviceOrderDetailId = builder.serviceOrderDetailId;
-        this.newStatus = builder.newStatus;
-        this.notes = builder.notes;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     *
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     *
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Gets the service order detail ID.
-     *
-     * @return service order detail ID
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public int getServiceOrderDetailId() {
-        return serviceOrderDetailId;
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * Gets the new status.
-     *
-     * @return Optional new status
+     * Gets the value of the serviceOrderDetailID property.
+     * 
      */
-    public Optional<String> getNewStatus() {
-        return Optional.ofNullable(newStatus);
+    public int getServiceOrderDetailID() {
+        return serviceOrderDetailID;
     }
 
     /**
-     * Gets the notes.
-     *
-     * @return Optional notes
+     * Sets the value of the serviceOrderDetailID property.
+     * 
      */
-    public Optional<String> getNotes() {
-        return Optional.ofNullable(notes);
+    public void setServiceOrderDetailID(int value) {
+        this.serviceOrderDetailID = value;
     }
 
     /**
-     * Builder for UpdateServiceOrderDetail.
+     * Gets the value of the resourceID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int serviceOrderDetailId;
-        private String newStatus;
-        private String notes;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withServiceOrderDetailId(int serviceOrderDetailId) {
-            this.serviceOrderDetailId = serviceOrderDetailId;
-            return this;
-        }
-
-        public Builder withNewStatus(String newStatus) {
-            this.newStatus = newStatus;
-            return this;
-        }
-
-        public Builder withNotes(String notes) {
-            this.notes = notes;
-            return this;
-        }
-
-        public UpdateServiceOrderDetail build() {
-            return new UpdateServiceOrderDetail(this);
-        }
+    public int getResourceID() {
+        return resourceID;
     }
+
+    /**
+     * Sets the value of the resourceID property.
+     * 
+     */
+    public void setResourceID(int value) {
+        this.resourceID = value;
+    }
+
+    /**
+     * Gets the value of the quantity property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getQuantity() {
+        return quantity;
+    }
+
+    /**
+     * Sets the value of the quantity property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setQuantity(BigDecimal value) {
+        this.quantity = value;
+    }
+
+    /**
+     * Gets the value of the pricingMethodID property.
+     * 
+     */
+    public int getPricingMethodID() {
+        return pricingMethodID;
+    }
+
+    /**
+     * Sets the value of the pricingMethodID property.
+     * 
+     */
+    public void setPricingMethodID(int value) {
+        this.pricingMethodID = value;
+    }
+
+    /**
+     * Gets the value of the unitPrice property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    /**
+     * Sets the value of the unitPrice property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setUnitPrice(BigDecimal value) {
+        this.unitPrice = value;
+    }
+
+    /**
+     * Gets the value of the notes property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNotes() {
+        return notes;
+    }
+
+    /**
+     * Sets the value of the notes property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNotes(String value) {
+        this.notes = value;
+    }
+
+    /**
+     * Gets the value of the specialInstructions property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getSpecialInstructions() {
+        return specialInstructions;
+    }
+
+    /**
+     * Sets the value of the specialInstructions property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSpecialInstructions(String value) {
+        this.specialInstructions = value;
+    }
+
 }

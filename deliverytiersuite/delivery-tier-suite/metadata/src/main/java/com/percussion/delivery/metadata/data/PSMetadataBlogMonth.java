@@ -14,38 +14,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
-
 package com.percussion.delivery.metadata.data;
 
 /**
- * Represents a month and the number of posts for that month.
+ * Represents a year and the list of months with the number of posts for each month.
+ * 
+ * @author leonardohildt
+ * 
  */
-public class PSMetadataBlogMonth {
-
+public class PSMetadataBlogMonth
+{
     private String month;
+
     private Integer count;
 
-    public PSMetadataBlogMonth() {}
+    public PSMetadataBlogMonth(){
 
-    public PSMetadataBlogMonth(String month, Integer count) {
+    }
+
+    /**
+     * @param month
+     * @param count
+     */
+    public PSMetadataBlogMonth(String month, Integer count)
+    {
+        super();
         this.month = month;
         this.count = count;
     }
 
-    public String getMonth() {
+    /**
+     * @return the month
+     */
+    public String getMonth()
+    {
         return month;
     }
 
-    public void setMonth(String month) {
+    /**
+     * @param month the month to set
+     */
+    public void setMonth(String month)
+    {
         this.month = month;
     }
 
-    public Integer getCount() {
+    /**
+     * @return the count
+     */
+    public Integer getCount()
+    {
         return count;
     }
 
-    public void setCount(Integer count) {
+    /**
+     * @param count the number of counts to set
+     */
+    public void setCount(Integer count)
+    {
         this.count = count;
     }
 }

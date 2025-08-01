@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,169 +47,190 @@ import com.percussion.soln.p13n.delivery.web.DeliveryWebUtils;
 import com.percussion.soln.p13n.tracking.VisitorProfile;
 import com.percussion.soln.p13n.tracking.web.IVisitorTrackingHttpService;
 
-/**
- * Controller for handling delivery requests.
- * Sunny Sal says: "Controller like a boss, debug like a hero!"
- */
 @Controller
 public class DeliveryController {
 
+
+    /**
+     * The parameter to use if you are using JSONP
+     * @see JSONP
+     */
     public static final String JSONP_CALLBACK_PARAM = "jsoncallback";
+    /**
+     * The log instance to use for this class, never <code>null</code>.
+     */
     private static final Log log = LogFactory.getLog(DeliveryController.class);
     private IDeliveryService deliveryService;
     private IVisitorTrackingHttpService visitorTrackingHttpService;
-
+    
     public DeliveryController() {
-        // Default constructor
     }
+
 
     protected ModelAndView handle(HttpServletRequest request,
             HttpServletResponse response, Object obj, BindException bindException)
             throws Exception {
-        var sw = log.isDebugEnabled() ? new StopWatch() : null;
-        if (sw != null) {
+        StopWatch sw = null;
+        if (log.isDebugEnabled()) {
             log.debug("Handling delivery request command : " + obj);
+            sw = new StopWatch();
             sw.start();
         }
-        var deliveryRequest = getDeliveryRequest(request, obj, bindException);
-        var jsonp = new JSONP();
+        DeliveryRequest deliveryRequest = getDeliveryRequest(request, obj, bindException);
+        /*
+         * This should be handled with a custom view but for now
+         * this will do. 
+         */
+        JSONP jsonp = new JSONP();
+        /*
+         * If the JSONP parameter is not passed regular JSON will
+         * be returned.
+         */
         jsonp.setCallback(request.getParameter(JSONP_CALLBACK_PARAM));
         ModelAndView mv;
         if (bindException.hasErrors()) {
             mv = outputError(bindException, jsonp, response);
-        } else {
+        }
+        else {
             mv = handle(deliveryRequest, jsonp, response);
         }
-        if (sw != null) {
+        if (log.isDebugEnabled()) {
             sw.stop();
             log.debug("Delivery Controller took: " + sw.getTime() + "ms");
         }
         return mv;
     }
-
+    
     public ModelAndView handle(DeliveryRequest deliveryRequest,
             JSONP json,
             HttpServletResponse response)
             throws Exception {
         try {
-            var deliveryResponse = deliveryService.deliver(deliveryRequest);
+            DeliveryResponse deliveryResponse = deliveryService.deliver(deliveryRequest);
             return outputJSON(json, deliveryResponse, response);
         } catch (DeliveryException de) {
             return outputError(de, json, response);
         }
     }
 
-    protected ModelAndView outputError(BindException e, JSONP json, HttpServletResponse response)
-            throws IOException {
+    protected ModelAndView outputError(BindException e, JSONP json, HttpServletResponse response) 
+    throws IOException {
         DeliveryResponse deliveryResponse;
-        log.debug("Bad delivery request. Failed validation: ", e);
-        var fe = e.getFieldError();
+        log.debug("Bad delivery request. Failed validation: ",e);
+        FieldError fe = e.getFieldError();
         if (fe != null) {
-            deliveryResponse = new DeliveryResponse(fe.getCode(), fe.getDefaultMessage());
-        } else if (e.getGlobalError() != null) {
-            var error = e.getGlobalError();
+            deliveryResponse = new DeliveryResponse(fe.getCode(),fe.getDefaultMessage());
+        }
+        else if(e.getGlobalError() != null) {
+            ObjectError error = e.getGlobalError();
             deliveryResponse = new DeliveryResponse(error.getCode(), error.getDefaultMessage());
-        } else {
+        }
+        else {
             deliveryResponse = new DeliveryResponse(e);
         }
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        
         return outputJSON(json, deliveryResponse, response);
     }
 
-    protected ModelAndView outputError(Exception e, JSONP json, HttpServletResponse response)
-            throws IOException {
-        log.warn("Bad delivery request: ", e);
+    
+    protected ModelAndView outputError(Exception e, JSONP json, HttpServletResponse response) 
+        throws IOException {
+        log.warn("Bad delivery request: ",e);
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        var deliveryResponse = new DeliveryResponse(e);
+        DeliveryResponse deliveryResponse = new DeliveryResponse(e);
         return outputJSON(json, deliveryResponse, response);
     }
-
+    
     protected ModelAndView outputJSON(
             JSONP jsonp,
             DeliveryResponse deliveryResponse,
             HttpServletResponse response) throws IOException {
-        var json = DeliveryWebUtils.responseToJson(deliveryResponse);
+        String json = DeliveryWebUtils.responseToJson(deliveryResponse);
         jsonp.setJson(json);
         return outputJSON(jsonp, response);
     }
 
     protected ModelAndView outputJSON(JSONP obj,
             HttpServletResponse response) throws IOException {
-        var writer = response.getWriter();
+        PrintWriter writer = response.getWriter();
         writer.print(obj.toString());
         return null;
     }
 
-    protected DeliveryRequest getDeliveryRequest(HttpServletRequest request, Object command, BindException errors) {
-        var deliveryRequest = (DeliveryRequest) command;
-        var profile = getVisitorProfile(request, errors);
-
-        if (deliveryRequest != null) {
+    protected DeliveryRequest getDeliveryRequest(HttpServletRequest request,  Object command, BindException errors) {
+        DeliveryRequest deliveryRequest = (DeliveryRequest) command;
+        VisitorProfile profile = getVisitorProfile(request, errors);
+        
+        if (deliveryRequest != null)
             deliveryRequest.setVisitorProfile(profile);
-        }
 
         log.debug(request.getMethod());
         log.debug(request.getContentType());
-        if (deliveryRequest instanceof BadJSONDeliveryRequest) {
+        if(deliveryRequest instanceof BadJSONDeliveryRequest) {
             errors.addError(new ObjectError("json.error", "Failed to unmarshal JSON POST"));
-        } else if (deliveryRequest != null && deliveryRequest.getListItem() != null) {
+        }
+        else if (deliveryRequest != null && deliveryRequest.getListItem() != null) {
             log.debug("List Item is in request");
-        } else {
+        }
+        else {
             ValidationUtils.rejectIfEmptyOrWhitespace(errors, "listItemId", "field.required", "listItemId is required");
         }
 
         return deliveryRequest;
     }
+        
 
     protected VisitorProfile getVisitorProfile(HttpServletRequest request, BindException errors) {
-        var profile = getVisitorProfile(request);
-        if (profile == null) {
+        VisitorProfile profile = getVisitorProfile(request);
+        if (profile == null)
             errors.reject("profile.not_found", "Profile not found.");
-        }
         return profile;
     }
-
-    private VisitorProfile getVisitorProfile(HttpServletRequest request) {
+    
+    private VisitorProfile getVisitorProfile (HttpServletRequest request) {
         return getVisitorTrackingHttpService().resolveProfile(null, request);
     }
 
     @RequestMapping
     public void handleRequest(MockHttpServletRequest request, MockHttpServletResponse response) {
-        // No-op for mock requests
     }
 
+
     protected static class BadJSONDeliveryRequest extends DeliveryRequest {
-        // Marker for bad JSON requests
     }
 
     protected Object getCommand(HttpServletRequest request) throws Exception {
         if (isJsonRestRequest(request)) {
             DeliveryRequest target;
             try {
-                var payload = inputStreamAsString(request.getInputStream());
+                String payload = inputStreamAsString(request.getInputStream());
                 log.debug("JSON request payload - " + payload);
                 target = jsonToDeliveryRequest(payload);
             } catch (Exception e) {
-                log.error("Failed to serialize JSON POST request to DeliveryRequest: ", e);
+                log.error("Failed to serialize JSON POST request to DeliveryRequest: " , e);
                 target = new BadJSONDeliveryRequest();
             }
             return target;
-        } else {
+        }else{
             return null;
         }
     }
-
+    
+    
     protected String inputStreamAsString(InputStream stream) throws IOException {
-        try (var br = new BufferedReader(new InputStreamReader(stream))) {
-            var sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            return sb.toString();
-        }
-    }
+        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
 
+        while ((line = br.readLine()) != null) {
+            sb.append(line + "\n");
+        }
+
+        br.close();
+        return sb.toString();
+    }
+    
     protected DeliveryRequest jsonToDeliveryRequest(String json) {
         return DeliveryWebUtils.jsonToRequest(json);
     }
@@ -218,13 +238,14 @@ public class DeliveryController {
     protected boolean suppressBinding(HttpServletRequest request) {
         return isJsonRestRequest(request);
     }
-
+    
     protected boolean isJsonRestRequest(HttpServletRequest request) {
-        var contentType = request.getContentType();
-        return contentType != null &&
-                contentType.startsWith("application/json") &&
+        String contentType = request.getContentType();
+        return contentType != null && 
+            contentType.startsWith("application/json") &&
                 "POST".equals(request.getMethod());
     }
+    
 
     public IDeliveryService getDeliveryService() {
         return deliveryService;
@@ -234,6 +255,7 @@ public class DeliveryController {
         this.deliveryService = deliveryService;
     }
 
+
     public IVisitorTrackingHttpService getVisitorTrackingHttpService() {
         return visitorTrackingHttpService;
     }
@@ -242,4 +264,5 @@ public class DeliveryController {
             IVisitorTrackingHttpService visitorTrackingWebMediator) {
         this.visitorTrackingHttpService = visitorTrackingWebMediator;
     }
+    
 }

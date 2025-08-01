@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -30,38 +29,35 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import java.net.URL;
 
-/**
- * Handles uncaught errors and attempts to redirect to a generic error page.
- * <p>Sunny Sal says: If you see this, something really unexpected happened!
- */
 @Provider
-public class PSUncaughtError extends Throwable implements ExceptionMapper<Throwable> {
-
+public class PSUncaughtError extends Throwable implements ExceptionMapper<Throwable>
+{
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LogManager.getLogger(PSUncaughtError.class);
+    private  static final Logger log = LogManager.getLogger(PSUncaughtError.class);
 
-    @Context
-    private HttpServletRequest request;
+    @Context private HttpServletRequest request;
 
-    @Context
-    private HttpServletResponse response;
+    @Context private HttpServletResponse response;
 
     @Override
-    public Response toResponse(Throwable exception) {
+    public Response toResponse(Throwable exception)
+    {
         try {
-            if (request != null && response != null) {
-                var referer = request.getHeader("referer");
-                log.warn("Page redirecting to error {} : . Error code {} : . Error message {} : ",
-                        referer, response.getStatus(), exception.getLocalizedMessage());
-                var url = new URL(referer);
-                var hostRedirect = url.getHost();
-                var port = url.getPort();
-                var errorRedirect = port > 0
-                        ? String.format("%s://%s:%d/error.html", request.getScheme(), hostRedirect, port)
-                        : String.format("%s://%s/error.html", request.getScheme(), hostRedirect);
+            if(request!=null & response!=null){
+                log.warn("Page redirecting to error {} : . Error code {} : . Error message {} : ", request.getHeader("referer"), response.getStatus(), exception.getLocalizedMessage());
+                String referer = request.getHeader("referer");
+                URL url = new URL(referer);
+                String hostRedirect = url.getHost();
+                Integer port = url.getPort();
+                String errorRedirect = "";
+                if(port != null && port>0){
+                    errorRedirect = request.getScheme()+"://"+hostRedirect+":"+port+"/error.html";
+                }else{
+                    errorRedirect = request.getScheme()+"://"+hostRedirect+"/error.html";
+                }
                 response.sendRedirect(errorRedirect);
-            } else {
+            }else{
                 logErrorMessage(exception);
             }
         } catch (Exception e) {
@@ -70,12 +66,12 @@ public class PSUncaughtError extends Throwable implements ExceptionMapper<Throwa
         return null;
     }
 
-    private void logErrorMessage(Throwable exception) {
-        var errorMessage = exception.getMessage();
-        if (exception instanceof Exception) {
+    private void logErrorMessage(Throwable exception){
+        String errorMessage  = exception.getMessage();
+        if(exception instanceof Exception){
             errorMessage = PSExceptionUtils.getMessageForLog((Exception) exception);
             log.debug(PSExceptionUtils.getDebugMessageForLog((Exception) exception));
-        } else {
+        }else{
             log.debug(exception);
         }
         log.error("Exception occurred while redirecting to error.html, Original Error is : {}", errorMessage);

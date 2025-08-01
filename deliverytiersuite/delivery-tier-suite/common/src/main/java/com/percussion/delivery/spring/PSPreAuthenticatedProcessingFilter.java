@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.spring;
 
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,11 +24,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-/**
- * Pre-authenticated processing filter for Spring Security.
- * // REFACTORED: CP-JAVA11
- */
-public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter {
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter  {
+
 
     public PSPreAuthenticatedProcessingFilter() {
         setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
@@ -38,7 +37,7 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
 
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-        return "ANONYMOUS";
+            return "ANONYMOUS";
     }
 
     @Override
@@ -46,31 +45,26 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
         return "N/A";
     }
 
-    /**
-     * Authentication details source for pre-authenticated tokens.
-     */
     public static class PSAuthenticationDetailsSource implements
             AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedAuthenticationToken> {
-
         @Override
         public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {
-            // Create container for pre-auth data
-            var principal = (GenericPrincipal) request.getUserPrincipal();
-            if (principal == null) {
-                return new PreAuthenticatedAuthenticationToken("ANONYMOUS", "N/A");
-            } else {
+            // create container for pre-auth data
+            GenericPrincipal principal = (GenericPrincipal)request.getUserPrincipal();
+            if(principal == null ) {
+                return new PreAuthenticatedAuthenticationToken("ANONYMOUS","N/A");
+            }else{
                 List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-                for (var role : principal.getRoles()) {
+                String[] roles = principal.getRoles();
+            for (String role: roles){
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-                }
-                var password = principal.getPassword();
-                if (password == null) {
+                    }
+                String password = null;
+                if(password == null)
                     password = "NO_PASSWORD";
-                }
-                return new PreAuthenticatedAuthenticationToken(
-                        principal.getName(), password, grantedAuthorities
-                );
+return new PreAuthenticatedAuthenticationToken(principal.getName(), "N/A", grantedAuthorities);
             }
         }
     }
-}
+
+    }

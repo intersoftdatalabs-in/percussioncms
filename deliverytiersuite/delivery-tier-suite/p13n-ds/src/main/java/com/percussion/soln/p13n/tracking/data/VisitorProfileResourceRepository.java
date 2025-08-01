@@ -15,31 +15,39 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.soln.p13n.tracking.data;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import org.apache.commons.lang3.StringUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.Resource;
+
 import com.percussion.soln.p13n.tracking.VisitorProfile;
 
-/**
- * Resource-backed repository for visitor profiles.
- * Sunny Sal says: "Repository pattern FTW!"
- */
 public class VisitorProfileResourceRepository {
-
+    /**
+     * The log instance to use for this class, never <code>null</code>.
+     */
     private static final Log log = LogFactory.getLog(VisitorProfileResourceRepository.class);
+    
     private Resource resource;
-    private Map<Long, VisitorProfile> profiles = new HashMap<>();
-    private Map<String, Long> profilesByUser = new HashMap<>();
+    
+    private Map<Long, VisitorProfile> profiles = new HashMap<Long, VisitorProfile>();
+    private Map<String, Long> profilesByUser = new HashMap<String, Long>();
+
+    
 
     public VisitorProfileResourceRepository() {
         super();
@@ -50,73 +58,81 @@ public class VisitorProfileResourceRepository {
         this.resource = resource;
     }
 
+
     protected Map<Long, VisitorProfile> getProfiles() {
         return profiles;
     }
 
+
     private Map<String, Long> getProfilesByUser() {
         return profilesByUser;
     }
-
+    
     public VisitorProfile getProfileById(Long id) {
         return getProfiles().get(id);
     }
-
+    
+    
     public VisitorProfile getProfileByUserId(String userId) {
-        var id = getProfilesByUser().get(userId);
-        return id != null ? getProfiles().get(id) : null;
+        return getProfiles().get(getProfilesByUser().get(userId));
     }
-
+    
     public void addProfile(VisitorProfile profile) {
-        var userId = profile.getUserId();
+        String userId = profile.getUserId();
         getProfiles().put(profile.getId(), profile);
-        if (StringUtils.isNotBlank(userId)) {
+        if (userId != null && userId.length()>0) {
             getProfilesByUser().put(userId, profile.getId());
         }
     }
-
+    
+    
     public void deleteProfile(VisitorProfile profile) {
-        getProfiles().remove(profile.getId());
-        getProfilesByUser().remove(profile.getUserId());
+        if (getProfiles().containsKey(profile.getId())) getProfiles().remove(profile.getId());
+        if (getProfilesByUser().containsKey(profile.getUserId())) getProfilesByUser().remove(profile.getUserId());
     }
-
+    
     public void load() {
         try {
-            var profiles = JAXB.unmarshal(getResource().getInputStream(), VisitorProfiles.class);
+            VisitorProfiles profiles = JAXB.unmarshal(getResource().getInputStream(), VisitorProfiles.class);
             if (profiles != null && profiles.getDataSet() != null) {
-                for (var p : profiles.getDataSet()) {
+                for(VisitorProfile p : profiles.getDataSet()) {
                     addProfile(p);
                 }
             }
         } catch (IOException e) {
             log.error("Error reading visitor profiles", e);
         }
+        
     }
-
+    
     public void save() {
-        var profilesSet = new HashSet<VisitorProfile>();
-        for (var p : getProfiles().values()) {
+        Set<VisitorProfile> profiles = new HashSet<VisitorProfile>();
+        Collection<VisitorProfile> allProfiles = getProfiles().values();
+        for (VisitorProfile p : allProfiles) {
             if (StringUtils.isNotBlank(p.getUserId())) {
-                profilesSet.add(p);
+                profiles.add(p);
             }
         }
-        var repo = new VisitorProfiles(profilesSet);
+        VisitorProfiles repo = new VisitorProfiles(profiles);
         try {
-            var f = getResource().getFile();
+            File f = getResource().getFile();
             JAXB.marshal(repo, f);
         } catch (Exception e) {
             log.error("Could not save visitor profiles", e);
         }
     }
-
+    
+    
     public Resource getResource() {
         return resource;
     }
 
+    
     public void setResource(Resource resource) {
         this.resource = resource;
     }
-
+    
+    
     @XmlRootElement(name = "VisitorProfiles")
     protected static class VisitorProfiles {
         private Set<VisitorProfile> dataSet;
@@ -134,9 +150,10 @@ public class VisitorProfileResourceRepository {
         public Set<VisitorProfile> getDataSet() {
             return dataSet;
         }
-
+        
         public void setDataSet(Set<VisitorProfile> dataSet) {
             this.dataSet = dataSet;
         }
-    }
+    }    
+    
 }

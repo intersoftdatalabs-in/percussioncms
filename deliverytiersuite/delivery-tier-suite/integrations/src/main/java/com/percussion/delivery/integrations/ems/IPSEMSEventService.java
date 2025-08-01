@@ -15,56 +15,35 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems;
+
+import java.util.List;
 
 import com.percussion.delivery.integrations.ems.model.Booking;
 import com.percussion.delivery.integrations.ems.model.Building;
 import com.percussion.delivery.integrations.ems.model.EventType;
 import com.percussion.delivery.integrations.ems.model.GroupType;
-import java.util.List;
+import com.percussion.delivery.integrations.ems.model.MCCalendar;
+import com.percussion.delivery.integrations.ems.model.MCEventDetail;
+import com.percussion.delivery.integrations.ems.model.MCEventType;
+import com.percussion.delivery.integrations.ems.model.MCLocation;
 
-/**
- * EMS Event Service interface for event, building, and group queries.
- * <p>
- * Implementations must be thread-safe and support Java 11 features.
- * </p>
- */
 public interface IPSEMSEventService {
-    /**
-     * Date/time format string for EMS queries (Java 11 standard).
-     */
-    String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-    String TIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-    String DATETIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
-
-    /**
-     * Default cache timeout for remote method calls (in milliseconds).
-     */
-    int DEFAULT_CACHE_TIMEOUT = 60000;
-
-    /**
-     * Returns a list of bookings matching the given query.
-     * @param query booking query (must not be null)
-     * @return list of bookings (never null)
-     */
-    List<Booking> getBookings(PSBookingsQuery query);
-
-    /**
-     * Returns all available event types.
-     * @return list of event types (never null)
-     */
-    List<EventType> getEventTypes();
-
-    /**
-     * Returns all available buildings.
-     * @return list of buildings (never null)
-     */
-    List<Building> getBuildings();
-
-    /**
-     * Returns all available group types.
-     * @return list of group types (never null)
-     */
-    List<GroupType> getGroupTypes();
+	
+	public static String DATE_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+	public static String TIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+	public static String DATETIME_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+	
+	/***
+	 * Specifies the default cache timeout for remote method calls
+	 * that are cache-able
+	 */
+	public static final int DEFAULT_CACHE_TIMEOUT=60000;
+	
+    public List<Booking>getBookings(PSBookingsQuery query);
+    
+	public List<EventType>getEventTypes();
+	public List<Building>getBuildings();
+	public List<GroupType>getGroupTypes();
+	
 }

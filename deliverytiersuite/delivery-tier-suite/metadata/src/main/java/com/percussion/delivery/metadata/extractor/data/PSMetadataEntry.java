@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.metadata.extractor.data;
 
 import com.percussion.delivery.metadata.IPSMetadataEntry;
@@ -29,49 +28,56 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents metadata for a published page on the delivery server.
- * Sunny Sal says: "Metadata entry: code ka hero ban gaya tu!"
+ * Represents metadata for a published page on the deleivery server.
+ * 
+ * @author miltonpividori
+ * 
  */
-@XmlType(propOrder = {"name"})
-public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
-
+@XmlType(propOrder={"name"})
+public class PSMetadataEntry implements Serializable, IPSMetadataEntry
+{
     private String pagepath;
-    private String name;
-    private String folder;
-    private String linktext;
-    private String type;
-    private String site;
 
-    @XmlElementWrapper(name = "property")
-    @XmlElement(type = PSMetadataProperty.class)
+    private String name;
+
+    private String folder;
+
+    private String linktext;
+
+    private String type;
+
+    private String site;
+    
+    @XmlElementWrapper(name="property")
+    @XmlElement(type=PSMetadataProperty.class)
     private Set<IPSMetadataProperty> properties = new HashSet<>();
 
-    public PSMetadataEntry() {
-        // Default constructor
+    public PSMetadataEntry()
+    {
+
     }
 
     /**
-     * Constructs a metadata entry.
-     *
-     * @param name      the file name, cannot be null or empty.
-     * @param folder    the folder path, cannot be null or empty.
-     * @param pagepath  the path including site folder, cannot be null or empty.
-     * @param type      the type.
-     * @param site      the site, cannot be null or empty.
+     * Ctor
+     * 
+     * @param name the file name, cannot be <code>null</code> or empty.
+     * @param folder the folder path of the containing folder without the site
+     *            folder. Cannot be <code>null</code> or empty.
+     * @param pagepath the path of the file including sitefolder. This is used
+     *            as a unique key for the entry. Cannot be <code>null</code> or
+     *            empty.
+     * @param type
      */
-    public PSMetadataEntry(String name, String folder, String pagepath, String type, String site) {
-        if (name == null || name.isEmpty()) {
+    public PSMetadataEntry(String name, String folder, String pagepath, String type, String site)
+    {
+        if (name == null || name.length() == 0)
             throw new IllegalArgumentException("name cannot be null or empty");
-        }
-        if (folder == null || folder.isEmpty()) {
+        if (folder == null || folder.length() == 0)
             throw new IllegalArgumentException("folder cannot be null or empty");
-        }
-        if (pagepath == null || pagepath.isEmpty()) {
+        if (pagepath == null || pagepath.length() == 0)
             throw new IllegalArgumentException("pagepath cannot be null or empty");
-        }
-        if (site == null || site.isEmpty()) {
+        if (site == null || site.length() == 0)
             throw new IllegalArgumentException("site cannot be null or empty");
-        }
         this.name = name;
         this.folder = folder;
         this.type = type;
@@ -79,72 +85,130 @@ public class PSMetadataEntry implements Serializable, IPSMetadataEntry {
         this.site = site;
     }
 
-    public String getName() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getName()
+	 */
+    public String getName()
+    {
         return name;
     }
 
-    public void setName(String name) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setName(java.lang.String)
+	 */
+    public void setName(String name)
+    {
         this.name = name;
     }
 
-    public String getFolder() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getFolder()
+	 */
+    public String getFolder()
+    {
         return folder;
     }
 
-    public void setFolder(String folder) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setFolder(java.lang.String)
+	 */
+    public void setFolder(String folder)
+    {
         this.folder = folder;
     }
 
-    public String getPagepath() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getPagepath()
+	 */
+    public String getPagepath()
+    {
         return pagepath;
     }
 
-    public void setPagepath(String path) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setPagepath(java.lang.String)
+	 */
+    public void setPagepath(String path)
+    {
         this.pagepath = path;
     }
 
-    public String getLinktext() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getLinktext()
+	 */
+    public String getLinktext()
+    {
         return linktext;
     }
 
-    public void setLinktext(String linktext) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setLinktext(java.lang.String)
+	 */
+    public void setLinktext(String linktext)
+    {
         this.linktext = linktext;
     }
 
-    public String getType() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getType()
+	 */
+    public String getType()
+    {
         return type;
     }
 
-    public void setType(String type) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setType(java.lang.String)
+	 */
+    public void setType(String type)
+    {
         this.type = type;
     }
 
-    public String getSite() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getSite()
+	 */
+    public String getSite()
+    {
         return site;
     }
 
-    public void setSite(String site) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setSite(java.lang.String)
+	 */
+    public void setSite(String site)
+    {
         this.site = site;
     }
 
-    public Set<IPSMetadataProperty> getProperties() {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#getProperties()
+	 */
+    public Set<IPSMetadataProperty> getProperties()
+    {
         return properties;
     }
 
-    public void setProperties(Set<IPSMetadataProperty> properties) {
+    /* (non-Javadoc)
+	 * @see com.percussion.delivery.metadata.extractor.data.IPSMetadataEntry#setProperties(java.util.Set)
+	 */
+    public void setProperties(Set<IPSMetadataProperty> properties)
+    {
         this.properties = properties;
     }
 
-    public void addProperty(IPSMetadataProperty prop) {
-        if (properties == null) {
-            properties = new HashSet<>();
-        }
-        properties.add(prop);
+    public void addProperty(IPSMetadataProperty prop)
+    {
+       if(properties == null)
+           properties = new HashSet<>();
+       properties.add(prop);        
     }
-
-    public void clearProperties() {
-        if (properties != null) {
+    
+    public void clearProperties()
+    {
+        if(properties != null)
             properties.clear();
-        }
     }
+    
+    
 }

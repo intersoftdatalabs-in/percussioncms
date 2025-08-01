@@ -1,8 +1,18 @@
-// REFACTORED: CP-JAVA11
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License")
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.percussion.delivery.feeds.services;
 
@@ -12,91 +22,102 @@ import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 import com.percussion.delivery.services.IPSRestService;
 
 import javax.annotation.security.RolesAllowed;
-import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
- * REST API contract for feed management and generation.
- * Provides endpoints for retrieving, creating, and managing RSS/ATOM feeds.
- * Sunny Sal: "REST easy, your feeds are safe and sound!"
+ * @author natechadwick
+ *
  */
-@Path("/rss")
-@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 public interface IPSFeedsRestService extends IPSRestService {
 
-    /**
-     * Generates a feed for the specified site and name.
-     *
-     * @param site Site identifier, must match [a-zA-Z0-9_-]+
-     * @param name Feed name, must match [a-zA-Z0-9_-]+
-     * @param request HTTP request context
-     * @return Feed content in RSS/ATOM format
-     */
-    @GET
-    @Path("/{site}/{name}")
-    @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_ATOM_XML})
-    @RolesAllowed({"cm-user", "everyone"})
-    Response getFeed(
-        @PathParam("site") @NotBlank @Pattern(regexp = "[a-zA-Z0-9_-]+") String site,
-        @PathParam("name") @NotBlank @Pattern(regexp = "[a-zA-Z0-9_-]+") String name,
-        @Context HttpServletRequest request
-    );
+	/**
+	 * Retrieve the feed descriptor for the specified feed and generate the feed
+	 * from data in the dynamic indexing service.
+	 * 
+	 * @param sitename the site the feed belongs too, may be <code>null</code>
+	 *            or empty in which case a page not found will be sent in
+	 *            response.
+	 * @param feedname may be <code>null</code> or empty in which case a page
+	 *            not found will be sent in response.
+	 * @return response with the feed xml or a page not found or server error,
+	 *         depending on the situation.
+	 */
 
-    /**
-     * Updates feed configuration.
-     *
-     * @param feedDto Feed configuration
-     * @return Updated configuration
-     */
-    @PUT
-    @Path("/config")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("feed-admin")
-    Response updateConfig(@Valid PSFeedDTO feedDto);
+	@GET
+	@Path("/{sitename}/{feedname}/{hostname}")
+	@Produces("text/xml")
+	public abstract Response getFeed(@PathParam("sitename") String sitename,
+			@PathParam("feedname") String feedname, @PathParam("hostname") String hostname, @Context HttpServletRequest httpRequest);
 
-    /**
-     * Creates new feed descriptors.
-     *
-     * @param descriptors Feed descriptors to create
-     * @return Created descriptors
-     */
-    @POST
-    @Path("/descriptors")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed("feed-admin")
-    Response createDescriptors(@Valid PSFeedDescriptors descriptors);
+	/**
+	 * Acts as a proxy getting a list of feeds from an external URL. Returns the
+	 * xml as a string.
+	 * 
+	 * @param psFeedDTO the url, assumed to not be <code>null</code>.
+	 */
+	@POST
+	@Path("/readExternalFeed")
+	@Produces(MediaType.APPLICATION_XML)
+	public abstract String readExternalFeed(
+            PSFeedDTO psFeedDTO);
 
-    /**
-     * Lists all feeds for a site.
-     *
-     * @param site Site identifier
-     * @return List of feed descriptors
-     */
-    @GET
-    @Path("/{site}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({"cm-user", "everyone"})
-    Response listFeeds(
-        @PathParam("site") @NotBlank @Pattern(regexp = "[a-zA-Z0-9_-]+") String site
-    );
+	/**
+	 * Saves the feed descriptors and connection info for meta data service. It
+	 * is expected that all public descriptors are sent at once by the CM1
+	 * server. A difference will be done between the list sent and currently
+	 * stored descriptors. Any stored descriptors not on the list sent will be
+	 * deleted. Notifies listeners of changes so that cache regions can be
+	 * flushed.
+	 * 
+	 * @param descriptors
+	 */
+	@PUT
+	@Path("/descriptors")
+	@RolesAllowed("deliverymanager")
+	public abstract void saveDescriptors(PSFeedDescriptors descriptors);
 
-    /**
-     * Registers a data change listener.
-     *
-     * @param listener Service data change listener
-     */
-    void addServiceDataChangeListener(IPSServiceDataChangeListener listener);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.percussion.metadata.IPSMetadataIndexerService#addMetadataListener
+	 * (com.percussion.metadata.event.IPSMetadataListener)
+	 */
+	public abstract void addMetadataListener(
+			IPSServiceDataChangeListener listener);
 
-    /**
-     * Removes a data change listener.
-     *
-     * @param listener Service data change listener to remove
-     */
-    void removeServiceDataChangeListener(IPSServiceDataChangeListener listener);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.percussion.metadata.IPSMetadataIndexerService#removeMetadataListener
+	 * (com.percussion.metadata.event.IPSMetadataListener)
+	 */
+	public abstract void removeMetadataListener(
+			IPSServiceDataChangeListener listener);
+
+
+	@PUT
+	@Path("/rotateKey")
+	@RolesAllowed("deliverymanager")
+	@Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN})
+	public abstract void rotateKey(String key);
+
+	// Property key constants
+	public static final String PROP_DESCRIPTION = "dcterms:abstract";
+	public static final String PROP_TITLE = "dcterms:title";
+	public static final String PROP_PUBDATE = "dcterms:created";
+	public static final String PROP_CONTENTPOSTDATETZ = "dcterms:contentpostdatetz";
+
 }

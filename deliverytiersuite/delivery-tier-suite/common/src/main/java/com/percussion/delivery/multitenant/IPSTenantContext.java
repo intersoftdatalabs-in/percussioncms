@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 /**
  * Context for the currently operated tenant.
- * Implementations may store the current tenant in request arguments or ThreadLocal.
+ * Implementations of this class could be something that holds the current
+ * tenant in Request.args, or it could hold the current tenant in ThreadLocal.
  */
-public interface IPSTenantContext {
-
+public interface IPSTenantContext 
+{
+	
     /**
-     * Returns the current tenant ID, or null if unknown.
-     *
-     * @return current tenant ID, or null if not known
+     * @return current tenant id, or null if tenant isn't known currently
      */
-    String getTenantId();
+    public String getTenantId();
+    
 }

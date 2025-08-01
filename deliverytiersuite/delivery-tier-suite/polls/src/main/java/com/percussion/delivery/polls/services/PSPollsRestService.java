@@ -47,145 +47,190 @@ import java.util.Map;
 
 /**
  * REST service for polls feature implementation.
- * Sunny Sal says: "REST assured, your polls are safe!"
  */
 @Path("/polls")
 @Component
-public class PSPollsRestService extends PSAbstractRestService implements IPSPollsRestService {
 
-    private static final String SERVER_ERROR_MESSAGE = "Failed to process your request due to an unexpected error.";
-    private static final Logger log = LogManager.getLogger(PSPollsRestService.class);
+public class PSPollsRestService extends PSAbstractRestService implements IPSPollsRestService
+{
+    private static final String SERVER_ERROR_MESSAGE = "Failed to process you request due to an unexpected error.";
+    private  static final Logger log = LogManager.getLogger(PSPollsRestService.class);
     private IPSPollsService pollsService;
 
-    public PSPollsRestService() {
-        // Default constructor
+    public PSPollsRestService(){
+
     }
 
     @Autowired
-    public PSPollsRestService(IPSPollsService pollsService) {
+    public PSPollsRestService(IPSPollsService pollsService)
+    {
         this.pollsService = pollsService;
     }
 
+
     @HEAD
     @Path("/csrf")
-    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-        var cookies = request.getCookies();
-        if (cookies == null) {
+    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response)  {
+        Cookie[] cookies = request.getCookies();
+        if(cookies == null){
             return;
         }
-        for (var cookie : cookies) {
-            if ("XSRF-TOKEN".equals(cookie.getName())) {
+        for(Cookie cookie: cookies){
+            if("XSRF-TOKEN".equals(cookie.getName())){
                 response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
                 response.setHeader("X-CSRF-TOKEN", cookie.getValue());
             }
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.polls.services.IPSPollsRestService#getPoll(java.lang.String)
+     */
     @Override
     @GET
     @Path("/{pollName}")
     @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse getPoll(@PathParam("pollName") String pollName) {
-        PSPollsResponse pollResponse;
-        try {
-            var poll = pollsService.findPoll(pollName);
-            if (poll == null) {
+    public PSPollsResponse getPoll(@PathParam("pollName") String pollName)
+    {
+        PSPollsResponse pollResponse = null;
+        try
+        {
+            IPSPoll poll = pollsService.findPoll(pollName);
+            if(poll == null)
+            {
                 pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, "No results found for poll with name: " + pollName);
-            } else {
-                var restPoll = convertToRestPoll(poll);
+            }
+            else
+            {
+                PSRestPoll restPoll = convertToRestPoll(poll);
                 pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
             }
-        } catch (Exception t) {
-            log.error("Error occurred while getting poll by name: {}, Error: {}", pollName, t.getMessage());
+        }
+        catch(Exception t)
+        {
+            log.error("Error occurred while getting poll by name : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
             log.debug(t.getMessage(), t);
             pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
         }
         return pollResponse;
+
     }
 
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.polls.services.IPSPollsRestService#getPollByQuestion(java.lang.String)
+     */
     @Override
     @GET
     @Path("/question/{pollQuestion}")
     @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion) {
-        if (log.isDebugEnabled()) {
-            log.debug("Poll question is: {}", pollQuestion);
+    public PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion)
+    {
+        if(log.isDebugEnabled()){
+            log.debug("Poll question is : {}", pollQuestion);
         }
-        PSPollsResponse pollResponse;
-        try {
-            var poll = pollsService.findPollByQuestion(pollQuestion);
-            if (poll == null) {
-                pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, "No results found for poll with question: " + pollQuestion);
-            } else {
-                var restPoll = convertToRestPoll(poll);
+        PSPollsResponse pollResponse = null;
+        try
+        {
+            IPSPoll poll = pollsService.findPollByQuestion(pollQuestion);
+            if(poll == null)
+            {
+                pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, "No results found for poll with question : " + pollQuestion);
+            }
+            else
+            {
+                PSRestPoll restPoll = convertToRestPoll(poll);
                 pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
             }
-        } catch (Exception t) {
-            log.error("Error occurred while getting poll by question: {}, Error: {}", pollQuestion, t.getMessage());
+        }
+        catch(Exception t)
+        {
+            log.error("Error occurred while getting poll by question : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
             log.debug(t.getMessage(), t);
             pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
         }
         return pollResponse;
     }
 
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.polls.services.IPSPollsRestService#savePoll(com.percussion.delivery.polls.data.PSRestPoll, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     @POST
     @Path("/save")
     @Produces(MediaType.APPLICATION_JSON)
-    public PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req) {
-        if (log.isDebugEnabled()) {
-            log.debug("Context path in http servlet request is: {}", req.getContextPath());
+    public PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req)
+    {
+        if(log.isDebugEnabled()){
+            log.debug("Context path in http servlet request is : {}", req.getContextPath());
         }
-        PSPollsResponse pollResponse;
-        try {
+        PSPollsResponse pollResponse = null;
+        try
+        {
             pollsService.savePoll(restPoll.getPollName(), restPoll.getPollQuestion(), restPoll.getPollSubmits());
-            var poll = pollsService.findPollByQuestion(restPoll.getPollQuestion());
-            if (restPoll.isRestrictBySession()) {
-                var session = req.getSession(true);
+            IPSPoll poll = pollsService.findPollByQuestion(restPoll.getPollQuestion());
+            if(restPoll.isRestrictBySession())
+            {
+                HttpSession session= req.getSession(true);
                 session.setAttribute(restPoll.getPollQuestion(), "true");
             }
             restPoll = convertToRestPoll(poll);
             pollResponse = new PSPollsResponse(PollResponseStatus.SUCCESS, restPoll);
-        } catch (Exception t) {
-            log.error("Error occurred while saving a poll ({}): {}", restPoll.getPollName(), t.getMessage());
+
+        }
+        catch(Exception t)
+        {
+            log.error("Error occurred while saving a poll(" + restPoll.getPollName() + ") : {}, Error: {}", t.getLocalizedMessage(), t.getMessage());
             log.debug(t.getMessage(), t);
             pollResponse = new PSPollsResponse(PollResponseStatus.ERROR, SERVER_ERROR_MESSAGE);
         }
         return pollResponse;
     }
 
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.polls.services.IPSPollsRestService#canUserVote(java.lang.String, javax.servlet.http.HttpServletRequest)
+     */
     @Override
     @GET
     @Path("/canuservote/{pollQuestion}")
     @Produces(MediaType.APPLICATION_JSON)
-    public String canUserVote(@PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req) {
-        if (log.isDebugEnabled()) {
-            log.debug("Context path in http servlet request is: {}", req.getContextPath());
+    public String canUserVote(@PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req)
+    {
+        if(log.isDebugEnabled()){
+            log.debug("Context path in http servlet request is : {}", req.getContextPath());
         }
-        var session = req.getSession(true);
-        var sessVar = session.getAttribute(pollQuestion);
-        return (sessVar != null) ? "false" : "true";
+        HttpSession session= req.getSession(true);
+        Object sessVar = session.getAttribute(pollQuestion);
+        String canVote = "true";
+        if (sessVar != null)
+        {
+            canVote = "false";
+        }
+        return canVote;
     }
 
-    private PSRestPoll convertToRestPoll(IPSPoll poll) {
-        var restPoll = new PSRestPoll();
+    private PSRestPoll convertToRestPoll(IPSPoll poll)
+    {
+        PSRestPoll restPoll = new PSRestPoll();
         restPoll.setPollName(poll.getPollName());
         restPoll.setPollQuestion(poll.getPollQuestion());
-        var results = new HashMap<String, Integer>();
-        var totalVotes = 0;
-        for (var pollAnswer : poll.getPollAnswers()) {
+        Map<String, Integer> results = new HashMap<>();
+        int totalVotes = 0;
+        for (IPSPollAnswer pollAnswer : poll.getPollAnswers())
+        {
             totalVotes += pollAnswer.getCount();
-            results.put(pollAnswer.getAnswer(), pollAnswer.getCount());
+            results.put(pollAnswer.getAnswer(), new Integer(pollAnswer.getCount()));
         }
         restPoll.setPollResults(results);
         restPoll.setTotalVotes(totalVotes);
         return restPoll;
     }
 
-    @Override
     public String getVersion() {
-        var version = super.getVersion();
+
+        String version = super.getVersion();
+
         log.info("getVersion() from PSPollsRestService ...{}", version);
+
         return version;
     }
 

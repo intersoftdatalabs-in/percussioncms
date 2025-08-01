@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,66 +16,61 @@
  */
 package com.percussion.delivery.metadata.data;
 
-/**
- * Represents the result of a blog entry query, including previous, current, and next entries.
- */
-public class PSMetadataBlogResult {
 
+public class PSMetadataBlogResult
+{
     private PSMetadataRestEntry previous;
+
     private PSMetadataRestEntry current;
+
     private PSMetadataRestEntry next;
 
     /**
-     * Returns the previous blog entry.
-     *
-     * @return the previous entry.
+     * @return the previous
      */
-    public PSMetadataRestEntry getPrevious() {
+    public PSMetadataRestEntry getPrevious()
+    {
         return previous;
     }
 
     /**
-     * Sets the previous blog entry.
-     *
-     * @param previous the previous entry to set.
+     * @param previous the previous to set
      */
-    public void setPrevious(PSMetadataRestEntry previous) {
+    public void setPrevious(PSMetadataRestEntry previous)
+    {
         this.previous = previous;
     }
 
     /**
-     * Returns the current blog entry.
-     *
-     * @return the current entry.
+     * @return the current
      */
-    public PSMetadataRestEntry getCurrent() {
+    public PSMetadataRestEntry getCurrent()
+    {
         return current;
     }
 
     /**
-     * Sets the current blog entry.
-     *
-     * @param current the current entry to set.
+     * @param current the current to set
      */
-    public void setCurrent(PSMetadataRestEntry current) {
+    public void setCurrent(PSMetadataRestEntry current)
+    {
         this.current = current;
     }
 
     /**
-     * Returns the next blog entry.
-     *
-     * @return the next entry.
+     * @return the next
      */
-    public PSMetadataRestEntry getNext() {
+    public PSMetadataRestEntry getNext()
+    {
         return next;
     }
 
     /**
-     * Sets the next blog entry.
-     *
-     * @param next the next entry to set.
+     * @param next the next to set
      */
-    public void setNext(PSMetadataRestEntry next) {
+    public void setNext(PSMetadataRestEntry next)
+    {
         this.next = next;
     }
+
 }

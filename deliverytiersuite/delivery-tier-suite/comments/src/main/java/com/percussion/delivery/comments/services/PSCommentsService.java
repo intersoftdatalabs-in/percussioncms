@@ -16,7 +16,15 @@
  */
 package com.percussion.delivery.comments.services;
 
-import com.percussion.delivery.comments.data.*;
+import com.percussion.delivery.comments.data.IPSComment;
+import com.percussion.delivery.comments.data.IPSComment.APPROVAL_STATE;
+import com.percussion.delivery.comments.data.PSCommentCriteria;
+import com.percussion.delivery.comments.data.PSCommentSort;
+import com.percussion.delivery.comments.data.PSCommentSort.SORTBY;
+import com.percussion.delivery.comments.data.PSComments;
+import com.percussion.delivery.comments.data.PSPageInfo;
+import com.percussion.delivery.comments.data.PSPageSummaries;
+import com.percussion.delivery.comments.data.PSPageSummary;
 import com.percussion.delivery.comments.service.rdbms.PSComment;
 import com.percussion.delivery.listeners.IPSServiceDataChangeListener;
 import com.percussion.error.PSExceptionUtils;
@@ -26,135 +34,174 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Service implementation for managing comments in the CMS.
- * Thread-safe and uses Java 11 features for improved performance.
+ * @author erikserating
+ * 
  */
-@Service
-public class PSCommentsService implements IPSCommentsService {
-    private static final Logger log = LogManager.getLogger(PSCommentsService.class);
+public class PSCommentsService implements IPSCommentsService
+{
+    /**
+     * Logger for this class
+     */
+    public static final Logger log = LogManager.getLogger(PSCommentsService.class);
+    
+    private IPSCommentsDao dao;
 
-    private static final Duration COMMENT_VISIBILITY_DURATION = Duration.ofMinutes(1);
-    private static final String[] PERC_COMMENTS_SERVICES = {"perc-comments-services"};
-
-    private static final Map<PSCommentSort.SORTBY, String> SORTBY_FIELD_MAPPING =
-        Collections.unmodifiableMap(new EnumMap<PSCommentSort.SORTBY, String>(PSCommentSort.SORTBY.class) {{
-            put(PSCommentSort.SORTBY.CREATED_DATE, "createdDate");
-            put(PSCommentSort.SORTBY.USERNAME, "username");
-            put(PSCommentSort.SORTBY.TITLE, "title");
-            put(PSCommentSort.SORTBY.STATE, "approvalState");
-        }});
-
-    private final IPSCommentsDao dao;
-    private final List<IPSServiceDataChangeListener> listeners;
-    private final PSProfanityFilter profanityFilter;
-
+    private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
+    private final String[] PERC_COMMENTS_SERVICES = {"perc-comments-services"};
+    
+    
     @Autowired
     public PSCommentsService(IPSCommentsDao dao) {
-        this.dao = Objects.requireNonNull(dao, "dao must not be null");
-        this.listeners = new CopyOnWriteArrayList<>();
-        this.profanityFilter = new PSProfanityFilter();
-    }
+		this.dao = dao;
+	}
 
-    @Override
-    public IPSComment addComment(IPSComment comment) {
-        Objects.requireNonNull(comment, "comment must not be null");
+	/**
+     * Map to get the PSComment fields given a SORTBY value.
+     */
+    public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = Map.of(
+        SORTBY.CREATEDDATE, "createdDate",
+        SORTBY.EMAIL, "email",
+        SORTBY.USERNAME, "username"
+    );
 
-        var siteSet = Set.of(comment.getSite());
-        validateComment(comment);
+    /**
+     * The amount of minutes during the ones a comment recently made will remain
+     * visible.
+     */
+    public static final int AMOUNT_MINUTES_COMMENT_VISIBLE = 1;
 
-        var savedComment = dao.addComment(comment);
-        notifyListeners(siteSet);
-        return savedComment;
-    }
+    private static PSProfanityFilter profanityFilter = new PSProfanityFilter();
 
-    private void validateComment(IPSComment comment) {
-        if (StringUtils.isBlank(comment.getText())) {
-            throw new IllegalArgumentException("Comment text cannot be empty");
+    /**
+     * Adds a new comment in the database.
+     * Notifies listeners of changes in comments so that cache regions can be flushed.
+     * 
+     * @param comment Comment to add. Must not be <code>null</null>.
+     * May be any implementation of IPSComment interface.
+     */
+    public IPSComment addComment(IPSComment comment)
+    {
+        String siteName = comment.getSite();
+        var siteSet = Set.of(siteName);
+        this.fireDataChangeRequestedEvent(siteSet);
+        
+        if (StringUtils.isBlank(comment.getPagePath()) || StringUtils.isBlank(comment.getSite()))
+        {
+            throw new IllegalArgumentException("pagepath and site cannot be null or empty");
         }
+        log.info("Adding a new comment");
 
-        if (profanityFilter.containsProfanity(comment.getText()) ||
-            comment.getTitle().map(profanityFilter::containsProfanity).orElse(false)) {
-            throw new IllegalArgumentException("Comment contains profanity");
-        }
-    }
+        
+        comment.setTitle(StringEscapeUtils.escapeHtml4(comment.getTitle()));
+        comment.setText(StringEscapeUtils.escapeHtml4(comment.getText()));
+        comment.setUsername((StringEscapeUtils.escapeHtml4(comment.getUsername())));
 
-    @Override
-    public void addListener(IPSServiceDataChangeListener listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        listeners.add(listener);
-    }
-
-    @Override
-    public void removeListener(IPSServiceDataChangeListener listener) {
-        Objects.requireNonNull(listener, "listener must not be null");
-        listeners.remove(listener);
-    }
-
-    private void notifyListeners(Set<String> sites) {
-        if (sites.isEmpty()) {
-            return;
-        }
-
-        listeners.forEach(listener -> {
-            try {
-                listener.notifyContentChanged(PERC_COMMENTS_SERVICES, sites);
-            } catch (Exception e) {
-                log.error("Error notifying listener: " + listener, e);
+        APPROVAL_STATE modState = getDefaultModerationState(comment.getSite());
+        if (modState == APPROVAL_STATE.APPROVED)
+        {
+            if (comment.getText() != null && profanityFilter.containsProfanity(comment.getText()))
+            {
+                modState = APPROVAL_STATE.REJECTED;
             }
-        });
+        }
+
+        if (modState == APPROVAL_STATE.APPROVED)
+        {
+            if (comment.getTitle() != null && profanityFilter.containsProfanity(comment.getTitle()))
+            {
+                modState = APPROVAL_STATE.REJECTED;
+            }
+        }
+
+        comment.setApprovalState(modState);
+        comment.setCreatedDate(Calendar.getInstance().getTime());
+
+        try
+        {
+            PSComment comm = new PSComment(comment);
+            dao.save(comm);
+            comment.setId(comm.getId());
+            log.info("Comment successfully added");
+
+            return comment;
+        }
+        catch (Exception ex)
+        {
+            log.error("Error in adding a new comment: {}" ,
+                    PSExceptionUtils.getMessageForLog(ex));
+            log.debug(ex);
+            throw new RuntimeException(ex);
+        }
+        finally
+        {
+            this.fireDataChangedEvent(siteSet);
+        }
     }
 
-    @Override
-    public List<IPSComment> findComments(PSCommentCriteria criteria) {
-        Objects.requireNonNull(criteria, "criteria must not be null");
-
-        return dao.findComments(criteria).stream()
-            .filter(this::isCommentVisible)
-            .collect(Collectors.toUnmodifiableList());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.percussion.comments.services.IPSCommentsService#addCommentTags(java
+     * .lang.String, java.util.Set)
+     */
+    public void addCommentTags(Long id, Set<String> tags)
+    {
+        throw new UnsupportedOperationException();
     }
 
-    private boolean isCommentVisible(IPSComment comment) {
-        var commentAge = Duration.between(
-            comment.getCreatedDate().toInstant(),
-            Instant.now()
-        );
-        return commentAge.compareTo(COMMENT_VISIBILITY_DURATION) <= 0;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.percussion.comments.services.IPSCommentsService#approveComments(java
+     * .util.List)
+     */
+    public void approveComments(Collection<String> commentIds)
+    {
+        Validate.notNull(commentIds);
+
+        if (commentIds.isEmpty())
+            return;
+
+        log.info("Approving comments with the following IDs: {}" , commentIds);
+        moderateComments(commentIds, APPROVAL_STATE.APPROVED);
     }
 
-    @Override
-    public Optional<IPSComment> getComment(String id) {
-        return Optional.ofNullable(id)
-            .map(dao::getComment);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.percussion.comments.services.IPSCommentsService#rejectComments(java
+     * .util.List)
+     */
+    public void rejectComments(Collection<String> commentIds)
+    {
+        Validate.notNull(commentIds);
+
+        if (commentIds.isEmpty())
+            return;
+
+        log.info("Rejecting comments with the following IDs: {}" , commentIds);
+        moderateComments(commentIds, APPROVAL_STATE.REJECTED);
     }
 
-    @Override
-    public PSPageSummaries getPageSummaries(PSCommentCriteria criteria) {
-        Objects.requireNonNull(criteria, "criteria must not be null");
-
-        var summaries = dao.getPageSummaries(criteria).stream()
-            .map(this::enrichPageSummary)
-            .collect(Collectors.toUnmodifiableList());
-
-        return new PSPageSummaries(summaries);
-    }
-
-    private PSPageSummary enrichPageSummary(PSPageSummary summary) {
-        return PSPageSummary.builder()
-            .pagePath(summary.getPagePath())
-            .commentCount(summary.getCommentCount())
-            .approvedCount(summary.getApprovedCount())
-            .newCommentCount(summary.getNewCommentCount())
-            .build();
-    }
     /**
      * Moderate the comments with the given IDs and approval state.
      * Notifies listeners of changes in comments so that cache regions can be flushed.

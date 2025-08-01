@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,67 +26,56 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Java 11+ refactored version of GetAllRoomBookingsResponse SOAP response.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
- * <p>
- * // REFACTORED: CP-JAVA11
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetAllRoomBookingsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getAllRoomBookingsResult"
 })
 @XmlRootElement(name = "GetAllRoomBookingsResponse")
-public final class GetAllRoomBookingsResponse {
+public class GetAllRoomBookingsResponse {
+
     @XmlElement(name = "GetAllRoomBookingsResult")
-    private final String getAllRoomBookingsResult;
+    protected String getAllRoomBookingsResult;
 
-    private GetAllRoomBookingsResponse(Builder builder) {
-        this.getAllRoomBookingsResult = builder.getAllRoomBookingsResult;
+    /**
+     * Gets the value of the getAllRoomBookingsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetAllRoomBookingsResult() {
+        return getAllRoomBookingsResult;
     }
 
     /**
-     * @return Optional result string for all room bookings.
+     * Sets the value of the getAllRoomBookingsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getAllRoomBookingsResult() {
-        return java.util.Optional.ofNullable(getAllRoomBookingsResult);
+    public void setGetAllRoomBookingsResult(String value) {
+        this.getAllRoomBookingsResult = value;
     }
 
-    @Override
-    public String toString() {
-        return "GetAllRoomBookingsResponse{" +
-                "getAllRoomBookingsResult='" + getAllRoomBookingsResult + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllRoomBookingsResponse that = (GetAllRoomBookingsResponse) o;
-        return java.util.Objects.equals(getAllRoomBookingsResult, that.getAllRoomBookingsResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getAllRoomBookingsResult);
-    }
-
-    /**
-     * Builder for GetAllRoomBookingsResponse. Use for safe, immutable construction.
-     */
-    public static class Builder {
-        private String getAllRoomBookingsResult;
-
-        public Builder() {}
-
-        public Builder getAllRoomBookingsResult(String getAllRoomBookingsResult) {
-            this.getAllRoomBookingsResult = getAllRoomBookingsResult;
-            return this;
-        }
-
-        public GetAllRoomBookingsResponse build() {
-            return new GetAllRoomBookingsResponse(this);
-        }
-    }
 }

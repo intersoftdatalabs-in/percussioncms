@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,45 +20,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents the structure of the object returned by the REST method.
+ * This class contains the structure of the object returned by the Rest method.
  * The object is composed of a list of {@link PSMetadataDatedEvent}.
- *
+ * 
  * @author rafaelsalis
+ * 
  */
-public class PSMetadataDatedEntries {
-
+public class PSMetadataDatedEntries
+{
     private List<PSMetadataDatedEvent> events;
-
-    public PSMetadataDatedEntries() {
+    
+    public PSMetadataDatedEntries()
+    {
         events = new ArrayList<>();
     }
-
+    
     /**
-     * Adds an event to the entries list if its title is not null.
-     *
+     * Add an event to the entries list.
+     * 
      * @param event a {@link PSMetadataDatedEvent} object.
      */
-    public void add(PSMetadataDatedEvent event) {
-        if (event.getTitle() != null) {
+    public void add(PSMetadataDatedEvent event)
+    {
+        if (event.getTitle() != null)
             events.add(event);
-        }
     }
 
     /**
-     * Returns the events; may be empty but never null.
-     *
-     * @return the events list.
+     * @return the events, may be empty but never <code>null</code>.
      */
-    public List<PSMetadataDatedEvent> getEvents() {
+    public List<PSMetadataDatedEvent> getEvents()
+    {
         return events;
     }
 
     /**
-     * Sets the events list.
-     *
      * @param events the events to set.
      */
-    public void setEvents(List<PSMetadataDatedEvent> events) {
+    public void setEvents(List<PSMetadataDatedEvent> events)
+    {
         this.events = events;
     }
+    
 }

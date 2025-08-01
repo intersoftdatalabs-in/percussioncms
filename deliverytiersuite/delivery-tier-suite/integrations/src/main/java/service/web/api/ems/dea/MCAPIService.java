@@ -15,35 +15,19 @@
  * limitations under the License.
  */
 
-package service.web.api.ems.dea;
-
-// REFACTORED: CP-JAVA11
-
 /**
  * MCAPIService.java
  *
- * Sunny Sal here! This interface defines the SOAP service contract for MasterCalendar API.
- * Refactored for Java 11 and Google Java Style.
+ * This file was auto-generated from WSDL
+ * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
+
+package service.web.api.ems.dea;
+
 public interface MCAPIService extends javax.xml.rpc.Service {
-    /**
-     * Gets the SOAP endpoint address for MCAPIService.
-     * @return the endpoint address as a String.
-     */
-    String getMCAPIServiceSoapAddress();
+    public java.lang.String getMCAPIServiceSoapAddress();
 
-    /**
-     * Gets the SOAP port for MCAPIService.
-     * @return MCAPIServiceSoap instance.
-     * @throws javax.xml.rpc.ServiceException if unable to get the port.
-     */
-    MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException;
 
-    /**
-     * Gets the SOAP port for MCAPIService at the specified address.
-     * @param portAddress the endpoint URL.
-     * @return MCAPIServiceSoap instance.
-     * @throws javax.xml.rpc.ServiceException if unable to get the port.
-     */
-    MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
+    public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException;
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,11 +18,31 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Response for GetGroupBookings request.
- * Sunny Sal: "Group bookings delivered, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetGroupBookingsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -34,18 +55,27 @@ public class GetGroupBookingsResponse {
     protected String getGroupBookingsResult;
 
     /**
-     * Gets the group bookings result.
-     * @return result or null
+     * Gets the value of the getGroupBookingsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getGetGroupBookingsResult() {
-        return java.util.Optional.ofNullable(getGroupBookingsResult);
+    public String getGetGroupBookingsResult() {
+        return getGroupBookingsResult;
     }
 
     /**
-     * Sets the group bookings result.
-     * @param value result
+     * Sets the value of the getGroupBookingsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetGroupBookingsResult(String value) {
-        getGroupBookingsResult = value;
+        this.getGroupBookingsResult = value;
     }
+
 }

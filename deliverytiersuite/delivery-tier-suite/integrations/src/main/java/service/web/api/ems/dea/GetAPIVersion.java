@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,30 +25,25 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Java 11+ refactored version of GetAPIVersion SOAP request.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
- * <p>
- * // REFACTORED: CP-JAVA11
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "")
 @XmlRootElement(name = "GetAPIVersion")
-public final class GetAPIVersion {
-    private GetAPIVersion() {}
-    public static GetAPIVersion create() {
-        return new GetAPIVersion();
-    }
-    @Override
-    public String toString() {
-        return "GetAPIVersion{}";
-    }
-    @Override
-    public boolean equals(Object o) {
-        return this == o || (o != null && getClass() == o.getClass());
-    }
-    @Override
-    public int hashCode() {
-        return 1;
-    }
+public class GetAPIVersion {
+
+
 }

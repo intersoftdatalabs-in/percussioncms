@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,64 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for UpdateReservation.
- * <p>
- * Represents the response payload for the UpdateReservation endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Reservation updated—now your plans and your code are both up to date!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UpdateReservationResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateReservationResult"
 })
 @XmlRootElement(name = "UpdateReservationResponse")
-public final class UpdateReservationResponse {
+public class UpdateReservationResponse {
 
     @XmlElement(name = "UpdateReservationResult")
-    private final String updateReservationResult;
+    protected String updateReservationResult;
 
-    private UpdateReservationResponse(Builder builder) {
-        this.updateReservationResult = builder.updateReservationResult;
+    /**
+     * Gets the value of the updateReservationResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUpdateReservationResult() {
+        return updateReservationResult;
     }
 
     /**
-     * Gets the update reservation result.
-     *
-     * @return Optional result string
+     * Sets the value of the updateReservationResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUpdateReservationResult() {
-        return Optional.ofNullable(updateReservationResult);
+    public void setUpdateReservationResult(String value) {
+        this.updateReservationResult = value;
     }
 
-    /**
-     * Builder for UpdateReservationResponse.
-     */
-    public static class Builder {
-        private String updateReservationResult;
-
-        public Builder withUpdateReservationResult(String updateReservationResult) {
-            this.updateReservationResult = updateReservationResult;
-            return this;
-        }
-
-        public UpdateReservationResponse build() {
-            return new UpdateReservationResponse(this);
-        }
-    }
 }

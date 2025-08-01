@@ -14,28 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.metadata.data;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a set of PSMetadataBlogYear instances.
+ * Represents a hashSet of {@link PSMetadataBlogYear} instances.
+ *
+ * @author leonardohildt
+ * 
  */
-public class PSMetadataBlogEntry {
-
+public class PSMetadataBlogEntry
+{
     private Set<PSMetadataBlogYear> years;
 
-    public PSMetadataBlogEntry() {
-        years = new HashSet<>();
+    public PSMetadataBlogEntry()
+    {
+        super();
+        this.years = new HashSet<>();
     }
 
-    public Set<PSMetadataBlogYear> getYears() {
+    /**
+     * @return the years
+     */
+    public Set<PSMetadataBlogYear> getYears()
+    {
         return years;
     }
 
-    public void setYears(Set<PSMetadataBlogYear> years) {
+    /**
+     * @param years the years to set
+     */
+    public void setYears(Set<PSMetadataBlogYear> years)
+    {
         this.years = years;
     }
+
 }

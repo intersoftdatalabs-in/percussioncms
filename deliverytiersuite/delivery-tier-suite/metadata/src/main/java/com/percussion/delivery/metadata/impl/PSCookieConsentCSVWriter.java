@@ -15,26 +15,29 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.delivery.metadata.impl;
 
 import com.percussion.delivery.metadata.IPSCookieConsent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 /**
- * Merges the contents of a PSCookieConsent object into a CSV file, each as a single row.
+ * Merges the contents of a PSCookieConsent object into a
+ * .CSV file with each PSCookieConsent obj as a single row.
+ * 
  * @author chriswright
+ *
  */
 public class PSCookieConsentCSVWriter {
+    
+    private static final Logger MS_LOG = LogManager.getLogger(PSCookieConsentCSVWriter.class.getName());
 
-    private static final Logger log = LogManager.getLogger(PSCookieConsentCSVWriter.class);
-
-    private final Collection<IPSCookieConsent> entries;
-
+    private Collection<IPSCookieConsent> entries;
+    
     /**
      * Constructor to initialize the list of cookie consent entries.
      * @param consents the list of entries to convert to CSV.
@@ -42,27 +45,33 @@ public class PSCookieConsentCSVWriter {
     public PSCookieConsentCSVWriter(Collection<IPSCookieConsent> consents) {
         this.entries = consents;
     }
-
+    
     /**
-     * Converts each IPSCookieConsent entry to a line in a CSV file.
-     * @return a string representation of the CSV file.
+     * This method loops through each IPSCookieConsent entry
+     * and adds its values to a new line in a .CSV file.
+     * @return a string representation of the .CSV file.
      */
     public String writeCSVFile() {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        
         sb.append("Site Name,Service Name,Consent Date,IP Address,Opt In\n");
-
-        for (var consent : entries) {
+       
+        for (IPSCookieConsent consent : entries) {
             try {
-                sb.append(String.format("%s,%s,%s,%s,%s\n",
-                        consent.getSiteName(),
-                        consent.getService(),
-                        consent.getConsentDate(),
-                        consent.getIP(),
-                        consent.getOptIn()));
-            } catch (NullPointerException e) {
-                log.error("Error writing cookie consent entry to CSV file. Check for NULL entries in the DTS database.", e);
+                sb.append(consent.getSiteName() + ",");
+                sb.append(consent.getService() + ",");
+                sb.append(consent.getConsentDate().toString() + ",");
+                sb.append(consent.getIP() + ",");
+                sb.append(consent.getOptIn() + "\n");
+            }        
+            catch (NullPointerException e) {
+                MS_LOG.error("Error writing cookie consent entry to .CSV file. "
+                        + "Check for NULL entries in the DTS database.", e);
+                continue;
             }
         }
+        
         return sb.toString();
     }
+    
 }

@@ -31,186 +31,204 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Service implementation for managing likes in Percussion CMS.
- * All methods are thread-safe and follow Google Java Style.
- */
-public class PSLikesService implements IPSLikesService {
+public class PSLikesService implements IPSLikesService
+{
+    
+	private IPSLikesDao dao;
 
-    private IPSLikesDao dao;
-    private final List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
-    private final String[] percLikesServices = {"perc-likes-services"};
+    private List<IPSServiceDataChangeListener> listeners = new ArrayList<>();
+    private final String[] PERC_LIKES_SERVICES = {"perc-likes-services"};
 
     /**
-     * Logger for this class.
+     * Logger for this class
      */
     public static final Logger log = LogManager.getLogger(PSCommentsService.class);
-
+    
+       
     @Autowired
-    public PSLikesService(IPSLikesDao dao) {
-        this.dao = dao;
+    public PSLikesService(IPSLikesDao dao)
+    {
+    	this.dao = dao;
     }
 
     /**
-     * Gets the total number of likes for a page or comment.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes
+     * Tally of how many users have Liked a page, a comment.
+     * 
+     * @param site Must not be <code>null</null>.
+     * @param likeId Must not be <code>null</null>.
+     * @param type Must not be <code>null</null>. May be any implementation of
+     *            IPSLikes interface.
+     * 
      */
-    @Override
-    public int getTotalLikes(String site, String likeId, String type) {
-        Validate.notEmpty(site, "site must not be empty");
-        Validate.notEmpty(likeId, "likeId must not be empty");
-        Validate.notEmpty(type, "type must not be empty");
+    public int getTotalLikes(String site, String likeId, String type)
+    {
+        Validate.notEmpty(site);
+        Validate.notEmpty(likeId);
+        Validate.notEmpty(type);
 
-        try {
-            var results = dao.find(site, likeId, type);
-            if (results.isEmpty()) {
+        try
+        {
+        	List<IPSLikes> results = dao.find(site, likeId, type);        
+            if(results.isEmpty())
                 return 0;
-            }
-            return results.get(0).getTotal();
-        } catch (Exception ex) {
-            log.error("Error getting likes by criteria: {}", PSExceptionUtils.getMessageForLog(ex));
+        	return results.get(0).getTotal();
+        }
+        catch (Exception ex)
+        {
+            log.error("Error in getting likes by criteria: {}",
+                    PSExceptionUtils.getMessageForLog(ex));
             log.debug(ex);
             throw new RuntimeException(ex);
-        }
+        }        
     }
-
+    
+    
     /**
-     * Likes a page or comment.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes after like
+     * To Like a page, a comment.
+     * 
+     * @param site Must not be <code>null</null>.
+     * @param likeId Must not be <code>null</null>.
+     * @param type Must not be <code>null</null>. May be any implementation of
+     *            IPSLikes interface.
+     * 
+     * @return int total of likes after of last like.
      */
-    @Override
-    public int like(String site, String likeId, String type) {
+    public int like(String site, String likeId, String type)
+    {
         return likeUnlike(site, likeId, type, true);
     }
-
+    
     /**
-     * Unlikes a page or comment.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes after unlike
+     * To UnLike a page, a comment.
+     * 
+     * @param site Must not be <code>null</null>.
+     * @param likeId Must not be <code>null</null>.
+     * @param type Must not be <code>null</null>. May be any implementation of
+     *            IPSLikes interface.
+     * @return updated count.
      */
-    @Override
-    public int unlike(String site, String likeId, String type) {
-        return likeUnlike(site, likeId, type, false);
+    public int unlike(String site, String likeId, String type)
+    {
+    	return likeUnlike(site, likeId, type, false);
     }
-
+    
     /**
-     * Handles the logic for liking or unliking an object.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @param isLike true for like, false for unlike
-     * @return updated count
+     * Method to do the work of liking or unliking an object.
+     * @param site . Must not be <code>null</null>.
+     * @param likeId . Must not be <code>null</null>.
+     * @param type . Must not be <code>null</null>. May be any implementation of
+     *            IPSLikes interface.
+     * @param isLike if <code>true</code> then this is a like operation.
+     * @return updated count.
      */
-    private int likeUnlike(String site, String likeId, String type, boolean isLike) {
-        Validate.notEmpty(site, "site must not be empty");
-        Validate.notEmpty(likeId, "likeId must not be empty");
-        Validate.notEmpty(type, "type must not be empty");
+    private int likeUnlike(String site, String likeId, String type, boolean isLike)
+    {
+        Validate.notEmpty(site);
+        Validate.notEmpty(likeId);
+        Validate.notEmpty(type);
 
-        var sites = new HashSet<String>(1);
+        Set<String> sites = new HashSet<>(1);
         sites.add(site);
         fireDataChangeRequestedEvent(sites);
 
-        try {
-            var likes = dao.find(site, likeId, type);
-            IPSLikes like;
-            if (likes.isEmpty()) {
-                if (!isLike) {
-                    // Cannot decrement a non-existent like
+        try
+        {
+            List<IPSLikes> likes = dao.find(site, likeId, type);
+            IPSLikes like = null;
+            if (likes.isEmpty())
+            {
+                if (!isLike) // Cannot decrement no existent like
                     return 0;
-                }
                 like = dao.create(site, likeId, type);
                 like.setTotal(1);
                 dao.save(like);
                 return like.getTotal();
-            } else if (isLike) {
+            }
+            else if (isLike)
+            {
                 return dao.incrementTotal(site, likeId, type);
-            } else {
+            }
+            else
+            {
                 return dao.decrementTotal(site, likeId, type);
             }
-        } catch (Exception ex) {
-            log.error("Error getting likes by criteria: {}", PSExceptionUtils.getMessageForLog(ex));
+        }
+        catch (Exception ex)
+        {
+            log.error("Error in getting likes by criteria: {}",
+                    PSExceptionUtils.getMessageForLog(ex));
             log.debug(ex);
             throw new RuntimeException(ex);
-        } finally {
+        }
+        finally
+        {
             fireDataChangedEvent(sites);
         }
     }
+    
 
-    /**
-     * Adds a service data change listener.
-     *
-     * @param listener the listener to add
-     */
-    public void addServiceDataChangeListener(IPSServiceDataChangeListener listener) {
-        Validate.notNull(listener, "listener cannot be null");
-        if (!listeners.contains(listener)) {
+     /**
+      * 
+      * @param listener
+      */
+    public void addServicedataChangeListener(IPSServiceDataChangeListener listener)
+    {
+        Validate.notNull(listener, "listener cannot be null.");
+        if(!listeners.contains(listener))
             listeners.add(listener);
-        }
+        
+    }
+
+    /* (non-Javadoc)
+     * @see com.percussion.metadata.IPSMetadataIndexerService#removeMetadataListener(com.percussion.metadata.event.IPSMetadataListener)
+     */
+    public void removeServicedataChangeListener(IPSServiceDataChangeListener listener)
+    {
+        Validate.notNull(listener, "listener cannot be null.");
+        if(listeners.contains(listener))
+            listeners.remove(listener);
     }
 
     /**
-     * Removes a service data change listener.
-     *
-     * @param listener the listener to remove
+     * Fire a data change event for all registered listeners.
      */
-    public void removeServiceDataChangeListener(IPSServiceDataChangeListener listener) {
-        Validate.notNull(listener, "listener cannot be null");
-        listeners.remove(listener);
-    }
-
-    /**
-     * Fires a data changed event for all registered listeners.
-     *
-     * @param sites the set of sites affected
-     */
-    private void fireDataChangedEvent(Set<String> sites) {
-        if (sites == null || sites.isEmpty()) {
+    private void fireDataChangedEvent(Set<String> sites)
+    {
+        if(sites == null || sites.size() == 0)
+        {
             return;
         }
-        for (var listener : listeners) {
-            listener.dataChanged(sites, percLikesServices);
+
+        for(IPSServiceDataChangeListener listener : listeners)
+        {
+            listener.dataChanged(sites, this.PERC_LIKES_SERVICES);
         }
     }
 
     /**
-     * Fires a data change requested event for all registered listeners.
-     *
-     * @param sites the set of sites affected
+     * Fire a data change event for all registered listeners.
      */
-    private void fireDataChangeRequestedEvent(Set<String> sites) {
-        if (sites == null || sites.isEmpty()) {
+    private void fireDataChangeRequestedEvent(Set<String> sites)
+    {
+        if(sites == null || sites.size() == 0)
+        {
             return;
         }
-        for (var listener : listeners) {
-            listener.dataChangeRequested(sites, percLikesServices);
+
+        for(IPSServiceDataChangeListener listener : listeners)
+        {
+            listener.dataChangeRequested(sites, this.PERC_LIKES_SERVICES);
         }
     }
 
-    /**
-     * Updates likes for a page after a site rename in CM1.
-     *
-     * @param prevSiteName the old site name
-     * @param newSiteName the new site name
-     */
     @Override
-    public void updateLikesForSiteAfterRename(String prevSiteName, String newSiteName) {
-        var likes = new ArrayList<IPSLikes>();
-        var newLikes = new ArrayList<IPSLikes>();
+    public void updateLikesForSiteAfterRename(String prevSiteName,
+                                              String newSiteName) {
+        List<IPSLikes> likes = new ArrayList<>();
+        List<IPSLikes> newLikes = new ArrayList<>();
         try {
             likes = dao.findLikesForSite(prevSiteName);
-            for (var like : likes) {
+            for (IPSLikes like : likes) {
                 like.setSite(newSiteName);
                 newLikes.add(like);
                 dao.delete(Collections.singletonList(like.getId()));
@@ -218,10 +236,12 @@ public class PSLikesService implements IPSLikesService {
             dao.save(likes);
         } catch (Exception e) {
             log.error("Error retrieving likes for site: {}. "
-                    + "An administrator should attempt to update the likes table "
-                    + "in the DTS database. Error: {}", prevSiteName,
+                    + "An administrator should atttempt to update the likes table "
+                    + "in the DTS database. Error: {}",prevSiteName,
                     PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            return;
         }
+
     }
 }

@@ -17,46 +17,57 @@
 package com.percussion.delivery.likes.services;
 
 /**
- * Service interface for managing likes in Percussion CMS.
- * All methods are thread-safe and follow Google Java Style.
+ * The likes service is used to store, total and show total rating - "likes"
+ * only. It will run in the delivery tier.
+ * 
+ * @author davidpardini
+ * 
  */
-public interface IPSLikesService {
+public interface IPSLikesService
+{
 
     /**
-     * Returns the total number of likes for the given site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes
+     * Returns the total number of likes for the given URL, site and type
+     * 
+     * @param type
+     * @param likeId
+     * @param site
+     * 
+     * @return int total
      */
-    int getTotalLikes(String site, String likeId, String type);
+    public int getTotalLikes(String site, String likeId, String type);
 
     /**
-     * Increments the total number of likes for the given site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes after increment
+     * Increments the total number of likes for the given URL and returns the
+     * number of total likes
+     * 
+     * @param type
+     * @param likeId
+     * @param site
+     * 
+     * @return int total
      */
-    int like(String site, String likeId, String type);
+    public int like(String site, String likeId, String type);
 
     /**
-     * Decrements the total number of likes for the given site, likeId, and type.
-     *
-     * @param site the site name
-     * @param likeId the like identifier
-     * @param type the like type
-     * @return total number of likes after decrement
+     * Decrements the total number of likes for the given URL and returns the
+     * number of total likes
+     * 
+     * @param type
+     * @param likeId
+     * @param site
+     * 
+     * @return int total
      */
-    int unlike(String site, String likeId, String type);
+    public int unlike(String site, String likeId, String type);
 
     /**
-     * Updates likes for a page after a site rename in CM1.
-     *
-     * @param prevSiteName the old site name
-     * @param newSiteName the new site name
+     * After a site rename in CM1, this method needs to be called to
+     * update the current likes for a page so that they are pointed
+     * to the new site.
+     * @param prevSiteName the old site name.
+     * @param newSiteName the new site name.
      */
-    void updateLikesForSiteAfterRename(String prevSiteName, String newSiteName);
+    public void updateLikesForSiteAfterRename(String prevSiteName, String newSiteName);
+
 }

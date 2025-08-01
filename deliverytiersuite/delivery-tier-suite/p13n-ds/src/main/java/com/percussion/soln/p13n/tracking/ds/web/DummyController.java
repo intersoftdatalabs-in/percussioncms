@@ -15,24 +15,20 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.soln.p13n.tracking.ds.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-/**
- * Dummy controller for ProfileMail.jsp wrapper.
- * Sunny Sal says: "DummyController: works on my machine!"
- */
 @Controller
 public class DummyController {
 
     private String view;
-
+    
     public String getView() {
         return view;
     }
@@ -41,11 +37,13 @@ public class DummyController {
         this.view = view;
     }
 
-    /**
+    /*
      * Wrapper for ProfileMail.jsp
      */
     @RequestMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView handleRequest(HttpServletRequest request,
+            HttpServletResponse response) {
         return new ModelAndView(getView());
     }
+
 }

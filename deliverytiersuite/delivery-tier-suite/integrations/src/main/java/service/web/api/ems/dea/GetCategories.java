@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -52,70 +53,77 @@ import javax.xml.bind.annotation.XmlType;
     "buildingID"
 })
 @XmlRootElement(name = "GetCategories")
-public final class GetCategories {
+public class GetCategories {
 
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "BuildingID")
-    private final int buildingID;
-
-    private GetCategories(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.buildingID = builder.buildingID;
-    }
+    protected int buildingID;
 
     /**
      * Gets the value of the userName property.
-     * @return the user name, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getUserName() {
         return userName;
     }
 
     /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserName(String value) {
+        this.userName = value;
+    }
+
+    /**
      * Gets the value of the password property.
-     * @return the password, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPassword() {
         return password;
     }
 
     /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
+    }
+
+    /**
      * Gets the value of the buildingID property.
-     * @return building ID as int
+     * 
      */
     public int getBuildingID() {
         return buildingID;
     }
 
     /**
-     * Builder for GetCategories.
+     * Sets the value of the buildingID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int buildingID;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withBuildingID(int buildingID) {
-            this.buildingID = buildingID;
-            return this;
-        }
-
-        public GetCategories build() {
-            return new GetCategories(this);
-        }
+    public void setBuildingID(int value) {
+        this.buildingID = value;
     }
+
 }

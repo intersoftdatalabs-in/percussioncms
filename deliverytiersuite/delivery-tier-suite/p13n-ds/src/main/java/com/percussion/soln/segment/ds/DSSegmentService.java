@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.soln.segment.ds;
 
 import java.util.ArrayList;
@@ -32,61 +31,67 @@ import com.percussion.soln.segment.Segments;
 import com.percussion.soln.segment.data.ISegmentDataService;
 import com.percussion.soln.segment.data.SegmentDataTree;
 
+
 /**
  * Delivery Side Segmentation Service.
- * Sunny Sal says: "Segment like a boss, debug like a hero!"
+ * @author adamgent
+ *
  */
 public class DSSegmentService implements ISegmentService, ISegmentDataService {
-
+    
     private SegmentDataTree segmentTree;
     private ISegmentDataService segmentDao;
     private String rootPath = "//";
-    private static final Log log = LogFactory.getLog(DSSegmentService.class);
 
+    /**
+     * The log instance to use for this class, never <code>null</code>.
+     */
+    private static final Log log = LogFactory.getLog(DSSegmentService.class);
+    
     public DSSegmentService() {
+        super();
         log.info("Started Delivery Side Segment Service");
     }
 
-    @Override
-    public Segments retrieveAllSegments() throws SegmentException {
-        var tree = getSegmentTree();
+    public Segments retrieveAllSegments()
+            throws SegmentException {
+        SegmentDataTree tree = getSegmentTree();
         return createSegments(tree.getSegments());
     }
 
-    @Override
-    public Segments retrieveSegments(List<String> ids) throws SegmentException {
-        if (ids == null) {
-            throw new IllegalArgumentException("Ids cannot be null");
-        }
-        var tree = getSegmentTree();
-        var nodes = new ArrayList<Segment>();
-        for (var id : ids) {
+    public Segments retrieveSegments(List<String> ids)
+            throws SegmentException {
+        if (ids == null) { throw new IllegalArgumentException("Ids cannot be null"); }
+        SegmentDataTree tree = getSegmentTree();
+        List<Segment> nodes = new ArrayList<Segment>();
+        for(String id : ids) {
             nodes.add(tree.getSegmentForId(id));
         }
         return createSegments(nodes);
     }
 
     @Override
-    public Segments retrieveSegmentsForFolderIds(List<String> ids) throws SegmentException {
-        throw new UnsupportedOperationException("retrieveSegmentsForFolderIds is not yet supported");
+    public Segments retrieveSegmentsForFolderIds(List<String> ids)
+            throws SegmentException {
+        throw new UnsupportedOperationException(
+                "retrieveSegmentsForFolderIds is not yet supported");
     }
 
-    @Override
-    public Segments retrieveSegmentsForItem(int legacyId) throws SegmentException {
-        throw new UnsupportedOperationException("retrieveSegmentsForItem is not yet supported");
+    public Segments retrieveSegmentsForItem(int legacyId)
+            throws SegmentException {
+        throw new UnsupportedOperationException(
+                "retrieveSegmentsForItem is not yet supported");
     }
 
-    @Override
     public synchronized void resetSegmentTree(boolean clear, String rootPath) {
         log.info("Resetting the tree");
-        if (rootPath != null) {
-            setRootPath(rootPath);
-        }
+        if (rootPath != null) setRootPath(rootPath);
         if (clear) {
             log.info("Clearing the tree");
             segmentTree = null;
             segmentDao.resetSegmentTree(true, getRootPath());
-        } else {
+        }
+        else {
             log.info("Loading the tree from the repository");
             segmentTree = new SegmentDataTree();
             segmentTree.setRootPath(getRootPath());
@@ -94,11 +99,10 @@ public class DSSegmentService implements ISegmentService, ISegmentDataService {
         }
     }
 
-    @Override
     public synchronized void updateSegmentTree(Segments data) {
         log.trace("Updating tree");
         segmentDao.updateSegmentTree(data);
-        var tree = getSegmentTree();
+        SegmentDataTree tree = getSegmentTree();
         tree.update(data.getList());
     }
 
@@ -113,37 +117,30 @@ public class DSSegmentService implements ISegmentService, ISegmentDataService {
         this.segmentTree = segmentTree;
     }
 
-    @Override
     public Segment retrieveRootSegment() throws SegmentException {
         return getSegmentTree().getRootSegment();
     }
 
-    @Override
     public Segments retrieveSegmentChildren(String id) throws SegmentException {
-        var parentSegment = getSegmentTree().getSegmentForId(id);
-        if (parentSegment == null) {
-            throw new SegmentException("No segment for id: " + id);
-        }
+        Segment parentSegment = getSegmentTree().getSegmentForId(id);
+        if (parentSegment == null) throw new SegmentException("No segment for id: " + id);
         return createSegments(getSegmentTree().getChildren(parentSegment));
     }
-
-    @Override
-    public Segments retrieveSegmentAncestors(String id) throws SegmentException {
-        var seg = getSegmentTree().getSegmentForId(id);
+    
+    public Segments retrieveSegmentAncestors(String id)
+            throws SegmentException {
+        Segment seg = getSegmentTree().getSegmentForId(id);
         return createSegments(getSegmentTree().getAncestors(seg));
     }
-
-    @Override
+    
     public Segment retrieveSegmentDataForId(String id) {
         return getSegmentTree().getSegmentForId(id);
     }
-
-    @Override
+    
     public String getSegmentContentType() {
         throw new UnsupportedOperationException("getSegmentContentType is not yet supported");
     }
 
-    @Override
     public Segments retrieveAllSegmentData() {
         return segmentDao.retrieveAllSegmentData();
     }
@@ -152,8 +149,8 @@ public class DSSegmentService implements ISegmentService, ISegmentDataService {
         this.segmentDao = segmentDao;
     }
 
-    @Override
-    public Segments retrieveSegmentsWithNameOrAlias(String alias) {
+    public Segments retrieveSegmentsWithNameOrAlias(
+            String alias) {
         return createSegments(getSegmentTree().retrieveSegmentsWithNameOrAlias(alias));
     }
 
@@ -164,9 +161,10 @@ public class DSSegmentService implements ISegmentService, ISegmentDataService {
     public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
     }
-
+    
     protected Segments createSegments(Collection<? extends Segment> segments) {
-        var segs = new ArrayList<Segment>(segments);
+        List<Segment> segs = new ArrayList<Segment>(segments);
         return new Segments(segs);
     }
+
 }

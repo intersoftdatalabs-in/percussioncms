@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,74 +20,84 @@ package com.percussion.delivery.metadata;
 import java.util.Date;
 
 /**
- * Stores information related to client cookie consent.
+ * Object to store information related
+ * to client cookie consent.
+ * 
  * <ul>
- * <li>Consent Date</li>
- * <li>IP Address</li>
- * <li>Opt In</li>
- * <li>Service Name</li>
- * <li>Site Name</li>
+ * <li> Consent Date </li>
+ * <li>  IP Address </li>
+ * <li>  Opt In </li>
+ * <li>  Service Name </li>
+ * <li>  Site Name </li>
  * </ul>
+ * 
+ * @author chriswright
+ *
  */
 public interface IPSCookieConsent {
-
+    
     /**
-     * Sets the name of the site for cookie consent.
-     * @param siteName the site name.
+     * Sets the name of site in which to apply the cookie(s).
+     * @param siteName the name of the site
      */
-    void setSiteName(String siteName);
-
+    public void setSiteName(String siteName);
+    
     /**
-     * Gets the name of the site.
-     * @return the site name.
+     * Gets the name of site.
+     * @return the name of the site
      */
-    String getSiteName();
-
+    public String getSiteName();
+    
     /**
-     * Sets the IP address.
-     * @param ip the IP address.
+     * Set the IP address.
+     * @param ip the IP address
      */
-    void setIP(String ip);
-
+    public void setIP(String ip);
+    
     /**
      * Gets the IP address.
-     * @return the IP address.
+     * @return string representation of IP address
      */
-    String getIP();
-
+    public String getIP();
+    
     /**
-     * Sets the date consent was given.
-     * @param consentDate the consent date.
+     * Sets the date consent to use cookies was given.
+     * @param consentDate the date object of consent date
      */
-    void setConsentDate(Date consentDate);
-
+    public void setConsentDate(Date consentDate);
+    
     /**
-     * Gets the date consent was given.
-     * @return the consent date.
+     * Gets the date consent was given to use cookies.
+     * @return the date consent was given
      */
-    Date getConsentDate();
-
+    public Date getConsentDate();
+    
     /**
-     * Sets the approved service name for cookies.
-     * @param serviceName the service name.
+     * Sets the services approved to use cookies.
+     * @param serviceName the name of service
+     * cookies.
      */
-    void setService(String serviceName);
-
+    public void setService(String serviceName);
+    
     /**
-     * Gets the approved service name for cookies.
-     * @return the service name.
+     * Gets the service(s) approved for use with cookies.
+     * @return the name of the service
      */
-    String getService();
-
+    public String getService();
+    
     /**
      * Sets whether the user opted in for cookie consent.
-     * @param optIn true if opted in.
+     * Should always be true as if they did not, no information
+     * should be recorded.
+     * @param optIn <code>true</code> if the user opted to use cookies
      */
-    void setOptIn(boolean optIn);
-
+    public void setOptIn(boolean optIn);
+    
     /**
-     * Returns whether the user opted in for cookie consent.
-     * @return true if opted in.
+     * Returns whether the user opted in to use cookies.
+     * Should always be true if there is a record present.
+     * @return <code>true</code> if the user opted in for cookies.
      */
-    boolean getOptIn();
+    public boolean getOptIn();
+    
 }

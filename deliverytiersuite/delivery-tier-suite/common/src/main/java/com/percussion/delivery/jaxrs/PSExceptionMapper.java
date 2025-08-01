@@ -32,43 +32,49 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-/**
- * Maps exceptions to HTTP responses for JAX-RS endpoints.
- * <p>Sunny Sal says: If you see this, something went sideways—don't worry, we've got your back!
- */
 @Provider
-public class PSExceptionMapper implements ExceptionMapper<Exception> {
+public class PSExceptionMapper implements ExceptionMapper<Exception>{
 
     private static final Logger log = LogManager.getLogger(PSExceptionMapper.class);
-
+    
     @Context
     private HttpServletRequest request;
 
     @Override
-    public Response toResponse(Exception e) {
-        var clientMsg = "";
-        var status = Status.INTERNAL_SERVER_ERROR;
-
-        if (e instanceof JsonMappingException) {
-            clientMsg = "Invalid request. JSON property is not of an expected type.";
-            status = Status.BAD_REQUEST;
-        } else if (e instanceof JsonParseException) {
-            clientMsg = "Invalid request. Invalid JSON object.";
-            status = Status.BAD_REQUEST;
-        } else if (e instanceof WebApplicationException) {
-            log.debug("WebApplicationException: {}", e.getMessage(), e);
+    public Response toResponse(Exception e)
+    {
+       
+        String clientMsg;
+        Status status;
+         if (e instanceof JsonMappingException)
+        {
+            clientMsg = "Invalid request. JSON property is not of an expected type";
+            status = Response.Status.BAD_REQUEST;
+        } else if (e instanceof JsonParseException)
+        {
+            clientMsg = "Invalid request.  Invalid JSON object";
+            status = Response.Status.BAD_REQUEST;
+        }
+        else if (e instanceof WebApplicationException)
+        {
+            log.debug("WebApplicationException:{}",e.getMessage(),e);
             return ((WebApplicationException) e).getResponse();
-        } else {
-            clientMsg = "An unexpected error occurred processing the request on the DTS server.";
+        }
+        else
+        {
+            clientMsg = "An unexpected error occurred processing the request on the DTS server";
             status = Status.INTERNAL_SERVER_ERROR;
+            
         }
 
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-
-        return Response.status(status)
+        
+        return Response
+                .status(status)
                 .entity(clientMsg)
                 .type(MediaType.TEXT_PLAIN)
                 .build();
     }
+    
 }

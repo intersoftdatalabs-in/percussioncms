@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.membership.services;
 
 import com.percussion.membership.data.IPSMembership;
@@ -22,81 +21,104 @@ import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.IPSMembership.PSMemberStatus;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * DAO service for the membership service.
- *
- * @author Jay Seletz
+ * 
+ * @author JaySeletz
  */
-public interface IPSMembershipDao {
-
+public interface IPSMembershipDao
+{
     /**
-     * Searches for a member with a session matching the supplied id.
-     *
-     * @param sessionId The session id to use, not null or empty.
-     * @return Optional member, empty if not found.
+     * Search for a member with a session matching the supplied id.  
+     * 
+     * @param sessionId The session id to use, may not be <code>null</code> or empty.
+     * 
+     * @return The member, or <code>null</code> if not found. 
      * @throws Exception if there are any errors.
      */
-    Optional<IPSMembership> findMemberBySessionId(String sessionId) throws Exception;
-
+    public IPSMembership findMemberBySessionId(String sessionId) throws Exception;
+    
     /**
-     * Searches for a member matching the supplied user id.
-     *
-     * @param userId The id to use, not null or empty.
-     * @return Optional member, empty if not found.
+     * Search for a member matching the supplied user id.
+     * 
+     * @param userId The id to use, may not be <code>null</code> or empty.
+     * 
+     * @return The member, or <code>null</code> if not found. 
      */
-    Optional<IPSMembership> findMemberByUserId(String userId);
-
+    public IPSMembership findMemberByUserId(String userId);
+    
     /**
-     * Searches for a member matching the supplied password reset key.
-     *
-     * @param pwdResetKey The key to use, not null or empty.
-     * @return Optional member, empty if not found.
+     * Search for a member matching the supplied password reset key.
+     * 
+     * @param pwdResetKey The key to use, may not be <code>null</code> or empty.
+     * 
+     * @return The member, or <code>null</code> if not found. 
      */
-    Optional<IPSMembership> findMemberByPwdResetKey(String pwdResetKey);
-
+    public IPSMembership findMemberByPwdResetKey(String pwdResetKey);
+    
     /**
-     * Creates an instance of a member. The member is not yet persisted.
-     *
-     * @param userId The member's user id, not null or empty.
-     * @param password The member's password, not null or empty.
-     * @return The member, never null.
+     * Create an instance of a member.  The member is not yet persisted.
+     * 
+     * @param userId The member's user id, may not be <code>null</code> or empty.
+     * @param password The member's password, may not be <code>null</code> or empty.
+     * 
+     * @return The member, never <code>null</code>.
+     * 
      * @throws PSMemberExistsException if a member with that user name already exists.
      * @throws Exception if there are any errors.
      */
-    IPSMembership createMember(String userId, String password, PSMemberStatus status) throws PSMemberExistsException, Exception;
-
+    public IPSMembership createMember(String userId, String password, PSMemberStatus status) throws PSMemberExistsException, Exception;
+    
     /**
-     * Saves the supplied member.
-     *
-     * @param member The member to save, not null.
+     * Save the supplied member.  
+     * 
+     * @param member The member to save, may not be <code>null</code>.
+     * 
      * @throws PSMemberExistsException if a member with that user name already exists.
      * @throws Exception if there are any errors.
      */
-    void saveMember(IPSMembership member) throws Exception;
-
+    public void saveMember(IPSMembership member) throws Exception;
+    
     /**
-     * Gets all membership accounts.
-     * Deprecated for performance reasons: see {@link IPSMembershipDao#findMembers(PSDefaultRangedPage pager)}
-     * @return List of all members, sorted ascending by userId, never null, may be empty.
+     * Get all membership accounts
+     * 
+     * Deprecated for performance reasons:  @see {@link IPSMembershipDao.findMembers(PSDefaultRangedPage pager)}
+     * @return A list of all members, sorted ascending by userId, never <code>null</code>, may be empty.
+     * 
      * @throws Exception if there are any unexpected errors.
      */
-    List<IPSMembership> findMembers() throws Exception;
+    /* TODO Commented until paging is done 
+     * @Deprecated  
+     */
+    public List<IPSMembership> findMembers() throws Exception;    
 
+    /*
+     * Pages 
+     * @param pager
+     * @return
+     * @throws Exception
+    
+     TODO Commented until paging is done.
+     *    public List<IPSMembership> findMembers(PSDefaultRangedPage pager) throws Exception;
+     */
+    
     /**
      * Changes the state of an account.
-     *
-     * @param account {@link PSAccountSummary} object with the data to process.
+     * 
+     * @param account a {@link PSAccountSummary} object with the data
+     * to process.
      * @throws Exception if there are any unexpected errors.
      */
-    void changeStatusAccount(PSAccountSummary account) throws Exception;
-
+    public void changeStatusAccount(PSAccountSummary account) throws Exception;
+    
     /**
      * Deletes an account.
-     *
-     * @param email the email relative to the account to delete, never empty or null.
+     * 
+     * @param email the email relative to the account to delete, 
+     * never empty or <code>null</code>.
      * @throws Exception if there are any unexpected errors.
      */
-    void deleteAccount(String email) throws Exception;
+    public void deleteAccount(String email) throws Exception;
+    
 }

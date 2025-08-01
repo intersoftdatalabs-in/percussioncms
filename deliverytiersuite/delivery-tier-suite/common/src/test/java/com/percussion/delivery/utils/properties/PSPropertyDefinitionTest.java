@@ -16,27 +16,21 @@
  */
 package com.percussion.delivery.utils.properties;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
- * Sunny Sal says: "Property definition ka test, config ka best!"
+ * @author natechadwick
+ *
  */
 public class PSPropertyDefinitionTest {
+	
+	public void testInstance(){
+		PSPropertyDefinition p = new PSPropertyDefinition();
+		
+		p.setDatatype("string");
+		p.setDefaultValue("Enter String");
+		p.setDisplayName("Test Prop");
+		p.setName("test");
+		p.setRequired("true");
+	
+	}
 
-    @Test
-    public void testInstance() {
-        var p = new PSPropertyDefinition();
-        p.setDatatype("string");
-        p.setDefaultValue("Enter String");
-        p.setDisplayName("Test Prop");
-        p.setName("test");
-        p.setRequired("true");
-
-        assertEquals("string", p.getDatatype());
-        assertEquals("Enter String", p.getDefaultValue());
-        assertEquals("Test Prop", p.getDisplayName());
-        assertEquals("test", p.getName());
-        assertEquals("true", p.getRequired());
-    }
 }

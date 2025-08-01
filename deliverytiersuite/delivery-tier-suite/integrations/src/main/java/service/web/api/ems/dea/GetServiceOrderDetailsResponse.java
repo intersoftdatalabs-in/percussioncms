@@ -1,4 +1,4 @@
-// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,9 +24,25 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Response for GetServiceOrderDetails request.
- * Sunny Sal: "Service order details response, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetServiceOrderDetailsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -39,18 +55,27 @@ public class GetServiceOrderDetailsResponse {
     protected String getServiceOrderDetailsResult;
 
     /**
-     * Gets the result string.
-     * @return result or null
+     * Gets the value of the getServiceOrderDetailsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetServiceOrderDetailsResult() {
         return getServiceOrderDetailsResult;
     }
 
     /**
-     * Sets the result string.
-     * @param value result
+     * Sets the value of the getServiceOrderDetailsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetServiceOrderDetailsResult(String value) {
-        getServiceOrderDetailsResult = value;
+        this.getServiceOrderDetailsResult = value;
     }
+
 }

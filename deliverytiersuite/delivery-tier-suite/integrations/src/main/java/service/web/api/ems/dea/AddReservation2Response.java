@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,88 +16,66 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import java.util.Objects;
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11+ refactored SOAP response for AddReservation2.
- * <p>Immutable, builder-based, and Google Java Style. JAXB annotations retained for SOAP compatibility.</p>
- *
- * <p>Schema fragment:</p>
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
  * <pre>
  * &lt;complexType&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="AddReservation2Result" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>&lt;/sequence&gt;
+ *         &lt;element name="AddReservation2Result" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addReservation2Result"
 })
 @XmlRootElement(name = "AddReservation2Response")
-public final class AddReservation2Response {
+public class AddReservation2Response {
 
     @XmlElement(name = "AddReservation2Result")
-    private final String addReservation2Result;
+    protected String addReservation2Result;
 
-    private AddReservation2Response(Builder builder) {
-        this.addReservation2Result = builder.addReservation2Result;
+    /**
+     * Gets the value of the addReservation2Result property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAddReservation2Result() {
+        return addReservation2Result;
     }
 
     /**
-     * @return Optional addReservation2Result
+     * Sets the value of the addReservation2Result property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getAddReservation2Result() {
-        return Optional.ofNullable(addReservation2Result);
+    public void setAddReservation2Result(String value) {
+        this.addReservation2Result = value;
     }
 
-    /**
-     * Builder for AddReservation2Response (Java 11+ style).
-     */
-    public static class Builder {
-        private String addReservation2Result;
-
-        public Builder addReservation2Result(String addReservation2Result) {
-            this.addReservation2Result = addReservation2Result;
-            return this;
-        }
-
-        public AddReservation2Response build() {
-            return new AddReservation2Response(this);
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddReservation2Response that = (AddReservation2Response) o;
-        return Objects.equals(addReservation2Result, that.addReservation2Result);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(addReservation2Result);
-    }
-
-    @Override
-    public String toString() {
-        return "AddReservation2Response{" +
-                "addReservation2Result='" + addReservation2Result + '\'' +
-                '}';
-    }
 }
