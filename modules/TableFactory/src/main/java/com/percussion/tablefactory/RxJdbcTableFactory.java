@@ -36,7 +36,7 @@ import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -769,7 +769,7 @@ public class RxJdbcTableFactory
 
    public String getJdbcTypeMapping(int ijdbcType)
    {
-      String type = (String)m_dtJdbcInt2JdbcStr.get(new Integer(ijdbcType));
+      String type = (String)m_dtJdbcInt2JdbcStr.get(Integer.valueOf(ijdbcType));
       if (type == null)
       {
          throw new IllegalArgumentException("No mapping defined for " +
@@ -858,7 +858,7 @@ public class RxJdbcTableFactory
    {
       try
       {
-         Integer jType = new Integer(
+         Integer jType = Integer.valueOf(
          java.sql.Types.class.getField(jdbcType).getInt(null));
          m_dtJdbcStr2Native.put(jdbcType, nativeType);
           m_dtNative2JdbcStr.put(nativeType, jdbcType);
@@ -985,7 +985,7 @@ public class RxJdbcTableFactory
             {
                ColumnDefinition colDef = new ColumnDefinition(dbmsDef, w);
                m_columns.add(colDef);
-               m_columnPos.put(colDef.getColumnName(), new Integer(++colNo));
+               m_columnPos.put(colDef.getColumnName(), Integer.valueOf(++colNo));
             }
 
             // load the primary key def (may not have one)
@@ -2368,7 +2368,7 @@ System.out.println("NULL Values not allowed as Update Key");
                // try to get the type and set it
                try
                {
-                  Integer jType = new Integer(
+                  Integer jType = Integer.valueOf(
                      java.sql.Types.class.getField(
                         wfColumn.getColDataType()).getInt(null));
 
@@ -2634,9 +2634,9 @@ System.out.println("NULL Values not allowed as Update Key");
                            if (iBackupRows != iOrigRowCount)
                            {
                               return "Table upgrade aborted. Copying of backup failed to copy rows. " +
-                                    "Original table had " + new Integer(iOrigRowCount).toString() +
+                                    "Original table had " + iOrigRowCount +
                                     " rows but the backup row count is " +
-                                    new Integer(iBackupRows).toString();
+                                    iBackupRows;
                            }
 
                            boolean bUpgradeOk = true;
@@ -2709,9 +2709,9 @@ System.out.println("NULL Values not allowed as Update Key");
                                  if (iBackupRows != iOrigRowCount)
                                  {
                                     sStatus = "Table upgrade aborted. Copying of backup failed to copy rows. " +
-                                          "Original table had " + new Integer(iOrigRowCount).toString() +
+                                          "Original table had " + iOrigRowCount +
                                           " rows but the backup row count is " +
-                                          new Integer(iBackupRows).toString();
+                                          iBackupRows;
                                     bUpgradeOk = false;
                                  }
                               }
@@ -2783,9 +2783,9 @@ System.out.println("NULL Values not allowed as Update Key");
                               if (iBackupRows != iOrigRowCount)
                               {
                                  return "Table backup restoration aborted. Copying of backup failed to copy rows. " +
-                                       "Original table had " + new Integer(iOrigRowCount).toString() +
+                                       "Original table had " + iOrigRowCount +
                                        " rows but the backup row count is " +
-                                       new Integer(iBackupRows).toString();
+                                       iBackupRows;
                               }
                            }
 
@@ -4746,7 +4746,7 @@ System.out.println("NULL Values not allowed as Update Key");
                   if(column.getColAction() != RxColumns.USER_COLUMN)
                   {
 //                   System.out.println(" found non user action for "
-  //                          + column.getColName() + " action: " + new Integer(column.getColAction()).toString());
+  //                          + column.getColName() + " action: " + column.getColAction());
                     return(true);
                   }
               }
