@@ -32,20 +32,20 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.swing.*; // TODO: JAVAX-11
-import javax.swing.border.Border; // TODO: JAVAX-11
-import javax.swing.filechooser.FileFilter; // TODO: JAVAX-11
-import javax.swing.table.AbstractTableModel; // TODO: JAVAX-11
-import javax.swing.table.TableColumn; // TODO: JAVAX-11
-import javax.swing.table.TableModel; // TODO: JAVAX-11
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.xml.XMLConstants;
-import javax.xml.transform.Transformer; // TODO: JAVAX-11
-import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerException; // TODO: JAVAX-11
-import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
-import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
-import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
