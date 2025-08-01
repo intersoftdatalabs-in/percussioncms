@@ -22,7 +22,7 @@ package com.percussion.pso.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import org.springframework.web.multipart.MultipartFile;
 
 /**

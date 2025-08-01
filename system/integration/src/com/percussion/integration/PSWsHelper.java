@@ -82,18 +82,18 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import javax.xml.rpc.ServiceException;
-import javax.xml.soap.Name;
-import javax.xml.soap.SOAPElement;
-import javax.xml.soap.SOAPException;
+import javax.xml.soap.Name; // TODO: JAVAX-11
+import javax.xml.soap.SOAPElement; // TODO: JAVAX-11
+import javax.xml.soap.SOAPException; // TODO: JAVAX-11
 
 import org.apache.axis.AxisProperties;
 import org.apache.axis.client.Stub;

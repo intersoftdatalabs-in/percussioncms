@@ -17,7 +17,7 @@
 
 package com.percussion.UTComponents;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 
 /**
  * This class adds storage for the mnemonic letter and accelerator keys used 

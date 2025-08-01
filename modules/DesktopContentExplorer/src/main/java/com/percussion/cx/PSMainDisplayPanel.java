@@ -30,30 +30,30 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.CellEditor;
-import javax.swing.Icon;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.MouseInputListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.plaf.basic.BasicTableUI;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.AbstractAction; // TODO: JAVAX-11
+import javax.swing.BorderFactory; // TODO: JAVAX-11
+import javax.swing.CellEditor; // TODO: JAVAX-11
+import javax.swing.Icon; // TODO: JAVAX-11
+import javax.swing.JPopupMenu; // TODO: JAVAX-11
+import javax.swing.JScrollPane; // TODO: JAVAX-11
+import javax.swing.JTable; // TODO: JAVAX-11
+import javax.swing.JTextArea; // TODO: JAVAX-11
+import javax.swing.KeyStroke; // TODO: JAVAX-11
+import javax.swing.ListSelectionModel; // TODO: JAVAX-11
+import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.border.BevelBorder; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionEvent; // TODO: JAVAX-11
+import javax.swing.event.ListSelectionListener; // TODO: JAVAX-11
+import javax.swing.event.MouseInputListener; // TODO: JAVAX-11
+import javax.swing.event.TableModelEvent; // TODO: JAVAX-11
+import javax.swing.event.TableModelListener; // TODO: JAVAX-11
+import javax.swing.plaf.basic.BasicTableUI; // TODO: JAVAX-11
+import javax.swing.table.DefaultTableCellRenderer; // TODO: JAVAX-11
+import javax.swing.table.JTableHeader; // TODO: JAVAX-11
+import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
+import javax.swing.table.TableColumn; // TODO: JAVAX-11
+import javax.swing.table.TableColumnModel; // TODO: JAVAX-11
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;

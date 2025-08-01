@@ -21,7 +21,7 @@ import com.percussion.server.PSRequest;
 import org.owasp.csrfguard.CsrfGuard;
 import org.owasp.csrfguard.session.LogicalSession;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
 /**

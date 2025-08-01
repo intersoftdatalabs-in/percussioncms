@@ -26,9 +26,9 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
 import javax.xml.stream.XMLInputFactory;
 import java.io.StringReader;
 

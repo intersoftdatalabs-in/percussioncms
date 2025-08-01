@@ -16,10 +16,10 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.Locale;

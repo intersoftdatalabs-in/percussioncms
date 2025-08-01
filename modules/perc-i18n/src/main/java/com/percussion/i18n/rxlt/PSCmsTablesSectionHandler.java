@@ -38,11 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import javax.xml.transform.Templates;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Templates; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.w3c.dom.Document;

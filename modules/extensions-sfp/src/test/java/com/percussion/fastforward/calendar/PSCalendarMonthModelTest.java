@@ -32,8 +32,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;

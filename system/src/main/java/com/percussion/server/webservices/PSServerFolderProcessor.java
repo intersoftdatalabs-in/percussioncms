@@ -120,7 +120,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;

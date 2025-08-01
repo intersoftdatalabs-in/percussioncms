@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.apache.axis.utils.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;

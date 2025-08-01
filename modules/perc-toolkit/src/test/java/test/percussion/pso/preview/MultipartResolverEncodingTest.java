@@ -24,7 +24,7 @@ package test.percussion.pso.preview;
 
 import static org.junit.Assert.*;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

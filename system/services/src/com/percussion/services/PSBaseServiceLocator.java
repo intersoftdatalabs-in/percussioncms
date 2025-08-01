@@ -32,9 +32,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 import org.springframework.web.context.support.XmlWebApplicationContext;
 
-import javax.naming.NamingException;
-import javax.naming.spi.NamingManager;
-import javax.servlet.ServletContext;
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.spi.NamingManager; // TODO: JAVAX-11
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

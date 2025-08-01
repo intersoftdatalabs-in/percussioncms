@@ -24,8 +24,8 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.w3c.dom.Element;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSDbComponent;

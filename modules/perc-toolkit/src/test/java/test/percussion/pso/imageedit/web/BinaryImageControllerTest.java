@@ -20,7 +20,7 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

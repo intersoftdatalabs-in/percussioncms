@@ -18,10 +18,10 @@ package com.percussion.utils.jsr170;
 
 import org.apache.commons.lang.StringUtils;
 
-import javax.jcr.PropertyType;
-import javax.jcr.Value;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.PropertyDefinition;
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
+import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
 
 /**
  * Basic property definition implementation, not all fields implemented

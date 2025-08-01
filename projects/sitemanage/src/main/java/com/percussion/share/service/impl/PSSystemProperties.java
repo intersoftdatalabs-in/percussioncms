@@ -22,7 +22,7 @@ import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.util.PSSiteManageBean;
 import org.apache.commons.lang.Validate;
 
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.ext.Provider;
 
 /**
  * @author JaySeletz

@@ -25,11 +25,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.query.Row;
-import javax.jcr.query.RowIterator;
+import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
+import javax.jcr.NodeIterator; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.query.Row; // TODO: JAVAX-11
+import javax.jcr.query.RowIterator; // TODO: JAVAX-11
 
 import junit.framework.TestCase;
 

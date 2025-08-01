@@ -17,7 +17,7 @@
 
 package com.percussion.itemmanagement.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * POJO to maintain an ID/page path relationship

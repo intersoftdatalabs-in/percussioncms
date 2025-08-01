@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Request object used for copying a site.  The source and destination site names are required, however, the asset

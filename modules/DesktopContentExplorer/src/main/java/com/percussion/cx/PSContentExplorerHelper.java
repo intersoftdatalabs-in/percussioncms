@@ -19,7 +19,7 @@ package com.percussion.cx;
 
 import org.apache.log4j.Logger;
 
-import javax.swing.ImageIcon;
+import javax.swing.ImageIcon; // TODO: JAVAX-11
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;

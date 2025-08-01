@@ -22,7 +22,7 @@ import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Rectangle;
 
-import javax.swing.JList;
+import javax.swing.JList; // TODO: JAVAX-11
 
 /** A List that has a different Scrollable interface implementation for
   * horizontal display.

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.pso.jexl;
-import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.error.PSException;

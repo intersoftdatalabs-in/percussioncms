@@ -20,11 +20,11 @@ import com.percussion.cx.PSContentExplorerApplet;
 import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.wizard.PSWizardPanel;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
+import javax.swing.Box; // TODO: JAVAX-11
+import javax.swing.BoxLayout; // TODO: JAVAX-11
+import javax.swing.ButtonGroup; // TODO: JAVAX-11
+import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.JRadioButton; // TODO: JAVAX-11
 import java.awt.FlowLayout;
 
 /**

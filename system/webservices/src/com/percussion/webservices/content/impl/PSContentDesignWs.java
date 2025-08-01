@@ -90,9 +90,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.nodetype.NoSuchNodeTypeException; // TODO: JAVAX-11
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;

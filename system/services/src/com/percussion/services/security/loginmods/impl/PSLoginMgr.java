@@ -26,9 +26,9 @@ import com.percussion.services.security.loginmods.IPSLoginMgr;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.login.LoginException;
+import javax.security.auth.Subject; // TODO: JAVAX-11
+import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
+import javax.security.auth.login.LoginException; // TODO: JAVAX-11
 import java.util.List;
 
 /**

@@ -24,8 +24,8 @@ import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleState;
 import javax.accessibility.AccessibleStateSet;
 import javax.accessibility.AccessibleText;
-import javax.swing.text.AttributeSet;
-import javax.swing.tree.TreeNode;
+import javax.swing.text.AttributeSet; // TODO: JAVAX-11
+import javax.swing.tree.TreeNode; // TODO: JAVAX-11
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.Rectangle;

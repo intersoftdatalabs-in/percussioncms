@@ -27,10 +27,10 @@ import com.percussion.utils.guid.IPSGuid;
 import java.io.IOException;
 import java.util.List;
 
-import javax.security.auth.login.LoginException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.security.auth.login.LoginException; // TODO: JAVAX-11
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * This interface defines all security related webservices.

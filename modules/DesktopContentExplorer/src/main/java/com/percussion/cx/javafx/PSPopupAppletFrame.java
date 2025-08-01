@@ -30,8 +30,8 @@ import javafx.application.Platform;
 import javafx.scene.web.WebView;
 import org.apache.log4j.Logger;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+import javax.swing.JFrame; // TODO: JAVAX-11
+import javax.swing.SwingUtilities; // TODO: JAVAX-11
 import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

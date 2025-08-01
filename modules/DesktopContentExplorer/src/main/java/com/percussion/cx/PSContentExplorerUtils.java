@@ -22,10 +22,10 @@ import com.percussion.cms.objectstore.PSUserInfo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.xpath.XPathFactory; // TODO: JAVAX-11
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

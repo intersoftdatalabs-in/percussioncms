@@ -24,8 +24,8 @@ import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import java.io.InputStream;
 import java.util.Map;
 
-import javax.jcr.Property;
-import javax.jcr.Value;
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
 
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.poi.util.IOUtils;

@@ -55,7 +55,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Errors;
 
-import javax.jcr.Node;
+import javax.jcr.Node; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

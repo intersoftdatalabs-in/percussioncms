@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.jdbc;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;

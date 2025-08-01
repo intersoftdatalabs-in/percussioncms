@@ -25,13 +25,13 @@ import org.apache.log4j.Logger;
 
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
-import javax.swing.*;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.event.TreeExpansionEvent; // TODO: JAVAX-11
+import javax.swing.event.TreeExpansionListener; // TODO: JAVAX-11
+import javax.swing.tree.DefaultMutableTreeNode; // TODO: JAVAX-11
+import javax.swing.tree.DefaultTreeModel; // TODO: JAVAX-11
+import javax.swing.tree.TreePath; // TODO: JAVAX-11
+import javax.swing.tree.TreeSelectionModel; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;

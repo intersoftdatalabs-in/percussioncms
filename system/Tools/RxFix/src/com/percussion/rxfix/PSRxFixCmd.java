@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.mock.jndi.SimpleNamingContextBuilder;
 
-import javax.naming.spi.NamingManager;
+import javax.naming.spi.NamingManager; // TODO: JAVAX-11
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;

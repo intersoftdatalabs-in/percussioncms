@@ -16,7 +16,7 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 
 /**
  * This extends <code>DefaultCellEditor</code> to accept panel with many

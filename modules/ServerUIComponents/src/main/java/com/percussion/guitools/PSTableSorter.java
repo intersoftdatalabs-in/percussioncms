@@ -18,11 +18,11 @@ package com.percussion.guitools;
 
 import com.percussion.cx.PSMainDisplayPanelConstants;
 
-import javax.swing.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.event.TableModelEvent; // TODO: JAVAX-11
+import javax.swing.table.JTableHeader; // TODO: JAVAX-11
+import javax.swing.table.TableColumnModel; // TODO: JAVAX-11
+import javax.swing.table.TableModel; // TODO: JAVAX-11
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;

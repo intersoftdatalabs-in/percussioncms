@@ -32,15 +32,15 @@ import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.EventObject;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.EventListenerList;
-import javax.swing.table.TableCellEditor;
+import javax.swing.JComboBox; // TODO: JAVAX-11
+import javax.swing.JComponent; // TODO: JAVAX-11
+import javax.swing.JTable; // TODO: JAVAX-11
+import javax.swing.JTextField; // TODO: JAVAX-11
+import javax.swing.border.LineBorder; // TODO: JAVAX-11
+import javax.swing.event.CellEditorListener; // TODO: JAVAX-11
+import javax.swing.event.ChangeEvent; // TODO: JAVAX-11
+import javax.swing.event.EventListenerList; // TODO: JAVAX-11
+import javax.swing.table.TableCellEditor; // TODO: JAVAX-11
 
 /** This is basically a rehash of the DefaultCellEditor class, tweaked for browse
   * box cell.

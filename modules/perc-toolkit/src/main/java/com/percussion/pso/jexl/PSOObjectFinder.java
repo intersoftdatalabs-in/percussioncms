@@ -22,8 +22,8 @@ package com.percussion.pso.jexl;
 import java.util.Collections;
 import java.util.List;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

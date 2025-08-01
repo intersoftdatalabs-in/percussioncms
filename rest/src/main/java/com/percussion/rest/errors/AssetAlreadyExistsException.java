@@ -17,7 +17,7 @@
 
 package com.percussion.rest.errors;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 public class AssetAlreadyExistsException extends RestExceptionBase
 {

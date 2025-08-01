@@ -25,8 +25,8 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 
-import javax.jcr.RepositoryException;
-import javax.naming.NamingException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

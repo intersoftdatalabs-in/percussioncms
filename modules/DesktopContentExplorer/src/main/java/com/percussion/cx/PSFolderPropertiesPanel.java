@@ -22,13 +22,13 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSFolderProperty;
 import com.percussion.cx.guitools.UTPropertiesTablePanel;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JTable;
-import javax.swing.UIManager;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumnModel;
+import javax.swing.BorderFactory; // TODO: JAVAX-11
+import javax.swing.DefaultCellEditor; // TODO: JAVAX-11
+import javax.swing.JComboBox; // TODO: JAVAX-11
+import javax.swing.JTable; // TODO: JAVAX-11
+import javax.swing.UIManager; // TODO: JAVAX-11
+import javax.swing.table.DefaultTableModel; // TODO: JAVAX-11
+import javax.swing.table.TableColumnModel; // TODO: JAVAX-11
 import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.Iterator;

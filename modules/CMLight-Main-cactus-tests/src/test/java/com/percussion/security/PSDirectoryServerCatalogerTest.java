@@ -39,13 +39,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
 
-import javax.naming.Binding;
-import javax.naming.Context;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
+import javax.naming.Binding; // TODO: JAVAX-11
+import javax.naming.Context; // TODO: JAVAX-11
+import javax.naming.NamingEnumeration; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.directory.DirContext; // TODO: JAVAX-11
+import javax.naming.directory.InitialDirContext; // TODO: JAVAX-11
+import javax.naming.directory.SearchControls; // TODO: JAVAX-11
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;

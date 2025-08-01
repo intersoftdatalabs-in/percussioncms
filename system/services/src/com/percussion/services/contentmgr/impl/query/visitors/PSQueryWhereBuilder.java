@@ -35,11 +35,11 @@ import com.percussion.utils.jsr170.PSValueFactory;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.utils.types.PSPair;
 
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
-import javax.jcr.query.InvalidQueryException;
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

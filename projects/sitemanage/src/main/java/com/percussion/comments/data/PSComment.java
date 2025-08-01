@@ -23,8 +23,8 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import com.percussion.itemmanagement.data.IPSEditableItem;
 import com.percussion.share.data.PSAbstractDataObject;

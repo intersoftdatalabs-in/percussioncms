@@ -21,7 +21,7 @@ import com.percussion.rest.PermissionList;
 import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @Schema(description = "User Access Level")

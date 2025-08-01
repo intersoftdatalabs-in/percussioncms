@@ -29,12 +29,12 @@ import com.percussion.guitools.ErrorDialogs;
 import com.percussion.guitools.PSAccessibleActionListener;
 import com.percussion.guitools.PSPropertyPanel;
 
-import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.BorderFactory; // TODO: JAVAX-11
+import javax.swing.JCheckBox; // TODO: JAVAX-11
+import javax.swing.JComboBox; // TODO: JAVAX-11
+import javax.swing.JComponent; // TODO: JAVAX-11
+import javax.swing.JTextField; // TODO: JAVAX-11
+import javax.swing.UIManager; // TODO: JAVAX-11
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;

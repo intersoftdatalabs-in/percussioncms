@@ -42,8 +42,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.SocketFactory; // TODO: JAVAX-11
+import javax.net.ssl.SSLSocketFactory; // TODO: JAVAX-11
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

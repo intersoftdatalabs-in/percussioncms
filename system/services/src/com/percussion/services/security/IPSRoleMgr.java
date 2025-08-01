@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.auth.Subject;
+import javax.security.auth.Subject; // TODO: JAVAX-11
 
 import org.xml.sax.SAXException;
 

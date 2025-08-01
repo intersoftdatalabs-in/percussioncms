@@ -23,7 +23,7 @@ import java.util.Date;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;

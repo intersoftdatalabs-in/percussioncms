@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.PropertyType;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.PropertyIterator; // TODO: JAVAX-11
+import javax.jcr.PropertyType; // TODO: JAVAX-11
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;

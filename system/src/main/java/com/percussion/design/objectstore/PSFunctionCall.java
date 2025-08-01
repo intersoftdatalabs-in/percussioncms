@@ -28,7 +28,7 @@ import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;

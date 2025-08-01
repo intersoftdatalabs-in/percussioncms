@@ -28,7 +28,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import java.util.Iterator;
 import java.util.Properties;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;

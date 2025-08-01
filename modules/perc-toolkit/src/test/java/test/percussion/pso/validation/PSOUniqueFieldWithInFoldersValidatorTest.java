@@ -22,10 +22,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-import javax.jcr.query.RowIterator;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.query.Query; // TODO: JAVAX-11
+import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.query.RowIterator; // TODO: JAVAX-11
 
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;

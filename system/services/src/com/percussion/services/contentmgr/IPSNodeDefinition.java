@@ -21,7 +21,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.Set;
 
-import javax.jcr.nodetype.NodeDefinition;
+import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
 
 /**
  * Expanded JSR-170 node definition that allows data update, plus expanded

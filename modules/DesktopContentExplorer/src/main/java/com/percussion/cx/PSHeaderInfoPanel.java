@@ -26,16 +26,16 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.swing.BorderFactory; // TODO: JAVAX-11
+import javax.swing.Icon; // TODO: JAVAX-11
+import javax.swing.JButton; // TODO: JAVAX-11
+import javax.swing.JComponent; // TODO: JAVAX-11
+import javax.swing.JLabel; // TODO: JAVAX-11
+import javax.swing.JOptionPane; // TODO: JAVAX-11
+import javax.swing.JPanel; // TODO: JAVAX-11
+import javax.swing.SwingConstants; // TODO: JAVAX-11
+import javax.swing.SwingUtilities; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;

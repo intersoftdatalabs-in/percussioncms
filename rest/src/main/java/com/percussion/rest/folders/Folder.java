@@ -20,8 +20,8 @@ package com.percussion.rest.folders;
 import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.ws.rs.core.UriBuilder;
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.ws.rs.core.UriBuilder;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;

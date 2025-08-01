@@ -45,7 +45,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;

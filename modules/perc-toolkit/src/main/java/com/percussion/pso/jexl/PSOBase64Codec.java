@@ -24,9 +24,9 @@ import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.utils.tools.PSCopyStream;
 import org.apache.commons.codec.binary.Base64;
 
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
