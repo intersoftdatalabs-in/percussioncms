@@ -87,9 +87,9 @@ class RxTables
                           ". Source type: " +
                              sourceCol.getNativeType() + " Target type: " +
                               targetCol.getNativeType() + " Source length: " +
-                        new Integer(sourceCol.getColLength()).toString() +
+                        sourceCol.getColLength() +
                               " Target length: " +
-                              new Integer(targetCol.getColLength()).toString());
+                              targetCol.getColLength());
 
                           sourceCol.setColAction(RxColumns.MODIFY_COLUMN);
                           vColumnDiffs.add(sourceCol);

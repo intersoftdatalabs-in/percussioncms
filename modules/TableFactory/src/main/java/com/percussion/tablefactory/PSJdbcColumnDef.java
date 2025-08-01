@@ -398,7 +398,7 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent
       int hash = 0;
       hash += super.hashCode();
       hash += Boolean.valueOf(m_allowsNull).hashCode();
-      hash += new Integer(m_jdbcType).hashCode();
+      hash += Integer.valueOf(m_jdbcType).hashCode();
       hash += m_limitSizeForIndex ? 0 : 1;
       if ( null != m_size )
          hash += m_size.hashCode();

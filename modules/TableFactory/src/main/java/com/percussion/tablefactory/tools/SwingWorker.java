@@ -17,7 +17,7 @@
 
 package com.percussion.tablefactory.tools;
 
-import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.*;
 
 /**
  * This is the 3rd version of SwingWorker (also known as
