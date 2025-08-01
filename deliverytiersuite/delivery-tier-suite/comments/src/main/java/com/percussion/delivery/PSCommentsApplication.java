@@ -33,23 +33,21 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSCommentsApplication extends  ResourceConfig {
-        public PSCommentsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSLikesRestService.class);
-            register(PSCommentsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
+@ApplicationPath("/")
+public class PSCommentsApplication extends ResourceConfig {
 
-        }
-
-
+    public PSCommentsApplication() {
+        register(RequestContextFilter.class);
+        register(SpringComponentProvider.class);
+        register(AutowiredInjectResolver.class);
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSLikesRestService.class);
+        register(PSCommentsRestService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
+        register(PSJsonMappingErrorResponse.class);
+        register(PSUncaughtError.class);
+        register(JacksonJaxbJsonProvider.class);
     }
+}

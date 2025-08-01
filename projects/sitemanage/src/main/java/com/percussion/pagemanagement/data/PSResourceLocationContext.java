@@ -14,65 +14,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-public class PSResourceLocationContext
-{
-    
+/**
+ * Context for resource location resolution.
+ */
+public class PSResourceLocationContext {
+
     private String siteId;
-    
     private String folderPath;
-    
     private Number legacyFileContext;
-    
     private Mode mode;
-    
-    public static enum Mode {
-        PUBLISH, PREVIEW;
+
+    public enum Mode {
+        PUBLISH, PREVIEW
     }
 
-    public String getSiteId()
-    {
+    public String getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(String siteId)
-    {
+    public void setSiteId(String siteId) {
         this.siteId = siteId;
     }
 
-    public String getFolderPath()
-    {
+    public String getFolderPath() {
         return folderPath;
     }
 
-    public void setFolderPath(String folderPath)
-    {
+    public void setFolderPath(String folderPath) {
         this.folderPath = folderPath;
     }
 
-    public Number getLegacyFileContext()
-    {
+    public Number getLegacyFileContext() {
         return legacyFileContext;
     }
 
-    public void setLegacyFileContext(Number legacyFileContext)
-    {
+    public void setLegacyFileContext(Number legacyFileContext) {
         this.legacyFileContext = legacyFileContext;
     }
 
-    public Mode getMode()
-    {
+    public Mode getMode() {
         return mode;
     }
 
-    public void setMode(Mode mode)
-    {
+    public void setMode(Mode mode) {
         this.mode = mode;
     }
-    
-    
-    
-
 }
-

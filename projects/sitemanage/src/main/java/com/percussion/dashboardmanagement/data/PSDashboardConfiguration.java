@@ -27,17 +27,14 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "gadgets"
 })
-public class PSDashboardConfiguration extends PSAbstractDataObject
-{
+public class PSDashboardConfiguration extends PSAbstractDataObject {
     private List<PSGadget> gadgets;
 
-    public List<PSGadget> getGadgets()
-    {
+    public List<PSGadget> getGadgets() {
         return gadgets;
     }
 
-    public void setGadgets(List<PSGadget> gadgets)
-    {
+    public void setGadgets(List<PSGadget> gadgets) {
         this.gadgets = gadgets;
     }
 }

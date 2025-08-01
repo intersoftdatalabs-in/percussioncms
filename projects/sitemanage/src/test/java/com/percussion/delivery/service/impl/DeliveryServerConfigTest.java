@@ -17,8 +17,6 @@
 
 package com.percussion.delivery.service.impl;
 
-import static org.junit.Assert.assertTrue;
-
 import com.percussion.delivery.service.impl.DeliveryServer.Password;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.security.PSEncryptor;
@@ -26,32 +24,30 @@ import com.percussion.security.PSEncryptor;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DeliveryServerConfigTest
 {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public java.nio.file.Path temporaryFolder;
 
     private String rxdeploydir;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", temporaryFolder.toFile().getAbsolutePath());
     }
 
-    @After
+    @AfterEach
     public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
         if(rxdeploydir != null)
             System.setProperty("rxdeploydir",rxdeploydir);
     }
@@ -59,27 +55,26 @@ public class DeliveryServerConfigTest
     @Test
     public void testLoadXml() throws Exception
     {
-        List<DeliveryServer> servers = getServersFromFile("DeliveryServerConfigTest_Empty.xml");
+        var servers = getServersFromFile("DeliveryServerConfigTest_Empty.xml");
         assertTrue(servers.size() == 0);
-        
+
         servers = getServersFromFile("DeliveryServerConfigTest.xml");
         assertTrue(servers.size() == 2);
- 
-        List<DeliveryServer> servers_2 = getServersFromFile("DeliveryServerConfigTest.xml");
+
+        var servers_2 = getServersFromFile("DeliveryServerConfigTest.xml");
         assertTrue(compareServers(servers, servers_2));
     }
-    
-    @Ignore
+
     @Test
     public void testConvertToEncryptedPassword() throws Exception
     {
-        String fileContent = encryptPassword("DeliveryServerConfigTest.xml");
-        List<DeliveryServer> servers = getServers(new ByteArrayInputStream(fileContent.getBytes()));
-        
-        List<DeliveryServer> servers_2 = getServersFromFile("DeliveryServerConfigTest_EncryptedPassword.xml");
+        var fileContent = encryptPassword("DeliveryServerConfigTest.xml");
+        var servers = getServers(new ByteArrayInputStream(fileContent.getBytes()));
+
+        var servers_2 = getServersFromFile("DeliveryServerConfigTest_EncryptedPassword.xml");
         assertTrue(compareServers(servers, servers_2));
     }
-    
+
     /**
      * Simulate encrypt the password of the specified file
      * 
@@ -91,37 +86,37 @@ public class DeliveryServerConfigTest
      */
     private String encryptPassword(String file) throws Exception
     {
-        InputStream in = this.getClass().getResourceAsStream(file);
-        DeliveryServerConfig config = PSSerializerUtils.unmarshalWithValidation(in, DeliveryServerConfig.class);
-        
-        for (DeliveryServer s : config.getDeliveryServer())
-        {
-            Password origPw = s.getPassword();
-            String origPwVal = s.getPassword().getValue();
+        try (var in = this.getClass().getResourceAsStream(file)) {
+            var config = PSSerializerUtils.unmarshalWithValidation(in, DeliveryServerConfig.class);
 
-            origPw.setEncrypted(Boolean.TRUE);
-            String enc = PSEncryptor.encryptString(rxdeploydir, origPwVal);
-            origPw.setValue(enc);
+            for (var s : config.getDeliveryServer())
+            {
+                var origPw = s.getPassword();
+                var origPwVal = s.getPassword().getValue();
 
-            // make sure password can be decrypted  
-            String pw =PSEncryptor.decryptString(rxdeploydir,enc);
-            assertTrue(origPwVal.equals(pw));
+                origPw.setEncrypted(Boolean.TRUE);
+                var enc = PSEncryptor.encryptString(rxdeploydir, origPwVal);
+                origPw.setValue(enc);
+
+                var pw = PSEncryptor.decryptString(rxdeploydir, enc);
+                assertTrue(origPwVal.equals(pw));
+            }
+
+            return PSSerializerUtils.marshal(config);
         }
-        
-        return PSSerializerUtils.marshal(config);    
     }
 
     private List<DeliveryServer> getServers(InputStream in) throws Exception
     {
-        DeliveryServerConfig config = PSSerializerUtils.unmarshalWithValidation(in, DeliveryServerConfig.class);
-        
+        var config = PSSerializerUtils.unmarshalWithValidation(in, DeliveryServerConfig.class);
         return config.getDeliveryServer();
     }
 
     private List<DeliveryServer> getServersFromFile(String file) throws Exception
     {
-        InputStream in = this.getClass().getResourceAsStream(file);
-        return getServers(in);
+        try (var in = this.getClass().getResourceAsStream(file)) {
+            return getServers(in);
+        }
     }
     
     /**

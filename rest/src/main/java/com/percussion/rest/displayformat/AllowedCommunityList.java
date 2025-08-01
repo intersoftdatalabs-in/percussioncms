@@ -17,9 +17,35 @@
 
 package com.percussion.rest.displayformat;
 
-public class AllowedCommunityList {
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
-    public AllowedCommunityList(){}
+/**
+ * Represents a list of allowed communities for a display format.
+ */
+public class AllowedCommunityList extends ArrayList<String> {
 
+    public AllowedCommunityList() {
+        super();
+    }
 
+    public AllowedCommunityList(Collection<? extends String> c) {
+        super(c);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof AllowedCommunityList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "AllowedCommunityList" + super.toString();
+    }
 }

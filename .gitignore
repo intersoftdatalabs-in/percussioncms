@@ -1,3 +1,7 @@
+.vscode/*
+system/.settings/*
+tasksync/*
+memory-bank/*
 .idea/*
 .idea/encodings.xml
 .idea/sonarIssues.xml
@@ -126,3 +130,4 @@ fabric.properties
 /modules/redirect-tool/apache-redirects.conf
 /modules/redirect-tool/redirects.json
 /cui/package-lock.json
+/modules/tlsutils/truststore.jks

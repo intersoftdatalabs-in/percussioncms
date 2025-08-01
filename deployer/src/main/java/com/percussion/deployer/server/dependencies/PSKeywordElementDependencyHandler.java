@@ -19,7 +19,6 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -57,9 +56,9 @@ public class PSKeywordElementDependencyHandler extends
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
+   @Override
+   public Iterator<String> getChildTypes() {
+      return List.of(PSKeywordDependencyHandler.DEPENDENCY_TYPE).iterator();
    }
 
    // see base class
@@ -69,12 +68,11 @@ public class PSKeywordElementDependencyHandler extends
    }
 
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
 
@@ -89,16 +87,4 @@ public class PSKeywordElementDependencyHandler extends
     * be <code>null</code> after that.
     */
    private PSDependencyHandler m_childHandler = null;
-
-   /**
-    * List of child types supported by this handler, never <code>null</code> or
-    * empty.
-    */
-   private static List<String> ms_childTypes = new ArrayList<>();
-
-   static
-   {
-      ms_childTypes.add(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-   }
 }
-

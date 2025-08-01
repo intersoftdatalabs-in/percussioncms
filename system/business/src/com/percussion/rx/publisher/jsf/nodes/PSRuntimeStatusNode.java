@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.rx.jsf.PSNodeBase;
@@ -60,10 +62,14 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * @param runtimeNav the runtime navigation node, which is also the parent
     * node. Never <code>null</code>.
     */
+   /**
+    * Constructs a runtime status node.
+    * @param title node title, never null or empty
+    * @param runtimeNav runtime navigation node, never null
+    */
    public PSRuntimeStatusNode(String title, PSRuntimeNavigation runtimeNav) {
       super(title, STATUS_VIEW);
-      
-      assert runtimeNav != null;
+      if (runtimeNav == null) throw new IllegalArgumentException("runtimeNav may not be null.");
       m_runtimeNav = runtimeNav;
    }
 
@@ -73,37 +79,33 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * This class is used to populate the table in status.jsp page. It is also
     * provide actions/methods to view log of the job or stop the job.
     */
-   public class StatusEntry
-   {
-      private Long m_jobId;
-      PSStatusLogEntry m_logEntry;
-      
-      public StatusEntry(Long id)
-      {
+   /**
+    * Status entry for a publishing job. Provides log viewing and job stop actions.
+    */
+   public class StatusEntry {
+      private final Long m_jobId;
+      private final PSStatusLogEntry m_logEntry;
+
+      public StatusEntry(Long id) {
          m_jobId = id;
          m_logEntry = new PSStatusLogEntry(id, m_runtimeNav);
       }
-      
+
       /**
-       * Action to view the log of the publishing job.
-       * 
-       * @return the outcome, never <code>null</code> or empty.
+       * View the log of the publishing job.
+       * @return outcome, never null or empty
        */
-      public String viewLog()
-      {
+      public String viewLog() {
          return m_logEntry.perform();
       }
 
       /**
-       * Action to stop/cancel the current job.
+       * Stop/cancel the current job.
        */
-      public void stopJob()
-      {
-         IPSRxPublisherService rxpub = PSRxPublisherServiceLocator
-               .getRxPublisherService();      
-
+      public void stopJob() {
+         var rxpub = PSRxPublisherServiceLocator.getRxPublisherService();
          rxpub.cancelPublishingJob(m_jobId);
-      }      
+      }
    }
    
    /**
@@ -114,8 +116,12 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * @return <code>true</code> if it is terminated; otherwise return 
     *    <code>false</code>.
     */
-   private Boolean isTerminated(IPSPublisherJobStatus.State state)
-   {
+   /**
+    * Determines whether a job is terminated from its state.
+    * @param state job state, never null
+    * @return true if terminated, false otherwise
+    */
+   private boolean isTerminated(IPSPublisherJobStatus.State state) {
       return state.isTerminal();
    }
    
@@ -130,26 +136,20 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * @return the created entry, never <code>null</code>.
     */
    @SuppressWarnings("unchecked")
-   private JobStatus createJobStatus(Long jobId, IPSEdition edition,
-         IPSPublisherJobStatus status)
-   {
-      JobStatus jobStatus = new JobStatus();
-
-      jobStatus.setEditionNameWithId(PSDesignNode.getNameWithId(edition
-            .getName(), ((PSEdition) edition).getId()));
-      jobStatus.setEditionBehavior(edition.getEditionType()
-            .getDisplayTitle());
+   /**
+    * Creates a job status entry for a given job.
+    */
+   private JobStatus createJobStatus(Long jobId, IPSEdition edition, IPSPublisherJobStatus status) {
+      var jobStatus = new JobStatus();
+      jobStatus.setEditionNameWithId(PSDesignNode.getNameWithId(edition.getName(), ((PSEdition) edition).getId()));
+      jobStatus.setEditionBehavior(edition.getEditionType().getDisplayTitle());
       jobStatus.setStatus(status.getState().getDisplayName());
       jobStatus.setStatusEntry(new StatusEntry(jobId));
       jobStatus.setTerminated(isTerminated(status.getState()));
       jobStatus.setProgress(PSPublishingStatusHelper.getJobCompletionPercent(status));
-      
-      EndingState endState = PSPublishingStatusHelper.getEndingState(status
-            .getState());
-      String[] imgSrc = PSPublishingStatusHelper.getStatusImage(endState,
-            true, true);
+      var endState = PSPublishingStatusHelper.getEndingState(status.getState());
+      var imgSrc = PSPublishingStatusHelper.getStatusImage(endState, true, true);
       jobStatus.setStatusImage(imgSrc[0]);
-
       return jobStatus;
    }
 
@@ -243,46 +243,39 @@ public class PSRuntimeStatusNode extends PSNodeBase
     * 
     * @return entries of all active jobs, never <code>null</code>, maybe empty.
     */
-   public List<JobStatus> getActiveJobStatus()
-   {
-      IPSRxPublisherServiceInternal rxpub = PSRxPubServiceInternalLocator
-            .getRxPublisherService();
-      IPSPublisherService pubsvc = PSPublisherServiceLocator
-            .getPublisherService();
-      
+   /**
+    * Gets the active jobs for the current node.
+    * @return entries of all active jobs, never null, maybe empty
+    */
+   public List<JobStatus> getActiveJobStatus() {
+      var rxpub = PSRxPubServiceInternalLocator.getRxPublisherService();
+      var pubsvc = PSPublisherServiceLocator.getPublisherService();
       IPSGuid siteId = null;
-      if (m_runtimeNav.getCurrentNode() instanceof PSRuntimeSiteNode)
-      {
-         siteId = ((PSRuntimeSiteNode)m_runtimeNav.getCurrentNode()).getSiteID();
+      if (m_runtimeNav.getCurrentNode() instanceof PSRuntimeSiteNode) {
+         siteId = ((PSRuntimeSiteNode) m_runtimeNav.getCurrentNode()).getSiteID();
       }
-      
-      List<JobStatus> reval = new ArrayList<>();
-      for (Long jobId : rxpub.getActiveJobIds())
-      {
-         IPSPublisherJobStatus stat = rxpub.getPublishingJobStatus(jobId);
-         IPSEdition ed = null;
-         try
-         {
+      var reval = new ArrayList<JobStatus>();
+      for (var jobId : rxpub.getActiveJobIds()) {
+         var stat = rxpub.getPublishingJobStatus(jobId);
+         IPSEdition ed;
+         try {
             ed = pubsvc.loadEdition(stat.getEditionId());
-            // if for a specific site, then skip editions for other sites
-            if (siteId != null && (!ed.getSiteId().equals(siteId)))
-               continue;
+            if (siteId != null && !ed.getSiteId().equals(siteId)) continue;
+         } catch (PSNotFoundException e) {
+            continue;
          }
-         catch (PSNotFoundException e)
-         {
-            continue; // don't show if cannot find the Edition
-         }
-
-         JobStatus entry = createJobStatus(jobId, ed, stat);
+         var entry = createJobStatus(jobId, ed, stat);
          reval.add(entry);
       }
-      
       return reval;
    }
    
    @Override
-   public String getHelpTopic()
-   {
+   /**
+    * Gets the help topic for this node.
+    */
+   @Override
+   public String getHelpTopic() {
       return "ActiveJobStatus";
    }
 

@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
@@ -44,7 +45,6 @@ import java.util.zip.ZipOutputStream;
  */
 public class PSArchiveFiles
 {
-
    private static final Logger log = LogManager.getLogger(IPSConstants.PACKAGING_LOG);
 
    /**
@@ -53,7 +53,7 @@ public class PSArchiveFiles
     *
     * @param archiveName The name of the archive.  This should include the path
     * also, must not be <code>null</code>.
-    * @param type, The type of the archive. If it is <code>null</code> or not
+    * @param type The type of the archive. If it is <code>null</code> or not
     * equal to {@link #JAR_FILE_TYPE}, assumes archive is of type
     * <code>ZipFile</code>.
     *
@@ -66,20 +66,17 @@ public class PSArchiveFiles
       throws IOException
    {
       // validate input
-      if (archiveName == null)
-         throw new IllegalArgumentException("arvhiveName may not be null");
+      Objects.requireNonNull(archiveName, "archiveName may not be null");
 
-      if(type == null)
-         type = ZIP_FILE_TYPE;
+      var archiveType = type != null ? type : ZIP_FILE_TYPE;
 
       // open the zip file
-      File archiveFile = new File(archiveName);
+      var archiveFile = new File(archiveName);
 
-      if(type.equalsIgnoreCase(JAR_FILE_TYPE))
+      if(archiveType.equalsIgnoreCase(JAR_FILE_TYPE))
          return new JarFile(archiveFile);
       else
          return new ZipFile(archiveFile);
-
    }
 
    /**
@@ -102,26 +99,21 @@ public class PSArchiveFiles
       throws IOException, ZipException
    {
       // validate input
-      if (archiveFile == null)
-         throw new IllegalArgumentException(
-            "Archive file to read may not be null.");
-
-      if (name == null)
-         throw new IllegalArgumentException("File entry name may not be null.");
+      Objects.requireNonNull(archiveFile, "Archive file to read may not be null");
+      Objects.requireNonNull(name, "File entry name may not be null");
 
       // get the zip entry for the specified file
-      ZipEntry entry = archiveFile.getEntry(name);
+      var entry = archiveFile.getEntry(name);
       if (entry == null)
       {
-         Enumeration<? extends ZipEntry> entries = archiveFile.entries();
+         var entries = archiveFile.entries();
          while (entries.hasMoreElements())
          {
-            ZipEntry ent = entries.nextElement();
+            var ent = entries.nextElement();
             System.out.println(ent.getName());
          }
          throw new IOException("Archive File Entry " + name + " not found in " +
             archiveFile.getName());
-
       }
 
       // get the inputstream for that entry
@@ -129,15 +121,14 @@ public class PSArchiveFiles
    }
 
    /**
-    * Locates the specified file in the archive and returns it's size
+    * Locates the specified file in the archive and returns its size
     *
     * @param archiveFile The archive file in which the file entry to be read.
     * May not be <code>null</code> and must not be closed.
     * @param name The name of the file to retrieve.  Must have the path same as
     * the path specified in archive for this entry.
     *
-    * @return the inputstream.  Never <code>null</code>. Caller must close when
-    * finished with it.
+    * @return the file size. Never negative.
     *
     * @throws IOException if an error occurs reading from the archive or if
     * file is not found in archive.
@@ -147,33 +138,28 @@ public class PSArchiveFiles
    public static int getFileSize(ZipFile archiveFile, String name)
       throws IOException, ZipException
    {
-      if (archiveFile == null)
-         throw new IllegalArgumentException(
-               "Archive file to read may not be null.");
-
-      if (name == null)
-         throw new IllegalArgumentException("File entry name may not be null.");
+      Objects.requireNonNull(archiveFile, "Archive file to read may not be null");
+      Objects.requireNonNull(name, "File entry name may not be null");
 
       // get the zip entry for the specified file
-      ZipEntry entry = archiveFile.getEntry(name);
+      var entry = archiveFile.getEntry(name);
       if (entry == null)
       {
          throw new IOException("Archive File Entry " + name + " not found in " +
             archiveFile.getName());
       }
 
-      // get the inputstream for that entry
+      // get the file size
       return (int)entry.getSize();
    }
 
-   
    /**
     * Creates the specified archive file and opens output stream to it.
     * The classes calling this method are responsible for closing the stream.
     *
     * @param archive The file to create. May not be <code>null</code>. If it
     * exists it will be replaced.
-    * @param type, The type of the archive. If it is <code>null</code> or not
+    * @param type The type of the archive. If it is <code>null</code> or not
     * equal to {@link #JAR_FILE_TYPE}, assumes archive is of type
     * {@link #ZIP_FILE_TYPE}.
     * @param manifest the manifest which can be set to output stream if it is
@@ -183,29 +169,27 @@ public class PSArchiveFiles
     * @return the archive output stream, never <code>null</code>.
     *
     * @throws IllegalArgumentException if archive is <code>null</code>.
-    * stream  from it.
+    * @throws IOException if error occurs creating the archive.
     */
    public static ZipOutputStream createArchive(File archive, String type,
       Manifest manifest)
       throws IOException
    {
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
+      Objects.requireNonNull(archive, "archive may not be null");
 
-      if(type == null)
-         type = ZIP_FILE_TYPE;
+      var archiveType = type != null ? type : ZIP_FILE_TYPE;
+      var fout = new FileOutputStream(archive);
 
-      FileOutputStream fout = new FileOutputStream(archive);
-
-      if(type.equalsIgnoreCase(JAR_FILE_TYPE))
+      if(archiveType.equalsIgnoreCase(JAR_FILE_TYPE))
       {
-         if(manifest != null)
-            return new JarOutputStream(fout, manifest);
-         else
-            return new JarOutputStream(fout);
+         return manifest != null ?
+            new JarOutputStream(fout, manifest) :
+            new JarOutputStream(fout);
       }
       else
+      {
          return new ZipOutputStream(fout);
+      }
    }
 
    /**
@@ -236,23 +220,19 @@ public class PSArchiveFiles
       File file, String rootPath, FilenameFilter filter, OutputStream out)
       throws IOException, ZipException
    {
-      if(archiveOutputStream == null)
-         throw new IllegalArgumentException(
-            "The archive stream to which files should be added may not be null."
-            );
+      Objects.requireNonNull(archiveOutputStream,
+         "The archive stream to which files should be added may not be null");
+      Objects.requireNonNull(file,
+         "The file or directory to be added may not be null");
 
-      if(file == null)
-         throw new IllegalArgumentException(
-            "The file or directory to be added may not be null."
-            );
-
-      String filePath = file.getCanonicalPath();
+      var filePath = file.getCanonicalPath();
 
       if( rootPath != null && filePath.length() > rootPath.length() &&
           filePath.substring(0, rootPath.length()).equalsIgnoreCase(rootPath) )
       {
          filePath = filePath.substring(rootPath.length());
       }
+
       PrintWriter pw = null;
       if(out != null)
       {
@@ -261,17 +241,13 @@ public class PSArchiveFiles
 
       if(file.isDirectory())
       {
-         File[] files;
-         if(filter == null)
-            files = file.listFiles();
-         else
-            files = file.listFiles(filter);
+         var files = filter == null ? file.listFiles() : file.listFiles(filter);
 
-         if(files.length > 0)
+         if(files != null && files.length > 0)
          {
-            for(int i = 0; i < files.length; i++)
+            for(var subFile : files)
             {
-               addFilesToArchive(archiveOutputStream, files[i],
+               addFilesToArchive(archiveOutputStream, subFile,
                   rootPath, filter, out);
             }
          }
@@ -308,25 +284,15 @@ public class PSArchiveFiles
       String fileEntryPath, File sourceFile, byte[] extra)
       throws IOException, ZipException
    {
-      if(archiveOutputStream == null)
-         throw new IllegalArgumentException(
-            "The archive stream to which file should be added may not be null."
-            );
-
-      if (fileEntryPath == null)
-         throw new IllegalArgumentException(
-            "The path for this file entry may not be null.");
-
-      if (sourceFile == null)
-         throw new IllegalArgumentException("The source file may not be null.");
-
+      Objects.requireNonNull(archiveOutputStream,
+         "The archive stream to which file should be added may not be null");
+      Objects.requireNonNull(fileEntryPath,
+         "The path for this file entry may not be null");
+      Objects.requireNonNull(sourceFile, "The source file may not be null");
 
       // Add entry to output stream.
-      ZipEntry entry;
-      if(archiveOutputStream instanceof JarOutputStream)
-         entry = new JarEntry(fileEntryPath);
-      else
-         entry = new ZipEntry(fileEntryPath);
+      ZipEntry entry = archiveOutputStream instanceof JarOutputStream ?
+         new JarEntry(fileEntryPath) : new ZipEntry(fileEntryPath);
 
       if (extra != null)
          entry.setExtra(extra);
@@ -335,21 +301,20 @@ public class PSArchiveFiles
          archiveOutputStream.putNextEntry(entry);
 
          if (sourceFile.isFile()) {
-            // read in file and write it out
-            FileInputStream in = new FileInputStream(sourceFile);
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0)
-               archiveOutputStream.write(buf, 0, len);
-
-            in.close();
+            // read in file and write it out using try-with-resources
+            try (var in = new FileInputStream(sourceFile)) {
+               var buf = new byte[1024];
+               int len;
+               while ((len = in.read(buf)) > 0) {
+                  archiveOutputStream.write(buf, 0, len);
+               }
+            }
          }
-      }catch(ZipException e){
-         if(e.getMessage().contains("duplicate entry")){
+      } catch(ZipException e) {
+         if(e.getMessage().contains("duplicate entry")) {
             log.warn("Skipping duplicate entry: {} in package archive.",
                     fileEntryPath);
-         }else{
+         } else {
             throw e;
          }
       }
@@ -429,9 +394,9 @@ public class PSArchiveFiles
          pw.println("Extracting files from archive");
       }
 
-      for(Enumeration files=archiveFile.entries(); files.hasMoreElements(); )
+      for(Enumeration<? extends ZipEntry> files=archiveFile.entries(); files.hasMoreElements(); )
       {
-         ZipEntry entry = (ZipEntry)files.nextElement();
+         ZipEntry entry = files.nextElement();
          StringBuilder errorBuf = new StringBuilder();
 
          // Check whether the directory exists for this file. If not, create it.

@@ -17,8 +17,6 @@
 
 package com.percussion.data;
 
-import com.percussion.debug.PSDebugLogHandler;
-import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.error.PSCatalogException;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.error.PSNotFoundException;
@@ -42,7 +40,6 @@ import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSInvalidRequestTypeException;
 import com.percussion.server.PSRequest;
-import com.percussion.server.PSRequestStatistics;
 import com.percussion.server.PSUserSession;
 import org.w3c.dom.Document;
 
@@ -202,12 +199,11 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
          // validate the request data
          validate(execData);
 
-         PSRequestStatistics stats = request.getStatistics();
+         // Removed unused variable stats per Google Java Style
 
          // trace request processing
-         PSDebugLogHandler dh = (PSDebugLogHandler)request.getLogHandler();
-         boolean isTraceEnabled = dh.isTraceEnabled(
-            PSTraceMessageFactory.RESOURCE_HANDLER_FLAG);
+         // Removed unused variable dh per Google Java Style
+         // Removed unused variable isTraceEnabled per Google Java Style
 
          /* run the execution plan (IPSExecutionStep[]) */
          for (curExec = 0; curExec < m_execPlanQuery.length; curExec++)
@@ -635,13 +631,13 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
          /* if there's more than one result set on the stack, we're
           * in trouble!!! we must have missed a join.
           */
-         Stack stack = data.getResultSetStack();
+         Stack<?> stack = data.getResultSetStack();
 
          if (stack.size() > 1)
          {
             throw new PSInternalRequestCallException(
                IPSDataErrors.CANNOT_RETURN_MULTIPLE_RESULT_SETS,
-               new Integer(stack.size()));
+               Integer.valueOf(stack.size()));
          } else
          {
             rs = (ResultSet) stack.pop();
@@ -673,7 +669,7 @@ public class PSQueryHandler extends PSDataHandler implements IPSInternalResultHa
    /**
     * The pager used by this query; may be <code>null</code>
     */
-   private PSResultPager m_pager = null;
+   // Removed unused field m_pager per Google Java Style
    /**
     * See {@link #setRowFilter(IPSResultSetDataFilter)} for details. Defaults
     * to <code>null</code>.

@@ -29,128 +29,120 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * Adaptor for managing Extensions in Percussion CMS.
+ */
 @PSSiteManageBean
 public class ExtensionAdaptor implements IExtensionAdaptor {
 
-    private IPSExtensionService extensionService;
-    private Logger log = LogManager.getLogger(ExtensionAdaptor.class);
-
+    private final IPSExtensionService extensionService;
+    private final Logger log = LogManager.getLogger(ExtensionAdaptor.class);
 
     @Autowired
-    public ExtensionAdaptor(IPSExtensionService extensionService){
+    public ExtensionAdaptor(IPSExtensionService extensionService) {
         this.extensionService = extensionService;
     }
 
-    private Extension copyExtensionRef(PSExtensionRef ref){
-        Extension ret = new Extension();
+    private Extension copyExtensionRef(PSExtensionRef ref) {
+        var ret = new Extension();
         ret.setCategory(ref.getCategory());
         ret.setContext(ref.getContext());
-        ret.setExtensionName(ret.getExtensionName());
+        ret.setExtensionName(ref.getExtensionName());
         ret.setHandlerName(ref.getHandlerName());
 
         try {
-            IPSExtensionDef def = extensionService.getExtensionDef(ref);
+            var def = extensionService.getExtensionDef(ref);
 
             ret.setDeprecated(def.isDeprecated());
             ret.setJexlExtension(def.isJexlExtension());
             ret.setVersion(def.getVersion());
 
-            //copy interfaces
-            Iterator it = def.getInterfaces();
-            List interfaces = new ArrayList();
-            it.forEachRemaining(interfaces::add);
+            // Copy interfaces
+            var interfaces = new ArrayList<>();
+            def.getInterfaces().forEachRemaining(interfaces::add);
             ret.setSupportedInterfaces(interfaces);
 
-            //Init params
-            it = def.getInitParameterNames();
-            Map<String,String> initParams = new HashMap();
-            while(it.hasNext()){
-                String name = (String)it.next();
-                initParams.put(name,def.getInitParameter(name));
-            }
+            // Init params
+            var initParams = new HashMap<String, String>();
+            def.getInitParameterNames().forEachRemaining(name ->
+                initParams.put(name, def.getInitParameter(name))
+            );
             ret.setInitParameters(initParams);
-            Map<String, ExtensionMethod> methods = new HashMap();
-             it = def.getMethods();
-             while(it.hasNext()) {
-                 PSExtensionMethod defMethod = (PSExtensionMethod) it.next();
-                 ExtensionMethod meth = new ExtensionMethod();
-                 meth.setName(defMethod.getName());
-                 meth.setDescription(defMethod.getDescription());
 
-                 Iterator itParams = defMethod.getParameters();
-                 List<ExtensionParameter> methParams = new ArrayList();
-                 while (itParams.hasNext()) {
-                     ExtensionParameter ep = new ExtensionParameter();
-                     PSExtensionMethodParam emp = (PSExtensionMethodParam) itParams.next();
-                     ep.setDataType(emp.getType());
-                     ep.setDescription(emp.getDescription());
-                     ep.setName(emp.getName());
-                     methParams.add(ep);
-                 }
-                 meth.setParameters(methParams);
-                 methods.put(defMethod.getName(), meth);
-             }
-             ret.setMethods(methods);
-             it = def.getRequiredApplications();
-             List<String> apps = new ArrayList<>();
-             while(it.hasNext()){
-               apps.add((String)it.next() );
-             }
-             ret.setRequiredApplications(apps);
+            // Methods
+            var methods = new HashMap<String, ExtensionMethod>();
+            def.getMethods().forEachRemaining(methodObj -> {
+                var defMethod = (PSExtensionMethod) methodObj;
+                var meth = new ExtensionMethod();
+                meth.setName(defMethod.getName());
+                meth.setDescription(defMethod.getDescription());
 
-             it = def.getResourceLocations();
-             List<String> resources = new ArrayList<>();
-             while(it.hasNext()){
-                resources.add(((URL)it.next()).toString());
-             }
-             ret.setResourceLocations(resources);
+                var methParams = new ArrayList<ExtensionParameter>();
+                defMethod.getParameters().forEachRemaining(paramObj -> {
+                    var emp = (PSExtensionMethodParam) paramObj;
+                    var ep = new ExtensionParameter();
+                    ep.setDataType(emp.getType());
+                    ep.setDescription(emp.getDescription());
+                    ep.setName(emp.getName());
+                    methParams.add(ep);
+                });
+                meth.setParameters(methParams);
+                methods.put(defMethod.getName(), meth);
+            });
+            ret.setMethods(methods);
 
+            // Required applications
+            var apps = new ArrayList<String>();
+            def.getRequiredApplications().forEachRemaining(app -> apps.add((String) app));
+            ret.setRequiredApplications(apps);
 
-            it = def.getSuppliedResources();
-            List<String> supplied = new ArrayList<>();
-            while(it.hasNext()){
-                resources.add(((URL)it.next()).toString());
-            }
+            // Resource locations
+            var resources = new ArrayList<String>();
+            def.getResourceLocations().forEachRemaining(res -> resources.add(((URL) res).toString()));
+            ret.setResourceLocations(resources);
+
+            // Supplied resources
+            var supplied = new ArrayList<String>();
+            def.getSuppliedResources().forEachRemaining(res -> supplied.add(((URL) res).toString()));
             ret.setSuppliedResources(supplied);
 
-            it = def.getRuntimeParameterNames();
-            List<ExtensionParameter> runParams = new ArrayList<>();
-            while(it.hasNext()){
-                String name = (String)it.next();
-                ExtensionParameter runP = new ExtensionParameter();
-                IPSExtensionParamDef defParam = def.getRuntimeParameter(name);
+            // Runtime parameters
+            var runParams = new ArrayList<ExtensionParameter>();
+            def.getRuntimeParameterNames().forEachRemaining(name -> {
+                var runP = new ExtensionParameter();
+                var defParam = def.getRuntimeParameter(name);
                 runP.setName(defParam.getName());
                 runP.setDescription(defParam.getDescription());
                 runP.setDataType(defParam.getDataType());
                 runParams.add(runP);
-            }
+            });
             ret.setRuntimeParameters(runParams);
-        }finally{
+
+        } finally {
             return ret;
         }
     }
 
-    /***
-     * Gets all extensions based on the specified ExtensionFilterOptions
-     * @param baseURI
-     * @param filter An ExtensionFilterOptions configured with the target filters
-     * @return A list of Extensions.
+    /**
+     * Gets all extensions based on the specified ExtensionFilterOptions.
      */
     @Override
     public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
-
-        List<Extension> response = new ArrayList<>();
+        var response = new ArrayList<Extension>();
         try {
-            Iterator it = extensionService.getExtensionNames(filter.getHandlerNamePattern(), filter.getContext(), filter.getInterfacePattern(), filter.getExtensionNamePattern());
-
-            while(it.hasNext()){
-                PSExtensionRef ref = (PSExtensionRef)it.next();
+            var it = extensionService.getExtensionNames(
+                    filter.getHandlerNamePattern(),
+                    filter.getContext(),
+                    filter.getInterfacePattern(),
+                    filter.getExtensionNamePattern()
+            );
+            while (it.hasNext()) {
+                var ref = (PSExtensionRef) it.next();
                 response.add(copyExtensionRef(ref));
             }
-
         } catch (PSExtensionException e) {
             log.error("Error getting getExtensionNames", e);
-        } finally{
+        } finally {
             return response;
         }
     }

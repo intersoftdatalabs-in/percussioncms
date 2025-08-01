@@ -56,6 +56,7 @@ import javax.swing.table.TableCellEditor;
   * box cell.
   */
 
+@SuppressWarnings("unchecked")
 public class EditableListBoxBrowseEditor implements TableCellEditor, Serializable
 {
 //
@@ -71,7 +72,7 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
      * <CODE>null</CODE> is an acceptable parameter. Anything other type of
      * object will be ignored.
      */
-    public EditableListBoxBrowseEditor(JComboBox x, Component dialogRef)
+    public EditableListBoxBrowseEditor(JComboBox<Object> x, Component dialogRef)
     {
       if ( dialogRef instanceof JDialog )
          m_dialogRef = (JDialog)dialogRef;
@@ -179,7 +180,7 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
      *
      * @param x  a JComboBox object ...
      */
-    private void init(JComboBox x)
+    private void init(JComboBox<Object> x)
     {
       m_editorComponent = x;
       m_button.setPreferredSize(new Dimension(18, 20));
@@ -208,21 +209,21 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
             {
               m_storage = x;
               // trims whitespaces before setting string into component
-              ((JComboBox)m_editorComponent).setSelectedItem(x.toString().trim());
+              ((JComboBox<Object>)m_editorComponent).setSelectedItem(x.toString().trim());
             }
             else
-              ((JComboBox)m_editorComponent).setSelectedItem(new String(""));
+              ((JComboBox<Object>)m_editorComponent).setSelectedItem("");
           }
 
           public Object getCellEditorValue()
           {
              if (m_storage instanceof EditableListBoxCellNameHelper)
              {
-               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox)m_editorComponent).getSelectedItem().toString());
+               ((EditableListBoxCellNameHelper)m_storage).setName(((JComboBox<Object>)m_editorComponent).getSelectedItem().toString());
                return m_storage;
              }
              else
-               return ((JComboBox)m_editorComponent).getSelectedItem().toString();
+               return ((JComboBox<Object>)m_editorComponent).getSelectedItem().toString();
           }
 
           public boolean startCellEditing(EventObject anEvent)
@@ -240,8 +241,8 @@ public class EditableListBoxBrowseEditor implements TableCellEditor, Serializabl
           }
         };
 
-        ((JComboBox)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
-        ((JComboBox)m_editorComponent).addItemListener(m_delegate);
+        ((JComboBox<Object>)m_editorComponent).getEditor().getEditorComponent().addKeyListener(m_delegate);
+        ((JComboBox<Object>)m_editorComponent).addItemListener(m_delegate);
         m_button.addActionListener(m_buttonDelegate);
     }
 

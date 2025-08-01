@@ -265,43 +265,35 @@ public class PSDependencyMap
       m_parentDefMap = new HashMap<>();
       m_childDefMap = new HashMap<>();
 
-         Iterator<PSDependencyDef> defs = m_dependencyMap.values().iterator();
-         while (defs.hasNext()) {
-            try{
-               // create handler and add to handler map
-               PSDependencyDef def = defs.next();
-               String defType = def.getObjectType();
-               PSDependencyHandler handler = PSDependencyHandler.getHandlerInstance(
-                       def, this);
-               m_handlerMap.put(defType, handler);
+      m_dependencyMap.values().forEach(def -> {
+         try {
+            var defType = def.getObjectType();
+            var handler = PSDependencyHandler.getHandlerInstance(def, this);
+            m_handlerMap.put(defType, handler);
 
-               Iterator<String> childTypes = handler.getChildTypes();
-               List<PSDependencyDef> childList = new ArrayList<>();
-               m_childDefMap.put(defType, childList);
-               while (childTypes.hasNext()) {
-                  try {
-                     // get child defs and add them as children in the child map
-                     String childType = childTypes.next();
-                     PSDependencyDef childDef = getDependencyDef(childType);
-                     if (childDef == null) {
-                        Object[] args = {childType, defType};
-                        throw new PSDeployException(
-                                IPSDeploymentErrors.CHILD_DEPENDENCY_TYPE_NOT_FOUND, args);
-                     }
-                     childList.add(childDef);
+            var childTypes = handler.getChildTypes();
+            var childList = new ArrayList<PSDependencyDef>();
+            m_childDefMap.put(defType, childList);
 
-                     // for each child, add the current def as its parent in parent map
-                     List<PSDependencyDef> parentList = m_parentDefMap.computeIfAbsent(childType, k -> new ArrayList<>());
-                     parentList.add(def);
-                  }catch(Exception e){
-                     log.error(PSExceptionUtils.getMessageForLog(e));
+            childTypes.forEachRemaining(childType -> {
+               try {
+                  var childDef = getDependencyDef(childType);
+                  if (childDef == null) {
+                     var args = new Object[]{childType, defType};
+                     throw new PSDeployException(IPSDeploymentErrors.CHILD_DEPENDENCY_TYPE_NOT_FOUND, args);
                   }
-               }
-            }catch(Exception e){
-                log.error(PSExceptionUtils.getMessageForLog(e));
-            }
-         }
+                  childList.add(childDef);
 
+                  var parentList = m_parentDefMap.computeIfAbsent(childType, k -> new ArrayList<>());
+                  parentList.add(def);
+               } catch (Exception e) {
+                  log.error(PSExceptionUtils.getMessageForLog(e));
+               }
+            });
+         } catch (Exception e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+         }
+      });
    }
    
    /**

@@ -16,62 +16,56 @@
  */
 package com.percussion.share.async;
 
-
 import com.percussion.foldermanagement.service.IPSFolderService;
 
 /**
- * Service to start and manage jobs that need to run asynchronously.  
- * 
- * @author JaySeletz
+ * Service to start and manage jobs that need to run asynchronously.
  *
+ * @author JaySeletz
  */
-public interface IPSAsyncJobService
-{
+public interface IPSAsyncJobService {
+
     /**
      * Starts a job of the specified type.
-     * 
-     * @param jobType The type, must match a configured job type, not <code>null<code/> or empty.
-     * @param config The configuration object expected by the specified type of job, may be <code>null</code> if not expected.
-     * 
+     *
+     * @param jobType The type, must match a configured job type, not null or empty.
+     * @param config The configuration object expected by the specified type of job, may be null if not expected.
      * @return A job id, used to query for job status and to cancel the job.
      */
-    public long startJob(String jobType, Object config) throws IPSFolderService.PSWorkflowNotFoundException;
-    
+    long startJob(String jobType, Object config) throws IPSFolderService.PSWorkflowNotFoundException;
+
     /**
      * Checks the status of the specified job. The result contains
-     * a value between <code>1-100</code> to indicate the % done and a message.
-     * <code>100</code> indicates that the job has completed successfully.  If
-     * the job has terminated abnormally, <code>-1</code> is returned and
-     * the message will indicate the error.  Once a completed or terminated status 
+     * a value between 1-100 to indicate the % done and a message.
+     * 100 indicates that the job has completed successfully. If
+     * the job has terminated abnormally, -1 is returned and
+     * the message will indicate the error. Once a completed or terminated status
      * has been returned, the job status is no longer available.
-     * 
+     *
      * @param jobId The id of the job, must be a valid job id.
-     * 
-     * @return The current status, or <code>null</code> if the job does not exist 
-     * or if the job is no longer available.
+     * @return The current status, or null if the job does not exist
+     *         or if the job is no longer available.
      */
-    public PSAsyncJobStatus getJobStatus(long jobId);
-    
+    PSAsyncJobStatus getJobStatus(long jobId);
+
     /**
      * Attempts to stop the currently running job. Since job is running in its
      * own thread, it may complete on its own before noticing that it has been
      * requested to stop. This method does not return until the job is no longer running.
-     * 
-     * @param jobId The id of the job.  If not a currently running job, it is assumed the job has 
-     * completed and the method simply returns. 
+     *
+     * @param jobId The id of the job. If not a currently running job, it is assumed the job has
+     *              completed and the method simply returns.
      */
-    public void cancelJob(long jobId);
+    void cancelJob(long jobId);
 
     /**
-     * Get any result that the job might return.  The result returned is implementation
+     * Get any result that the job might return. The result returned is implementation
      * specific to the job.
-     * 
-     * @param jobId The id of the job.  If not a currently running job, it is assumed the job has 
-     * completed and the method simply returns.
-     * 
-     * @return The result, may be <code>null</code> if the job does not return a result or if the
-     * job is no longer available.
+     *
+     * @param jobId The id of the job. If not a currently running job, it is assumed the job has
+     *              completed and the method simply returns.
+     * @return The result, may be null if the job does not return a result or if the
+     *         job is no longer available.
      */
-    public Object getJobResult(long jobId);
-    
+    Object getJobResult(long jobId);
 }

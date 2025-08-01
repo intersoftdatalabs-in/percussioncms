@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -125,43 +126,24 @@ public class PSFolderContentsDescriptorBuilder
       return build();
    }
 
-   public PSDeployableElement build() throws PSDeployException
-   {
-      // these fields should have been inited in ctor
+   public PSDeployableElement build() throws PSDeployException {
       assert m_sourceFolderId != null;
       assert m_sourceMgr != null;
 
-      // init the other fields
-      m_included = new HashMap();
+      m_included = new HashMap<>();
       m_includedCount = 0;
-      m_excludedDependencies = new HashSet();
+      m_excludedDependencies = new HashSet<>();
 
-      PSDeployableElement pkg = null;
-      pkg = getTopFolderElement();
-      if (pkg == null)
-      {
-         log.error("failed to find top-level folder");
-      }
-      else
-      {
-         // remember property value to reset after process
-         String previousMaxDeps = System
-               .getProperty(IPSDeployConstants.PROP_MAX_DEPS);
+      var pkg = Optional.ofNullable(getTopFolderElement())
+          .orElseThrow(() -> new PSDeployException("Failed to find top-level folder"));
 
-         // set a large value for the maximum number of dependencies that will
-         // be loaded
-         System.setProperty(IPSDeployConstants.PROP_MAX_DEPS, String
-               .valueOf(MAX_DEPS));
+      var previousMaxDeps = System.getProperty(IPSDeployConstants.PROP_MAX_DEPS);
+      System.setProperty(IPSDeployConstants.PROP_MAX_DEPS, String.valueOf(MAX_DEPS));
 
-         loadChildren(pkg);
+      loadChildren(pkg);
 
-         if (previousMaxDeps != null)
-            System.setProperty(IPSDeployConstants.PROP_MAX_DEPS,
-                  previousMaxDeps);
-         else
-            System.setProperty(IPSDeployConstants.PROP_MAX_DEPS, String
-                  .valueOf(IPSDeployConstants.MAX_DEPS));
-      }
+      System.setProperty(IPSDeployConstants.PROP_MAX_DEPS,
+          Optional.ofNullable(previousMaxDeps).orElse(String.valueOf(IPSDeployConstants.MAX_DEPS)));
       return pkg;
    }
 
@@ -199,64 +181,30 @@ public class PSFolderContentsDescriptorBuilder
     * 
     * @throws PSDeployException
     */
-   private PSDeployableElement getTopFolderElement() throws PSDeployException
-   {
-      PSDeployableElement pkg = null;
-      Iterator i = m_sourceMgr
-            .getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
-      while (i.hasNext() && pkg == null)
-      {
-         PSDeployableElement element = (PSDeployableElement) i.next();
-         log.debug("considering " + element);
-         if (m_sourceFolderId.startsWith(element.getDisplayName()))
-         {
-            pkg = element;
-         }
-      }
-      return pkg;
+   private PSDeployableElement getTopFolderElement() throws PSDeployException {
+      var deployableElements = m_sourceMgr.getDeployableElements(IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER);
+      return deployableElements.stream()
+          .filter(element -> m_sourceFolderId.startsWith(element.getDisplayName()))
+          .findFirst()
+          .orElse(null);
    }
 
-   private void loadChildren(PSDependency dep) throws PSDeployException
-   {
+   private void loadChildren(PSDependency dep) throws PSDeployException {
       loadDependencies(dep);
-
-      // recurse into children
-      Iterator i = dep.getDependencies();
-      while (i.hasNext() && !isCancelled())
-      {
-         PSDependency childDep = (PSDependency) i.next();
-
-         // avoid loops: check if this dependency has already been processed
-         if (m_included.containsKey(childDep.getKey()))
-         {
-            // make sure each instance of included dependencies are included
-            // TODO: use a treectx to manage this
-            if (childDep.canBeIncludedExcluded())
-            {
-               childDep.setIsIncluded(true);
-            }
-            continue;
-         }
-
-         // remember removed dependencies so they are not checked again
-         if (previouslyRemoved(childDep))
-         {
-            i.remove();
-         }
-         else if (processDependency(childDep))
-         {
-            log.debug("removing {}", childDep);
-            i.remove();
-            rememberRemoval(childDep);
-
-            /*
-             * folder contents could be included, then removed when all child
-             * content items are removed, so update cache.
-             */
-            m_included.remove(childDep.getKey());
-
-         }
-      }
+      dep.getDependencies().forEachRemaining(childDep -> {
+          if (m_included.containsKey(childDep.getKey())) {
+              if (childDep.canBeIncludedExcluded()) {
+                  childDep.setIsIncluded(true);
+              }
+          } else if (previouslyRemoved(childDep)) {
+              dep.getDependencies().remove();
+          } else if (processDependency(childDep)) {
+              log.debug("removing {}", childDep);
+              dep.getDependencies().remove();
+              rememberRemoval(childDep);
+              m_included.remove(childDep.getKey());
+          }
+      });
    }
 
    /**
@@ -404,42 +352,16 @@ public class PSFolderContentsDescriptorBuilder
     * 
     * @throws PSDeployException propagated if errors occur in loadDependencies
     */
-   private boolean shouldRemoveSlot(PSDependency slot) throws PSDeployException
-   {
-      boolean shouldRemoveSlot = false;
-
-      // TODO: maintain included slots in m_included to avoid repeat checks
-
-      if (previouslyRemoved(slot))
-      {
-         // yes we've seen the slot, it is excluded (don't check again)
-         shouldRemoveSlot = true;
+   private boolean shouldRemoveSlot(PSDependency slot) throws PSDeployException {
+      if (previouslyRemoved(slot)) {
+         return true;
       }
-      else
-      {
-         loadDependencies(slot);
-         Iterator slotChildren = slot.getDependencies();
-         while (slotChildren.hasNext() && !isCancelled())
-         {
-            PSDependency slotChild = (PSDependency) slotChildren.next();
-            String objectType = slotChild.getObjectType();
-            if (objectType.equals(IPSDeployConstants.DEP_OBJECT_TYPE_SLOT_DEF))
-            {
-               // remove the slot if it has not been ID mapped
-               if (!isIdMapped(slotChild))
-               {
-                  shouldRemoveSlot = true;
-               }
-            }
-         }
-
-         /*
-          * since the slot will never be marked included, remove its child
-          * dependencies, so they will not be expanded by
-          * addMissingDependencies.
-          */
-         slot.setDependencies(null);
-      }
+      loadDependencies(slot);
+      var slotChildren = slot.getDependencies();
+      var shouldRemoveSlot = slotChildren.stream()
+          .filter(slotChild -> slotChild.getObjectType().equals(IPSDeployConstants.DEP_OBJECT_TYPE_SLOT_DEF))
+          .anyMatch(slotChild -> !isIdMapped(slotChild));
+      slot.setDependencies(null);
       return shouldRemoveSlot;
    }
 
@@ -447,92 +369,41 @@ public class PSFolderContentsDescriptorBuilder
     * not all content types are included, so make sure this item's type is
     * included by fetching dependencies and checking the map
     */
-   private boolean shouldRemoveContentItem(PSDependency item)
-         throws PSDeployException
-   {
-      boolean shouldRemoveItem = false;
-
+   private boolean shouldRemoveContentItem(PSDependency item) throws PSDeployException {
       loadDependencies(item);
-
-      // first, determine if this item will be included by checking its
-      // dependent type
-      Iterator i = item.getDependencies();
-      while (i.hasNext() && !isCancelled())
-      {
-         PSDependency itemChild = (PSDependency) i.next();
-         String objectType = itemChild.getObjectType();
-         if (objectType
-               .equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR))
-         {
-            // have we seen this content type?
-            if (m_included.containsKey(itemChild.getKey()))
-            {
-               // yes the type is included, so include the item
-               include(item);
-            }
-            else
-            {
-               if (previouslyRemoved(itemChild))
-               {
-                  shouldRemoveItem = true;
-               }
-               else
-               {
-                  // no we haven't seen this type yet, so drill down
+      var itemChildren = item.getDependencies();
+      var shouldRemoveItem = itemChildren.stream()
+          .filter(itemChild -> itemChild.getObjectType().equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_EDITOR))
+          .anyMatch(itemChild -> {
+              if (m_included.containsKey(itemChild.getKey())) {
+                  include(item);
+                  return false;
+              } else if (previouslyRemoved(itemChild)) {
+                  return true;
+              } else {
                   loadDependencies(itemChild);
-                  Iterator ii = itemChild.getDependencies();
-                  while (ii.hasNext() && !isCancelled())
-                  {
-                     PSDependency typeChild = (PSDependency) ii.next();
-                     if (typeChild.getObjectType().equals(
-                           IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_TYPE))
-                     {
-                        // is this content type mapped?
-                        if (isIdMapped(typeChild))
-                        {
-                           // yes, include the content item
-                           // (but not the type or type def)
-                           include(item);
-                           // remember we've seen this content type
-                           m_included.put(itemChild.getKey(), itemChild);
-                        }
-                        else
-                        {
-                           // no, remove the content item from the tree
-                           shouldRemoveItem = true;
-                           rememberRemoval(itemChild);
-                        }
-                     }
-                  }
-                  // clear content type's dependencies, since it is not included
-                  itemChild.setDependencies(null);
-               }
-            }
-         }
-      }
-
-      // second, if the item is included, expand any dependent relationships
-      if (!shouldRemoveItem)
-      {
-         i = item.getDependencies();
-         while (i.hasNext() && !isCancelled())
-         {
-            PSDependency itemChild = (PSDependency) i.next();
-            if (itemChild.getObjectType().equals(
-                  IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_RELATION))
-            {
+                  var typeChildren = itemChild.getDependencies();
+                  return typeChildren.stream()
+                      .filter(typeChild -> typeChild.getObjectType().equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_TYPE))
+                      .anyMatch(typeChild -> {
+                          if (isIdMapped(typeChild)) {
+                              include(item);
+                              m_included.put(itemChild.getKey(), itemChild);
+                              return false;
+                          } else {
+                              rememberRemoval(itemChild);
+                              return true;
+                          }
+                      });
+              }
+          });
+      if (!shouldRemoveItem) {
+         itemChildren.forEachRemaining(itemChild -> {
+            if (itemChild.getObjectType().equals(IPSDeployConstants.DEP_OBJECT_TYPE_CONTENT_RELATION)) {
                include(itemChild);
                loadChildren(itemChild);
             }
-            else
-            {
-               /*
-                * Other types (such as "Community" and "Workflow") are not
-                * included. Their children will be expanded by
-                * addMissingDependencies when the descriptor is exported.
-                */
-            }
-         }
+         });
       }
       return shouldRemoveItem;
    }

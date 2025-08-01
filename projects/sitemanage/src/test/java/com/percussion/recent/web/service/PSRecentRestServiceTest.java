@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,77 +21,45 @@ package com.percussion.recent.web.service;
 import com.percussion.share.test.fixtures.PSRestFixtures;
 import com.percussion.test.PSRestClientTestCase;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//TODO: Implement Me
+/**
+ * Integration test for Recent REST Service.
+ * Sunny Sal: "REST assured, this test will be completed soon!"
+ */
 @Category(IntegrationTest.class)
-public class PSRecentRestServiceTest extends PSRestClientTestCase
-{
+@Tag("integration")
+public class PSRecentRestServiceTest extends PSRestClientTestCase {
 
-    PSRestFixtures fixtures;
-    /*   
-    public PSRecentRestServiceTest(String testName)
-    {
-        super(testName);
-        
-    }
-*/
+    private PSRestFixtures fixtures;
+
     @Override
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         super.setUp();
-        //  need to update jackson/to get json unwrap working
-        // fixtures = new PSRestFixtures(c,r);
-        //fixtures.createSite();
+        // TODO: Update Jackson configuration to get JSON unwrap working.
+        // fixtures = new PSRestFixtures(c, r);
+        // fixtures.createSite();
     }
 
     @Test
-    public void _testMyResource()
-    {
+    void testMyResource() {
         assertTrue(true);
-        /*
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-        formData.add("value", "16777215-101-708");
-        
-        WebResource wr = r.path("services/recentmanagement/recent/item")
-                .path("test1");
-
-        ClientResponse response = getBuilder(wr)
-                .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .post(ClientResponse.class, formData);
-        
-        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        */
+        // TODO: Implement REST call and assertions for /recent/item endpoint.
     }
 
     @Test
-    public void _testMyResource2()
-    {
+    void testMyResource2() {
         assertTrue(true);
-        /*
-        MultivaluedMap<String, String> formData = new MultivaluedMapImpl();
-        formData.add("value", "16777215-101-708");
-        
-        
-        WebResource wr = r.path("services/recentmanagement/recent/item")
-                .path("16777215-101-708");
-
-        ClientResponse response = getBuilder(wr)
-                .type(MediaType.APPLICATION_FORM_URLENCODED_TYPE)
-                .post(ClientResponse.class, formData);
-        
-        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
-
-        */
+        // TODO: Implement REST call and assertions for /recent/item/{id} endpoint.
     }
-    
+
     @Test
-    public void testToBeCompleted()
-    {
+    void testToBeCompleted() {
         assertTrue(true);
+        // TODO: Add meaningful integration tests for Recent REST Service.
     }
-    
 }

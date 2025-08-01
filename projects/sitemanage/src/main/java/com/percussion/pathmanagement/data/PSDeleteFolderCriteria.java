@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,118 +22,121 @@ import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
- * This class is posted to the rest service as part of a request to delete a folder.  It contains the relative path of
- * the folder which should be deleted as well as a flag which indicates if in use assets/resources should be skipped
- * during deletion.
- * 
+ * Criteria for deleting a folder via REST.
+ * Contains the relative path of the folder to delete, a flag for skipping in-use assets/resources,
+ * and a flag for purging or recycling the folder.
+ *
  * @author peterfrontiero
  */
 @XmlRootElement(name = "DeleteFolderCriteria")
 @JsonRootName("DeleteFolderCriteria")
-public class PSDeleteFolderCriteria
-{
-    /**
-     * @return the path of the folder to rename, never <code>null</code> or empty.
-     */
-    public String getPath()
-    {
-        return path;
-    }
+public class PSDeleteFolderCriteria {
 
     /**
-     * @param path the path of the folder to rename, may not be <code>null</code> or empty.
-     */
-    public void setPath(String path)
-    {
-        this.path = path;
-    }
-
-    /**
-     * @return if in use assets/resources should be skipped during deletion.  May be <code>null</code>.
-     */
-    public SkipItemsType getSkipItems()
-    {
-        return skipItems;
-    }
-
-    /**
-     * @param skipItems if in use assets/resources should be skipped during deletion.
-     */
-    public void setSkipItems(SkipItemsType skipItems)
-    {
-        this.skipItems = skipItems;
-    }
-
-    /**
-     * @param shouldPurge if the folder should be recycled or purged.
-     */
-    public void setShouldPurge(boolean shouldPurge)
-    {
-        this.shouldPurge = shouldPurge;
-    }
-
-    /**
-     * Whether the item should be purged or recycled.
-     *
-     * @return <code>true</code> if the item is to be purged. <code>false</code>
-     * if it should be recycled.
-     */
-    public boolean getShouldPurge() { return this.shouldPurge; }
-
-    /**
-     * See {@link #getPath()}.
+     * The path of the folder to delete. Never null or empty.
      */
     @NotNull
     @NotBlank
     private String path;
-    
+
     /**
-     * See {@link #getSkipItems()}.
+     * Whether to skip in-use assets/resources during deletion.
      */
-    @NotBlank
     private SkipItemsType skipItems;
 
     /**
-     * @See {@link #getShouldPurge()}.
+     * Whether the folder should be purged (true) or recycled (false).
      */
-    @NotBlank
-    @NotNull
     private boolean shouldPurge;
 
+    /**
+     * Optional GUID for the folder.
+     */
     private String guid;
 
+    public String getPath() {
+        return path;
+    }
+
+    /**
+     * Sets the path of the folder to delete.
+     *
+     * @param path the folder path, not null or empty
+     */
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    /**
+     * Gets the skip items type.
+     *
+     * @return the skip items type, may be null
+     */
+    public SkipItemsType getSkipItems() {
+        return skipItems;
+    }
+
+    /**
+     * Sets the skip items type.
+     *
+     * @param skipItems the skip items type
+     */
+    public void setSkipItems(SkipItemsType skipItems) {
+        this.skipItems = skipItems;
+    }
+
+    /**
+     * Sets whether the folder should be purged.
+     *
+     * @param shouldPurge true to purge, false to recycle
+     */
+    public void setShouldPurge(boolean shouldPurge) {
+        this.shouldPurge = shouldPurge;
+    }
+
+    /**
+     * @return true if the folder should be purged, false if recycled
+     */
+    public boolean getShouldPurge() {
+        return this.shouldPurge;
+    }
+
+    /**
+     * Gets the GUID for the folder.
+     *
+     * @return the GUID, may be null
+     */
     public String getGuid() {
         return guid;
     }
 
+    /**
+     * Sets the GUID for the folder.
+     *
+     * @param guid the GUID
+     */
     public void setGuid(String guid) {
         this.guid = guid;
     }
 
     /**
      * The type used to determine if in-use folder items should be skipped during deletion.
-     * 
-     * @author peterfrontiero
      */
-    public enum SkipItemsType { 
-        
+    public enum SkipItemsType {
         /**
          * Skip in-use folder items.
          */
         YES,
-        
         /**
          * Delete in-use folder items.
          */
         NO,
-        
         /**
          * Skip in-use folder items and return their paths.
          */
         EMPTY
-        
     }
-      
 }

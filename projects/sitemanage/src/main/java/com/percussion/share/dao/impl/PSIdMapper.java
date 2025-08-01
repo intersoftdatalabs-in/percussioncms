@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -41,177 +42,120 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @PSSiteManageBean("sys_idMapper")
-public class PSIdMapper implements IPSIdMapper
-{
-   /**
-    * Constructs an instance of the class.
-    * 
-    * @param guidMgr The GUID manager, never <code>null</code>.
-    * @param contentDesignWs The content design webservice, never <code>null</code>.
-    */
-   @Autowired
-   public PSIdMapper(IPSGuidManager guidMgr, IPSContentDesignWs contentDesignWs)
-   {
-       notNull(guidMgr);
-       notNull(contentDesignWs);
-      
-      this.guidMgr = guidMgr;
-      this.contentDesignWs = contentDesignWs;
-   }
-   
-   public IPSGuid getGuid(String id)
-   {
-       notNull(id);
-       notEmpty(id);
-      
-      return guidMgr.makeGuid(id);
-   }
+public class PSIdMapper implements IPSIdMapper {
 
-    public IPSGuid getGuid(String id, PSTypeEnum type)
-    {
-        notNull(id);
-        notEmpty(id);
+    private static final String LOCAL_CONTENT_KEY = "PSX_LOCAL_CONTENT";
+    private IPSGuidManager guidMgr;
+    private IPSContentDesignWs contentDesignWs;
 
-        return guidMgr.makeGuid(id,type);
+    @Autowired
+    public PSIdMapper(IPSGuidManager guidMgr, IPSContentDesignWs contentDesignWs) {
+        notNull(guidMgr);
+        notNull(contentDesignWs);
+        this.guidMgr = guidMgr;
+        this.contentDesignWs = contentDesignWs;
     }
 
-    /**
-     * Converts a guid string into a valid guid for the specified type.
-     *
-     * @param id        String representation of a GUID
-     * @param type      The type of guid to create
-     * @param forceType When true, the specified type will be forced on the returned guid
-     * @return A valid GUID
-     */
+    @Override
+    public IPSGuid getGuid(String id) {
+        notNull(id);
+        notEmpty(id);
+        return guidMgr.makeGuid(id);
+    }
+
+    @Override
+    public IPSGuid getGuid(String id, PSTypeEnum type) {
+        notNull(id);
+        notEmpty(id);
+        return guidMgr.makeGuid(id, type);
+    }
+
     @Override
     public IPSGuid getGuid(String id, PSTypeEnum type, boolean forceType) {
         notNull(id);
         notEmpty(id);
-
-        return guidMgr.makeGuid(id,type,forceType);
+        return guidMgr.makeGuid(id, type, forceType);
     }
 
-    public int getContentId(IPSGuid guid)
-   {
-       notNull(guid);
-       return ((PSLegacyGuid)guid).getContentId();
-   }
-   
-   public int getContentId(String guid)
-   {
-       notEmpty(guid);
-       return ((PSLegacyGuid)guidMgr.makeGuid(guid)).getContentId();
-   }
-   
-   public IPSGuid getItemGuid(String id)
-   {
-       notEmpty(id);
-       
-       IPSGuid guid = guidMgr.makeGuid(id);
-       return contentDesignWs.getItemGuid(guid);
-   }
-   
-   
-   /*
-    * //see base interface method for details
-    */
-   public List<IPSGuid> getGuids(List<String> ids)
-   {
-       notNull(ids);
-       
-       List<IPSGuid> guids = new ArrayList<>();
-       for (String id : ids)
-       {
-           guids.add(getGuid(id));
-       }
-       return guids;
-   }
-   
-   public String getString(IPSGuid id)
-   {
-      if (id == null)
-         throw new IllegalArgumentException("id may not be null");
-      
-      return id.toString();
-   }
-   
-   /*
-    * //see base interface method for details
-    */
-   public List<String> getStrings(List<IPSGuid> ids)
-   {
-       notNull(ids);
+    @Override
+    public int getContentId(IPSGuid guid) {
+        notNull(guid);
+        return ((PSLegacyGuid) guid).getContentId();
+    }
 
-       List<String> result = new ArrayList<>();
-       for (IPSGuid id : ids)
-       {
-           result.add(getString(id));
-       }
-       return result;
-   }
-   
-   public String getString(PSLocator locator)
-   {
-      if (locator == null)
-         throw new IllegalArgumentException("locator may not be null");
-      
-      return getString(getGuid(locator));
-   }
-   
-   public IPSGuid getGuid(PSLocator locator)
-   {
-      if (locator == null)
-         throw new IllegalArgumentException("locator may not be null");
-      
-      return guidMgr.makeGuid(locator);
-   }
-   
-   public PSLocator getLocator(String id) 
-   {
-       if (StringUtils.isBlank(id))
-           throw new IllegalArgumentException("id may not be blank");
-       
-       IPSGuid guid = getGuid(id);
-       
-       return getLocator(guid); 
-   }
-   
-   public PSLocator getLocator(IPSGuid id) 
-   {
-       if (id == null)
-           throw new IllegalArgumentException("id may not be null");
-       
-       // get the correct revision
-       IPSGuid guid = contentDesignWs.getItemGuid(id);
-       
-       return guidMgr.makeLocator(guid); 
-   }
-   
-   public int getLocalContentId()
-   {
-       return guidMgr.createId(LOCAL_CONTENT_KEY);
-   }
+    @Override
+    public int getContentId(String guid) {
+        notEmpty(guid);
+        return ((PSLegacyGuid) guidMgr.makeGuid(guid)).getContentId();
+    }
 
-   /**
-    * Constant for the key used to generate local content id's.
-    */
-   private static final String LOCAL_CONTENT_KEY = "PSX_LOCAL_CONTENT";
-   
-   /**
-    * The GUID manager, initialized in constructor, never <code>null</code>
-    * after that.
-    */
-   private IPSGuidManager guidMgr;
-   
-   /**
-    * The content design webservice, initialized in constructor, never <code>null</code>
-    * after that.
-    */
-   private IPSContentDesignWs contentDesignWs;
+    @Override
+    public IPSGuid getItemGuid(String id) {
+        notEmpty(id);
+        var guid = guidMgr.makeGuid(id);
+        return contentDesignWs.getItemGuid(guid);
+    }
 
-@Override
-public IPSGuid getGuidFromContentId(long id) {
-	return guidMgr.makeGuid(id, PSTypeEnum.LEGACY_CONTENT);
-}
-   
+    @Override
+    public List<IPSGuid> getGuids(List<String> ids) {
+        notNull(ids);
+        var guids = new ArrayList<IPSGuid>();
+        ids.forEach(id -> guids.add(getGuid(id)));
+        return guids;
+    }
+
+    @Override
+    public String getString(IPSGuid id) {
+        if (id == null)
+            throw new IllegalArgumentException("id may not be null");
+        return id.toString();
+    }
+
+    @Override
+    public List<String> getStrings(List<IPSGuid> ids) {
+        notNull(ids);
+        var result = new ArrayList<String>();
+        ids.forEach(id -> result.add(getString(id)));
+        return result;
+    }
+
+    @Override
+    public String getString(PSLocator locator) {
+        if (locator == null)
+            throw new IllegalArgumentException("locator may not be null");
+        return getString(getGuid(locator));
+    }
+
+    @Override
+    public IPSGuid getGuid(PSLocator locator) {
+        if (locator == null)
+            throw new IllegalArgumentException("locator may not be null");
+        return guidMgr.makeGuid(locator);
+    }
+
+    @Override
+    public PSLocator getLocator(String id) {
+        if (StringUtils.isBlank(id))
+            throw new IllegalArgumentException("id may not be blank");
+        var guid = getGuid(id);
+        return getLocator(guid);
+    }
+
+    @Override
+    public PSLocator getLocator(IPSGuid id) {
+        if (id == null)
+            throw new IllegalArgumentException("id may not be null");
+        var guid = contentDesignWs.getItemGuid(id);
+        return guidMgr.makeLocator(guid);
+    }
+
+    @Override
+    public int getLocalContentId() {
+        return guidMgr.createId(LOCAL_CONTENT_KEY);
+    }
+
+    @Override
+    public IPSGuid getGuidFromContentId(long id) {
+        return guidMgr.makeGuid(id, PSTypeEnum.LEGACY_CONTENT);
+    }
 }

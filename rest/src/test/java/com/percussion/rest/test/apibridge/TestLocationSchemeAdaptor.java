@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;
 import com.percussion.rest.locationscheme.LocationScheme;
 import org.springframework.stereotype.Component;
 
+/**
+ * Test adaptor for LocationScheme API bridge.
+ */
 @Component
 public class TestLocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
@@ -31,6 +36,6 @@ public class TestLocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
     @Override
     public void deletedLocationScheme(String guid) {
-
+        // No-op for test adaptor
     }
 }

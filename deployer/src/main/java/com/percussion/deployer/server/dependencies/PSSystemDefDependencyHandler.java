@@ -53,7 +53,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a system def
@@ -96,25 +98,20 @@ public class PSSystemDefDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or 
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
-   
    // see base class
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-         
-      // get all shared groups
-      List<PSDependency> deps = new ArrayList<PSDependency>();
-      PSDependency dep = getDependency(tok, m_def.getObjectType());
-      if (dep != null)
-         deps.add(dep);         
-         
-      return deps.iterator();      
+      }
+
+      var dep = getDependency(tok, m_def.getObjectType());
+      return dep != null ? List.of(dep).iterator() : PSIteratorUtils.emptyIterator();
    }
    
    // see base class
@@ -634,17 +631,14 @@ public class PSSystemDefDependencyHandler
     * List of child types supported by this handler, never <code>null</code> or
     * empty.
     */
-   private static List<String> ms_childTypes = new ArrayList<String>();
-   
-   static
-   {
-      ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSControlDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSStylesheetDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSSupportFileDependencyHandler.DEPENDENCY_TYPE);
-   }
-   
+   private static final List<String> ms_childTypes = List.of(
+      PSApplicationDependencyHandler.DEPENDENCY_TYPE,
+      PSControlDependencyHandler.DEPENDENCY_TYPE,
+      PSExitDefDependencyHandler.DEPENDENCY_TYPE,
+      PSKeywordDependencyHandler.DEPENDENCY_TYPE,
+      PSSchemaDependencyHandler.DEPENDENCY_TYPE,
+      PSStylesheetDependencyHandler.DEPENDENCY_TYPE,
+      PSSupportFileDependencyHandler.DEPENDENCY_TYPE
+   );
+
 }

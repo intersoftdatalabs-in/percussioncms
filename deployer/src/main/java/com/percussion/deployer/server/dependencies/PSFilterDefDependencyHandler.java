@@ -91,21 +91,19 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
     * 1. locate all the filters
     * 2. generate a map m_namedFiltersMap and m_guidFiltersMap
     */
-   private void init()
-   {
-      if ( m_filterSvc == null )
+   private void init() {
+      if (m_filterSvc == null) {
          m_filterSvc = PSFilterServiceLocator.getFilterService();
-      List<IPSItemFilter> filters = m_filterSvc.findAllFilters();
-      Iterator<IPSItemFilter> it  = filters.iterator();
+      }
+
+      var filters = m_filterSvc.findAllFilters();
       m_namedFiltersMap.clear();
       m_guidFiltersMap.clear();
-      
-      while (it.hasNext())
-      {
-         IPSItemFilter filter = it.next();
+
+      filters.forEach(filter -> {
          m_namedFiltersMap.put(filter.getName(), filter);
          m_guidFiltersMap.put(filter.getGUID(), filter);
-      }
+      });
    }
 
    // see base class
@@ -218,19 +216,10 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    @Override
    public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
    {
-      init();   
-      Iterator names   = getFilterNames(); 
-      List<PSDependency> deps = new ArrayList<>();
-      PSDependency dep;
-      while (names.hasNext())
-      {
-         String name = (String) names.next();
-         IPSItemFilter f = m_namedFiltersMap.get(name);
-         dep = createDeployableElement(m_def, ""
-               + f.getGUID().longValue(), name);
-         deps.add(dep);
-      }
-      return deps.iterator();
+      init();
+      return m_namedFiltersMap.values().stream()
+         .map(filter -> createDeployableElement(m_def, String.valueOf(filter.getGUID().longValue()), filter.getName()))
+         .iterator();
    }
 
    
@@ -239,20 +228,13 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
    public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
+
       init();
-
-      // pack the data into the files
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      IPSItemFilter f = m_namedFiltersMap.get(dep.getDisplayName());
-      files.add(getDepFileFromFilter(f));
-      return files.iterator();
+      var filter = m_namedFiltersMap.get(dep.getDisplayName());
+      return List.of(getDepFileFromFilter(filter)).iterator();
    }
 
    /**
@@ -263,25 +245,17 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   protected PSDependencyFile getDepFileFromFilter(IPSItemFilter f)
-      throws PSDeployException
-   {
-      if (f == null)
-         throw new IllegalArgumentException("depData may not be null");
-      String str;
-      try
-      {
-         str = f.toXML();
+   protected PSDependencyFile getDepFileFromFilter(IPSItemFilter filter) throws PSDeployException {
+      if (filter == null) {
+         throw new IllegalArgumentException("Filter may not be null.");
       }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "Unable to generate a dependency file for filter:"
-                     + f.getName());
+
+      try {
+         var xmlContent = XML_HDR_STR + filter.toXML();
+         return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML, createXmlFile(xmlContent));
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, "Unable to generate a dependency file for filter: " + filter.getName());
       }
-      
-      return new PSDependencyFile(PSDependencyFile.TYPE_SERVICEGENERATED_XML,
-            createXmlFile(XML_HDR_STR + str));
    }
    
    

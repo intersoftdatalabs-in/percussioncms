@@ -22,6 +22,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
 * A private object to hold the mapping information. Initially, the 
@@ -114,16 +115,11 @@ public class PSDatasourceMap implements IPSDeployComponent
     * Serialize this object's state to its XML representation.
     */
 
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
-
-      Element   root = doc.createElement(XML_NODE_NAME);
-      
+   public Element toXml(Document doc) {
+      if (doc == null) throw new IllegalArgumentException("doc may not be null");
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_SOURCE_DATASRC, m_srcDataSource);
       root.setAttribute(XML_ATTR_TARGET_DATASRC, m_tgtDataSource);
-
       return root;
    }
 
@@ -134,23 +130,16 @@ public class PSDatasourceMap implements IPSDeployComponent
     * Get the <PSXDataSourceMap source=""  target="" />
     */
         
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) throw new IllegalArgumentException("sourceNode should not be null");
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         var args = new Object[]{XML_NODE_NAME, sourceNode.getNodeName()};
          throw new PSUnknownNodeTypeException(
             IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
       m_srcDataSource = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
             XML_ATTR_SOURCE_DATASRC);
-      String tgtStr = sourceNode.getAttribute(XML_ATTR_TARGET_DATASRC);
-      m_tgtDataSource = "";
-      if (tgtStr.length() > 0)
-         m_tgtDataSource = tgtStr;
+      m_tgtDataSource = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_TARGET_DATASRC)).orElse("");
    }
 
    @Override

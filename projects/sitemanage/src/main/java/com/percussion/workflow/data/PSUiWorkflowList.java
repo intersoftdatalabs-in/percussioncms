@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,11 +26,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSUiWorkflow.
+ */
 @XmlRootElement(name = "Workflow")
 @ArraySchema(schema = @Schema(implementation = PSUiWorkflow.class))
 @JsonRootName("Workflow")
 public class PSUiWorkflowList extends ArrayList<PSUiWorkflow> {
+    private static final long serialVersionUID = 1L;
+
     public PSUiWorkflowList(Collection<? extends PSUiWorkflow> c) {
         super(c);
     }

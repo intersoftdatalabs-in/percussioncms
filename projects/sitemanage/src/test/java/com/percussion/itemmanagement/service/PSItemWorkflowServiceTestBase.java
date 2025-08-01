@@ -49,19 +49,17 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
 {
     protected PSSiteDataServletTestCaseFixture fixture;
     protected String templateId;
-    
+
     @Override
     public void setUp() throws Exception
     {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
-        // create a template owner
         templateId = fixture.template1.getId();
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
-        
+
     @Override
     protected void tearDown() throws Exception
     {
@@ -71,8 +69,8 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
         relationshipCleaner.clean();
         fixture.tearDown();
     }
-    
-    protected PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<String>()
+
+    protected PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<>()
     {
         @Override
         protected void clean(String id) throws Exception
@@ -81,7 +79,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
         }
     };
 
-    protected PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<String>()
+    protected PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<>()
     {
         @Override
         protected void clean(String id) throws Exception
@@ -90,7 +88,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
         }
     };
 
-    protected PSTestDataCleaner<IPSGuid> relationshipCleaner = new PSTestDataCleaner<IPSGuid>()
+    protected PSTestDataCleaner<IPSGuid> relationshipCleaner = new PSTestDataCleaner<>()
     {
         @Override
         protected void clean(IPSGuid id) throws Exception
@@ -98,40 +96,40 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
             systemWs.deleteRelationships(Collections.singletonList(id));
         }
     };
-    
+
     /**
      * Creates a new page for the specified name and template.
      */
     protected PSPage createPage(String name, String templateId)
     {
-        PSPage pageNew = new PSPage();
+        var pageNew = new PSPage();
         pageNew.setName(name);
         pageNew.setTitle(name);
         pageNew.setFolderPath(fixture.site1.getFolderPath());
         pageNew.setTemplateId(templateId);
         pageNew.setLinkTitle("dummy");
-        
-        PSRegion region = new PSRegion();
+
+        var region = new PSRegion();
         region.setOwnerType(PSRegionOwnerType.PAGE);
         region.setRegionId("Test");
-        
-        PSWidgetItem wi = new PSWidgetItem();
+
+        var wi = new PSWidgetItem();
         wi.setDefinitionId("percRawHtml");
 
-        PSRegionBranches br = new PSRegionBranches();
+        var br = new PSRegionBranches();
         br.setRegionWidgets("Test", asList(wi));
         br.setRegions(asList(region));
-        
+
         pageNew.setRegionBranches(br);
-        
+
         return pageNew;
     }
-    
+
     public IPSPageService getPageService()
     {
         return pageService;
     }
-    
+
     public void setPageService(IPSPageService pageService)
     {
         this.pageService = pageService;
@@ -146,7 +144,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.assetService = assetService;
     }
-    
+
     public IPSIdMapper getIdMapper()
     {
         return idMapper;
@@ -156,7 +154,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.idMapper = idMapper;
     }
-    
+
     public IPSWidgetAssetRelationshipService getWidgetAssetRelationshipService()
     {
         return widgetAssetRelationshipService;
@@ -176,7 +174,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.itemWorkflowService = itemWorkflowService;
     }
-    
+
     public IPSSecurityWs getSecurityWs()
     {
         return securityWs;
@@ -186,7 +184,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.securityWs = securityWs;
     }
-    
+
     public IPSSystemWs getSystemWs()
     {
         return systemWs;
@@ -196,7 +194,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.systemWs = systemWs;
     }
-    
+
     public IPSCmsObjectMgr getCmsObjectMgr()
     {
         return cmsObjectMgr;
@@ -206,7 +204,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.cmsObjectMgr = cmsObjectMgr;
     }
-    
+
     public IPSWorkflowHelper getWorkflowHelper()
     {
         return workflowHelper;
@@ -216,7 +214,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.workflowHelper = workflowHelper;
     }
-    
+
     public IPSContentDesignWs getContentDesignWs()
     {
         return contentDesignWs;
@@ -226,7 +224,7 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.contentDesignWs = contentDesignWs;
     }
-    
+
     /**
      * @return the workflowService
      */
@@ -242,17 +240,17 @@ public class PSItemWorkflowServiceTestBase extends PSServletTestCase
     {
         this.workflowService = workflowService;
     }
-    
+
     public IPSManagedNavService getNavService()
     {
         return navService;
     }
-    
+
     public void setNavService(IPSManagedNavService navService)
     {
         this.navService = navService;
     }
-    
+
     protected IPSPageService pageService;
     protected IPSAssetService assetService;
     protected IPSIdMapper idMapper;

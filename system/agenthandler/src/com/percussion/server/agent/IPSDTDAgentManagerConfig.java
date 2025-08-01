@@ -18,62 +18,40 @@
 package com.percussion.server.agent;
 
 /**
- * This interface defines the string constants for the agent manager
- * configuration XML document.
+ * Interface defining DTD constants for agent manager configuration.
+ * Contains element and attribute names used in XML configuration documents.
+ *
+ * @since Java 11
  */
+public interface IPSDTDAgentManagerConfig {
 
-public interface IPSDTDAgentManagerConfig
-{
-   /**
-    * Root element consisting of one or more agents.
-    */
-   static final String ELEM_AGENT_LIST = "agentlist";
+   /** Root element name for agent manager configuration */
+   String ELEM_AGENT_MANAGER_CONFIG = "AgentManagerConfig";
 
-   /**
-    * Element representing one agent.
-    */
-   static final String ELEM_AGENT = "agent";
+   /** Element name for individual agent configuration */
+   String ELEM_AGENT = "Agent";
 
-   /**
-    * Name of the element specifying the class that implments the agent.
-    */
-   static final String ELEM_CLASS = "class";
+   /** Element name for agent implementation class */
+   String ELEM_CLASS = "Class";
 
-   /**
-    * Name of the optional element indicating the schedule parameters, i.e.
-    * elay and interval in the case of scheduled agent.
-    */
-   static final String ELEM_SCHEDULE = "schedule";
+   /** Element name for agent description */
+   String ELEM_DESCRIPTION = "Description";
 
-   /**
-    * Attribute of the 'agent' element specifying the name of the agent.
-    */
-   static final String ATTRIB_NAME = "name";
+   /** Element name for agent parameters */
+   String ELEM_PARAMETERS = "Parameters";
 
-   /**
-    * Name of the attribute to specify the agent service type.
-    */
-   static final String ATTRIB_SERVICE_TYPE = "servicetype";
+   /** Element name for individual parameter */
+   String ELEM_PARAMETER = "Parameter";
 
-   /**
-    * Name of the attribute to specify initial delay in seconds.
-    */
-   static final String ATTRIB_DELAY = "delay";
+   /** Attribute name for agent name */
+   String ATTRIB_NAME = "name";
 
-   /**
-    * Name of the attribute to specify interval in seconds.
-    */
-   static final String ATTRIB_INTERVAL = "interval";
+   /** Attribute name for parameter value */
+   String ATTRIB_VALUE = "value";
 
-   /**
-    * Attribute value for the servicetype indicating that the agent provides
-    * scheduled services.
-    */
-   static final String SERVICE_TYPE_SCHEDULED = "scheduled";
+   /** Attribute name for agent enabled status */
+   String ATTRIB_ENABLED = "enabled";
 
-   /**
-    * Attribute value for the servicetype indicating that the agent provides
-    * ondemand services.
-    */
-   static final String SERVICE_TYPE_fixed = "fixed";
+   /** Attribute name for agent version */
+   String ATTRIB_VERSION = "version";
 }

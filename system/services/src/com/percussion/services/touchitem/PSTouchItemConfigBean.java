@@ -16,104 +16,152 @@
  */
 package com.percussion.services.touchitem;
 
-import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Encapsulates a single touch item configuration which consists
  * of source and target content types, level (folder) value, and
  * flag to indicate if AA parents should be touched.
- * 
+ * <p>
+ * This configuration bean is used to determine which items should be
+ * touched when relationship changes occur, particularly for incremental
+ * publishing scenarios.
+ *
  * @author peterfrontiero
  */
-public class PSTouchItemConfigBean
-{
+public class PSTouchItemConfigBean {
+
    /**
-    * @return the source content type names
+    * Gets the source content type names.
+    *
+    * @return the source content type names, never {@code null}
     */
-   public Set<String> getSourceTypes()
-   {
+   public Set<String> getSourceTypes() {
       return sourceTypes;
    }
 
    /**
-    * @param sourceTypes source content type names
+    * Sets the source content type names.
+    *
+    * @param sourceTypes the source content type names, may be {@code null}
     */
-   public void setSourceTypes(Set<String> sourceTypes)
-   {
-      this.sourceTypes = sourceTypes;
+   public void setSourceTypes(Set<String> sourceTypes) {
+      this.sourceTypes = sourceTypes != null ?
+         ConcurrentHashMap.newKeySet(sourceTypes.size()) :
+         ConcurrentHashMap.newKeySet();
+      if (sourceTypes != null) {
+         this.sourceTypes.addAll(sourceTypes);
+      }
    }
 
    /**
-    * @return the target content types
+    * Gets the target content type names.
+    *
+    * @return the target content type names, never {@code null}
     */
-   public Set<String> getTargetTypes()
-   {
+   public Set<String> getTargetTypes() {
       return targetTypes;
    }
 
    /**
-    * @param targetTypes the target content types
+    * Sets the target content type names.
+    *
+    * @param targetTypes the target content type names, may be {@code null}
     */
-   public void setTargetTypes(Set<String> targetTypes)
-   {
-      this.targetTypes = targetTypes;
+   public void setTargetTypes(Set<String> targetTypes) {
+      this.targetTypes = targetTypes != null ?
+         ConcurrentHashMap.newKeySet(targetTypes.size()) :
+         ConcurrentHashMap.newKeySet();
+      if (targetTypes != null) {
+         this.targetTypes.addAll(targetTypes);
+      }
    }
 
    /**
-    * @return the level which indicates the folder
-    * relative to the current item's folder in which
-    * target items will be touched.
+    * Gets the level which indicates the folder relative to the current
+    * item's folder in which target items will be touched.
+    *
+    * @return the folder level
     */
-   public int getLevel()
-   {
+   public int getLevel() {
       return level;
    }
 
    /**
+    * Sets the folder level for touching items.
+    *
     * @param level the level to set
     */
-   public void setLevel(int level)
-   {
+   public void setLevel(int level) {
       this.level = level;
    }
 
    /**
-    * @return <code>true</code> to touch direct AA parents
-    * of the items, <code>false</code> otherwise.
+    * Checks if direct AA parents should be touched.
+    *
+    * @return {@code true} to touch direct AA parents of the items,
+    *         {@code false} otherwise
     */
-   public boolean isTouchAAParents()
-   {
+   public boolean isTouchAAParents() {
       return touchAAParents;
    }
 
    /**
-    * @param touchAAParents <code>true</code> to touch direct
-    * AA parents of the items, <code>false</code> otherwise.
+    * Sets whether to touch direct AA parents.
+    *
+    * @param touchAAParents {@code true} to touch direct AA parents of the items,
+    *                       {@code false} otherwise
     */
-   public void setTouchAAParents(boolean touchAAParents)
-   {
+   public void setTouchAAParents(boolean touchAAParents) {
       this.touchAAParents = touchAAParents;
    }
-   
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) {
+         return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+         return false;
+      }
+
+      var other = (PSTouchItemConfigBean) obj;
+      return level == other.level &&
+             touchAAParents == other.touchAAParents &&
+             Objects.equals(sourceTypes, other.sourceTypes) &&
+             Objects.equals(targetTypes, other.targetTypes);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(sourceTypes, targetTypes, level, touchAAParents);
+   }
+
+   @Override
+   public String toString() {
+      return String.format("PSTouchItemConfigBean{sourceTypes=%s, targetTypes=%s, level=%d, touchAAParents=%s}",
+                          sourceTypes, targetTypes, level, touchAAParents);
+   }
+
    /**
-    * See {@link #getSourceTypes()}.
+    * The source content type names. Never {@code null} after initialization.
     */
-   private Set<String> sourceTypes = new HashSet<>();
-   
+   private Set<String> sourceTypes = ConcurrentHashMap.newKeySet();
+
    /**
-    * See {@link #getTargetTypes()}.
+    * The target content type names. Never {@code null} after initialization.
     */
-   private Set<String> targetTypes = new HashSet<>();
-   
+   private Set<String> targetTypes = ConcurrentHashMap.newKeySet();
+
    /**
-    * See {@link #getLevel()}.
+    * The folder level relative to the current item's folder.
     */
-   private int level = 0;
-   
+   private int level;
+
    /**
-    * See {@link #isTouchAAParents()}.
+    * Flag indicating whether to touch direct AA parents.
     */
-   private boolean touchAAParents = false;
-   
+   private boolean touchAAParents;
 }

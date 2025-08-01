@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
-
 
 import com.percussion.pagemanagement.data.PSCatalogPageSummary;
 import com.percussion.pagemanagement.data.PSPage;
@@ -29,107 +29,107 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import java.util.List;
 
 /**
- * @author JaySeletz
+ * Service for catalog page operations.
  *
+ * @author JaySeletz
  */
-public interface IPSPageCatalogService
-{
+public interface IPSPageCatalogService {
 
     /**
-     * Find all catalog pages for the specified site
-     * 
-     * @param siteId The name of the site, not <code>null<code/> or empty.
-     * 
-     * @return A list of page ids, never <code>null</code>, may be empty. 
-     * @throws Exception If there are any unexpected errors
+     * Finds all catalog pages for the specified site.
+     *
+     * @param siteName The name of the site, not <code>null</code> or empty.
+     * @return A list of page IDs, never <code>null</code>, may be empty.
+     * @throws Exception If there are any unexpected errors.
      */
     List<String> findCatalogPages(String siteName) throws Exception;
 
     /**
-     * Catalog a page, creating a "page stub" as a place-holder
-     * 
-     * The specified page cannot be cataloged and return <code>null</code>
+     * Catalogs a page, creating a "page stub" as a placeholder.
+     * The specified page cannot be cataloged and returns <code>null</code>
      * in the following scenarios:
      * <ul>
-     *   <li>the maximum number of cataloged pages has been reached</li>
-     *   <li>the page already exists for that name and folder path</li>
-     *   <li>the page already exists under the (imported) normal location of the site</li>
-     *   <li>there is already a page with the specified folder-path.</li> 
+     *   <li>The maximum number of cataloged pages has been reached.</li>
+     *   <li>The page already exists for that name and folder path.</li>
+     *   <li>The page already exists under the (imported) normal location of the site.</li>
+     *   <li>There is already a page with the specified folder path.</li>
      * </ul>
-     * @param siteId The name of the site for which the page is cataloged, not
-     *            <code>null<code/> or empty.
-     * @param href The href of the source of the page, used to import the page
-     *            content later.
-     * @param pageName The name to use for the page
-     * @param folderPath The folder path relative from the root of the site,
-     *            including the leading "/". Not <code>null<code/> or empty.
-     * @param linkText The link text of the page
-     * 
-     * @return The saved page stub, or <code>null</code> if meet one of the scenarios described above.  
-     * @throws Exception if there are any unexpected errors
+     * @param siteName The name of the site for which the page is cataloged, not <code>null</code> or empty.
+     * @param href The href of the source of the page, used to import the page content later.
+     * @param pageName The name to use for the page.
+     * @param folderPath The folder path relative from the root of the site, including the leading "/". Not <code>null</code> or empty.
+     * @param linkText The link text of the page.
+     * @return The saved page stub, or <code>null</code> if one of the scenarios described above is met.
+     * @throws Exception if there are any unexpected errors.
      */
     PSPage addCatalogPage(String siteName, String pageName, String linkText, String folderPath, String href) throws Exception;
 
     /**
-     * Converts the specified catalog page path to the imported folder path. 
-     * @param path the folder path of the cataloged page, not <code>null</code>.
-     * @return the imported folder path. Never <code>null</code>
+     * Converts the specified catalog page path to the imported folder path.
+     * @param path The folder path of the cataloged page, not <code>null</code>.
+     * @return The imported folder path. Never <code>null</code>.
      */
     String convertToImportedFolderPath(String path);
-    
+
     /**
-     * Get a summary for the specified catalog page
-     * 
-     * @param id The id of the page, not <code>null<code/>.
-     * 
-     * @return The summary for the supplied id.  Will be <code>null</code> if not found.
-     * 
-     * @throws Exception If there are any unexpected errors
+     * Gets a summary for the specified catalog page.
+     *
+     * @param id The ID of the page, not <code>null</code>.
+     * @return The summary for the supplied ID, or <code>null</code> if not found.
+     * @throws Exception If there are any unexpected errors.
      */
     PSCatalogPageSummary getCatalogPageSummary(String id) throws Exception;
-       
+
     /**
-     * Get the unassigned template for the specified site.
-     * 
-     * @param siteId The name of the site, not <code>null<code/> or empty.
-     * 
-     * @return The template id.  Will be <code>null</code> if not found.
-     * @throws Exception If there are any unexpected errors
+     * Gets the unassigned template for the specified site.
+     *
+     * @param siteName The name of the site, not <code>null</code> or empty.
+     * @return The template ID, or <code>null</code> if not found.
+     * @throws PSDataServiceException If a data service error occurs.
+     * @throws PSSiteImportException If a site import error occurs.
      */
     String getCatalogTemplateIdBySite(String siteName) throws PSDataServiceException, PSSiteImportException;
 
     /**
-     * Move the cataloged page from the "page stub" location to the local
-     * location. If the local location doesn't exist, it is created.
-     * 
-     * @param pageId The id of the page, not <code>null<code/> or empty.
-     * 
-     * @return The new location for the page. Not <code>null</code> or empty.
-     * @throws Exception If there are any unexpected errors
+     * Moves the cataloged page from the "page stub" location to the local location.
+     * If the local location doesn't exist, it is created.
+     *
+     * @param pageId The ID of the page, not <code>null</code> or empty.
+     * @throws Exception If there are any unexpected errors.
      */
     void createImportedPage(String pageId) throws Exception;
- 
+
     /**
-     * Find all imported catalog pages for the specified site
-     * 
-     * @param siteId The name of the site, not <code>null<code/> or empty.
-     * 
-     * @return A list of page ids, never <code>null</code>, may be empty. 
-     * @throws Exception If there are any unexpected errors
+     * Finds all imported catalog pages for the specified site.
+     *
+     * @param siteName The name of the site, not <code>null</code> or empty.
+     * @return A list of page IDs, never <code>null</code>, may be empty.
+     * @throws Exception If there are any unexpected errors.
      */
     List<String> findImportedPageIds(String siteName) throws Exception;
 
     /**
      * Verifies if the page is an already imported page for the given site.
-     * 
-     * @param site {@link PSSite} the site to check the page in. Assumed not
-     *            <code>null</code>.
-     * @return <code>true</code> if the page already exists under the given
-     *         site. <code>false</code> otherwise.
+     *
+     * @param page The site to check the page in. Assumed not <code>null</code>.
+     * @return <code>true</code> if the page already exists under the given site, <code>false</code> otherwise.
      */
-    boolean doesImportedPageExist(PSPage page); 
-    
-    public String getFullFolderPath(String folderPath, PSSiteSummary site);
-   
-    public boolean pageWithFolderPathExists(String fullFolderPath);
+    boolean doesImportedPageExist(PSPage page);
+
+    /**
+     * Gets the full folder path for the given folder path and site.
+     *
+     * @param folderPath The folder path, not <code>null</code>.
+     * @param site The site summary, not <code>null</code>.
+     * @return The full folder path.
+     */
+    String getFullFolderPath(String folderPath, PSSiteSummary site);
+
+    /**
+     * Checks if a page with the given full folder path exists.
+     *
+     * @param fullFolderPath The full folder path, not <code>null</code>.
+     * @return <code>true</code> if a page exists at the given path, <code>false</code> otherwise.
+     */
+    boolean pageWithFolderPathExists(String fullFolderPath);
 }

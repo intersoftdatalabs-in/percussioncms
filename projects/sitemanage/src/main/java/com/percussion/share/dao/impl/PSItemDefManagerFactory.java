@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,26 +22,22 @@ import com.percussion.util.PSSiteManageBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Lazy;
 
-
 @PSSiteManageBean("itemDefManager")
 @Lazy
-public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager>
-{
+public class PSItemDefManagerFactory implements FactoryBean<PSItemDefManager> {
+
     @Override
-    public PSItemDefManager getObject() throws Exception
-    {
+    public PSItemDefManager getObject() {
         return PSItemDefManager.getInstance();
     }
 
     @Override
-    public Class<?> getObjectType()
-    {
+    public Class<?> getObjectType() {
         return PSItemDefManager.class;
     }
 
-    public boolean isSingleton()
-    {
+    @Override
+    public boolean isSingleton() {
         return true;
     }
-
 }

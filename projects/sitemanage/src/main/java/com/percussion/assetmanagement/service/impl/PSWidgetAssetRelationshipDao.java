@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -39,59 +40,50 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * The service used to update Page & Asset relationships.
- * 
+ *
  * @author YuBingChen
  */
 @Transactional
 @Component("widgetAssetRelationshipDao")
-public class PSWidgetAssetRelationshipDao implements IPSWidgetAssetRelationshipDao
-{
+public class PSWidgetAssetRelationshipDao implements IPSWidgetAssetRelationshipDao {
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Session getSession(){
+    private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
-    
 
     @Transactional
-    public int updateWidgetNameForRelatedPages(String templateId, String widgetName, long widgetId)
-    {
-       
-        
+    public int updateWidgetNameForRelatedPages(String templateId, String widgetName, long widgetId) {
         widgetName = isBlank(widgetName) ? "NULL" : widgetName;
         int sortRank = PSGuidHelper.generateNext(PSTypeEnum.SORT_RANK).getUUID();
-        
-        Session sess = getSession();
 
-        try
-        {
-            String sql = "update " + qualifyTableName(IPSConstants.PSX_RELATIONSHIPS) +
+        var sess = getSession();
+
+        try {
+            var sql = "update " + qualifyTableName(IPSConstants.PSX_RELATIONSHIPS) +
                     " set WIDGET_NAME= :name, SORT_RANK=:sortrank where SLOT_ID = :slotid"
                     + " and WIDGET_NAME IS NULL and OWNER_ID in (select CONTENTID from "
                     + qualifyTableName("CT_PAGE") + " where TEMPLATEID = :template)";
 
-            SQLQuery query = sess.createSQLQuery(sql);
-            query.setString("name",widgetName );
-            query.setLong("slotid",widgetId);
-            query.setInteger("sortrank",sortRank);
-            query.setString("template",templateId);
+            var query = sess.createSQLQuery(sql);
+            query.setString("name", widgetName);
+            query.setLong("slotid", widgetId);
+            query.setInteger("sortrank", sortRank);
+            query.setString("template", templateId);
 
             int result = query.executeUpdate();
-            
-            logger.debug("Updated {} rows in {} table.",result,IPSConstants.PSX_RELATIONSHIPS );
+
+            logger.debug("Updated {} rows in {} table.", result, IPSConstants.PSX_RELATIONSHIPS);
 
             return result;
-        }
-        catch (SQLException e)
-        {
+        } catch (SQLException e) {
             logger.error("Failed to update relationship table: {}", PSExceptionUtils.getMessageForLog(e));
             logger.debug(e);
             throw new PSRuntimeException(e);
         }
-      
     }
-    
 
     private static final Logger logger = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
 }

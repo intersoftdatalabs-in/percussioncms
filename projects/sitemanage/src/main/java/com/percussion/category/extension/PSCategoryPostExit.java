@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.category.extension;
 
 import com.percussion.category.data.PSCategory;
@@ -33,59 +35,56 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 
-
 public class PSCategoryPostExit implements IPSResultDocumentProcessor {
-	
-	public static final Logger log = LogManager.getLogger(PSCategoryPostExit.class);
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) {
-	}
-	
-	@Override
-	public boolean canModifyStyleSheet() {
-		return false;
-	}
+    public static final Logger log = LogManager.getLogger(PSCategoryPostExit.class);
 
-	@Override
-	public Document processResultDocument(Object[] params, IPSRequestContext request, Document resultDoc)
-			throws PSParameterMismatchException, PSExtensionProcessingException {
+    @Override
+    public void init(IPSExtensionDef def, java.io.File codeRoot) {
+        // No initialization required
+    }
 
-		org.w3c.dom.Document doc = null;
-		// Getting the data from the xml. Then filter it out based on the selecatable and deleted attributes.
-		// Also filter it based on the the toplevelcategory that was set as the control property.
-		// Finally set the required information in a Document object and return.
-		
-		String siteName = request.getParameter("sitename");
-		String parentCategory = request.getParameter("parentCategory");
-		
-		if(StringUtils.isBlank(parentCategory) || parentCategory.equalsIgnoreCase("root"))
-			parentCategory = null;
-		
-		if(siteName.equals("null"))
-		    siteName=null;
-		try {
+    @Override
+    public boolean canModifyStyleSheet() {
+        return false;
+    }
 
-			PSCategory categoriesToReturn = PSCategoryControlUtils.getCategories(siteName,parentCategory, false, true);
-		
-		if(categoriesToReturn == null)
-			throw new PSExtensionProcessingException
-			("Either non of the categories is selectable or the category xml is empty ! PSCategoryPostExit.processResultDocument()", new PSException());
-		
-		String returnString = PSCategoryControlUtils.getCategoryXmlInString(categoriesToReturn);
-		
-			doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(returnString.trim()), false);
-		} catch (PSDataServiceException | IOException | SAXException e) {
-			log.error(PSExceptionUtils.getMessageForLog(e));
-			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		    throw new PSExtensionProcessingException
-              ("Error converting categories to xml", e);
-		}
+    @Override
+    public Document processResultDocument(Object[] params, IPSRequestContext request, Document resultDoc)
+            throws PSParameterMismatchException, PSExtensionProcessingException {
 
-		return doc;
-	}
+        Document doc = null;
+        // Get data from XML, filter based on selectable and deleted attributes,
+        // filter by toplevelcategory set as the control property, and return as Document.
+
+        var siteName = request.getParameter("sitename");
+        var parentCategory = request.getParameter("parentCategory");
+
+        if (StringUtils.isBlank(parentCategory) || "root".equalsIgnoreCase(parentCategory))
+            parentCategory = null;
+
+        if ("null".equals(siteName))
+            siteName = null;
+
+        try {
+            var categoriesToReturn = PSCategoryControlUtils.getCategories(siteName, parentCategory, false, true);
+
+            if (categoriesToReturn == null)
+                throw new PSExtensionProcessingException(
+                        "Either none of the categories is selectable or the category XML is empty! PSCategoryPostExit.processResultDocument()",
+                        new PSException());
+
+            var returnString = PSCategoryControlUtils.getCategoryXmlInString(categoriesToReturn);
+            doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(returnString.trim()), false);
+        } catch (PSDataServiceException | IOException | SAXException e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            throw new PSExtensionProcessingException("Error converting categories to XML", e);
+        }
+
+        return doc;
+    }
 }

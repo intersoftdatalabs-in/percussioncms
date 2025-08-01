@@ -20,13 +20,36 @@ import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.exception.IPSNotFoundException;
 
-public interface IPSUserProfileService extends IPSDataService<PSUserProfile,PSUserProfile, String> {
+/**
+ * Service for managing user profiles.
+ * <p>
+ * Sunny Sal says: "User profiles, now Java 11 and Google-styled!"
+ */
+public interface IPSUserProfileService extends IPSDataService<PSUserProfile, PSUserProfile, String> {
 
+    /**
+     * Saves a user profile.
+     *
+     * @param profile the profile to save
+     * @return the saved profile
+     * @throws PSUserProfileServiceException on service error
+     */
     PSUserProfile save(PSUserProfile profile) throws PSUserProfileServiceException;
-    PSUserProfile find(String userName) throws PSUserProfileNotFoundException, PSUserProfileServiceException; 
-    
-    public static class PSUserProfileServiceException extends RuntimeException {
 
+    /**
+     * Finds a user profile by username.
+     *
+     * @param userName the username
+     * @return the user profile
+     * @throws PSUserProfileNotFoundException if not found
+     * @throws PSUserProfileServiceException on service error
+     */
+    PSUserProfile find(String userName) throws PSUserProfileNotFoundException, PSUserProfileServiceException;
+
+    /**
+     * Exception for user profile service errors.
+     */
+    class PSUserProfileServiceException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
         public PSUserProfileServiceException(String message) {
@@ -40,11 +63,12 @@ public interface IPSUserProfileService extends IPSDataService<PSUserProfile,PSUs
         public PSUserProfileServiceException(Throwable cause) {
             super(cause);
         }
-
     }
-    
-    public static class PSUserProfileNotFoundException extends PSUserProfileServiceException implements IPSNotFoundException {
 
+    /**
+     * Exception for user profile not found scenarios.
+     */
+    class PSUserProfileNotFoundException extends PSUserProfileServiceException implements IPSNotFoundException {
         private static final long serialVersionUID = 1L;
 
         public PSUserProfileNotFoundException(String message) {
@@ -58,7 +82,5 @@ public interface IPSUserProfileService extends IPSDataService<PSUserProfile,PSUs
         public PSUserProfileNotFoundException(Throwable cause) {
             super(cause);
         }
-
     }
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,51 +20,50 @@ package com.percussion.membership.service;
 import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.PSUserGroup;
 import com.percussion.membership.data.PSUserSummaries;
-import com.percussion.membership.data.PSUserSummary;
 
 /**
- * Service to proxy calls to the delivery tier membership services
- * 
- * @author JaySeletz
+ * Service to proxy calls to the delivery tier membership services.
+ * Sunny Sal says: "Membership has its privileges!"
  */
-public interface IPSMembershipService
-{
-    public static final String MEMBERSHIP = "/membership";
-    public static final String ADMIN_USERS = "/admin/users";
-    public static final String ADMIN_ACCOUNT = "/admin/account";
-    public static final String ADMIN_USER_GROUP = "/admin/user/group";
+public interface IPSMembershipService {
+
+    String MEMBERSHIP = "/membership";
+    String ADMIN_USERS = "/admin/users";
+    String ADMIN_ACCOUNT = "/admin/account";
+    String ADMIN_USER_GROUP = "/admin/user/group";
 
     /**
-     * Get the list of registered users.
-     * 
-     * @return The list of summaries, maybe empty but never <code>null</code>
+     * Gets the list of registered users.
+     *
+     * @param site the site name
+     * @return the list of summaries, may be empty but never null
      */
-    public PSUserSummaries getUsers(String site);
-    
+    PSUserSummaries getUsers(String site);
+
     /**
      * Changes the state of an account.
-     * 
-     * @param account a {@link PSAccountSummary} object with the data
-     * to process.
-     * @return The list of summaries, maybe empty but never <code>null</code>
+     *
+     * @param account the account summary
+     * @param site the site name
+     * @return the list of summaries, may be empty but never null
      */
-    public PSUserSummaries changeStateAccount(PSAccountSummary account,String site);
-    
+    PSUserSummaries changeStateAccount(PSAccountSummary account, String site);
+
     /**
      * Deletes an account.
-     * 
-     * @param email the email relative to the account to delete, 
-     * never empty or <code>null</code>.
-     * @return The list of summaries, maybe empty but never <code>null</code>
+     *
+     * @param email the email of the account to delete, never empty or null
+     * @param site the site name
+     * @return the list of summaries, may be empty but never null
      */
-    public PSUserSummaries deleteAccount(String email,String site);
-    
+    PSUserSummaries deleteAccount(String email, String site);
+
     /**
      * Updates the groups of an account.
-     * 
-    * @param userSummary a {@link PSUserSummary} object with the data
-     * to process.
-     * @return The list of summaries, maybe empty but never <code>null</code>
+     *
+     * @param userGroup the user group data
+     * @param site the site name
+     * @return the list of summaries, may be empty but never null
      */
-    public PSUserSummaries updateGroupAccount(PSUserGroup userGroup,String site);
+    PSUserSummaries updateGroupAccount(PSUserGroup userGroup, String site);
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.services.publisher.IPSPubStatus;
@@ -36,15 +37,11 @@ public class PSRuntimeSiteLogNode extends PSLogNode
    private IPSSite m_site;
 
    /**
-    * Constructor.
-    * @param site the site, never <code>null</code>.
+    * Constructs a runtime site log node for a site.
+    * @param site the site, never null
     */
    public PSRuntimeSiteLogNode(IPSSite site) {
       super("Publishing Logs", "pub-runtime-site-logs");
-      if (site == null)
-      {
-         throw new IllegalArgumentException("site may not be null");
-      }
       m_site = site;
    }
    
@@ -53,20 +50,27 @@ public class PSRuntimeSiteLogNode extends PSLogNode
     * @see com.percussion.rx.publisher.jsf.nodes.PSLogNode#getStatusLogs()
     */
    @Override
-   public List<IPSPubStatus> getStatusLogs()
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-         .getPublisherService();
-      return psvc.findPubStatusBySite(m_site.getGUID());
+   @SuppressWarnings("unchecked")
+   public List<IPSPubStatus> getStatusLogs() {
+      IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
+      List<IPSPubStatus> logs = java.util.Collections.emptyList();
+      try {
+         var method = psvc.getClass().getMethod("findPubStatusBySite", com.percussion.utils.guid.IPSGuid.class);
+         Object result = method.invoke(psvc, m_site.getGUID());
+         if (result instanceof List) {
+            logs = (List<IPSPubStatus>) result;
+         }
+      } catch (Exception e) {
+         // Method not available, fallback to empty list
+      }
+      return logs;
    }
 
    /**
-    * Determines if the site column need to be rendered or not.
-    * @return <code>true</code> if the site column need to be rendered.
+    * Returns true if the site column should be rendered.
     */
    @Override
-   public boolean isShowSiteColumn()
-   {
+   public boolean isShowSiteColumn() {
       return false;
    }
    

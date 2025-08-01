@@ -73,13 +73,11 @@ public class PSStylesheetDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or 
     * empty entries.
     */
-   public Iterator getChildTypes()
+   @Override
+   public Iterator<String> getChildTypes()
    {
-      Set childTypes = new HashSet(ms_childTypes);
-      Iterator types = super.getChildTypes();
-      while (types.hasNext())
-         childTypes.add(types.next().toString());
-         
+      var childTypes = new HashSet<>(ms_childTypes);
+      super.getChildTypes().forEachRemaining(type -> childTypes.add(type.toString()));
       return childTypes.iterator();
    }
 
@@ -129,35 +127,20 @@ public class PSStylesheetDependencyHandler
    // see base class
    public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-         
-      // use set to ensure we don't add dupes
-      Set childDeps = new HashSet();
-      
-      // get file deps and ensure it exists
-      PSDependency fileDep = getDependencyHandler(
-         super.DEPENDENCY_TYPE).getDependency(tok, dep.getDependencyId());
-      if (fileDep != null)
-      {
-         Iterator fileDeps = super.getChildDependencies(tok, fileDep);
-         while (fileDeps.hasNext())
-            childDeps.add(fileDeps.next());
-            
-         // load stylesheet and check for imports and includes
-         Document doc = getXmlDocumentFromFile(new File(dep.getDependencyId()));
-         Iterator sheetDeps = getStylesheetDependencies(tok, doc);
-         while (sheetDeps.hasNext())
-            childDeps.add(sheetDeps.next());
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      return childDeps.iterator();      
+
+      var childDeps = new HashSet<PSDependency>();
+      var fileDep = getDependencyHandler(super.DEPENDENCY_TYPE).getDependency(tok, dep.getDependencyId());
+      if (fileDep != null) {
+         super.getChildDependencies(tok, fileDep).forEachRemaining(childDeps::add);
+
+         var doc = getXmlDocumentFromFile(new File(dep.getDependencyId()));
+         getStylesheetDependencies(tok, doc).forEachRemaining(childDeps::add);
+      }
+
+      return childDeps.iterator();
    }
    
    // see base class
@@ -225,13 +208,10 @@ public class PSStylesheetDependencyHandler
     * List of child types supported by this handler, never <code>null</code> or
     * empty.
     */
-   private static List ms_childTypes = new ArrayList();
-   
-   static
-   {
-      ms_childTypes.add(DEPENDENCY_TYPE);
-      ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-      ms_childTypes.add(PSSupportFileDependencyHandler.DEPENDENCY_TYPE);
-   }
-   
+   private static final List<String> ms_childTypes = List.of(
+      DEPENDENCY_TYPE,
+      PSApplicationDependencyHandler.DEPENDENCY_TYPE,
+      PSSupportFileDependencyHandler.DEPENDENCY_TYPE
+   );
+
 }

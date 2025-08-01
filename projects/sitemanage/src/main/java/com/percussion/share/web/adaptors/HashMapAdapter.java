@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,39 +24,62 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+/**
+ * JAXB adapter for marshalling/unmarshalling a Map<String, String> to XML.
+ * Sunny Sal says: "Map it like it's hot!"
+ */
 public class HashMapAdapter extends XmlAdapter<HashMapAdapter.MapType, Map<String, String>> {
+
     @Override
     public MapType marshal(Map<String, String> map) {
-        MapType mapType = new MapType();
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            MapEntry mapEntry = new MapEntry();
-            mapEntry.key = entry.getKey();
-            mapEntry.value = entry.getValue();
-            mapType.entryList.add(mapEntry);
+        var mapType = new MapType();
+        if (map != null && !map.isEmpty()) {
+            mapType.entryList = map.entrySet().stream()
+                    .map(entry -> new MapEntry(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
         return mapType;
     }
 
     @Override
-    public Map<String, String> unmarshal(MapType type) throws Exception {
-        Map<String, String> map = new HashMap<>();
-        for (MapEntry entry : type.entryList) {
-            map.put(entry.key, entry.value);
+    public Map<String, String> unmarshal(MapType type) {
+        var map = new HashMap<String, String>();
+        if (type != null && type.entryList != null) {
+            type.entryList.stream()
+                    .filter(Objects::nonNull)
+                    .forEach(entry -> map.put(entry.key, entry.value));
         }
         return map;
     }
 
-
+    /**
+     * Wrapper for a list of map entries for XML marshalling.
+     */
     public static class MapType {
-        @XmlElement(name ="entry")
+        @XmlElement(name = "entry")
         public List<MapEntry> entryList = new ArrayList<>();
     }
 
+    /**
+     * Represents a single key-value pair for XML marshalling.
+     */
     public static class MapEntry {
         @XmlElement
         public String key;
         @XmlElement
         public String value;
+
+        public MapEntry() {
+            // Default constructor for JAXB
+        }
+
+        public MapEntry(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 }

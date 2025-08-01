@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Encapsulates information regarding the use of an archive for the installation
@@ -117,8 +118,7 @@ public class PSArchiveSummary  implements IPSDeployComponent
     * or empty.
     *
    */
-   public Iterator getPackageList()
-   {
+   public Iterator<PSArchivePackage> getPackageList() {
       return m_packageList.iterator();
    }
 
@@ -218,9 +218,8 @@ public class PSArchiveSummary  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      Element root = doc.createElement(XML_NODE_NAME);
+   public Element toXml(Document doc) {
+      var root = doc.createElement(XML_NODE_NAME);
 
       root.setAttribute(XML_ATTR_ID, Integer.toString(m_id));
 
@@ -229,14 +228,8 @@ public class PSArchiveSummary  implements IPSDeployComponent
          dateFormat.format(m_installDate));
 
       root.appendChild(m_archiveInfo.toXml(doc));
-      Iterator pkgList = m_packageList.iterator();
-      while (pkgList.hasNext())
-      {
-         PSArchivePackage pkg = (PSArchivePackage) pkgList.next();
-         root.appendChild(pkg.toXml(doc));
-      }
-      if ( m_archiveManifest != null )
-         root.appendChild(m_archiveManifest.toXml(doc));
+      m_packageList.forEach(pkg -> root.appendChild(pkg.toXml(doc)));
+      Optional.ofNullable(m_archiveManifest).ifPresent(manifest -> root.appendChild(manifest.toXml(doc)));
 
       return root;
    }
@@ -373,33 +366,16 @@ public class PSArchiveSummary  implements IPSDeployComponent
     * 
     * @return The sorted list, never <code>null</code>, may be empty.
     */
-   private List sortPackageList(Iterator packages)
-   {
-      List sortedList = PSDeployComponentUtils.cloneList(packages);
-      Collections.sort(sortedList, new Comparator()
-      {
-         public int compare(Object o1, Object o2)
-         {
-            PSArchivePackage pkg1 = (PSArchivePackage)o1;
-            PSArchivePackage pkg2 = (PSArchivePackage)o2;
-            int id1 = pkg1.getLogId();
-            int id2 = pkg2.getLogId();
-            
-            // sort id -1 (not installed) higher than id >= 0
-            int result = 0;            
-            if (id1 == -1 ^ id2 == -1) // one of them is -1
-               result = id1 == -1 ? 1 : -1;
-            else if (id1 == id2) // must both be -1
-               result = pkg1.getName().compareToIgnoreCase(pkg2.getName());
-            else if (id1 < id2)
-               result = -1;
-            else if (id1 > id2)
-               result = 1;
-            
-            return result;
-         }
-      });      
-      
+   private List<PSArchivePackage> sortPackageList(Iterator<PSArchivePackage> packages) {
+      var sortedList = new ArrayList<PSArchivePackage>();
+      packages.forEachRemaining(sortedList::add);
+      sortedList.sort((pkg1, pkg2) -> {
+         var id1 = pkg1.getLogId();
+         var id2 = pkg2.getLogId();
+         if (id1 == -1 ^ id2 == -1) return id1 == -1 ? 1 : -1;
+         if (id1 == id2) return pkg1.getName().compareToIgnoreCase(pkg2.getName());
+         return Integer.compare(id1, id2);
+      });
       return sortedList;
    }
 
@@ -430,7 +406,7 @@ public class PSArchiveSummary  implements IPSDeployComponent
     * Initialized by constructor, will never be <code>null</code> or empty
     * after that.
     */
-   private List m_packageList = new ArrayList();
+   private List<PSArchivePackage> m_packageList = new ArrayList<>();
 
    /**
     * The summary's id, <code>-1</code> if this summary has not been saved

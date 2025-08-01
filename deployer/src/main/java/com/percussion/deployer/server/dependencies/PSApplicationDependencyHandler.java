@@ -105,43 +105,38 @@ public class PSApplicationDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      // use set to ensure we don't add dupes
-      Set<PSDependency> childDeps = new HashSet<>();
-
+      var childDeps = new HashSet<PSDependency>();
       // don't get dependencies if a system app
-      if (isSystemApp(dep.getDependencyId()))
+      if (isSystemApp(dep.getDependencyId())) {
          return childDeps.iterator();
+      }
 
-      PSApplication app = getApplication(tok, dep.getDependencyId());
-
+      var app = getApplication(tok, dep.getDependencyId());
       // get dependencies specified by id type map
-      if(dep.supportsIdTypes()) {
+      if (dep.supportsIdTypes()) {
          childDeps.addAll(getIdTypeDependencies(tok, dep));
       }
 
       // add stylesheet dependencies
-      List<PSDependency> styleSheetDepList = getStyleSheetDependencies(tok, dep);
-      for (PSDependency ssDep: styleSheetDepList)
-      {
-         if (ssDep.getDependencyType() == PSDependency.TYPE_SHARED)
-         {
-            ssDep.setIsAssociation(false);
-         }
-      }
-      childDeps.addAll(styleSheetDepList);
+      childDeps.addAll(getStyleSheetDependencies(tok, dep));
 
-      
+      // walk each dataset
+      app.getDataSets().stream()
+         .map(PSDataSet::getPipe)
+         .filter(java.util.Objects::nonNull)
+         .map(PSPipe::getBackEndDataTank)
+         .filter(java.util.Objects::nonNull)
+         .flatMap(tank -> tank.getTables().stream())
+         .map(table -> getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE).getDependency(tok, table.getTable()))
+         .filter(java.util.Objects::nonNull)
+         .forEach(childDeps::add);
+
       // get app deps - make a new set so we can avoid adding the parent app
       Set<PSDependency> appDepSet = new HashSet<>();
       Document appDoc = app.toXml();
@@ -268,48 +263,26 @@ public class PSApplicationDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      try {
+         var files = new ArrayList<PSDependencyFile>();
+         var os = PSServerXmlObjectStore.getInstance();
+         var doc = os.getApplicationDoc(dep.getDependencyId(), tok);
+         files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_XML, createXmlFile(doc)));
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      try
-      {
-         List<PSDependencyFile> files = new ArrayList<>();
-         PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
-         Document doc = os.getApplicationDoc(dep.getDependencyId(), tok);
-         File appDocFile = createXmlFile(doc);
-         files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_XML,
-            appDocFile));
-
-         Iterator<File> appFiles =  getAppFiles(tok, dep.getDependencyId());
-         while (appFiles.hasNext())
-         {
-            File appFile = appFiles.next();
-
-            // write app file out to a temp file
-            File tmpFile = getFileFromApp(tok,
-               dep.getDependencyId(), appFile);
-
-            // add the dependency using temp file, but supply appfile as
-            // original file
-            files.add(new PSDependencyFile(
-               PSDependencyFile.TYPE_APPLICATION_FILE, tmpFile, appFile));
-         }
+         getAppFiles(tok, dep.getDependencyId()).forEachRemaining(appFile -> {
+            var tmpFile = getFileFromApp(tok, dep.getDependencyId(), appFile);
+            files.add(new PSDependencyFile(PSDependencyFile.TYPE_APPLICATION_FILE, tmpFile, appFile));
+         });
 
          return files.iterator();
-      }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
    }
 

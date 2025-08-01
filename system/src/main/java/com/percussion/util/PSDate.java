@@ -17,6 +17,10 @@
 
 package com.percussion.util;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+
 /**
  * The PSDate class stores and retrieves one-day information such as year, month,
  * date of month, hour, minute, and second. It is created for two reasons. First,
@@ -33,10 +37,23 @@ package com.percussion.util;
  * @author     Jian Huang
  * @version    2.0
  * @since      1.0
+ * @deprecated Consider using {@link java.time.LocalDateTime} for new code
  */
-
+@Deprecated(since = "Java 11 refactoring", forRemoval = false)
 public class PSDate
 {
+   private static final int[] DAY_ARRAY = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+   private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+   private int year;
+   private int month;
+   private int day;
+   private int hour;
+   private int minute;
+   private int second;
+
    /**
     * Construct a one-day PSDate object. For example, to store 14 o'clock, 23 minutes,
     * and 45 seconds on December 16, 1999, a PSDate object can be created as
@@ -56,20 +73,12 @@ public class PSDate
     */
    public void setYearMonthDay(int year, int month, int day)
    {
-      if ((month < 1) || (month > 12))
-         ruleViolation();
-      if ((month == 2) && (isLeapYear(year))){
-         if ((day < 1) || (day > 29))
-            ruleViolation();
-      }
-      else{
-         if ((day < 1) || (day > dayArray[month]))
-            ruleViolation();
-      }
+      validateMonth(month);
+      validateDay(year, month, day);
 
-      m_year = year;
-      m_month = month;
-      m_day = day;
+      this.year = year;
+      this.month = month;
+      this.day = day;
    }
 
    /**
@@ -78,17 +87,8 @@ public class PSDate
     */
    public String getYearMonthDay()
    {
-      String yr = String.valueOf(m_year);
-
-      String mo = String.valueOf(m_month);
-      if (m_month < 10)
-         mo = "0" + mo;
-
-      String da = String.valueOf(m_day);
-      if (m_day < 10)
-         da = "0" + da;
-
-      return (yr + "-" + mo + "-" + da);
+      var localDate = LocalDateTime.of(year, month, day, 0, 0, 0);
+      return localDate.format(DATE_FORMATTER);
    }
 
    /**
@@ -97,16 +97,13 @@ public class PSDate
     */
    public void setTime(int hour, int minute, int second)
    {
-      if ((hour < 0) || (hour >= 24))
-         ruleViolation();
-      if ((minute < 0) || (minute >= 60))
-         ruleViolation();
-      if ((second < 0) || (second >= 60))
-         ruleViolation();
+      validateHour(hour);
+      validateMinute(minute);
+      validateSecond(second);
 
-      m_hour = hour;
-      m_minute = minute;
-      m_second = second;
+      this.hour = hour;
+      this.minute = minute;
+      this.second = second;
    }
 
    /**
@@ -115,19 +112,8 @@ public class PSDate
     */
    public String getTime()
    {
-      String hr = String.valueOf(m_hour);
-      if (m_hour < 10)
-         hr = "0" + hr;
-
-      String mi = String.valueOf(m_minute);
-      if (m_minute < 10)
-         mi = "0" + mi;
-
-      String se = String.valueOf(m_second);
-      if (m_second < 10)
-         se = "0" + se;
-
-      return (hr + ":" + mi + ":" + se);
+      var localTime = LocalDateTime.of(0, 1, 1, hour, minute, second);
+      return localTime.format(TIME_FORMATTER);
    }
 
    /**
@@ -135,10 +121,7 @@ public class PSDate
     */
    public static boolean isLeapYear(int year)
    {
-      if ((year % 400 == 0) || (year % 100 != 0 && year % 4 == 0))
-         return true;
-
-      return false;
+      return (year % 400 == 0) || (year % 100 != 0 && year % 4 == 0);
    }
 
    /**
@@ -146,7 +129,7 @@ public class PSDate
     */
    public void setYear(int year)
    {
-      m_year = year;
+      this.year = year;
    }
 
    /**
@@ -154,7 +137,7 @@ public class PSDate
     */
    public int getYear()
    {
-      return m_year;
+      return year;
    }
 
    /**
@@ -162,10 +145,8 @@ public class PSDate
     */
    public void setMonth(int month)
    {
-      if ((month < 1) || (month > 12))
-         ruleViolation();
-
-      m_month = month;
+      validateMonth(month);
+      this.month = month;
    }
 
    /**
@@ -173,7 +154,7 @@ public class PSDate
     */
    public int getMonth()
    {
-      return m_month;
+      return month;
    }
 
    /**
@@ -181,16 +162,8 @@ public class PSDate
     */
    public void setDateOfMonth(int day)
    {
-      if ((m_month == 2) && (isLeapYear(m_year))){
-         if ((day < 1) || (day > 29))
-            ruleViolation();
-      }
-      else{
-         if ((day < 1) || (day > dayArray[m_month]))
-            ruleViolation();
-      }
-
-      m_day = day;
+      validateDay(this.year, this.month, day);
+      this.day = day;
    }
 
    /**
@@ -198,7 +171,7 @@ public class PSDate
     */
    public int getDateOfMonth()
    {
-      return m_day;
+      return day;
    }
 
    /**
@@ -206,10 +179,8 @@ public class PSDate
     */
    public void setHour(int hour)
    {
-      if ((hour < 0) || (hour >= 24))
-         ruleViolation();
-
-      m_hour = hour;
+      validateHour(hour);
+      this.hour = hour;
    }
 
    /**
@@ -217,7 +188,7 @@ public class PSDate
     */
    public int getHour()
    {
-      return m_hour;
+      return hour;
    }
 
    /**
@@ -225,10 +196,8 @@ public class PSDate
     */
    public void setMinute(int minute)
    {
-      if ((minute < 0) || (minute >= 60))
-         ruleViolation();
-
-      m_minute = minute;
+      validateMinute(minute);
+      this.minute = minute;
    }
 
    /**
@@ -236,7 +205,7 @@ public class PSDate
     */
    public int getMinute()
    {
-      return m_minute;
+      return minute;
    }
 
    /**
@@ -244,10 +213,8 @@ public class PSDate
     */
    public void setSecond(int second)
    {
-      if ((second < 0) || (second >= 60))
-         ruleViolation();
-
-      m_second = second;
+      validateSecond(second);
+      this.second = second;
    }
 
    /**
@@ -255,31 +222,105 @@ public class PSDate
     */
    public int getSecond()
    {
-      return m_second;
+      return second;
    }
 
    /**
     * Return the string representation of this PSDate object with a format.
     * The format follows yyyy-MM-dd HH:mm:ss, such as 1999-02-16 14:08:45
     */
+   @Override
    public String toString()
    {
-      return (getYearMonthDay() + " " + getTime());
+      var localDateTime = LocalDateTime.of(year, month, day, hour, minute, second);
+      return localDateTime.format(DATETIME_FORMATTER);
    }
 
-   private void ruleViolation()
+   @Override
+   public boolean equals(Object o)
+   {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      var psDate = (PSDate) o;
+      return year == psDate.year &&
+             month == psDate.month &&
+             day == psDate.day &&
+             hour == psDate.hour &&
+             minute == psDate.minute &&
+             second == psDate.second;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(year, month, day, hour, minute, second);
+   }
+
+   /**
+    * Convert this PSDate to a LocalDateTime object.
+    * @return LocalDateTime representation of this PSDate
+    */
+   public LocalDateTime toLocalDateTime()
+   {
+      return LocalDateTime.of(year, month, day, hour, minute, second);
+   }
+
+   /**
+    * Create a PSDate from a LocalDateTime object.
+    * @param localDateTime the LocalDateTime to convert
+    * @return new PSDate instance
+    */
+   public static PSDate fromLocalDateTime(LocalDateTime localDateTime)
+   {
+      Objects.requireNonNull(localDateTime, "localDateTime cannot be null");
+      return new PSDate(
+         localDateTime.getYear(),
+         localDateTime.getMonthValue(),
+         localDateTime.getDayOfMonth(),
+         localDateTime.getHour(),
+         localDateTime.getMinute(),
+         localDateTime.getSecond()
+      );
+   }
+
+   private void validateMonth(int month)
+   {
+      if (month < 1 || month > 12)
+         ruleViolation("Month must be between 1 and 12, got: " + month);
+   }
+
+   private void validateDay(int year, int month, int day)
+   {
+      if (month == 2 && isLeapYear(year)) {
+         if (day < 1 || day > 29)
+            ruleViolation("Day must be between 1 and 29 for February in leap year, got: " + day);
+      } else {
+         if (day < 1 || day > DAY_ARRAY[month])
+            ruleViolation("Day must be between 1 and " + DAY_ARRAY[month] + " for month " + month + ", got: " + day);
+      }
+   }
+
+   private void validateHour(int hour)
+   {
+      if (hour < 0 || hour >= 24)
+         ruleViolation("Hour must be between 0 and 23, got: " + hour);
+   }
+
+   private void validateMinute(int minute)
+   {
+      if (minute < 0 || minute >= 60)
+         ruleViolation("Minute must be between 0 and 59, got: " + minute);
+   }
+
+   private void validateSecond(int second)
+   {
+      if (second < 0 || second >= 60)
+         ruleViolation("Second must be between 0 and 59, got: " + second);
+   }
+
+   private void ruleViolation(String message)
    {
       int errCode = com.percussion.server.IPSServerErrors.ARGUMENT_ERROR;
-      String arg0 = "violated calendar or time rules";
-      throw new IllegalArgumentException(errCode + arg0);
+      throw new IllegalArgumentException(errCode + ": " + message);
    }
-
-   private int[] dayArray = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-   private int m_year;
-   private int m_month;
-   private int m_day;
-   private int m_hour;
-   private int m_minute;
-   private int m_second;
 }

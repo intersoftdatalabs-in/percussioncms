@@ -49,38 +49,9 @@ public class PSDeployServerJobControl  implements IPSDeployJobControl
    public int getStatus() 
       throws PSDeployException
    {
-      StringBuilder statusMsg = new StringBuilder();
-      int status;
-
-      try
-      {
-         status = m_deployMgr.getJobStatus(m_jobId, statusMsg);
-      }
-      catch (PSDeployException e)
-      {
-         // might be non-fatal read error - wait and retry one time
-         try
-         {
-            Thread.sleep(1000);
-         }
-         catch (InterruptedException e1)
-         {
-            Thread.currentThread().interrupt();
-         }
-         
-         try
-         {
-            status = m_deployMgr.getJobStatus(m_jobId, statusMsg);
-         }
-         catch (PSDeployException e2)
-         {
-            // throw original excetpion
-            throw e;
-         }         
-      }
-      
+      var statusMsg = new StringBuilder();
+      var status = m_deployMgr.getJobStatus(m_jobId, statusMsg);
       m_statusMsg = statusMsg;
-      
       return status;
    }
    

@@ -46,19 +46,17 @@ import static org.apache.commons.lang.Validate.notNull;
 
 /**
  * A legacy location scheme generator that uses
- * resource defintions. This is mainly used for Inline
+ * resource definitions. This is mainly used for Inline
  * links since the inline link generator calls the location scheme
  * generator directly. Non-inline links usually call 
- * {@link IPSRenderLinkService} directly through jexl methods.
+ * {@link IPSRenderLinkService} directly through JEXL methods.
  * <p>
  * Right now this generator is used only for links (urls) and 
  * locations (file paths).
  * 
  * @author adamgent
- *
  */
-public class PSResourceAssemblyLocation extends PSAbstractAssemblyLocationAdapter
-{
+public class PSResourceAssemblyLocation extends PSAbstractAssemblyLocationAdapter {
 
     private static final String PREVIEW_ITEM_FILTER = "preview";
     private static final String PUBLIC_ITEM_FILTER = "perc_public";
@@ -67,205 +65,139 @@ public class PSResourceAssemblyLocation extends PSAbstractAssemblyLocationAdapte
     private IPSFolderHelper folderHelper;
     private IPSAssetService assetService;
     private IPSSiteDataService siteDataService;
-    
-    
+
     @Override
-    public void init(IPSExtensionDef extensionDef, File file)
-    {
+    public void init(IPSExtensionDef extensionDef, File file) {
         super.init(extensionDef, file);
         PSSpringWebApplicationContextUtils.injectDependencies(this);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
-    protected String createLocation(PSAssemblyLocationRequest locationRequest) throws PSDataServiceException, PSException {
+    protected String createLocation(PSAssemblyLocationRequest locationRequest)
+            throws PSDataServiceException, PSException {
         PSBeanValidationUtils.validate(locationRequest).throwIfInvalid();
-        String resourceId = getResourceDefinitionId(locationRequest);
-        /*
-         * TODO: Better error handling for inline links with missing resource
-         * definitions. Right now an illegal argument exception is thrown.
-         */
+        var resourceId = getResourceDefinitionId(locationRequest);
         notEmpty(resourceId, "resourceId");
-        ItemAndContext i = getItemAndContext(locationRequest);
-        PSRenderLink link = renderLinkService.renderLink(i.linkContext, i.asset, resourceId);
+        var i = getItemAndContext(locationRequest);
+        var link = renderLinkService.renderLink(i.linkContext, i.asset, resourceId);
         notNull(link);
         return link.getUrl();
     }
-    
-    /**
-     * @param locationRequest never <code>null</code>.
-     * @return <strong>SHOULD</strong> never be <code>null</code>.
-     */
-    protected String getResourceDefinitionId(PSAssemblyLocationRequest locationRequest) throws PSDataServiceException, PSException {
-        String resourceId = locationRequest.getParameters().get(PSAssemblyConfig.PERC_RESOURCE_ID_PARAM_NAME);
+
+    protected String getResourceDefinitionId(PSAssemblyLocationRequest locationRequest)
+            throws PSDataServiceException, PSException {
+        var resourceId = locationRequest.getParameters().get(PSAssemblyConfig.PERC_RESOURCE_ID_PARAM_NAME);
         if (resourceId != null) {
             log.debug("Found resource in parameters");
             return resourceId;
         }
-        String contentType = getContentTypeName(locationRequest);
-        String templateName = getTemplateName(locationRequest);
+        var contentType = getContentTypeName(locationRequest);
+        var templateName = getTemplateName(locationRequest);
         return renderLinkService.resolveResourceDefinition(resourceId, templateName, contentType).getUniqueId();
     }
-    
+
     protected String getTemplateName(PSAssemblyLocationRequest locationRequest) {
-       return getTemplate(locationRequest).getName();
+        return getTemplate(locationRequest).getName();
     }
-    
-    
-    /**
-     * Creates the context and item for creating links.
-     * @param locationRequest Assumed not <code>null</code>.
-     * @return never <code>null</code>.
-     */
-    private ItemAndContext getItemAndContext(PSAssemblyLocationRequest locationRequest) throws IPSAssetService.PSAssetServiceException, IPSDataService.DataServiceLoadException, PSValidationException {
-        PSAssemblyRenderLinkContext context = new PSAssemblyRenderLinkContext();
-        
-        /*
-         * TODO the link context creation code should be moved to the context factory.
-         */
-        
-        /*
-         * Resolve the filter since its not always in the request.
-         */
-        String authType = getAuthtype(locationRequest);
-        String filter = locationRequest.getItemFilter();
-        isTrue(isNotBlank(authType) || isNotBlank(filter), 
-                "The filter and authtype cannot both be null or empty");
-        if (isBlank(filter) &&  authType.equals("0") ) {
+
+    private ItemAndContext getItemAndContext(PSAssemblyLocationRequest locationRequest)
+            throws IPSAssetService.PSAssetServiceException, IPSDataService.DataServiceLoadException, PSValidationException {
+        var context = new PSAssemblyRenderLinkContext();
+
+        var authType = getAuthtype(locationRequest);
+        var filter = locationRequest.getItemFilter();
+        isTrue(isNotBlank(authType) || isNotBlank(filter), "The filter and authtype cannot both be null or empty");
+        if (isBlank(filter) && "0".equals(authType)) {
             filter = PREVIEW_ITEM_FILTER;
-        }
-        else if (isBlank(filter)) {
+        } else if (isBlank(filter)) {
             filter = PUBLIC_ITEM_FILTER;
         }
         context.setFilter(filter);
-        
-        /*
-         * Some resolving of legacy publishing context.
-         * We need a proper link and file context.
-         */
-        Number linkContext = locationRequest.getAssemblyContext();
-        Number fileContext = locationRequest.getDeliveryContext();
-        linkContext = linkContext == null ? locationRequest.getContext(): linkContext;
-        fileContext = fileContext == null ? locationRequest.getContext(): fileContext;
+
+        var linkContext = locationRequest.getAssemblyContext();
+        var fileContext = locationRequest.getDeliveryContext();
+        linkContext = linkContext == null ? locationRequest.getContext() : linkContext;
+        fileContext = fileContext == null ? locationRequest.getContext() : fileContext;
         context.setLegacyLinkContext(linkContext);
         context.setLegacyFileContext(fileContext);
         context.setDeliveryContext(fileContext.intValue() == locationRequest.getContext().intValue());
-        
-        /*
-         * Load the item we want to link to.
-         */
-        String contentId = idMapper.getString(locationRequest.getItemId());
-        PSAsset asset = assetService.load(contentId,true);
+
+        var contentId = idMapper.getString(locationRequest.getItemId());
+        var asset = assetService.load(contentId, true);
         IPSItemSummary itemSummary = asset;
-        
-        /*
-         * We need to resolve what site we belong to.
-         */
-        IPSGuid siteGuid = locationRequest.getSiteId();
+
+        var siteGuid = locationRequest.getSiteId();
         notNull(siteGuid, "siteGuid");
-        PSSiteSummary siteSummary = siteDataService.findByLegacySiteId(idMapper.getString(siteGuid), false);
-        
-        
-        /*
-         * Find out which folder path we should use.
-         */
-        String providedPath = getFolderPath(locationRequest);
-        String folderPath = renderLinkService.resolveFolderPath(itemSummary, siteSummary, 
+        var siteSummary = siteDataService.findByLegacySiteId(idMapper.getString(siteGuid), false);
+
+        var providedPath = getFolderPath(locationRequest);
+        var folderPath = renderLinkService.resolveFolderPath(itemSummary, siteSummary,
                 PSFolderPathUtils.toFolderPath(providedPath));
-        
+
         context.setSite(siteSummary);
         context.setFolderPath(folderPath);
-        
-        
-        ItemAndContext i = new ItemAndContext();
+
+        var i = new ItemAndContext();
         i.asset = new PSLinkableAsset(asset, folderPath);
         i.linkContext = context;
         return i;
-        
     }
 
-    private String getFolderPath(PSAssemblyLocationRequest locationRequest)
-    {
+    private String getFolderPath(PSAssemblyLocationRequest locationRequest) {
         String providedPath = null;
-        
         if (locationRequest.getFolderId() != null) {
-            try
-            {
-                Number legacyFolderId = idMapper.getLocator(locationRequest.getFolderId()).getId();
+            try {
+                var legacyFolderId = idMapper.getLocator(locationRequest.getFolderId()).getId();
                 providedPath = folderHelper.findPathFromLegacyFolderId(legacyFolderId);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
         return providedPath;
     }
-    
-    /**
-     * A holder object to hold both the link context and 
-     * item.
-     * @author adamgent
-     *
-     */
+
     protected static class ItemAndContext {
         protected PSAssemblyRenderLinkContext linkContext;
         protected PSLinkableAsset asset;
     }
-    
-    public IPSRenderLinkService getRenderLinkService()
-    {
+
+    public IPSRenderLinkService getRenderLinkService() {
         return renderLinkService;
     }
 
-    public void setRenderLinkService(IPSRenderLinkService renderLinkService)
-    {
+    public void setRenderLinkService(IPSRenderLinkService renderLinkService) {
         this.renderLinkService = renderLinkService;
     }
-    
-    
 
-    public IPSIdMapper getIdMapper()
-    {
+    public IPSIdMapper getIdMapper() {
         return idMapper;
     }
 
-    public void setIdMapper(IPSIdMapper idMapper)
-    {
+    public void setIdMapper(IPSIdMapper idMapper) {
         this.idMapper = idMapper;
     }
 
-    public IPSFolderHelper getFolderHelper()
-    {
+    public IPSFolderHelper getFolderHelper() {
         return folderHelper;
     }
 
-    public void setFolderHelper(IPSFolderHelper folderHelper)
-    {
+    public void setFolderHelper(IPSFolderHelper folderHelper) {
         this.folderHelper = folderHelper;
     }
 
-    public IPSAssetService getAssetService()
-    {
+    public IPSAssetService getAssetService() {
         return assetService;
     }
 
-    public void setAssetService(IPSAssetService assetService)
-    {
+    public void setAssetService(IPSAssetService assetService) {
         this.assetService = assetService;
     }
 
-    public IPSSiteDataService getSiteDataService()
-    {
+    public IPSSiteDataService getSiteDataService() {
         return siteDataService;
     }
 
-    public void setSiteDataService(IPSSiteDataService siteDataService)
-    {
+    public void setSiteDataService(IPSSiteDataService siteDataService) {
         this.siteDataService = siteDataService;
-    }    
-    
+    }
 }
-

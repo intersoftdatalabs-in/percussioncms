@@ -28,39 +28,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 /**
- * @author erikserating
- *
+ * Analytics provider query service implementation.
+ * Sunny Sal: "Analytics queries—now with extra Java 11 vitamins!"
  */
 @PSSiteManageBean("analyticsProviderQueryService")
-public class PSAnalyticsProviderQueryService
-         implements
-            IPSAnalyticsProviderQueryService
-{
+public class PSAnalyticsProviderQueryService implements IPSAnalyticsProviderQueryService {
+
+    private final IPSAnalyticsProviderQueryHandler handler;
+
     @Autowired
-   public PSAnalyticsProviderQueryService(IPSAnalyticsProviderQueryHandler handler)
-   {
-      this.handler = handler;
-   }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getPageViewsByPathPrefix(
-    *   java.lang.String, java.lang.String, com.percussion.utils.date.PSDateRange)
-    */
-   public List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
+    public PSAnalyticsProviderQueryService(IPSAnalyticsProviderQueryHandler handler) {
+        this.handler = handler;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IPSAnalyticsQueryResult> getPageViewsByPathPrefix(
             String sitename, String pathPrefix, PSDateRange range)
-           throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-      return handler.getPageViewsByPathPrefix(sitename, pathPrefix, range);
-   }
+            throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+        return handler.getPageViewsByPathPrefix(sitename, pathPrefix, range);
+    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.analytics.service.IPSAnalyticsProviderQueryService#getVisitsViewsBySite(
-    *   java.lang.String, com.percussion.utils.date.PSDateRange)
-    */
-   public List<IPSAnalyticsQueryResult> getVisitsViewsBySite(String sitename,
-            PSDateRange range) throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
-      return handler.getVisitsViewsBySite(sitename, range);
-   }
-   
-   IPSAnalyticsProviderQueryHandler handler;
-
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<IPSAnalyticsQueryResult> getVisitsViewsBySite(
+            String sitename, PSDateRange range)
+            throws PSAnalyticsProviderException, IPSGenericDao.LoadException, PSValidationException {
+        return handler.getVisitsViewsBySite(sitename, range);
+    }
 }

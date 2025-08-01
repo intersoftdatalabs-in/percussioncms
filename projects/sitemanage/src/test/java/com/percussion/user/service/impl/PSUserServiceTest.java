@@ -25,183 +25,161 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.data.PSUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.service.IPSUtilityService;
-import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
 
 import java.util.Collections;
 import java.util.Properties;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test PSUserService API within server runtime environment.
- * 
- * @author YuBingChen
- *
+ * // REFACTORED: CP-JAVA11
+ * @author YuBingChen (modernized by Sunny Sal)
  */
-@Category(IntegrationTest.class)
-public class PSUserServiceTest extends PSServletTestCase
-{
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class PSUserServiceTest extends PSServletTestCase {
+
     private IPSSecurityWs securityWs;
     private IPSUserService userService;
     private IPSSystemProperties systemProps;
     private IPSUtilityService utilityService;
-    private PSMockSystemProps mockProps = new PSMockSystemProps();
-    
-    public void setSecurityWs(IPSSecurityWs security)
-    {
-        securityWs = security;
+    private final PSMockSystemProps mockProps = new PSMockSystemProps();
+
+    public void setSecurityWs(IPSSecurityWs security) {
+        this.securityWs = security;
     }
-    
-    public IPSSecurityWs getSecurityWs()
-    {
+
+    public IPSSecurityWs getSecurityWs() {
         return securityWs;
     }
-    
-    public void setUtilityService(IPSUtilityService utilityService)
-    {
+
+    public void setUtilityService(IPSUtilityService utilityService) {
         this.utilityService = utilityService;
     }
-    
-    public IPSUtilityService getUtilityService()
-    {
+
+    public IPSUtilityService getUtilityService() {
         return this.utilityService;
     }
-    
+
+    @BeforeEach
     @Override
-    protected void setUp() throws Exception
-    {
+    protected void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
-        systemProps = ((PSUserService)userService).getSystemProps();
+        systemProps = ((PSUserService) userService).getSystemProps();
         setMockProperties(null);
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
-    
+
+    @AfterEach
     @Override
-    public void tearDown() throws Exception
-    {
-        ((PSUserService)userService).setSystemProps(systemProps);        
+    public void tearDown() throws Exception {
+        ((PSUserService) userService).setSystemProps(systemProps);
     }
-    
-    public void setUserService(IPSUserService service)
-    {
-        userService = service;
+
+    public void setUserService(IPSUserService service) {
+        this.userService = service;
     }
-    
-    public IPSUserService getUserService()
-    {
+
+    public IPSUserService getUserService() {
         return userService;
     }
 
-    private void setMockProperties(String roles)
-    {
-        ((PSUserService)userService).setSystemProps(mockProps); 
+    private void setMockProperties(String roles) {
+        ((PSUserService) userService).setSystemProps(mockProps);
         if (StringUtils.isNotBlank(roles))
             mockProps.setAccessibilityRoles(roles);
     }
-    
-    public void testEditorUser() throws Exception
-    {
+
+    @Test
+    public void testEditorUser() throws Exception {
         securityWs.login("Editor", "demo", null, null);
-        PSCurrentUser user = userService.getCurrentUser();
-        
+        var user = userService.getCurrentUser();
+
         assertFalse(user.isAccessibilityUser());
         assertFalse(user.isAdminUser());
-        
+
         setMockProperties("Editor");
         user = userService.getCurrentUser();
-        assertTrue(user.isAccessibilityUser());        
+        assertTrue(user.isAccessibilityUser());
         assertFalse(user.isAdminUser());
     }
-    
-    public void testPercussionAdmin() throws Exception
-    {
+
+    @Test
+    public void testPercussionAdmin() throws Exception {
         PSUser percussionAdmin = null;
-        try{
+        try {
             percussionAdmin = userService.find("PercussionAdmin");
+        } catch (Exception e) {
+            // User service throws an exception if there is no user with a supplied name
+            // We catch the exception here and do nothing but the assertion will take care of both cases.
         }
-        catch(Exception e){
-            //User service throws an exception if there is no user with a supplied name
-            //we catch the exception here and do nothing but the assertion will take care of 
-            //both cases. 
-        }
-        
-        if(utilityService.isSaaSEnvironment()) {
+
+        if (utilityService.isSaaSEnvironment()) {
             assertNotNull(percussionAdmin);
         } else {
             assertNull(percussionAdmin);
         }
     }
-    
-    public void testAdminUser() throws Exception
-    {
+
+    @Test
+    public void testAdminUser() throws Exception {
         securityWs.login("Admin", "demo", null, null);
-        PSCurrentUser user = userService.getCurrentUser();
-        
+        var user = userService.getCurrentUser();
+
         assertFalse(user.isAccessibilityUser());
         assertTrue(user.isAdminUser());
-        
+
         setMockProperties("Editor,Admin");
         user = userService.getCurrentUser();
-        assertTrue(user.isAccessibilityUser());        
+        assertTrue(user.isAccessibilityUser());
         assertTrue(user.isAdminUser());
     }
-    
-    public void testDesignUser() throws Exception
-    {
-        String name = "UserServiceTestDesigner";
-        String pwd = "demo";
-        
+
+    @Test
+    public void testDesignUser() throws Exception {
+        var name = "UserServiceTestDesigner";
+        var pwd = "demo";
+
         securityWs.login("Admin", "demo", null, null);
-        
+
         // ensure user does not yet exist
-        try
-        {
+        try {
             userService.delete(name);
+        } catch (Exception e) {
+            // ignore, user does not exist
         }
-        catch (Exception e)
-        {
-           // ignore, user does not exist
-        }
-        
-        PSUser designUser = new PSUser();
+
+        var designUser = new PSUser();
         designUser.setName(name);
         designUser.setPassword(pwd);
         designUser.setRoles(Collections.singletonList(IPSRoleService.DESIGNER_ROLE));
-        
-        //FB: DLS_DEAD_LOCAL_STORE NC 1-17-16
+
         designUser = userService.create(designUser);
-        assertTrue(designUser != null);
-        try
-        {
+        assertNotNull(designUser);
+        try {
             assertTrue(userService.isDesignUser(name));
             assertFalse(userService.isDesignUser("Admin"));
             assertFalse(userService.isDesignUser("Editor"));
-            
+
             securityWs.login(name, pwd, null, null);
-            PSCurrentUser user = userService.getCurrentUser();
-            
+            var user = userService.getCurrentUser();
+
             assertFalse(user.isAdminUser());
-            assertTrue(user.isDesignerUser());            
-        }
-        finally
-        {
+            assertTrue(user.isDesignerUser());
+        } finally {
             securityWs.login("Admin", "demo", null, null);
             userService.delete(name);
         }
-       
     }
-    
-    private class PSMockSystemProps extends Properties implements IPSSystemProperties
-    {
+
+    private static class PSMockSystemProps extends Properties implements IPSSystemProperties {
         private static final long serialVersionUID = 1L;
 
-        public void setAccessibilityRoles(String roles)
-        {
+        public void setAccessibilityRoles(String roles) {
             setProperty(ACCESSIBILITY_ROLES, roles);
         }
     }
-    
 }

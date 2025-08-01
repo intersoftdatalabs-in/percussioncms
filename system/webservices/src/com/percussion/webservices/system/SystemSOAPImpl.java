@@ -41,8 +41,8 @@ import com.percussion.webservices.faults.PSNotAuthorizedFault;
 import com.percussion.webservices.faults.PSUnknownRelationshipTypeFault;
 import com.percussion.webservices.faults.PSUseSpecificMethodsFault;
 import com.percussion.webservices.faults.PSUserNotMemberOfCommunityFault;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.rmi.RemoteException;
 import java.util.Calendar;

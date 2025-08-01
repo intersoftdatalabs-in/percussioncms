@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,7 +18,6 @@
 package com.percussion.user.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
 import net.sf.oval.constraint.NotNull;
 
@@ -26,21 +26,18 @@ import net.sf.oval.constraint.NotNull;
  */
 @XmlRootElement(name = "AccessLevel")
 @JsonRootName("AccessLevel")
-public class PSAccessLevel
-{
+public class PSAccessLevel {
+
     private static final long serialVersionUID = 1L;
 
     @NotNull
     private String accessLevel;
 
-    public String getAccessLevel()
-    {
+    public String getAccessLevel() {
         return accessLevel;
     }
 
-    public void setAccessLevel(String accessLevel)
-    {
+    public void setAccessLevel(String accessLevel) {
         this.accessLevel = accessLevel;
     }
-   
 }

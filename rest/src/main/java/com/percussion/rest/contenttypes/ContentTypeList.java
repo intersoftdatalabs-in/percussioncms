@@ -23,13 +23,29 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 
 @XmlRootElement(name = "ContentType")
-@ArraySchema(schema=@Schema(implementation = ContentType.class))
+@ArraySchema(schema = @Schema(implementation = ContentType.class))
 public class ContentTypeList extends ArrayList<ContentType> {
     public ContentTypeList(Collection<? extends ContentType> c) {
         super(c);
     }
-    public ContentTypeList(){}
+    public ContentTypeList() {}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ContentTypeList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "ContentTypeList" + super.toString();
+    }
 }

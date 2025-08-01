@@ -64,6 +64,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.text.MessageFormat.format;
@@ -150,7 +151,7 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
 
         @Override
         public String toString() {
-            final StringBuffer sb = new StringBuffer("WorkflowItem{");
+            var sb = new StringBuffer("WorkflowItem{");
             sb.append("guid=").append(guid);
             sb.append(", state='").append(state).append('\'');
             sb.append(", workflow='").append(workflow).append('\'');
@@ -301,11 +302,9 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
         protected boolean workflowItemIfPossible(IPSPubItemStatus item, IPSSite site, boolean isDefaultPubServer)
         {
             notNull(item, "item");
-
             try
             {
-                WorkflowItem wfItem = getWorkflowItem(item);
-                
+                var wfItem = getWorkflowItem(item);
                 //Skip the workflow transition if the item published does not match the current revision to cover scheduled publish case.
                 if(item.getRevisionId() != wfItem.itemSummary.getCurrentLocator().getRevision()){
                     if (log.isDebugEnabled()) {
@@ -314,40 +313,22 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
                     wfItem.status = ItemStatus.IGNORED;
                     return true;
                 }
-                
-                if (isAlreadyWorkflowed(wfItem)) { 
+                if (isAlreadyWorkflowed(wfItem)) {
                     if (log.isDebugEnabled()) {
                         log.debug("Item is already workflowed: " + wfItem);
                     }
                     wfItem.status = ItemStatus.IGNORED;
                     return true;
                 }
-
-                
-                /*
-                 * Workflow resources or pages only.
-                 */
                 boolean success = false;
                 if (wfItem.assetType == AssetType.PAGE || 
                         wfItem.assetType == AssetType.RESOURCE) {
                     success = transitionIfPossible(singletonList(wfItem), null, site, isDefaultPubServer);
                 }
-                
-                /*
-                 * If the item is a page we need to workflow its
-                 * related shared assets and lock its local content.
-                 */
                 if (success && wfItem.assetType == AssetType.PAGE) {
-                    List<WorkflowItem> localAssets = getLocalAssetWorkflowItems(wfItem);
-                    List<WorkflowItem> sharedAssets = getSharedAssetWorkflowItems(wfItem);
-
-                    /*
-                     * Revision lock the local content
-                     */
+                    var localAssets = getLocalAssetWorkflowItems(wfItem);
+                    var sharedAssets = getSharedAssetWorkflowItems(wfItem);
                     success = lockContentIfPossible(localAssets);
-                    /*
-                     * Transition the shared content.
-                     */
                     success = transitionIfPossible(sharedAssets, wfItem, site, isDefaultPubServer) && success;
                 }
                 if (success) {
@@ -362,7 +343,6 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
             {
                 log.debug("Failed to workflow item (may have been updated by a publish now): " + item, e);
             }
-            
             return false;
         }
         
@@ -390,7 +370,7 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
         
         protected boolean lockContentIfPossible(List<WorkflowItem> items) {
             boolean success = true;
-            for(WorkflowItem wfItem : items) {
+            for(var wfItem : items) {
                 try {
                     if( ! wfItem.revisionLock ) {
                         wfItem.itemSummary.setRevisionLock(true);
@@ -511,8 +491,8 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
          */
         protected WorkflowItem getWorkflowItem(IPSPubItemStatus item) {
             notNull(item, "item cannot be null");
-            IPSGuid id = getId(item.getContentId(), item.getRevisionId());
-            WorkflowItem wfItem = getWorkflowItem(id);
+            var id = getId(item.getContentId(), item.getRevisionId());
+            var wfItem = getWorkflowItem(id);
             if ( wfItem.assetType == null || wfItem.assetType == AssetType.SHARED) {
                 wfItem.assetType = AssetType.RESOURCE;
             }
@@ -527,21 +507,18 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
         }
         
         public WorkflowItem getWorkflowItem(IPSGuid contentId) {
-        	return getWorkflowItem(contentId,false);
+            return getWorkflowItem(contentId,false);
         }
         public WorkflowItem getWorkflowItem(IPSGuid contentId, boolean isStaging) {
-            PSLocator locator = getGuidManager().makeLocator(contentId);
-            PSComponentSummary summary = PSWebserviceUtils.getItemSummary(locator.getId());
-
-            //If this is a folder or an item with an invalid workflow, it is not publishable.
+            var locator = getGuidManager().makeLocator(contentId);
+            var summary = PSWebserviceUtils.getItemSummary(locator.getId());
             if(!(summary.getWorkflowAppId() > 0)){
                 log.warn("Item {}  is not Workflowable - it will be skipped." , summary.getContentId() );
                 return null;
             }
-
-            PSWorkflow workflow = PSWebserviceUtils.getWorkflow(summary.getWorkflowAppId());
-            PSState state = PSWebserviceUtils.getStateById(workflow, summary.getContentStateId());
-            WorkflowItem wfItem = new WorkflowItem();
+            var workflow = PSWebserviceUtils.getWorkflow(summary.getWorkflowAppId());
+            var state = PSWebserviceUtils.getStateById(workflow, summary.getContentStateId());
+            var wfItem = new WorkflowItem();
             wfItem.guid = contentId;
             wfItem.state = state.getName();
             wfItem.workflow = workflow.getName();
@@ -567,7 +544,6 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
             else {
                 wfItem.assetType = AssetType.SHARED;
             }
-            
             return wfItem;
         }
         
@@ -630,10 +606,10 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
         }
         
         private List<WorkflowItem> loadWorkflowItems(Collection<String> ids, AssetType assetType) {
-            List<WorkflowItem> items = new ArrayList<>();
-            for (String id : ids) {
-                IPSGuid guid = getIdMapper().getGuid(id);
-                WorkflowItem item = getWorkflowItem(guid);
+            var items = new ArrayList<WorkflowItem>();
+            for (var id : ids) {
+                var guid = getIdMapper().getGuid(id);
+                var item = getWorkflowItem(guid);
                 item.assetType = assetType;
                 items.add(item);
             }
@@ -681,6 +657,7 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
             getWorkflowHelper().transitionRelatedNavigationItem(item.guid, getTrigger());
         }
         
+
 
         /**
          * 
@@ -855,4 +832,3 @@ public abstract class PSAbstractWorkflowExtension implements IPSExtension
     protected final Logger log = LogManager.getLogger(getClass());
 
 }
-

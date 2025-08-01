@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,87 +17,94 @@
  */
 package com.percussion.rx.services.deployer;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Collection of package objects.
- * @author erikserating
- *
+ * Sunny Sal says: "A package collection is like a playlist—keep it fresh and organized!"
  */
 @XmlRootElement(name = "Packages")
-public class PSPackages
-{   
+public class PSPackages {
 
-   /**
-    * 
-    */
-   public PSPackages()
-   {
-      super();
-   }
+    private List<PSPackage> packages = new ArrayList<>();
 
-   /**
-    * @param packages
-    */
-   public PSPackages(List<PSPackage> packages)
-   {
-      super();
-      if(packages != null)
-         m_packages = packages;
-   }
+    /** Default constructor for JAXB. */
+    public PSPackages() {
+        // For JAXB
+    }
 
-   /**
-    * @return the packages
-    */
-   @XmlElement(name = "package")
-   public List<PSPackage> getPackages()
-   {
-      return m_packages;
-   }
+    /**
+     * Constructs with a list of packages.
+     *
+     * @param packages the list of packages, may be null.
+     */
+    public PSPackages(List<PSPackage> packages) {
+        if (packages != null) {
+            this.packages = packages;
+        }
+    }
 
-   /**
-    * @param packages the packages to set
-    */
-   public void setPackages(List<PSPackage> packages)
-   {
-      m_packages = packages;
-   }
-   
-   /**
-    * Adds a package to the collection.
-    * @param pkg the package to add, cannot be <code>null</code>.
-    */
-   public void add(PSPackage pkg)
-   {
-      if(pkg == null)
-         throw new IllegalArgumentException("pkg cannot be null.");
-      m_packages.add(pkg);   
-   }
-   
-   /**
-    * Removes the specified package from the collection
-    * if it exists.
-    * @param pkg the package to be removed. May be <code>null</code>.
-    */
-   public void remove(PSPackage pkg)
-   {
-      m_packages.remove(pkg);   
-   }
-   
-   /**
-    * Removes all the packages from the collection.
-    */
-   public void clear()
-   {
-      m_packages.clear();
-   }
-   
-   /**
-    * The list of packages, never <code>null</code>, may
-    * be empty.
-    */
-   private List<PSPackage> m_packages = new ArrayList<>();
+    /**
+     * Gets the list of packages.
+     *
+     * @return the list, never null, may be empty.
+     */
+    @XmlElement(name = "package")
+    public List<PSPackage> getPackages() {
+        return packages;
+    }
+
+    /**
+     * Sets the list of packages.
+     *
+     * @param packages the list to set, may be null.
+     */
+    public void setPackages(List<PSPackage> packages) {
+        this.packages = packages == null ? new ArrayList<>() : packages;
+    }
+
+    /**
+     * Adds a package to the collection.
+     *
+     * @param pkg the package to add, cannot be null.
+     */
+    public void add(PSPackage pkg) {
+        if (pkg == null) {
+            throw new IllegalArgumentException("pkg cannot be null.");
+        }
+        packages.add(pkg);
+    }
+
+    /**
+     * Removes the specified package from the collection if it exists.
+     *
+     * @param pkg the package to be removed. May be null.
+     */
+    public void remove(PSPackage pkg) {
+        packages.remove(pkg);
+    }
+
+    /**
+     * Removes all the packages from the collection.
+     */
+    public void clear() {
+        packages.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSPackages)) return false;
+        var that = (PSPackages) o;
+        return Objects.equals(packages, that.packages);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(packages);
+    }
 }

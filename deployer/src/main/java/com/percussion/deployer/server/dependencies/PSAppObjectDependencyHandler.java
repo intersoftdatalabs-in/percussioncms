@@ -68,6 +68,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -177,82 +178,51 @@ public abstract class PSAppObjectDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if there are any errors.
     */
-   protected List getExtensionDependencies(PSSecurityToken tok, 
-      Element srcNode) throws PSDeployException, com.percussion.services.error.PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      
-      if (srcNode == null)
-         throw new IllegalArgumentException("srcNode may not be null");
-         
-      List childDeps = new ArrayList();
-         
-      NodeList calls = srcNode.getElementsByTagName(PSExtensionCall.ms_NodeType);
-      for (int i = 0; i < calls.getLength(); i++) 
-      {
-         Element callEl = (Element)calls.item(i);
-         PSExtensionCall call = null;
-         try
-         {
-             call = new PSExtensionCall(callEl, null, null);
+   protected List<PSDependency> getExtensionDependencies(PSSecurityToken tok, Element srcNode) throws PSDeployException, com.percussion.services.error.PSNotFoundException {
+      if (tok == null || srcNode == null) {
+         throw new IllegalArgumentException("tok and srcNode may not be null");
+      }
+
+      var childDeps = new ArrayList<PSDependency>();
+      var calls = srcNode.getElementsByTagName(PSExtensionCall.ms_NodeType);
+
+      for (var i = 0; i < calls.getLength(); i++) {
+         var callEl = (Element) calls.item(i);
+         PSExtensionCall call;
+         try {
+            call = new PSExtensionCall(callEl, null, null);
+         } catch (PSUnknownNodeTypeException e) {
+            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
          }
-         catch (PSUnknownNodeTypeException e)
-         {
-            // unlikely
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-               e.getLocalizedMessage());
-         }
-         
-         PSExtensionRef ref = call.getExtensionRef();
-         
-         // add the extension dependency
-         PSDependencyHandler handler = getDependencyHandler(
-           PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-         PSDependency exitDep = handler.getDependency(tok, ref.getFQN());
-         if (exitDep != null)
-         {
-            if (exitDep.getDependencyType() == PSDependency.TYPE_SHARED)
-            {
-               exitDep.setIsAssociation(false);
+
+         var ref = call.getExtensionRef();
+         var handler = getDependencyHandler(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
+         var exitDep = handler.getDependency(tok, ref.getFQN());
+         Optional.ofNullable(exitDep).ifPresent(dep -> {
+            if (dep.getDependencyType() == PSDependency.TYPE_SHARED) {
+               dep.setIsAssociation(false);
             }
-            
-            childDeps.add(exitDep);
-         }
-            
-         // now see if we have an app referenece
-         String extName = ref.getExtensionName();
-         if (extName.startsWith("sys_Make"))
-         {
-            if (extName.endsWith("Link") || extName.endsWith("LinkSecure"))
-            {
-               // first param is url that may contain appname in form 
-               // "../appname/page"
-               PSExtensionParamValue[] values = call.getParamValues();
-               if (values.length > 0)
-               {
-                  String url = values[0].getValue().getValueText();
-                  StringTokenizer toker = new StringTokenizer(url, "/");
-                  if (toker.hasMoreTokens() && toker.nextToken().equals("..") && 
-                     toker.hasMoreTokens())
-                  {
-                     // next token is appname
-                     PSDependency dep = getAppDepHandler().getDependency(tok,
-                           toker.nextToken());
-                     if (dep != null)
-                     {
-                        if (dep.getDependencyType() == PSDependency.TYPE_SHARED)
-                        {
-                           dep.setIsAssociation(false);                           
-                        }
-                        
-                        childDeps.add(dep);
+            childDeps.add(dep);
+         });
+
+         var extName = ref.getExtensionName();
+         if (extName.startsWith("sys_Make") && (extName.endsWith("Link") || extName.endsWith("LinkSecure"))) {
+            var values = call.getParamValues();
+            if (values.length > 0) {
+               var url = values[0].getValue().getValueText();
+               var toker = new StringTokenizer(url, "/");
+               if (toker.hasMoreTokens() && toker.nextToken().equals("..") && toker.hasMoreTokens()) {
+                  var dep = getAppDepHandler().getDependency(tok, toker.nextToken());
+                  Optional.ofNullable(dep).ifPresent(d -> {
+                     if (d.getDependencyType() == PSDependency.TYPE_SHARED) {
+                        d.setIsAssociation(false);
                      }
-                  }
+                     childDeps.add(d);
+                  });
                }
             }
          }
       }
-         
       return childDeps;
    }
    
@@ -268,48 +238,34 @@ public abstract class PSAppObjectDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if there are any errors.
     */
-   protected List getUrlDependencies(PSSecurityToken tok, 
-      Element srcNode) throws PSDeployException, com.percussion.services.error.PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      
-      if (srcNode == null)
-         throw new IllegalArgumentException("srcNode may not be null");
-         
-      List childDeps = new ArrayList();
-         
-      NodeList urls = srcNode.getElementsByTagName(PSUrlRequest.XML_NODE_NAME);
-      for (int i = 0; i < urls.getLength(); i++) 
-      {
-         Element urlEl = (Element)urls.item(i);
-         PSUrlRequest urlReq = null;
-         try
-         {
-             urlReq = new PSUrlRequest(urlEl, null, null);
+   protected List<PSDependency> getUrlDependencies(PSSecurityToken tok, Element srcNode) throws PSDeployException, com.percussion.services.error.PSNotFoundException {
+      if (tok == null || srcNode == null) {
+         throw new IllegalArgumentException("tok and srcNode may not be null");
+      }
+
+      var childDeps = new ArrayList<PSDependency>();
+      var urls = srcNode.getElementsByTagName(PSUrlRequest.XML_NODE_NAME);
+
+      for (var i = 0; i < urls.getLength(); i++) {
+         var urlEl = (Element) urls.item(i);
+         PSUrlRequest urlReq;
+         try {
+            urlReq = new PSUrlRequest(urlEl, null, null);
+         } catch (PSUnknownNodeTypeException e) {
+            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
          }
-         catch (PSUnknownNodeTypeException e)
-         {
-            // unlikely
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-               e.getLocalizedMessage());
-         }
-         
-         String href = urlReq.getHref();
-         if (href.trim().length() > 0)
-         {
-            PSDependency childDep = getDepFromPath(tok, href);
-            if (childDep != null)
-            {
-               if (childDep.getDependencyType() == PSDependency.TYPE_SHARED)
-               {
-                  childDep.setIsAssociation(false);
+
+         var href = urlReq.getHref();
+         if (!href.isBlank()) {
+            var childDep = getDepFromPath(tok, href);
+            Optional.ofNullable(childDep).ifPresent(dep -> {
+               if (dep.getDependencyType() == PSDependency.TYPE_SHARED) {
+                  dep.setIsAssociation(false);
                }
-               
-               childDeps.add(childDep);
-            }
+               childDeps.add(dep);
+            });
          }
       }
-         
       return childDeps;
    }
    
@@ -384,157 +340,58 @@ public abstract class PSAppObjectDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if there are any errors.
     */
-   protected Iterator getStylesheetDependencies(PSSecurityToken tok, 
+   protected Iterator<PSDependency> getStylesheetDependencies(PSSecurityToken tok,
       Document doc) throws PSDeployException, com.percussion.services.error.PSNotFoundException {
       
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
-         
-      Set deps = new HashSet();
-      
-      // check includes and imports
-      List sheetNodeList = new ArrayList();
-      NodeList includes = doc.getElementsByTagName("xsl:include");
-      for (int i = 0; i < includes.getLength(); i++) 
-         sheetNodeList.add(includes.item(i));
-         
-      NodeList imports = doc.getElementsByTagName("xsl:import");
-      for (int i = 0; i < imports.getLength(); i++) 
-         sheetNodeList.add(imports.item(i));
-      
-      // check for global templates as we go
-      boolean hasGlobals = false;
-      PSRxGlobals rxGlobals = null;
-      Exception ex = null;
-      try
-      {
-         rxGlobals = new PSRxGlobals(null);
-      }
-      catch (IOException e)
-      {
-         ex = e;
-      }
-      catch (SAXException e)
-      {
-         ex = e;
-      }
-      if (ex != null)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               "Error instantiating PSRxGlobals: " + ex.getLocalizedMessage());
+      if (tok == null || doc == null) {
+         throw new IllegalArgumentException("tok and doc may not be null");
       }
 
-      Iterator sheetNodes = sheetNodeList.iterator();
-      while (sheetNodes.hasNext())
-      {
-         Element sheetEl = (Element)sheetNodes.next();
-         String href = sheetEl.getAttribute("href");
-         if (href.trim().length() > 0)
-         {
-            try
-            {
-               URL url = new URL(href);
-               String path = url.getFile();
-               
-               // first try as stylesheet dep
-               PSDependency dep = getDepFromPath(tok, path);
-               if (dep != null)
-               {
-                  if (dep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  {
+      var deps = new HashSet<PSDependency>();
+      var sheetNodeList = new ArrayList<Element>();
+      var includes = doc.getElementsByTagName("xsl:include");
+      for (var i = 0; i < includes.getLength(); i++) {
+         sheetNodeList.add((Element) includes.item(i));
+      }
+      var imports = doc.getElementsByTagName("xsl:import");
+      for (var i = 0; i < imports.getLength(); i++) {
+         sheetNodeList.add((Element) imports.item(i));
+      }
+
+      var rxGlobals = new PSRxGlobals(null);
+      var hasGlobals = sheetNodeList.stream().anyMatch(sheetEl -> {
+         var href = sheetEl.getAttribute("href");
+         if (!href.isBlank()) {
+            try {
+               var url = new URL(href);
+               var path = url.getFile();
+               var dep = getDepFromPath(tok, path);
+               if (dep != null) {
+                  if (dep.getDependencyType() == PSDependency.TYPE_SHARED) {
                      dep.setIsAssociation(false);
                   }
-                  
                   deps.add(dep);
-                  // see if path matches the rx_gobals stylesheet path, make
-                  // sure path separators are normalize for the comparison
-                  if (normalizePathSep(path).equals(normalizePathSep(
-                     rxGlobals.getGlobalTemplateFilePath())))
-                  {
-                     hasGlobals = true;
-                  }
+                  return normalizePathSep(path).equals(normalizePathSep(rxGlobals.getGlobalTemplateFilePath()));
                }
+            } catch (MalformedURLException | com.percussion.services.error.PSNotFoundException e) {
+               // Ignore invalid URLs
             }
-            catch (MalformedURLException | com.percussion.services.error.PSNotFoundException e)
-            {
-               // not something we can deal with
+         }
+         return false;
+      });
+
+      if (hasGlobals) {
+         var templateCalls = doc.getElementsByTagName("xsl:call-template");
+         for (var i = 0; i < templateCalls.getLength(); i++) {
+            var callEl = (Element) templateCalls.item(i);
+            var name = callEl.getAttribute("name");
+            if (name.equals(PSRxGlobals.DISPATCHING_TEMPLATE_NAME) || name.endsWith(PSGlobalTemplate.GLOBAL_TEMPLATE_NAME_SUFFIX)) {
+               var globalAppDep = getAppDepHandler().getDependency(tok, PSGlobalTemplateUpdateHandler.DEFAULT_GLOBALTEMPLATE_APP_NAME);
+               Optional.ofNullable(globalAppDep).ifPresent(deps::add);
+               break;
             }
          }
       }
-      
-      // if globals is imported, then check for gobal template calls
-      // for each global template name found, check for the template
-      // file, and if at least one is found, then add the global
-      // templates app as a dependency
-      if (hasGlobals)
-      {
-         NodeList templateCalls = doc.getElementsByTagName("xsl:call-template");
-         for (int i = 0; i < templateCalls.getLength(); i++)
-         {
-            Element callEl = (Element) templateCalls.item(i);
-            String name = callEl.getAttribute("name");
-            boolean gtCallExists = false;
-            //New way of adding global template to a local template
-            if (name.equals(PSRxGlobals.DISPATCHING_TEMPLATE_NAME))
-            {
-               gtCallExists = true;
-            }
-            //Support old way too
-            else if (name.endsWith(
-                  PSGlobalTemplate.GLOBAL_TEMPLATE_NAME_SUFFIX))
-            {
-               String templateName = name.substring(0, name.indexOf(
-                     PSGlobalTemplate.GLOBAL_TEMPLATE_NAME_SUFFIX));
-                  File templateFile = new File(
-                     PSRxGlobals.ABS_GLOBAL_TEMPLATES_PATH, templateName
-                     + ".xsl");
-                  if (templateFile.exists())
-                  {
-                     gtCallExists = true;
-                  }
-            }
-            if(gtCallExists)
-            {
-                  /*
-                   * found the call to global template dispatcher, add app
-                   * dependency on global templates app
-                   */
-                  String globalAppName = PSGlobalTemplateUpdateHandler.
-                     DEFAULT_GLOBALTEMPLATE_APP_NAME;
-                  PSDependency globalAppDep =
-                     getAppDepHandler().getDependency(tok, globalAppName);
-                  if (globalAppDep != null)
-                     deps.add(globalAppDep);
-                  break;
-            }
-         }
-      }
-
-      // build map of variables
-      Map varMap = new HashMap();
-      NodeList vars = doc.getElementsByTagName("xsl:variable");
-      for (int i = 0; i < vars.getLength(); i++)
-      {
-         Element varEl = (Element)vars.item(i);
-         String varName = varEl.getAttribute("name");
-         String varVal = varEl.getAttribute("select");
-         if (varName.trim().length() > 0)
-            varMap.put(varName, varVal);
-      }
-
-      // get path dependencies using all vars
-      Iterator paths = getVarPaths(doc, varMap);
-      while (paths.hasNext())
-      {
-         String path = (String)paths.next();
-         PSDependency pathDep = getDepFromPath(tok, path);
-         if (pathDep != null)
-            deps.add(pathDep);
-      }
-
       return deps.iterator();
    }
    
@@ -1231,4 +1088,3 @@ public abstract class PSAppObjectDependencyHandler
    private static final String VAR_VALUE_COL = "PROPERTYVALUE";
    private static final String CONTEXT_ID_COL = "CONTEXTID";
 }
-

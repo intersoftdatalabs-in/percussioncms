@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
@@ -32,74 +33,65 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Validates Region Widget Assocations.
- * Makes sure there are not duplicate regionIds
- * @author adamgent
- * @param <BEAN> Page or Template
+ * Validates Region Widget Associations.
+ * Ensures there are no duplicate regionIds and validates widget items.
  *
+ * @param <BEAN> Page or Template
+ * @author adamgent
  */
-public abstract class PSRegionWidgetAssociationsValidator<BEAN> extends PSAbstractBeanValidator<BEAN>
-{
+public abstract class PSRegionWidgetAssociationsValidator<BEAN> extends PSAbstractBeanValidator<BEAN> {
 
-    private IPSWidgetService widgetService;
-    
-    public PSRegionWidgetAssociationsValidator(IPSWidgetService widgetService)
-    {
+    private final IPSWidgetService widgetService;
+
+    public PSRegionWidgetAssociationsValidator(IPSWidgetService widgetService) {
         super();
         this.widgetService = widgetService;
     }
 
     @Override
-    protected void doValidation(BEAN bean, PSBeanValidationException e)
-    {
-        PSRegionWidgetAssociations wa = getWidgetAssociations(bean, e);
-        if (wa != null)
+    protected void doValidation(BEAN bean, PSBeanValidationException e) {
+        var wa = getWidgetAssociations(bean, e);
+        if (wa != null) {
             doWidgetAssociations(wa, e);
-        
+        }
     }
-    
+
     public abstract String getField();
-    
+
     public abstract PSRegionWidgetAssociations getWidgetAssociations(BEAN wa, PSBeanValidationException e);
-    
-    
-    protected void doWidgetAssociations(PSRegionWidgetAssociations a, PSBeanValidationException e) {
+
+    protected void doWidgetAssociations(PSRegionWidgetAssociations associations, PSBeanValidationException e) {
         Set<String> ids = new HashSet<>();
-        for (PSRegionWidgets ws : a.getRegionWidgetAssociations()) {
-            if (ids.contains(ws.getRegionId())) {
+        for (var ws : associations.getRegionWidgetAssociations()) {
+            if (!ids.add(ws.getRegionId())) {
                 e.reject("regionWidgetAssocations.dupIds", "Duplicate ids for region");
             }
-            else {
-                ids.add(ws.getRegionId());
-            }
-            
-            List<PSWidgetItem> items = ws.getWidgetItems();
+            var items = ws.getWidgetItems();
             if (items != null) {
-                for(PSWidgetItem item : items) {
+                for (var item : items) {
                     validateWidgetItem(item, e);
                 }
             }
         }
     }
-    
+
     protected void validateWidgetItem(PSWidgetItem widgetItem, PSBeanValidationException e) {
-       try {
-           PSSpringValidationException we = widgetService.validateWidgetItem(widgetItem);
-           List<ObjectError> errors = we.getAllErrors();
-           StringBuilder messageBuilder = new StringBuilder();
-           if (errors != null && !errors.isEmpty()) {
-               Iterator<ObjectError> iter = errors.iterator();
-               while (iter.hasNext()) {
-                   ObjectError error = iter.next();
-                   messageBuilder.append(error.getDefaultMessage());
-                   if (iter.hasNext()) {
-                       messageBuilder.append(",");
-                   }
-               }
-               e.reject("regionWidgetAssocations.widgetItem", messageBuilder.toString());
-           }
-       } catch (PSPropertiesValidationException psPropertiesValidationException) {
-           e.addSuppressed(psPropertiesValidationException);
-       }
+        try {
+            var we = widgetService.validateWidgetItem(widgetItem);
+            var errors = we.getAllErrors();
+            if (errors != null && !errors.isEmpty()) {
+                var messageBuilder = new StringBuilder();
+                for (Iterator<ObjectError> iter = errors.iterator(); iter.hasNext(); ) {
+                    var error = iter.next();
+                    messageBuilder.append(error.getDefaultMessage());
+                    if (iter.hasNext()) {
+                        messageBuilder.append(",");
+                    }
+                }
+                e.reject("regionWidgetAssocations.widgetItem", messageBuilder.toString());
+            }
+        } catch (PSPropertiesValidationException psPropertiesValidationException) {
+            e.addSuppressed(psPropertiesValidationException);
+        }
     }
 }

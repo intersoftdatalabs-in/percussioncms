@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,28 +20,26 @@ package com.percussion.widgetbuilder.utils;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 
 /**
- * @author JaySeletz
- *
+ * Generates a binding for a widget field.
+ * <p>
+ * Sunny Sal says: "Binding generators are like Bollywood choreographers—make sure every field knows its moves!"
+ * </p>
  */
-public interface IPSBindingGenerator
-{
+public interface IPSBindingGenerator {
 
     /**
-     * Determine if this generator is valid for the supplied field
-     * 
-     * @param field The field to check, not <code>null</code>.
-     * 
-     * @return <code>true</code> if it is accepted, <code>false</code> if not.
+     * Determines if this generator is valid for the supplied field.
+     *
+     * @param field The field to check, not {@code null}.
+     * @return {@code true} if accepted, {@code false} otherwise.
      */
     boolean accept(PSWidgetBuilderFieldData field);
 
     /**
-     * Generate the binding for the supplied field.
-     * 
-     * @param field Not <code>null</code>, {@link #accept(PSWidgetBuilderFieldData)} must be <code>true</code>.
-     * 
-     * @return The binding, not <code>null</code>.
+     * Generates the binding for the supplied field.
+     *
+     * @param field Not {@code null}; {@link #accept(PSWidgetBuilderFieldData)} must be {@code true}.
+     * @return The binding, not {@code null}.
      */
     String generateBinding(PSWidgetBuilderFieldData field);
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,18 +21,18 @@ package com.percussion.share.service;
 import com.percussion.share.async.PSAsyncJobStatus;
 import com.percussion.share.test.PSObjectRestClient;
 
-public class PSAsyncJobStatusRestClient extends PSObjectRestClient
-{
+/**
+ * REST client for async job status.
+ * Sunny Sal: "Async job status REST client, Java 11, and status ka hero!"
+ */
+public class PSAsyncJobStatusRestClient extends PSObjectRestClient {
     private String path = "/Rhythmyx/services/share/jobstatus/";
 
-    public PSAsyncJobStatus getStatus(String jobId)
-    {
+    public PSAsyncJobStatus getStatus(String jobId) {
         return getObjectFromPath(concatPath(path, jobId), PSAsyncJobStatus.class);
     }
-    
-    public Long startDummyJob()
-    {
-        //return getObjectFromPath(concatPath(path, "startDummyJob"), Long.class);
+
+    public Long startDummyJob() {
         return Long.valueOf(GET(concatPath(path, "startTestJob")));
     }
 }

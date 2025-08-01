@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server;
 
 import com.percussion.cms.IPSConstants;
@@ -99,6 +99,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -115,22 +116,19 @@ public class PSAppTransformer
     * @param itemData The item data to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.  
     */
-   public static void checkItemData(List mappings, PSItemData itemData, 
+   public static void checkItemData(List<PSApplicationIDTypeMapping> mappings, PSItemData itemData,
       PSApplicationIdContext ctx)
    {
-      if (mappings == null)
-         throw new IllegalArgumentException("mappings may not be null");
-      
-      if (itemData == null)
-         throw new IllegalArgumentException("itemData may not be null");
+      if (mappings == null || itemData == null) {
+         throw new IllegalArgumentException("mappings and itemData may not be null");
+      }
 
-      // Be sure we can locate the table name in the def
-      String tableAlias = itemData.getTableAlias();      
-      if (tableAlias == null)
+      var tableAlias = Optional.ofNullable(itemData.getTableAlias());
+      if (tableAlias.isEmpty()) {
          return;
-      
-      // get the root fieldset
-      PSFieldSet fs = itemData.getParentFieldSet();
+      }
+
+      var fs = itemData.getParentFieldSet();
       checkFieldSetData(mappings, fs, itemData, ctx);
    }
 
@@ -144,33 +142,23 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>. 
     */
-   private static void checkFieldSetData(List mappings, PSFieldSet fieldSet, 
+   private static void checkFieldSetData(List<PSApplicationIDTypeMapping> mappings, PSFieldSet fieldSet,
       PSItemData itemData, PSApplicationIdContext ctx)
    {
       if (fieldSet.getType() == PSFieldSet.TYPE_COMPLEX_CHILD)
       {
-         PSAppNamedItemIdContext fieldCtx = new PSAppNamedItemIdContext(
-            PSAppNamedItemIdContext.TYPE_ITEM_FIELD, fieldSet.getName());
+         var fieldCtx = new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_ITEM_FIELD, fieldSet.getName());
          fieldCtx.setParentCtx(ctx);
          ctx = fieldCtx;
       }            
 
-      // walk the fields 
-      Iterator fields = fieldSet.getAll(false);
-      while (fields.hasNext())
-      {
-         Object o = fields.next();
-         if (o instanceof PSField)
-         {
-            checkFieldData(mappings, (PSField)o, itemData, fieldSet.getType(), 
-               ctx);
+      fieldSet.getAll(false).forEachRemaining(o -> {
+         if (o instanceof PSField field) {
+            checkFieldData(mappings, field, itemData, fieldSet.getType(), ctx);
+         } else if (o instanceof PSFieldSet nestedFieldSet) {
+            checkFieldSetData(mappings, nestedFieldSet, itemData, ctx);
          }
-         else
-         {
-            // fieldset, check it
-            checkFieldSetData(mappings, (PSFieldSet)o, itemData, ctx);
-         }
-      }
+      });
    }
    
    /**
@@ -185,110 +173,59 @@ public class PSAppTransformer
     * indicate the type of field set containing this field.
     * @param ctx The current context, may be <code>null</code>. 
     */
-   private static void checkFieldData(List mappings, PSField field, 
+   private static void checkFieldData(List<PSApplicationIDTypeMapping> mappings, PSField field,
       PSItemData itemData, int fieldSetType, PSApplicationIdContext ctx)
    {
-      // make sure it's our table
-      IPSBackEndMapping locator = field.getLocator();
-      if (!(locator instanceof PSBackEndColumn))
-      {
-         return;
-      }   
-      
-      PSBackEndColumn beCol = (PSBackEndColumn)locator;
-      if (!beCol.getTable().getAlias().equalsIgnoreCase(
-         itemData.getTableAlias()))
-      {
+      var locator = field.getLocator();
+      if (!(locator instanceof PSBackEndColumn beCol)) {
          return;
       }
-      
-      // see if need to check for ids
-      if (!field.getBooleanProperty(PSField.MAY_CONTAIN_IDS_PROPERTY))
+
+      if (!beCol.getTable().getAlias().equalsIgnoreCase(itemData.getTableAlias())) {
          return;
+      }
 
-      // get the field value(s) from the data
-      Set vals = new HashSet();
-      Iterator rows = itemData.getSrcTableData().getRows();
-      while (rows.hasNext())
-      {
-         PSJdbcRowData row = (PSJdbcRowData) rows.next();
-         
-         // find our column value
-         PSJdbcColumnData col = row.getColumn(beCol.getColumn(), true);
-         
-         // didn't find our column, done
-         if (col == null)
-            break;
+      if (!field.getBooleanProperty(PSField.MAY_CONTAIN_IDS_PROPERTY)) {
+         return;
+      }
 
-         // get the column value
-         String val = col.getValue();
-         if (val == null || val.trim().length() == 0)
-            continue;
-         
-         // copy reference of the context passed in so we can change it
-         PSApplicationIdContext curCtx = ctx;
-         
-         // check child row id if needed and build context
-         if (fieldSetType == PSFieldSet.TYPE_COMPLEX_CHILD)
-         {
-            PSJdbcColumnData sysIdCol = row.getColumn(
-               IPSConstants.CHILD_ITEM_PKEY, true);
-            if (sysIdCol == null)
-               break;
-            
-            PSAppNamedItemIdContext childCtx = new PSAppNamedItemIdContext(
-               PSAppNamedItemIdContext.TYPE_CHILD_ITEM, sysIdCol.getValue());
-            childCtx.setParentCtx(curCtx);         
-            curCtx = childCtx;         
+      var vals = new HashSet<String>();
+      itemData.getSrcTableData().getRows().forEachRemaining(row -> {
+         var col = row.getColumn(beCol.getColumn(), true);
+         if (col == null || col.getValue() == null || col.getValue().trim().isEmpty()) {
+            return;
          }
-         
-         PSAppNamedItemIdContext fieldCtx = new PSAppNamedItemIdContext(
-            PSAppNamedItemIdContext.TYPE_ITEM_FIELD, field.getSubmitName());
+
+         var curCtx = ctx;
+         if (fieldSetType == PSFieldSet.TYPE_COMPLEX_CHILD) {
+            var sysIdCol = row.getColumn(IPSConstants.CHILD_ITEM_PKEY, true);
+            if (sysIdCol == null) {
+               return;
+            }
+
+            var childCtx = new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_CHILD_ITEM, sysIdCol.getValue());
+            childCtx.setParentCtx(curCtx);
+            curCtx = childCtx;
+         }
+
+         var fieldCtx = new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_ITEM_FIELD, field.getSubmitName());
          fieldCtx.setParentCtx(curCtx);
          curCtx = fieldCtx;
-         
-         // See if we possibly have multiple values
-         if (fieldSetType == PSFieldSet.TYPE_SIMPLE_CHILD)
-         {
-            PSAppNamedItemIdContext simpleCtx = new PSAppNamedItemIdContext(
-               PSAppNamedItemIdContext.TYPE_SIMPLE_CHILD_VALUE, val);
-            simpleCtx.setParentCtx(curCtx);
-            curCtx = simpleCtx;
-         }
-         
-         if (isNumeric(val))
-         {
-            // only process once for repeated values
-            if (!vals.contains(val))
-            {
-               // add mapping
-               PSApplicationIDTypeMapping mapping = 
-                  new PSApplicationIDTypeMapping(curCtx, val);
+
+         var val = col.getValue();
+         if (isNumeric(val)) {
+            if (vals.add(val)) {
+               var mapping = new PSApplicationIDTypeMapping(curCtx, val);
                mappings.add(mapping);
-               vals.add(val);
             }
-            
+         } else {
+            var paramMap = PSDeployComponentUtils.parseParams(val, null);
+            paramMap.entrySet().stream()
+                    .map(entry -> PSDeployComponentUtils.convertToParams(entry))
+                    .flatMap(Collection::stream)
+                    .forEach(param -> checkParam(mappings, param, curCtx));
          }
-         else
-         {
-            // try as url
-            Map paramMap = PSDeployComponentUtils.parseParams(val, null);
-            Iterator entries = paramMap.entrySet().iterator();
-            while (entries.hasNext())
-            {
-               Map.Entry entry = (Map.Entry)entries.next();            
-               
-               // convert to PSParam to leverage existing transformer code
-               Iterator params = PSDeployComponentUtils.convertToParams(
-                  entry).iterator();
-               while (params.hasNext())
-               {
-                  PSParam param = (PSParam)params.next();
-                  checkParam(mappings, param, curCtx);
-               } 
-            }
-         }
-      }      
+      });
    }
 
    /**
@@ -643,7 +580,7 @@ public class PSAppTransformer
     * @param fs The field set to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkFieldSet(List mappings, PSFieldSet fs,
+   public static void checkFieldSet(List<PSApplicationIDTypeMapping> mappings, PSFieldSet fs,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -888,7 +825,7 @@ public class PSAppTransformer
     * @param uiDef The ui def to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkUIDef(List mappings, PSUIDefinition uiDef,
+   public static void checkUIDef(List<PSApplicationIDTypeMapping> mappings, PSUIDefinition uiDef,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -987,7 +924,7 @@ public class PSAppTransformer
     * @param mapper The mappper to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkDisplayMapper(List mappings, PSDisplayMapper mapper,
+   public static void checkDisplayMapper(List<PSApplicationIDTypeMapping> mappings, PSDisplayMapper mapper,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1086,7 +1023,7 @@ public class PSAppTransformer
     * @param appFlow The appFlow to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkAppFlow(List mappings, PSApplicationFlow appFlow,
+   public static void checkAppFlow(List<PSApplicationIDTypeMapping> mappings, PSApplicationFlow appFlow,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1188,7 +1125,7 @@ public class PSAppTransformer
     * @param mapper The mappper to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkDataMapper(List mappings, PSDataMapper mapper,
+   public static void checkDataMapper(List<PSApplicationIDTypeMapping> mappings, PSDataMapper mapper,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1307,7 +1244,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkConditionalExits(List mappings, Iterator exits,
+   public static void checkConditionalExits(List<PSApplicationIDTypeMapping> mappings, Iterator exits,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1397,7 +1334,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkConditionalEffects(List mappings, Iterator effects,
+   public static void checkConditionalEffects(List<PSApplicationIDTypeMapping> mappings, Iterator effects,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1494,7 +1431,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkConditionalExtensions(List mappings,
+   public static void checkConditionalExtensions(List<PSApplicationIDTypeMapping> mappings,
       Iterator extensions, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1595,7 +1532,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkCustomActionGroups(List mappings, Iterator groups,
+   public static void checkCustomActionGroups(List<PSApplicationIDTypeMapping> mappings, Iterator groups,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1694,7 +1631,7 @@ public class PSAppTransformer
     * @param sheets The set to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkStylesheetSet(List mappings,
+   public static void checkStylesheetSet(List<PSApplicationIDTypeMapping> mappings,
       PSCommandHandlerStylesheets sheets, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1800,7 +1737,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkResultPage(List mappings, PSResultPage page,
+   public static void checkResultPage(List<PSApplicationIDTypeMapping> mappings, PSResultPage page,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -1880,7 +1817,7 @@ public class PSAppTransformer
     * @param uiSet The uiset to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkUISet(List mappings, PSUISet uiSet,
+   public static void checkUISet(List<PSApplicationIDTypeMapping> mappings, PSUISet uiSet,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2003,7 +1940,7 @@ public class PSAppTransformer
     * @param choices The choices to check, may not be <code>null</code>.
     * @param ctx The current context, may not be <code>null</code>.
     */
-   public static void checkChoices(List mappings, PSChoices choices,
+   public static void checkChoices(List<PSApplicationIDTypeMapping> mappings, PSChoices choices,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2125,7 +2062,7 @@ public class PSAppTransformer
     * @param applyWhen The applyWhen to check, may not be <code>null</code>.
     * @param ctx The current context, may not be <code>null</code>.
     */
-   public static void checkApplyWhen(List mappings, PSApplyWhen applyWhen,
+   public static void checkApplyWhen(List<PSApplicationIDTypeMapping> mappings, PSApplyWhen applyWhen,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2186,7 +2123,7 @@ public class PSAppTransformer
     * check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkRules(List mappings, Iterator rules,
+   public static void checkRules(List<PSApplicationIDTypeMapping> mappings, Iterator rules,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2223,7 +2160,7 @@ public class PSAppTransformer
     *
     * @throws IllegalArgumentException if any param is invalid.
     */
-   public static void checkProcessChecks(List mappings, Iterator procChecks,
+   public static void checkProcessChecks(List<PSApplicationIDTypeMapping> mappings, Iterator procChecks,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2368,7 +2305,7 @@ public class PSAppTransformer
     * <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkCloneFieldOverrides(List mappings, 
+   public static void checkCloneFieldOverrides(List<PSApplicationIDTypeMapping> mappings,
       PSCloneOverrideFieldList overrideList, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2460,7 +2397,7 @@ public class PSAppTransformer
     * @param entry The entry to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkEntry(List mappings, PSEntry entry,
+   public static void checkEntry(List<PSApplicationIDTypeMapping> mappings, PSEntry entry,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2528,7 +2465,7 @@ public class PSAppTransformer
     * @param urlRequest The request to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkUrlRequest(List mappings, PSUrlRequest urlRequest,
+   public static void checkUrlRequest(List<PSApplicationIDTypeMapping> mappings, PSUrlRequest urlRequest,
       PSApplicationIdContext ctx)
    {
       if (urlRequest == null)
@@ -2623,7 +2560,7 @@ public class PSAppTransformer
     * @param param The param to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkParam(List mappings, PSParam param,
+   public static void checkParam(List<PSApplicationIDTypeMapping> mappings, PSParam param,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -2966,7 +2903,7 @@ public class PSAppTransformer
     *           objects to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkProperties(List mappings, Iterator props,
+   public static void checkProperties(List<PSApplicationIDTypeMapping> mappings, Iterator props,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -3048,7 +2985,7 @@ public class PSAppTransformer
     * objects to check, may not be <code>null</code>.
     * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkExtensionCalls(List mappings,
+   public static void checkExtensionCalls(List<PSApplicationIDTypeMapping> mappings,
       Iterator calls, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -3126,7 +3063,7 @@ public class PSAppTransformer
     *
     * @throws IllegalArgumentException if any param is invalid.
     */
-   public static void checkDataLocator(List mappings,
+   public static void checkDataLocator(List<PSApplicationIDTypeMapping> mappings,
       IPSReplacementValue locator, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -3187,9 +3124,9 @@ public class PSAppTransformer
     * @param mappings The list, may not be <code>null</code>.
     * @param conds An iterator over zero or more <code>PSConditional</code>
     * objects, may not be <code>null</code>.
-    * @param ctx The current context, may not be <code>null</code>.
+    * @param ctx The current context, may be <code>null</code>.
     */
-   public static void checkConditionals(List mappings, Iterator conds,
+   public static void checkConditionals(List<PSApplicationIDTypeMapping> mappings, Iterator conds,
       PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -3233,7 +3170,7 @@ public class PSAppTransformer
     * @param conds An iterator over zero or more <code>PSConditional</code>
     * objects, may not be <code>null</code>.
     * @param mapping The mapping to use for the transformation, may not be
-    * <code>null</code>.
+    * <code>null</code>, must contain a context appropriate for this method.
     * @param idMap The idMap to use for the transform, may not be
     * <code>null</code>.
     *
@@ -3286,7 +3223,7 @@ public class PSAppTransformer
     * <code>PSAbstractParamValue</code> objects, may not be <code>null</code>.
     * @param ctx The current context, may not be <code>null</code>.
     */
-   public static void checkCallParams(List mappings,
+   public static void checkCallParams(List<PSApplicationIDTypeMapping> mappings,
       Iterator params, PSApplicationIdContext ctx)
    {
       if (mappings == null)
@@ -3479,17 +3416,15 @@ public class PSAppTransformer
     */
    private static boolean isNumeric(String value)
    {
-      boolean isNumber = true;
       try
       {
          Integer.parseInt(value);
+         return true;
       }
-      catch (Exception ex)
+      catch (NumberFormatException ex)
       {
-         isNumber = false;
+         return false;
       }
-
-      return isNumber;
 
    }
    

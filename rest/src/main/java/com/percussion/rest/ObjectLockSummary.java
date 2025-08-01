@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement
@@ -49,16 +50,16 @@ public class ObjectLockSummary {
     @Schema(description="The date and time that the API client last checked this lock.  Can be used for retries.")
     private String callerAccessTime;
 
-    public String getSession() {
-        return session;
+    public Optional<String> getSession() {
+        return Optional.ofNullable(session);
     }
 
     public void setSession(String session) {
         this.session = session;
     }
 
-    public String getLocker() {
-        return locker;
+    public Optional<String> getLocker() {
+        return Optional.ofNullable(locker);
     }
 
     public void setLocker(String locker) {
@@ -73,8 +74,8 @@ public class ObjectLockSummary {
         this.remainingTime = remainingTime;
     }
 
-    public String getCallerAccessTime() {
-        return callerAccessTime;
+    public Optional<String> getCallerAccessTime() {
+        return Optional.ofNullable(callerAccessTime);
     }
 
     public void setCallerAccessTime(String callerAccessTime) {

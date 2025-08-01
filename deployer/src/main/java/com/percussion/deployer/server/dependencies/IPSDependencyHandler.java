@@ -49,52 +49,21 @@ public interface IPSDependencyHandler {
      * @throws IllegalArgumentException if <code>def</code> is <code>null</code>.
      * @throws PSDeployException        if there are any errors.
      */
-    static PSDependencyHandler getHandlerInstance(PSDependencyDef def,
-                                                  PSDependencyMap map) throws PSDeployException {
-        if (def == null)
-            throw new IllegalArgumentException("def may not be null");
+    static PSDependencyHandler getHandlerInstance(PSDependencyDef def, PSDependencyMap map) throws PSDeployException {
+        if (def == null || map == null) {
+            throw new IllegalArgumentException("def and map may not be null");
+        }
 
-        if (map == null)
-            throw new IllegalArgumentException("map may not be null");
-
-        String className = def.getHandlerClassName();
-        PSDependencyHandler handler = null;
-
+        var className = def.getHandlerClassName();
         try {
-            Class handlerClass = Class.forName(className);
-            Constructor handlerCtor = handlerClass.getConstructor(new Class[]
-                    {PSDependencyDef.class, PSDependencyMap.class});
-            handler = (PSDependencyHandler) handlerCtor.newInstance(
-                    new Object[]{def, map});
-
-            return handler;
-        } catch (ClassNotFoundException cnfe) {
-            Object[] args = {className, cnfe.getLocalizedMessage()};
-            throw new PSDeployException(
-                    IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
-        } catch (InstantiationException ie) {
-            Object[] args = {className, ie.getLocalizedMessage()};
-            throw new PSDeployException(
-                    IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
-        } catch (IllegalAccessException iae) {
-            Object[] args = {className, iae.getLocalizedMessage()};
-            throw new PSDeployException(
-                    IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
-        } catch (InvocationTargetException ite) {
-            Throwable origException = ite.getTargetException();
-            String msg = origException.getLocalizedMessage();
-            Object[] args = {className, origException.getClass().getName() + ": " +
-                    msg};
-            throw new PSDeployException(
-                    IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
-        } catch (NoSuchMethodException nsme) {
-            Object[] args = {className, nsme.getLocalizedMessage()};
-            throw new PSDeployException(
-                    IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, args);
-        } catch (IllegalArgumentException iae) {
-            //this should never happen because we checked ahead of time
-            throw new RuntimeException("Ctor args failed validation: " +
-                    iae.getLocalizedMessage());
+            var handlerClass = Class.forName(className);
+            var handlerCtor = handlerClass.getConstructor(PSDependencyDef.class, PSDependencyMap.class);
+            return (PSDependencyHandler) handlerCtor.newInstance(def, map);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+            throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, new Object[]{className, e.getLocalizedMessage()});
+        } catch (InvocationTargetException e) {
+            var origException = e.getTargetException();
+            throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_HANDLER_INIT, new Object[]{className, origException.getClass().getName() + ": " + origException.getLocalizedMessage()});
         }
     }
 
@@ -114,11 +83,9 @@ public interface IPSDependencyHandler {
      * @throws IllegalArgumentException if dep is invalid.
      * @throws PSDeployException        if there are any errors.
      */
-    Iterator getChildDependencies(PSSecurityToken tok,
-                                  PSDependency dep)
-            throws PSDeployException, PSNotFoundException;
+    Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException;
 
-    Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+    Iterator<PSDependency> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
             throws PSDeployException, PSNotFoundException;
 
     void installDependencyFiles(PSSecurityToken tok,
@@ -134,8 +101,7 @@ public interface IPSDependencyHandler {
      * @throws IllegalArgumentException if <code>tok</code> is invalid.
      * @throws PSDeployException        if there are any errors.
      */
-    Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-            throws PSDeployException, PSNotFoundException;
+    Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException, PSNotFoundException;
 
     Iterator getDependencies(PSSecurityToken tok, String parentType,
                              String parentId) throws PSDeployException;

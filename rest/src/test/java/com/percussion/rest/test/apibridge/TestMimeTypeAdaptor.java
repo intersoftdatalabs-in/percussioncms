@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.mimetypes.IMimeTypeAdaptor;
@@ -23,8 +25,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Test adaptor for MimeType API bridge.
+ */
 @Component
 public class TestMimeTypeAdaptor implements IMimeTypeAdaptor {
+
     @Override
     public MimeType getMimeType(String extension) {
         return null;
@@ -42,6 +48,6 @@ public class TestMimeTypeAdaptor implements IMimeTypeAdaptor {
 
     @Override
     public void deleteMimeType(MimeType type) {
-
+        // No-op for test adaptor
     }
 }

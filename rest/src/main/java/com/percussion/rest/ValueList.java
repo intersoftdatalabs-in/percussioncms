@@ -28,9 +28,12 @@ import java.util.Collection;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "ValueList")
 @ArraySchema(schema = @Schema(implementation = String.class))
-public class ValueList  extends ArrayList<String> {
+public class ValueList extends ArrayList<String> {
     public ValueList(Collection<? extends String> c) {
         super(c);
     }
-    public ValueList(){}
+
+    public ValueList() {
+        // Default constructor
+    }
 }

@@ -6,7 +6,7 @@
         <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
         <version>8.1.6-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath> 
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -247,7 +247,6 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-jul</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-appserver</artifactId>
@@ -257,7 +256,6 @@
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-web</artifactId>
                 </exclusion>
-
                 <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-slf4j-impl</artifactId>
@@ -321,14 +319,6 @@
             <version>${log4j2.version}</version>
             <scope>compile</scope>
         </dependency>
-
-        <!--<dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-web</artifactId>
-            <version>${log4j2.version}</version>
-            <scope>compile</scope>
-        </dependency> -->
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
@@ -505,7 +495,7 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <configuration>
                     <container>
-                        <containerId>tomcat9x</containerId>
+                       <containerId>tomcat10x</containerId>
                         <!-- <type>embedded</type>-->
                         <!-- TODO: This really should be moved to be mirrored on Percussion's nexus server -->
                         <zipUrlInstaller>
@@ -679,7 +669,7 @@
                     <configuration>
                         <files>
                             <file>
-                                <file>${project.basedir}/src/main/tomcat9/webapps/ROOT/</file>
+                                <file>${project.basedir}/src/main/tomcat10/webapps/ROOT/</file>
                                 <todir>webapps/ROOT</todir>
                             </file>
                             <file>
@@ -755,22 +745,22 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/conf/context.xml</file>
+                                <file>${project.basedir}/src/main/tomcat10/conf/context.xml</file>
                                 <todir>conf</todir>
                             </configfile>
 
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/conf/server.xml</file>
+                                <file>${project.basedir}/src/main/tomcat10/conf/server.xml</file>
                                 <todir>conf</todir>
                             </configfile>
 
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/conf/log4j2-tomcat.xml</file>
+                                <file>${project.basedir}/src/main/tomcat10/conf/log4j2-tomcat.xml</file>
                                 <todir>log4j2/conf</todir>
                             </configfile>
 
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/conf/catalina.properties</file>
+                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.properties</file>
                                 <todir>conf</todir>
                             </configfile>
                             <configfile>
@@ -778,19 +768,19 @@
                                 <todir>conf/perc</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/bin/setenv.bat</file>
+                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.bat</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/bin/setenv.sh</file>
+                                <file>${project.basedir}/src/main/tomcat10/bin/setenv.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/bin/catalina.sh</file>
+                                <file>${project.basedir}/src/main/tomcat10/bin/catalina.sh</file>
                                 <todir>bin</todir>
                             </configfile>
                             <configfile>
-                                <file>${project.basedir}/src/main/tomcat9/conf/catalina.policy</file>
+                                <file>${project.basedir}/src/main/tomcat10/conf/catalina.policy</file>
                                 <todir>conf</todir>
                             </configfile>
                         </configfiles>
@@ -999,7 +989,7 @@
                     <plugin>
                         <groupId>org.codehaus.cargo</groupId>
                         <artifactId>cargo-maven2-plugin</artifactId>
-                        <version>1.6.10</version>
+                        <version>1.9.0</version>
                         <configuration>
 
                             <container>

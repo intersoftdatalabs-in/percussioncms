@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,55 +20,59 @@ package com.percussion.membership.data;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
 
-import org.apache.commons.lang.Validate;
-
+/**
+ * Represents a user and their group assignments.
+ * Sunny Sal says: "Group hug for your users!"
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "UserGroup")
-public class PSUserGroup
-{
+public class PSUserGroup {
+
     private String email;
     private String groups;
-    
-    /**
-     * Default ctor required by jax-b
-     */
-    public PSUserGroup()
-    {
-        
-    }
 
-    
-    public void setEmail(String email)
-    {
-        Validate.notEmpty(email);
+    /** Default constructor required by JAXB. */
+    public PSUserGroup() {}
+
+    /**
+     * Sets the user's email.
+     *
+     * @param email the email, never empty or null
+     */
+    public void setEmail(String email) {
+        if (StringUtils.isBlank(email)) {
+            throw new IllegalArgumentException("Email must not be empty");
+        }
         this.email = email;
     }
-    
+
     /**
-     * Get the user's email.
-     * 
-     * @return The email, not <code>null</code> or empty.
+     * Gets the user's email.
+     *
+     * @return the email, never empty or null
      */
-    public String getEmail()
-    {
-        return email;
+    public Optional<String> getEmail() {
+        return Optional.ofNullable(email);
     }
-    
+
     /**
-     * @param groups the groups to set, may be empty or <code>null</code>.
+     * Sets the groups for the user.
+     *
+     * @param groups the groups, may be empty or null
      */
-    public void setGroups(String groups)
-    {
+    public void setGroups(String groups) {
         this.groups = groups;
     }
 
     /**
-     * @return the groups, may be empty or <code>null</code>.
+     * Gets the groups for the user.
+     *
+     * @return the groups, may be empty or null
      */
-    public String getGroups()
-    {
-        return groups;
+    public Optional<String> getGroups() {
+        return Optional.ofNullable(groups);
     }
-
 }

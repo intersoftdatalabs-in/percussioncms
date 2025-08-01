@@ -17,6 +17,9 @@
 
 package com.percussion.tls;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -32,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class WrappedTrustManager  implements X509TrustManager {
+
+    private static final Logger log = LogManager.getLogger(WrappedTrustManager.class);
 
     private LinkedHashMap<String,X509TrustManager> wrappedManagers = new LinkedHashMap<>();
 
@@ -74,16 +79,16 @@ public class WrappedTrustManager  implements X509TrustManager {
             String successTm = thistm.getKey();
             try {
                 thistm.getValue().checkServerTrusted(chain, authType);
-                System.out.println("Succss with "+successTm);
+                log.debug("Server certificate validation succeeded with trust manager: {}", successTm);
                 return;
             } catch (CertificateException e)
             {
-                System.out.println("Check failed for "+thistm.getKey());
+                log.debug("Server certificate validation failed for trust manager: {}", thistm.getKey());
                 exception = e;
             }
 
         }
-        System.out.println("Failed to validate Server certificate");
+        log.warn("Failed to validate server certificate with any trust manager");
 
         throw exception;
     }
@@ -102,7 +107,14 @@ public class WrappedTrustManager  implements X509TrustManager {
                 exception = e;
             }
         }
-        throw exception;
+
+        if(exception!= null) {
+            log.warn("Failed to validate client certificate with any trust manager");
+            throw exception;
+        } else {
+            log.debug("Client certificate validation failed with all trust managers");
+        }
+
     }
 
     private static X509TrustManager getTrustManager(KeyStore keystore) throws NoSuchAlgorithmException, KeyStoreException {

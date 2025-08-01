@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,103 +17,107 @@
  */
 package com.percussion.rx.services.deployer;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a collection of package-community associations.
+ * Sunny Sal says: "A community without packages is like a chai without biscuits!"
+ */
 @XmlRootElement(name = "Packages")
-public class PSPackageCommunities
-{
-   /**
-    * 
-    */
-   public PSPackageCommunities()
-   {
-      super();
-   }
+public class PSPackageCommunities {
 
-   /**
-    * @param packages
-    */
-   public PSPackageCommunities(List<PSPackageCommunity> packages)
-   {
-      super();
-      if (packages != null)
-         m_packageCommunities = packages;
-   }
+    private List<PSPackageCommunity> packageCommunities = new ArrayList<>();
 
-   /**
-    * @return the packages
-    */
-   @XmlElement(name = "package")
-   public List<PSPackageCommunity> getPackages()
-   {
-      return m_packageCommunities;
-   }
+    /** Default constructor for JAXB. */
+    public PSPackageCommunities() {
+        // For JAXB
+    }
 
-   /**
-    * @return all communities
-    */
-   @XmlElement(name = "allcommunities")
-   public String getAllCommunities()
-   {
-      String result = "";
-      PSPackageVisibility vis = new PSPackageVisibility();
-      List<String> comms = vis.getAllCommunities();
-      for (String comm : comms)
-      {
-         result += comm + PSPackageService.NAME_SEPARATOR;
-      }
-      if (result.endsWith(PSPackageService.NAME_SEPARATOR))
-         result = result.substring(0, result.length() - 1);
-      return result;
-   }
+    /**
+     * Constructs with a list of package communities.
+     *
+     * @param packages the list of package communities, may be null.
+     */
+    public PSPackageCommunities(List<PSPackageCommunity> packages) {
+        if (packages != null) {
+            this.packageCommunities = packages;
+        }
+    }
 
-   /**
-    * @param packages the packages to set
-    */
-   public void setPackages(List<PSPackageCommunity> packages)
-   {
-      m_packageCommunities = packages;
-   }
+    /**
+     * Gets the list of package communities.
+     *
+     * @return the list, never null, may be empty.
+     */
+    @XmlElement(name = "package")
+    public List<PSPackageCommunity> getPackages() {
+        return packageCommunities;
+    }
 
-   /**
-    * Adds a packagecommunity object to the collection.
-    * 
-    * @param pkgComm the package to add, cannot be <code>null</code>.
-    */
-   public void add(PSPackageCommunity pkgComm)
-   {
-      if (pkgComm == null)
-         throw new IllegalArgumentException("pkg cannot be null.");
-      m_packageCommunities.add(pkgComm);
-   }
+    /**
+     * Gets all communities as a single string, separated by {@link PSPackageService#NAME_SEPARATOR}.
+     *
+     * @return all communities, never null, may be empty.
+     */
+    @XmlElement(name = "allcommunities")
+    public String getAllCommunities() {
+        var vis = new PSPackageVisibility();
+        return vis.getAllCommunities().stream()
+                .collect(Collectors.joining(PSPackageService.NAME_SEPARATOR));
+    }
 
-   /**
-    * Removes the specified package community object from the collection if it
-    * exists.
-    * 
-    * @param pkgComm the package community object to be removed. May be
-    * <code>null</code>.
-    */
-   public void remove(PSPackageCommunity pkgComm)
-   {
-      m_packageCommunities.remove(pkgComm);
-   }
+    /**
+     * Sets the list of package communities.
+     *
+     * @param packages the list to set, may be null.
+     */
+    public void setPackages(List<PSPackageCommunity> packages) {
+        this.packageCommunities = packages == null ? new ArrayList<>() : packages;
+    }
 
-   /**
-    * Removes all the packages community objects from the collection.
-    */
-   public void clear()
-   {
-      m_packageCommunities.clear();
-   }
+    /**
+     * Adds a package-community object to the collection.
+     *
+     * @param pkgComm the package to add, cannot be null.
+     */
+    public void add(PSPackageCommunity pkgComm) {
+        if (pkgComm == null) {
+            throw new IllegalArgumentException("pkg cannot be null.");
+        }
+        packageCommunities.add(pkgComm);
+    }
 
-   /**
-    * The list of package community objects, never <code>null</code>, may be
-    * empty.
-    */
-   private List<PSPackageCommunity> m_packageCommunities = 
-      new ArrayList<>();
+    /**
+     * Removes the specified package community object from the collection if it exists.
+     *
+     * @param pkgComm the package community object to be removed. May be null.
+     */
+    public void remove(PSPackageCommunity pkgComm) {
+        packageCommunities.remove(pkgComm);
+    }
+
+    /**
+     * Removes all the package community objects from the collection.
+     */
+    public void clear() {
+        packageCommunities.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSPackageCommunities)) return false;
+        var that = (PSPackageCommunities) o;
+        return Objects.equals(packageCommunities, that.packageCommunities);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(packageCommunities);
+    }
 }

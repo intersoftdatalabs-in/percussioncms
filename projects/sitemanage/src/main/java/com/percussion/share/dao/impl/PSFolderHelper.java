@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -123,8 +124,7 @@ import static org.apache.commons.lang.Validate.notNull;
 @PSSiteManageBean("folderHelper")
 @Lazy
 @Transactional
-public class PSFolderHelper implements IPSFolderHelper
-{    
+public class PSFolderHelper implements IPSFolderHelper {
     /**
      * Description of the folder property.
      */
@@ -135,7 +135,7 @@ public class PSFolderHelper implements IPSFolderHelper
     private static final String ALLOWED_SITES_PROPERTY_DESCRIPTION = "The workflow ID assigned to the folder";
 
     private static final String FOLDER_RELATE_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
-    
+
     private IPSDataItemSummaryService dataItemSummaryService;
     private IPSContentWs contentWs;
     private IPSIdMapper idMapper;
@@ -145,37 +145,37 @@ public class PSFolderHelper implements IPSFolderHelper
     private IPSSiteManager siteMgr;
     private IPSWorkflowService workflowService;
     private IPSRecycleService recycleService;
-    
-    
+
+
     private static final Logger log = LogManager.getLogger(PSFolderHelper.class);
-    
-    private List<String> reservedPathNames = Arrays.asList(
-            "web_resources",
-            "rx_resources",
-            "web-inf",
-            "meta-inf");
-    
-    private List<String> invalidPathNames = Arrays.asList(
-            ".",
-            "..");
-    
+
+    private final List<String> reservedPathNames = List.of(
+            "web_resources", "rx_resources", "web-inf", "meta-inf");
+
+    private final List<String> invalidPathNames = List.of(".", "..");
+
     // A list of characters that can't be used in the file or folder name
-    private static final List<Character> INVALID_CHARS = Arrays.asList(
-            new Character[]{'/', '\\', ':', '*', '?', '"', '<', '>', '|', '\'', '%'});
-       
+    private static final List<Character> INVALID_CHARS = List.of(
+            '/', '\\', ':', '*', '?', '"', '<', '>', '|', '\'', '%');
+
     private static final String PAGE_THUMB_ROOT = "/rx_resources/images/TemplateImages/";
     private static final String PAGE_THUMB_SUFFIX = "-page.jpg";
     private static final String RECYCLED_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
     private static final String FOLDER_TYPE = PSRelationshipConfig.TYPE_FOLDER_CONTENT;
     private static final String RECYCLING_ROOT = PSRecycleService.RECYCLING_ROOT;
-    
+
     @Autowired
-    public PSFolderHelper(IPSContentWs contentWs, IPSDataItemSummaryService dataItemSummaryService,
-            IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper, IPSPublisherService pubService,
-            IPSSystemService sysService, IPSNotificationService notificationService, IPSSiteManager siteMgr,
-            IPSWorkflowService workflowService, IPSRecycleService recycleService)
-    {
-        super();
+    public PSFolderHelper(
+            IPSContentWs contentWs,
+            IPSDataItemSummaryService dataItemSummaryService,
+            IPSContentDesignWs contentDesignWs,
+            IPSIdMapper idMapper,
+            IPSPublisherService pubService,
+            IPSSystemService sysService,
+            IPSNotificationService notificationService,
+            IPSSiteManager siteMgr,
+            IPSWorkflowService workflowService,
+            IPSRecycleService recycleService) {
         this.contentWs = contentWs;
         this.dataItemSummaryService = dataItemSummaryService;
         this.idMapper = idMapper;
@@ -246,13 +246,12 @@ public class PSFolderHelper implements IPSFolderHelper
         return findItemProperties(path, FOLDER_RELATE_TYPE);
     }
 
+    @Override
     public PSItemProperties findItemProperties(String path, String relationshipTypeName) throws Exception
     {
-        String id = dataItemSummaryService.pathToId(path, relationshipTypeName);
+        var id = dataItemSummaryService.pathToId(path, relationshipTypeName);
         isTrue(id != null, "No item found for path: ", path);
-        PSItemProperties itemProps = findItemPropertiesById(id, relationshipTypeName);
-
-        return itemProps;
+        return findItemPropertiesById(id, relationshipTypeName);
     }
 
     @Override
@@ -262,27 +261,23 @@ public class PSFolderHelper implements IPSFolderHelper
 
     @Override
     public PSItemProperties findItemPropertiesById(String id, String relationshipTypeName) throws DataServiceLoadException, LoadException {
-        IPSItemSummary item = dataItemSummaryService.find(id, relationshipTypeName);
-        int contentId = ((PSLegacyGuid) idMapper.getGuid(id)).getContentId();
-        PSComponentSummary compSum = getItemSummary(contentId);
-        
-        PSWorkflow wf = getWorkflow(compSum.getWorkflowAppId());
-        PSState state = getStateById(wf, compSum.getContentStateId());
-        
-        Node pageNode = getPageNode(item);
-        
-        // get last published date
-        IPSGuid itemId = new PSLegacyGuid(compSum.getHeadLocator());
-        IPSPubItemStatus pubStatus = pubService.findLastPublishedItemStatus(itemId);
-       
-        String publishDate = PSDateUtils.getDateToString((pubStatus == null) ? null : pubStatus.getDate());
+        var item = dataItemSummaryService.find(id, relationshipTypeName);
+        var contentId = ((PSLegacyGuid) idMapper.getGuid(id)).getContentId();
+        var compSum = getItemSummary(contentId);
 
-        // get last modifier and date
-        String userName = compSum.getContentLastModifier();        
-        Date date = compSum.getContentLastModifiedDate();
-        PSPair<String, String> modifiedInfo = fixupLastModified(itemId, userName, date, state.isPublishable());
-        
-        PSItemProperties itemProps = new PSItemProperties();
+        var wf = getWorkflow(compSum.getWorkflowAppId());
+        var state = getStateById(wf, compSum.getContentStateId());
+        var pageNode = getPageNode(item);
+
+        var itemId = new PSLegacyGuid(compSum.getHeadLocator());
+        var pubStatus = pubService.findLastPublishedItemStatus(itemId);
+        var publishDate = PSDateUtils.getDateToString(pubStatus == null ? null : pubStatus.getDate());
+
+        var userName = compSum.getContentLastModifier();
+        var date = compSum.getContentLastModifiedDate();
+        var modifiedInfo = fixupLastModified(itemId, userName, date, state.isPublishable());
+
+        var itemProps = new PSItemProperties();
         itemProps.setId(id);
         itemProps.setName(getItemPropertyName(item, pageNode));
         itemProps.setStatus(state.getName());
@@ -291,37 +286,29 @@ public class PSFolderHelper implements IPSFolderHelper
         itemProps.setLastModifiedDate(modifiedInfo.getSecond());
         itemProps.setLastPublishedDate(publishDate);
         itemProps.setType(getItemPropertyType(item, pageNode));
-        
-        Date postDate = compSum.getContentPostDate();
-        String postDateStr = PSDateUtils.getDateToString((postDate == null) ? null : postDate);
-        itemProps.setPostDate(postDateStr);
-        
-        Date schedPubDate = compSum.getContentStartDate();
-        String schedPubDateStr = PSDateUtils.getDateToString((schedPubDate == null) ? null : schedPubDate);
-        itemProps.setScheduledPublishDate(schedPubDateStr);
-        
-        Date unpubDate = compSum.getContentExpiryDate();
-        String unpubDateStr = PSDateUtils.getDateToString((unpubDate == null) ? null : unpubDate);
-        itemProps.setScheduledUnpublishDate(unpubDateStr);
 
-        
-        String[] paths = contentWs.findItemPaths(idMapper.getGuid(id));
-        String thumbPath = "";
-        if(paths.length > 0)
-        {
-            String path = PSPathUtils.getFinderPath(paths[0]);
-        
+        var postDate = compSum.getContentPostDate();
+        itemProps.setPostDate(PSDateUtils.getDateToString(postDate == null ? null : postDate));
+
+        var schedPubDate = compSum.getContentStartDate();
+        itemProps.setScheduledPublishDate(PSDateUtils.getDateToString(schedPubDate == null ? null : schedPubDate));
+
+        var unpubDate = compSum.getContentExpiryDate();
+        itemProps.setScheduledUnpublishDate(PSDateUtils.getDateToString(unpubDate == null ? null : unpubDate));
+
+        var paths = contentWs.findItemPaths(idMapper.getGuid(id));
+        var thumbPath = "";
+        if (paths.length > 0) {
+            var path = PSPathUtils.getFinderPath(paths[0]);
             itemProps.setPath(path);
-            if (path.startsWith("/Sites"))
-            {
-                String[] split = StringUtils.split(path,'/');
-                String siteName = split[1];
-                String thumbUrl = "/Rhythmyx" + PAGE_THUMB_ROOT + siteName + "/" + id + PAGE_THUMB_SUFFIX;
+            if (path.startsWith("/Sites")) {
+                var split = StringUtils.split(path, '/');
+                var siteName = split[1];
+                var thumbUrl = "/Rhythmyx" + PAGE_THUMB_ROOT + siteName + "/" + id + PAGE_THUMB_SUFFIX;
                 thumbPath = thumbUrl;
                 itemProps.setThumbnailPath(thumbUrl);
             }
         }
-        
         itemProps.setThumbnailPath(thumbPath);
         itemProps.setContentPostDateTz(compSum.getContentPostDateTz());
         return itemProps;
@@ -1237,11 +1224,8 @@ public class PSFolderHelper implements IPSFolderHelper
      */
     private String getInvalidCharsAsString()
     {
-        StringBuilder chars = new StringBuilder();
-        for(Character invalidChar : INVALID_CHARS)
-        {
-            chars.append(invalidChar).append(" ");
-        }
+        var chars = new StringBuilder();
+        INVALID_CHARS.forEach(ch -> chars.append(ch).append(" "));
         return chars.toString();
     }
     

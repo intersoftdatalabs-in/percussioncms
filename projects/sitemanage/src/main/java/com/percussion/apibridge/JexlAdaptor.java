@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.jexl.IJexlAdaptor;
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+/**
+ * Adaptor for JEXL-related operations in Percussion CMS.
+ */
 @PSSiteManageBean
 public class JexlAdaptor implements IJexlAdaptor {
 
-    public JexlAdaptor(){
-
+    public JexlAdaptor() {
+        // No-op constructor for dependency injection.
     }
-
 }

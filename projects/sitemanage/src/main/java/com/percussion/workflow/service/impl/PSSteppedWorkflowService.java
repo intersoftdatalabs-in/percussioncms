@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -109,8 +110,7 @@ import static com.percussion.workflow.service.impl.PSSteppedWorkflowMetadata.ord
  */
 @PSSiteManageBean("steppedWorkflowService")
 @Lazy
-public class PSSteppedWorkflowService implements IPSSteppedWorkflowService, IPSNotificationListener
-{
+public class PSSteppedWorkflowService implements IPSSteppedWorkflowService, IPSNotificationListener {
     @Autowired
     public PSSteppedWorkflowService(IPSWorkflowService workflowService, IPSUserService userService, 
     		IPSFolderService folderService, IPSMaintenanceManager maintenanceManager,
@@ -167,41 +167,23 @@ public class PSSteppedWorkflowService implements IPSSteppedWorkflowService, IPSN
      * com.percussion.user.service.IPSWorkflowEditorService#getWorfklowList()
      */
     @Override
-    public PSEnumVals getWorkflowList() throws PSWorkflowEditorServiceException
-    {
-        PSEnumVals workflowList = new PSEnumVals();
-        
-        try
-        {
-            List<PSObjectSummary> workflows = workflowService.findWorkflowSummariesByName("");
-            
-            if (workflows == null)
-            {
+    public PSEnumVals getWorkflowList() throws PSWorkflowEditorServiceException {
+        var workflowList = new PSEnumVals();
+        try {
+            var workflows = workflowService.findWorkflowSummariesByName("");
+            if (workflows == null) {
                 throw new PSWorkflowEditorServiceException("No workflows in the system.");
+            } else {
+                workflows.sort(new WorkFlowNameComparator());
+                workflows.stream()
+                        .filter(workflow -> !excludedWorkflows.contains(workflow.getLabel()))
+                        .forEach(workflow -> workflowList.addEntry(workflow.getLabel(), String.valueOf(workflow.getGUID().longValue())));
             }
-            else
-            {
-                // Order the list
-                WorkFlowNameComparator comp = new WorkFlowNameComparator();
-                Collections.sort(workflows, comp);
-                
-                // Convert to <code>PSEnumVals</code> object filtering special workflows system
-                for (PSObjectSummary workflow : workflows)
-                {
-                    if (!excludedWorkflows.contains(workflow.getLabel()))
-                    {
-                        workflowList.addEntry(workflow.getLabel(), String.valueOf(workflow.getGUID().longValue()));
-                    }
-                }               
-            }
-        }
-        catch (Exception ex)
-        {
-            String msg = "Failed to get the list of workflows";
+        } catch (Exception ex) {
+            var msg = "Failed to get the list of workflows";
             log.error("{}, Error: {}", msg, ex.getMessage());
-            log.debug(ex.getMessage(),ex);
+            log.debug(ex.getMessage(), ex);
             throw new PSWorkflowEditorServiceException(msg, ex);
-
         }
         return workflowList;
     }
@@ -213,50 +195,28 @@ public class PSSteppedWorkflowService implements IPSSteppedWorkflowService, IPSN
      * com.percussion.user.service.IPSWorkflowEditorService#getWorkflowMetadataList()
      */
     @Override
-    public List<PSUiWorkflow> getWorkflowMetadataList() throws PSWorkflowEditorServiceException
-    {
-        List<PSUiWorkflow> workflowList = new ArrayList<>();
-        
-        try
-        {
-            List<PSObjectSummary> sums = workflowService.findWorkflowSummariesByName(null);
-            
-            if (sums.isEmpty())
-            {
+    public List<PSUiWorkflow> getWorkflowMetadataList() throws PSWorkflowEditorServiceException {
+        var workflowList = new ArrayList<PSUiWorkflow>();
+        try {
+            var sums = workflowService.findWorkflowSummariesByName(null);
+            if (sums.isEmpty()) {
                 throw new PSWorkflowEditorServiceException("No workflows found in the system.");
             }
-            
-            WorkFlowNameComparator nameComp = new WorkFlowNameComparator();
-            Collections.sort(sums, nameComp);
-            
-            for (PSObjectSummary sum : sums)
-            {
-                if (!excludedWorkflows.contains(sum.getLabel()))
-                {
-                    PSUiWorkflow uiWorkflow = new PSUiWorkflow();
+            sums.sort(new WorkFlowNameComparator());
+            for (var sum : sums) {
+                if (!excludedWorkflows.contains(sum.getLabel())) {
+                    var uiWorkflow = new PSUiWorkflow();
                     uiWorkflow.setWorkflowName(sum.getLabel());
                     uiWorkflow.setWorkflowDescription(sum.getDescription());
-                    if (sum.getLabel().equalsIgnoreCase(workflowService.getDefaultWorkflowName()))
-                    {
-                        uiWorkflow.setDefaultWorkflow(true);
-                    }
-                    else
-                    {
-                        uiWorkflow.setDefaultWorkflow(false);
-                    }
-                    //Set staging roles 
+                    uiWorkflow.setDefaultWorkflow(sum.getLabel().equalsIgnoreCase(workflowService.getDefaultWorkflowName()));
                     uiWorkflow.setStagingRoleNames(getStagingRoles(sum.getGUID().longValue()));
-
                     workflowList.add(uiWorkflow);
                 }
             }
-            
-        }
-        catch (Exception ex)
-        {
-            String msg = "Failed to get the list of workflows";
+        } catch (Exception ex) {
+            var msg = "Failed to get the list of workflows";
             log.error("{}, Error: {}", msg, ex.getMessage());
-            log.debug(ex.getMessage(),ex);
+            log.debug(ex.getMessage(), ex);
             throw new PSWorkflowEditorServiceException(msg, ex);
         }
         return workflowList;
@@ -860,7 +820,7 @@ public class PSSteppedWorkflowService implements IPSSteppedWorkflowService, IPSN
 
 	/*
 	 * (non-Javadoc)
-	 * @see com.percussion.workflowmanagement.service.IPSWorkflowEditorService#deleteStep(java.lang.String, java.lang.String)
+	 * @see com.percussion.workflowmanagement.service.IPSWorkflowEditorService#deleteStep(java.lang.String, java.lang.String, com.percussion.workflowmanagement.data.PSUiWorkflow)
 	 */
     @Override
 	public PSUiWorkflow deleteStep(String workflowName, String stepName) throws PSWorkflowEditorServiceException 

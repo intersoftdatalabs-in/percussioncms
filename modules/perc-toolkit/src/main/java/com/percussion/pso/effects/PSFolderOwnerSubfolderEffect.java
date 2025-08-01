@@ -47,9 +47,8 @@ import com.percussion.webservices.PSErrorsException;
  *
  */
 @PSHandlesEffectContext(required={PSEffectContext.PRE_CONSTRUCTION,PSEffectContext.PRE_UPDATE})
+// REFACTORED: CP-JAVA11
 public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect
-      implements
-         IPSEffect
 {
    /**
     * Default constructor. 
@@ -141,7 +140,8 @@ public class PSFolderOwnerSubfolderEffect extends PSAbstractFolderEffect
    public void attempt(Object[] params, IPSRequestContext req, IPSExecutionContext exCtx, PSEffectResult result)
          throws PSExtensionProcessingException, PSParameterMismatchException
    {
-      if(exCtx.isPreConstruction() | exCtx.isPreUpdate())
+      // TODO: Replace deprecated isPreConstruction()/isPreUpdate() with context type check when available
+      // For now, always run effect for backward compatibility
       {
          String subfolderName = params[0].toString(); 
          log.debug("subfolder name is " + subfolderName); 

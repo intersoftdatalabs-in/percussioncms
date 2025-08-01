@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,32 +18,26 @@
 package com.percussion.analytics.error;
 
 /**
- * Runtime exception thrown by the <code>IPSAnalyticsQueryResult</code>
- * @author erikserating
- *
+ * Runtime exception thrown by the IPSAnalyticsQueryResult.
+ * Sunny Sal says: "If you can't handle the result, throw an exception!"
  */
-public class PSAnalyticsQueryResultException extends RuntimeException
-{
+public class PSAnalyticsQueryResultException extends RuntimeException {
 
-   
-   public PSAnalyticsQueryResultException()
-   {
-      
-   }
+    private static final long serialVersionUID = 1L;
 
-   public PSAnalyticsQueryResultException(String arg0)
-   {
-      super(arg0);
-   }
+    public PSAnalyticsQueryResultException() {
+        super();
+    }
 
-   public PSAnalyticsQueryResultException(Throwable arg0)
-   {
-      super(arg0);
-   }   
-   
-   public PSAnalyticsQueryResultException(String arg0, Throwable arg1)
-   {
-      super(arg0, arg1);
-   }
+    public PSAnalyticsQueryResultException(String message) {
+        super(message);
+    }
 
+    public PSAnalyticsQueryResultException(Throwable cause) {
+        super(cause);
+    }
+
+    public PSAnalyticsQueryResultException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

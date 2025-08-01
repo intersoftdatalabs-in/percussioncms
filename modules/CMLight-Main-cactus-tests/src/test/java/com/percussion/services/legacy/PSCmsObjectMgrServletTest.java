@@ -43,90 +43,90 @@ import org.junit.experimental.categories.Category;
 public class PSCmsObjectMgrServletTest extends ServletTestCase
 {
    /**
-    * Test the state name of an cached item has been updated after transition the item
-    * 
-    * @throws Exception
+    * Test the state name of a cached item has been updated after transitioning the item.
+    *
+    * @throws Exception if an error occurs during the test
     */
    public void testStateName() throws Exception
    {
-      IPSSecurityWs secWs = PSSecurityWsLocator.getSecurityWebservice();
-      secWs.login(request, response, "admin1", "demo", null, 
-            "Enterprise_Investments_Admin", null);     
-      
-      IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
-      
-      IPSItemEntry item335 = cmsMgr.findItemEntry(335);
-      String stateNameBeforeEdit = item335.getStateName();
-      
-      PSLegacyGuid id = new PSLegacyGuid(335, -1);
-      IPSContentWs cw = PSContentWsLocator.getContentWebservice();
-      
-      PSItemStatus status = cw.prepareForEdit(id);
-      String stateNameForEdit = item335.getStateName();
-      
+      var secWs = PSSecurityWsLocator.getSecurityWebservice();
+      secWs.login(request, response, "admin1", "demo", null,
+            "Enterprise_Investments_Admin", null);
+
+      var cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
+
+      var item335 = cmsMgr.findItemEntry(335);
+      var stateNameBeforeEdit = item335.getStateName();
+
+      var id = new PSLegacyGuid(335, -1);
+      var cw = PSContentWsLocator.getContentWebservice();
+
+      var status = cw.prepareForEdit(id);
+      var stateNameForEdit = item335.getStateName();
+
       if (status.isDidTransition())
          assertFalse(stateNameBeforeEdit.equals(stateNameForEdit));
       else
          assertTrue(stateNameBeforeEdit.equals(stateNameForEdit));
       cw.releaseFromEdit(status, false);
-      String stateNameAfterEdit = item335.getStateName();
+      var stateNameAfterEdit = item335.getStateName();
       assertTrue(stateNameBeforeEdit.equals(stateNameAfterEdit));
    }
 
    /**
-    * Test the last modified date and post date of an cached item have been updated
+    * Test the last modified date and post date of a cached item have been updated
     * after the item is touched or set the post date.
-    * 
-    * @throws InterruptedException
+    *
+    * @throws InterruptedException if interrupted during sleep
     */
    @SuppressWarnings("unchecked")
    public void testTouchPostDateOnItemEntry() throws InterruptedException
    {
-      IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
-      
-      IPSItemEntry item335 = cmsMgr.findItemEntry(335);
+      var cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
 
-      Date dateBeforeTouch = item335.getLastModifiedDate();
+      var item335 = cmsMgr.findItemEntry(335);
+
+      var dateBeforeTouch = item335.getLastModifiedDate();
       Thread.sleep(20);
       Integer[] ids = new Integer[] {335};
-      cmsMgr.touchItems( Arrays.asList(ids) );
-      Date dateAfterTouch = item335.getLastModifiedDate();
+      cmsMgr.touchItems(Arrays.asList(ids));
+      var dateAfterTouch = item335.getLastModifiedDate();
       assertTrue(dateAfterTouch.after(dateBeforeTouch));
-      
-      ((PSItemEntry)item335).setPostDate(null);
+
+      ((PSItemEntry) item335).setPostDate(null);
       cmsMgr.setPostDate(Arrays.asList(ids));
       Thread.sleep(20);
       assertTrue(item335.getPostDate().before(new Date()));
    }
-   
+
    private void resetPostDate(IPSCmsObjectMgr cmsMgr, List<PSComponentSummary> sums) throws Exception
    {
-      for (PSComponentSummary sum : sums)
+      for (var sum : sums)
       {
          sum.setContentPostDate(null);
       }
       cmsMgr.saveComponentSummaries(sums);
    }
-   
+
    public void testSetPostDate() throws Exception
    {
-      IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
-      
-      Set<Integer> ids = new HashSet<Integer>();
-      List<PSComponentSummary> sums = cmsMgr.findComponentSummariesByType(311);
-      
+      var cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
+
+      var ids = new HashSet<Integer>();
+      var sums = cmsMgr.findComponentSummariesByType(311);
+
       try
       {
          resetPostDate(cmsMgr, sums);
-         for (PSComponentSummary sum : sums)
+         for (var sum : sums)
             ids.add(sum.getContentId());
 
          cmsMgr.setPostDate(ids);
 
          Date date = null;
-         for (PSComponentSummary sum : cmsMgr.findComponentSummariesByType(311))
+         for (var sum : cmsMgr.findComponentSummariesByType(311))
          {
-            Date postDate = sum.getContentPostDate();
+            var postDate = sum.getContentPostDate();
             assertNotNull(postDate);
             if (date == null)
             {
@@ -137,10 +137,10 @@ public class PSCmsObjectMgrServletTest extends ServletTestCase
                assertEquals(date, postDate);
             }
          }
-         
+
          cmsMgr.setPostDate(ids);
-         
-         for (PSComponentSummary sum : cmsMgr.findComponentSummariesByType(311))
+
+         for (var sum : cmsMgr.findComponentSummariesByType(311))
          {
             assertEquals(date, sum.getContentPostDate());
          }

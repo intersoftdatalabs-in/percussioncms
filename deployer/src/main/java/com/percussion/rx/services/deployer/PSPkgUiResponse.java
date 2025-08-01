@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,95 +23,83 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Class to represent error m_message.
- * 
+ * Represents a package UI response message.
+ * Sunny Sal says: "UI responses should be as clear as my code!"
+ *
  * @author bjoginipally
- * 
  */
 @XmlRootElement(name = "Response")
-public class PSPkgUiResponse
-{
-   /**
-    * No arg ctor for the framework.
-    *
-    */
-   PSPkgUiResponse()
-   {
-      super();
-   }
-   /**
-    * Ctor for creating package ui response.
-    * 
-    * @param type the type of the response.
-    * @param message, sets as empty string if it is <code>null</code>.
-    */
-   PSPkgUiResponse(PSPkgUiResponseType type, String message)
-   {
-      setType(type);
-      setMessage(message);
-   }
+public class PSPkgUiResponse {
 
-   /**
-    * Gets the message associated with this error.
-    * 
-    * @return message never <code>null</code> may be empty.
-    */
-   @XmlElement(name = "message")
-   public String getMessage()
-   {
-      return m_message;
-   }
+    /**
+     * No-arg constructor for the framework.
+     */
+    public PSPkgUiResponse() {
+        // For JAXB
+    }
 
-   /**
-    * Returns the type of the response.
-    * 
-    * @return response type.
-    */
-   @XmlElement(name = "type")
-   public PSPkgUiResponseType getType()
-   {
-      return type;
-   }
+    /**
+     * Constructor for creating package UI response.
+     *
+     * @param type    the type of the response.
+     * @param message sets as empty string if it is {@code null}.
+     */
+    public PSPkgUiResponse(PSPkgUiResponseType type, String message) {
+        setType(type);
+        setMessage(message);
+    }
 
-   public void setMessage(String message)
-   {
-      m_message = StringUtils.defaultString(message);
-   }
+    /**
+     * Gets the message associated with this response.
+     *
+     * @return message, never {@code null}, may be empty.
+     */
+    @XmlElement(name = "message")
+    public String getMessage() {
+        return message;
+    }
 
-   public void setType(PSPkgUiResponseType m_type)
-   {
-      this.type = m_type;
-   }
+    /**
+     * Returns the type of the response.
+     *
+     * @return response type.
+     */
+    @XmlElement(name = "type")
+    public PSPkgUiResponseType getType() {
+        return type;
+    }
 
-   private String m_message = "";
+    public void setMessage(String message) {
+        this.message = StringUtils.defaultString(message);
+    }
 
-   private PSPkgUiResponseType type;
+    public void setType(PSPkgUiResponseType type) {
+        this.type = type;
+    }
 
-   /**
-    * Enum class for package ui response type, has two values success and
-    * failure.
-    * 
-    * @author bjoginipally
-    * 
-    */
-   public enum PSPkgUiResponseType
-   {
-      FAILURE(0), SUCCESS(1);
-      PSPkgUiResponseType(int value)
-      {
-         m_value = value;
-      }
+    private String message = "";
 
-      public int getValue()
-      {
-         return m_value;
-      }
+    private PSPkgUiResponseType type;
 
-      public String toString()
-      {
-         return m_value + "";
-      }
+    /**
+     * Enum class for package UI response type, has two values: success and failure.
+     */
+    public enum PSPkgUiResponseType {
+        FAILURE(0), SUCCESS(1);
 
-      private int m_value;
-   }
+        PSPkgUiResponseType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return Integer.toString(value);
+        }
+
+        private final int value;
+    }
 }

@@ -1,19 +1,4 @@
-/*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.beans;
 
 import com.percussion.rx.jsf.PSNodeBase;
@@ -21,29 +6,26 @@ import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.rx.publisher.jsf.data.PSPubItemEntry;
 import com.percussion.services.publisher.IPSPubItemStatus;
-import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.PSPublisherServiceLocator;
+import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
+import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.services.publisher.data.PSSortCriterion;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.myfaces.trinidad.model.CollectionModel;
 import org.apache.myfaces.trinidad.model.SortCriterion;
 
 /**
- * Maintain the information to scroll through a list of log items. 
- * It paginates the list and only hold one page of data/rows at any given time.
+ * Java 11 refactored: Maintains the information to scroll through a list of log items. 
+ * It paginates the list and only holds one page of data/rows at any given time.
  * 
  * @author dougrand
  */
-public class PSPubLogBean extends CollectionModel
-{
+public class PSPubLogBean extends CollectionModel {
    /**
     * Logger
     */
@@ -111,27 +93,23 @@ public class PSPubLogBean extends CollectionModel
     * 
     * @param runtimeNavigation the Runtime navigation, never <code>null</code>.
     */
-   public PSPubLogBean(PSRuntimeNavigation runtimeNavigation) 
-   {
-      if (runtimeNavigation == null)
-      {
-         throw new IllegalArgumentException("runtimeNavigation may not be null");
-      }
-      
-      m_sortCriteria = new ArrayList<>();
-      m_sortCriteria.add(new SortCriterion("referenceId", true));
-      m_runtimeNavigation = runtimeNavigation;
-   }
+    public PSPubLogBean(PSRuntimeNavigation runtimeNavigation) {
+        if (runtimeNavigation == null) {
+            throw new IllegalArgumentException("runtimeNavigation may not be null");
+        }
+        m_sortCriteria = new ArrayList<>();
+        m_sortCriteria.add(new SortCriterion("referenceId", true));
+        m_runtimeNavigation = runtimeNavigation;
+    }
 
    /**
     * Get the number of rows per page for the paginated table.
     * @return the rows per page.
     */
-   public int getPageRows()
-   {
-      int rowsPerPage = PSNodeBase.getPageRows(getRowCount());
-      return Math.min(rowsPerPage, getMaxRowPerPage());
-   }   
+    public int getPageRows() {
+        var rowsPerPage = PSNodeBase.getPageRows(getRowCount());
+        return Math.min(rowsPerPage, getMaxRowPerPage());
+    }
    
    /**
     * Gets the configured maximum rows per page. This is used to re-adjust
@@ -139,15 +117,13 @@ public class PSPubLogBean extends CollectionModel
     * 
     * @return the configured maximum rows per page.
     */
-   private int getMaxRowPerPage()
-   {
-      if (maxRowPerPage != null)
-         return maxRowPerPage.intValue();
-      
-      IPSRxPublisherServiceInternal service = (IPSRxPublisherServiceInternal) PSRxPublisherServiceLocator
-            .getRxPublisherService();
-      return service.getConfigurationBean().getMaxRowsPerPageInViewPubLog();
-   }
+    private int getMaxRowPerPage() {
+        if (maxRowPerPage != null) {
+            return maxRowPerPage.intValue();
+        }
+        var service = (IPSRxPublisherServiceInternal) PSRxPublisherServiceLocator.getRxPublisherService();
+        return service.getConfigurationBean().getMaxRowsPerPageInViewPubLog();
+    }
    
    /**
     * @see #getMaxRowPerPage()
@@ -157,268 +133,230 @@ public class PSPubLogBean extends CollectionModel
    /**
     * @return the jobId
     */
-   public long getJobId()
-   {
-      return m_jobId;
-   }
+    public long getJobId() {
+        return m_jobId;
+    }
 
    /**
     * @param jobId the jobId to set
     */
-   public void setJobId(long jobId)
-   {
-      if (m_jobId == jobId) return;
-      m_jobId = jobId;
-      reset();
-   }
+    public void setJobId(long jobId) {
+        if (m_jobId == jobId) {
+            return;
+        }
+        m_jobId = jobId;
+        reset();
+    }
 
    /**
     * On various changes to the criteria, reset the stored data.
     */
-   private void reset()
-   {
-      m_refIds = null;
-      m_currRange = new PageRange();
-      m_count = -1;
-   }
+    private void reset() {
+        m_refIds = null;
+        m_currRange = new PageRange();
+        m_count = -1;
+    }
 
-   @Override
-   public Object getRowKey()
-   {
-      if (m_jobId < 0)
-         return null;
-      Integer rval = m_index > -1 ? new Integer(m_index) : null;
-      ms_log.debug("getRowKey: " + rval);
-      return rval;
-   }
+    @Override
+    public Object getRowKey() {
+        if (m_jobId < 0) {
+            return null;
+        }
+        Integer rval = m_index > -1 ? Integer.valueOf(m_index) : null;
+        ms_log.debug("getRowKey: " + rval);
+        return rval;
+    }
 
-   @Override
-   public void setRowKey(Object key)
-   {
-      ms_log.debug("setRowKey: " + key);
-      if (key == null)
-         m_index = -1;
-      else
-         m_index = ((Integer) key).intValue();
-   }
+    @Override
+    public void setRowKey(Object key) {
+        ms_log.debug("setRowKey: " + key);
+        if (key == null) {
+            m_index = -1;
+        } else {
+            m_index = ((Integer) key).intValue();
+        }
+    }
 
-   @Override
-   public int getRowCount()
-   {
-      if (m_jobId < 0)
-         return 0;
-      if (m_refIds == null)
-         getRowData();
-      
-      ms_log.debug("getRowCount: " + m_count);
-      return m_count;
-   }
+    @Override
+    public int getRowCount() {
+        if (m_jobId < 0) {
+            return 0;
+        }
+        if (m_refIds == null) {
+            getRowData();
+        }
+        ms_log.debug("getRowCount: " + m_count);
+        return m_count;
+    }
 
    /**
     * Get the data for the current row.
     * @return the row data of the {@link #m_index}, never <code>null</code>.
     */
-   private Object getCurrRow()
-   {
-      if (m_index < m_currRange.mi_startRow
-            || m_index > m_currRange.mi_endRow)
-      {
-         // need to reset current range
-         int range = PSNodeBase.getPageRows(m_count);
-         for (int i=0; i<m_count; i++)
-         {
-            int start = i * range;
-            int end = (i+1) * range;
-            if (m_index >= start && m_index <= end)
-            {
-               setCurrRange(start, end);
-               break;
+    private Object getCurrRow() {
+        if (m_index < m_currRange.mi_startRow || m_index > m_currRange.mi_endRow) {
+            // need to reset current range
+            var range = PSNodeBase.getPageRows(m_count);
+            for (var i = 0; i < m_count; i++) {
+                var start = i * range;
+                var end = (i + 1) * range;
+                if (m_index >= start && m_index <= end) {
+                    setCurrRange(start, end);
+                    break;
+                }
             }
-         }
-      }
-      
-      return m_currRange.mi_entries[m_index - m_currRange.mi_startRow];
-   }
+        }
+        return m_currRange.mi_entries[m_index - m_currRange.mi_startRow];
+    }
    
-   @Override
-   public Object getRowData()
-   {
-      if (m_jobId < 0)
-         return Collections.emptyMap();
-
-      try
-      {
-         if (m_refIds == null)
-         {
-            setRefIds();
-            m_count = m_refIds.length;
-         }
-
-         ms_log.debug("getRowData, index: " + m_index);
-         if (isRowAvailable())
-         {
-            return getCurrRow();
-         }
-         else
-         {
+    @Override
+    public Object getRowData() {
+        if (m_jobId < 0) {
             return Collections.emptyMap();
-         }
-      }
-      catch (Exception e)
-      {
-         ms_log.error("Problem getting log data", e);
-         return Collections.emptyMap();
-      }
-   }
+        }
+        try {
+            if (m_refIds == null) {
+                setRefIds();
+                m_count = m_refIds.length;
+            }
+            ms_log.debug("getRowData, index: " + m_index);
+            if (isRowAvailable()) {
+                return getCurrRow();
+            } else {
+                return Collections.emptyMap();
+            }
+        } catch (Exception e) {
+            ms_log.error("Problem getting log data", e);
+            return Collections.emptyMap();
+        }
+    }
 
    /**
     * Set the reference ID buffer.
     */
-   private void setRefIds()
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-            .getPublisherService();
-      List<PSSortCriterion> sortCrit = new ArrayList<>();
-      for (SortCriterion criteria : getSortCriteria())
-      {
-         sortCrit.add(new PSSortCriterion(criteria.getProperty(), criteria.isAscending()));
-      }
-      
-      List<Long> refIds = psvc.findRefIdForJob(m_jobId, sortCrit);
-      m_refIds = new long[refIds.size()];
-      int i=0;
-      for (Long id : refIds)
-      {
-         m_refIds[i++] = id.longValue();
-      }
-   }
+    private List<IPSPubItemStatus> m_statusList = null;
+
+    private void setRefIds() {
+        IPSRxPublisherServiceInternal psvc = PSRxPubServiceInternalLocator.getRxPublisherService();
+        var job = psvc.getPublishingJob(m_jobId);
+        if (job == null) {
+            m_statusList = null;
+            m_refIds = new long[0];
+            return;
+        }
+        m_statusList = job.getJobStatus();
+        if (m_statusList == null) {
+            m_refIds = new long[0];
+            return;
+        }
+        m_refIds = new long[m_statusList.size()];
+        for (int i = 0; i < m_statusList.size(); i++) {
+            m_refIds[i] = m_statusList.get(i).getReferenceId();
+        }
+    }
    
    /**
     * Set the current paginated range.
     * @param startRow the starting (0 based) row of the new range.
     * @param endRow the ending (0 based) row of the new range.
     */
-   public void setCurrRange(int start, int end)
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator
-            .getPublisherService();
-      m_currRange = new PageRange();
-      m_currRange.mi_startRow = start;
-      m_currRange.mi_endRow = Math.min(end, m_count-1);
+    public void setCurrRange(int start, int end) {
+        m_currRange = new PageRange();
+        m_currRange.mi_startRow = start;
+        m_currRange.mi_endRow = Math.min(end, m_count - 1);
 
-      m_currRange.mi_entries = new PSPubItemEntry[m_currRange.mi_endRow
-            - m_currRange.mi_startRow + 1];
-      List<Long> refs = new ArrayList<>();
-      for (int j=m_currRange.mi_startRow; j<=m_currRange.mi_endRow; j++)
-      {
-         refs.add(m_refIds[j]);
-      }
-      Map<Long, IPSPubItemStatus> idMap = new HashMap<>();
-      for (IPSPubItemStatus entry : psvc.findPubItemStatusForReferenceIds(refs))
-      {
-         idMap.put(entry.getReferenceId(), entry);
-      }
-      for (int j=m_currRange.mi_startRow; j<=m_currRange.mi_endRow; j++)
-      {
-         Long refId = m_refIds[j];
-         IPSPubItemStatus status = idMap.get(refId);
-         if (status == null)
-         {
-            ms_log.error("Cannot find refId = " + refId);
-            continue;
-         }
-         
-         PSPubItemEntry entry = new PSPubItemEntry(m_runtimeNavigation, this,
-               status, j);
-         m_currRange.mi_entries[j - m_currRange.mi_startRow] = entry;
-      }
-   }
+        m_currRange.mi_entries = new PSPubItemEntry[m_currRange.mi_endRow - m_currRange.mi_startRow + 1];
+        if (m_statusList == null) {
+            setRefIds();
+        }
+        var idMap = new HashMap<Long, IPSPubItemStatus>();
+        for (var status : m_statusList) {
+            idMap.put(status.getReferenceId(), status);
+        }
+        for (var j = m_currRange.mi_startRow; j <= m_currRange.mi_endRow; j++) {
+            var refId = m_refIds[j];
+            var status = idMap.get(refId);
+            if (status == null) {
+                ms_log.error("Cannot find refId = " + refId);
+                continue;
+            }
+            var entry = new PSPubItemEntry(m_runtimeNavigation, this, status, j);
+            m_currRange.mi_entries[j - m_currRange.mi_startRow] = entry;
+        }
+    }
 
    @Override
-   public int getRowIndex()
-   {
-      if (m_jobId < 0)
-      {
-         ms_log.debug("getRowIndex: -1");
-         return -1;
-      }
-      else
-      {
-         ms_log.debug("getRowIndex: " + m_index);
-         return m_index;
-      }
-   }
+    public int getRowIndex() {
+        if (m_jobId < 0) {
+            ms_log.debug("getRowIndex: -1");
+            return -1;
+        } else {
+            ms_log.debug("getRowIndex: " + m_index);
+            return m_index;
+        }
+    }
 
    @Override
-   public Object getWrappedData()
-   {
-      return null;
-   }
+    public Object getWrappedData() {
+        return null;
+    }
 
    @Override
-   public boolean isRowAvailable()
-   {
-      if (m_refIds == null)
-         getRowData();
-      return m_index < m_count && m_index > -1;
-   }
+    public boolean isRowAvailable() {
+        if (m_refIds == null) {
+            getRowData();
+        }
+        return m_index < m_count && m_index > -1;
+    }
 
    @Override
-   public void setRowIndex(int index)
-   {
-      ms_log.debug("setRowIndex: " + index);
-      m_index = index;
-   }
+    public void setRowIndex(int index) {
+        ms_log.debug("setRowIndex: " + index);
+        m_index = index;
+    }
 
    @Override
-   public void setWrappedData(@SuppressWarnings("unused")
-   Object arg0)
-   {
-      throw new UnsupportedOperationException("Not supported");
-   }
+    public void setWrappedData(@SuppressWarnings("unused") Object arg0) {
+        throw new UnsupportedOperationException("Not supported");
+    }
 
    /*
     * (non-Javadoc)
     * 
     * @see org.apache.myfaces.trinidad.model.CollectionModel#isSortable(java.lang.String)
     */
-   @Override
-   public boolean isSortable(@SuppressWarnings("unused")
-   String property)
-   {
-      return true;
-   }
+    @Override
+    public boolean isSortable(@SuppressWarnings("unused") String property) {
+        return true;
+    }
 
    /*
     * (non-Javadoc)
     * 
     * @see org.apache.myfaces.trinidad.model.CollectionModel#setSortCriteria(java.util.List)
     */
-   @Override
-   public void setSortCriteria(List<SortCriterion> criteria)
-   {
-      m_sortCriteria = criteria;
-      reset();
-   }
+    @Override
+    public void setSortCriteria(List<SortCriterion> criteria) {
+        m_sortCriteria = criteria;
+        reset();
+    }
 
    /*
     * (non-Javadoc)
     * 
     * @see org.apache.myfaces.trinidad.model.CollectionModel#getSortCriteria()
     */
-   @Override
-   public List<SortCriterion> getSortCriteria()
-   {
-      return m_sortCriteria;
-   }
+    @Override
+    public List<SortCriterion> getSortCriteria() {
+        return m_sortCriteria;
+    }
 
    /**
     * Navigate to the detail view
     * 
     * @return the outcome
     */
-   public String perform()
-   {
-      return "pub-runtime-log-item" ;
-   }
+    public String perform() {
+        return "pub-runtime-log-item";
+    }
 }

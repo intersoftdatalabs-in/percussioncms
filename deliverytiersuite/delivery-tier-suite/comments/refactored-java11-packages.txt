@@ -1,0 +1,3 @@
+com.percussion.delivery.comments.data
+com.percussion.delivery.comments.services
+com.percussion.delivery.comments.service.rdbms

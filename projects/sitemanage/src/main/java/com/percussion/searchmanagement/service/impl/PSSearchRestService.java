@@ -48,82 +48,75 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST service for search operations.
+ */
 @Path("/search")
 @Component("searchRestService")
 @Tag(name = "/search")
-public class PSSearchRestService
-{
+public class PSSearchRestService {
     private static final String SEARCH_TYPE_MY_PAGES = "MyPages";
+    private static final Logger log = LogManager.getLogger(PSSearchRestService.class);
+
     private final IPSSearchService searchService;
     private final IPSItemService itemService;
-    private static final Logger log = LogManager.getLogger(PSSearchRestService.class);
     private final IPSSystemService systemService;
 
     @Autowired
-    public PSSearchRestService(IPSSearchService finderSearchService, IPSItemService itemService, IPSSystemService systemService)
-    {
+    public PSSearchRestService(
+            IPSSearchService finderSearchService,
+            IPSItemService itemService,
+            IPSSystemService systemService) {
         this.searchService = finderSearchService;
         this.itemService = itemService;
         this.systemService = systemService;
     }
 
-    /***
-     * Sanitize any input for invalid characters / parameters
-     * @param criteria
+    /**
+     * Sanitize any input for invalid characters / parameters.
      */
-    protected void sanitizeCriteria(PSSearchCriteria criteria){
-
-        if(criteria!= null) {
-            String q = criteria.getQuery();
-
+    protected void sanitizeCriteria(PSSearchCriteria criteria) {
+        if (criteria != null) {
+            var q = criteria.getQuery();
             if (q != null) {
                 q = SecureStringUtils.sanitizeStringForHTML(q);
                 q = QueryParserUtil.escape(q);
-
                 criteria.setQuery(q);
             }
 
-
             criteria.setSortColumn(
                     SecureStringUtils.removeInvalidSQLObjectNameCharacters(criteria.getSortColumn()));
-
             criteria.setSearchType(
                     SecureStringUtils.removeInvalidSQLObjectNameCharacters(criteria.getSearchType()));
 
-            Map<String,String> fields = criteria.getSearchFields();
-            if(fields != null) {
-                fields.replaceAll(
-                        (k, v) -> SecureStringUtils.sanitizeStringForHTML(fields.get(k)));
+            var fields = criteria.getSearchFields();
+            if (fields != null) {
+                fields.replaceAll((k, v) -> SecureStringUtils.sanitizeStringForHTML(fields.get(k)));
             }
-            if(criteria.getFolderPath() != null && !SecureStringUtils.isValidCMSPathString(criteria.getFolderPath(), PSOperationContext.SEARCH)){
+            if (criteria.getFolderPath() != null
+                    && !SecureStringUtils.isValidCMSPathString(criteria.getFolderPath(), PSOperationContext.SEARCH)) {
                 criteria.setFolderPath(null);
             }
         }
     }
 
-
     @POST
     @Path("/get")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPagedItemList search(PSSearchCriteria criteria) throws PSSearchServiceException
-    {
+    public PSPagedItemList search(PSSearchCriteria criteria) throws PSSearchServiceException {
         try {
-
             criteria = searchService.validateSearchCriteria(criteria);
-
             sanitizeCriteria(criteria);
 
-            PSPagedItemList itemList = new PSPagedItemList();
+            var itemList = new PSPagedItemList();
 
-
-            //Don't run a blind search for all items - require some criteria
+            // Don't run a blind search for all items - require some criteria
             if (!criteria.isEmpty()) {
-
                 if (SEARCH_TYPE_MY_PAGES.equalsIgnoreCase(criteria.getSearchType())) {
-                    List<PSUserItem> userItems = itemService.getUserItems(PSWebserviceUtils.getUserName());
-                    List<Integer> contentIds = new ArrayList<>();
-                    for (PSUserItem userItem : userItems) {
+                    var userItems = itemService.getUserItems(PSWebserviceUtils.getUserName());
+                    var contentIds = new ArrayList<Integer>();
+                    for (var userItem : userItems) {
                         contentIds.add(userItem.getItemId());
                     }
                     itemList = searchService.search(criteria, contentIds);
@@ -138,21 +131,14 @@ public class PSSearchRestService
             throw new WebApplicationException(e);
         }
     }
-    
+
     @POST
     @Path("/get/extendedresults")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSPagedItemPropertiesList extendedSearch(PSSearchCriteria criteria) throws PSSearchServiceException
-    {
-
+    public PSPagedItemPropertiesList extendedSearch(PSSearchCriteria criteria) throws PSSearchServiceException {
         criteria = searchService.validateSearchCriteria(criteria);
-
         sanitizeCriteria(criteria);
-
-        PSPagedItemPropertiesList itemList;
-        itemList = searchService.getExtendedSearchResults(criteria);
-        return itemList;
+        return searchService.getExtendedSearchResults(criteria);
     }
-    
 }

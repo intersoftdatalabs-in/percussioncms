@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,150 +21,92 @@ import org.jdom2.CDATA;
 import org.jdom2.Element;
 import org.jsoup.nodes.Document;
 
-public class PSPageContent
-{
+/**
+ * Represents the content of a page, including metadata and HTML fragments.
+ * Sunny Sal says: "Page content is like a Bollywood script—lots of drama, but all in the right place!"
+ */
+public class PSPageContent {
+
     private String title;
-
     private String path;
-
     private String beforeBodyClose;
-
     private String afterBodyStart;
-
     private String headContent;
-
     private String bodyContent;
-    
     private String description = "";
-
     private Document sourceDocument;
 
-    /**
-     * @return the title
-     */
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    /**
-     * @param title the title to set
-     */
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    /**
-     * @return the path
-     */
-    public String getPath()
-    {
+    public String getPath() {
         return path;
     }
 
-    /**
-     * @param path the path to set
-     */
-    public void setPath(String path)
-    {
+    public void setPath(String path) {
         this.path = path;
     }
 
-    /**
-     * @return the beforeBodyClose
-     */
-    public String getBeforeBodyClose()
-    {
+    public String getBeforeBodyClose() {
         return beforeBodyClose;
     }
 
-    /**
-     * @param beforeBodyClose the beforeBodyClose to set
-     */
-    public void setBeforeBodyClose(String beforeBodyClose)
-    {
+    public void setBeforeBodyClose(String beforeBodyClose) {
         this.beforeBodyClose = beforeBodyClose;
     }
 
-    /**
-     * @return the afterBodyStart
-     */
-    public String getAfterBodyStart()
-    {
+    public String getAfterBodyStart() {
         return afterBodyStart;
     }
 
-    /**
-     * @param afterBodyStart the afterBodyStart to set
-     */
-    public void setAfterBodyStart(String afterBodyStart)
-    {
+    public void setAfterBodyStart(String afterBodyStart) {
         this.afterBodyStart = afterBodyStart;
     }
 
-    /**
-     * @return the headContent
-     */
-    public String getHeadContent()
-    {
+    public String getHeadContent() {
         return headContent;
     }
 
-    /**
-     * @param headContent the headContent to set
-     */
-    public void setHeadContent(String headContent)
-    {
+    public void setHeadContent(String headContent) {
         this.headContent = headContent;
     }
 
-    /**
-     * @return the bodyContent
-     */
-    public String getBodyContent()
-    {
+    public String getBodyContent() {
         return bodyContent;
     }
 
-    /**
-     * @param bodyContent the bodyContent to set
-     */
-    public void setBodyContent(String bodyContent)
-    {
+    public void setBodyContent(String bodyContent) {
         this.bodyContent = bodyContent;
     }
 
-    /**
-     * @param sourceDocument the sourceDocument to set
-     */
-    public void setSourceDocument(Document sourceDocument)
-    {
+    public void setSourceDocument(Document sourceDocument) {
         this.sourceDocument = sourceDocument;
     }
 
-    /**
-     * @return the sourceDocument
-     */
-    public Document getSourceDocument()
-    {
+    public Document getSourceDocument() {
         return sourceDocument;
     }
 
-
-    public String getDescription()
-    {
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         this.description = description;
     }
-    
-    public Element toXml()
-    {
-        Element elem = new Element("SiteDetails");
+
+    /**
+     * Converts this page content to an XML element.
+     *
+     * @return the XML element representing this page content.
+     */
+    public Element toXml() {
+        var elem = new Element("SiteDetails");
         elem.addContent(createElem("Path", path, false));
         elem.addContent(createElem("Title", title, false));
         elem.addContent(createElem("HeadContent", headContent, false));
@@ -174,14 +117,13 @@ public class PSPageContent
         return elem;
     }
 
-    private Element createElem(String name, String value, boolean encloseCdata)
-    {
-        Element elem = new Element(name);
-        if (encloseCdata)
+    private Element createElem(String name, String value, boolean encloseCdata) {
+        var elem = new Element(name);
+        if (encloseCdata) {
             elem.addContent(new CDATA(value));
-        else
+        } else {
             elem.setText(value);
+        }
         return elem;
     }
-
 }

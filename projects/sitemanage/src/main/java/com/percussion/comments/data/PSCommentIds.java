@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import java.util.ArrayList;
@@ -22,34 +24,26 @@ import java.util.Collection;
 
 /**
  * Simple class to wrap a list of comment IDs.
- * 
- * @author miltonpividori
- *
  */
-public class PSCommentIds
-{
+public class PSCommentIds {
 
     private Collection<String> comments;
-    
-    public PSCommentIds()
-    {
+
+    public PSCommentIds() {
         comments = new ArrayList<>();
     }
 
     /**
-     * @return the ids
+     * @return the comment IDs
      */
-    public Collection<String> getComments()
-    {
+    public Collection<String> getComments() {
         return comments;
     }
 
     /**
-     * @param comments the ids to set
+     * @param comments the comment IDs to set
      */
-    public void setComments(Collection<String> comments)
-    {
+    public void setComments(Collection<String> comments) {
         this.comments = comments;
     }
-    
 }

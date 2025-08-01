@@ -59,9 +59,8 @@ import static org.springframework.util.StringUtils.trimTrailingCharacter;
  * @author miltonpividori
  * @see IPSFileSystemService
  */
-public class PSFileSystemService implements IPSFileSystemService
-{
-    
+public class PSFileSystemService implements IPSFileSystemService {
+
     /**
      * Prefix for new folders names.
      */
@@ -162,31 +161,30 @@ public class PSFileSystemService implements IPSFileSystemService
      * (non-Javadoc)
      * @see com.percussion.designmanagement.service.IPSFileSystemService#getChildren(java.lang.String)
      */
-    public List<File> getChildren(String path) throws FileNotFoundException
-    {
-        File root = getRootDirectory();
-        File pathFile = new File(root, path);
-        
+    @Override
+    public List<File> getChildren(String path) throws FileNotFoundException {
+        var root = getRootDirectory();
+        var pathFile = new File(root, path);
+
         if (!pathFile.exists()) {
             throw new FileNotFoundException("The path doesn't exist: " + path);
         }
 
-        File[] children = pathFile.listFiles();
-        
+        var children = pathFile.listFiles();
+        if (children == null) {
+            return List.of();
+        }
+
         // Filter only for root path
         if (includes.isEmpty() || !StringUtils.equals(path, "/")) {
             return Arrays.asList(children);
         }
 
-        List<File> result = new ArrayList<>();
-        //FB: NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE NC 1-17-16
-        if(children!= null){
-	        for (File child : children)
-	        {
-	            if (includes.contains(child.getName())) {
-                    result.add(child);
-                }
-	        }
+        var result = new ArrayList<File>();
+        for (var child : children) {
+            if (includes.contains(child.getName())) {
+                result.add(child);
+            }
         }
         return result;
     }
@@ -194,39 +192,31 @@ public class PSFileSystemService implements IPSFileSystemService
     /* (non-Javadoc)
      * @see com.percussion.designmanagement.service.IPSFileSystemManagerService#getFile(java.lang.String)
      */
-    public File getFile(String path)
-    {
+    @Override
+    public File getFile(String path) {
         Validate.notNull(path, "path must not be null");
-        
         return new File(getRootDirectory(), path);
     }
 
     /* (non-Javadoc)
      * @see com.percussion.designmanagement.service.IPSFileSystemService#addFolder(java.lang.String)
      */
-    public File addFolder(String newFolderPath) throws IOException
-    {
+    @Override
+    public File addFolder(String newFolderPath) throws IOException {
         Validate.notNull(newFolderPath, "newFolderPath cannot be null");
-        
-        // first we get the new folder name
-        File folderPath = getFile(newFolderPath);
-        
-        // we need to check if the folderPath is actually a folder or file
-        if(folderPath.isFile())
-        {
-            // the path is a file, we need the parent folder
+        var folderPath = getFile(newFolderPath);
+
+        if (folderPath.isFile()) {
             folderPath = folderPath.getParentFile();
         }
-        
-        String newName = getNewFolderName(folderPath.list());
-        
-        // build the new file
-        File newFolder = new File(folderPath.getAbsolutePath(), newName);
+
+        var newName = getNewFolderName(folderPath.list());
+        var newFolder = new File(folderPath.getAbsolutePath(), newName);
 
         Files.createDirectory(newFolder.toPath());
-        File parent = folderPath.getParentFile();
-        setParentFolderPermissionsToChild(parent,newFolder);
-        
+        var parent = folderPath.getParentFile();
+        setParentFolderPermissionsToChild(parent, newFolder);
+
         return newFolder;
     }
     
@@ -234,75 +224,52 @@ public class PSFileSystemService implements IPSFileSystemService
      * @see com.percussion.designmanagement.service.IPSFileSystemService#getNewFolderName(java.lang.String[])
      */
     @Override
-    public String getNewFolderName(String[] filesAndFolders)
-    {
-        String regex = NEW_FOLDER_NAME_PREFIX + " [0-9]+";
+    public String getNewFolderName(String[] filesAndFolders) {
+        var regex = NEW_FOLDER_NAME_PREFIX + " [0-9]+";
         int numberOfMatches = -1;
-        
-        if(filesAndFolders != null)
-        {
-            for(String file : filesAndFolders)
-            {
-                if(NEW_FOLDER_NAME_PREFIX.equals(file) && numberOfMatches < 0)
-                {
+
+        if (filesAndFolders != null) {
+            for (var file : filesAndFolders) {
+                if (NEW_FOLDER_NAME_PREFIX.equals(file) && numberOfMatches < 0) {
                     numberOfMatches = 0;
-                }
-                else if (Pattern.matches(regex, file))
-                {
-                    // get the integer value and see if it is the greatest
-                    Integer number = Integer.valueOf(file.substring(NEW_FOLDER_NAME_PREFIX.length() + 1));
-                    if(number > numberOfMatches)
-                    {
+                } else if (Pattern.matches(regex, file)) {
+                    var number = Integer.valueOf(file.substring(NEW_FOLDER_NAME_PREFIX.length() + 1));
+                    if (number > numberOfMatches) {
                         numberOfMatches = number;
                     }
                 }
             }
         }
-        
-        return (numberOfMatches >= 0)? NEW_FOLDER_NAME_PREFIX + " " + (numberOfMatches + 1) : NEW_FOLDER_NAME_PREFIX;
+        return (numberOfMatches >= 0) ? NEW_FOLDER_NAME_PREFIX + " " + (numberOfMatches + 1) : NEW_FOLDER_NAME_PREFIX;
     }
 
     /* (non-Javadoc)
      * @see com.percussion.designmanagement.service.IPSFileSystemService#renameFolder(java.lang.String, java.lang.String)
      */
-    public File renameFolder(String oldFolderPath, String newFolderName) throws PSFolderOperationException
-    {
+    @Override
+    public File renameFolder(String oldFolderPath, String newFolderName) throws PSFolderOperationException {
         Validate.notNull(oldFolderPath, "oldFolderPath cannot be null");
         Validate.notNull(newFolderName, "newFolderName cannot be null");
-        
-        // first we get the list of folders and files that are in the old folder
-        // to see if we can rename it as the user wants
-        File oldFolder = getFile(oldFolderPath);        
-        File parentFolder = oldFolder.getParentFile();
 
-        // check if the new name contains invalid chars
-        if(containsInvalidChars(newFolderName))
-        {
+        var oldFolder = getFile(oldFolderPath);
+        var parentFolder = oldFolder.getParentFile();
+
+        if (containsInvalidChars(newFolderName)) {
             throw new PSInvalidCharacterInFolderNameException(getInvalidCharsAsString());
         }
-        
-        // check the length of the new name
-        if(newFolderName.length() > FOLDER_NAME_MAX_LENGTH)
-        {
+        if (newFolderName.length() > FOLDER_NAME_MAX_LENGTH) {
             throw new PSFolderNameLengthLimitException();
         }
-        
-        // check if the name is a reserved word
-        if(isReservedFilename(newFolderName))
-        {
+        if (isReservedFilename(newFolderName)) {
             throw new PSInvalidFolderNameException();
         }
-        
-        // check that the name does not already exists
-        if(!foldernameAvailable(newFolderName, parentFolder.list()))
-        {
-            throw new PSExistingFolderException();     
+        if (!foldernameAvailable(newFolderName, parentFolder.list())) {
+            throw new PSExistingFolderException();
         }
-        
-        // rename the folder
-        File newFolder = new File(parentFolder.getAbsolutePath(), newFolderName);
+
+        var newFolder = new File(parentFolder.getAbsolutePath(), newFolderName);
         oldFolder.renameTo(newFolder);
-        
+
         return newFolder;
     }
     
@@ -316,14 +283,7 @@ public class PSFileSystemService implements IPSFileSystemService
     @Override
     public boolean containsInvalidChars(String name)
     {
-        for(Character invalidChar : INVALID_CHARS)
-        {
-            if(StringUtils.contains(name, invalidChar))
-            {
-                return true;
-            }
-        }
-        return false;
+        return INVALID_CHARS.stream().anyMatch(invalidChar -> StringUtils.contains(name, invalidChar));
     }
 
     /*
@@ -333,19 +293,9 @@ public class PSFileSystemService implements IPSFileSystemService
     @Override
     public boolean foldernameAvailable(String name, String[] files)
     {
-        // this should never happen
-        if(files != null)
-        {
-            for(String file : files)
-            {
-                if(file.equalsIgnoreCase(name))
-                {
-                    return false;
-                }
-            }
-            return true;
+        if (files != null) {
+            return Arrays.stream(files).noneMatch(file -> file.equalsIgnoreCase(name));
         }
-        
         return true;
     }
 
@@ -356,9 +306,7 @@ public class PSFileSystemService implements IPSFileSystemService
     public void deleteFolder(String folderPath) throws IOException
     {
         Validate.notNull(folderPath, "path cannot be null");
-        
-        File fileToDelete = getFile(folderPath);
-        
+        var fileToDelete = getFile(folderPath);
         FileUtils.deleteDirectory(fileToDelete);
     }
     
@@ -369,20 +317,17 @@ public class PSFileSystemService implements IPSFileSystemService
      * com.percussion.designmanagement.service.IPSFileSystemService#deleteFile
      * (java.lang.String)
      */
-    public void deleteFile(String filePath) throws PSFileOperationException
-    {
+    @Override
+    public void deleteFile(String filePath) throws PSFileOperationException {
         Validate.notNull(filePath, "path cannot be null");
-
-        File fileToDelete = getFile(filePath);
-        if (fileToDelete.exists())
-        {
+        var fileToDelete = getFile(filePath);
+        if (fileToDelete.exists()) {
             try {
                 Files.delete(fileToDelete.toPath());
             } catch (IOException e) {
-                throw new PSFileOperationException("Could not delete the file '" + fileToDelete.getName() + "'." + e.getMessage());
+                throw new PSFileOperationException("Could not delete the file '" + fileToDelete.getName() + "'. " + e.getMessage());
             }
         }
-
     }
 
     /* (non-Javadoc)
@@ -392,13 +337,10 @@ public class PSFileSystemService implements IPSFileSystemService
     public String getNameFromFile(File file)
     {
         Validate.notNull(file, "file cannot be null");
-        
-        String name = file.getName();
-        
+        var name = file.getName();
         if (StringUtils.isBlank(name)) {
             name = file.getParentFile().getName();
         }
-
         return name;
     }
     
@@ -408,15 +350,11 @@ public class PSFileSystemService implements IPSFileSystemService
     @Override
     public String getParentFolder(String path)
     {
-        String parentFolder = "/";
-        
-        String[] paths = path.split("/");
-        for(int i = 1; i < paths.length - 1; i++)
-        {
-            parentFolder += paths[i];
-            parentFolder += "/";
+        var parentFolder = "/";
+        var paths = path.split("/");
+        for (int i = 1; i < paths.length - 1; i++) {
+            parentFolder += paths[i] + "/";
         }
-        
         return parentFolder;
     }
 
@@ -424,46 +362,26 @@ public class PSFileSystemService implements IPSFileSystemService
      * @see com.percussion.designmanagement.service.IPSFileSystemService#validateUploadFile(java.lang.String)
      */
     @Override
-    public void validateFileUpload(String path) throws PSFileOperationException
-    {
-        File file = getFile(path);
-        File parentFolder = file.getParentFile();
-        
-        // check if the file will be under 'themes'
-        if(!isUnderThemes(path))
-        {
+    public void validateFileUpload(String path) throws PSFileOperationException {
+        var file = getFile(path);
+        var parentFolder = file.getParentFile();
+
+        if (!isUnderThemes(path)) {
             throw new PSFileOperationException("File operations are only allowed under the 'themes' folder.");
         }
-        
-        // check if the file name contains invalid characters
-        if(containsInvalidChars(file.getName()))
-        {
-            throw new PSInvalidCharacterInFileNameException("File names can not have the following characters: "
-                    + getInvalidCharsAsString());
+        if (containsInvalidChars(file.getName())) {
+            throw new PSInvalidCharacterInFileNameException("File names cannot have the following characters: " + getInvalidCharsAsString());
         }
-        
-        
-        // see if there is a file with that name
-        String[] files = parentFolder.list(FileFilterUtils.fileFileFilter());
-        if(!foldernameAvailable(file.getName(), files))
-        {
-            throw new PSFileAlreadyExistsException(
-                    "A file with that name already exists in the selected folder, and will be overwritten.");
+        var files = parentFolder.list(FileFilterUtils.fileFileFilter());
+        if (!foldernameAvailable(file.getName(), files)) {
+            throw new PSFileAlreadyExistsException("A file with that name already exists in the selected folder, and will be overwritten.");
         }
-        
-        // if the file is a directory the name can not be used
-        String[] directories = parentFolder.list(FileFilterUtils.directoryFileFilter());
-        if (!foldernameAvailable(file.getName(), directories))
-        {
-            throw new PSFileNameInUseByFolderException(
-                    "A folder with that name already exists in the selected location.");
+        var directories = parentFolder.list(FileFilterUtils.directoryFileFilter());
+        if (!foldernameAvailable(file.getName(), directories)) {
+            throw new PSFileNameInUseByFolderException("A folder with that name already exists in the selected location.");
         }
-        
-        // check if the name is not reserved
-        if(isReservedFilename(file.getName()))
-        {
-            throw new PSReservedFileNameException("Cannot create file '" + file.getName()
-                    + "' because that is a reserved file name.");
+        if (isReservedFilename(file.getName())) {
+            throw new PSReservedFileNameException("Cannot create file '" + file.getName() + "' because that is a reserved file name.");
         }
     }
 
@@ -473,30 +391,20 @@ public class PSFileSystemService implements IPSFileSystemService
      * 
      * @return a String object, may be empty but never <code>null<code>
      */
-    private String getInvalidCharsAsString()
-    {
-        String chars = "";
-        for(Character invalidChar : INVALID_CHARS)
-        {
-            chars += invalidChar + " ";
+    private String getInvalidCharsAsString() {
+        var chars = new StringBuilder();
+        for (var invalidChar : INVALID_CHARS) {
+            chars.append(invalidChar).append(" ");
         }
-        return chars;
+        return chars.toString();
     }
 
     /* (non-Javadoc)
      * @see com.percussion.designmanagement.service.IPSFileSystemService#isReservedWord(java.lang.String)
      */
     @Override
-    public boolean isReservedFilename(String name)
-    {
-        for(String reservedWord : RESERVED_FILENAMES)
-        {
-            if(reservedWord.equalsIgnoreCase(name))
-            {
-                return true;
-            }
-        }       
-        return false;
+    public boolean isReservedFilename(String name) {
+        return RESERVED_FILENAMES.stream().anyMatch(reservedWord -> reservedWord.equalsIgnoreCase(name));
     }
 
     /* (non-Javadoc)
@@ -504,78 +412,53 @@ public class PSFileSystemService implements IPSFileSystemService
      */
     @Override
     public void fileUpload(String path, InputStream pageContent) throws PSFileOperationException {
-        try (BufferedInputStream in = new BufferedInputStream(pageContent)) {
+        try (var in = new BufferedInputStream(pageContent)) {
             try {
                 validateFileUpload(path);
-            }catch(PSFileAlreadyExistsException fae){
-                //We are already checking for this validation and getting confirmation from client.
-                //so, it can eb ignored
+            } catch (PSFileAlreadyExistsException fae) {
+                // Already checked and confirmed by client, so can be ignored
             }
-            File file = getFile(path);
-            File parent = file.getParentFile();
+            var file = getFile(path);
+            var parent = file.getParentFile();
 
-            // create the file if it does not exists
-
-            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
-
-                int bytesCopied = IOUtils.copy(in, out);
+            try (var out = new BufferedOutputStream(new FileOutputStream(file))) {
+                var bytesCopied = IOUtils.copy(in, out);
                 out.flush();
 
-                // validate the file length
                 if (fileSizeExceeded(bytesCopied)) {
                     FileUtils.deleteQuietly(file);
                     throw new PSFileSizeExceededException("The maximum allowed size for a file is " + maxFileSize + " MB.");
                 }
-                setParentFolderPermissionsToChild(parent,file);
+                setParentFolderPermissionsToChild(parent, file);
             }
-
         } catch (IOException e) {
-            throw new PSFileOperationException("An error ocurred when uploading the file.", e);
+            throw new PSFileOperationException("An error occurred when uploading the file.", e);
         }
     }
 
     private void setParentFolderPermissionsToChild(File parent, File child) throws IOException {
-        //set parent owner/permissions to newly created file as parents'.
-        PosixFileAttributeView posixViewParent = Files.getFileAttributeView(parent.toPath(),
-                PosixFileAttributeView.class);
-        if(posixViewParent == null){
+        var posixViewParent = Files.getFileAttributeView(parent.toPath(), PosixFileAttributeView.class);
+        if (posixViewParent == null) {
             return;
         }
-        PosixFileAttributes parentAttribs = posixViewParent.readAttributes();
-        GroupPrincipal group = parentAttribs.group();
-        UserPrincipal owner = parentAttribs.owner();
-        Set<PosixFilePermission> permissions = parentAttribs.permissions();
-        PosixFileAttributeView posixViewFile = Files.getFileAttributeView(child.toPath(),
-                PosixFileAttributeView.class);
+        var parentAttribs = posixViewParent.readAttributes();
+        var group = parentAttribs.group();
+        var owner = parentAttribs.owner();
+        var permissions = parentAttribs.permissions();
+        var posixViewFile = Files.getFileAttributeView(child.toPath(), PosixFileAttributeView.class);
         posixViewFile.setPermissions(permissions);
         posixViewFile.setGroup(group);
         posixViewFile.setOwner(owner);
     }
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.designmanagement.service.IPSFileSystemService#fileSizeExceeded(java.io.InputStream)
-     */
-    private boolean fileSizeExceeded(int fileSize)
-    {
-        long maxSizeInBytes = Float.valueOf(maxFileSize * 1024).longValue() * 1024;
 
-        // fileSize < 0 is necessary as that means the copied bytes are more
-        // than Integer.MAX_VALUE
+    private boolean fileSizeExceeded(int fileSize) {
+        var maxSizeInBytes = Float.valueOf(maxFileSize * 1024).longValue() * 1024;
         return fileSize > maxSizeInBytes || fileSize < 0;
     }
 
-    /**
-     * Checks if the given path is under the themes folder. The path would be
-     * for example '/themes/folder' or '/themes/file.css'.
-     * 
-     * @param path the path to check. Assumed not <code>null</code> 
-     * @return <code>true</code> if the path is under themes, <code>false</code> if not.
-     */
-   private boolean isUnderThemes(String path)
-    {
-        // validate that the folder we are about to delete is below the 'themes' folder
-        String auxPath = trimLeadingCharacter(trimTrailingCharacter(path, '/'), '/');
-        String paths[] = auxPath.split("/");
+    private boolean isUnderThemes(String path) {
+        var auxPath = trimLeadingCharacter(trimTrailingCharacter(path, '/'), '/');
+        var paths = auxPath.split("/");
         return (paths.length >= 2);
     }
 

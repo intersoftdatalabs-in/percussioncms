@@ -41,184 +41,96 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Client that enables server-side deployment operations 
- * 
- * @author JaySeletz
- *
+ * Client that enables server-side deployment operations.
  */
-public class PSLocalDeployerClient implements IPSPackageInstaller
-{
+public class PSLocalDeployerClient implements IPSPackageInstaller {
     private static final Logger log = LogManager.getLogger(PSLocalDeployerClient.class);
-    
-    public PSLocalDeployerClient()
-    {
-        
+
+    public PSLocalDeployerClient() {
+        // Default constructor
     }
-    
+
     @Override
     public void installPackage(File packageFile) throws PSDeployException, PSNotFoundException {
         installPackage(packageFile, false);
     }
-    
+
     @Override
     public void installPackage(File packageFile, boolean shouldValidateVersion) throws PSDeployException, PSNotFoundException {
-    	Validate.notNull(packageFile);
-        PSDeploymentHandler dh = null;
-        String sessionId = null;
-        
-        try
-        {
-            // make sure file is good
-            PSArchive archive = new PSArchive(packageFile);
-            PSArchiveInfo archiveInfo = archive.getArchiveInfo(true);
-            
-            // get the deployment handler
-            dh = PSDeploymentHandler.getInstance();
-            
-            sessionId = getDeploymentLock(dh);
-            PSImportDescriptor importDesc = validateArchive(dh, archiveInfo, shouldValidateVersion);
+        Validate.notNull(packageFile, "Package file may not be null");
+        var dh = PSDeploymentHandler.getInstance();
+        var sessionId = getDeploymentLock(dh);
+
+        try {
+            var archive = new PSArchive(packageFile);
+            var archiveInfo = archive.getArchiveInfo(true);
+            var importDesc = validateArchive(dh, archiveInfo, shouldValidateVersion);
             installArchive(packageFile, importDesc);
-        }
-        finally
-        {
-            if (sessionId != null)
+        } finally {
+            if (sessionId != null) {
                 dh.releaseLock(sessionId);
+            }
         }
     }
 
-    /**
-     * need to get the single lock
-     * @param dh 
-     * 
-     * @return The session id
-     * @throws PSLockedException 
-     */
-    private String getDeploymentLock(PSDeploymentHandler dh) throws PSLockedException
-    {
-        String userId = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
-        String sessionId = getRequest().getUserSessionId();
+    private String getDeploymentLock(PSDeploymentHandler dh) throws PSLockedException {
+        var userId = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
+        var sessionId = getRequest().getUserSessionId();
         dh.acquireLock(userId, sessionId, true);
-        
         return sessionId;
     }
 
-    /**
-     * Check the validity of the archive
-     * 
-     * @param dh The deployment handler to use
-     * @param info the archive info to validate
-     * 
-     * @return A valid import descriptor to use for import 
-     *  
-     * @throws PSDeployException If there are any errors.
-     */
-    private PSImportDescriptor validateArchive(PSDeploymentHandler dh, PSArchiveInfo info) throws PSDeployException, PSNotFoundException {
-    	return validateArchive(dh, info, false);
-    }
-    
-    /**
-     * Check the validity of the archive
-     * 
-     * @param dh The deployment handler to use
-     * @param info the archive info to validate
-     * @param shouldValidateVersion <code>false</code> if the version should be skipped for reverted packages on uninstall 
-     * of patch
-     * 
-     * @return A valid import descriptor to use for import 
-     *  
-     * @throws PSDeployException If there are any errors.
-     */
-    private PSImportDescriptor validateArchive(PSDeploymentHandler dh, PSArchiveInfo info, 
-    		boolean shouldValidateVersion) throws PSDeployException, PSNotFoundException {
-        // Validate archive file is valid
-        PSMultiValueHashMap<String, String> results = dh.validateArchive(info, false, false, true, shouldValidateVersion);
-        List<String> errors = results.get(IPSDeployConstants.ERROR_KEY);
+    private PSImportDescriptor validateArchive(PSDeploymentHandler dh, PSArchiveInfo info, boolean shouldValidateVersion) throws PSDeployException, PSNotFoundException {
+        var results = dh.validateArchive(info, false, false, true, shouldValidateVersion);
+        var errors = results.get(IPSDeployConstants.ERROR_KEY);
         handleErrors(info, errors);
-        
-        // now run validation job
-        PSImportDescriptor importDesc = PSImportDescriptor.configureFromArchive(info);
-        PSValidationJob validationJob = new PSValidationJob();        
+
+        var importDesc = PSImportDescriptor.configureFromArchive(info);
+        var validationJob = new PSValidationJob();
         validationJob.validate(importDesc, new PSMockJobHandle(), new PSSecurityToken(getRequest().getUserSession()));
-        List<PSImportPackage> packageList = importDesc.getImportPackageList();
-        
-        List<String> validationErrors = new ArrayList<>();
-        for (PSImportPackage importPackage : packageList)
-        {
-            Iterator<PSValidationResult> valResults = importPackage.getValidationResults().getResults();
-            while (valResults.hasNext())
-            {
-                PSValidationResult result = valResults.next();
-                if (!result.isError())
-                    continue;
-                
-                validationErrors.add(result.getDependency().getDisplayIdentifier() + ": " + result.getMessage());
-            }
-        }
-        if (!validationErrors.isEmpty())
+
+        var validationErrors = importDesc.getImportPackageList().stream()
+                .flatMap(pkg -> pkg.getValidationResults().getResults())
+                .filter(PSValidationResult::isError)
+                .map(result -> result.getDependency().getDisplayIdentifier() + ": " + result.getMessage())
+                .toList();
+
+        if (!validationErrors.isEmpty()) {
             handleErrors(info, validationErrors);
-        
+        }
+
         return importDesc;
     }
 
-
-    /**
-     * Install an archive
-     * @param packageFile The archive file 
-     * @param descriptor The import descriptor to use
-     * 
-     * @throws PSDeployException If there are any errors. 
-     * 
-     */
-    private void installArchive(File packageFile, PSImportDescriptor descriptor) throws PSDeployException
-    {
-        PSImportJob importJob = new PSImportJob();
-        try
-        {
+    private void installArchive(File packageFile, PSImportDescriptor descriptor) throws PSDeployException {
+        var importJob = new PSImportJob();
+        try {
             importJob.install(getRequest(), packageFile, descriptor, true);
-        }
-        catch (PSJobException e)
-        {
+        } catch (PSJobException e) {
             throw new PSDeployException(new PSException(e));
         }
-        
-    }
-    
-    private PSRequest getRequest()
-    {
-        PSRequest request = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
-        return request;
     }
 
-    private void handleErrors(PSArchiveInfo info, List<String> errors) throws PSDeployException
-    {
-        if (!errors.isEmpty())
-        {
-            String msg = "Error installing package " + info.getArchiveRef() + ": ";
-            
-            for (String error : errors)
-            {
-                msg += "\n" + error;                
-            }
-            
+    private PSRequest getRequest() {
+        return (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+    }
+
+    private void handleErrors(PSArchiveInfo info, List<String> errors) throws PSDeployException {
+        if (!errors.isEmpty()) {
+            var msg = "Error installing package " + info.getArchiveRef() + ": " + String.join("\n", errors);
             log.error(msg);
             throw new PSDeployException(new PSException(msg));
         }
     }
 
-
-    private final class PSMockJobHandle implements IPSJobHandle
-    {
+    private final class PSMockJobHandle implements IPSJobHandle {
         @Override
-        public void updateStatus(String message)
-        {
-            // TODO Auto-generated method stub
-            
+        public void updateStatus(String message) {
+            // Mock implementation
         }
 
         @Override
-        public boolean isCancelled()
-        {
-            // TODO Auto-generated method stub
+        public boolean isCancelled() {
             return false;
         }
     }

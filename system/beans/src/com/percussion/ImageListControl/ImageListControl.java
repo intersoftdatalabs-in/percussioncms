@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -59,9 +60,9 @@ public class ImageListControl extends JPanel
     init(array);
   }
 
-  public ImageListControl(Vector vector)
+  public ImageListControl(Vector<ImageListItem> vector)
   {
-    init(vector.toArray());
+    init(vector.toArray(new ImageListItem[0]));
   }
 
 //
@@ -73,7 +74,7 @@ public class ImageListControl extends JPanel
   * FROM THIS CLASS (ImageListControl), NOT FROM THE <CODE>JList</CODE> RETURNED
   * BY THIS METHOD.
 */
-  public JList getListData()
+  public ImageListControlList getListData()
   {
     return m_list;
   }
@@ -134,7 +135,7 @@ public class ImageListControl extends JPanel
 */
   private void init(Object[] array)
   {
-    m_list = new ImageListControlList(array);
+    m_list = new ImageListControlList((ImageListItem[]) array);
     m_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     m_renderer = new ImageListControlRenderer();

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,7 +20,9 @@ package com.percussion.pagemanagement.dao;
 import com.percussion.pagemanagement.data.PSWidgetItem;
 import com.percussion.share.dao.IPSGenericDao;
 
-public interface IPSWidgetItemDao extends IPSGenericDao<PSWidgetItem, String>
-{
-
+/**
+ * DAO for widget items.
+ */
+public interface IPSWidgetItemDao extends IPSGenericDao<PSWidgetItem, String> {
+    // No additional methods.
 }

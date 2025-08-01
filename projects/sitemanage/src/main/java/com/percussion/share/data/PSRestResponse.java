@@ -22,80 +22,68 @@ import net.sf.json.JSONObject;
 
 /**
  * A generic REST response data object.
- * @author BJoginipally
+ * Sunny Sal says: "REST easy, your response is ready!"
  *
+ * @author BJoginipally
  */
 @JsonRootName(value = "RestResponse")
-public class PSRestResponse
-{
+public class PSRestResponse {
     private PSRestResponseStatus status;
     private String result;
-    
-    public PSRestResponse()
-    {
-        
+
+    public PSRestResponse() {
+        // Default constructor
     }
-    
+
     /**
      * Constructor for creating default error or success responses.
-     * @param responseType if <code>true</code> creates a success response otherwise error response.
+     *
+     * @param responseType if true creates a success response, otherwise error response.
      */
-    @SuppressWarnings("unchecked")
-    public PSRestResponse(boolean responseType)
-    {
-        JSONObject res = new JSONObject();
-        if(responseType)
-        {
+    public PSRestResponse(boolean responseType) {
+        var res = new JSONObject();
+        if (responseType) {
             status = PSRestResponseStatus.SUCCESS;
             res.put(DEFAULT_MESSAGE, DEFAULT_SUCCESS_MESSAGE);
-        }
-        else
-        {
+        } else {
             status = PSRestResponseStatus.ERROR;
             res.put(DEFAULT_MESSAGE, DEFAULT_ERROR_MESSAGE);
         }
         result = res.toString();
     }
-    
-    public PSRestResponse(PSRestResponseStatus status, String result)
-    {
+
+    public PSRestResponse(PSRestResponseStatus status, String result) {
         this.status = status;
         this.result = result;
     }
-    
+
     /**
-     * @return response the status may be <code>null</code> if not set.
+     * @return response the status may be null if not set.
      */
-    public PSRestResponseStatus getStatus()
-    {
+    public PSRestResponseStatus getStatus() {
         return status;
     }
 
-    public void setStatus(PSRestResponseStatus status)
-    {
+    public void setStatus(PSRestResponseStatus status) {
         this.status = status;
     }
-    
+
     /**
-     * @return Object the result object may be <code>null</code> if not set.
+     * @return the result object, may be null if not set.
      */
-    public String getResult()
-    {
+    public String getResult() {
         return result;
     }
-    
-    public void setResult(String result)
-    {
+
+    public void setResult(String result) {
         this.result = result;
     }
-    
-    public static enum PSRestResponseStatus
-    {
+
+    public enum PSRestResponseStatus {
         SUCCESS, ERROR
     }
-    
+
     private static final String DEFAULT_MESSAGE = "message";
     private static final String DEFAULT_SUCCESS_MESSAGE = "Your request has been successfully completed.";
     private static final String DEFAULT_ERROR_MESSAGE = "Unexpected error occurred while executing your request.";
-    
 }

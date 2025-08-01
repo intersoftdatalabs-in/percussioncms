@@ -16,164 +16,134 @@
  */
 package com.percussion.searchmanagement.data;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
+/**
+ * Encapsulates search criteria for content search operations.
+ */
 @XmlRootElement(name = "SearchCriteria")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PSSearchCriteria
-{
+public class PSSearchCriteria {
+
     private String query;
-    
     private String searchType;
-    
     private Integer startIndex;
-    
     private Integer maxResults;
-    
     private String sortColumn;
-    
     private String sortOrder;
-
     private Integer formatId;
-
-
     private Map<String, String> searchFields;
-    
     private String folderPath;
-    
-    public String getFolderPath()
-    {
+
+    public String getFolderPath() {
         return folderPath;
     }
 
-    public void setFolderPath(String folderPath)
-    {
+    public void setFolderPath(String folderPath) {
         this.folderPath = folderPath;
     }
 
     /**
-     * Get the fields to search on, key is name and value is the value to search on.  
-     * 
-     * @return The fields, may be <code>null</code> or empty.
+     * Gets the fields to search on. Key is the field name, value is the search value.
+     *
+     * @return Unmodifiable map of fields, never null.
      */
-    public Map<String, String> getSearchFields()
-    {
-        return searchFields;
+    public Map<String, String> getSearchFields() {
+        return searchFields == null ? Collections.emptyMap() : Collections.unmodifiableMap(searchFields);
     }
 
-    public void setSearchFields(Map<String, String> searchFields)
-    {
+    public void setSearchFields(Map<String, String> searchFields) {
         this.searchFields = searchFields;
     }
 
-    public String getQuery()
-    {
+    public String getQuery() {
         return query;
     }
 
-    public void setQuery(String query)
-    {
+    public void setQuery(String query) {
         this.query = query;
     }
 
-    public Integer getStartIndex()
-    {
+    public Integer getStartIndex() {
         return startIndex;
     }
 
-    public void setStartIndex(Integer startIndex)
-    {
+    public void setStartIndex(Integer startIndex) {
         this.startIndex = startIndex;
     }
 
-    public Integer getMaxResults()
-    {
+    public Integer getMaxResults() {
         return maxResults;
     }
 
-    public void setMaxResults(Integer maxResults)
-    {
+    public void setMaxResults(Integer maxResults) {
         this.maxResults = maxResults;
     }
 
-    public String getSortColumn()
-    {
+    public String getSortColumn() {
         return sortColumn;
     }
 
-    public void setSortColumn(String sortColumn)
-    {
+    public void setSortColumn(String sortColumn) {
         this.sortColumn = sortColumn;
     }
 
-    public String getSortOrder()
-    {
+    public String getSortOrder() {
         return sortOrder;
     }
 
-    public void setSortOrder(String sortOrder)
-    {
-        if(StringUtils.isEmpty(sortOrder)){
-            sortOrder = "asc";
-        }else{
-            if(sortOrder.trim().equalsIgnoreCase("asc") ||
-                    sortOrder.trim().equalsIgnoreCase("desc")){
-                sortOrder = sortOrder.trim().toLowerCase();
-            }else{
-                sortOrder = "asc";
-            }
+    /**
+     * Sets the sort order. Accepts only "asc" or "desc" (case-insensitive). Defaults to "asc".
+     *
+     * @param sortOrder the sort order string
+     */
+    public void setSortOrder(String sortOrder) {
+        if (StringUtils.isBlank(sortOrder)) {
+            this.sortOrder = "asc";
+        } else {
+            var trimmed = sortOrder.trim().toLowerCase();
+            this.sortOrder = (trimmed.equals("asc") || trimmed.equals("desc")) ? trimmed : "asc";
         }
-
-        this.sortOrder = sortOrder;
     }
 
-    public Integer getFormatId()
-    {
+    public Integer getFormatId() {
         return formatId;
     }
 
-    public void setFormatId(Integer formatId)
-    {
+    public void setFormatId(Integer formatId) {
         this.formatId = formatId;
     }
 
-    public String getSearchType()
-    {
+    public String getSearchType() {
         return searchType;
     }
 
-    public void setSearchType(String searchType)
-    {
+    public void setSearchType(String searchType) {
         this.searchType = searchType;
     }
 
-    /***
-     * If this criteria object has no criteria set, returns true;
-     * @return
+    /**
+     * Determines if this criteria object has no meaningful criteria set.
+     *
+     * @return true if empty, false otherwise
      */
-    public boolean isEmpty(){
-        boolean ret = true;
-
-        if(StringUtils.isNotEmpty(this.query)) {
-            ret = false;
+    public boolean isEmpty() {
+        if (StringUtils.isNotBlank(query)) {
+            return false;
         }
-
-        if(StringUtils.isNotEmpty(this.folderPath) && !folderPath.equalsIgnoreCase("//Sites/") ) {
-            ret = false;
+        if (StringUtils.isNotBlank(folderPath) && !folderPath.equalsIgnoreCase("//Sites/")) {
+            return false;
         }
-
-        if(StringUtils.isNotEmpty(this.searchType)) {
-            ret = false;
+        if (StringUtils.isNotBlank(searchType)) {
+            return false;
         }
-
-        return ret;
+        return true;
     }
-
 }

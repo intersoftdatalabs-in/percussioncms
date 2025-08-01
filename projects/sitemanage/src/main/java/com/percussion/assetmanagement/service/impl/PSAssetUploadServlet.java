@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.service.impl;
 
 import com.percussion.assetmanagement.data.PSAsset;
@@ -40,26 +42,23 @@ import java.io.PrintWriter;
 /**
  * Servlet responsible for uploading a file and creating an asset from it.
  * It will check-in the asset after creation.
- *
- * @author erikserating
  */
-
 @WebServlet("/assetUploadServlet")
 @MultipartConfig
-public class PSAssetUploadServlet extends HttpServlet
-{
+public class PSAssetUploadServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
 
     /**
-     * Utility method to get file name from HTTP header content-disposition
+     * Utility method to get file name from HTTP header content-disposition.
      */
     private String getFileName(Part part) {
-        String contentDisp = part.getHeader("content-disposition");
-        logger.debug("content-disposition header={}",contentDisp);
-        String[] tokens = contentDisp.split(";");
-        for (String token : tokens) {
+        var contentDisp = part.getHeader("content-disposition");
+        logger.debug("content-disposition header={}", contentDisp);
+        var tokens = contentDisp.split(";");
+        for (var token : tokens) {
             if (token.trim().startsWith("filename")) {
-                return token.substring(token.indexOf("=") + 2, token.length()-1);
+                return token.substring(token.indexOf("=") + 2, token.length() - 1);
             }
         }
         return "";
@@ -67,55 +66,43 @@ public class PSAssetUploadServlet extends HttpServlet
 
     @SuppressFBWarnings("XSS_SERVLET")
     @Override
-    protected void doPost(HttpServletRequest request,
-                          HttpServletResponse response) throws ServletException, IOException
-    {
-        String folderpath = request.getParameter("folder");
-        if(folderpath == null)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        var folderpath = request.getParameter("folder");
+        if (folderpath == null)
             folderpath = "/Assets/uploads/";
-        String assetType = request.getParameter("assetType");
-        if(assetType == null)
+        var assetType = request.getParameter("assetType");
+        if (assetType == null)
             assetType = "file";
-        String selector = request.getParameter("cssSelector");
-        String includeElement = request.getParameter("includeElement");
-        boolean includeOuterHtml = includeElement != null && includeElement.equals("outerhtml");
-        String approve = request.getParameter("approveOnUpload");
-        boolean approveOnUpload = approve != null && approve.equalsIgnoreCase("true");
+        var selector = request.getParameter("cssSelector");
+        var includeElement = request.getParameter("includeElement");
+        var includeOuterHtml = includeElement != null && includeElement.equals("outerhtml");
+        var approve = request.getParameter("approveOnUpload");
+        var approveOnUpload = approve != null && approve.equalsIgnoreCase("true");
 
-        PrintWriter out = null;
-        try
-        {
+        try {
             String fileName = null;
-
             PSAsset newAsset = null;
-            for (Part part : request.getParts()) {
-
+            for (var part : request.getParts()) {
                 fileName = SecureStringUtils.sanitizeFileName(getFileName(part));
-                if(!StringUtils.isEmpty(fileName)) {
-                    newAsset = assetCreator.createAsset(folderpath, PSAssetCreator.getAssetType(assetType), part.getInputStream(), fileName, selector, includeOuterHtml, approveOnUpload);
+                if (!StringUtils.isEmpty(fileName)) {
+                    newAsset = assetCreator.createAsset(folderpath, PSAssetCreator.getAssetType(assetType),
+                            part.getInputStream(), fileName, selector, includeOuterHtml, approveOnUpload);
                 }
             }
-
-            // Note: this could be updated to return formatted JSON
-            // to display successful uploads, etc.
-            // See documentation at https://github.com/blueimp/jQuery-File-Upload
-           // {"files":[{"thumbnailUrl":"https://jquery-file-upload.appspot.com/image%2Fjpeg/5760114746625974273/oyster.jpeg.80x80.png","name":"oyster.jpeg","url":"https://jquery-file-upload.appspot.com/image%2Fjpeg/5760114746625974273/oyster.jpeg","deleteType":"DELETE","type":"image/jpeg","deleteUrl":"https://jquery-file-upload.appspot.com/image%2Fjpeg/5760114746625974273/oyster.jpeg","size":10420}]}
             if (newAsset != null) {
-                JSONObject jsonObject = new JSONObject();
+                var jsonObject = new JSONObject();
                 jsonObject.put("result", newAsset.getName());
-                out = response.getWriter();
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                out.print(jsonObject.toString());
-                out.flush();
+                try (PrintWriter out = response.getWriter()) {
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    out.print(jsonObject.toString());
+                    out.flush();
+                }
             }
-        }
-        catch (PSExtractHTMLException caE)
-        {
+        } catch (PSExtractHTMLException caE) {
             handleExtractionError(caE, response);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error(PSExceptionUtils.getMessageForLog(e));
             response.setStatus(500);
         }
@@ -124,16 +111,12 @@ public class PSAssetUploadServlet extends HttpServlet
     /**
      * Handles extraction errors.
      *
-     * @param e the extraction error / exception, assumed not <code>null</code>.
-     * @param response the HTTP response, assumed not <code>null</code>.
-     *
+     * @param e the extraction error / exception, assumed not {@code null}.
+     * @param response the HTTP response, assumed not {@code null}.
      */
-    private void handleExtractionError(PSExtractHTMLException e, HttpServletResponse response)
-    {
-
+    private void handleExtractionError(PSExtractHTMLException e, HttpServletResponse response) {
         logger.error(PSExceptionUtils.getMessageForLog(e));
         logger.debug(PSExceptionUtils.getDebugMessageForLog(e));
-
         try {
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (IOException ex) {
@@ -141,14 +124,6 @@ public class PSAssetUploadServlet extends HttpServlet
         }
     }
 
-    /**
-     * The logger
-     */
     private static final Logger logger = LogManager.getLogger("PSAssetUploadServlet");
-
-    /**
-     * The asset creator
-     */
-    private PSAssetCreator assetCreator = new PSAssetCreator();
-
+    private final PSAssetCreator assetCreator = new PSAssetCreator();
 }

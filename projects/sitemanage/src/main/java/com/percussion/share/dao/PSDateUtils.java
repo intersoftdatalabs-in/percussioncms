@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,134 +28,109 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * A utility class for date manipulation.
- * 
+ * Utility class for date manipulation.
+ *
  * @author peterfrontiero
  */
-public class PSDateUtils
-{
-    
+public class PSDateUtils {
+
     private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
-    
+
     /**
      * ISO 8601 not extended timezone (used for parsing, since APIs don't have that possibility).
-     * Eg: 2012-01-13T14:23:05.157-0200   
+     * Eg: 2012-01-13T14:23:05.157-0200
      */
-    public static String iso8601String = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    
+    public static final String ISO_8601_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
     /**
      * ISO 8601 extended timezone (this is the correct pattern that should be used).
-     * Eg: 2012-01-13T14:23:05.157-02:00   
-     */    
-    public static String iso8601ExtendedString = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
+     * Eg: 2012-01-13T14:23:05.157-02:00
+     */
+    public static final String ISO_8601_EXTENDED_STRING = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
+
     /**
      * Converts the given date to string.
-     * 
-     * @param date the date in question, it may be <code>null</code>.
-     * 
-     * @return the converted string, it may be empty if the given date is
-     * <code>null</code>.
+     *
+     * @param date the date in question, may be {@code null}.
+     * @return the converted string, empty if the given date is {@code null}.
      */
-    public static String getDateToString(Date date)
-    {
-        if (date != null)
-        {
-            return FastDateFormat.getInstance(iso8601ExtendedString).format(date);
+    public static String getDateToString(Date date) {
+        if (date != null) {
+            return FastDateFormat.getInstance(ISO_8601_EXTENDED_STRING).format(date);
         }
         return "";
     }
-    
+
     /**
      * Converts the given string to date.
-     * 
-     * @param date the string in question, it may be <code>null</code>.
-     * 
-     * @return the converted date, it may be <code>null</code> if the given string is blank.
-     * 
+     *
+     * @param date the string in question, may be {@code null}.
+     * @return the converted date, or {@code null} if the given string is blank.
      * @throws ParseException if an error occurs parsing the string.
      */
-    public static Date getDateFromString(String date) throws ParseException
-    {
-        if (!StringUtils.isBlank(date))
-        {
-            DateFormat fmt = new SimpleDateFormat(iso8601String);
-            //JSON Objects are returning long milisecs as time
+    public static Date getDateFromString(String date) throws ParseException {
+        if (!StringUtils.isBlank(date)) {
+            DateFormat fmt = new SimpleDateFormat(ISO_8601_STRING);
+            // JSON objects may return long milliseconds as time
             try {
-                 return new Date(Long.parseLong(date));
-
-            }catch (NumberFormatException ne){
-
+                return new Date(Long.parseLong(date));
+            } catch (NumberFormatException ignored) {
+                // Not a long, continue parsing as date string
             }
-
-
-            StringBuilder format = new StringBuilder(date);
-            if (format.length() > 2 && ":".equals(String.valueOf(format.charAt(format.length() - 3))) )
-            {
+            var format = new StringBuilder(date);
+            if (format.length() > 2 && ":".equals(String.valueOf(format.charAt(format.length() - 3)))) {
                 format.deleteCharAt(format.length() - 3);
             }
-            
-
             return fmt.parse(format.toString());
         }
         return null;
     }
 
-    
     /**
-     * Converts a given string to a Date, when the string is not in the ISO standard date format
+     * Converts a given string to a Date, when the string is not in the ISO standard date format,
      * such as when it's provided by the JCR Node.
-     * 
-     * @param dateStr
+     *
+     * @param dateStr the date string
      * @return Date as parsed from system string
      */
-    public static Date parseSystemDateString(String dateStr)
-    {
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-        Date date = null;
-        try
-        {
-            date = dateFormat.parse(dateStr);
-        }
-        catch (ParseException e)
-        {
+    public static Date parseSystemDateString(String dateStr) {
+        var dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        try {
+            return dateFormat.parse(dateStr);
+        } catch (ParseException e) {
             throw new RuntimeException("Invalid date string " + dateStr, e);
         }
-
-        return date;
     }
-    
+
     /**
-     * Converts the given string to date.
-     * 
-     * @param date the string in question, it may be <code>null</code>.
-     * 
-     * @return the converted date, it may be <code>null</code> if the given string is blank.
-     * 
-     * @throws ParseException if an error occurs parsing the string.
+     * Calculates the number of days between two dates.
+     *
+     * @param start the start date
+     * @param end the end date
+     * @return the number of days difference
+     * @throws IllegalArgumentException if end is before start
      */
-    public static Integer getDaysDiff(Date start, Date end)
-    {
+    public static Integer getDaysDiff(Date start, Date end) {
         if (end.before(start)) {
             throw new IllegalArgumentException("The end date must be later than the start date");
         }
-         
-        //reset all hours mins and secs to zero on start date
-        Calendar startCal = GregorianCalendar.getInstance();
+
+        // Reset all hours, mins, and secs to zero on start date
+        var startCal = GregorianCalendar.getInstance();
         startCal.setTime(start);
         startCal.set(Calendar.HOUR_OF_DAY, 0);
         startCal.set(Calendar.MINUTE, 0);
         startCal.set(Calendar.SECOND, 0);
         long startTime = startCal.getTimeInMillis();
-         
-        //reset all hours mins and secs to zero on end date
-        Calendar endCal = GregorianCalendar.getInstance();
+
+        // Reset all hours, mins, and secs to zero on end date
+        var endCal = GregorianCalendar.getInstance();
         endCal.setTime(end);
         endCal.set(Calendar.HOUR_OF_DAY, 0);
         endCal.set(Calendar.MINUTE, 0);
         endCal.set(Calendar.SECOND, 0);
         long endTime = endCal.getTimeInMillis();
-         
-        return Integer.valueOf(Long.toString((endTime - startTime) / MILLISECONDS_IN_DAY));
+
+        return Math.toIntExact((endTime - startTime) / MILLISECONDS_IN_DAY);
     }
 }

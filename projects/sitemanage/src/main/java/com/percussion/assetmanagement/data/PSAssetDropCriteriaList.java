@@ -15,18 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for asset drop criteria.
+ */
 @JsonRootName("AssetDropCriteria")
 public class PSAssetDropCriteriaList extends ArrayList<PSAssetDropCriteria> {
+
     public PSAssetDropCriteriaList(Collection<? extends PSAssetDropCriteria> c) {
         super(c);
     }
-    public PSAssetDropCriteriaList(){ super();}
+
+    public PSAssetDropCriteriaList() {
+        super();
+    }
 }

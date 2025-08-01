@@ -261,11 +261,7 @@ public class Property {
      *     
      */
     public String getAction() {
-        if (action == null) {
-            return "replace";
-        } else {
-            return action;
-        }
+        return action == null ? "replace" : action;
     }
 
     /**

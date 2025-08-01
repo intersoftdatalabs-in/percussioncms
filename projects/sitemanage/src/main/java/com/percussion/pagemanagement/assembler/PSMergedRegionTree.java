@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -36,100 +37,82 @@ import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * A Merged Region tree that inherits from the template regions
+ * A merged region tree that inherits from the template regions
  * unless the template region is empty and there is a matching page region.
- * 
- * @see #isLeaf(PSMergedRegion)
- * @see #chooseTemplateOrPageRegion(PSAbstractRegion, PSAbstractRegion, PSMergedRegion)
- * @author adamgent
  *
+ * <p>See {@link #isLeaf(PSMergedRegion)} and {@link #chooseTemplateOrPageRegion(PSAbstractRegion, PSAbstractRegion, PSMergedRegion)}
+ * for details.
+ *
+ * @author adamgent
  */
 public class PSMergedRegionTree extends PSAbstractMergedRegionTree {
-    
+
     private IPSWidgetService widgetService;
-    
-    public PSMergedRegionTree(IPSWidgetService widgetService)
-    {
+
+    public PSMergedRegionTree(IPSWidgetService widgetService) {
         notNull(widgetService, "widgetService");
         this.widgetService = widgetService;
     }
 
-    public PSMergedRegionTree(IPSWidgetService widgetService, PSRegionTree templateRegionTree, PSRegionBranches pageRegionBranches) throws PSDataServiceException {
+    public PSMergedRegionTree(IPSWidgetService widgetService, PSRegionTree templateRegionTree, PSRegionBranches pageRegionBranches)
+            throws PSDataServiceException {
         this(widgetService);
         merge(templateRegionTree, pageRegionBranches);
     }
-    
+
     /**
-     * {@inheritDoc}
-     * <p>
-     * This implementation chooses the page if and only if the templates region is has no
-     * widgets or subregions.
+     * Chooses the page region if and only if the template region has no widgets or subregions.
      */
     @Override
     protected PSMergedRegionOwner chooseTemplateOrPageRegion(PSAbstractRegion template, PSAbstractRegion page, PSMergedRegion parent) {
         notNull(template, "template");
         notNull(page, "page");
-        boolean templateHasRegionChildren = hasRegionChildren(template);
-        boolean templateHasWidgets = hasTemplateWidgets(template);
+        var templateHasRegionChildren = hasRegionChildren(template);
+        var templateHasWidgets = hasTemplateWidgets(template);
         PSMergedRegionOwner rvalue;
-        
-        if ( templateHasRegionChildren || templateHasWidgets )  {
-            log.debug("Page is trying to override a non leaf template region: " + template.getRegionId());
+
+        if (templateHasRegionChildren || templateHasWidgets) {
+            log.debug("Page is trying to override a non-leaf template region: {}", template.getRegionId());
             rvalue = TEMPLATE;
-        }
-        else {
+        } else {
             rvalue = PAGE;
         }
         return rvalue;
     }
-    
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * <strong>This implementation will expand if the region has children regardless if its a page or 
-     * template.</strong>
+     * Expands if the region has children, regardless if it's a page or template.
      */
     @Override
     protected boolean isLeaf(PSMergedRegion mr) {
         notNull(mr, "mr");
-        isTrue((mr.getOwner() == PAGE || mr.getOwner() == TEMPLATE), 
+        isTrue((mr.getOwner() == PAGE || mr.getOwner() == TEMPLATE),
                 "Does not support " + mr.getOwner());
-        Boolean rvalue;
         boolean hasRegionChildren = hasRegionChildren(mr.getOriginalRegion());
-        boolean hasWidgets = mr.getWidgetInstances() != null && ! mr.getWidgetInstances().isEmpty();
+        boolean hasWidgets = mr.getWidgetInstances() != null && !mr.getWidgetInstances().isEmpty();
+        boolean rvalue;
         if (hasWidgets && hasRegionChildren) {
-            log.warn("Has child regions but also has widgets " +
-            		"ignoring child regions: " + mr);
+            log.warn("Has child regions but also has widgets; ignoring child regions: {}", mr);
             rvalue = true;
-        }
-        else if (hasRegionChildren) {
+        } else if (hasRegionChildren) {
             rvalue = false;
-        }
-        else if (hasWidgets) {
+        } else if (hasWidgets) {
             rvalue = true;
-        }
-        else {
-            /*
-             * Empty Region
-             */
+        } else {
+            // Empty Region
             if (log.isDebugEnabled())
-                log.debug("Empty region for template: " + mr);
+                log.debug("Empty region for template: {}", mr);
             rvalue = true;
         }
-
         return rvalue;
     }
-    
-    
+
     /**
-     * {@inheritDoc}
-     * <p>
-     * Will prefer the templates widgets over the pages widgets if there is a conflict.
+     * Prefers the template's widgets over the page's widgets if there is a conflict.
      */
     @Override
     protected List<PSWidgetItem> getMergedWidgetItemsForRegion(PSMergedRegion mr) {
-        String regionId = mr.getRegionId();
+        var regionId = mr.getRegionId();
         List<PSWidgetItem> items = null;
         if (mr.getOwner() == PAGE && pageWidgetItems.containsKey(regionId)) {
             items = pageWidgetItems.get(regionId);
@@ -139,38 +122,34 @@ public class PSMergedRegionTree extends PSAbstractMergedRegionTree {
         }
         return items;
     }
-    
-    
+
     @Override
     protected List<PSWidgetInstance> loadWidgets(List<PSWidgetItem> widgetItems) throws PSDataServiceException {
-        List<PSWidgetInstance> wis = new ArrayList<>();
-        for(PSWidgetItem wi : widgetItems) {
+        var wis = new ArrayList<PSWidgetInstance>();
+        for (var wi : widgetItems) {
             wis.add(loadWidget(wi));
         }
         return wis;
     }
-    
+
     protected PSWidgetInstance loadWidget(PSWidgetItem widgetItem) throws PSDataServiceException {
-        PSWidgetInstance pwi = new PSWidgetInstance();
-        PSWidgetDefinition widget = widgetService.load(widgetItem.getDefinitionId());
+        var pwi = new PSWidgetInstance();
+        var widget = widgetService.load(widgetItem.getDefinitionId());
         setDefaultValuesFromDef(widgetItem, widget);
         pwi.setItem(widgetItem);
         pwi.setDefinition(widget);
-        // TODO ASSET
+        // TODO: Asset handling
         return pwi;
     }
-    
-    
+
     /**
-     * Gets the default values from the given definition and set the default
-     * values to the given widget item if the properties do not exist in in
-     * the widget item.
-     * 
-     * @param item the widget item, assumed not <code>null</code>.
-     * @param def the widget definition, assumed not <code>null</code>.
+     * Gets the default values from the given definition and sets the default
+     * values to the given widget item if the properties do not exist in the widget item.
+     *
+     * @param item the widget item, assumed not {@code null}
+     * @param def the widget definition, assumed not {@code null}
      */
-    private void setDefaultValuesFromDef(PSWidgetItem item, PSWidgetDefinition def)
-    {
+    private void setDefaultValuesFromDef(PSWidgetItem item, PSWidgetDefinition def) {
         PSWidgetUtils.setDefaultValuesFromDefinition(item, def);
     }
 }

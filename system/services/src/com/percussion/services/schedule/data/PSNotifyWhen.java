@@ -19,7 +19,8 @@ package com.percussion.services.schedule.data;
 import static com.percussion.utils.string.PSStringUtils.notBlank;
 
 /**
- * Dictates when a notification email is sent to the role and cc list.
+ * Dictates when a notification email is sent to the role and CC list.
+ * <p>Enum values represent notification timing for scheduled tasks.</p>
  *
  * @author Andriy Palamarchuk
  */
@@ -41,9 +42,8 @@ public enum PSNotifyWhen
    NEVER("Never");
 
    /**
-    * Creates new enumeration value.
-    * @param label the value returned by {@link #getLabel()}.
-    * Not blank.
+    * Creates a new enumeration value.
+    * @param label the value returned by {@link #getLabel()}, not blank
     */
    private PSNotifyWhen(String label)
    {

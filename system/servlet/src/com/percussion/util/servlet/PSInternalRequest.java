@@ -44,9 +44,8 @@ import java.util.Date;
  *
  * @author DavidBenua
  */
-public class PSInternalRequest
-   extends HttpServletRequestWrapper
-   implements HttpServletRequest
+// REFACTORED: CP-JAVA11
+public class PSInternalRequest extends HttpServletRequestWrapper
 {
    /**
     * creates a new PSInternalRequest as a wrapper to an original
@@ -60,19 +59,19 @@ public class PSInternalRequest
    public PSInternalRequest(HttpServletRequest req)
    {
       super(req);
-      Enumeration headers = req.getHeaderNames();
+      Enumeration<String> headers = req.getHeaderNames();
       if (headers != null)
       {
-         m_headers = new HashMap();
+         m_headers = new HashMap<String, Collection<String>>();
          while (headers.hasMoreElements())
          {
             String headerName = (String) headers.nextElement();
-            Enumeration hValues = req.getHeaders(headerName);
-            List myValues = new ArrayList();
+            Enumeration<String> hValues = req.getHeaders(headerName);
+            List<String> myValues = new ArrayList<>();
             while (hValues.hasMoreElements())
             {
                Object theValue = hValues.nextElement();
-               myValues.add(theValue);
+               myValues.add((String) theValue);
             }
             setHeader(headerName, myValues);
          }
@@ -110,7 +109,7 @@ public class PSInternalRequest
     * @return The parameter map, the key is <code>String</code> object,
     *    the value is <code>String[]</code> object, never <code>null</code>.
     */
-   public Map getParameterMap()
+   public Map<String, String[]> getParameterMap()
    {
       return m_params;
    }
@@ -121,7 +120,7 @@ public class PSInternalRequest
     * @return an enumetation over zero or more {@link java.lang.String}
     *    objects, never <code>null</code>.
     */
-   public Enumeration getParameterNames()
+   public Enumeration<String> getParameterNames()
    {
       return Collections.enumeration(m_params.keySet());
    }
@@ -212,7 +211,7 @@ public class PSInternalRequest
     * @return An enumeration over zero or more <code>String</code> objects,
     *    never <code>null</code>. The returned names are lowercase.
     */
-   public Enumeration getHeaderNames()
+   public Enumeration<String> getHeaderNames()
    {
       return Collections.enumeration(m_headers.keySet());
    }
@@ -227,12 +226,13 @@ public class PSInternalRequest
     *    objects. It may be <code>null</code> if the supplied head does
     *    not exist.
     */
-   public Enumeration getHeaders(String headerName)
+   @SuppressWarnings("unchecked")
+   public Enumeration<String> getHeaders(String headerName)
    {
       if (headerName == null || headerName.trim().length() == 0)
          throw new IllegalArgumentException("headerName may not be null or empty");
       
-      Collection values = (Collection) m_headers.get(headerName.toLowerCase());
+      Collection<String> values = (Collection<String>) m_headers.get(headerName.toLowerCase());
       if (values != null)
          return Collections.enumeration(values);
       else
@@ -253,7 +253,7 @@ public class PSInternalRequest
       if (headerName == null || headerName.trim().length() == 0)
          throw new IllegalArgumentException("headerName may not be null or empty");
       
-      List header = (List) m_headers.get(headerName.toLowerCase());
+      List<String> header = (List<String>) m_headers.get(headerName.toLowerCase());
       if (header != null && !header.isEmpty())
       {
          return (String) header.get(0);
@@ -325,7 +325,7 @@ public class PSInternalRequest
     *
     * @param hValues the values, it may not be <code>null</code> or empty.
     */
-   public void setHeader(String hName, List hValues)
+   public void setHeader(String hName, List<String> hValues)
    {
       if (hName == null || hName.trim().length() == 0)
          throw new IllegalArgumentException("hName may not be null or empty");
@@ -349,7 +349,7 @@ public class PSInternalRequest
          throw new IllegalArgumentException("hName may not be null or empty");
       if (hValue == null || hValue.trim().length() == 0)
          throw new IllegalArgumentException("hValue may not be null or empty");
-      List values = Collections.singletonList(hValue);
+      List<String> values = Collections.singletonList(hValue);
       this.setHeader(hName, values);
    }
 
@@ -367,7 +367,7 @@ public class PSInternalRequest
          throw new IllegalArgumentException("hName may not be null or empty");
       if (hValues == null || hValues.length == 0)
          throw new IllegalArgumentException("hValues may not be null or empty");
-      List values = Arrays.asList(hValues);
+      List<String> values = Arrays.asList(hValues);
       this.setHeader(hName, values);
    }
 
@@ -393,12 +393,12 @@ public class PSInternalRequest
     * lower case. The map value is the corresponde value of the header as
     * <code>List</code>.   
     */
-   private Map m_headers = new HashMap();
+   private Map<String, Collection<String>> m_headers = new HashMap<>();
    /**
     * a local parameter map. The key is the parameter name (as a
     * <code>String</code>) and the value is a <code>String[]</code> of all
     * values, even if there is only one value.  This is to conform to the Map
     * in the Servlet interface.
     */
-   protected Map m_params = new HashMap();
+   protected Map<String, String[]> m_params = new HashMap<>();
 }

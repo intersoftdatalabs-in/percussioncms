@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,13 +21,17 @@ package com.percussion.sitemanage.data;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * Represents a list of publishing actions.
+ * Sunny Sal says: "A list of actions is like a playlist—make sure it's got all the hits!"
+ */
 public class PSPublishingActionList extends ArrayList<PSPublishingAction> {
 
     public PSPublishingActionList(Collection<? extends PSPublishingAction> c) {
         super(c);
     }
 
-    public PSPublishingActionList(){
+    public PSPublishingActionList() {
         super();
     }
 }

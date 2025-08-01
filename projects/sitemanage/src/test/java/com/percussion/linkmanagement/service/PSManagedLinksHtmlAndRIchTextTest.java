@@ -18,6 +18,7 @@
 package com.percussion.linkmanagement.service;
 
 import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest;
 import com.percussion.assetmanagement.data.PSAbstractAssetRequest.AssetType;
@@ -46,6 +47,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests whether a new style managed link/image in rich text asset is converted to old style link or not. 
@@ -75,27 +79,27 @@ public class PSManagedLinksHtmlAndRIchTextTest extends PSServletTestCase
 
 	private String TEST_PREFIX = "ManagedLinksConverterTest";
     
-    @Override
+    @BeforeEach
     public void setUp() throws Exception
     {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
-        
+
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
         assetCleaner = fixture.assetCleaner;
-    	page = fixture.createPage(TEST_PREFIX + "Page");
-    	fileAsset = createFileAsset();
-    	imgAsset = createImgAsset();
-    	 //FB:IJU_SETUP_NO_SUPER NC 1-16-16
+        page = fixture.createPage(TEST_PREFIX + "Page");
+        fileAsset = createFileAsset();
+        imgAsset = createImgAsset();
         super.setUp();
     }
-    @Override
+
+    @AfterEach
     public void tearDown() throws Exception
     {
-    	fixture.tearDown();
+        fixture.tearDown();
     }
-    
-    
+
+    @Test
     public void testManagedPathsInRichText() throws Exception
     {
     	//Make sure converter code doesn't throw exception with empty content for rich text
@@ -162,6 +166,7 @@ public class PSManagedLinksHtmlAndRIchTextTest extends PSServletTestCase
         
     }
     
+    @Test
     public void testManagedPathsInHtml() throws Exception
     {
         //Make sure converter code doesn't throw exception with empty content for rich text

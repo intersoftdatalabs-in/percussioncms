@@ -99,54 +99,44 @@ public class PSArchiveHandler
     * @throws PSDeployException If any error occurs while adding the files
     * to the archive.
     */
-   public void addFiles(PSDependency dep, Iterator files)
-      throws PSDeployException
+   public void addFiles(PSDependency dep, Iterator<PSDependencyFile> files) throws PSDeployException
    {
-      if ( dep == null )
-         throw new IllegalArgumentException("dep may not be null");
-      if ( files == null || (! files.hasNext()) )
-         throw new IllegalArgumentException("files may not be null or empty");
+      if ( dep == null || files == null || !files.hasNext() )
+      {
+         throw new IllegalArgumentException("dep and files may not be null or empty");
+      }
       if ( ! m_archive.isWriting() )
+      {
          throw new IllegalStateException("archive is not opened for writing");
+      }
 
-      String name = dep.getDisplayName();
-      String key = dep.getKey();
-      String[] parsedKey = PSDependency.parseKey(key);
-      String type = parsedKey[0];
-            
-      String tmpName = (type.equals(PSAclDefDependencyHandler.DEPENDENCY_TYPE)) ?
-            dep.getParentDependency().getDisplayName() : name;
+      var name = dep.getDisplayName();
+      var key = dep.getKey();
+      var parsedKey = PSDependency.parseKey(key);
+      var type = parsedKey[0];
+
+      var tmpName = type.equals(PSAclDefDependencyHandler.DEPENDENCY_TYPE)
+            ? dep.getParentDependency().getDisplayName()
+            : name;
       tmpName = tmpName.replace(" ", "");
-     
-      String tmpExt;
-      if (type.equals(PSSupportFileDependencyHandler.DEPENDENCY_TYPE))
-      {
-         tmpExt = "";
-      }
-      else
-      {
-         tmpExt = ".";
-         if (type.equals(PSAclDefDependencyHandler.DEPENDENCY_TYPE))
-         {
-            String parentType = dep.getParentDependency().getObjectType();
-            tmpExt += parentType.substring(0, 1).toLowerCase() + parentType.substring(1) + ".";
-         }
-         
-         tmpExt += type.substring(0, 1).toLowerCase() + type.substring(1);
-      }
-           
-      // Can only loop through the Iterator once, but it is needed twice here,
-      // So let's build a list from it, which will be used later.
-      List<PSDependencyFile> dupFiles = new ArrayList<>();
 
-      List<File> tmpFiles = new ArrayList<>();
+      var tmpExt = switch (type) {
+         case PSSupportFileDependencyHandler.DEPENDENCY_TYPE -> "";
+         case PSAclDefDependencyHandler.DEPENDENCY_TYPE -> {
+            var parentType = dep.getParentDependency().getObjectType();
+            yield "." + parentType.substring(0, 1).toLowerCase() + parentType.substring(1) + "." + type.substring(0, 1).toLowerCase() + type.substring(1);
+         }
+         default -> "." + type.substring(0, 1).toLowerCase() + type.substring(1);
+      };
+
+      var dupFiles = new ArrayList<PSDependencyFile>();
+      var tmpFiles = new ArrayList<File>();
+
       try
       {
          // Adds to the archive first
-         while (files.hasNext())
-         {
-            PSDependencyFile depFile = (PSDependencyFile) files.next();
-            String fileName = depFile.getFile().getName();
+         files.forEachRemaining(depFile -> {
+            var fileName = depFile.getFile().getName();
 
             log.debug("Dependency File Name: {}", fileName);
 
@@ -155,17 +145,17 @@ public class PSArchiveHandler
             {
                if (ms_tmpDir == null)
                {
-                  File tmpFile = File.createTempFile("tmp", ".tmp");
+                  var tmpFile = File.createTempFile("tmp", ".tmp");
                   tmpFile.deleteOnExit();
                   ms_tmpDir = tmpFile.getParentFile();
                }
 
-               String tmpFileName = tmpName + tmpExt;
+               var tmpFileName = tmpName + tmpExt;
                if (type.equals(PSContentTypeDependencyHandler.DEPENDENCY_TYPE))
                {
                   tmpFileName = tmpName + '.' + ms_depFileTypeMap.get(depFile.getType()) + tmpExt;
                }
-               File tmp = new File(ms_tmpDir, tmpFileName);
+               var tmp = new File(ms_tmpDir, tmpFileName);
                log.debug("Created temp file: {} in {}",
                        tmpFileName, ms_tmpDir.getAbsolutePath());
 
@@ -179,10 +169,14 @@ public class PSArchiveHandler
                log.debug("Adding file: {}", tmp.getAbsolutePath());
                tmpFiles.add(tmp);
 
-               log.debug("Copying file {} to temp file: {}",
+               try {
+                  log.debug("Copying file {} to temp file: {}",
                        depFile.getFile().getAbsolutePath(),
                        tmp.getAbsolutePath());
-         FileUtils.copyFile(depFile.getFile(), tmp);
+                  FileUtils.copyFile(depFile.getFile(), tmp);
+               } catch (IOException e) {
+                  throw new RuntimeException(e);
+               }
 
                depFile = new PSDependencyFile(depFile.getType(), tmp,
                      depFile.getOriginalFile());
@@ -190,29 +184,28 @@ public class PSArchiveHandler
 
             if(depFile.getFile().exists()) {
                setArchiveLocation(depFile, dep, dupFiles);
-
-               m_archive.storeFile(depFile.getFile(),
+               try {
+                  m_archive.storeFile(depFile.getFile(),
                        getNormalizedArchivePath(depFile));
+               } catch (PSDeployException e) {
+                  throw new RuntimeException(e);
+               }
                dupFiles.add(depFile);
             }
-         }
+         });
 
          // then update the manifest
          if(hasDependencyFiles(dep))
             m_archiveMan.addFiles(dep, dupFiles.iterator());
       }
-      catch (IOException e)
+      catch (RuntimeException e)
       {
-         Object[] args = {m_archive.getArchiveRef().getPath(), e.getLocalizedMessage()};
          throw new PSDeployException(IPSDeploymentErrors.ARCHIVE_WRITE_ERROR,
-            args);
+            new Object[]{m_archive.getArchiveRef().getPath(), e.getLocalizedMessage()});
       }
       finally
       {
-         for (File tmpFile : tmpFiles)
-         {
-            tmpFile.delete();
-         }
+         tmpFiles.forEach(File::delete);
       }
    }
 

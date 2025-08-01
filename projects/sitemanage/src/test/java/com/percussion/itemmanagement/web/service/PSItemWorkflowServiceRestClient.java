@@ -41,7 +41,7 @@ public class PSItemWorkflowServiceRestClient extends PSObjectRestClient
     {
         GET(concatPath(getPath(), "checkIn", id));
     }
-    
+
     public PSItemUserInfo checkOut(String id)
     {
         return getObjectFromPath(concatPath(getPath(), "checkOut", id), PSItemUserInfo.class);
@@ -51,22 +51,22 @@ public class PSItemWorkflowServiceRestClient extends PSObjectRestClient
     {
         return getObjectFromPath(concatPath(getPath(), "forceCheckOut", id), PSItemUserInfo.class);
     }
-    
+
     public PSItemStateTransition getTransitions(String id)
     {
         return getObjectFromPath(concatPath(getPath(), "getTransitions", id), PSItemStateTransition.class);
     }
-    
+
     public PSItemTransitionResults transition(String id, String trigger)
     {
-       return getObjectFromPath(concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
+        return getObjectFromPath(concatPath(getPath(), "transition", id, trigger), PSItemTransitionResults.class);
     }
-    
+
     public void approvePages(PSApprovableItems items)
     {
         postObjectToPath(concatPath(getPath(), "bulkapprove"), items);
     }
-    
+
     public String getPath()
     {
         return path;

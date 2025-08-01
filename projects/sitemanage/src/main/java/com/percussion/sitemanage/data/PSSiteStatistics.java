@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,72 +21,56 @@ import com.percussion.share.data.PSAbstractDataObject;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents statistics for a site.
+ */
 @XmlRootElement(name = "statistics")
-public class PSSiteStatistics extends PSAbstractDataObject
-{
-
-    /**
-     * 
-     */
+public class PSSiteStatistics extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
 
     private long binary;
-
     private long css;
-
     private long linksInternal;
-
     private long pages;
-
     private long templates;
 
-    public long getBinary()
-    {
+    public long getBinary() {
         return binary;
     }
 
-    public void setBinary(long binary)
-    {
+    public void setBinary(long binary) {
         this.binary = binary;
     }
 
-    public long getCss()
-    {
+    public long getCss() {
         return css;
     }
 
-    public void setCss(long css)
-    {
+    public void setCss(long css) {
         this.css = css;
     }
 
-    public long getLinksInternal()
-    {
+    public long getLinksInternal() {
         return linksInternal;
     }
 
-    public void setLinksInternal(long linksInternal)
-    {
+    public void setLinksInternal(long linksInternal) {
         this.linksInternal = linksInternal;
     }
 
-    public long getPages()
-    {
+    public long getPages() {
         return pages;
     }
 
-    public void setPages(long pages)
-    {
+    public void setPages(long pages) {
         this.pages = pages;
     }
 
-    public long getTemplates()
-    {
+    public long getTemplates() {
         return templates;
     }
 
-    public void setTemplates(long templates)
-    {
+    public void setTemplates(long templates) {
         this.templates = templates;
     }
 }

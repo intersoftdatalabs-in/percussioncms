@@ -38,47 +38,30 @@ public class PSApplicationIDContextFactory
     * @throws PSUnknownNodeTypeException if the XML element node does not 
     * represent a type supported by the class.
     */
-   public static PSApplicationIdContext fromXml(Element sourceNode) 
-      throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public static PSApplicationIdContext fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      String nodeName = sourceNode.getNodeName();
-      PSApplicationIdContext ctx = null;
-      if (nodeName.equals(PSAppCEItemIdContext.XML_NODE_NAME))
-         ctx = new PSAppCEItemIdContext(sourceNode);
-      else if (nodeName.equals(PSAppConditionalIdContext.XML_NODE_NAME))
-         ctx = new PSAppConditionalIdContext(sourceNode);
-      else if (nodeName.equals(PSAppDataMappingIdContext.XML_NODE_NAME))
-         ctx = new PSAppDataMappingIdContext(sourceNode);
-      else if (nodeName.equals(PSAppDisplayMapperIdContext.XML_NODE_NAME))
-         ctx = new PSAppDisplayMapperIdContext(sourceNode);
-      else if (nodeName.equals(PSAppEntryIdContext.XML_NODE_NAME))
-         ctx = new PSAppEntryIdContext(sourceNode);
-      else if (nodeName.equals(PSAppExtensionCallIdContext.XML_NODE_NAME))
-         ctx = new PSAppExtensionCallIdContext(sourceNode);
-      else if (nodeName.equals(PSAppExtensionParamIdContext.XML_NODE_NAME))
-         ctx = new PSAppExtensionParamIdContext(sourceNode);
-      else if (nodeName.equals(PSAppIndexedItemIdContext.XML_NODE_NAME))
-         ctx = new PSAppIndexedItemIdContext(sourceNode);
-      else if (nodeName.equals(PSAppNamedItemIdContext.XML_NODE_NAME))
-         ctx = new PSAppNamedItemIdContext(sourceNode);
-      else if (nodeName.equals(PSAppUISetIdContext.XML_NODE_NAME))
-         ctx = new PSAppUISetIdContext(sourceNode);
-      else if (nodeName.equals(PSAppUrlRequestIdContext.XML_NODE_NAME))
-         ctx = new PSAppUrlRequestIdContext(sourceNode);
-      else if (nodeName.equals(PSBindingParamIdContext.XML_NODE_NAME))
-         ctx = new PSBindingParamIdContext(sourceNode);
-      else if (nodeName.equals(PSBindingIdContext.XML_NODE_NAME))
-         ctx = new PSBindingIdContext(sourceNode);
-      else
-      {
-         Object[] args = {"PSXApplicationIDContext", nodeName};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      return ctx;   
+      var nodeName = sourceNode.getNodeName();
+      return switch (nodeName) {
+         case PSAppCEItemIdContext.XML_NODE_NAME -> new PSAppCEItemIdContext(sourceNode);
+         case PSAppConditionalIdContext.XML_NODE_NAME -> new PSAppConditionalIdContext(sourceNode);
+         case PSAppDataMappingIdContext.XML_NODE_NAME -> new PSAppDataMappingIdContext(sourceNode);
+         case PSAppDisplayMapperIdContext.XML_NODE_NAME -> new PSAppDisplayMapperIdContext(sourceNode);
+         case PSAppEntryIdContext.XML_NODE_NAME -> new PSAppEntryIdContext(sourceNode);
+         case PSAppExtensionCallIdContext.XML_NODE_NAME -> new PSAppExtensionCallIdContext(sourceNode);
+         case PSAppExtensionParamIdContext.XML_NODE_NAME -> new PSAppExtensionParamIdContext(sourceNode);
+         case PSAppIndexedItemIdContext.XML_NODE_NAME -> new PSAppIndexedItemIdContext(sourceNode);
+         case PSAppNamedItemIdContext.XML_NODE_NAME -> new PSAppNamedItemIdContext(sourceNode);
+         case PSAppUISetIdContext.XML_NODE_NAME -> new PSAppUISetIdContext(sourceNode);
+         case PSAppUrlRequestIdContext.XML_NODE_NAME -> new PSAppUrlRequestIdContext(sourceNode);
+         case PSBindingParamIdContext.XML_NODE_NAME -> new PSBindingParamIdContext(sourceNode);
+         case PSBindingIdContext.XML_NODE_NAME -> new PSBindingIdContext(sourceNode);
+         default -> throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{"PSXApplicationIDContext", nodeName}
+         );
+      };
    }
 }

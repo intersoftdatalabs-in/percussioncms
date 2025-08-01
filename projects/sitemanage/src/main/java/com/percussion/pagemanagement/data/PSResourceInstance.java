@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import static org.apache.commons.lang.StringUtils.removeEnd;
@@ -29,28 +30,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
+import java.util.Optional;
 
 /**
  * Represents a fully loaded resource ready for link/rendering processing.
- * 
- * If links have not been processed yet then {@link #getLinkAndLocations()} will 
- * be <code>null</code>.
- * <p>
- * This is not a serializable object and as it has some behavior and transient data
- * associated with it.
- * 
+ * If links have not been processed yet then {@link #getLinkAndLocations()} will be {@code null}.
+ * This is not a serializable object as it has some behavior and transient data associated with it.
  * @author adamgent
- *
  */
-public class PSResourceInstance  {
-    
+public class PSResourceInstance {
+
     /*
      * Note to developers: resource instances are akin
      * AssemblyItem/AssemblyResults but for resources processing only.
@@ -62,148 +51,122 @@ public class PSResourceInstance  {
     private List<PSResourceLinkAndLocation> linkAndLocations = new ArrayList<>();
     private URL baseUrl;
     private String locationFolderPath;
-    
 
     /**
-     * The physical folder path for the resource instance. The path will
-     * always have <code>'/'</code> as a separator regardless
-     * of the platform.
-     * <p>
-     * <strong>This path is not url escaped</strong>
-     * @return never <code>null</code>.
+     * The physical folder path for the resource instance. The path will always have '/' as a separator regardless of the platform.
+     * <strong>This path is not URL escaped</strong>
+     * @return never {@code null}.
      */
-    public String getLocationFolderPath()
-    {
+    public String getLocationFolderPath() {
         return locationFolderPath;
     }
-    
 
-    public void setLocationFolderPath(String locationFolderPath)
-    {
+    public void setLocationFolderPath(String locationFolderPath) {
         this.locationFolderPath = locationFolderPath;
     }
-    
+
     /**
-     * If the item is in a different site than linking context
-     * than its a cross site link.
-     * @return <code>true</code> if cross site.
+     * If the item is in a different site than linking context, then it's a cross-site link.
+     * @return {@code true} if cross-site.
      */
     public boolean isCrossSite() {
-        String contextSiteId = linkContext.getSite().getId();
-        String itemSiteId = site.getId();
-        return ! StringUtils.equals(contextSiteId, itemSiteId);
+        var contextSiteId = linkContext.getSite().getId();
+        var itemSiteId = site.getId();
+        return !Objects.equals(contextSiteId, itemSiteId);
     }
-    
+
     /**
      * The base URL of the site that the resource is to be published to.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public URL getBaseUrl()
-    {
+    public URL getBaseUrl() {
         return baseUrl;
     }
-    
+
     /**
-     * Gets the relative URL as a uri object.
-     * If the link is a cross site link the returned object
-     * will include the host and port information. Otherwise it will
-     * only include the path info.
-     * @return never <code>null</code>.
+     * Gets the relative URL as a URI object.
+     * If the link is a cross-site link, the returned object will include the host and port information.
+     * Otherwise, it will only include the path info.
+     * @return never {@code null}.
      * @see #isCrossSite()
      */
     public URI getRelativeBaseUri() {
-        try
-        {
+        try {
             if (isCrossSite()) {
                 return getBaseUrl().toURI();
             }
             return new URI(getBaseUrl().toURI().getPath());
-        }
-        catch (URISyntaxException e)
-        {
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     /**
      * The resource definition for this resource instance.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSAssetResource getResourceDefinition()
-    {
+    public PSAssetResource getResourceDefinition() {
         return resourceDefinition;
     }
-    public void setResourceDefinition(PSAssetResource resourceDefinition)
-    {
+
+    public void setResourceDefinition(PSAssetResource resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
     }
-    
+
     /**
      * The Link context.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSRenderLinkContext getLinkContext()
-    {
+    public PSRenderLinkContext getLinkContext() {
         return linkContext;
     }
-    public void setLinkContext(PSRenderLinkContext linkContext)
-    {
+
+    public void setLinkContext(PSRenderLinkContext linkContext) {
         this.linkContext = linkContext;
     }
-    
+
     /**
      * The content item associated with this resource.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public IPSLinkableContentItem getItem()
-    {
+    public IPSLinkableContentItem getItem() {
         return item;
     }
 
-    public void setItem(IPSLinkableContentItem item)
-    {
+    public void setItem(IPSLinkableContentItem item) {
         this.item = item;
     }
-    
+
     /**
      * The site that the {@link #getItem() item} belongs to.
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public PSSiteSummary getSite()
-    {
+    public PSSiteSummary getSite() {
         return site;
     }
-    public void setSite(PSSiteSummary site)
-    {
-        try
-        {
-            String url = site.getBaseUrl();
+
+    public void setSite(PSSiteSummary site) {
+        try {
+            var url = site.getBaseUrl();
             url = removeEnd(url, "/") + "/";
             baseUrl = new URL(url);
-        }
-        catch (MalformedURLException e)
-        {
+        } catch (MalformedURLException e) {
             throw new RuntimeException("Site " + site + " has a bad base url", e);
         }
         this.site = site;
     }
-    
+
     /**
-     * 
      * The link and locations of the resource.
      * Multiple {@link PSResourceLinkAndLocation}s represent pagination.
-     * It maybe <code>null</code> if links have not been processed yet.
-     * 
-     * @return maybe <code>null</code> or empty, usually its a list containing
-     *  only one {@link PSResourceLinkAndLocation}
+     * It may be {@code null} if links have not been processed yet.
+     * @return maybe {@code null} or empty, usually it's a list containing only one {@link PSResourceLinkAndLocation}
      */
-    public List<PSResourceLinkAndLocation> getLinkAndLocations()
-    {
+    public List<PSResourceLinkAndLocation> getLinkAndLocations() {
         return linkAndLocations;
     }
-    public void setLinkAndLocations(List<PSResourceLinkAndLocation> links)
-    {
+
+    public void setLinkAndLocations(List<PSResourceLinkAndLocation> links) {
         this.linkAndLocations = links;
     }
 
@@ -211,8 +174,14 @@ public class PSResourceInstance  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSResourceInstance)) return false;
-        PSResourceInstance that = (PSResourceInstance) o;
-        return Objects.equals(getResourceDefinition(), that.getResourceDefinition()) && Objects.equals(getLinkContext(), that.getLinkContext()) && Objects.equals(getItem(), that.getItem()) && Objects.equals(getSite(), that.getSite()) && Objects.equals(getLinkAndLocations(), that.getLinkAndLocations()) && Objects.equals(getBaseUrl(), that.getBaseUrl()) && Objects.equals(getLocationFolderPath(), that.getLocationFolderPath());
+        var that = (PSResourceInstance) o;
+        return Objects.equals(getResourceDefinition(), that.getResourceDefinition())
+                && Objects.equals(getLinkContext(), that.getLinkContext())
+                && Objects.equals(getItem(), that.getItem())
+                && Objects.equals(getSite(), that.getSite())
+                && Objects.equals(getLinkAndLocations(), that.getLinkAndLocations())
+                && Objects.equals(getBaseUrl(), that.getBaseUrl())
+                && Objects.equals(getLocationFolderPath(), that.getLocationFolderPath());
     }
 
     @Override
@@ -222,7 +191,7 @@ public class PSResourceInstance  {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSResourceInstance{");
+        var sb = new StringBuilder("PSResourceInstance{");
         sb.append("resourceDefinition=").append(resourceDefinition);
         sb.append(", linkContext=").append(linkContext);
         sb.append(", item=").append(item);
@@ -235,20 +204,11 @@ public class PSResourceInstance  {
     }
 
     @Override
-    public PSResourceInstance clone()
-    {
-        try
-        {
-            return (PSResourceInstance) BeanUtils.cloneBean(this);
-        }
-        catch (Exception e)
-        {
+    public PSResourceInstance clone() {
+        try {
+            return (PSResourceInstance) super.clone();
+        } catch (Exception e) {
             throw new RuntimeException("Cannot clone", e);
         }
     }
-    
-    
-    
-       
 }
-

@@ -14,40 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.schedule;
 
 import java.util.Map;
 
 /**
- * Results to be used to decide if the task completed successfully and 
- * information to be returned for use in notifications.
- * 
+ * Represents the result of a scheduled task execution, including success status and notification details.
+ * <p>Implementations should provide clear, user-friendly problem descriptions and notification variables for reporting.</p>
+ *
  * @author Doug Rand
  */
-public interface IPSTaskResult
-{
-   /**
-    * Was the scheduled task successful.
-    * @return <code>true</code> if the task succeeded.
-    */
-   boolean wasSuccess();
-   
-   /**
-    * If the task failed, this should provide a meaningful (to an end user) 
-    * description of the failure. It is acceptable to include information that
-    * only a developer can use, but it must be secondary to the primary 
-    * description, which all users should be able to understand.
-    * 
-    * @return the problem description, will be <code>null</code> if the 
-    * task was successful.
-    */
-   String getProblemDescription();
-   
-   /**
-    * The notification variables to be used when creating notification emails.
-    *  
-    * @return the notification variables, may be empty but not 
-    * <code>null</code>.
-    */
-   Map<String, Object> getNotificationVariables();
+public interface IPSTaskResult {
+    /**
+     * Indicates whether the scheduled task completed successfully.
+     *
+     * @return {@code true} if the task succeeded; {@code false} otherwise
+     */
+    boolean wasSuccess();
+
+    /**
+     * Provides a meaningful description of the failure if the task did not succeed.
+     * The description should be understandable by end users, with any technical details secondary.
+     *
+     * @return the problem description, or {@code null} if the task was successful
+     */
+    String getProblemDescription();
+
+    /**
+     * Returns notification variables to be used when creating notification emails.
+     *
+     * @return a non-null map of notification variables; may be empty
+     */
+    Map<String, String> getNotificationVariables();
 }

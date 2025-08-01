@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,29 +19,23 @@
 
 package com.percussion.category.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.percussion.share.data.PSAbstractDataObject;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-//FB: CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE NC 1-16-16
+/**
+ * Represents a node in the category tree.
+ */
 @XmlRootElement(name = "Category")
 @JsonRootName("")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,16 +43,16 @@ import java.util.List;
 @JsonInclude()
 public class PSCategoryNode extends PSAbstractDataObject implements Comparable<PSCategoryNode>, Cloneable {
 
-    @JsonProperty(value="id")
+    @JsonProperty("id")
     private String id;
 
-    @JsonProperty(value="title")
+    @JsonProperty("title")
     private String title;
 
-    @JsonProperty(value="selectable",defaultValue = "true")
+    @JsonProperty(value = "selectable", defaultValue = "true")
     private boolean selectable = true;
 
-    @JsonProperty(value="previousCategoryName")
+    @JsonProperty("previousCategoryName")
     private String previousCategoryName;
 
     @JsonProperty
@@ -206,7 +202,6 @@ public class PSCategoryNode extends PSAbstractDataObject implements Comparable<P
         this.lastModifiedDate = lastModifiedDate;
     }
 
-
     @XmlAttribute(name = "publishDate")
     @XmlJavaTypeAdapter(PSDateAdapter.class)
     public LocalDateTime getPublishDate() {
@@ -286,21 +281,15 @@ public class PSCategoryNode extends PSAbstractDataObject implements Comparable<P
         if (getClass() != obj.getClass()) {
             return false;
         }
-        PSCategoryNode other = (PSCategoryNode) obj;
+        var other = (PSCategoryNode) obj;
         if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        return true;
+            return other.id == null;
+        } else return id.equals(other.id);
     }
 
     @Override
     public PSCategoryNode clone() throws CloneNotSupportedException {
-        PSCategoryNode categoryNode = (PSCategoryNode) super.clone();
-
+        var categoryNode = (PSCategoryNode) super.clone();
         categoryNode.setId(this.getId());
         categoryNode.setTitle(this.getTitle());
         categoryNode.setCreatedBy(this.getCreatedBy());
@@ -309,7 +298,6 @@ public class PSCategoryNode extends PSAbstractDataObject implements Comparable<P
         categoryNode.setInitialViewCollapsed(this.isInitialViewCollapsed());
         categoryNode.setLastModifiedBy(this.getLastModifiedBy());
         categoryNode.setLastModifiedDate(this.getLastModifiedDate());
-        //categoryNode.setPrevCatId(this.getPrevCatId());
         categoryNode.setPreviousCategoryName(this.getPreviousCategoryName());
         categoryNode.setSelectable(this.isSelectable());
         categoryNode.setShowInPgMetaData(this.isShowInPgMetaData());
@@ -321,31 +309,30 @@ public class PSCategoryNode extends PSAbstractDataObject implements Comparable<P
         return categoryNode;
     }
 
+    @Override
     public int compareTo(PSCategoryNode o) {
         return Collator.getInstance().compare(this.getId(), o.getId());
     }
 
-
-    /***
-     * Hydrate this object from a josn string
-     * @param json
+    /**
+     * Hydrate this object from a JSON string.
+     * @param json the JSON string
      */
-    public void fromJSON(String json){
-
+    public void fromJSON(String json) {
+        // Not implemented; consider using ObjectMapper.readValue if needed.
     }
 
-    /***
-     * Convert this object to a JSON string
-     * @return
+    /**
+     * Convert this object to a JSON string.
+     * @return JSON string representation or null if serialization fails.
      */
-    public String toJSON(){
-        String ret = null;
-        try{
-            ObjectMapper mapper = new ObjectMapper();
-            ret= mapper.writeValueAsString(this);
+    public String toJSON() {
+        try {
+            var mapper = new ObjectMapper();
+            return mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             System.out.println(e.getMessage());
+            return null;
         }
-        return ret;
     }
 }

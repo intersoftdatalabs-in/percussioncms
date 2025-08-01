@@ -17,9 +17,7 @@
 
 package com.percussion.delivery.metadata.solr;
 
-import com.percussion.delivery.metadata.IPSMetadataEntry;
-
-public interface IPSSolrDeliveryService
-{
-   public void sendMetadataToSolr(IPSMetadataEntry metadataEntry);
+// REFACTORED: CP-JAVA11
+public interface IPSSolrDeliveryService {
+    void sendMetadataToSolr(com.percussion.delivery.metadata.IPSMetadataEntry metadataEntry);
 }

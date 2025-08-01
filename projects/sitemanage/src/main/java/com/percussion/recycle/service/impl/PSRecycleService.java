@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -80,12 +81,12 @@ import java.util.Set;
 import static org.apache.commons.lang.Validate.notEmpty;
 
 /**
- * @author chriswright
+ * Implementation of {@link IPSRecycleService} for managing recycling and restoration of items and folders.
  */
 @Component("recycleService")
 @Lazy
 public class PSRecycleService implements IPSRecycleService {
-    private PSAuditLogService psAuditLogService=PSAuditLogService.getInstance();
+    private final PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
     private PSContentEvent psContentEvent;
 
 

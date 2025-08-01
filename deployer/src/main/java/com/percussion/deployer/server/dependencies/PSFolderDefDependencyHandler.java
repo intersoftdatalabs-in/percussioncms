@@ -31,6 +31,7 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Class to handle packaging and installing folder defintion dependencies.
@@ -59,32 +60,19 @@ public class PSFolderDefDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var contentsHandler = getDependencyHandler(PSFolderContentsDependencyHandler.DEPENDENCY_TYPE);
+      var ctDep = contentsHandler.getDependency(tok, dep.getDependencyId());
 
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List childDeps = new ArrayList();
-
-      // use folder's type to get child folder type
-      childDeps.addAll(getChildDependencies(tok, dep.getDependencyId(),
-         dep.getDependencyType()));
-
-      // get folder contents
-      com.percussion.deployer.server.dependencies.PSDependencyHandler contentsHandler = getDependencyHandler(
-         com.percussion.deployer.server.dependencies.PSFolderContentsDependencyHandler.DEPENDENCY_TYPE);
-      PSDependency ctDep = contentsHandler.getDependency(tok,
-         dep.getDependencyId());
-      if (ctDep != null)
-         childDeps.add(ctDep);
-
-      return childDeps.iterator();
+      return Stream.concat(
+         getChildDependencies(tok, dep.getDependencyId(), dep.getDependencyType()).stream(),
+         ctDep != null ? Stream.of(ctDep) : Stream.empty()
+      ).iterator();
     }
 
    // see base class

@@ -35,6 +35,7 @@ package com.percussion.data;
  * @version      1.0
  * @since      1.0
  */
+// REFACTORED: CP-JAVA11
 public interface IPSBackEndErrors {
 
    /**

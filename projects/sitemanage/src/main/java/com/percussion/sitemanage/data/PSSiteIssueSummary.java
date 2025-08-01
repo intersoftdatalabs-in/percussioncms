@@ -20,63 +20,48 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 @XmlRootElement(name = "issues")
 @JsonRootName("issues")
-public class PSSiteIssueSummary extends PSAbstractDataObject
-{
+public class PSSiteIssueSummary extends PSAbstractDataObject {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1L;
 
     private String refUri;
-
     private String suggestion;
-
     private String type;
-
     private PSSiteIssueResource resource;
 
-    public String getRefUri()
-    {
-        return refUri;
+    public Optional<String> getRefUri() {
+        return Optional.ofNullable(refUri);
     }
 
-    public void setRefUri(String refUri)
-    {
+    public void setRefUri(String refUri) {
         this.refUri = refUri;
     }
 
-    public String getSuggestion()
-    {
-        return suggestion;
+    public Optional<String> getSuggestion() {
+        return Optional.ofNullable(suggestion);
     }
 
-    public void setSuggestion(String suggestion)
-    {
+    public void setSuggestion(String suggestion) {
         this.suggestion = suggestion;
     }
 
-    public String getType()
-    {
-        return type;
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public PSSiteIssueResource getResource()
-    {
-        return resource;
+    public Optional<PSSiteIssueResource> getResource() {
+        return Optional.ofNullable(resource);
     }
 
-    public void setResource(PSSiteIssueResource resource)
-    {
+    public void setResource(PSSiteIssueResource resource) {
         this.resource = resource;
     }
-
 }

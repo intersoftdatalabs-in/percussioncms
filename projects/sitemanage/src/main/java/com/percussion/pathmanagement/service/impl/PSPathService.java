@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -76,18 +77,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 /**
- * 
  * The unified path service loader will delegate to other path services.
- * 
  * @author adamgent
  * @see PSDispatchingPathService
  */
 @Path("/path")
-//@Component(value="pathService")
-//@Lazy
 public class PSPathService extends PSDispatchingPathService implements IPSPathService, ApplicationContextAware, InitializingBean  {
     private final PSAuditLogService psAuditLogService=PSAuditLogService.getInstance();
     private PSContentEvent psContentEvent;
@@ -104,10 +103,14 @@ public class PSPathService extends PSDispatchingPathService implements IPSPathSe
     private ApplicationContext applicationContext;
 
     @Autowired
-    public PSPathService(IPSFolderHelper folderHelper,
-                         IPSPublishingWs publishingWs, IPSIdMapper idMapper, IPSUiService uiService,
-                         IPSUserService userService, @Qualifier("cm1ListViewHelper") PSCm1ListViewHelper listViewHelper,
-                         IPSRecycleService recycleService)
+    public PSPathService(
+            IPSFolderHelper folderHelper,
+            IPSPublishingWs publishingWs,
+            IPSIdMapper idMapper,
+            IPSUiService uiService,
+            IPSUserService userService,
+            @Qualifier("cm1ListViewHelper") PSCm1ListViewHelper listViewHelper,
+            IPSRecycleService recycleService)
     {
         super(uiService, userService, listViewHelper, recycleService, folderHelper);
         this.folderHelper = folderHelper;
@@ -126,11 +129,11 @@ public class PSPathService extends PSDispatchingPathService implements IPSPathSe
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public PSPathItem find(@PathParam("path") String path) throws PSPathNotFoundServiceException, PSPathServiceException {
         try {
-            if(!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH))
+            if (!SecureStringUtils.isValidCMSPathString(path, PSOperationContext.SEARCH)) {
                 throw new PSPathServiceException("Invalid path.");
-
+            }
             log.debug("Attempting to find item for path: {}", path);
-            PSPathItem item = super.find(path);
+            var item = super.find(path);
             return folderHelper.setFolderAccessLevel(item);
         } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));

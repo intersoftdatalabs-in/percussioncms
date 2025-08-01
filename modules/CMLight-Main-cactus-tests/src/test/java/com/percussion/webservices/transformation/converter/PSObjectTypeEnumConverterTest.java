@@ -21,29 +21,27 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.common.ObjectType;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSObjectTypeEnumConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSObjectTypeEnumConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSItemSummary.ObjectTypeEnum source = 
-         PSItemSummary.ObjectTypeEnum.FOLDER;
-      
-      PSItemSummary.ObjectTypeEnum target = 
-         (PSItemSummary.ObjectTypeEnum) roundTripConversion(
-            PSItemSummary.ObjectTypeEnum.class, 
-            ObjectType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
-}
+public class PSObjectTypeEnumConverterTest extends PSConverterTestBase {
 
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // Create the source object
+        var source = PSItemSummary.ObjectTypeEnum.FOLDER;
+
+        var target = (PSItemSummary.ObjectTypeEnum) roundTripConversion(
+                PSItemSummary.ObjectTypeEnum.class,
+                ObjectType.class,
+                source);
+
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
+}

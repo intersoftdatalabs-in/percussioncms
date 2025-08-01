@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,45 +19,42 @@ package com.percussion.pagemanagement.data;
 
 import static com.percussion.share.dao.PSSerializerUtils.*;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PSWidgetPropertyJsonTest
-{
+public class PSWidgetPropertyJsonTest {
 
-    private String number = "234";
-    private String string = "'hello'";
-    private String list = "['a','b','c']";
-    private String empty = "";
-    
+    private final String number = "234";
+    private final String string = "'hello'";
+    private final String list = "['a','b','c']";
+    private final String empty = "";
+
     @Test
-    public void testJson() throws Exception
-    {
+    public void testJson() throws Exception {
         log.debug(getObjectFromJson(list));
         log.debug(getObjectFromJson(number));
         log.debug(getObjectFromJson(string));
         log.debug(getJsonFromObject(42));
         log.debug(getJsonFromObject("42"));
-        
-        String trueJason = getJsonFromObject(Boolean.TRUE);
-        Object trueObject = getObjectFromJson(trueJason);
+
+        var trueJson = getJsonFromObject(Boolean.TRUE);
+        var trueObject = getObjectFromJson(trueJson);
         assertTrue(trueObject instanceof Boolean);
-        assertTrue((Boolean)trueObject);
+        assertTrue((Boolean) trueObject);
     }
-    
+
     @Test
-    public void testEmptyJsonString() throws Exception
-    {
-        Object o = getObjectFromJson(empty);
+    public void testEmptyJsonString() throws Exception {
+        var o = getObjectFromJson(empty);
         assertThat(o, nullValue());
     }
-    
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never null.
      */
     private static final Logger log = LogManager.getLogger(PSWidgetPropertyJsonTest.class);
 }

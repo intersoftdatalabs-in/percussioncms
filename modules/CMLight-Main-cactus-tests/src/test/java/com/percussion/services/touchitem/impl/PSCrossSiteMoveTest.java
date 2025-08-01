@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,9 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.services.touchitem.impl;
-
 
 import static java.util.Arrays.asList;
 
@@ -26,13 +25,14 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.PSErrorException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <h1>MOVE MATRIX</h1>
@@ -191,161 +191,146 @@ import org.junit.experimental.categories.Category;
  * @author adamgent
  * 
  */
-@Category(IntegrationTest.class)
-public class PSCrossSiteMoveTest extends PSCrossSiteTestCase
-{
-   
-   private String sourcePath;
-   private String targetPath;
-   private List<Integer> items = new ArrayList<Integer>();
-   
-   
-   public void setUp() throws Exception {
-      super.setUp();
-   }
-   
-   public void tearDown() throws Exception {
-      move(targetPath, sourcePath, items);
-      super.tearDown();
-   }
-   
+@Tag("IntegrationTest")
+public class PSCrossSiteMoveTest extends PSCrossSiteTestCase {
 
-   
-   /*
-    * Reorganize
-    */
-   public void testMoveItemWithinSameSite() throws Exception {
-       
+    private static final Logger log = LogManager.getLogger(PSCrossSiteMoveTest.class);
 
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(459);
-      f.setOwnerId(551);
-      
-      sourcePath = "//Sites/CorporateInvestments/Images/People";
-      targetPath = "//Sites/CorporateInvestments/Files";
-      items = asList(459);
-      List<PSRelationship> rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
-      
-      assertRel(rs, 8, 303, getFolderId(sourcePath));
-      assertRel(rs, 7, 303, getFolderId(sourcePath));
-      
-      move();
-      
-      rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
-      assertRel(rs, 8, 303, getFolderId(targetPath));
-      assertRel(rs, 7, 303, getFolderId(targetPath));
-      
-   }
-   
-   /*
-    * Reorganize
-    */
-   public void testMoveFolderWithinSameSite() throws Exception {
-      
+    private String sourcePath;
+    private String targetPath;
+    private List<Integer> items = new ArrayList<>();
 
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(459);
-      f.setOwnerId(551);
-      int folderId = getFolderId("//Sites/CorporateInvestments/Images/People");
-      sourcePath = "//Sites/CorporateInvestments/Images";
-      targetPath = "//Sites/CorporateInvestments/Files";
-      
-      items = asList(folderId);
-      List<PSRelationship> rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
-      
-      assertRel(rs, 8, 303, folderId);
-      assertRel(rs, 7, 303, folderId);
-      
-      move();
-      
-      rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
-      assertRel(rs, 8, 303, folderId);
-      assertRel(rs, 7, 303, folderId);
-      
-   }
-   
-   /*
-    * Reclassify
-    */
-   public void testMoveFolderToDifferentSite() throws Exception {
-      
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      int depId = 442;
-      int folderId = 441;
-      f.setDependentId(depId);
-      f.setOwnerId(634);
-      
-      sourcePath = "//Sites/EnterpriseInvestments/Images";
-      targetPath = "//Sites/CorporateInvestments/Files";
-      items = asList(folderId);
-      List<PSRelationship> rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
-      assertRel(rs, 2, 301, folderId);
-      
-      move();
-      
-      rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
+    @AfterEach
+    public void tearDown() throws Exception {
+        move(targetPath, sourcePath, items);
+        super.tearDown();
+    }
 
-      assertRel(rs, 2, 303, folderId);
-      
-   }
-   
-   /*
-    * Reclassify
-    */
-   public void testMoveItemToDifferentSite() throws Exception {
-      
+    /*
+     * Reorganize
+     */
+    @Test
+    void testMoveItemWithinSameSite() throws Exception {
+        var f = new PSRelationshipFilter();
+        f.setDependentId(459);
+        f.setOwnerId(551);
 
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      int depId = 442;
-      f.setDependentId(depId);
-      f.setOwnerId(634);
-      
-      sourcePath = "//Sites/EnterpriseInvestments/Images/CreditCard";
-      targetPath = "//Sites/CorporateInvestments/Files";
-      items = asList(depId);
-      List<PSRelationship> rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
+        sourcePath = "//Sites/CorporateInvestments/Images/People";
+        targetPath = "//Sites/CorporateInvestments/Files";
+        items = asList(459);
+        var rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
 
-      assertRel(rs, 2, 301, getFolderId(sourcePath));
-      
-      move();
-      
-      rs = rservice.findByFilter(f);
-      assertEquals(2, rs.size());
+        assertRel(rs, 8, 303, getFolderId(sourcePath));
+        assertRel(rs, 7, 303, getFolderId(sourcePath));
 
-      assertRel(rs, 2, 303, getFolderId(targetPath));
-      
-   } 
-   
-   private void move() {
-      log.info("Sourcepath: " + sourcePath + " targetPath: " + targetPath + " items: " + items);
-      move(sourcePath,targetPath, items);
-   }
+        move();
 
-   private void move(String s, String t, List<Integer> childItems)
-   {
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
-      for (Integer i : childItems) {
-         guids.add(g.makeGuid(new PSLocator(i)));
-      }
-      
-      try
-      {
-         c.moveFolderChildren(s, t, guids);
-      }
-      catch (PSErrorException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
-   
-   private static final Logger log = LogManager.getLogger(PSCrossSiteMoveTest.class);
+        rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+        assertRel(rs, 8, 303, getFolderId(targetPath));
+        assertRel(rs, 7, 303, getFolderId(targetPath));
+    }
 
+    /*
+     * Reorganize
+     */
+    @Test
+    void testMoveFolderWithinSameSite() throws Exception {
+        var f = new PSRelationshipFilter();
+        f.setDependentId(459);
+        f.setOwnerId(551);
+        int folderId = getFolderId("//Sites/CorporateInvestments/Images/People");
+        sourcePath = "//Sites/CorporateInvestments/Images";
+        targetPath = "//Sites/CorporateInvestments/Files";
+
+        items = asList(folderId);
+        var rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+
+        assertRel(rs, 8, 303, folderId);
+        assertRel(rs, 7, 303, folderId);
+
+        move();
+
+        rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+        assertRel(rs, 8, 303, folderId);
+        assertRel(rs, 7, 303, folderId);
+    }
+
+    /*
+     * Reclassify
+     */
+    @Test
+    void testMoveFolderToDifferentSite() throws Exception {
+        var f = new PSRelationshipFilter();
+        int depId = 442;
+        int folderId = 441;
+        f.setDependentId(depId);
+        f.setOwnerId(634);
+
+        sourcePath = "//Sites/EnterpriseInvestments/Images";
+        targetPath = "//Sites/CorporateInvestments/Files";
+        items = asList(folderId);
+        var rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+
+        assertRel(rs, 2, 301, folderId);
+
+        move();
+
+        rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+
+        assertRel(rs, 2, 303, folderId);
+    }
+
+    /*
+     * Reclassify
+     */
+    @Test
+    void testMoveItemToDifferentSite() throws Exception {
+        var f = new PSRelationshipFilter();
+        int depId = 442;
+        f.setDependentId(depId);
+        f.setOwnerId(634);
+
+        sourcePath = "//Sites/EnterpriseInvestments/Images/CreditCard";
+        targetPath = "//Sites/CorporateInvestments/Files";
+        items = asList(depId);
+        var rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+
+        assertRel(rs, 2, 301, getFolderId(sourcePath));
+
+        move();
+
+        rs = rservice.findByFilter(f);
+        assertEquals(2, rs.size());
+
+        assertRel(rs, 2, 303, getFolderId(targetPath));
+    }
+
+    private void move() {
+        log.info("Sourcepath: {} targetPath: {} items: {}", sourcePath, targetPath, items);
+        move(sourcePath, targetPath, items);
+    }
+
+    private void move(String s, String t, List<Integer> childItems) {
+        var guids = new ArrayList<IPSGuid>();
+        for (var i : childItems) {
+            guids.add(g.makeGuid(new PSLocator(i)));
+        }
+        try {
+            c.moveFolderChildren(s, t, guids);
+        } catch (PSErrorException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

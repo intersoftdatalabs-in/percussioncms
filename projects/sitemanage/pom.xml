@@ -7,15 +7,17 @@
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>sitemanage</artifactId>
-    <packaging>jar</packaging>
-    <properties>
-        <failOnMissingWebXml>false</failOnMissingWebXml>
-           <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
-        <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
-    </properties>
+  <packaging>jar</packaging>
+  <properties>
+    <!-- Java 11 compatibility -->
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <failOnMissingWebXml>false</failOnMissingWebXml>
+    <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
+    <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
+  </properties>
   <build>
-
-  <resources>
+    <resources>
         <resource>
             <directory>src/main/resources</directory>
             <excludes>
@@ -56,19 +58,20 @@
         </testResource>
     </testResources>
     
-    <plugins>    
-         <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>${java.source.version}</source>
-                        <target>${jdk.version}</target>
-                        <fork>true</fork>
-                        <meminitial>1024m</meminitial>
-                        <maxmem>2024m</maxmem>
-
-                    </configuration>
-                </plugin>
+    <plugins>
+      <!-- Modern Java 11 compiler plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <fork>true</fork>
+          <meminitial>1024m</meminitial>
+          <maxmem>2024m</maxmem>
+        </configuration>
+      </plugin>
                  <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -105,18 +108,9 @@
         </executions>
         </plugin>
     </plugins>
-      <!--
-      <extensions>
-
-      <extension>
-          <groupId>org.apache.maven.extensions</groupId>
-          <artifactId>maven-build-cache-extension</artifactId>
-          <version>1.0.0-SNAPSHOT</version>
-      </extension>
-      </extensions>
-      -->
   </build>
   <dependencies>
+    <!-- Percussion core modules -->
       <dependency>
           <groupId>com.percussion</groupId>
           <artifactId>perc-security-utils</artifactId>

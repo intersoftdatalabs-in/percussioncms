@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,7 +27,7 @@ import com.percussion.rx.services.deployer.PSUninstallMessage;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
@@ -36,92 +37,66 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author JaySeletz
- *
+ * Tests for PSStartupPkgInstaller install and uninstall logic.
+ * Sunny Sal says: "Install, uninstall, repeat - Java 11 style!"
  */
 @Category(IntegrationTest.class)
-public class PSStartupPkgInstallerTest
-{
+public class PSStartupPkgInstallerTest {
 
     private static final String TEMP_FILE_PREFIX = "perc.testPackageFileList";
+    private static final String PKG_FILE_LIST_XML = "TestStartupPkgInstaller.xml";
+    private static final String PKG_FILE_UNINSTALLER_LIST_XML = "TestStartupPkgUninstaller.xml";
 
-    /**
-     * @author JaySeletz
-     *
-     */
-    private final class MockPackageInstaller implements IPSPackageInstaller
-    {
+    private static final class MockPackageInstaller implements IPSPackageInstaller {
         int count = 0;
         int errorIndex = -1;
 
-        /**
-         * @param i
-         */
-        public MockPackageInstaller(int i)
-        {
+        public MockPackageInstaller(int i) {
             errorIndex = i;
         }
 
         @Override
-        public void installPackage(File packageFile)
-        {
+        public void installPackage(File packageFile) {
             count++;
             if (count == errorIndex)
                 throw new RuntimeException("Failing 3rd package for test");
         }
-        
-		@Override
-		public void installPackage(File packageFile,
-				boolean shouldValidateVersion) throws PSDeployException {
+
+        @Override
+        public void installPackage(File packageFile, boolean shouldValidateVersion) throws PSDeployException {
             count++;
             if (count == errorIndex)
                 throw new RuntimeException("Failing 3rd package for test");
-			
-		}
+        }
 
-        public int getCount()
-        {
+        public int getCount() {
             return count;
         }
-        
     }
 
-    private final class MockPackageUninstaller implements IPSPackageUninstaller{
-
+    private static final class MockPackageUninstaller implements IPSPackageUninstaller {
         @Override
-        public List<PSUninstallMessage> uninstallPackages(String packageNames)
-        {
+        public List<PSUninstallMessage> uninstallPackages(String packageNames) {
             return Collections.emptyList();
         }
 
         @Override
-        public List<PSUninstallMessage> uninstallPackages(String packageNames,
-                boolean isRevertEntry) {
+        public List<PSUninstallMessage> uninstallPackages(String packageNames, boolean isRevertEntry) {
             return Collections.emptyList();
         }
     }
-
-
-
-
-    private static final String PKG_FILE_LIST_XML = "TestStartupPkgInstaller.xml";
-    private static final String PKG_FILE_UNINSTALLER_LIST_XML = "TestStartupPkgUninstaller.xml";
 
     @Test
-    public void test() throws Exception
-    {
-        PSStartupPkgInstaller pkgInstaller = new PSStartupPkgInstaller();
+    public void test() throws Exception {
+        var pkgInstaller = new PSStartupPkgInstaller();
         IPSMaintenanceManager maintMgr = new PSMaintenanceManager();
         pkgInstaller.setMaintenanceManager(maintMgr);
-        String packageFileListPath = createPackageFileList(TEMP_FILE_PREFIX, PKG_FILE_LIST_XML);
-        PSPackageFileList pkgFileList = PSPackageFileList.fromXml(IOUtils.toString(this.getClass().getResourceAsStream(PKG_FILE_LIST_XML)));
-        File packageDir = createTestPackageFiles(pkgFileList);
+        var packageFileListPath = createPackageFileList(TEMP_FILE_PREFIX, PKG_FILE_LIST_XML);
+        var pkgFileList = PSPackageFileList.fromXml(IOUtils.toString(this.getClass().getResourceAsStream(PKG_FILE_LIST_XML)));
+        var packageDir = createTestPackageFiles(pkgFileList);
 
         pkgInstaller.setPackageDir(packageDir);
         pkgInstaller.setPackageFileListPath(packageFileListPath);
@@ -132,9 +107,12 @@ public class PSStartupPkgInstallerTest
         assertTrue(maintMgr.hasFailures());
 
         // now check the results
-        String xmlContents = IOUtils.toString(new FileInputStream(packageFileListPath));
-        PSPackageFileList pkgFileListResults = PSPackageFileList.fromXml(xmlContents);
-        List<PSPackageFileEntry> entries = pkgFileListResults.getEntries();
+        String xmlContents;
+        try (var in = new FileInputStream(packageFileListPath)) {
+            xmlContents = IOUtils.toString(in);
+        }
+        var pkgFileListResults = PSPackageFileList.fromXml(xmlContents);
+        var entries = pkgFileListResults.getEntries();
         assertNotNull(entries);
         assertEquals(4, entries.size());
         assertEquals(PackageFileStatus.INSTALLED, entries.get(0).getStatus());
@@ -145,7 +123,7 @@ public class PSStartupPkgInstallerTest
         // test re-run with no failures
         maintMgr = new PSMaintenanceManager();
         pkgInstaller.setMaintenanceManager(maintMgr);
-        MockPackageInstaller installer = new MockPackageInstaller(-1);
+        var installer = new MockPackageInstaller(-1);
         pkgInstaller.setPackageInstaller(installer);
         pkgInstaller.installPackages();
         assertFalse(maintMgr.isWorkInProgress());
@@ -170,32 +148,33 @@ public class PSStartupPkgInstallerTest
     }
 
     @Test
-    public void testUninstall() throws Exception
-    {
-        PSStartupPkgInstaller pkgUninstaller = new PSStartupPkgInstaller();
+    public void testUninstall() throws Exception {
+        var pkgUninstaller = new PSStartupPkgInstaller();
 
-        //set maintenance manager
+        // set maintenance manager
         IPSMaintenanceManager maintMgr = new PSMaintenanceManager();
         pkgUninstaller.setMaintenanceManager(maintMgr);
 
         // Set our uninstaller to a mock.
         pkgUninstaller.setPackageUninstaller(new MockPackageUninstaller());
 
-        //Obtain our packages
-        String uninstallPackagesPath = createPackageFileList(TEMP_FILE_PREFIX, PKG_FILE_UNINSTALLER_LIST_XML);
+        // Obtain our packages
+        var uninstallPackagesPath = createPackageFileList(TEMP_FILE_PREFIX, PKG_FILE_UNINSTALLER_LIST_XML);
         pkgUninstaller.setPackageFileListPath(uninstallPackagesPath);
 
-        //Do uninstall process
+        // Do uninstall process
         pkgUninstaller.uninstallPackages();
 
         assertFalse(maintMgr.isWorkInProgress());
 
-
         // now check the results
-        String xmlContents = IOUtils.toString(new FileInputStream(uninstallPackagesPath));
-        PSPackageFileList pkgFileListResults = PSPackageFileList.fromXml(xmlContents);
+        String xmlContents;
+        try (var in = new FileInputStream(uninstallPackagesPath)) {
+            xmlContents = IOUtils.toString(in);
+        }
+        var pkgFileListResults = PSPackageFileList.fromXml(xmlContents);
 
-        List<PSPackageFileEntry> entries = pkgFileListResults.getEntries();
+        var entries = pkgFileListResults.getEntries();
         assertNotNull(entries);
         assertEquals(2, entries.size());
 
@@ -205,33 +184,20 @@ public class PSStartupPkgInstallerTest
         assertTrue(!maintMgr.isWorkInProgress());
     }
 
-    private String createPackageFileList(String tempFile, String resourceList) throws IOException
-    {
-        File pkgFileList = File.createTempFile(tempFile, ".xml");
-        FileOutputStream out = null;
-        try
-        {
-            out = new FileOutputStream(pkgFileList);
+    private String createPackageFileList(String tempFile, String resourceList) throws IOException {
+        var pkgFileList = File.createTempFile(tempFile, ".xml");
+        try (var out = new FileOutputStream(pkgFileList)) {
             IOUtils.copy(this.getClass().getResourceAsStream(resourceList), out);
             return pkgFileList.getPath();
         }
-        finally
-        {
-            IOUtils.closeQuietly(out);
-        }
     }
 
-    private File createTestPackageFiles(PSPackageFileList pkgFileList) throws IOException
-    {
-        File dir = FileUtils.getTempDirectory();
-
-        for (PSPackageFileEntry entry : pkgFileList.getEntries())
-        {
-            File file = new File(dir, entry.getPackageName() + ".ppkg");
+    private File createTestPackageFiles(PSPackageFileList pkgFileList) throws IOException {
+        var dir = FileUtils.getTempDirectory();
+        for (var entry : pkgFileList.getEntries()) {
+            var file = new File(dir, entry.getPackageName() + ".ppkg");
             file.createNewFile();
         }
-
         return dir;
     }
-
 }

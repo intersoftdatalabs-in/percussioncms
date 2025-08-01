@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Descriptor used to run an import job to install objects from a deployment 
@@ -83,25 +84,26 @@ public class PSImportDescriptor extends PSDescriptor
     * Add all packages as import packages, sets the archive ref to what's defined in the export descriptor
     */
    @SuppressWarnings("rawtypes")
-   public static PSImportDescriptor configureFromArchive(PSArchiveInfo archiveInfo)
-   {
-       PSArchiveDetail archiveDetail = archiveInfo.getArchiveDetail();
-       PSImportDescriptor desc = new PSImportDescriptor(archiveInfo);
-       
-       PSExportDescriptor exportDesc = archiveDetail.getExportDescriptor();
-       archiveInfo.setArchiveRef(exportDesc.getName());
-       List<PSImportPackage> packages = desc.getImportPackageList();
-       packages.clear();
-       Iterator itr = archiveDetail.getPackages();
-       while(itr.hasNext())
-       {
-          Object obj = itr.next();
-          if (obj instanceof PSDeployableElement)
-          {
-             packages.add(new PSImportPackage((PSDeployableElement)obj));
-          }
+   public static PSImportDescriptor configureFromArchive(PSArchiveInfo archiveInfo) {
+       if (archiveInfo == null) {
+           throw new IllegalArgumentException("archiveInfo may not be null");
        }
-       
+
+       var archiveDetail = archiveInfo.getArchiveDetail();
+       var desc = new PSImportDescriptor(archiveInfo);
+
+       var exportDesc = archiveDetail.getExportDescriptor();
+       archiveInfo.setArchiveRef(exportDesc.getName());
+
+       var packages = desc.getImportPackageList();
+       packages.clear();
+
+       archiveDetail.getPackages().forEachRemaining(obj -> {
+           if (obj instanceof PSDeployableElement) {
+               packages.add(new PSImportPackage((PSDeployableElement) obj));
+           }
+       });
+
        return desc;
    }
 
@@ -138,26 +140,15 @@ public class PSImportDescriptor extends PSDescriptor
     * 
     * @throws IllegalArgumentException if <code>pkg</code> is <code>null</code>.
     */
-   public boolean isPackageIncluded(PSDeployableElement pkg)
-   {
-      if (pkg == null)
+   public boolean isPackageIncluded(PSDeployableElement pkg) {
+      if (pkg == null) {
          throw new IllegalArgumentException("pkg may not be null");
-      
-      boolean isIncluded = false;
-      
-      Iterator<PSImportPackage> i = m_packages.iterator();
-      while (i.hasNext() && !isIncluded)
-      {
-         PSImportPackage impPkg = i.next();
-         PSDeployableElement dep = impPkg.getPackage();
-         if (dep.getObjectType().equals(pkg.getObjectType()) && 
-            dep.getDependencyId().equals(pkg.getDependencyId()))
-         {
-            isIncluded = true;
-         }
       }
-      
-      return isIncluded;
+
+      return m_packages.stream()
+         .map(PSImportPackage::getPackage)
+         .anyMatch(dep -> dep.getObjectType().equals(pkg.getObjectType()) &&
+                          dep.getDependencyId().equals(pkg.getDependencyId()));
    }
 
    
@@ -174,28 +165,18 @@ public class PSImportDescriptor extends PSDescriptor
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
    @Override
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
-         
-      Element root = doc.createElement(XML_NODE_NAME);
-      
-      // add base class
+      }
+
+      var root = doc.createElement(XML_NODE_NAME);
       root.appendChild(super.toXml(doc));
-      
-      // add archive info
       root.appendChild(m_archiveInfo.toXml(doc));
-      
-      // add each package
-      Iterator<PSImportPackage> pkgs = m_packages.iterator();
-      while (pkgs.hasNext())
-         root.appendChild((pkgs.next()).toXml(doc));
-         
-      // set ancestor validation
-      root.setAttribute(XML_VALIDATE_ANCESTORS_ATTR, m_validateAncestors ? 
-         XML_VAL_TRUE : XML_VAL_FALSE);
-      
+
+      m_packages.forEach(pkg -> root.appendChild(pkg.toXml(doc)));
+
+      root.setAttribute(XML_VALIDATE_ANCESTORS_ATTR, m_validateAncestors ? XML_VAL_TRUE : XML_VAL_FALSE);
       return root;
    }
 
@@ -207,56 +188,36 @@ public class PSImportDescriptor extends PSDescriptor
     */
    @Override
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
-      if (sourceNode == null)
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      int firstFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      int nextFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      
-      // restore base class
-      Element descEl = tree.getNextElement(PSDescriptor.XML_NODE_NAME, 
-         firstFlags);
-      if (descEl == null)
-      {
+
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var descEl = Optional.ofNullable(tree.getNextElement(PSDescriptor.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDescriptor.XML_NODE_NAME));
       super.fromXml(descEl);
-      
-      Element archiveInfoEl = tree.getNextElement(PSArchiveInfo.XML_NODE_NAME, 
-         nextFlags);
-      if (archiveInfoEl == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME);
-      }
+
+      var archiveInfoEl = Optional.ofNullable(tree.getNextElement(PSArchiveInfo.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSArchiveInfo.XML_NODE_NAME));
       m_archiveInfo = new PSArchiveInfo(archiveInfoEl);
-      
-      // restore all packages
+
       m_packages.clear();
-      Element pkgEl = tree.getNextElement(PSImportPackage.XML_NODE_NAME, 
-         nextFlags);
-      while (pkgEl != null)
-      {
+      var pkgEl = tree.getNextElement(PSImportPackage.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      while (pkgEl != null) {
          m_packages.add(new PSImportPackage(pkgEl));
-         pkgEl = tree.getNextElement(PSImportPackage.XML_NODE_NAME, 
-            nextFlags);
+         pkgEl = tree.getNextElement(PSImportPackage.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       }
-      
-      // restore ancestor validation
-      String sTemp = sourceNode.getAttribute(XML_VALIDATE_ANCESTORS_ATTR);
-      // default to true if not supplied
-      m_validateAncestors = !XML_VAL_FALSE.equals(sTemp);
+
+      m_validateAncestors = !XML_VAL_FALSE.equals(sourceNode.getAttribute(XML_VALIDATE_ANCESTORS_ATTR));
    }
    
    // see IPSDeployComponent interface

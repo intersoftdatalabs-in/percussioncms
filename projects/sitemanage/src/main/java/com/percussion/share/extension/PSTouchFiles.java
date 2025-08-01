@@ -19,105 +19,81 @@ package com.percussion.share.extension;
 import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.PSServer;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Class to touch files under web_resources that may have been "back-dated" by the 
- * installer to the date the kit was built.
- * 
+ * Class to touch files under web_resources that may have been "back-dated" by the installer.
+ *
  * @author JaySeletz
  */
-public class PSTouchFiles implements IPSStartupProcess
-{
+public class PSTouchFiles implements IPSStartupProcess {
     private static final Logger log = LogManager.getLogger(PSTouchFiles.class);
-            
+
     private String dirNames = "";
     private String rootDir = "";
-    
+
     @Override
-    public void doStartupWork(Properties startupProps) throws Exception
-    {
-        String propName = getPropName();
-        if (!"true".equalsIgnoreCase(startupProps.getProperty(propName)))
-        {
+    public void doStartupWork(Properties startupProps) {
+        var propName = getPropName();
+        if (!"true".equalsIgnoreCase(startupProps.getProperty(propName))) {
             log.info("Nothing to process");
             return;
         }
-        
-        if (!StringUtils.isEmpty(dirNames))
-        {
-            File webResourcesDir = new File(PSServer.getRxDir(), rootDir); 
-            String[] touchDirNameList = dirNames.split(",");
-            for (String dirName : touchDirNameList)
-            {
-                File baseDir = new File(webResourcesDir, dirName);
+
+        if (!StringUtils.isEmpty(dirNames)) {
+            var webResourcesDir = new File(PSServer.getRxDir(), rootDir);
+            var touchDirNameList = dirNames.split(",");
+            for (var dirName : touchDirNameList) {
+                var baseDir = new File(webResourcesDir, dirName);
                 touchFiles(baseDir);
-            } 
-        }
-        else
-        {
+            }
+        } else {
             log.info("No directories configured for touch");
         }
-         
+
         startupProps.setProperty(propName, "false");
         log.info("Finished touching files");
     }
 
-    static String getPropName()
-    {
+    static String getPropName() {
         return PSTouchFiles.class.getSimpleName();
     }
 
-    private void touchFiles(File baseDir)
-    {
-        if (!baseDir.exists())
-        {
-            log.error("Failed to locate directory for touch: " + baseDir.getAbsolutePath());
+    private void touchFiles(File baseDir) {
+        if (!baseDir.exists()) {
+            log.error("Failed to locate directory for touch: {}", baseDir.getAbsolutePath());
             return;
         }
-        
-        log.info("Touching files in " + baseDir.getPath());
-        
+
+        log.info("Touching files in {}", baseDir.getPath());
+
         Collection<File> files = FileUtils.listFiles(baseDir, null, true);
-        for (File file : files)
-        {
-            try
-            {
+        for (var file : files) {
+            try {
                 FileUtils.touch(file);
-            }
-            catch (IOException e)
-            {
-                log.error("Failed to touch file: " + file.getAbsolutePath());
+            } catch (IOException e) {
+                log.error("Failed to touch file: {}", file.getAbsolutePath());
             }
         }
     }
 
-    public void setDirNames(String dirNames)
-    {
+    public void setDirNames(String dirNames) {
         this.dirNames = dirNames;
     }
 
-    public void setRootDir(String rootDir)
-    {
+    public void setRootDir(String rootDir) {
         this.rootDir = rootDir;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.server.IPSStartupProcess#setStartupProcessManager(com.percussion.server.IPSStartupProcessManager)
-     */
     @Override
-    public void setStartupProcessManager(IPSStartupProcessManager mgr)
-    {
+    public void setStartupProcessManager(IPSStartupProcessManager mgr) {
         mgr.addStartupProcess(this);
     }
-    
 }

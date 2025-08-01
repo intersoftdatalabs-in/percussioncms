@@ -27,6 +27,13 @@ import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.PSWebserviceUtils;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,156 +41,110 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Ignore;
+import static org.junit.jupiter.api.Assertions.*;
 
 @org.junit.experimental.categories.Category(IntegrationTest.class)
-public class PSDesignPathItemServiceTest extends PSServletTestCase
-{
+public class PSDesignPathItemServiceTest extends PSServletTestCase {
     private PSPathService pathService;
-    
+
     private File webResourcesDir;
-    
+
     private IPSFileSystemService fileSystemService;
-    
+
     private List<File> filesToDelete;
-    
+
     @Override
-    protected void setUp() throws Exception
-    {
+    @BeforeEach
+    protected void setUp() throws Exception {
         super.setUp();
-        
         pathService = (PSPathService) getBean("pathService");
         webResourcesDir = new File(PSServer.getRxDir(), "web_resources/themes");
-        
         PSWebserviceUtils.setUserName("Admin");
-        
         fileSystemService = (IPSFileSystemService) getBean("webResourcesService");
-        
-        filesToDelete = new ArrayList<File>();
+        filesToDelete = new ArrayList<>();
     }
-    
+
     @Override
-    protected void tearDown() throws Exception
-    {
+    @AfterEach
+    protected void tearDown() throws Exception {
         super.tearDown();
-        
-        for (File fileToDelete : filesToDelete)
-        {
-            if(fileToDelete.isFile())
-            {
-                if (fileToDelete.exists())
-                    fileToDelete.delete();
-            }
-            else 
-            {
+        for (var fileToDelete : filesToDelete) {
+            if (fileToDelete.isFile()) {
+                if (fileToDelete.exists()) fileToDelete.delete();
+            } else {
                 FileUtils.deleteDirectory(fileToDelete);
-            }            
+            }
         }
     }
 
-    /**
-     * @param fileName
-     * @param fileSize
-     */
-    private File createThemeFile(String fileName, int fileSize)
-    {
-        File newFile = new File(webResourcesDir, fileName);
-        
-        if (newFile.exists())
-            newFile.delete();
-        
-        try
-        {
+    private File createThemeFile(String fileName, int fileSize) {
+        var newFile = new File(webResourcesDir, fileName);
+        if (newFile.exists()) newFile.delete();
+        try {
             FileUtils.writeStringToFile(newFile, StringUtils.leftPad(StringUtils.EMPTY, fileSize, 'a'), StandardCharsets.UTF_8);
             filesToDelete.add(newFile);
             return newFile;
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException("Failed in creating the file: " + fileName, e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create the file: " + fileName, e);
         }
     }
 
-    /**
-     * @param string
-     */
-    private File createThemeDir(String string)
-    {
-        File newDir = new File(webResourcesDir, string);
+    private File createThemeDir(String string) {
+        var newDir = new File(webResourcesDir, string);
         newDir.mkdirs();
         return newDir;
     }
-    
-    private void createThemeDir(String string, boolean deleteAtTearDown)
-    {
-        File newDir = new File(webResourcesDir, string);
+
+    private void createThemeDir(String string, boolean deleteAtTearDown) {
+        var newDir = new File(webResourcesDir, string);
         newDir.mkdirs();
-        
         filesToDelete.add(newDir);
     }
-    
-    private void validatePathItems(PSPathItem pathItem, ExpectedPathItemValues expectedPathItem)
-    {
-        Assert.assertEquals("Path item name", expectedPathItem.name, pathItem.getName());
-        
-        Assert.assertNotNull("Path item folderPaths not null", pathItem.getFolderPaths());
-        Assert.assertEquals("Path item folderPaths size", 1, pathItem.getFolderPaths().size());
-        Assert.assertEquals("Path item folderPaths", expectedPathItem.folderPaths, pathItem.getFolderPaths().get(0));
-        
-        Assert.assertEquals("Path item folderPath", expectedPathItem.folderPath, pathItem.getFolderPath());
-        Assert.assertEquals("Path item path", expectedPathItem.path, pathItem.getPath());
-        Assert.assertEquals("Path item type", expectedPathItem.type, pathItem.getType());
-        Assert.assertEquals("Path item leaf", !expectedPathItem.type.equals(PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE), pathItem.isLeaf());
-        
-        Assert.assertEquals("Path item revisionable", false, pathItem.isRevisionable());
-        
-        if (expectedPathItem.type.equals(PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE))
-            Assert.assertEquals("Path item icon", "/Rhythmyx/sys_resources/images/finderFolder.png", pathItem.getIcon());
-        else
-            Assert.assertTrue("Path item icon not empty", StringUtils.isNotBlank(pathItem.getIcon()));
-        
-        Assert.assertEquals("Path item category", Category.SYSTEM, pathItem.getCategory());
-        
-        Assert.assertEquals("Path item id",
-                Integer.valueOf(fileSystemService.getFile(pathItem.getPath().substring("/Design/web_resources".length())).getPath().hashCode()).toString(),
-                pathItem.getId());
+
+    private void validatePathItems(PSPathItem pathItem, ExpectedPathItemValues expectedPathItem) {
+        assertEquals(expectedPathItem.name, pathItem.getName(), "Path item name");
+        assertNotNull(pathItem.getFolderPaths(), "Path item folderPaths not null");
+        assertEquals(1, pathItem.getFolderPaths().size(), "Path item folderPaths size");
+        assertEquals(expectedPathItem.folderPaths, pathItem.getFolderPaths().get(0), "Path item folderPaths");
+        assertEquals(expectedPathItem.folderPath, pathItem.getFolderPath(), "Path item folderPath");
+        assertEquals(expectedPathItem.path, pathItem.getPath(), "Path item path");
+        assertEquals(expectedPathItem.type, pathItem.getType(), "Path item type");
+        assertEquals(!expectedPathItem.type.equals(PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE), pathItem.isLeaf(), "Path item leaf");
+        assertFalse(pathItem.isRevisionable(), "Path item revisionable");
+        if (expectedPathItem.type.equals(PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE)) {
+            assertEquals("/Rhythmyx/sys_resources/images/finderFolder.png", pathItem.getIcon(), "Path item icon");
+        } else {
+            assertTrue(StringUtils.isNotBlank(pathItem.getIcon()), "Path item icon not empty");
+        }
+        assertEquals(Category.SYSTEM, pathItem.getCategory(), "Path item category");
+        assertEquals(
+            Integer.valueOf(fileSystemService.getFile(pathItem.getPath().substring("/Design/web_resources".length())).getPath().hashCode()).toString(),
+            pathItem.getId(),
+            "Path item id"
+        );
     }
-    
-    public void testFindChildren_DesignChildren() throws Exception
-    {
-        List<PSPathItem> pathItems = pathService.findChildren("/Design/");
-        Assert.assertNotNull("Path item list not null", pathItems);
-        Assert.assertEquals("Path item list count", 1, pathItems.size());
-        
-        // PSPathItem properties
+
+    @Test
+    public void testFindChildren_DesignChildren() throws Exception {
+        var pathItems = pathService.findChildren("/Design/");
+        assertNotNull(pathItems, "Path item list not null");
+        assertEquals(1, pathItems.size(), "Path item list count");
         validatePathItems(pathItems.get(0),
-                new ExpectedPathItemValues("web_resources",
-                        "/Design/web_resources/",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
-                        "//Design"));
+            new ExpectedPathItemValues("web_resources", "/Design/web_resources/", PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE, "//Design"));
     }
-    
-    public void testFindChildren_WebResourcesChildren() throws Exception
-    {
-        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources");
-        Assert.assertNotNull("Path item list not null", pathItems);
-        Assert.assertEquals("Path item list count", 1, pathItems.size());
-        
-        // PSPathItem properties
+
+    @Test
+    public void testFindChildren_WebResourcesChildren() throws Exception {
+        var pathItems = pathService.findChildren("/Design/web_resources");
+        assertNotNull(pathItems, "Path item list not null");
+        assertEquals(1, pathItems.size(), "Path item list count");
         validatePathItems(pathItems.get(0),
-                new ExpectedPathItemValues("themes",
-                        "/Design/web_resources/themes/",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
-                        "//Design/web_resources"));
+            new ExpectedPathItemValues("themes", "/Design/web_resources/themes/", PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE, "//Design/web_resources"));
     }
-    
-    @Ignore("Path item list count expected:<1> but was:<2>")
-    public void testFindChildren_ThemesChildren() throws Exception
-    {
+
+    @Disabled("Path item list count expected:<1> but was:<2>")
+    @Test
+    public void testFindChildren_ThemesChildren() throws Exception {
         //TODO: Fix Me
 //        createThemeDir("/percussion");
 //        
@@ -198,43 +159,33 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 //                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
 //                        "//Design/web_resources/themes"));
     }
-    
-    public void fixme_testFindChildren_PercussionThemeChildren() throws Exception
-    {
+
+    public void fixme_testFindChildren_PercussionThemeChildren() throws Exception {
         // TODO: this failed on build machine. ignore/disable for now.
-        
+
         List<PSPathItem> pathItemsInit = pathService.findChildren("/Design/web_resources/themes/percussion");
-        
+
         createThemeDir("/percussion/images");
         createThemeFile("/percussion/perc_theme.test.css", 20);
         createThemeFile("/percussion/perc_theme.test.png", 5);
-        
+
         List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes/percussion");
-        Assert.assertNotNull("Path item list not null", pathItems);
-        Assert.assertEquals("Path item list count", 2, pathItemsInit.size() - pathItems.size());
-        
+        assertNotNull("Path item list not null", pathItems);
+        assertEquals("Path item list count", 2, pathItemsInit.size() - pathItems.size());
+
         validatePathItems(pathItems.get(0),
-                new ExpectedPathItemValues("images",
-                        "/Design/web_resources/themes/percussion/images/",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
-                        "//Design/web_resources/themes/percussion"));
-        
+            new ExpectedPathItemValues("images", "/Design/web_resources/themes/percussion/images/", PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE, "//Design/web_resources/themes/percussion"));
+
         validatePathItems(pathItems.get(1),
-                new ExpectedPathItemValues("perc_theme.test.css",
-                        "/Design/web_resources/themes/percussion/perc_theme.test.css",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE,
-                        "//Design/web_resources/themes/percussion"));
-        
+            new ExpectedPathItemValues("perc_theme.test.css", "/Design/web_resources/themes/percussion/perc_theme.test.css", PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE, "//Design/web_resources/themes/percussion"));
+
         validatePathItems(pathItems.get(2),
-                new ExpectedPathItemValues("perc_theme.png",
-                        "/Design/web_resources/themes/percussion/perc_theme.test.png",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE,
-                        "//Design/web_resources/themes/percussion"));
+            new ExpectedPathItemValues("perc_theme.png", "/Design/web_resources/themes/percussion/perc_theme.test.png", PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE, "//Design/web_resources/themes/percussion"));
     }
-    
-    @Ignore("Path item list count expected:<2> but was:<3>")
-    public void testFindChildren_SubFolderIsNamedWebResources() throws Exception
-    {
+
+    @Disabled("Path item list count expected:<2> but was:<3>")
+    @Test
+    public void testFindChildren_SubFolderIsNamedWebResources() throws Exception {
         //TODO: Fix Me
 //        // This makes a path like this: "/Design/web_resources/themes/web_resources"
   //        createThemeDir("/web_resources", true);
@@ -250,7 +201,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 //                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
 //                        "//Design/web_resources/themes"));
     }
-    
+
 //    public void testFindChildren_FoldersAreCorrectlySorted() throws Exception
 //    {
     //TODO: Fix Me Too!
@@ -290,133 +241,127 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 //        }
 //    }
 
-    public void testFind_PathEndsAlwaysWithSlash() throws Exception
-    {
+    @Test
+    public void testFind_PathEndsAlwaysWithSlash() throws Exception {
         createThemeDir("/percussion/images");
         createThemeFile("/percussion/perc_theme.test.css", 20);
-        
+
         PSPathItem pathItem = pathService.find("/Design/web_resources/themes/percussion");
-        Assert.assertNotNull("Path item list not null", pathItem);
-        
+        assertNotNull(pathItem, "Path item list not null");
+
         // folder
         validatePathItems(pathItem,
-                new ExpectedPathItemValues("percussion",
-                        "/Design/web_resources/themes/percussion/",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE,
-                        "//Design/web_resources/themes"));
-        
+            new ExpectedPathItemValues("percussion", "/Design/web_resources/themes/percussion/", PSFileSystemPathItemService.FILE_SYSTEM_FOLDER_TYPE, "//Design/web_resources/themes"));
+
         // file
         pathItem = pathService.find("/Design/web_resources/themes/percussion/perc_theme.test.css");
-        Assert.assertNotNull("Path item list not null", pathItem);
-        
+        assertNotNull(pathItem, "Path item list not null");
+
         validatePathItems(pathItem,
-                new ExpectedPathItemValues("perc_theme.test.css",
-                        "/Design/web_resources/themes/percussion/perc_theme.test.css/",
-                        PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE,
-                        "//Design/web_resources/themes/percussion"));
+            new ExpectedPathItemValues("perc_theme.test.css", "/Design/web_resources/themes/percussion/perc_theme.test.css/", PSFileSystemPathItemService.FILE_SYSTEM_FILE_TYPE, "//Design/web_resources/themes/percussion"));
     }
-    
-    public void testGetParentPath_folderPaths()
-    {
+
+    @Test
+    public void testGetParentPath_folderPaths() {
         String path = "/";
         String expected = "/";
         String parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources";
         expected = "/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/";
         expected = "/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/themes";
         expected = "/web_resources/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/themes/";
         expected = "/web_resources/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/themes/percussion";
         expected = "/web_resources/themes/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/themes/percussion/custom-theme";
         expected = "/web_resources/themes/percussion/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
     }
     
-    public void testGetParentPath_filePaths()
-    {
+    @Test
+    public void testGetParentPath_filePaths() {
         String path = "/web_resources/themes/percussion/custom-theme/perc-theme.css";
         String expected = "/web_resources/themes/percussion/custom-theme/";
         String parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
 
         path = "/web_resources/themes/percussion/custom-theme/perc-theme.png";
         expected = "/web_resources/themes/percussion/custom-theme/";
         parentFolder = fileSystemService.getParentFolder(path);
-        Assert.assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
-                expected, parentFolder);        
+        assertEquals("The parent folder of " + path + " shoud be " + expected + " but was " + parentFolder,
+            expected, parentFolder);
     }
 
-    public void testFoldernameAvailable()
-    {
+    @Test
+    public void testFoldernameAvailable() {
         String[] filesInFolder = new String[]
         {"percussion", "custom-theme", "themes", "web_resources", "css-themes", "perc-theme.css", "perc-theme.png",
                 "rss_logo.png", "ui-bg_flat_10_000000_40x100.png"};
         
         String foldername = "custom-theme-2";
-        Assert.assertTrue("The foldername " + foldername + " should be available.",
+        assertTrue("The foldername " + foldername + " should be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
         foldername = "new-theme";
-        Assert.assertTrue("The foldername " + foldername + " should be available.",
+        assertTrue("The foldername " + foldername + " should be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
         foldername = "percussion-new-theme";
-        Assert.assertTrue("The foldername " + foldername + " should be available.",
+        assertTrue("The foldername " + foldername + " should be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
         foldername = "PeRcUsSiOn";
-        Assert.assertFalse("The foldername " + foldername + " should not be available.",
+        assertFalse("The foldername " + foldername + " should not be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
         foldername = "css-THEMES";
-        Assert.assertFalse("The foldername " + foldername + " should not be available.",
+        assertFalse("The foldername " + foldername + " should not be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
         foldername = "perc-theme.png";
-        Assert.assertFalse("The foldername " + foldername + " should not be available.",
+        assertFalse("The foldername " + foldername + " should not be available.",
                 fileSystemService.foldernameAvailable(foldername, filesInFolder));
 
     }
     
-    public void testGetNewFolderName()
-    {
+    @Test
+    public void testGetNewFolderName() {
         String[] filesInFolder = new String[]
         {"percussion", "custom-theme", "css-themes", "perc-theme.css", "perc-theme.png", "rss_logo.png"};
         
         String expected = "New-Folder";
         String newFolder = fileSystemService.getNewFolderName(filesInFolder);
-        Assert.assertEquals("The new foldername should have been " + expected + " but was " + newFolder,
+        assertEquals("The new foldername should have been " + expected + " but was " + newFolder,
                 expected, newFolder);
         
         filesInFolder = new String[]
@@ -424,7 +369,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 
         expected = "New-Folder 1";
         newFolder = fileSystemService.getNewFolderName(filesInFolder);
-        Assert.assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
+        assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
                 newFolder);
 
         filesInFolder = new String[]
@@ -432,7 +377,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 
         expected = "New-Folder 2";
         newFolder = fileSystemService.getNewFolderName(filesInFolder);
-        Assert.assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
+        assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
                 newFolder);
                                                               
         filesInFolder = new String[]
@@ -440,31 +385,28 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
 
         expected = "New-Folder 5";
         newFolder = fileSystemService.getNewFolderName(filesInFolder);
-        Assert.assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
+        assertEquals("The new foldername should have been " + expected + " but was " + newFolder, expected,
                 newFolder);
     }
     
-    public void testAddFolder_pathFromFile()
-    {
+    @Test
+    public void testAddFolder_pathFromFile() {
         // first create the file we will use
         filesToDelete.add(createThemeFile("fileUnderThemes.css", 10));
         
         String newFolderPath = "/themes/fileUnderThemes.css";
         
-        try
-        {
+        try {
             File newFolder = fileSystemService.addFolder(newFolderPath);
             filesToDelete.add(newFolder);
             
-            Assert.assertTrue("The new folder should exist in the filesystem", newFolder.exists());
-            Assert.assertEquals("The new folder should be under themes, but is under " + newFolder.getParent(),
+            assertTrue("The new folder should exist in the filesystem", newFolder.exists());
+            assertEquals("The new folder should be under themes, but is under " + newFolder.getParent(),
                     webResourcesDir.getPath(), newFolder.getParent());
-            Assert.assertEquals("The new foldername should be " + newFolder.getName(),
+            assertEquals("The new foldername should be " + newFolder.getName(),
                     "New-Folder", newFolder.getName());
-        }
-        catch (IOException e)
-        {
-            Assert.assertTrue("No exception should have been thrown.", false);
+        } catch (IOException e) {
+            assertTrue("No exception should have been thrown.", false);
         }
 
         // first create the file we will use
@@ -473,127 +415,108 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
         
         newFolderPath = "/themes/folderUnderThemes/newFile.css";
         
-        try
-        {
+        try {
             File newFolder = fileSystemService.addFolder(newFolderPath);
             filesToDelete.add(newFolder);
             
-            Assert.assertTrue("The new folder should exist in the filesystem", newFolder.exists());
-            Assert.assertEquals(
+            assertTrue("The new folder should exist in the filesystem", newFolder.exists());
+            assertEquals(
                     "The new folder should be under 'folderUnderThemes', but is under " + newFolder.getParent(),
                     webResourcesDir.getPath() + File.separator + "folderUnderThemes",
                     newFolder.getParent());
-            Assert.assertEquals("The new foldername should be " + newFolder.getName(), "New-Folder",
+            assertEquals("The new foldername should be " + newFolder.getName(), "New-Folder",
                     newFolder.getName());
-        }
-        catch (IOException e)
-        {
-            Assert.assertTrue("No exception should have been thrown.", false);
+        } catch (IOException e) {
+            assertTrue("No exception should have been thrown.", false);
         }
     }
     
-    public void testAddFolder()
-    {
+    @Test
+    public void testAddFolder() {
         // first create the file we will use
         filesToDelete.add(createThemeDir("folderUnderThemes"));
         
         String newFolderPath = "/themes/folderUnderThemes/";
         
-        try
-        {
+        try {
             File newFolder = fileSystemService.addFolder(newFolderPath);
             filesToDelete.add(newFolder);
             
-            Assert.assertTrue("The new folder should exist in the filesystem", newFolder.exists());
-            Assert.assertEquals(
+            assertTrue("The new folder should exist in the filesystem", newFolder.exists());
+            assertEquals(
                     "The new folder should be under 'folderUnderThemes', but is under " + newFolder.getParent(),
                     webResourcesDir.getPath() + File.separator + "folderUnderThemes",
                     newFolder.getParent());
-            Assert.assertEquals("The new foldername should be " + newFolder.getName(), "New-Folder",
+            assertEquals("The new foldername should be " + newFolder.getName(), "New-Folder",
                     newFolder.getName());
-        }
-        catch (IOException e)
-        {
-            Assert.assertTrue("No exception should have been thrown.", false);
+        } catch (IOException e) {
+            assertTrue("No exception should have been thrown.", false);
         }
         
         // first create the file we will use
         
         newFolderPath = "/themes/folderUnderThemes/";
         
-        try
-        {
+        try {
             File newFolder = fileSystemService.addFolder(newFolderPath);
             filesToDelete.add(newFolder);
             
-            Assert.assertTrue("The new folder should exist in the filesystem", newFolder.exists());
-            Assert.assertEquals(
+            assertTrue("The new folder should exist in the filesystem", newFolder.exists());
+            assertEquals(
                     "The new folder should be under 'folderUnderThemes', but is under " + newFolder.getParent(),
                     webResourcesDir.getPath() + File.separator + "folderUnderThemes",
                     newFolder.getParent());
-            Assert.assertEquals("The new foldername should be 'New-Folder 1', but was " + newFolder.getName(),
+            assertEquals("The new foldername should be 'New-Folder 1', but was " + newFolder.getName(),
                     "New-Folder 1", newFolder.getName());
-        }
-        catch (IOException e)
-        {
-            Assert.assertTrue("No exception should have been thrown.", false);
+        } catch (IOException e) {
+            assertTrue("No exception should have been thrown.", false);
         }
     }
     
-    public void testDeleteFile_fileDoesNotExistNoExceptionThrown()
-    {
+    @Test
+    public void testDeleteFile_fileDoesNotExistNoExceptionThrown() {
         // first create the file we will use
         filesToDelete.add(createThemeDir("folderUnderThemes"));
         filesToDelete.add(createThemeFile("/folderUnderThemes/newFile.css", 10));
         
-        try
-        {
+        try {
             fileSystemService.deleteFile("/themes/folderUnderThemes/nonExistingFile.css");
-            Assert.assertTrue("An exception should have been thrown.", false);
-        }
-        catch(PSFileOperationException e)
-        {
-            Assert.assertTrue(true);
-        }
-        catch(Exception e)
-        {
-            Assert.assertTrue("A PSFileOperationException should have been thrown.", false);
+            assertTrue("An exception should have been thrown.", false);
+        } catch(PSFileOperationException e) {
+            assertTrue(true);
+        } catch(Exception e) {
+            assertTrue("A PSFileOperationException should have been thrown.", false);
         }
     }
     
-    public void testDeleteFile()
-    {
+    @Test
+    public void testDeleteFile() {
         // first create the file we will use
         String path = "/folderUnderThemes/newFile.css";
         filesToDelete.add(createThemeDir("folderUnderThemes"));
         createThemeFile(path, 10);
         
-        try
-        {
+        try {
             fileSystemService.deleteFile("/themes" + path);
             
             File deleted = fileSystemService.getFile(path);
             
-            if(!deleted.exists())
-            {
+            if(!deleted.exists()) {
                 filesToDelete.add(deleted);
             }
-            Assert.assertTrue("The file should have been deleted.", !deleted.exists());
-        }
-        catch(Exception e)
-        {
-            Assert.assertTrue("No exception should have been thrown.", false);
+            assertTrue("The file should have been deleted.", !deleted.exists());
+        } catch(Exception e) {
+            assertTrue("No exception should have been thrown.", false);
         }
     }
     
-    public void testIsReservedName()
-    {
+    @Test
+    public void testIsReservedName() {
         List<String> notReservedNames = Arrays.asList(new String[]
         {"newFolder", "aux1", "CoM99", "PRN-10", "Themes", "web_resources", "LPT100", "percussion", "custom-theme"});
 
-        for (String notReservedName : notReservedNames)
-        {
-            Assert.assertFalse("The name '" + notReservedName + "' is not a reserved name.",
+        for (String notReservedName : notReservedNames) {
+            assertFalse("The name '" + notReservedName + "' is not a reserved name.",
                     fileSystemService.isReservedFilename(notReservedName));
         }
 
@@ -603,22 +526,20 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
                         "COM6", "COM7", "COM8", "COM9", "LPT0", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7",
                         "LPT8", "LPT9"});
 
-        for (String reservedName : reservedNames)
-        {
-            Assert.assertTrue("The name '" + reservedName + "' is a reserved name.",
+        for (String reservedName : reservedNames) {
+            assertTrue("The name '" + reservedName + "' is a reserved name.",
                     fileSystemService.isReservedFilename(reservedName));
         }
     }
     
-    public void testContainsInvalidCharacters()
-    {
+    @Test
+    public void testContainsInvalidCharacters() {
         List<String> validName = Arrays.asList(new String[]
         {"New@Folder", "Custom$theme", "custom-themes.css", "silver.jpg", "emerald", "web_resources&", "LPT100", "percussion",
                 "custom-theme"});
 
-        for (String notInvalidName : validName)
-        {
-            Assert.assertFalse("The name '" + notInvalidName + "' does not contain invalid characters.",
+        for (String notInvalidName : validName) {
+            assertFalse("The name '" + notInvalidName + "' does not contain invalid characters.",
                     fileSystemService.containsInvalidChars(notInvalidName));
         }
 
@@ -626,23 +547,20 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
                 .asList(new String[]
                 {"/the new theme", "\\hello", "new Folder?", "hi*all", "hello:world"});
 
-        for (String invalidName : invalidNames)
-        {
-            Assert.assertTrue("The name '" + invalidName + "' contains invalid characters.",
+        for (String invalidName : invalidNames) {
+            assertTrue("The name '" + invalidName + "' contains invalid characters.",
                     fileSystemService.containsInvalidChars(invalidName));
         }
     }
     
-    class ExpectedPathItemValues
-    {
+    class ExpectedPathItemValues {
         public String name;
         public String path;
         public String type;
         public String folderPath;
         public String folderPaths;
-        
-        public ExpectedPathItemValues(String name, String path, String type, String folderPaths)
-        {
+
+        public ExpectedPathItemValues(String name, String path, String type, String folderPaths) {
             this.name = name;
             this.path = path;
             this.type = type;
@@ -650,6 +568,4 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase
             this.folderPaths = folderPaths;
         }
     }
-    
-    
 }

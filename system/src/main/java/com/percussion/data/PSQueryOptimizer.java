@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+// ...existing imports...
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -81,8 +81,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version        1.0
  * @since      1.0
  */
-public class PSQueryOptimizer extends PSOptimizer
-{
+// REFACTORED: CP-JAVA11
+public class PSQueryOptimizer extends PSOptimizer {
 
    /**
     * Generate an execution plan for the given data set. This determines
@@ -189,19 +189,16 @@ public class PSQueryOptimizer extends PSOptimizer
     * an execution plan appropriate to them.
     */
    private static IPSExecutionStep[] buildExecutionPlan(
-      PSApplicationHandler ah,
-      PSDataSet ds,
-      PSQueryPipe pipe)
-      throws java.sql.SQLException,
-         PSNotFoundException,
-         PSExtensionException
-   {
-      Vector               steps = new Vector();
-      Vector               logins = new Vector();
-      ConcurrentHashMap            connKeys = new ConcurrentHashMap();
-      IPSExecutionStep[]   curSteps;
-      IPSExecutionStep[]   ret = null;
-      int                  loginCount = 0;
+           PSApplicationHandler ah,
+           PSDataSet ds,
+           PSQueryPipe pipe)
+           throws java.sql.SQLException, PSNotFoundException, PSExtensionException {
+      var steps = new ArrayList<IPSExecutionStep>();
+      var logins = new ArrayList<Object>();
+      var connKeys = new ConcurrentHashMap<Object, Integer>();
+      IPSExecutionStep[] curSteps;
+      IPSExecutionStep[] ret = null;
+      int loginCount = 0;
 
       /*
        *  1) Create the login steps for that pipe's back ends (one login
@@ -242,14 +239,18 @@ public class PSQueryOptimizer extends PSOptimizer
             pipe.getDataMapper(), sel);
       }
 
-      for (int s = 0; s < curSteps.length; s++)
-         steps.add(curSteps[s]);
+
+      for (IPSExecutionStep step : curSteps) {
+         steps.add(step);
+      }
 
       ret = new IPSExecutionStep[steps.size() + logins.size()];
-      logins.copyInto(ret);   // logins go first!!!
+      for (int i = 0; i < logins.size(); i++) {
+         ret[i] = (IPSExecutionStep) logins.get(i);
+      }
       int iDest = logins.size();
       for (int i = 0; i < steps.size(); i++) {
-         ret[iDest] = (IPSExecutionStep)steps.get(i);
+         ret[iDest] = steps.get(i);
          iDest++;
       }
 
@@ -292,14 +293,13 @@ public class PSQueryOptimizer extends PSOptimizer
     * correct
     */
    private static IPSExecutionStep[] createStatements(
-      PSApplicationHandler ah, PSDataSet ds,
-      List logins, ConcurrentHashMap connKeys, PSBackEndDataTank backEnds,
-      PSDataMapper cols, PSDataSelector sel
-      )
-      throws java.sql.SQLException,
-         PSNotFoundException,
-         PSExtensionException
-   {
+           PSApplicationHandler ah, PSDataSet ds,
+           List<Object> logins, ConcurrentHashMap<Object, Integer> connKeys, PSBackEndDataTank backEnds,
+           PSDataMapper cols, PSDataSelector sel
+   )
+           throws java.sql.SQLException,
+           PSNotFoundException,
+           PSExtensionException {
       // make sure the list of back ends is not null
       if (backEnds == null)
          throw new IllegalArgumentException("sql builder no back ends");
@@ -314,14 +314,11 @@ public class PSQueryOptimizer extends PSOptimizer
        * for accessing the components (uid/pw need not be known)
        */
       int numTables = tables.size();
-      for (int i = 0; i < numTables; i++)
-      {
+      for (int i = 0; i < numTables; i++) {
          // get the current table object
-         PSBackEndTable curTable = (PSBackEndTable)tables.get(i);
-
+         var curTable = (PSBackEndTable) tables.get(i);
          // create the meta data for this db
-         PSBackEndLogin login = (PSBackEndLogin)logins.get(
-            ((Integer)connKeys.get(curTable.getServerKey())).intValue());
+         var login = (PSBackEndLogin) logins.get(connKeys.get(curTable.getServerKey()));
          getCachedDatabaseMetaData(login);
       }
 
@@ -424,15 +421,16 @@ public class PSQueryOptimizer extends PSOptimizer
 
          // use the data selector to add the sort constraints
          PSCollection sortedColumns = sel.getSortedColumns();
-         int size = (sortedColumns == null) ? 0 : sortedColumns.size();
-         if (size == 0) {
-            sortedColumns = getSortColumnsForXmlCollapsing(ah, ds);
-            size = (sortedColumns == null) ? 0 : sortedColumns.size();
+      int size = (sortedColumns == null) ? 0 : sortedColumns.size();
+      if (size == 0) {
+         sortedColumns = getSortColumnsForXmlCollapsing(ah, ds);
+         size = (sortedColumns == null) ? 0 : sortedColumns.size();
+      }
+      if (sortedColumns != null) {
+         for (int i = 0; i < size; i++) {
+            builder.addSortedColumn((PSSortedColumn) sortedColumns.get(i));
          }
-         for (int i = 0; i < size; i++)
-         {
-            builder.addSortedColumn((PSSortedColumn)sortedColumns.get(i));
-         }
+      }
 
          stmt = builder.generate(logins, connKeys);
       }
@@ -506,13 +504,12 @@ public class PSQueryOptimizer extends PSOptimizer
     * <code>null</code> 
     */
    private static IPSExecutionStep[] createJoinPlan(
-      PSApplicationHandler ah, PSDataSet ds,
-      List logins, ConcurrentHashMap connKeys, PSBackEndDataTank backEnds,
-      PSCollection beTables, PSDataMapper cols, PSDataSelector sel
-      )
-      throws java.sql.SQLException,
-         PSExtensionException, PSNotFoundException
-   {
+           PSApplicationHandler ah, PSDataSet ds,
+           List<Object> logins, ConcurrentHashMap<Object, Integer> connKeys, PSBackEndDataTank backEnds,
+           PSCollection beTables, PSDataMapper cols, PSDataSelector sel
+   )
+           throws java.sql.SQLException,
+           PSExtensionException, PSNotFoundException {
       /* **********
        * VALIDATION
        * ********** */
@@ -541,7 +538,7 @@ public class PSQueryOptimizer extends PSOptimizer
        * (includes PSBackEndTable object and PSIndexStatistcs[])
        */
       int numTables = beTables.size();
-      Map tmdMap = new HashMap(numTables);
+      Map<String, PSTableMetaData> tmdMap = new HashMap<>(numTables);
 
       for (int i = 0; i < numTables; i++)
       {
@@ -568,9 +565,9 @@ public class PSQueryOptimizer extends PSOptimizer
        *    key=driver:server
        *    value=PSSqlQueryBuilder
        */
-      Map builderMaps = createBuilderMaps(joins, jTree);
+      Map<PSBackEndTable, PSSqlQueryBuilder> builderMaps = createBuilderMaps(joins, jTree);
       PSSqlQueryBuilder curBuilder;
-      List heteroJoins = new java.util.ArrayList();
+      List<PSBackEndJoin> heteroJoins = new ArrayList<>();
 
       /* We've created builders for each component, now go through and set
        * the table and join conditions.
@@ -579,9 +576,11 @@ public class PSQueryOptimizer extends PSOptimizer
        * that puts as many homogenous joins together as possible (because
        * some joins are commutative)
        */
-      for (int j = 0; j < joinCount; j++)
-      {
-         PSBackEndJoin curJoin = (PSBackEndJoin)joins.get(j);
+      if (joins == null) {
+         throw new IllegalArgumentException("sql builder no joins");
+      }
+      for (int j = 0; j < joinCount; j++) {
+         PSBackEndJoin curJoin = (PSBackEndJoin) joins.get(j);
 
          PSBackEndColumn lCol = curJoin.getLeftColumn();
          PSBackEndTable lTab = lCol.getTable();
@@ -630,7 +629,7 @@ public class PSQueryOptimizer extends PSOptimizer
       PSDataMapping map;
 
       // a map from column name/alias to table
-      HashMap taken = new HashMap(colSize);
+      HashMap<String, PSBackEndTable> taken = new HashMap<>(colSize);
 
       for (int i = 0; i < colSize; i++)
       {
@@ -697,6 +696,9 @@ public class PSQueryOptimizer extends PSOptimizer
          clausesSize = 0;
       else
          clausesSize = clauses.size();
+      if (clauses == null) {
+         clausesSize = 0;
+      }
       for (int i = 0; i < clausesSize; i++)
       {
          PSWhereClause curWhere = (PSWhereClause)clauses.get(i);
@@ -747,6 +749,9 @@ public class PSQueryOptimizer extends PSOptimizer
          sortedColumns = getSortColumnsForXmlCollapsing(ah, ds);
          size = (sortedColumns == null) ? 0 : sortedColumns.size();
       }
+      if (sortedColumns == null) {
+         size = 0;
+      }
       for (int i = 0; i < size; i++)
       {
          PSSortedColumn sortCol = (PSSortedColumn)sortedColumns.get(i);
@@ -766,7 +771,7 @@ public class PSQueryOptimizer extends PSOptimizer
 
       // we join two result sets at a time so steps <= (joins * 2)+1
       int joinSize = heteroJoins.size();
-      ArrayList steps = new ArrayList((joinSize * 2) + 1);
+      ArrayList<Object> steps = new ArrayList<>((joinSize * 2) + 1);
 
       if (joinSize > 0) {   // got some heterogeneous joins goin' on over here
          PSQueryJoiner joiner;
@@ -811,7 +816,7 @@ public class PSQueryOptimizer extends PSOptimizer
                {
                   getNextConnection = true;
                   originalConnectionIndex = (Integer) connKeys.get(driverServerCombo);
-                  connKeys.put(driverServerCombo, new Integer(originalConnectionIndex.intValue()+1));
+                  connKeys.put(driverServerCombo, Integer.valueOf(originalConnectionIndex.intValue()+1));
                }
             }
 
@@ -907,8 +912,8 @@ public class PSQueryOptimizer extends PSOptimizer
     * (<code>PSBackEndTable</code>) as key and sql query builder
     * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
     */
-   private static void addSelectColumn(PSBackEndColumn curCol, HashMap taken,
-      Map builderMaps)
+   private static void addSelectColumn(PSBackEndColumn curCol, HashMap<String, PSBackEndTable> taken,
+      Map<PSBackEndTable, PSSqlQueryBuilder> builderMaps)
    {
       // resolve name collisions
       try
@@ -921,8 +926,7 @@ public class PSQueryOptimizer extends PSOptimizer
       }
 
       // find the builder for this column and add it to the select list
-      PSSqlQueryBuilder curBuilder = (PSSqlQueryBuilder)
-         builderMaps.get(curCol.getTable());
+      PSSqlQueryBuilder curBuilder = builderMaps.get(curCol.getTable());
       curBuilder.addSelectColumn(curCol);
    }
 
@@ -941,8 +945,8 @@ public class PSQueryOptimizer extends PSOptimizer
     * (<code>PSBackEndTable</code>) as key and sql query builder
     * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
     */
-   private static void addSelectColumn(PSFunctionCall fnCall, HashMap taken,
-      Map builderMaps)
+   private static void addSelectColumn(PSFunctionCall fnCall, HashMap<String, PSBackEndTable> taken,
+      Map<PSBackEndTable, PSSqlQueryBuilder> builderMaps)
    {
       PSFunctionParamValue[] params = fnCall.getParamValues();
 
@@ -971,8 +975,8 @@ public class PSQueryOptimizer extends PSOptimizer
     * (<code>PSBackEndTable</code>) as key and sql query builder
     * (<code>PSSqlQueryBuilder</code>) as value, assumed not <code>null</code>
     */
-   private static void addSelectColumn(PSExtensionCall extCall, HashMap taken,
-      Map builderMaps)
+   private static void addSelectColumn(PSExtensionCall extCall, HashMap<String, PSBackEndTable> taken,
+      Map<PSBackEndTable, PSSqlQueryBuilder> builderMaps)
    {
       PSExtensionParamValue[] params = extCall.getParamValues();
       for (int j = 0; j < params.length; j++)
@@ -996,7 +1000,7 @@ public class PSQueryOptimizer extends PSOptimizer
     * @param   col
     * @param   taken
     */
-   private static void uniquifyAlias(PSBackEndColumn col, HashMap taken)
+   private static void uniquifyAlias(PSBackEndColumn col, HashMap<String, PSBackEndTable> taken)
    {
       if (col.getAlias() == null || col.getAlias().length() == 0)
       {
@@ -1006,7 +1010,7 @@ public class PSQueryOptimizer extends PSOptimizer
       /* Need to make this case insensitive, so lowercasing map keys,
          bug id: Rx-99-11-0026 */
       String colKey = col.getAlias().toLowerCase();
-      PSBackEndTable tab = (PSBackEndTable)taken.get(colKey);
+      PSBackEndTable tab = taken.get(colKey);
       if (tab != null)
       {
          for (int i = 1; tab != null; i++)
@@ -1027,7 +1031,7 @@ public class PSQueryOptimizer extends PSOptimizer
     * we have homogeneous joins using translators, we need to treat them
     * as if they were heterogeneous as well.
     */
-   private static java.util.Map createBuilderMaps(
+   private static Map<PSBackEndTable, PSSqlQueryBuilder> createBuilderMaps(
       PSCollection joins, PSJoinTree jTree)
    {
       /* when building the builder maps, we see which tables exist on the
@@ -1040,7 +1044,7 @@ public class PSQueryOptimizer extends PSOptimizer
 
       // this is where we'll store the builders with table as key
       // and builder as value
-      java.util.HashMap builderMaps = new java.util.HashMap();
+      HashMap<PSBackEndTable, PSSqlQueryBuilder> builderMaps = new HashMap<>();
 
       int size = joins.size();
       for (int i = 0; i < size; i++)
@@ -1049,11 +1053,11 @@ public class PSQueryOptimizer extends PSOptimizer
 
          PSBackEndColumn lCol = join.getLeftColumn();
          PSBackEndTable lTab = lCol.getTable();
-         PSSqlQueryBuilder lBuilder = (PSSqlQueryBuilder)builderMaps.get(lTab);
+         PSSqlQueryBuilder lBuilder = builderMaps.get(lTab);
 
          PSBackEndColumn rCol = join.getRightColumn();
          PSBackEndTable rTab = rCol.getTable();
-         PSSqlQueryBuilder rBuilder = (PSSqlQueryBuilder)builderMaps.get(rTab);
+         PSSqlQueryBuilder rBuilder = builderMaps.get(rTab);
 
          boolean hasTranslator = (join.getTranslator() != null);
          if (!hasTranslator && lTab.getServerKey().equals(rTab.getServerKey()))
@@ -1162,7 +1166,7 @@ public class PSQueryOptimizer extends PSOptimizer
     */
    private static boolean isIndexedLookupOptimal(
       PSApplicationHandler ah, PSDataSet ds, PSBackEndJoin join,
-      Map tmdMap, Map builderMap, PSDataSelector sel, boolean allowReordering)
+      Map<String, PSTableMetaData> tmdMap, Map<PSBackEndTable, PSSqlQueryBuilder> builderMap, PSDataSelector sel, boolean allowReordering)
       throws SQLException
    {
       // if this is a full outer join, then there is no point doing an indexed
@@ -1341,7 +1345,7 @@ public class PSQueryOptimizer extends PSOptimizer
 
    private static int estimateJoinCardinality(
       PSApplicationHandler ah, PSDataSet ds,
-      PSBackEndJoin join, PSCollection whereClauses, Map tmdMap)
+      PSBackEndJoin join, PSCollection whereClauses, Map<String, PSTableMetaData> tmdMap)
       throws SQLException
    {
       PSBackEndColumn leftCol = join.getLeftColumn();
@@ -1722,7 +1726,7 @@ public class PSQueryOptimizer extends PSOptimizer
 
    private static String[] parseXmlNodeName(String xmlField)
    {
-      ArrayList xmlStruct = new ArrayList();
+      ArrayList<String> xmlStruct = new ArrayList<>();
       int pos;
       int lastPos = 0;
       String name;

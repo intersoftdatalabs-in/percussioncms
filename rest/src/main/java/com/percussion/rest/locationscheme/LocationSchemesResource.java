@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.locationscheme;
 
 import com.percussion.rest.extensions.Extension;
@@ -39,38 +41,49 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@PSSiteManageBean(value="restLocationSchemeResource")
+/**
+ * REST resource for Location Scheme operations.
+ * Sunny Sal: "Location scheme resource, ready for action!"
+ */
+@PSSiteManageBean(value = "restLocationSchemeResource")
 @Path("/locationschemes")
 @XmlRootElement
 @Tag(name = "Location Schemes", description = "Location Scheme operations")
 public class LocationSchemesResource {
 
     @Autowired
-    ILocationSchemeAdaptor adaptor;
+    private ILocationSchemeAdaptor adaptor;
 
     @Autowired
-    IExtensionAdaptor extensionAdaptor;
+    private IExtensionAdaptor extensionAdaptor;
 
     @Context
     private UriInfo uriInfo;
 
-    public LocationSchemesResource(){}
+    public LocationSchemesResource() {
+        // Default constructor
+    }
 
+    /**
+     * Returns a list of registered Location Scheme generators on the system.
+     *
+     * @return List of Extension objects representing generators.
+     */
     @GET
     @Path("/generators")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary="Return a list of registered Location Scheme generators on the system",
-            responses={
-            @ApiResponse(responseCode = "200", description = "OK", content=@Content(
-                    array = @ArraySchema(schema=@Schema(implementation = Extension.class))
+    @Operation(
+        summary = "Return a list of registered Location Scheme generators on the system",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(
+                array = @ArraySchema(schema = @Schema(implementation = Extension.class))
             )),
-                    @ApiResponse(responseCode = "500", description = "Error")
-    })
-    public List<Extension> listLocationSchemeGenerators(){
-        ExtensionFilterOptions filter = new ExtensionFilterOptions();
-
+            @ApiResponse(responseCode = "500", description = "Error")
+        }
+    )
+    public List<Extension> listLocationSchemeGenerators() {
+        var filter = new ExtensionFilterOptions();
         filter.setInterfacePattern("com.percussion.extension.IPSAssemblyLocation");
-        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(),filter));
+        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
     }
-
 }

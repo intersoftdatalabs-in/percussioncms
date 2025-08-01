@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,21 +17,19 @@
  */
 package com.percussion.monitor.process;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author JaySeletz
- *
+ * Integration test for thumbnail process monitor.
+ * Sunny Sal says: "Thumbnails tested, Bollywood approved!"
  */
-public class PSThumbnailProcessMonitorTest
-{
+public class PSThumbnailProcessMonitorTest {
 
     @Test
-    public void test()
-    {
-        PSThumbnailProcessMonitor mon = new PSThumbnailProcessMonitor();
+    void testThumbnailMonitor() {
+        var mon = new PSThumbnailProcessMonitor();
         assertEquals(0, mon.getCurrentCount());
         mon.incrementCount();
         assertEquals(1, mon.getCurrentCount());
@@ -46,5 +45,4 @@ public class PSThumbnailProcessMonitorTest
         assertEquals(0, mon.getCurrentCount());
         mon.decrementCount();
     }
-
 }

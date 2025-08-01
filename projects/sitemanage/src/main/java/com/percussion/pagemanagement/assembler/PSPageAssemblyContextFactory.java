@@ -167,15 +167,15 @@ public class PSPageAssemblyContextFactory
     public PSPageAssemblyContext createContext(IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage, boolean isHtml)
             throws  PSFilterException, PSDataServiceException {
 
-        StopWatch sw = new StopWatch("#createContext");
+        final var sw = new StopWatch("#createContext");
         /*
          * Immediately clone the assembly item for thread safety while
          * we are still single threaded.
          */
-        IPSAssemblyItem clonedAssemblyItem = (IPSAssemblyItem) assemblyItem.clone();
+        final var clonedAssemblyItem = (IPSAssemblyItem) assemblyItem.clone();
 
-        PSPage page = templateAndPage.getPage();
-        PSTemplate template = templateAndPage.getTemplate();
+        final var page = templateAndPage.getPage();
+        final var template = templateAndPage.getTemplate();
 
         notNull(clonedAssemblyItem, "assemblyItem");
         notNull(page, "page");
@@ -192,13 +192,13 @@ public class PSPageAssemblyContextFactory
         /*
          * First we create our top level assembly context.
          */
-        PSPageAssemblyContext context = new PSPageAssemblyContext();
+        final var context = new PSPageAssemblyContext();
 
         context.setPage(page);
         context.setTemplate(template);
         context.setEditMode(assemblyItem.getParameterValue(ASSEMBLY_PARAM_EDITMODE, "false").equals("true"));
         context.setScriptsOff(assemblyItem.getParameterValue(ASSEMBLY_PARAM_SCRIPTSOFF, "false").equals("true"));
-        PSRenderLinkContext linkContext = renderLinkContextFactory.create(clonedAssemblyItem, page);
+        final var linkContext = renderLinkContextFactory.create(clonedAssemblyItem, page);
         context.setLinkContext(linkContext);
         context.setPreviewMode(assemblyItem.getDeliveryContext() == 0);
         if(templateAndPage.getItemType()==TemplateAndPage.ItemType.PAGE)
@@ -210,7 +210,7 @@ public class PSPageAssemblyContextFactory
                     templateAndPage.getItemType(),
                     template.getSourceTemplateName());
         }
-        String editType = assemblyItem.getParameterValue(ASSEMBLY_PARAM_EDITTYPE, EditType.PAGE.name());
+        final var editType = assemblyItem.getParameterValue(ASSEMBLY_PARAM_EDITTYPE, EditType.PAGE.name());
         if (editType.equals(EditType.TEMPLATE.name())) {
             context.setEditType(EditType.TEMPLATE);
         }
@@ -223,18 +223,18 @@ public class PSPageAssemblyContextFactory
          * tree.
          */
 
-        PSRegionTree templateRegionTree = template.getRegionTree();
+        final var templateRegionTree = template.getRegionTree();
 
-        PSRegionBranches pageRegionBranches = page.getRegionBranches();
-        PSAbstractMergedRegionTree tree = new PSMergedRegionTree(widgetService, templateRegionTree, pageRegionBranches);
+        final var pageRegionBranches = page.getRegionBranches();
+        final var tree = new PSMergedRegionTree(widgetService, templateRegionTree, pageRegionBranches);
 
-        Map<String, List<PSRegionResult>> regions = new ConcurrentHashMap<>();
+        final Map<String, List<PSRegionResult>> regions = new ConcurrentHashMap<>();
         context.setRegions(regions);
 
         /*
          * We now load all the widget instances for the Merged Regions.
          */
-        Collection<PSMergedRegion> widgetRegions = tree.getWidgetRegions();
+        final var widgetRegions = tree.getWidgetRegions();
 
         sw.stop();
         sw.start("assembleWidgetRegions");
@@ -261,7 +261,7 @@ public class PSPageAssemblyContextFactory
          * regions might contain widgets.
          */
         sw.start("assembleRegionOverrides");
-        Collection<PSMergedRegion> pageRegions = tree.getOverriddenRegions();
+        final var pageRegions = tree.getOverriddenRegions();
 
         /*
          * We should be able to use "widgetRegionAssembler" to render the page regions as well as template regions
@@ -293,9 +293,9 @@ public class PSPageAssemblyContextFactory
          * Set our custom template to the assembly item.
          */
         sw.start("regionToTree");
-        String html = PSRegionTreeUtils.treeToString(templateRegionTree.getRootRegion());
+        final var html = PSRegionTreeUtils.treeToString(templateRegionTree.getRootRegion());
 
-        IPSAssemblyTemplate at = getAssemblyTemplate(template.getSourceTemplateName(), html);
+        final var at = getAssemblyTemplate(template.getSourceTemplateName(), html);
         /*
          * Set our template back to the original assembly item.
          */

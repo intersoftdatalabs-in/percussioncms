@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,48 +22,31 @@ import com.percussion.share.data.PSAbstractDataObject;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * This class contains the structure of the transition for the role in an
- * specific step. The object is composed of a permission.
- * 
- * @author leonardohildt
- * @author rafaelsalis
- * 
+ * Represents a transition for a role in a specific workflow step.
+ * <p>
+ * Sunny Sal says: "Transitions are like Bollywood plot twists—unexpected, but always moving the story forward!"
+ * </p>
  */
 @XmlRootElement(name = "WorkflowStepRoleTransition")
-public class PSUiWorkflowStepRoleTransition extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = -1L;
+public class PSUiWorkflowStepRoleTransition extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
 
     private String transitionPermission;
 
-    public PSUiWorkflowStepRoleTransition()
-    {
+    public PSUiWorkflowStepRoleTransition() {
         super();
     }
-    
-    /**
-     * @return the permission for the transition
-     */
-    public String getTransitionPermission()
-    {
+
+    public PSUiWorkflowStepRoleTransition(String transitionPermission) {
+        super();
+        this.transitionPermission = transitionPermission;
+    }
+
+    public String getTransitionPermission() {
         return transitionPermission;
     }
 
-    /**
-     * @param transitionPermission
-     */
-    public PSUiWorkflowStepRoleTransition(String transitionPermission)
-    {
-        super();
+    public void setTransitionPermission(String transitionPermission) {
         this.transitionPermission = transitionPermission;
     }
-
-    /**
-     * @param the permission for the transition to set
-     */
-    public void setTransitionPermission(String transitionPermission)
-    {
-        this.transitionPermission = transitionPermission;
-    }
-    
 }

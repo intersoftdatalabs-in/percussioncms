@@ -19,29 +19,31 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
-
 import java.util.List;
 
 /**
  * Assembles a region.
- * 
+ *
+ * <p>Implementations must be thread-safe and stateless.
+ *
  * @author adamgent
  * @see IPSRegionsAssembler
- *
  */
-public interface IPSRegionAssembler
-{
-    
+public interface IPSRegionAssembler {
+
     /**
-     * @param assemblyItem never <code>null</code>.
-     * @param context never <code>null</code>.
-     * @param mr never <code>null</code>.
-     * @return never <code>null</code> maybe empty.
+     * Assembles a single region.
+     *
+     * @param assemblyItem never {@code null}
+     * @param context never {@code null}
+     * @param mr never {@code null}
+     * @return never {@code null}, may be empty
+     * @throws IPSTemplateService.PSTemplateException if template expansion fails
+     * @throws PSAssemblyException if assembly fails
      */
-    public List<PSRegionResult> assembleRegion(
-            IPSAssemblyItem assemblyItem, 
+    List<PSRegionResult> assembleRegion(
+            IPSAssemblyItem assemblyItem,
             PSPageAssemblyContext context,
-            PSMergedRegion mr) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
-
+            PSMergedRegion mr
+    ) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }
-

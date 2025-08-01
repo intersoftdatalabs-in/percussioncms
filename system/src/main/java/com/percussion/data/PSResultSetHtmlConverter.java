@@ -98,11 +98,11 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
       /* if there's more than one result set on the stack, we're
        * in trouble!!! we must have missed a join.
        */
-      java.util.Stack stack = data.getResultSetStack();
+      java.util.Stack<?> stack = data.getResultSetStack();
       if (stack.size() > 1)
          throw new PSConversionException(
             IPSDataErrors.CANNOT_CONVERT_MULTIPLE_RESULT_SETS,
-            new Integer(stack.size()));
+            Integer.valueOf(stack.size()));
       else if (stack.size() == 0)
          throw new PSConversionException(
             IPSDataErrors.NO_DATA_FOR_CONVERSION);
@@ -128,7 +128,7 @@ public class PSResultSetHtmlConverter extends PSResultSetXmlConverter {
                {
                   /* Check to see if the page explicitly uses the extension */
                   PSResultPage page = (PSResultPage) pages.get(i);
-                  Collection c = page.getExtensions();
+                  Collection<?> c = page.getExtensions();
                   if ((c != null) && (!c.isEmpty()))
                   {
                      if (c.contains(extension))

@@ -24,11 +24,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * List wrapper for Site objects.
+ * Sunny Sal: "Site list ka boss!"
+ */
 @XmlRootElement(name = "SiteList")
-@ArraySchema(schema=@Schema(implementation = Site.class))
+@ArraySchema(schema = @Schema(implementation = Site.class))
 public class SiteList extends ArrayList<Site> {
     public SiteList(Collection<? extends Site> c) {
         super(c);
     }
-    public SiteList(){};
+    public SiteList() {
+        super();
+    }
 }

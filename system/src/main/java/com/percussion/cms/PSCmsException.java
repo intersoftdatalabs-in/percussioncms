@@ -18,96 +18,104 @@ package com.percussion.cms;
 
 import com.percussion.error.PSException;
 
+import java.util.Objects;
+
 /**
- * This class is used when an error occurs during a request for binary content.
+ * This class is used when an error occurs during CMS operations.
  */
 public class PSCmsException extends PSException
 {
-
    /**
     * Construct an exception for messages taking no arguments.
     *
-    * @param msgCode - the error string to load.  There is no validation on this
-    *    value.
+    * @param msgCode the error string to load
     */
    public PSCmsException(int msgCode)
    {
       super(msgCode);
    }
 
-   public PSCmsException(int code, Throwable t){
-      super(code,t);
+   /**
+    * Construct an exception with message code and cause.
+    *
+    * @param code the error code
+    * @param cause the underlying cause, may be {@code null}
+    */
+   public PSCmsException(int code, Throwable cause)
+   {
+      super(code, cause);
    }
 
-   public PSCmsException(Throwable t){
-      super(t);
+   /**
+    * Construct an exception with cause only.
+    *
+    * @param cause the underlying cause, may not be {@code null}
+    * @throws IllegalArgumentException if cause is {@code null}
+    */
+   public PSCmsException(Throwable cause)
+   {
+      super(Objects.requireNonNull(cause, "cause cannot be null"));
    }
 
    /**
     * Construct an exception from a class derived from PSException.
     *
-    * @param ex The exception to use.  Its message code and arguments are
-    *    stored.  May not be <code>null</code>.
+    * @param ex The exception to use. Its message code and arguments are
+    *    stored. May not be {@code null}.
+    * @throws IllegalArgumentException if ex is {@code null}
     */
    public PSCmsException(PSException ex)
    {
-      this(ex.getErrorCode(), ex.getErrorArguments(), ex);
+      this(Objects.requireNonNull(ex, "PSException cannot be null").getErrorCode(),
+           ex.getErrorArguments(), ex);
    }
 
    /**
     * Construct an exception for messages taking 2 specific arguments.
     *
-    * @param msgCode - the error string to load.  There is no validation on this
-    * value.
-    * @param contentId - the contentid on which the error occurred. May be 0.
-    * @param revisionId - the revisionid on which the error occurred.  May be 0.
+    * @param msgCode the error string to load
+    * @param contentId the contentid on which the error occurred. May be 0.
+    * @param revisionId the revisionid on which the error occurred. May be 0.
     */
    public PSCmsException(int msgCode, int contentId, int revisionId)
    {
-      this(msgCode, new Integer[]
-         {
-                 contentId, revisionId
-         });
+      this(msgCode, new Integer[] { contentId, revisionId });
    }
 
    /**
-    * Construct an exception for messages taking multiple arguments
+    * Construct an exception for messages taking a single string argument.
     *
-    * @param msgCode - the error string to load.  There is no validation on this
-    *    value.
-    * @param singleMessage the sole of argument to use as the arguments in the
-    *    error message
+    * @param msgCode the error string to load
+    * @param singleMessage the sole argument to use as the arguments in the
+    *    error message, may be {@code null}
     */
    public PSCmsException(int msgCode, String singleMessage)
    {
-      super(msgCode,singleMessage);
+      super(msgCode, singleMessage);
    }
+
    /**
-    * Construct an exception for messages taking multiple arguments
+    * Construct an exception for messages taking multiple arguments.
     *
-    * @param msgCode - the error string to load.  There is no validation on this
-    *    value.
+    * @param msgCode the error string to load
     * @param arrayArgs the array of arguments to use as the arguments in the
-    *    error message
+    *    error message, may be {@code null}
     */
    public PSCmsException(int msgCode, Object[] arrayArgs)
    {
-      super(msgCode,arrayArgs);
+      super(msgCode, arrayArgs);
    }
 
    /**
-    * Construct an exception for messages taking multiple arguments
+    * Construct an exception for messages taking multiple arguments with cause.
     *
-    * @param msgCode - the error string to load.  There is no validation on this
-    *    value.
+    * @param msgCode the error string to load
     * @param arrayArgs the array of arguments to use as the arguments in the
-    *    error message
+    *    error message, may be {@code null}
+    * @param cause the underlying cause, may be {@code null}
     */
    public PSCmsException(int msgCode, Object[] arrayArgs, Throwable cause)
    {
-      super(msgCode,arrayArgs, cause);
+      super(msgCode, arrayArgs, cause);
    }
-
 }
-
-

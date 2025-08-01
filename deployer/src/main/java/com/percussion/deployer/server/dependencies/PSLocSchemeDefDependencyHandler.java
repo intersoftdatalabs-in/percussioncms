@@ -128,21 +128,14 @@ public class PSLocSchemeDefDependencyHandler
 
    // see base class
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) 
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-      
-      Set<IPSLocationScheme> schemes = findAllLocationSchemes();
-      for (IPSLocationScheme scheme : schemes)
-      {
-         deps.add(createDependency(m_def, 
-               String.valueOf(scheme.getGUID().longValue()), scheme.getName()));
       }
-      
-      return deps.iterator();
+
+      return findAllLocationSchemes().stream()
+         .map(scheme -> createDependency(m_def, String.valueOf(scheme.getGUID().longValue()), scheme.getName()))
+         .iterator();
    }
 
    // see base class

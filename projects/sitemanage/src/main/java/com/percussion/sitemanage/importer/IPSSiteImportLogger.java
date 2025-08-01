@@ -17,100 +17,86 @@
 package com.percussion.sitemanage.importer;
 
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
-
 import java.util.Date;
 import java.util.List;
 
 /**
- * Logging interface to use when importing a Site or Template.  
- * 
- * @author JaySeletz
- *
+ * Logging interface for site or template import operations.
  */
-public interface IPSSiteImportLogger
-{
+public interface IPSSiteImportLogger {
     /**
-     * Defines type of log entry, passed as <code>type</code> param to {@link IPSSiteImportLogger#appendLogMessage(PSLogEntryType, String)}
-     *
+     * Type of log entry, used in {@link #appendLogMessage(PSLogEntryType, String, String)}.
      */
-    public enum PSLogEntryType
-    {
+    enum PSLogEntryType {
         STATUS,
-        ERROR;
+        ERROR
     }
-    
+
     /**
-     * Defines the types of objects for which log entries will be created.  Used
-     * for <code>objectType</code> param in {@link PSImportLogEntry#PSImportLogEntry(long, String, Date, String)} ctor
-     * 
+     * Types of objects for which log entries are created.
      */
-    public enum PSLogObjectType
-    {
+    enum PSLogObjectType {
         SITE,
         TEMPLATE,
         PAGE,
-        SITE_ERROR;
+        SITE_ERROR
     }
-    
-    /**
-     * Append an entry to the current import log.
-     * 
-     * @param type The type of entry, may not be <code>null</code>.
-     * @param category The category, determined by the caller, may not be <code>null</code> or empty.
-     * @param message The message to log, may not be <code>null</code> or empty.  
-     */
-    public void appendLogMessage(PSLogEntryType type, String category, String message);
 
     /**
-     * Gets the log that was built for the current import.
-     * 
-     * @return {@link String}, never <code>null</code> but may be empty.
+     * Appends an entry to the current import log.
+     *
+     * @param type     The type of entry, not null.
+     * @param category The category, not null or empty.
+     * @param message  The message to log, not null or empty.
+     */
+    void appendLogMessage(PSLogEntryType type, String category, String message);
+
+    /**
+     * Gets the log built for the current import.
+     *
+     * @return The log as a String, never null but may be empty.
      */
     String getLog();
-    
+
     /**
-     * Get the type of log.
-     * 
-     * @return The type, never <code>null</code>.
+     * Gets the type of log.
+     *
+     * @return The type, never null.
      */
     PSLogObjectType getType();
-    
-    /**
-     * Collect errors when calls to {@link #appendLogMessage(PSLogEntryType, String, String)} are made with
-     * a log entry type of {@link PSLogEntryType#ERROR}, which can be retrieved by calls to 
-     * {@link #getErrors(PSLogObjectType, String)}.
 
+    /**
+     * Collects errors when {@link #appendLogMessage(PSLogEntryType, String, String)} is called with
+     * {@link PSLogEntryType#ERROR}. Errors can be retrieved via {@link #getErrors(PSLogObjectType, String, String)}.
      */
     void logErrors();
-    
+
     /**
-     * Get the list of error log entries collected.
-     * 
-     * @param errorObjectType The error type to use for the log entries, not <code>null</code>.
-     * @param errorObjectId The object id to use for  the log entries, not blank.
-     * @param description Describes the object being imported.
-     * 
-     * @return The list, may be empty, <code>null</code> if {@link #logErrors(PSLogObjectType, String)} has 
-     * not been called.
+     * Gets the list of error log entries collected.
+     *
+     * @param errorObjectType The error type for the log entries, not null.
+     * @param errorObjectId   The object id for the log entries, not blank.
+     * @param description     Description of the object being imported.
+     * @return The list, may be empty; null if {@link #logErrors()} has not been called.
      */
     List<PSImportLogEntry> getErrors(PSLogObjectType errorObjectType, String errorObjectId, String description);
-    
+
     /**
-     * Set the count of threads that need to complete work before the log is saved.
-     * 
-     *   @param count The number of threads to wait for
+     * Sets the count of threads that must complete before the log is saved.
+     *
+     * @param count The number of threads to wait for.
      */
     void setWaitCount(int count);
-    
+
     /**
-     * Remove the count of threads that need to complete work before the log is saved.  
+     * Removes a thread from the wait count.
      */
     void removeFromWaitCount();
-    
+
     /**
-     * Wait for any threads to complete work before the log is saved
-     * 
-     * @param timeoutSeconds The number of seconds to wait before continuing on without the thread count reaching zero
+     * Waits for threads to complete before saving the log.
+     *
+     * @param timeoutSeconds The number of seconds to wait before continuing without reaching zero.
      */
     void waitForThreads(long timeoutSeconds);
 }

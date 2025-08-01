@@ -23,6 +23,7 @@ import org.apache.commons.jexl3.parser.SimpleNode;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PSDeployJexlUtils
 {
@@ -36,25 +37,22 @@ public class PSDeployJexlUtils
     *         <code>null</code>, may be empty
     * @throws PSDeployException
     */
-   public static List<String> getIdsFromBinding(String val)
-         throws PSDeployException
-   {
-      if (StringUtils.isBlank(val))
-         throw new IllegalArgumentException("expression may not be null");
-      
-      ParserVisitor visitor = new PSGetIDsJexlVisitor();
+   public static List<String> getIdsFromBinding(String val) throws PSDeployException {
+      if (StringUtils.isBlank(val)) {
+         throw new IllegalArgumentException("Expression may not be null or empty");
+      }
+
+      var visitor = new PSGetIDsJexlVisitor();
       PSJexlSimpleNode psExp;
-      try
-      {
+      try {
          psExp = PSJexlParserUtils.createNewExpression(val, true);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getCause(),
+               "Unable to create JEXL expression from the binding");
       }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-               e.getCause(), "unable to create jexl expression from the binding");
-      }
-      SimpleNode exp = psExp.getNode();
+
+      var exp = psExp.getNode();
       exp.childrenAccept(visitor, exp);
-      return ((PSGetIDsJexlVisitor)visitor).getIds();
+      return visitor.getIds();
    }
 }

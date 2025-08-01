@@ -15,94 +15,103 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a REST error returned to the client.
+ * Sunny Sal: "Error ho gaya? No worries, this class will tell you what went wrong!"
+ */
 @XmlRootElement(name = "Error")
-public class RestError
-{
+public class RestError {
+
     private int errorCode;
-
     private String errorType;
-
     private String message;
-
     private String detailMessage;
-
     private Object errorData;
 
-    public RestError()
-    {
-
+    /**
+     * Default constructor for serialization.
+     */
+    public RestError() {
+        // No-arg constructor for frameworks
     }
 
-    public RestError(int errorCode, String errorType, String message, String detailMessage, Object errorData)
-    {
+    /**
+     * Constructs a RestError with all fields.
+     *
+     * @param errorCode     the error code
+     * @param errorType     the error type
+     * @param message       the error message
+     * @param detailMessage the detailed error message
+     * @param errorData     additional error data
+     */
+    public RestError(int errorCode, String errorType, String message, String detailMessage, Object errorData) {
         this.errorCode = errorCode;
         this.errorType = errorType;
         this.message = message;
-        this.errorData = errorData;
         this.detailMessage = detailMessage;
+        this.errorData = errorData;
     }
 
-    public int getErrorCode()
-    {
+    public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(int errorCode)
-    {
+    public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 
-    public String getErrorType()
-    {
+    public String getErrorType() {
         return errorType;
     }
 
-    public void setErrorType(String errorType)
-    {
+    public void setErrorType(String errorType) {
         this.errorType = errorType;
     }
 
-    public String getMessage()
-    {
+    public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message)
-    {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public String getDetailMessage()
-    {
+    public String getDetailMessage() {
         return detailMessage;
     }
 
-    public void setDetailMessage(String detailMessage)
-    {
+    public void setDetailMessage(String detailMessage) {
         this.detailMessage = detailMessage;
     }
 
-    public Object getErrorData()
-    {
-        return errorData;
+    /**
+     * Returns the error data as an Optional.
+     *
+     * @return Optional containing error data if present
+     */
+    public Optional<Object> getErrorData() {
+        return Optional.ofNullable(errorData);
     }
 
-    public void setErrorData(Object errorData)
-    {
+    public void setErrorData(Object errorData) {
         this.errorData = errorData;
     }
 
     @Override
-    public String toString()
-    {
-        return "RestError [errorCode=" + errorCode + ", errorType=" + errorType + ", message=" + message
-                + ", detailMessage=" + detailMessage + ", errorData=" + errorData + "]";
+    public String toString() {
+        return "RestError{" +
+                "errorCode=" + errorCode +
+                ", errorType='" + errorType + '\'' +
+                ", message='" + message + '\'' +
+                ", detailMessage='" + detailMessage + '\'' +
+                ", errorData=" + errorData +
+                '}';
     }
-
-    
-    
 }

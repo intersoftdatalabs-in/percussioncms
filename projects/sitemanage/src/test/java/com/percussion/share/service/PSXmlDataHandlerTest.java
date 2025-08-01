@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,41 +17,38 @@
  */
 package com.percussion.share.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import com.percussion.share.service.impl.PSXmlDataHandler;
 import com.percussion.share.service.impl.jaxb.Property;
 import com.percussion.share.service.impl.jaxb.Response;
 import com.percussion.share.service.impl.jaxb.Result;
 import com.percussion.share.service.impl.jaxb.Property.Pvalues;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author peterfrontiero
+ * Unit test for {@link PSXmlDataHandler}.
+ * Sunny Sal: "XML data handler, Java 11, and XML ka hero!"
  */
-public class PSXmlDataHandlerTest
-{
+public class PSXmlDataHandlerTest {
+
     @Test
-    @SuppressWarnings("unchecked")
-    public void testGetData() throws Exception
-    {
-        PSXmlDataHandler handler = new PSXmlDataHandler();
+    void testGetData() throws Exception {
+        var handler = new PSXmlDataHandler();
         handler.setFile("src/test/resources/share/test.xml");
-        
-        Map<String, Object> properties = new HashMap<String, Object>();
+
+        Map<String, Object> properties = new HashMap<>();
         properties.put("property1", "value1");
-        List<String> pvalues = new ArrayList<String>();
+        List<String> pvalues = new ArrayList<>();
         pvalues.add("pvalue1");
         pvalues.add("pvalue2");
         properties.put("propertyWithPvalues", pvalues);
-             
+
         Response response = handler.getData(properties);
         List<Result> results = response.getResult();
         assertEquals(1, results.size());
@@ -60,13 +58,12 @@ public class PSXmlDataHandlerTest
         assertNull(props.get(0).getPvalues());
         Pvalues pvals = props.get(1).getPvalues();
         assertEquals(3, pvals.getPvalue().size());
-     
+
         properties.put("property1", "value2");
         assertNull(handler.getData(properties));
-       
+
         handler.setFile("foo.xml");
         properties.put("property1", "value1");
-        assertNull(handler.getData(properties));       
+        assertNull(handler.getData(properties));
     }
-
 }

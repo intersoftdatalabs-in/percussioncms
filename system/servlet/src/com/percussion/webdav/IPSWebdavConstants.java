@@ -24,6 +24,8 @@ import java.util.List;
 /**
  * WebDAV constants.
  */
+
+// REFACTORED: CP-JAVA11
 public interface IPSWebdavConstants {
 
 
@@ -134,7 +136,7 @@ public interface IPSWebdavConstants {
       P_SUPPORTEDLOCK
    };
 
-   List WEBDAV_PROPERTY_LIST = Collections.unmodifiableList(
+   List<String> WEBDAV_PROPERTY_LIST = Collections.unmodifiableList(
      Arrays.asList(WEBDAV_PROPERTIES));
        
    //----------------------------
@@ -171,7 +173,7 @@ public interface IPSWebdavConstants {
       P_GETCONTENTTYPE,
    };
    
-   List REQUIRED_PROPERTY_LIST = Collections.unmodifiableList(
+   List<String> REQUIRED_PROPERTY_LIST = Collections.unmodifiableList(
       Arrays.asList(REQUIRED_PROPERTIES));  
 }
 

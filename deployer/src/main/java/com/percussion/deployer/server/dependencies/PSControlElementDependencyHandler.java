@@ -16,18 +16,12 @@
  */
 package com.percussion.deployer.server.dependencies;
 
-import com.percussion.deployer.server.PSDependencyDef;
-import com.percussion.deployer.server.PSDependencyMap;
-
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Class to handle packaging and deploying a control element
  */
-public class PSControlElementDependencyHandler extends 
-   PSElementDependencyHandler
+public class PSControlElementDependencyHandler extends PSElementDependencyHandler
 {
 
    /**
@@ -57,8 +51,7 @@ public class PSControlElementDependencyHandler extends
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -94,11 +87,5 @@ public class PSControlElementDependencyHandler extends
     * List of child types supported by this handler, never <code>null</code> or
     * empty.
     */
-   private static List<String> ms_childTypes = new ArrayList<>();
-
-   static
-   {
-      ms_childTypes.add(PSControlDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSControlDependencyHandler.DEPENDENCY_TYPE);
 }
-

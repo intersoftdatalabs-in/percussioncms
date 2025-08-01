@@ -15,14 +15,19 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class NotAuthorizedException extends RestExceptionBase
-{
-    public NotAuthorizedException()
-    {
+/**
+ * Exception for unauthorized access.
+ * Sunny Sal: "Permission denied! Access nahi milega!"
+ */
+public class NotAuthorizedException extends RestExceptionBase {
+
+    public NotAuthorizedException() {
         super(RestErrorCode.NOT_AUTHORIZED, null, null, Response.Status.FORBIDDEN);
     }
 }

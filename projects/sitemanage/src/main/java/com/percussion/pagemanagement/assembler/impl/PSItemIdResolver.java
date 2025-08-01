@@ -26,43 +26,40 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
+// REFACTORED: CP-JAVA11
 @PSSiteManageBean("itemIdResolver")
-public class PSItemIdResolver
-{
+public class PSItemIdResolver {
+
     IPSContentDesignWs contentDesignWs;
     IPSIdMapper idMapper;
-    
-    
+
     @Autowired
-    public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper)
-    {
+    public PSItemIdResolver(IPSContentDesignWs contentDesignWs, IPSIdMapper idMapper) {
         super();
         this.contentDesignWs = contentDesignWs;
         this.idMapper = idMapper;
     }
 
-
-
     public String getId(IPSAssemblyItem item) {
-        IPSGuid pageGuid = item.getId();
-        String id = idMapper.getString(pageGuid);
+        var pageGuid = item.getId();
+        var id = idMapper.getString(pageGuid);
         return id;
     }
-    
+
     public String getId(PSAbstractPersistantObject item) {
         notNull(item.getId(), "item id");
-        IPSGuid guid = idMapper.getGuid(item.getId());
+        var guid = idMapper.getGuid(item.getId());
         guid = contentDesignWs.getItemGuid(guid);
-        String pageId = idMapper.getString(guid);
+        var pageId = idMapper.getString(guid);
         return pageId;
     }
-    
+
     public void updateItemId(PSAbstractPersistantObject item) {
         if (item.getId() != null) {
             /*
              * We need to set the proper revisioned id on the item.
              */
-            String pageId = getId(item);
+            var pageId = getId(item);
             item.setId(pageId);
         }
     }

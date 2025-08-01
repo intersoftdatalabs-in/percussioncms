@@ -317,8 +317,6 @@ public class PSRowDataBuffer
             else
             {
                long clen = c.length();
-
-               int ilen = 0;
                if (clen > (long) Integer.MAX_VALUE)
                {
                   throw new SQLException("Length of clob " + clen +
@@ -376,43 +374,7 @@ public class PSRowDataBuffer
     *    by Java or IO exceptions occur in the local byte stream. Neither of
     *    these should ever happen.
     */
-   private static String fixupUtf16SqlServerBug( String data )
-      throws SQLException
-   {
-      if ( null == data || data.trim().length() == 0 )
-         return data;
-
-      // safety check, 4 chars represent a single unicode char
-      if ( data.length() % 4 != 0 )
-         return data;
-
-      String val = null;
-      try
-      {
-         char [] numBuf = new char[2];
-
-         ByteArrayOutputStream os = new ByteArrayOutputStream();
-         // add the byte order mark for little endian
-         byte [] bom = new byte[2];
-         bom[0] = (byte) 0xff;
-         bom[1] = (byte) 0xfe;
-         os.write( bom );
-         int len = data.length();
-         for ( int i = 0; i < len; i+=2 )
-         {
-            numBuf[0] = data.charAt(i);
-            numBuf[1] = data.charAt(i+1);
-            int utf16Octet = Integer.parseInt( new String( numBuf ), 16 );
-            os.write((byte) utf16Octet );
-         }
-         val = new String( os.toByteArray(), "UTF-16" );
-      } catch ( IOException e )
-      {
-         throw new SQLException( e.getLocalizedMessage());
-      }
-
-      return val;
-   }
+   // Removed unused private static method 'fixupUtf16SqlServerBug' (Java 11 refactor)
 
    private Object[]      m_curRow;
    private ResultSet      m_resultSet;

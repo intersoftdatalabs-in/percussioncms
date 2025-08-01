@@ -129,52 +129,53 @@ public class PSLogDetail implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   @Override
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.appendChild(m_dbmsMap.toXml(doc));
       root.appendChild(m_txnLog.toXml(doc));
       root.appendChild(m_validationResults.toXml(doc));
-      if ( m_idMap != null )
-         root.appendChild(m_idMap.toXml(doc));
-
+      Optional.ofNullable(m_idMap).ifPresent(idMap -> root.appendChild(idMap.toXml(doc)));
       return root;
    }
 
    // see IPSDeployComponent interface
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   @Override
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
 
-      Element childEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      checkNullXmlELement(childEl, PSDbmsMap.XML_NODE_NAME);
-      m_dbmsMap = new PSDbmsMap(childEl);
+      var tree = new PSXmlTreeWalker(sourceNode);
 
-      childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      checkNullXmlELement(childEl, PSTransactionLogSummary.XML_NODE_NAME);
-      m_txnLog = new PSTransactionLogSummary(childEl);
+      var dbmsEl = Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDbmsMap.XML_NODE_NAME));
+      m_dbmsMap = new PSDbmsMap(dbmsEl);
 
-      childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      checkNullXmlELement(childEl, PSValidationResults.XML_NODE_NAME);
-      m_validationResults = new PSValidationResults(childEl);
+      var txnEl = Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSTransactionLogSummary.XML_NODE_NAME));
+      m_txnLog = new PSTransactionLogSummary(txnEl);
 
-      childEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
-      if ( childEl != null )
-         m_idMap = new PSIdMap(childEl);
+      var valEl = Optional.ofNullable(tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSValidationResults.XML_NODE_NAME));
+      m_validationResults = new PSValidationResults(valEl);
+
+      var idEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+      m_idMap = idEl != null ? new PSIdMap(idEl) : null;
    }
 
    /**

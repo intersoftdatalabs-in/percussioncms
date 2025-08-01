@@ -15,13 +15,16 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.cx;
 
 import com.percussion.cx.javafx.PSDesktopExplorerWindow;
 import com.percussion.cx.javafx.PSFileSaver;
 import com.percussion.cx.javafx.PSWindowManager;
 import netscape.javascript.JSObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -30,16 +33,15 @@ import java.util.concurrent.CountDownLatch;
 
 public class PSJavaBridge implements ClipboardOwner {
 
-   static Logger log = Logger.getLogger(PSJavaBridge.class);
+   static Logger log = LogManager.getLogger(PSJavaBridge.class);
 
-   CountDownLatch initialized = new CountDownLatch(1);
+   final CountDownLatch initialized = new CountDownLatch(1);
 
-   private PSDesktopExplorerWindow frame;
+   private final PSDesktopExplorerWindow frame;
 
    public PSJavaBridge(PSDesktopExplorerWindow frame)
    {
       this.frame = frame;
-
    }
 
    public void log(String text)

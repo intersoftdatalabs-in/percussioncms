@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -34,83 +35,83 @@ import javax.persistence.criteria.Root;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Hibernate implementation of {@link IPSRecentDao}.
+ */
 @Repository("recentDao")
 @Transactional
-public class PSRecentDao implements IPSRecentDao
-{
+public class PSRecentDao implements IPSRecentDao {
 
-  @PersistenceContext
-private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    private Session getSession(){
+    private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
 
-    PSRecentDao()
-    {
-        
+    public PSRecentDao() {
+        // Default constructor
     }
 
-    public List<PSRecent> find(String user, String siteName, RecentType type)
-    {
-        Session session = getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<PSRecent> find(String user, String siteName, RecentType type) {
+        var session = getSession();
+        var builder = session.getCriteriaBuilder();
+        var criteria = builder.createQuery(PSRecent.class);
+        var recent = criteria.from(PSRecent.class);
+        var predList = new LinkedList<Predicate>();
 
-        CriteriaQuery<PSRecent> criteria = builder.createQuery(PSRecent.class);
-        Root<PSRecent> recent = criteria.from(PSRecent.class);
-        List<Predicate> predList = new LinkedList<>();
-
-        if (user!=null) {
+        if (user != null) {
             predList.add(builder.equal(recent.get("user"), user));
         }
-        if(siteName!=null) {
+        if (siteName != null) {
             predList.add(builder.equal(recent.get("siteName"), siteName));
         }
-        if(type!=null) {
-            predList.add( builder.equal(recent.get("type"), type));
+        if (type != null) {
+            predList.add(builder.equal(recent.get("type"), type));
         }
-        Predicate[] preds = new Predicate[predList.size()];
-        preds = predList.toArray(preds);
+        var preds = predList.toArray(new Predicate[0]);
         criteria.where(preds);
         criteria.orderBy(builder.asc(recent.get("order")));
-        return entityManager
-                .createQuery(criteria)
-                .getResultList();
+        return entityManager.createQuery(criteria).getResultList();
     }
-    
 
-    public void saveAll(List<PSRecent> recentList)
-    {
-     
-        for (PSRecent recent : recentList)
-        {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void saveAll(List<PSRecent> recentList) {
+        for (var recent : recentList) {
             getSession().saveOrUpdate(recent);
         }
-        
     }
 
-
-    public void delete(PSRecent recent) 
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void delete(PSRecent recent) {
         getSession().delete(recent);
     }
-    
 
-    public void deleteAll(List<PSRecent> recentList)
-    {
-        for (PSRecent recent : recentList)
-        {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteAll(List<PSRecent> recentList) {
+        for (var recent : recentList) {
             getSession().delete(recent);
         }
     }
 
-    
-
-    public void save(PSRecent recent) throws SaveException
-    {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void save(PSRecent recent) throws SaveException {
         getSession().saveOrUpdate(recent);
     }
-
- 
 }
-

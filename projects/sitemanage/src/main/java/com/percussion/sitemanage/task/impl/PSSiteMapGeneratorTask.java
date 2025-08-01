@@ -113,8 +113,8 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
 
         if (site.isGenerateSitemap()) {
 
-            ObjectMapper mapper = new ObjectMapper();
-            String jsonString = site.getGenerateSiteMapOptions();
+            var mapper = new ObjectMapper();
+            var jsonString = site.getGenerateSiteMapOptions();
             PSGenerateSiteMapOptions psGenerateSiteMapOptions = null;
             try {
                 psGenerateSiteMapOptions = mapper.readValue(jsonString, PSGenerateSiteMapOptions.class);
@@ -123,13 +123,12 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
                 throw new PSExtensionException(e);
             }
 
-
             long count = 0;
-            List<IPSEditionContentList> contentLists = publisherService.loadEditionContentLists(edition.getGUID());
+            var contentLists = publisherService.loadEditionContentLists(edition.getGUID());
 
-            //Detect if this is a "normal" edition - publish now, auto publish, and incremental should always be skipped.
+            // Detect if this is a "normal" edition - publish now, auto publish, and incremental should always be skipped.
             if (contentLists != null && !contentLists.isEmpty()) {
-                for (IPSEditionContentList ecl : contentLists) {
+                for (var ecl : contentLists) {
                     IPSContentList cl = null;
                     try {
                         cl = publisherService.loadContentList(ecl.getContentListId());
@@ -138,12 +137,12 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
                         throw new PSExtensionException(e);
                     }
                     if (cl.getType() == IPSContentList.Type.INCREMENTAL) {
-                        //If this is an incremental edition we want to skip generation
+                        // If this is an incremental edition we want to skip generation
                         log.warn("Skipping sitemap generation for incremental edition. ");
                         return;
                     }
 
-                    String generator = cl.getGenerator();
+                    var generator = cl.getGenerator();
                     if (generator != null && generator.equalsIgnoreCase("Java/global/percussion/system/sys_SelectedItemsGenerator")) {
                         log.warn("Skipping sitemap generation for Publish Now edition.");
                         return;
@@ -151,12 +150,11 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
                 }
             }
 
-            File siteMapDir = new File(getSiteMapDirForJob(jobId));
+            var siteMapDir = new File(getSiteMapDirForJob(jobId));
             siteMapDir.mkdirs();
             WebSitemapGenerator wsg = null;
             try {
-                wsg = WebSitemapGenerator.builder(site.getBaseUrl(),
-                        siteMapDir).build();
+                wsg = WebSitemapGenerator.builder(site.getBaseUrl(), siteMapDir).build();
             } catch (MalformedURLException e) {
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 throw new PSExtensionException(e);
@@ -167,37 +165,36 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
                 excludeImage = psGenerateSiteMapOptions.getGenerateSitemapExcludeImage();
             }
 
-            IPSContentMgr contentMgr = PSContentMgrLocator.getContentMgr();
-            IPSGuidManager ipsGuidManager = PSGuidManagerLocator.getGuidMgr();
+            var contentMgr = PSContentMgrLocator.getContentMgr();
+            var ipsGuidManager = PSGuidManagerLocator.getGuidMgr();
 
-
-            for (IPSPubItemStatus s : status.getIterableJobStatus()) {
+            for (var s : status.getIterableJobStatus()) {
                 boolean skipItem = s.getLocation().startsWith("/Assets") && (excludeImage != null && excludeImage.equals("true"));
-                //bypassing assets bases on user preference (set in site navigation -> site preference)
+                // Bypassing assets based on user preference (set in site navigation -> site preference)
 
                 if (!skipItem) {
                     try {
-                        PSLocator psLocator = new PSLocator(s.getContentId());
+                        var psLocator = new PSLocator(s.getContentId());
                         psLocator.setRevision(s.getRevisionId());
 
-                        IPSGuid ipsGuid = ipsGuidManager.makeGuid(psLocator);
-                        List<IPSGuid> idList = new ArrayList<>();
+                        var ipsGuid = ipsGuidManager.makeGuid(psLocator);
+                        var idList = new ArrayList<IPSGuid>();
                         idList.add(ipsGuid);
 
-                        PSContentMgrConfig config = new PSContentMgrConfig();
+                        var config = new PSContentMgrConfig();
                         config.removeOption(PSContentMgrOption.LOAD_MINIMAL);
                         config.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
-                        List<Node> nodeList = contentMgr.findItemsByGUID(idList, config);
+                        var nodeList = contentMgr.findItemsByGUID(idList, config);
 
                         if (!nodeList.isEmpty()) {
-                            Node currentItem = nodeList.get(0);
-                            //Skip excluded pages if the property is set
+                            var currentItem = nodeList.get(0);
+                            // Skip excluded pages if the property is set
                             if (currentItem.hasProperty("rx:page_noindex")) {
-                                Property currentItemProperty = currentItem.getProperty("rx:page_noindex");
+                                var currentItemProperty = currentItem.getProperty("rx:page_noindex");
                                 if (currentItemProperty != null) {
-                                    Value value = currentItemProperty.getValue();
+                                    var value = currentItemProperty.getValue();
                                     if (value != null && value.getString() != null && value.getString().equals("true")) {
-                                        //"Hide page from Web search engine" is checked to true so bypassing this asset
+                                        // "Hide page from Web search engine" is checked to true so bypassing this asset
                                         skipItem = true;
                                     }
                                 }
@@ -216,7 +213,7 @@ public class PSSiteMapGeneratorTask implements IPSEditionTask {
                         count++;
                     } else {
                         if (isPriorVersionLiveV2(s) && s.getOperation().equals(IPSSiteItem.Operation.PUBLISH)) {
-                            //a previous version was live - so even tho this one failed we should include it in the sitemap
+                            // A previous version was live - so even though this one failed we should include it in the sitemap
                             addToSiteMap(wsg, site, s);
                             count++;
                         }

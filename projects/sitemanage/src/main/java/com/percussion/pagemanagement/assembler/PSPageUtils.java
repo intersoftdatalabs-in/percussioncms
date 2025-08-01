@@ -196,9 +196,8 @@ public class PSPageUtils extends PSJexlUtilBase
 
     @IPSJexlMethod(description = "parseHtmlFragment can be used to parse a fragment of HTML and return an Element that can be manipulated", params =
             {@IPSJexlParam(name = "htmlFragment", description = "An HTML fragment to parse.")}, returns = "An org.jsoup.nodes.Element instance representing the HTML fragment.")
-    public  org.jsoup.nodes.Element parseHtmlFragment(String htmlFragment)
-    {
-        org.jsoup.nodes.Document doc = Jsoup.parseBodyFragment(htmlFragment);
+    public org.jsoup.nodes.Element parseHtmlFragment(String htmlFragment) {
+        var doc = Jsoup.parseBodyFragment(htmlFragment);
         return doc.body();
 
     }
@@ -222,59 +221,45 @@ public class PSPageUtils extends PSJexlUtilBase
             params={@IPSJexlParam(description = "Link (relative or absolute to be checked.", name = "link"),
                     @IPSJexlParam(description = "Publishing context name", name = "context"),
                     @IPSJexlParam(description = "Set to true to not cache this link. false to use caching.  By default all links are cached for 30 minutes.",name="dontCache")}, returns = "boolean")
-    public boolean isLinkGood(String link, String context, boolean dontCache){
-
-        net.sf.ehcache.Element cachedLink =null;
-
-        try{
-            log.debug("Checking link: {} in context: {} dontCache= {}",
-                    link,context,dontCache);
-
-            if(!dontCache){
+    public boolean isLinkGood(String link, String context, boolean dontCache) {
+        net.sf.ehcache.Element cachedLink = null;
+        try {
+            log.debug("Checking link: {} in context: {} dontCache= {}", link, context, dontCache);
+            if (!dontCache) {
                 cachedLink = linkCache.get(link);
-                log.debug("Got link: {} from cache.",link);
+                log.debug("Got link: {} from cache.", link);
             }
-
-
-            //If we didn't get a result - it's the first time through or link has expired
-            if(cachedLink == null){
+            if (cachedLink == null) {
                 try {
-                    HttpURLConnection connection = (HttpURLConnection) new URL(link).openConnection();
+                    var connection = (HttpURLConnection) new URL(link).openConnection();
                     connection.setConnectTimeout(LINKCHECK_TIMEOUT);
                     connection.setReadTimeout(LINKCHECK_TIMEOUT);
                     connection.setRequestMethod("HEAD");
                     int responseCode = connection.getResponseCode();
-
-                    log.debug("Got response code of {}  for {}",responseCode ,link);
-
+                    log.debug("Got response code of {}  for {}", responseCode, link);
                     boolean result = (200 <= responseCode && responseCode <= 399);
-
-                    //Cache it
-                    net.sf.ehcache.Element newLink = new net.sf.ehcache.Element(link,result);
+                    var newLink = new net.sf.ehcache.Element(link, result);
                     newLink.setTimeToIdle(1800);
                     newLink.setTimeToLive(1800);
-
-                    if(!dontCache){
+                    if (!dontCache) {
                         linkCache.put(newLink);
-                        log.debug("Caching link: {} with result of {}",link,result);
+                        log.debug("Caching link: {} with result of {}", link, result);
                     }
-
                     return result;
                 } catch (IOException exception) {
-                    log.error(LOG_ERROR_DEFAULT,"isLinkGood", exception.getMessage());
-                    log.debug(exception.getMessage(),exception);
+                    log.error(LOG_ERROR_DEFAULT, "isLinkGood", exception.getMessage());
+                    log.debug(exception.getMessage(), exception);
                     return false;
                 }
-            }else{
-                log.debug("Returning cached link result for link: {} status: {}",link , cachedLink.getObjectValue());
-                return (Boolean)cachedLink.getObjectValue();
+            } else {
+                log.debug("Returning cached link result for link: {} status: {}", link, cachedLink.getObjectValue());
+                return (Boolean) cachedLink.getObjectValue();
             }
-        }catch(Exception e){
-            log.error("Error checking link: {} Error: {}", link,PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("Error checking link: {} Error: {}", link, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return false;
         }
-
     }
 
 
@@ -547,19 +532,19 @@ public class PSPageUtils extends PSJexlUtilBase
      *         empty.
      */
     private Set<String> getWidgetDefIds(IPSAssemblyItem item) throws PSDataServiceException, RepositoryException {
-        Set<String> widgetDefIds = new HashSet<>();
+        var widgetDefIds = new HashSet<String>();
         if (item == null) {
             return widgetDefIds;
         }
-            PSPage page = getAssemblyItemBridge().getTemplateAndPage(item).getPage();
-            PSTemplate template = getAssemblyItemBridge().getTemplateAndPage(item).getTemplate();
-            List<PSWidgetItem> widgetList = page.getWidgets(template);
-            widgetList.addAll(template.getWidgets());
-            for (PSWidgetItem psWidgetItem : widgetList)
-            {
-                widgetDefIds.add(psWidgetItem.getDefinitionId());
-            }
-
+        var tp = getAssemblyItemBridge().getTemplateAndPage(item);
+        var page = tp.getPage();
+        var template = tp.getTemplate();
+        var widgetList = new ArrayList<PSWidgetItem>();
+        widgetList.addAll(page.getWidgets(template));
+        widgetList.addAll(template.getWidgets());
+        widgetList.stream()
+                .map(PSWidgetItem::getDefinitionId)
+                .forEach(widgetDefIds::add);
         return widgetDefIds;
     }
 
@@ -1650,20 +1635,16 @@ public class PSPageUtils extends PSJexlUtilBase
                     @IPSJexlParam(name = "sortOption", description = "either alpha and count, defaults to alpha and any value other "
                             + "than count is treated as alpha")}, returns = "List of PSPair of String and Integers.")
     public List<PSPair<String, Integer>> getProcessedTags(List<PSRenderAsset> assemblyPages, String sortOption)
-            throws RepositoryException
-    {
+            throws RepositoryException {
         if (assemblyPages == null) {
             throw new IllegalArgumentException("assemblyPages pages must not be null");
         }
-        List<String> tags = new ArrayList<>();
-        for (PSRenderAsset assembledPage : assemblyPages)
-        {
-            Node node = assembledPage.getNode();
-            if (node.hasProperty("page_tags"))
-            {
-                Value[] values = node.getProperty("page_tags").getValues();
-                for (Value val : values)
-                {
+        var tags = new ArrayList<String>();
+        for (var assembledPage : assemblyPages) {
+            var node = assembledPage.getNode();
+            if (node.hasProperty("page_tags")) {
+                var values = node.getProperty("page_tags").getValues();
+                for (var val : values) {
                     tags.add(val.getString());
                 }
             }
@@ -1671,42 +1652,13 @@ public class PSPageUtils extends PSJexlUtilBase
         return collapseStrings(tags, sortOption);
     }
 
-    /**
-     * Helper method that takes a list of non unique strings and returns a list
-     * of unique strings along with the number of occurrence of each string as
-     * PSPair objects with the first object as String and second one as Integer.
-     * The returned list is sorted based on the sortOption parameter. For
-     * example, if the incoming list is [foo, bar, foo, cat, bar, dog, bar] and
-     * sortOption is alpha. Then the returned list will be like
-     * [bar(3),cat(1),dog(1),foo(2)]. If the sortOption is count then the
-     * returned list will be like [bar(3),foo(2),cat(1),dog(1)].
-     *
-     * @param tags List of non-unique strings, must not be <code>null</code>.
-     * @param sortOption
-     * @return
-     */
-    private List<PSPair<String, Integer>> collapseStrings(List<String> tags, String sortOption)
-    {
-        Map<String, Integer> tagMap = new HashMap<>();
-        for (String tag : tags)
-        {
-            if (tagMap.containsKey(tag))
-            {
-                tagMap.put(tag, tagMap.get(tag) + 1);
-            }
-            else
-            {
-                tagMap.put(tag, 1);
-            }
-        }
-        List<PSPair<String, Integer>> tagResultList = new ArrayList<>();
-        for (Entry<String, Integer> entry : tagMap.entrySet())
-        {
-            tagResultList.add(new PSPair<>(entry.getKey(), entry.getValue()));
-        }
+    private List<PSPair<String, Integer>> collapseStrings(List<String> tags, String sortOption) {
+        var tagMap = new HashMap<String, Integer>();
+        tags.forEach(tag -> tagMap.merge(tag, 1, Integer::sum));
+        var tagResultList = new ArrayList<PSPair<String, Integer>>();
+        tagMap.forEach((k, v) -> tagResultList.add(new PSPair<>(k, v)));
         Comparator<PSPair<String, Integer>> comp = new AlphaOrderTagComparator();
-        if (sortOption.equalsIgnoreCase("count"))
-        {
+        if ("count".equalsIgnoreCase(sortOption)) {
             comp = new CountOrderTagComparator();
         }
         tagResultList.sort(comp);
@@ -2265,58 +2217,38 @@ public class PSPageUtils extends PSJexlUtilBase
     @IPSJexlMethod(description = "createJsonObject can be used to convert a JSON string into a JSONObject.", params =
             {@IPSJexlParam(name = "jsonString", description = "A valid JSON string")},
             returns = "A net.sf.json.JSONObject instance ")
-    public JSONObject createJsonObject(String jsonString)
-    {
-        JSONObject jsonObj = null;
-        try
-        {
-            jsonObj = (JSONObject) JSONSerializer.toJSON(jsonString);
-        }
-        catch (Exception e)
-        {
-            log.error("Error processing json string: {}" ,jsonString);
+    public JSONObject createJsonObject(String jsonString) {
+        try {
+            return (JSONObject) JSONSerializer.toJSON(jsonString);
+        } catch (Exception e) {
+            log.error("Error processing json string: {}", jsonString);
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-
+            return null;
         }
-        return jsonObj;
     }
 
-    /**
-     *
-     * @param jsonObj - A valid JSON object
-     * @param name - The name of the array
-     * @return
-     */
-    @IPSJexlMethod(description = "createJsonArray can be used to convert a JSON Object into a JSONArray.", params =
-            {@IPSJexlParam(name = "jsonObj", description = "A valid net.sf.json.JSONObject"),
-                    @IPSJexlParam(name = "name", description = "The name of the array")},
-            returns = "A valid net.sf.json.JSONArray instance, may be empty.")
-    public JSONArray createJsonArray(JSONObject jsonObj, String name)
-    {
-        if(name==null || name.trim().equals("")) {
+    public JSONArray createJsonArray(JSONObject jsonObj, String name) {
+        if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("name is required");
         }
-
-        JSONArray ret = new JSONArray();
-
-        if(jsonObj != null) {
+        var ret = new JSONArray();
+        if (jsonObj != null) {
             try {
                 ret = jsonObj.getJSONArray(name);
             } catch (Exception e) {
-                log.error("Error processing json string: {}",PSExceptionUtils.getMessageForLog(e));
+                log.error("Error processing json string: {}", PSExceptionUtils.getMessageForLog(e));
                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
         }
         return ret;
     }
 
-
-    public String encryptString(String str){
+    public String encryptString(String str) {
         try {
-            return PSEncryptor.encryptString(PathUtils.getRxPath().toAbsolutePath().toString().concat(
-                    PSEncryptor.SECURE_DIR),str);
+            return PSEncryptor.encryptString(
+                    PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR), str);
         } catch (PSEncryptionException e) {
-            log.error("Error encrypting string: {}",PSExceptionUtils.getMessageForLog(e));
+            log.error("Error encrypting string: {}", PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return "";
         }
@@ -3021,8 +2953,8 @@ public class PSPageUtils extends PSJexlUtilBase
         this.pubServerService = pubServerService;
     }
 
-    public PSPageUtils(){
-        //default ctor
+    public PSPageUtils() {
+        // default constructor
     }
 
     private static Object metalock = new Object();

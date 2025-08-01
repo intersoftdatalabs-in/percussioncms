@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.extensions;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -23,39 +25,48 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Represents an Extension Method in Percussion CMS.
+ * Sunny Sal: "Method ka magic, extension mein logic!"
+ */
 @XmlRootElement(name = "ExtensionMethod")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Represents an Extension Method")
 public class ExtensionMethod {
 
-    @Schema(name="name", description="The name of the Extension Method")
+    @Schema(name = "name", description = "The name of the Extension Method")
     private String name;
-    @Schema(name="description", description="The description of the Extension method")
-    private String description = null;
+
+    @Schema(name = "description", description = "The description of the Extension method")
+    private String description;
+
     @ArraySchema(schema = @Schema(implementation = ExtensionParameter.class))
     private List<ExtensionParameter> parameters;
 
-    public ExtensionMethod(){}
+    public ExtensionMethod() {
+        // Default constructor
+    }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public List<ExtensionParameter> getParameters() {
-        return parameters;
+    public Optional<List<ExtensionParameter>> getParameters() {
+        return Optional.ofNullable(parameters);
     }
 
     public void setParameters(List<ExtensionParameter> parameters) {

@@ -233,28 +233,23 @@ public class PSDeploymentManager
 
       try
       {
-         List<PSDeployableElement> results = new ArrayList<>();
+         var results = new ArrayList<PSDeployableElement>();
 
          Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
          Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
             "PSXDeployGetDeployableElementsRequest");
          root.setAttribute("type", type);
          Document respDoc = m_conn.execute(reqType, reqDoc);
-         PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
-         Element depEl = tree.getNextElement(PSDeployableElement.XML_NODE_NAME,
-            PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+         var tree = new PSXmlTreeWalker(respDoc);
+         var depEl = tree.getNextElement(PSDeployableElement.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
 
          while (depEl != null)
          {
             try {
                results.add(new PSDeployableElement(depEl));
-               depEl = tree.getNextElement(PSDeployableElement.XML_NODE_NAME,
-                       PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
+               depEl = tree.getNextElement(PSDeployableElement.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
             } catch (PSUnknownNodeTypeException e) {
-               Object[] args = {reqType, PSDeployableElement.XML_NODE_NAME,
-                       e.getMessage()};
                log.error(PSExceptionUtils.getDebugMessageForLog(e));
-               //Let processing continue so that one bad deployable doesn't block them all.
             }
          }
 
@@ -2400,5 +2395,4 @@ public class PSDeploymentManager
     */
    private static ResourceBundle ms_bundle = null;
 }
-
 

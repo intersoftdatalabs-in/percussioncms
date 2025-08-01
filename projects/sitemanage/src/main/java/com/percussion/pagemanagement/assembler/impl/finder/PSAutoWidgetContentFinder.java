@@ -28,7 +28,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 /**
  * The auto widget content finder allows a widget to be filled with items 
  * returned by a query.
@@ -52,48 +54,47 @@ import java.util.Set;
  *
  * @author YuBingChen
  */
-public class PSAutoWidgetContentFinder extends PSWidgetContentFinder
-{
+public class PSAutoWidgetContentFinder extends PSWidgetContentFinder {
 
-	public PSAutoWidgetContentFinder(){
-		super();
-		this.utils = (IPSAutoFinderUtils) PSBaseServiceLocator.getBean("sys_autoFinderUtils");
-
-	}
-
-    @Override
-    protected Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem, 
-            PSWidgetInstance widget, Map<String, Object> params)
-    {
-    	Set<ContentItem> items = new HashSet<>();
-    	try
-    	{
-
-    		items = super.filter(utils.getContentItems(sourceItem, -1, params, sourceItem.getTemplate().getGUID()),
-					sourceItem.getFilter(), params);
-    	}
-    	catch(Exception e)
-    	{
-    		ms_logger.error("Error getting content items for the given finder. " +
-    				"\nPlease make sure the query parameters are valid. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-    	}
-    	return items;
+    public PSAutoWidgetContentFinder() {
+        super();
+        this.utils = (IPSAutoFinderUtils) PSBaseServiceLocator.getBean("sys_autoFinderUtils");
     }
 
-	public IPSAutoFinderUtils getUtils() {
-		return utils;
-	}
+    @Override
+    protected Set<ContentItem> getContentItems(IPSAssemblyItem sourceItem,
+                                               PSWidgetInstance widget,
+                                               Map<String, Object> params) {
+        // Use var and Optional for clarity and null-safety
+        var items = new HashSet<ContentItem>();
+        try {
+            var foundItems = utils.getContentItems(
+                    sourceItem, -1, params, sourceItem.getTemplate().getGUID());
+            items = super.filter(foundItems, sourceItem.getFilter(), params)
+                    .stream()
+                    .collect(Collectors.toCollection(HashSet::new));
+        } catch (Exception e) {
+            ms_logger.error(
+                    "Error getting content items for the given finder. " +
+                    "\nPlease make sure the query parameters are valid. Error: {}",
+                    PSExceptionUtils.getMessageForLog(e));
+        }
+        return items;
+    }
 
-	public void setUtils(IPSAutoFinderUtils utils) {
-		this.utils = utils;
-	}
+    public IPSAutoFinderUtils getUtils() {
+        return utils;
+    }
 
-	/**
+    public void setUtils(IPSAutoFinderUtils utils) {
+        this.utils = utils;
+    }
+
+    /**
      * The utility object, used to fetch the content items.
      */
     private IPSAutoFinderUtils utils;
-    
+
     /**
      * Log for this class.
      */

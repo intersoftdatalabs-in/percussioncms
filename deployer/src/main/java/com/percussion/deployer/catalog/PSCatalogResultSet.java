@@ -126,37 +126,28 @@ public class PSCatalogResultSet implements IPSDeployComponent
             throw new PSUnknownNodeTypeException(
                IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
          }
-         List catalogResultColumns = new ArrayList();
-         while(resultColumn != null)
-         {
+         var catalogResultColumns = new ArrayList<PSCatalogResultColumn>();
+         while (resultColumn != null) {
             catalogResultColumns.add(new PSCatalogResultColumn(resultColumn));
-            resultColumn = tree.getNextElement(
-               PSCatalogResultColumn.XML_NODE_NAME, nextFlags);
+            resultColumn = tree.getNextElement(PSCatalogResultColumn.XML_NODE_NAME, nextFlags);
          }
-         m_columns = (PSCatalogResultColumn[])catalogResultColumns.toArray(
-            new PSCatalogResultColumn[catalogResultColumns.size()]);
-         tree.setCurrent(sourceNode);               
+         m_columns = catalogResultColumns.toArray(new PSCatalogResultColumn[0]);
+         tree.setCurrent(sourceNode);
       }      
       
-      m_results.clear();      
-      Element catalogResult = tree.getNextElement(PSCatalogResult.XML_NODE_NAME,
-         firstFlags);            
-         
-      while(catalogResult != null)
-      {  
-         PSCatalogResult result = new PSCatalogResult(catalogResult);
-         if(validateResultToAdd(result))
-            m_results.add(result);                     
-         else
-         {
-            Object[] args =
-            { XML_NODE_NAME, PSCatalogResult.XML_NODE_NAME,  
-               "invalid column data" };
-            throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-         }
-         catalogResult = tree.getNextElement(PSCatalogResult.XML_NODE_NAME,
-            nextFlags);
+      m_results.clear();
+      tree.getNextElement(PSCatalogResult.XML_NODE_NAME, firstFlags);
+      while (catalogResult != null) {
+          var result = new PSCatalogResult(catalogResult);
+          if (validateResultToAdd(result)) {
+              m_results.add(result);
+          } else {
+              throw new PSUnknownNodeTypeException(
+                  IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD,
+                  new Object[]{XML_NODE_NAME, PSCatalogResult.XML_NODE_NAME, "invalid column data"}
+              );
+          }
+          catalogResult = tree.getNextElement(PSCatalogResult.XML_NODE_NAME, nextFlags);
       }
    }
    
@@ -193,13 +184,8 @@ public class PSCatalogResultSet implements IPSDeployComponent
          for(int i=0; i<m_columns.length; i++)
             columnMeta.appendChild(m_columns[i].toXml(doc));         
       }
-      Iterator results = getResults();
-      while(results.hasNext())
-      {
-         PSCatalogResult result = (PSCatalogResult)results.next();
-         root.appendChild(result.toXml(doc));
-      }
-      
+      m_results.forEach(result -> root.appendChild(result.toXml(doc)));
+
       return root;
    }
    

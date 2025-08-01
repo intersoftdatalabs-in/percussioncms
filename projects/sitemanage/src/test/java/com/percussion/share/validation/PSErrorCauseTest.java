@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,46 +21,45 @@ import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.validation.PSErrors.PSObjectError;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PSErrorCauseTest
-{
+/**
+ * Unit test for {@link PSErrorCause}.
+ */
+public class PSErrorCauseTest {
 
     @Test
-    public void testCreateErrorCause() throws Throwable
-    {
-        Exception r;
-        try
-        {
+    void testCreateErrorCause() throws Throwable {
+        Exception runtimeException;
+        try {
             throw new RuntimeException("Fail");
-        }
-        catch (Exception e)
-        {
-            r = e;
+        } catch (Exception e) {
+            runtimeException = e;
         }
 
-        PSErrors errors = new PSErrors();
-        PSObjectError o = new PSObjectError();
-        o.setCause(new PSErrorCause(r));
-        List<String> args = new ArrayList<String>();
+        var errors = new PSErrors();
+        var objectError = new PSObjectError();
+        objectError.setCause(new PSErrorCause(runtimeException));
+        var args = new ArrayList<String>();
         args.add("arg1");
         args.add("arg2");
         args.add("arg3");
-        o.setArguments(args);
-        errors.setGlobalError(o);
-        String xml = PSSerializerUtils.marshal(errors);
+        objectError.setArguments(args);
+        errors.setGlobalError(objectError);
+
+        var xml = PSSerializerUtils.marshal(errors);
         log.debug(xml);
         System.out.println(xml);
-        PSErrors e = PSSerializerUtils.unmarshal(xml, PSErrors.class);
-        log.debug(e.getGlobalError().getCause());
-        
+
+        var unmarshalledErrors = PSSerializerUtils.unmarshal(xml, PSErrors.class);
+        log.debug(unmarshalledErrors.getGlobalError().getCause());
     }
 
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never null.
      */
     private static final Logger log = LogManager.getLogger(PSErrorCauseTest.class);
 

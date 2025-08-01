@@ -14,9 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer;
 
 import static com.percussion.sitemanage.importer.helpers.PSHelperTestUtils.USER_AGENT;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.dao.IPSPageDao;
 import com.percussion.pagemanagement.data.PSPage;
@@ -38,37 +40,41 @@ import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.sitemanage.service.IPSSiteImportService;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 import java.util.Properties;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 /**
- * @author LucasPiccoli
- * 
+ * Tests for site import service and helpers.
+ * @author LucasPiccoli, Sunny Sal (refactored)
  */
-@Category(IntegrationTest.class)
-public class PSSiteImportServiceTest extends PSSiteImportTestBase
-{
+@Tag("IntegrationTest")
+class PSSiteImportServiceTest extends PSSiteImportTestBase {
 
-    /**
-     * Placeholder test to keep junit happy, all other tests ignored as tech debt
-     */
-    @Test
-    public void testNothing()
-    {
-        
-    }    
+    private PSSiteDataServletTestCaseFixture fixture;
+    private PSSiteCreationHelper siteCreationHelper;
+    private PSSite importedSite;
+    private IPSSecurityWs securityWs;
+    private PSSiteImportService siteImportService;
+    private IPSiteDao siteDao;
+    private IPSPageService pageService;
+    private IPSPageDao pageDao;
+    private IPSSiteImportService templateImportService;
+    private IPSSiteImportService pageImportService;
+    private IPSPageCatalogService pageCatalogService;
+    private IPSSystemProperties systemProperties;
+    private IPSFolderHelper folderHelper;
+    private boolean siteCreated = false;
+    private boolean fixtureCreated = false;
+    private final String CATALOGED_PAGE_NAME = "CatalogedPage";
+    private final String CATALOGED_PAGE_FOLDER = "/folder";
+    private final String CATALOGED_PAGE_URL = "http://samples.percussion.com/products/index.html";
+    private static final String IMPORT_SITE_URL = "http://samples.percussion.com/products/index.html";
 
-    @Override
-    protected void setUp() throws Exception
-    {
+    @BeforeEach
+    void setUp() throws Exception {
         super.setUp();
-        
-        // Inject dependencies
         setSecurityWs((IPSSecurityWs) getBean("sys_securityWs"));
         setSiteImportService((PSSiteImportService) getBean("siteImportService"));
         setSiteDao((IPSiteDao) getBean("siteDao"));
@@ -78,18 +84,19 @@ public class PSSiteImportServiceTest extends PSSiteImportTestBase
         setPageImportService((IPSSiteImportService) getBean("pageImportService"));
         setPageCatalogService((IPSPageCatalogService) getBean("pageCatalogService"));
         setFolderHelper((IPSFolderHelper) getBean("folderHelper"));
-        
-        
-        
-        // Login is needed to create folder for the new site.
         securityWs.login("Admin", "demo", "Default", null);
-
         initData();
-        
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
         fixtureCreated = true;
-        
+    }
+
+    /**
+     * Placeholder test to keep JUnit happy, all other tests ignored as tech debt.
+     */
+    @Test
+    void testNothing() {
+        // No-op
     }
 
     /**
@@ -218,79 +225,71 @@ public class PSSiteImportServiceTest extends PSSiteImportTestBase
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception
-    {
-        if (siteCreated)
-        {
+    @AfterEach
+    void tearDown() throws Exception {
+        if (siteCreated) {
             deleteSite();
             siteCreated = false;
         }
-        if (fixtureCreated)
-        {
+        if (fixtureCreated) {
             fixture.tearDown();
             fixtureCreated = false;
         }
-        
         ((PSPageCatalogService) pageCatalogService).setSystemProps(systemProperties);
         super.tearDown();
     }
 
-    private void initData() throws Exception
-    {
+    private void initData() throws Exception {
         createHelpers();
     }
 
-    private void deleteSite()
-    {
-        if (importedSite != null)
-        {
-            PSSiteImportCtx importCtx = new PSSiteImportCtx();
+    private void deleteSite() {
+        if (importedSite != null) {
+            var importCtx = new PSSiteImportCtx();
             importCtx.setSite(importedSite);
             siteCreationHelper.rollback(null, importCtx);
             importedSite = null;
         }
     }
 
-    private void createHelpers()
-    {
+    private void createHelpers() {
         siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
     }
 
-    private PSPage addCatalogedPage() throws Exception
-    {
+    private PSPage addCatalogedPage() throws Exception {
         increaseCatalogLimit(1);
-        
-        PSPage catalogedPage = pageCatalogService.addCatalogPage(fixture.site1.getName(), CATALOGED_PAGE_NAME, CATALOGED_PAGE_NAME, 
-                PSFolderPathUtils.concatPath(CATALOGED_PAGE_FOLDER, CATALOGED_PAGE_NAME), 
-                CATALOGED_PAGE_URL);
-        
+        var catalogedPage = pageCatalogService.addCatalogPage(
+                fixture.site1.getName(),
+                CATALOGED_PAGE_NAME,
+                CATALOGED_PAGE_NAME,
+                PSFolderPathUtils.concatPath(CATALOGED_PAGE_FOLDER, CATALOGED_PAGE_NAME),
+                CATALOGED_PAGE_URL
+        );
         increaseCatalogLimit(0);
-        
         if (catalogedPage != null)
             fixture.pageCatalogCleaner.add(catalogedPage.getId());
-        
         return catalogedPage;
     }
 
-    private void increaseCatalogLimit(int max)
-    {
-        PSPageCatalogService svcImpl = (PSPageCatalogService)pageCatalogService;
-        PSMockSystemProps props = new PSMockSystemProps();
+    private void increaseCatalogLimit(int max) {
+        var svcImpl = (PSPageCatalogService) pageCatalogService;
+        var props = new PSMockSystemProps();
         props.setMax(String.valueOf(max));
         svcImpl.setSystemProps(props);
     }
-    
-    private void checkCreateImportedPage(PSPage page) throws Exception
-    {
-        String pageId = page.getId();
-        String expectedFolderPath = "//Sites/PSSiteDataServletTestCaseFixtureSite/folder/CatalogedPage";
-        String expectedPath = PSFolderPathUtils.concatPath(expectedFolderPath, page.getName());
-        
-        IPSItemSummary item = folderHelper.findItemById(pageId);
-        
-        // check the item is not null
+
+    private void checkCreateImportedPage(PSPage page) throws Exception {
+        var pageId = page.getId();
+        var expectedFolderPath = "//Sites/PSSiteDataServletTestCaseFixtureSite/folder/CatalogedPage";
+        var expectedPath = PSFolderPathUtils.concatPath(expectedFolderPath, page.getName());
+        var item = folderHelper.findItemById(pageId);
         assertNotNull(item);
+    }
+
+    private static class PSMockSystemProps extends Properties implements IPSSystemProperties {
+        public void setMax(String value) {
+            setProperty(CATALOG_PAGE_MAX, value);
+        }
     }
 
     /**
@@ -438,50 +437,4 @@ public class PSSiteImportServiceTest extends PSSiteImportTestBase
     {
         this.folderHelper = folderHelper;
     }
-
-    private class PSMockSystemProps extends Properties implements IPSSystemProperties
-    {
-        public void setMax(String value)
-        {
-            setProperty(CATALOG_PAGE_MAX, value);
-        }
-    }
-    
-    private PSSiteDataServletTestCaseFixture fixture;
-
-    private PSSiteCreationHelper siteCreationHelper;
-
-    private PSSite importedSite;
-
-    private IPSSecurityWs securityWs;
-
-    private PSSiteImportService siteImportService;
-
-    private IPSiteDao siteDao;
-
-    private IPSPageService pageService;
-    
-    private IPSPageDao pageDao;
-
-    private IPSSiteImportService templateImportService;
-    
-    private IPSSiteImportService pageImportService;
-    
-    private IPSPageCatalogService pageCatalogService;
-    
-    private IPSSystemProperties systemProperties;
-    
-    private IPSFolderHelper folderHelper;
-    
-    private boolean siteCreated = false;
-    
-    private boolean fixtureCreated = false;
-    
-    private final String CATALOGED_PAGE_NAME = "CatalogedPage";
-    
-    private final String CATALOGED_PAGE_FOLDER = "/folder";
-    
-    private final String CATALOGED_PAGE_URL = "http://samples.percussion.com/products/index.html";
-    
-    private static final String IMPORT_SITE_URL = "http://samples.percussion.com/products/index.html";
 }

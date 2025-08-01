@@ -19,6 +19,7 @@ package com.percussion.error;
 
 import com.percussion.log.PSLogError;
 
+import java.util.Objects;
 
 /**
  * The PSBackEndError class is the base class for all back-end (database)
@@ -56,8 +57,7 @@ public abstract class PSBackEndError extends PSLogError
     *                           correct arguments in their correct
     *                           positions!
     */
-   protected PSBackEndError(
-      int applId, int errorCode, Object[] errorParams)
+   protected PSBackEndError(int applId, int errorCode, Object[] errorParams)
    {
       super(applId);
       m_errorCode = errorCode;
@@ -74,7 +74,47 @@ public abstract class PSBackEndError extends PSLogError
       return m_errorCode;
    }
 
-   protected int         m_errorCode;
-   protected Object[]   m_errorArgs;
-}
+   /**
+    * Gets the error arguments.
+    *
+    * @return The error arguments array, may be {@code null}
+    */
+   public Object[] getErrorArgs()
+   {
+      return m_errorArgs;
+   }
 
+   /**
+    * Compares this object with another for equality.
+    *
+    * @param obj The object to compare with.
+    *
+    * @return {@code true} if the objects are equal, {@code false} otherwise.
+    */
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj) return true;
+      if (obj == null || getClass() != obj.getClass()) return false;
+      if (!super.equals(obj)) return false;
+
+      var other = (PSBackEndError) obj;
+      return m_errorCode == other.m_errorCode &&
+             Objects.deepEquals(m_errorArgs, other.m_errorArgs);
+   }
+
+   /**
+    * Returns the hash code for this object.
+    *
+    * @return The hash code.
+    */
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(super.hashCode(), m_errorCode,
+                         Objects.deepHashCode(m_errorArgs));
+   }
+
+   protected final int m_errorCode;
+   protected final Object[] m_errorArgs;
+}

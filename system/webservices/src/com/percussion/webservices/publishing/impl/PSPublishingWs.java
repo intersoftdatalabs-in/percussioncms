@@ -41,156 +41,152 @@ import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceErrors;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.apache.commons.lang3.Validate.notEmpty;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Wraps various methods of the filter, publisher, and site manager services.
  */
+@Transactional
 public class PSPublishingWs implements IPSPublishingWs
 {
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#createContentList(java.lang.String)
+   private IPSPublisherService pubSvc;
+   private IPSFilterService filterSvc;
+   private IPSSiteManager siteMgr;
+   private IPSPubServerDao pubServerDao;
+
+   /**
+    * The publisher service used for invoking and retrieving status of
+    * publishing jobs.  Initialized in {@link #getRxPubSvc()} , never
+    * <code>null</code> after that. Made volatile to support thread-safe
+    * double-checked locking for lazy initialization.
     */
+   private volatile IPSRxPublisherServiceInternal rxPubSvc;
+
+   /**
+    * Default constructor for backwards compatibility with Spring bean wiring.
+    * @deprecated Use the constructor with dependency injection instead.
+    */
+   @Deprecated
+   public PSPublishingWs()
+   {
+      // NOP
+   }
+
+   /**
+    * Constructs a new publishing web service handler.
+    *
+    * @param pubSvc The publishing service, not <code>null</code>.
+    * @param filterSvc The filter service, not <code>null</code>.
+    * @param siteMgr The site manager, not <code>null</code>.
+    * @param pubServerDao The publishing server DAO, not <code>null</code>.
+    */
+   public PSPublishingWs(IPSPublisherService pubSvc, IPSFilterService filterSvc, IPSSiteManager siteMgr, IPSPubServerDao pubServerDao)
+   {
+      this.pubSvc = Objects.requireNonNull(pubSvc, "pubSvc must not be null");
+      this.filterSvc = Objects.requireNonNull(filterSvc, "filterSvc must not be null");
+      this.siteMgr = Objects.requireNonNull(siteMgr, "siteMgr must not be null");
+      this.pubServerDao = Objects.requireNonNull(pubServerDao, "pubServerDao must not be null");
+   }
+
+   @Override
    public IPSContentList createContentList(String name)
    {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name may not be null or empty");
-      
+      notBlank(name, "name may not be blank");
       return pubSvc.createContentList(name);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#createEdition()
-    */
+   @Override
    public IPSEdition createEdition()
    {
       return pubSvc.createEdition();
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#createEditionContentList()
-    */
+   @Override
    public IPSEditionContentList createEditionContentList()
    {
       return pubSvc.createEditionContentList();
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#createSite()
-    */
+   @Override
    public IPSSite createSite()
    {
       return siteMgr.createSite();
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#deleteContentLists(java.util.List)
-    */
+   @Override
    public void deleteContentLists(List<IPSContentList> lists)
    {
-      if (lists == null || lists.size() == 0)
-         throw new IllegalArgumentException("lists may not be null or empty");
-      
-      pubSvc.deleteContentLists(lists);      
+      notEmpty(lists, "lists may not be null or empty");
+      pubSvc.deleteContentLists(lists);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#deleteEdition(com.percussion.services.publisher.IPSEdition)
-    */
+   @Override
    public void deleteEdition(IPSEdition edition)
    {
-      if (edition == null)
-         throw new IllegalArgumentException("edition may not be null");
-      
+      notNull(edition, "edition may not be null");
       pubSvc.deleteEdition(edition);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#deleteSite(com.percussion.services.sitemgr.IPSSite)
-    */
+   @Override
    public void deleteSite(IPSSite site)
    {
-      if (site == null)
-         throw new IllegalArgumentException("site may not be null");
-      
-      siteMgr.deleteSite(site);      
+      notNull(site, "site may not be null");
+      siteMgr.deleteSite(site);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#deleteSiteItems(com.percussion.utils.guid.IPSGuid)
-    */
+   @Override
    public void deleteSiteItems(IPSGuid siteguid)
    {
-      if (siteguid == null)
-         throw new IllegalArgumentException("siteguid may not be null");
-      
-      pubSvc.deleteSiteItems(siteguid);      
+      notNull(siteguid, "siteguid may not be null");
+      pubSvc.deleteSiteItems(siteguid);
    }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findAllEditionsBySite(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public List<IPSEdition> findAllEditionsBySite(IPSGuid siteId)
    {
-      if (siteId == null)
-         throw new IllegalArgumentException("siteId may not be null");
-      
+      notNull(siteId, "siteId may not be null");
       return pubSvc.findAllEditionsBySite(siteId);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findAllEditionsBySite(com.percussion.utils.guid.IPSGuid)
-    */
+   @Override
    public List<IPSEdition> findAllEditionsByPubServer(IPSGuid pubServerId)
    {
-      if (pubServerId == null)
-         throw new IllegalArgumentException("pubServerId may not be null");
-      
+      notNull(pubServerId, "pubServerId may not be null");
       return pubSvc.findAllEditionsByPubServer(pubServerId);
    }
-   
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findEditionByName(java.lang.String)
-    */
+
+   @Override
    public IPSEdition findEditionByName(String name)
    {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name may not be null or empty");
-      
+      notBlank(name, "name may not be blank");
       return pubSvc.findEditionByName(name);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findContentListById(com.percussion.utils.guid.IPSGuid)
-    */
+   @Override
    public IPSContentList findContentListById(IPSGuid contListId)
    {
-      if (contListId == null)
-         throw new IllegalArgumentException("contListId may not be null");
-      try{
-      return pubSvc.findContentListById(contListId);
+      notNull(contListId, "contListId may not be null");
+      try {
+         return pubSvc.findContentListById(contListId);
       } catch (PSNotFoundException e) {
-         throw new PSRuntimeException(e);
+         throw e;
       }
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findFilterByName(java.lang.String)
-    */
+   @Override
    public IPSItemFilter findFilterByName(String name) throws PSErrorException
    {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name may not be null or empty");
-      
+      notBlank(name, "name may not be blank");
       try
       {
          return filterSvc.findFilterByName(name);
@@ -198,22 +194,17 @@ public class PSPublishingWs implements IPSPublishingWs
       catch (PSFilterException e)
       {
          int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
-         PSErrorException error = new PSErrorException(code,
+         throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
-                     IPSItemFilter.class.getName(), name), ExceptionUtils
-                     .getFullStackTrace(new Exception()));
-         throw error;
+                     IPSItemFilter.class.getName(), name),
+               ExceptionUtils.getStackTrace(e));
       }
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#loadContentList(java.lang.String)
-    */
+   @Override
    public IPSContentList loadContentList(String name) throws PSErrorException
    {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name may not be null or empty");
-      
+      notBlank(name, "name may not be blank");
       try
       {
          return pubSvc.loadContentList(name);
@@ -221,26 +212,18 @@ public class PSPublishingWs implements IPSPublishingWs
       catch (PSNotFoundException e)
       {
          int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
-         PSErrorException error = new PSErrorException(code,
+         throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
-                     IPSContentList.class.getName(), name), ExceptionUtils
-                     .getFullStackTrace(new Exception()));
-         throw error;
+                     IPSContentList.class.getName(), name),
+               ExceptionUtils.getStackTrace(e));
       }
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#loadContext(java.lang.String)
-    */
+   @Override
    public IPSPublishingContext loadContext(String contextname)
          throws PSErrorException
    {
-      if (StringUtils.isBlank(contextname))
-      {
-         throw new IllegalArgumentException("contextname may not be null or "
-               + "empty");
-      }
-      
+      notBlank(contextname, "contextname may not be blank");
       try
       {
          return siteMgr.loadContext(contextname);
@@ -248,349 +231,252 @@ public class PSPublishingWs implements IPSPublishingWs
       catch (PSNotFoundException e)
       {
          int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
-         PSErrorException error = new PSErrorException(code,
+         throw new PSErrorException(code,
                PSWebserviceErrors.createErrorMessage(code,
                      IPSPublishingContext.class.getName(), contextname),
-                     ExceptionUtils.getFullStackTrace(new Exception()));
-         throw error;
+               ExceptionUtils.getStackTrace(e));
       }
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#loadEditionContentLists(com.percussion.utils.guid.IPSGuid)
-    */
+   @Override
    public List<IPSEditionContentList> loadEditionContentLists(IPSGuid editionId)
    {
-      if (editionId == null)
-         throw new IllegalArgumentException("editionId may not be null");
-      
+      notNull(editionId, "editionId may not be null");
       return pubSvc.loadEditionContentLists(editionId);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#loadSite(java.lang.String)
-    */
+   @Override
    public IPSSite findSite(String sitename) throws PSErrorException
    {
-      if (StringUtils.isBlank(sitename))
-         throw new IllegalArgumentException("sitename may not be null or empty");
-      
+      notBlank(sitename, "sitename may not be blank");
+
       IPSSite site = siteMgr.findSite(sitename);
       if (site != null)
          return site;
-      
+
       int code = IPSWebserviceErrors.OBJECT_NOT_FOUND_BY_NAME;
       PSErrorException error = new PSErrorException(code,
             PSWebserviceErrors.createErrorMessage(code,
-                  IPSSite.class.getName(), sitename), ExceptionUtils
-                  .getFullStackTrace(new Exception()));
+                  IPSSite.class.getName(), sitename),
+            ExceptionUtils.getStackTrace(new PSNotFoundException(sitename + " Not Found.")));
       throw error;
    }
-   
 
+   @Override
    public IPSSite findSiteById(IPSGuid siteId) throws PSErrorException
    {
+      notNull(siteId, "siteId may not be null");
       return siteMgr.findSite(siteId);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#getItemSites(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public List<IPSSite> getItemSites(IPSGuid contentId)
    {
-      if (contentId == null)
-         throw new IllegalArgumentException("contentId may not be null");
-      
+      notNull(contentId, "contentId may not be null");
       return siteMgr.getItemSites(contentId);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#saveContentList(com.percussion.services.publisher.IPSContentList)
-    */
+   @Override
    public void saveContentList(IPSContentList clist)
    {
-      if (clist == null)
-         throw new IllegalArgumentException("clist may not be null");
-      
+      notNull(clist, "clist may not be null");
       pubSvc.saveContentList(clist);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#saveEdition(com.percussion.services.publisher.IPSEdition)
-    */
+   @Override
    public void saveEdition(IPSEdition edition)
    {
-      if (edition == null)
-         throw new IllegalArgumentException("edition may not be null");
-      
+      notNull(edition, "edition may not be null");
       pubSvc.saveEdition(edition);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#saveEditionContentList(com.percussion.services.publisher.IPSEditionContentList)
-    */
+   @Override
    public void saveEditionContentList(IPSEditionContentList list)
    {
-      if (list == null)
-         throw new IllegalArgumentException("list may not be null");
-      
+      notNull(list, "list may not be null");
       pubSvc.saveEditionContentList(list);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#saveSite(com.percussion.services.sitemgr.IPSSite)
-    */
+   @Override
    public void saveSite(IPSSite site)
    {
-      if (site == null)
-         throw new IllegalArgumentException("site may not be null");
-      
+      notNull(site, "site may not be null");
       siteMgr.saveSite(site);
    }
 
-   /* (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findAllSites()
-    */
+   @Override
    public List<IPSSite> findAllSites()
    {
       return siteMgr.findAllSites();
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findPubStatusBySite(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public List<IPSPubStatus> findPubStatusBySite(IPSGuid siteId)
    {
-      if (siteId == null)
-         throw new IllegalArgumentException("siteId may not be null");
-      
+      notNull(siteId, "siteId may not be null");
       return pubSvc.findPubStatusBySite(siteId);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findPubStatusBySite(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public List<IPSPubStatus> findPubStatusByEdition(IPSGuid editionId)
    {
-      if (editionId == null)
-         throw new IllegalArgumentException("editionId may not be null");
-      
+      notNull(editionId, "editionId may not be null");
       return pubSvc.findPubStatusByEdition(editionId);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#purgeJobLog(long)
-    */
+   @Override
    public void purgeJobLog(long jobid)
    {
-      pubSvc.purgeJobLog(jobid);      
+      pubSvc.purgeJobLog(jobid);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#getDemandRequestJob(long)
-    */
+
+   @Override
    public Long getDemandRequestJob(long requestid)
    {
       return getRxPubSvc().getDemandRequestJob(requestid);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#getPublishingJobStatus(long)
-    */
+   @Override
    public IPSPublisherJobStatus getPublishingJobStatus(long jobId)
    {
       return getRxPubSvc().getPublishingJobStatus(jobId);
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#queueDemandWork(int, com.percussion.rx.publisher.data.PSDemandWork)
-    */
+   @Override
    public long queueDemandWork(int editionid, PSDemandWork work)
    {
-      notNull(work, "work");
-
+      notNull(work, "work may not be null");
       try {
          return getRxPubSvc().queueDemandWork(editionid, work);
-      }catch (PSNotFoundException e) {
-         throw new PSRuntimeException(e);
+      } catch (PSNotFoundException e) {
+         throw e;
       }
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#startPublishingJob(com.percussion.utils.guid.IPSGuid, com.percussion.rx.publisher.IPSPublishingJobStatusCallback)
-    */
+   @Override
    public long startPublishingJob(IPSGuid edition,
          IPSPublishingJobStatusCallback callback)
    {
-      notNull(edition, "edition");
-            
+      notNull(edition, "edition may not be null");
       return getRxPubSvc().startPublishingJob(edition, callback);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#getInProgressPublishingJobs(java.lang.String)
-    */
+
+   @Override
    public List<Long> getInProgressPublishingJobs(String siteName)
    {
-      notEmpty(siteName, "siteName");
-      
-      List<Long> inProgressJobs = new ArrayList<Long>();
-      
-      IPSSite site = siteMgr.findSite(siteName);
-      if (site != null)
-      {
-         Collection<Long> activeJobs = getRxPubSvc().getActiveJobIds(site.getGUID());
-         for (Long job : activeJobs)
-         {
-            IPSPublisherJobStatus pubJob = getPublishingJobStatus(job);
-            if (!pubJob.getState().isTerminal())
-            {
-               inProgressJobs.add(job);
-            }
-         }
-      }
-      
-      return inProgressJobs;
+      notBlank(siteName, "siteName may not be blank");
+
+      return Optional.ofNullable(siteMgr.findSite(siteName))
+            .map(site -> getRxPubSvc().getActiveJobIds(site.getGUID()).stream()
+                  .filter(jobId -> !getPublishingJobStatus(jobId).getState().isTerminal())
+                  .collect(Collectors.toList()))
+            .orElse(List.of());
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#createEditionTask()
-    */
+
+   @Override
    public IPSEditionTaskDef createEditionTask()
    {
       return pubSvc.createEditionTask();
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#deleteEditionTask(com.percussion.services.publisher.IPSEditionTaskDef)
-    */
+   @Override
    public void deleteEditionTask(IPSEditionTaskDef task)
    {
-      notNull(task, "task");
-      
+      notNull(task, "task may not be null");
       pubSvc.deleteEditionTask(task);
    }
 
+   @Override
    public void deleteStatusList(List<IPSPubStatus> statusList)
    {
-      notNull(statusList, "statusList");
-      
+      notNull(statusList, "statusList may not be null");
       pubSvc.deleteStatusList(statusList);
    }
-   
+
+   @Override
    public void deleteEditionContentList(IPSEditionContentList edtContentList)
    {
-      notNull(edtContentList, "edtContentList");
-      
+      notNull(edtContentList, "edtContentList may not be null");
       pubSvc.deleteEditionContentList(edtContentList);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#findEditionTaskById(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public IPSEditionTaskDef findEditionTaskById(IPSGuid id)
    {
-      notNull(id, "id");
+      notNull(id, "id may not be null");
       try {
          return pubSvc.findEditionTaskById(id);
       } catch (PSNotFoundException e) {
-         throw new PSRuntimeException(e);
+         throw e;
       }
    }
 
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#saveEditionTask(com.percussion.services.publisher.IPSEditionTaskDef)
-    */
+   @Override
    public void saveEditionTask(IPSEditionTaskDef task)
    {
-      notNull(task, "task");
-      
+      notNull(task, "task may not be null");
       pubSvc.saveEditionTask(task);
    }
-   
-   /*
-    * (non-Javadoc)
-    * @see com.percussion.webservices.publishing.IPSPublishingWs#loadEditionTaskByEdition(com.percussion.utils.guid.IPSGuid)
-    */
+
+   @Override
    public List<IPSEditionTaskDef> loadEditionTaskByEdition(IPSGuid editionid)
    {
-      notNull(editionid, "editionid");
+      notNull(editionid, "editionid may not be null");
       return pubSvc.loadEditionTasks(editionid);
    }
 
-   
-   public void setFilterSvc(IPSFilterService filterSvc)
-   {
-      this.filterSvc = filterSvc;
-   }
-   
+   /**
+    * @param pubSvc the pubSvc to set
+    * @deprecated Use constructor injection.
+    */
+   @Deprecated
    public void setPubSvc(IPSPublisherService pubSvc)
    {
       this.pubSvc = pubSvc;
    }
-   
+
+   /**
+    * @param filterSvc the filterSvc to set
+    * @deprecated Use constructor injection.
+    */
+   @Deprecated
+   public void setFilterSvc(IPSFilterService filterSvc)
+   {
+      this.filterSvc = filterSvc;
+   }
+
+   /**
+    * @param siteMgr the siteMgr to set
+    * @deprecated Use constructor injection.
+    */
+   @Deprecated
    public void setSiteMgr(IPSSiteManager siteMgr)
    {
       this.siteMgr = siteMgr;
    }
-   
+
+   /**
+    * @param pubServerDao the pubServerDao to set
+    * @deprecated Use constructor injection.
+    */
+   @Deprecated
    public void setPubServerDao(IPSPubServerDao pubServerDao)
    {
       this.pubServerDao = pubServerDao;
    }
-   
+
    private IPSRxPublisherServiceInternal getRxPubSvc()
    {
-      if (rxPubSvc == null)
+      IPSRxPublisherServiceInternal result = rxPubSvc;
+      if (result == null)
       {
-         rxPubSvc = PSRxPubServiceInternalLocator.getRxPublisherService();
+         synchronized(this) {
+            result = rxPubSvc;
+            if (result == null) {
+               rxPubSvc = result = PSRxPubServiceInternalLocator.getRxPublisherService();
+            }
+         }
       }
-      
-      return rxPubSvc;
+      return result;
    }
-
-   /**
-    * The publishing service.  Initialized in ctor, never <code>null</code>
-    * after that.
-    */
-   private IPSPublisherService pubSvc;
-   
-   /**
-    * The item filter service.  Initialized in ctor, never <code>null</code>
-    * after that.
-    */
-   private IPSFilterService filterSvc;
-   
-   /**
-    * The site manager.  Initialized in ctor, never <code>null</code> after
-    * that.
-    */
-   private IPSSiteManager siteMgr;
-   
-   /**
-    * The publisher service used for invoking and retrieving status of
-    * publishing jobs.  Initialized in {@link #getRxPubSvc()} , never 
-    * <code>null</code> after that.
-    */
-   private IPSRxPublisherServiceInternal rxPubSvc;
-   
-   /**
-    * The pubserver dao.  Initialized in ctor, never <code>null</code> after
-    * that.
-    */
-   private IPSPubServerDao pubServerDao;
-
 }

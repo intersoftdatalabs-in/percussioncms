@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,7 +29,6 @@ import com.percussion.services.general.PSRhythmyxInfoLocator;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.VelocityContext;
@@ -35,175 +36,116 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import javax.jcr.Node;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test jexl extensions that require the server
- * 
+ * Test jexl extensions that require the server.
+ *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
-public class PSJexlExtensionsServerTest extends ServletTestCase
-{
+@Tag("IntegrationTest")
+public class PSJexlExtensionsServerTest {
 
-   private static final Logger log = LogManager.getLogger(PSJexlExtensionsServerTest.class);
+    private static final Logger log = LogManager.getLogger(PSJexlExtensionsServerTest.class);
 
-   /**
-    * Velocity engine instance, statically initialized
-    */
-   public static VelocityEngine ms_engine = null;
+    public static VelocityEngine msEngine = new VelocityEngine();
 
-   static
-   {
-      ms_engine = new VelocityEngine();
-      try
-      {
-         ms_engine.init();
-      }
-      catch (Exception e)
-      {
-         log.error(PSExceptionUtils.getMessageForLog(e));
-         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      }
-   }
+    static {
+        try {
+            msEngine.init();
+        } catch (Exception e) {
+            log.error(PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
+    }
 
-   /**
-    * Get a velocity context for the tests
-    * 
-    * @return the velocity context, never <code>null</code>
-    */
-   public VelocityContext getContext()
-   {
-      VelocityContext rval = new VelocityContext();
-      Map<String, Object> sys = new HashMap<String, Object>();
-      rval.put("sys", sys);
+    public VelocityContext getContext() {
+        var rval = new VelocityContext();
+        Map<String, Object> sys = new HashMap<>();
+        rval.put("sys", sys);
 
-      sys.put("doc", new PSDocumentUtils());
-      sys.put("i18n", new PSI18nUtils());
-      sys.put("location", new PSLocationUtils());
-      sys.put("ext", new PSExtensionUtils());
-      sys.put("link", new PSLinkUtils());
-      return rval;
-   }
+        sys.put("doc", new PSDocumentUtils());
+        sys.put("i18n", new PSI18nUtils());
+        sys.put("location", new PSLocationUtils());
+        sys.put("ext", new PSExtensionUtils());
+        sys.put("link", new PSLinkUtils());
+        return rval;
+    }
 
-   /**
-    * Run a single test case through velocity
-    * 
-    * @param ctx
-    * @param template
-    * @return the result of the velocity evaluation
-    * @throws ParseErrorException
-    * @throws MethodInvocationException
-    * @throws ResourceNotFoundException
-    * @throws IOException
-    */
-   public String run(VelocityContext ctx, String template)
-         throws ParseErrorException, MethodInvocationException,
-         ResourceNotFoundException, IOException
-   {
-      StringWriter out = new StringWriter();
-      try
-      {
-         ms_engine.evaluate(ctx, out, "Velo", template);
-      }
-      catch (MethodInvocationException e)
-      {
-         throw e;
-      }
-      return out.toString();
-   }
+    public String run(VelocityContext ctx, String template)
+            throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+        var out = new StringWriter();
+        msEngine.evaluate(ctx, out, "Velo", template);
+        return out.toString();
+    }
 
-   /**
-    * Perform single test
-    * 
-    * @param ctx
-    * @param inputtemplate
-    * @param expectedoutput
-    * @throws ParseErrorException
-    * @throws MethodInvocationException
-    * @throws ResourceNotFoundException
-    * @throws IOException
-    */
-   public void doTest(VelocityContext ctx, String inputtemplate,
-         String expectedoutput) throws ParseErrorException,
-         MethodInvocationException, ResourceNotFoundException, IOException
-   {
-      String out = run(ctx, inputtemplate);
-      if (!out.equals(expectedoutput))
-      {
-         System.err.println(out);
-      }
-      assertEquals(expectedoutput, out);
-   }
+    public void doTest(VelocityContext ctx, String inputtemplate, String expectedoutput)
+            throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+        var out = run(ctx, inputtemplate);
+        if (!out.equals(expectedoutput)) {
+            System.err.println(out);
+        }
+        assertEquals(expectedoutput, out);
+    }
 
-   /**
-    * Test doc utils
-    * 
-    * @throws Exception
-    */
-   public void fixme_testDocUtils() throws Exception
-   {
+    /**
+     * Test doc utils
+     *
+     * @throws Exception
+     */
+    public void fixme_testDocUtils() throws Exception
+    {
       PSSecurityFilter.authenticate(request, response, "admin1", "demo");
       VelocityContext ctx = getContext();
       String template = "$sys.doc.getDocument('../sys_psxCms/contentTypes.xml?sys_contenttype=311')";
 
       StringWriter out = new StringWriter();
-      ms_engine.evaluate(ctx, out, "Velo", template);
+      msEngine.evaluate(ctx, out, "Velo", template);
       assertTrue(out.toString().contains("<PSXContentType"));
       
       out = new StringWriter();
       String clist = "$sys.doc.getDocument('/Rhythmyx/contentlist?" +
             "sys_deliverytype=filesystem&sys_assembly_context=301&" +
             "sys_contentlist=rffEiFullBinary&sys_context=1&sys_siteid=301')";
-      ms_engine.evaluate(ctx, out, "Velo", clist);
+      msEngine.evaluate(ctx, out, "Velo", clist);
       assertTrue(out.toString().contains("<contentlist"));
    }
 
-   /**
-    * @throws Exception
-    */
-   public void testExtUtils() throws Exception
-   {
-      VelocityContext ctx = getContext();
-      doTest(ctx, "$sys.ext.call('global/percussion/udf/', 'concat','a','b')",
-            "ab");
-   }
+    @Test
+    public void testExtUtils() throws Exception {
+        var ctx = getContext();
+        doTest(ctx, "$sys.ext.call('global/percussion/udf/', 'concat','a','b')", "ab");
+    }
 
-   /**
-    * @throws Exception
-    */
-   public void testI18NUtils() throws Exception
-   {
-      VelocityContext ctx = getContext();
-      doTest(
-            ctx,
-            "$sys.i18n.getString('7006','en-us')",
-            "The extension call does not have the appropriate number of parameters. {0} parameters were expected, {1} parameters were supplied.");
-   }
+    @Test
+    public void testI18NUtils() throws Exception {
+        var ctx = getContext();
+        doTest(
+                ctx,
+                "$sys.i18n.getString('7006','en-us')",
+                "The extension call does not have the appropriate number of parameters. {0} parameters were expected, {1} parameters were supplied.");
+    }
 
-   /**
-    * @throws Exception
-    */
-   public void fixme_testLocationUtils() throws Exception
-   {
+    /**
+     * @throws Exception
+     */
+    public void fixme_testLocationUtils() throws Exception
+    {
       IPSRhythmyxInfo info = PSRhythmyxInfoLocator.getRhythmyxInfo();
       PSSecurityFilter.authenticate(request, response, "admin1", "demo");
       VelocityContext ctx = getContext();
       Map<String, String[]> params = new HashMap<String, String[]>();
-      params.put("sys_variantid", new String[]
-      {"332"});
-      params.put("sys_contentid", new String[]
-      {"500"});
-      params.put("sys_revision", new String[]
-      {"2"});
+      params.put("sys_variantid", new String[] {"332"});
+      params.put("sys_contentid", new String[] {"500"});
+      params.put("sys_revision", new String[] {"2"});
       IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
       IPSAssemblyItem item = asm.createAssemblyItem();
       item.setParameters(params);
@@ -241,38 +183,24 @@ public class PSJexlExtensionsServerTest extends ServletTestCase
       doTest(ctx, "$sys.location.siteBase('301','yes')", "/EI_Home");
    }
 
-   /**
-    * @throws Exception
-    */
-   public void testLinkUtils() throws Exception
-   {
-      IPSRhythmyxInfo info = PSRhythmyxInfoLocator.getRhythmyxInfo();
-      VelocityContext ctx = getContext();
-      // This first won't be different without https enabled.
-      doTest(ctx, "$sys.link.getAbsUrl('../rxs_foo', true)",
-            "http://localhost:"
-                  + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT)
-                  + "/Rhythmyx/rxs_foo");
-      doTest(ctx, "$sys.link.getAbsUrl('../rxs_foo', false)",
-            "http://localhost:"
-                  + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT)
-                  + "/Rhythmyx/rxs_foo");
-      // OK result given that this is from a cactus test
-      doTest(ctx, "$sys.link.getRelUrl('rxs_foo')", "http://127.0.0.1:"
-            + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT)
-            + "/Rhythmyx/ServletRedirector/rxs_foo");
-   }
-   
-   /**
-    * Test system utilities for accessing session information.
-    * 
-    * @throws Exception
-    */
-   public void testSystemUtils() throws Exception
-   {
-      PSSessionUtils su = new PSSessionUtils();
-      
-      assertNotNull(su.getJSessionID());
-      assertNotNull(su.getPSSessionID());
-   }
+    @Test
+    public void testLinkUtils() throws Exception {
+        var info = PSRhythmyxInfoLocator.getRhythmyxInfo();
+        var ctx = getContext();
+        // This first won't be different without https enabled.
+        doTest(ctx, "$sys.link.getAbsUrl('../rxs_foo', true)",
+                "http://localhost:" + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT) + "/Rhythmyx/rxs_foo");
+        doTest(ctx, "$sys.link.getAbsUrl('../rxs_foo', false)",
+                "http://localhost:" + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT) + "/Rhythmyx/rxs_foo");
+        // OK result given that this is from a cactus test
+        doTest(ctx, "$sys.link.getRelUrl('rxs_foo')",
+                "http://127.0.0.1:" + info.getProperty(IPSRhythmyxInfo.Key.LISTENER_PORT) + "/Rhythmyx/ServletRedirector/rxs_foo");
+    }
+
+    @Test
+    public void testSystemUtils() {
+        var su = new PSSessionUtils();
+        assertNotNull(su.getJSessionID());
+        assertNotNull(su.getPSSessionID());
+    }
 }

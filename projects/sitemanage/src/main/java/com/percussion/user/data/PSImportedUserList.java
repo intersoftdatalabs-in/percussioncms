@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -25,9 +24,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * Represents a list of imported users.
+ */
 @XmlRootElement(name = "ImportedUser")
-@ArraySchema(schema=@Schema(implementation =PSImportedUser.class))
+@ArraySchema(schema = @Schema(implementation = PSImportedUser.class))
 @JsonRootName("ImportedUser")
 public class PSImportedUserList extends ArrayList<PSImportedUser> {
     public PSImportedUserList(Collection<? extends PSImportedUser> c) {

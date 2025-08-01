@@ -53,8 +53,8 @@ public class PSUserDependencyHandler extends PSFileDependencyHandler
     * 
     * @return the type, never <code>null</code> or empty.
     */
-   public String getType()
-   {
+   @Override
+   public String getType() {
       return DEPENDENCY_TYPE;
    }
    

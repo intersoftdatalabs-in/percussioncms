@@ -70,83 +70,52 @@ public class PSDisplayFormatDefDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependency> childDeps = new ArrayList<>();
-
-      PSDisplayFormat df = loadDisplayFormat(getComponentProcessor(tok),
-         dep.getDependencyId());
-      if (df == null)
-      {
-         Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(),
-            dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
-            args);
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
 
-      PSDependencyHandler commHandler = getDependencyHandler(
-         PSCommunityDependencyHandler.DEPENDENCY_TYPE);
-      PSDFMultiProperty commProp = getCommunityProperty(df);
-      if (commProp != null)
-         childDeps.addAll(getDepsFromMultiValuedProperty(tok, commProp,
-            commHandler));
+      var df = loadDisplayFormat(getComponentProcessor(tok), dep.getDependencyId());
+      if (df == null) {
+         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
+            new Object[]{dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
+      }
 
-      //Acl deps
-      // Acl dep uses ids, but display formats are referenced by names, so get
-      // the display format id, set it on the dependency and reset it back to
-      // display format name and do this on a clone in case ... of exceptions
-      PSDependency d = (PSDependency) dep.clone();
+      var commHandler = getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE);
+      var commProp = getCommunityProperty(df);
+      var childDeps = commProp != null
+         ? getDepsFromMultiValuedProperty(tok, commProp, commHandler)
+         : List.<PSDependency>of();
+
+      var d = (PSDependency) dep.clone();
       d.setDependencyId(String.valueOf(df.getDisplayId()));
       addAclDependency(tok, PSTypeEnum.DISPLAY_FORMAT, d, childDeps);
       d.setDependencyId(df.getDisplayName());
-  
+
       return childDeps.iterator();
-    }
-
-   // see base class
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-      Iterator<PSDisplayFormat> dfs = loadAll(getComponentProcessor(tok));
-      while (dfs.hasNext())
-      {
-         PSDisplayFormat df = dfs.next();
-         String name = df.getInternalName();
-         deps.add(createDependency(m_def, getIdFromKey(df, name), name));
-      }
-
-      return deps.iterator();
    }
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-      throws PSDeployException
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
+      }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
+      var dfs = loadAll(getComponentProcessor(tok));
+      return dfs.stream()
+         .map(df -> createDependency(m_def, getIdFromKey(df, df.getInternalName()), df.getInternalName()))
+         .iterator();
+   }
 
-      PSDependency dep = null;
-      PSDisplayFormat df = loadDisplayFormat(getComponentProcessor(tok), id);
-      if (df != null)
-         dep = createDependency(m_def, id, df.getInternalName());
+   // see base class
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      return dep;
+      var df = loadDisplayFormat(getComponentProcessor(tok), id);
+      return df != null ? createDependency(m_def, id, df.getInternalName()) : null;
    }
 
    /**
@@ -160,8 +129,7 @@ public class PSDisplayFormatDefDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -172,125 +140,59 @@ public class PSDisplayFormatDefDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+           throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependencyFile> files = new ArrayList<>();
-
-      // load the component
-      PSDisplayFormat df = loadDisplayFormat(getComponentProcessor(tok),
-         dep.getDependencyId());
-      if (df != null)
-         files.add(createDependencyFile(df));
-
-      return files.iterator();
+      var df = loadDisplayFormat(getComponentProcessor(tok), dep.getDependencyId());
+      return df != null ? List.of(createDependencyFile(df)).iterator() : List.<PSDependencyFile>of().iterator();
    }
 
    // see base class
-   public void installDependencyFiles(PSSecurityToken tok,
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
+           throws PSDeployException {
+      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
+      try {
+         var files = getDependencyFilesFromArchive(archive, dep);
+         var root = getElementFromFile(archive, dep, files.next());
+         var sourceDispFormat = new PSDisplayFormat(root);
+         var newDispFormat = (PSDisplayFormat) sourceDispFormat.clone();
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-
-
-      try
-      {
-         // restore the file
-         Iterator files = getDependencyFilesFromArchive(archive, dep);
-         Element root = getElementFromFile(archive, dep,
-            (PSDependencyFile)files.next());
-
-         // restore the object and clone it
-         PSDisplayFormat sourceDispFormat = new PSDisplayFormat(root);
-         PSDisplayFormat newDispFormat =
-            (PSDisplayFormat)sourceDispFormat.clone();
-
-         // create a list for transaction support
-         PSDbComponentCollection dbCompList = new PSDbComponentCollection(
-            PSDisplayFormat.class);
-
-         // look for existing
-         String tgtId = dep.getDependencyId();
-         PSIdMapping idMapping = getIdMapping(ctx, dep);
-         if (idMapping != null)
-         {
+         var dbCompList = new PSDbComponentCollection(PSDisplayFormat.class);
+         var tgtId = dep.getDependencyId();
+         var idMapping = getIdMapping(ctx, dep);
+         if (idMapping != null) {
             tgtId = idMapping.getTargetId();
          }
-         
-         PSComponentProcessorProxy proc = getComponentProcessor(tok);
-         PSDisplayFormat tgtDispFormat = loadDisplayFormat(proc, tgtId);
 
-         // if it already exists on the target, add it to the list marked for
-         // delete so we can "replace" it with the source version
-         if (tgtDispFormat != null)
-         {
-            // first set key value of format we will save using the existing
-            // target format's id.
-            newDispFormat.setLocator(PSDisplayFormat.createKey(
-               new String[]{getIdFromKey(tgtDispFormat,
-                  tgtDispFormat.getInternalName())}));
+         var proc = getComponentProcessor(tok);
+         var tgtDispFormat = loadDisplayFormat(proc, tgtId);
 
+         if (tgtDispFormat != null) {
+            newDispFormat.setLocator(PSDisplayFormat.createKey(new String[]{getIdFromKey(tgtDispFormat, tgtDispFormat.getInternalName())}));
             tgtDispFormat.markForDeletion();
             dbCompList.add(tgtDispFormat);
-            
-            // keep target version
             newDispFormat.setVersion(tgtDispFormat.getVersion());
          }
 
-         // translate ids in the new version as necessary
-         if (ctx.getCurrentIdMap() != null)
-         {
+         if (ctx.getCurrentIdMap() != null) {
             transformIds(ctx, newDispFormat);
          }
 
-         newDispFormat.setLocator(PSDisplayFormat.createKey(
-               new String[]{tgtId}));
-         
-         // remove 'sys_community' property as this information is in acl
+         newDispFormat.setLocator(PSDisplayFormat.createKey(new String[]{tgtId}));
          newDispFormat.removeProperty(PSDisplayFormat.PROP_COMMUNITY);
-                              
-         // add it to the list and save
          dbCompList.add(newDispFormat);
-         proc.save(new IPSDbComponent[] {dbCompList});
+         proc.save(new IPSDbComponent[]{dbCompList});
 
-         // add the transaction to the log
-         int action = (tgtDispFormat == null) ?
-            PSTransactionSummary.ACTION_CREATED :
-            PSTransactionSummary.ACTION_MODIFIED;
+         var action = (tgtDispFormat == null) ? PSTransactionSummary.ACTION_CREATED : PSTransactionSummary.ACTION_MODIFIED;
          addTransactionLogEntry(dep, ctx, newDispFormat, action);
-      }
-      catch (PSCmsException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
-      }
-      catch (PSUnknownNodeTypeException e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
+      } catch (PSCmsException | PSUnknownNodeTypeException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
    }
 

@@ -149,11 +149,12 @@ public class PSDbmsMapping implements IPSDeployComponent
     * See {@link PSXDatasourceMap#toXml(Document)} for info regarding
     * <code>PSXDatasourceMap</code> format.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
-      Element root = doc.createElement(XML_NODE_NAME);
+      }
+
+      var root = doc.createElement(XML_NODE_NAME);
       root.appendChild(m_datasrcMap.toXml(doc));
       return root;
    }
@@ -166,32 +167,23 @@ public class PSDbmsMapping implements IPSDeployComponent
     *
     * @throws PSUnknownNodeTypeException <code>sourceNode</code> is malformed.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-
-      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element srcEl = tree.getNextElement(PSDatasourceMap.XML_NODE_NAME, firstFlags);
-      // need to have at least one source element
-      if (srcEl == null)
-      {
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDatasourceMap.XML_NODE_NAME);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var srcEl = Optional.ofNullable(tree.getNextElement(PSDatasourceMap.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+         .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDatasourceMap.XML_NODE_NAME
+         ));
 
       m_datasrcMap = new PSDatasourceMap(srcEl);
    }
@@ -218,15 +210,10 @@ public class PSDbmsMapping implements IPSDeployComponent
    // see IPSDeployComponent interface
    public boolean equals(Object obj)
    {
-      if ((obj instanceof PSDbmsMapping))
-      {
-         PSDbmsMapping obj2 = (PSDbmsMapping) obj;
-
-         if ( m_datasrcMap.equals(obj2.m_datasrcMap) )
-           return true;
-         return false;
-      }
-      return false;
+      if (this == obj) return true;
+      if (!(obj instanceof PSDbmsMapping)) return false;
+      var other = (PSDbmsMapping) obj;
+      return m_datasrcMap.equals(other.m_datasrcMap);
    }
 
    /**

@@ -18,10 +18,6 @@ package com.percussion.pagemanagement.data;
 
 import net.sf.oval.constraint.AssertValid;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -31,38 +27,33 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains the page regions that will override the templates regions.
- * It also contains the region-widgets assocations ({@link #getRegionWidgetAssociations()}).
- * 
+ * Contains the page regions that will override the template's regions.
+ * Also contains the region-widgets associations ({@link #getRegionWidgetAssociations()}).
  * @author adamgent
- *
  */
 @XmlRootElement(name = "RegionBranches")
-public class PSRegionBranches extends PSRegionWidgetAssociations
-{
-    @AssertValid()
+public class PSRegionBranches extends PSRegionWidgetAssociations {
+
+    @AssertValid
     private List<PSRegion> regions = new ArrayList<>();
 
-    @AssertValid()
+    @AssertValid
     @XmlElementWrapper(name = "regions")
     @XmlElement(name = "region")
-    public List<PSRegion> getRegions()
-    {
+    public List<PSRegion> getRegions() {
         return regions;
     }
-    
-    public void setRegions(List<PSRegion> pageRegions)
-    {
+
+    public void setRegions(List<PSRegion> pageRegions) {
         this.regions = pageRegions;
     }
-
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSRegionBranches)) return false;
         if (!super.equals(o)) return false;
-        PSRegionBranches that = (PSRegionBranches) o;
+        var that = (PSRegionBranches) o;
         return Objects.equals(getRegions(), that.getRegions());
     }
 
@@ -73,24 +64,17 @@ public class PSRegionBranches extends PSRegionWidgetAssociations
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionBranches{");
-        sb.append("regions=").append(regions);
-        sb.append('}');
-        return sb.toString();
+        return "PSRegionBranches{" +
+                "regions=" + regions +
+                '}';
     }
 
     @Override
-    public PSRegionBranches clone()
-    {
-        try
-        {
+    public PSRegionBranches clone() {
+        try {
             return (PSRegionBranches) BeanUtils.cloneBean(this);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new RuntimeException("Cannot clone", e);
         }
     }
-    
-
 }

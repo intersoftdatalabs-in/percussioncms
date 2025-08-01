@@ -1,19 +1,5 @@
-/*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.service.impl;
 
 import com.percussion.assetmanagement.dao.IPSAssetDao;
@@ -155,13 +141,12 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 @Component("assetService")
 @Lazy
-public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSummary>  implements IPSAssetService
-{
+public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSummary> implements IPSAssetService {
     private IPSItemService itemService;
-    private PSAuditLogService psAuditLogService=PSAuditLogService.getInstance();
+    private PSAuditLogService psAuditLogService = PSAuditLogService.getInstance();
     private PSContentEvent psContentEvent;
 
-	/**
+    /**
      * Constructs an instance of the class.
      *
      * @param idMapper the id mapper, never <code>null</code>.
@@ -182,8 +167,8 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
      */
     @Autowired
     public PSAssetService(
-			IPSIdMapper idMapper,
-			IPSPageService pageService,
+            IPSIdMapper idMapper,
+            IPSPageService pageService,
             @Qualifier("sys_templateService") IPSTemplateService templateService,
             IPSWidgetService widgetService,
             IPSContentDesignWs contentDs,
@@ -199,8 +184,7 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
             PSAssetUploadFolderPathMap assetUploadFolderPathMap,
             IPSUserService userService,
             IPSSteppedWorkflowMetadata steppedWfMetadata,
-            IPSItemService itemService)
-    {
+            IPSItemService itemService) {
         super(dataItemSummaryService, assetDao);
 
         //PXA Why is this even a thing, don't we use DI where we'd get an exception if these couldn't be created?
@@ -238,493 +222,354 @@ public class PSAssetService extends PSAbstractFullDataService<PSAsset, PSAssetSu
         this.itemService = itemService;
     }
 
-
-	@Override
-	public List<PSImageAssetReportLine> findNonCompliantImageAssets() throws PSReportFailedToRunException {
-
-		List<PSImageAssetReportLine> ret = new ArrayList<>();
-		List<PSAsset> assets = assetDao.findAllNonADACompliantImageAssets();
-		List<String> assetIds =  new ArrayList<>();
-
-		if(log.isDebugEnabled())
-			log.debug("Collecting Asset Ids...");
-
-		for(PSAsset a : assets){
-			assetIds.add(a.getId());
-		}
-
-		if(log.isDebugEnabled())
-			log.debug("Analyzing Site Impact for Assets...");
-
-		List<PSAssetSiteImpact> impact = itemService.getAssetSiteImpact(assetIds);
-
-		//Now that we have all of our Assets and Site Impacts we can start pumping out lines
-		int i = 0;
-		for(PSAsset a : assets) {
-			try {
-				PSAssetSiteImpact si = impact.get(i);
-				PSImageAssetReportLine row = new PSImageAssetReportLine();
-				StringBuilder sites = new StringBuilder();
-				StringBuilder pages = new StringBuilder();
-				StringBuilder pagePaths = new StringBuilder();
-				StringBuilder templateNames = new StringBuilder();
-
-				row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-				row.setGuid(a.getId());
-				row.setAltText((String) a.getFields().get("alttext"));
-				row.setTitle((String) a.getFields().get("displaytitle"));
-				row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
-				row.setBulkImportAction("UPDATE");
-				row.setFilename((String) a.getFields().get("filename"));
-				row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-				row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-				row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-				row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
-				row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-				row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-				row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
-				row.setPubDate((String) a.getFields().get("sys_pubdate"));
-
-
-				PSWorkflow wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
-						Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
-
-				PSState state = workflowService.loadWorkflowState(PSGuidUtils.makeGuid(Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)), PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
-
-
-				row.setWorkflowName(wf.getLabel());
-
-				if (state != null) {
-					row.setWorkflowState(state.getLabel());
-				}
-				//Now process fields that might require more rows.
-				if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
-					//most likely just one path.
-					row.setFolderPath(a.getFolderPaths().get(0));
-				} else {
-					log.warn("Asset has more than one Folder Path: {}" , a.getId());
-					// Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-					continue;
-				}
-
-				if (si != null) {
-					for (PSItemProperties p : si.getOwnerPages()) {
-						if (pages.length()==0)
-							pages.append(p.getName());
-						else
-							pages.append("\r\n").append(p.getName());
-
-						if (pagePaths.length()==0)
-							pagePaths.append(p.getPath());
-						else
-							 pagePaths.append("\r\n").append(p.getPath());
-
-						if (pages.length() > MAX_MULTINE_CHARACTERS || pagePaths.length() > MAX_MULTINE_CHARACTERS) {
-							break;
-						}
-					}
-					row.setPageNames(pages.toString());
-					row.setPagePaths(pagePaths.toString());
-
-					for (IPSSite s : si.getOwnerSites()) {
-
-						if (sites.length()==0)
-							sites.append(s.getName());
-						else
-							sites.append("\r\n").append(s.getName());
-
-						if (sites.length() < MAX_MULTINE_CHARACTERS) {
-							break;
-						}
-					}
-
-					row.setSiteNames(sites.toString());
-
-					for (PSTemplateSummary t : si.getOwnerTemplates()) {
-						if (templateNames.length()==0)
-							templateNames.append(t.getName());
-						else
-							templateNames.append("\r\n").append(t.getName());
-
-						if (templateNames.length() < MAX_MULTINE_CHARACTERS) {
-							break;
-						}
-
-					}
-					row.setTemplateNames(templateNames.toString());
-				}
-
-
-				ret.add(row);
-				i++;
-			}catch(Exception e){
-				log.warn("Skipping asset due to error: {}" , PSExceptionUtils.getMessageForLog(e));
-				log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-			}
-
-		}
-
-
-		return ret;
-	}
-
-	@Override
-	public List<PSImageAssetReportLine> findAllImageAssets() throws PSReportFailedToRunException {
-		List<PSImageAssetReportLine> ret = new ArrayList<>();
-		List<PSAsset> assets = assetDao.findAllImageAssets();
-		List<String> assetIds =  new ArrayList<>();
-
-		if(log.isDebugEnabled())
-			log.debug("Collecting Asset Ids...");
-
-		for(PSAsset a : assets){
-			assetIds.add(a.getId());
-		}
-
-		if(log.isDebugEnabled())
-			log.debug("Analyzing Site Impact for Assets...");
-
-		List<PSAssetSiteImpact> impact = itemService.getAssetSiteImpact(assetIds);
-
-		//Now that we have all of our Assets and Site Impacts we can start pumping out lines
-		int i = 0;
-		for(PSAsset a : assets){
-			PSAssetSiteImpact si = impact.get(i);
-			PSImageAssetReportLine row = new PSImageAssetReportLine();
-			StringBuilder sites = new StringBuilder();
-			StringBuilder pages = new StringBuilder();
-			StringBuilder pagePaths = new StringBuilder();
-			StringBuilder templateNames = new StringBuilder();
-
-			row.setId(Integer.parseInt((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-			row.setGuid(a.getId());
-			row.setAltText((String)a.getFields().get("alttext"));
-			row.setTitle((String) a.getFields().get("displaytitle"));
-			row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
-			row.setBulkImportAction("UPDATE");
-			row.setFilename((String)a.getFields().get("filename"));
-			row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-			row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-			row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-			row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
-			row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-			row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-			row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
-			row.setPubDate((String) a.getFields().get("sys_pubdate"));
-
-
-				PSWorkflow wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
-		                Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
-
-				PSState state = workflowService.loadWorkflowState(PSGuidUtils.makeGuid(Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
-
-				row.setWorkflowName(wf.getLabel());
-
-				if(state!=null) {
-					row.setWorkflowState(state.getLabel());
-				}
-
-				//Now process fields that might require more rows.
-				if(a.getFolderPaths()!=null && a.getFolderPaths().size()==1){
-					//most likely just one path.
-					row.setFolderPath(a.getFolderPaths().get(0));
-				}else{
-					log.warn("Asset has more than one Folder Path: {}", a.getId());
-					// Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-					continue;
-				}
-
-				if(si != null){
-					for(PSItemProperties p : si.getOwnerPages()){
-						if(pages.length()==0)
-							pages.append(p.getName());
-						else
-							pages.append("\r\n").append(p.getName());
-
-						if(pagePaths.length()==0)
-							pagePaths.append(p.getPath());
-						else
-							pagePaths.append("\r\n").append(p.getPath());
-
-
-						if(pages.length()>MAX_MULTINE_CHARACTERS || pagePaths.length()>MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setPageNames(pages.toString());
-					row.setPagePaths(pagePaths.toString());
-
-					for(IPSSite s : si.getOwnerSites()){
-
-						if(sites.length()==0)
-							sites.append(s.getName());
-						else
-							sites.append("\r\n").append(s.getName());
-
-
-						if(sites.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-
-					row.setSiteNames(sites.toString());
-
-					for(PSTemplateSummary t: si.getOwnerTemplates()){
-						if(templateNames.length()==0)
-							templateNames.append(t.getName());
-						else
-							templateNames.append("\r\n").append(t.getName());
-
-						if(templateNames.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setTemplateNames(templateNames.toString());
-				}
-			ret.add(row);
-			i++;
-		}
-
-
-		return ret;
-	}
-
-	@Override
-	public List<PSFileAssetReportLine> findNonCompliantFileAssets() throws PSReportFailedToRunException {
-		List<PSFileAssetReportLine> ret = new ArrayList<>();
-		List<PSAsset> assets = assetDao.findAllNonADACompliantFileAssets();
-		List<String> assetIds =  new ArrayList<>();
-
-		log.debug("Collecting Asset Ids...");
-
-		assetIds = assets.stream().map(PSAsset::getId).collect(Collectors.toList());
-
-		if(log.isDebugEnabled())
-			log.debug("Analyzing Site Impact for Assets...");
-
-		List<PSAssetSiteImpact> impact = itemService.getAssetSiteImpact(assetIds);
-
-		//Now that we have all of our Assets and Site Impacts we can start pumping out lines
-		int i = 0;
-		for(PSAsset a : assets){
-			PSAssetSiteImpact si = impact.get(i);
-			PSFileAssetReportLine row = new PSFileAssetReportLine();
-			String sites = "";
-			String pages = "";
-			String pagePaths = "";
-			String templateNames = "";
-
-				row.setId(Integer.parseInt((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-				row.setGuid(a.getId());
-				row.setBulkImportAction("UPDATE");
-			    // Added mising AltText column in non-ada-files report | CMS-3216
-				row.setAltText((String)a.getFields().get("alttext"));
-				row.setTitle((String)a.getFields().get("displaytitle"));
-				row.setFilename((String)a.getFields().get("filename"));
-				row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-				row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-				row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-				row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
-				row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-				row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-
-
-
-				PSWorkflow wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
-		                Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
-
-				PSState state = workflowService.loadWorkflowState(PSGuidUtils.makeGuid(Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
-
-				row.setWorkflowName(wf.getLabel());
-				row.setWorkflowState(state.getLabel());
-
-				//Now process fields that might require more rows.
-				if(a.getFolderPaths()!=null && a.getFolderPaths().size()==1){
-					//most likely just one path.
-					row.setFolderPath(a.getFolderPaths().get(0));
-				}else{
-					log.warn("Asset has more than one Folder Path: {}", a.getId());
-					// Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-					continue;
-				}
-
-				if(si != null){
-					for(PSItemProperties p : si.getOwnerPages()){
-						if(pages.equals(""))
-							pages = p.getName();
-						else
-							pages = pages + "\r\n" + p.getName();
-
-						if(pagePaths.equals(""))
-							pagePaths = p.getPath();
-						else
-							pagePaths = pagePaths + "\r\n" + p.getPath();
-
-
-						if(pages.length()>MAX_MULTINE_CHARACTERS || pagePaths.length()>MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setPageNames(pages);
-					row.setPagePaths(pagePaths);
-
-					for(IPSSite s : si.getOwnerSites()){
-
-						if(sites.equals(""))
-							sites = s.getName();
-						else
-							sites = sites + "\r\n" + s.getName();
-
-
-						if(sites.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-
-					row.setSiteNames(sites);
-
-					for(PSTemplateSummary t: si.getOwnerTemplates()){
-						if(templateNames.equals(""))
-							templateNames = t.getName();
-						else
-							templateNames = templateNames + "\r\n" + t.getName();
-
-						if(templateNames.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setTemplateNames(templateNames);
-				}
-
-
-
-			ret.add(row);
-			i++;
-		}
-
-
-		return ret;
-	}
-
-	@Override
-	public List<PSFileAssetReportLine> findAllFileAssets() throws PSReportFailedToRunException {
-		List<PSFileAssetReportLine> ret = new ArrayList<>();
-		List<PSAsset> assets = assetDao.findAllFileAssets();
-		List<String> assetIds =  new ArrayList<>();
-
-		if(log.isDebugEnabled())
-			log.debug("Collecting Asset Ids...");
-
-		for(PSAsset a : assets){
-			assetIds.add(a.getId());
-		}
-
-		if(log.isDebugEnabled())
-			log.debug("Analyzing Site Impact for Assets...");
-
-		List<PSAssetSiteImpact> impact = itemService.getAssetSiteImpact(assetIds);
-
-		//Now that we have all of our Assets and Site Impacts we can start pumping out lines
-		int i = 0;
-		for(PSAsset a : assets){
-			PSAssetSiteImpact si = impact.get(i);
-			PSFileAssetReportLine row = new PSFileAssetReportLine();
-			String sites = "";
-			String pages = "";
-			String pagePaths = "";
-			String templateNames = "";
-
-				row.setId(Integer.parseInt((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
-				row.setGuid(a.getId());
-			    // Added missing AltText column in non-ada-files report | CMS-3216
-				row.setAltText((String)a.getFields().get("alttext"));
-				row.setTitle((String) a.getFields().get("displaytitle"));
-				row.setBulkImportAction("UPDATE");
-				row.setFilename((String)a.getFields().get("filename"));
-				row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
-				row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
-				row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
-				row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
-				row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
-				row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
-				row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
-				row.setPubDate((String) a.getFields().get("sys_pubdate"));
-				row.setExtension((String) a.getFields().get("item_file_attachment_ext"));
-
-				PSWorkflow wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
-		                Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
-
-				PSState state = workflowService.loadWorkflowState(PSGuidUtils.makeGuid(Long.parseLong((String)a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)),PSTypeEnum.WORKFLOW_STATE), wf.getGUID());
-
-				row.setWorkflowName(wf.getLabel());
-				row.setWorkflowState(state.getLabel());
-
-				//Now process fields that might require more rows.
-				if(a.getFolderPaths()!=null && a.getFolderPaths().size()==1){
-					//most likely just one path.
-					row.setFolderPath(a.getFolderPaths().get(0));
-				}else{
-					log.warn("Asset has more than one Folder Path: {}" , a.getId());
-					// Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
-					continue;
-				}
-
-				if(si != null){
-					for(PSItemProperties p : si.getOwnerPages()){
-						if(pages.equals(""))
-							pages = p.getName();
-						else
-							pages = pages + "\r\n" + p.getName();
-
-						if(pagePaths.equals(""))
-							pagePaths = p.getPath();
-						else
-							pagePaths = pagePaths + "\r\n" + p.getPath();
-
-						if(pages.length()>MAX_MULTINE_CHARACTERS || pagePaths.length()>MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setPageNames(pages);
-					row.setPagePaths(pagePaths);
-
-					for(IPSSite s : si.getOwnerSites()){
-
-						if(sites.equals(""))
-							sites = s.getName();
-						else
-							sites = sites + "\r\n" + s.getName();
-
-
-						if(sites.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-
-					row.setSiteNames(sites);
-
-					for(PSTemplateSummary t: si.getOwnerTemplates()){
-						if(templateNames.equals(""))
-							templateNames = t.getName();
-						else
-							templateNames = templateNames + "\r\n" + t.getName();
-
-						if(templateNames.length()<MAX_MULTINE_CHARACTERS){
-							break;
-						}
-					}
-					row.setTemplateNames(templateNames);
-				}
-
-
-
-			ret.add(row);
-			i++;
-		}
-
-
-		return ret;
-	}
+    @Override
+    public List<PSImageAssetReportLine> findNonCompliantImageAssets() throws PSReportFailedToRunException {
+        var ret = new ArrayList<PSImageAssetReportLine>();
+        var assets = assetDao.findAllNonADACompliantImageAssets();
+        var assetIds = assets.stream().map(PSAsset::getId).collect(Collectors.toList());
+
+        if (log.isDebugEnabled()) log.debug("Collecting Asset Ids...");
+
+        if (log.isDebugEnabled()) log.debug("Analyzing Site Impact for Assets...");
+
+        var impact = itemService.getAssetSiteImpact(assetIds);
+
+        int i = 0;
+        for (var a : assets) {
+            try {
+                var si = impact.get(i);
+                var row = new PSImageAssetReportLine();
+                var sites = new StringBuilder();
+                var pages = new StringBuilder();
+                var pagePaths = new StringBuilder();
+                var templateNames = new StringBuilder();
+
+                row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+                row.setGuid(a.getId());
+                row.setAltText((String) a.getFields().get("alttext"));
+                row.setTitle((String) a.getFields().get("displaytitle"));
+                row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
+                row.setBulkImportAction("UPDATE");
+                row.setFilename((String) a.getFields().get("filename"));
+                row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+                row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+                row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+                row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
+                row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+                row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+                row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
+                row.setPubDate((String) a.getFields().get("sys_pubdate"));
+
+                var wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
+                        Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
+                var state = workflowService.loadWorkflowState(
+                        PSGuidUtils.makeGuid(Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)), PSTypeEnum.WORKFLOW_STATE),
+                        wf.getGUID());
+                row.setWorkflowName(wf.getLabel());
+                if (state != null) row.setWorkflowState(state.getLabel());
+
+                if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+                    row.setFolderPath(a.getFolderPaths().get(0));
+                } else {
+                    log.warn("Asset has more than one Folder Path: {}", a.getId());
+                    continue;
+                }
+
+                if (si != null) {
+                    for (var p : si.getOwnerPages()) {
+                        if (pages.length() == 0) pages.append(p.getName());
+                        else pages.append("\r\n").append(p.getName());
+
+                        if (pagePaths.length() == 0) pagePaths.append(p.getPath());
+                        else pagePaths.append("\r\n").append(p.getPath());
+
+                        if (pages.length() > MAX_MULTINE_CHARACTERS || pagePaths.length() > MAX_MULTINE_CHARACTERS) break;
+                    }
+                    row.setPageNames(pages.toString());
+                    row.setPagePaths(pagePaths.toString());
+
+                    for (var s : si.getOwnerSites()) {
+                        if (sites.length() == 0) sites.append(s.getName());
+                        else sites.append("\r\n").append(s.getName());
+                        if (sites.length() < MAX_MULTINE_CHARACTERS) break;
+                    }
+                    row.setSiteNames(sites.toString());
+
+                    for (var t : si.getOwnerTemplates()) {
+                        if (templateNames.length() == 0) templateNames.append(t.getName());
+                        else templateNames.append("\r\n").append(t.getName());
+                        if (templateNames.length() < MAX_MULTINE_CHARACTERS) break;
+                    }
+                    row.setTemplateNames(templateNames.toString());
+                }
+                ret.add(row);
+                i++;
+            } catch (Exception e) {
+                log.warn("Skipping asset due to error: {}", PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public List<PSImageAssetReportLine> findAllImageAssets() throws PSReportFailedToRunException {
+        var ret = new ArrayList<PSImageAssetReportLine>();
+        var assets = assetDao.findAllImageAssets();
+        var assetIds = assets.stream().map(PSAsset::getId).collect(Collectors.toList());
+
+        if (log.isDebugEnabled()) log.debug("Collecting Asset Ids...");
+
+        if (log.isDebugEnabled()) log.debug("Analyzing Site Impact for Assets...");
+
+        var impact = itemService.getAssetSiteImpact(assetIds);
+
+        int i = 0;
+        for (var a : assets) {
+            var si = impact.get(i);
+            var row = new PSImageAssetReportLine();
+            var sites = new StringBuilder();
+            var pages = new StringBuilder();
+            var pagePaths = new StringBuilder();
+            var templateNames = new StringBuilder();
+
+            row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+            row.setGuid(a.getId());
+            row.setAltText((String) a.getFields().get("alttext"));
+            row.setTitle((String) a.getFields().get("displaytitle"));
+            row.setResourceLinkTitle((String) a.getFields().get("resource_link_title"));
+            row.setBulkImportAction("UPDATE");
+            row.setFilename((String) a.getFields().get("filename"));
+            row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+            row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+            row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+            row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
+            row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+            row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+            row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
+            row.setPubDate((String) a.getFields().get("sys_pubdate"));
+
+            var wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
+                    Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
+            var state = workflowService.loadWorkflowState(
+                    PSGuidUtils.makeGuid(Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)), PSTypeEnum.WORKFLOW_STATE),
+                    wf.getGUID());
+            row.setWorkflowName(wf.getLabel());
+            if (state != null) row.setWorkflowState(state.getLabel());
+
+            if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+                row.setFolderPath(a.getFolderPaths().get(0));
+            } else {
+                log.warn("Asset has more than one Folder Path: {}", a.getId());
+                continue;
+            }
+
+            if (si != null) {
+                for (var p : si.getOwnerPages()) {
+                    if (pages.length() == 0) pages.append(p.getName());
+                    else pages.append("\r\n").append(p.getName());
+
+                    if (pagePaths.length() == 0) pagePaths.append(p.getPath());
+                    else pagePaths.append("\r\n").append(p.getPath());
+
+                    if (pages.length() > MAX_MULTINE_CHARACTERS || pagePaths.length() > MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setPageNames(pages.toString());
+                row.setPagePaths(pagePaths.toString());
+
+                for (var s : si.getOwnerSites()) {
+                    if (sites.length() == 0) sites.append(s.getName());
+                    else sites.append("\r\n").append(s.getName());
+                    if (sites.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setSiteNames(sites.toString());
+
+                for (var t : si.getOwnerTemplates()) {
+                    if (templateNames.length() == 0) templateNames.append(t.getName());
+                    else templateNames.append("\r\n").append(t.getName());
+                    if (templateNames.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setTemplateNames(templateNames.toString());
+            }
+            ret.add(row);
+            i++;
+        }
+
+        return ret;
+    }
+
+    @Override
+    public List<PSFileAssetReportLine> findNonCompliantFileAssets() throws PSReportFailedToRunException {
+        var ret = new ArrayList<PSFileAssetReportLine>();
+        var assets = assetDao.findAllNonADACompliantFileAssets();
+        var assetIds = assets.stream().map(PSAsset::getId).collect(Collectors.toList());
+
+        log.debug("Collecting Asset Ids...");
+
+        if (log.isDebugEnabled()) log.debug("Analyzing Site Impact for Assets...");
+
+        var impact = itemService.getAssetSiteImpact(assetIds);
+
+        int i = 0;
+        for (var a : assets) {
+            var si = impact.get(i);
+            var row = new PSFileAssetReportLine();
+            var sites = new StringBuilder();
+            var pages = new StringBuilder();
+            var pagePaths = new StringBuilder();
+            var templateNames = new StringBuilder();
+
+            row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+            row.setGuid(a.getId());
+            row.setBulkImportAction("UPDATE");
+            // Added missing AltText column in non-ada-files report | CMS-3216
+            row.setAltText((String) a.getFields().get("alttext"));
+            row.setTitle((String) a.getFields().get("displaytitle"));
+            row.setFilename((String) a.getFields().get("filename"));
+            row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+            row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+            row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+            row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
+            row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+            row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+
+            var wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
+                    Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
+            var state = workflowService.loadWorkflowState(
+                    PSGuidUtils.makeGuid(Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)), PSTypeEnum.WORKFLOW_STATE),
+                    wf.getGUID());
+            row.setWorkflowName(wf.getLabel());
+            row.setWorkflowState(state.getLabel());
+
+            if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+                row.setFolderPath(a.getFolderPaths().get(0));
+            } else {
+                log.warn("Asset has more than one Folder Path: {}", a.getId());
+                continue;
+            }
+
+            if (si != null) {
+                for (var p : si.getOwnerPages()) {
+                    if (pages.length() == 0) pages.append(p.getName());
+                    else pages.append("\r\n").append(p.getName());
+
+                    if (pagePaths.length() == 0) pagePaths.append(p.getPath());
+                    else pagePaths.append("\r\n").append(p.getPath());
+
+                    if (pages.length() > MAX_MULTINE_CHARACTERS || pagePaths.length() > MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setPageNames(pages.toString());
+                row.setPagePaths(pagePaths.toString());
+
+                for (var s : si.getOwnerSites()) {
+                    if (sites.length() == 0) sites.append(s.getName());
+                    else sites.append("\r\n").append(s.getName());
+                    if (sites.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setSiteNames(sites.toString());
+
+                for (var t : si.getOwnerTemplates()) {
+                    if (templateNames.length() == 0) templateNames.append(t.getName());
+                    else templateNames.append("\r\n").append(t.getName());
+                    if (templateNames.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setTemplateNames(templateNames.toString());
+            }
+            ret.add(row);
+            i++;
+        }
+
+        return ret;
+    }
+
+    @Override
+    public List<PSFileAssetReportLine> findAllFileAssets() throws PSReportFailedToRunException {
+        var ret = new ArrayList<PSFileAssetReportLine>();
+        var assets = assetDao.findAllFileAssets();
+        var assetIds = assets.stream().map(PSAsset::getId).collect(Collectors.toList());
+
+        if (log.isDebugEnabled()) log.debug("Collecting Asset Ids...");
+
+        if (log.isDebugEnabled()) log.debug("Analyzing Site Impact for Assets...");
+
+        var impact = itemService.getAssetSiteImpact(assetIds);
+
+        int i = 0;
+        for (var a : assets) {
+            var si = impact.get(i);
+            var row = new PSFileAssetReportLine();
+            var sites = new StringBuilder();
+            var pages = new StringBuilder();
+            var pagePaths = new StringBuilder();
+            var templateNames = new StringBuilder();
+
+            row.setId(Integer.parseInt((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTID)));
+            row.setGuid(a.getId());
+            // Added missing AltText column in non-ada-files report | CMS-3216
+            row.setAltText((String) a.getFields().get("alttext"));
+            row.setTitle((String) a.getFields().get("displaytitle"));
+            row.setBulkImportAction("UPDATE");
+            row.setFilename((String) a.getFields().get("filename"));
+            row.setName((String) a.getFields().get(IPSHtmlParameters.SYS_TITLE));
+            row.setContentCreatedBy((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDBY.replace("rx:", "")));
+            row.setContentCreatedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTCREATEDDATE.replace("rx:", "")));
+            row.setContentModifiedDate((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIEDATE.replace("rx:", "")));
+            row.setContentLastModifier((String) a.getFields().get(IPSContentPropertyConstants.RX_SYS_CONTENTLASTMODIFIER.replace("rx:", "")));
+            row.setContentPostDate((String) a.getFields().get("sys_contentpostdate"));
+            row.setContentStartDate((String) a.getFields().get("sys_contentstartdate"));
+            row.setPubDate((String) a.getFields().get("sys_pubdate"));
+            row.setExtension((String) a.getFields().get("item_file_attachment_ext"));
+
+            var wf = workflowService.loadWorkflow(PSGuidUtils.makeGuid(
+                    Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_WORKFLOWID)), PSTypeEnum.WORKFLOW));
+            var state = workflowService.loadWorkflowState(
+                    PSGuidUtils.makeGuid(Long.parseLong((String) a.getFields().get(IPSHtmlParameters.SYS_CONTENTSTATEID)), PSTypeEnum.WORKFLOW_STATE),
+                    wf.getGUID());
+            row.setWorkflowName(wf.getLabel());
+            row.setWorkflowState(state.getLabel());
+
+            if (a.getFolderPaths() != null && a.getFolderPaths().size() == 1) {
+                row.setFolderPath(a.getFolderPaths().get(0));
+            } else {
+                log.warn("Asset has more than one Folder Path: {}" , a.getId());
+                // Do not include the record if folder is blank/ asset moved to Recycle bin | CMS-3216
+                continue;
+            }
+
+            if (si != null) {
+                for (var p : si.getOwnerPages()) {
+                    if (pages.length() == 0) pages.append(p.getName());
+                    else pages.append("\r\n").append(p.getName());
+
+                    if (pagePaths.length() == 0) pagePaths.append(p.getPath());
+                    else pagePaths.append("\r\n").append(p.getPath());
+
+                    if (pages.length() > MAX_MULTINE_CHARACTERS || pagePaths.length() > MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setPageNames(pages.toString());
+                row.setPagePaths(pagePaths.toString());
+
+                for (var s : si.getOwnerSites()) {
+                    if (sites.length() == 0) sites.append(s.getName());
+                    else sites.append("\r\n").append(s.getName());
+                    if (sites.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setSiteNames(sites.toString());
+
+                for (var t : si.getOwnerTemplates()) {
+                    if (templateNames.length() == 0) templateNames.append(t.getName());
+                    else templateNames.append("\r\n").append(t.getName());
+                    if (templateNames.length() < MAX_MULTINE_CHARACTERS) break;
+                }
+                row.setTemplateNames(templateNames.toString());
+            }
+
+            ret.add(row);
+            i++;
+        }
+
+        return ret;
+    }
 
     public String updateAssetWidgetRelationship(PSAssetWidgetRelationship awRel) throws IPSWidgetAssetRelationshipService.PSWidgetAssetRelationshipServiceException, PSValidationException {
         rejectIfNull("updateAssetWidgetRelationship", "awRel", awRel);

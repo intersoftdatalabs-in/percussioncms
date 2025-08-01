@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -28,19 +29,17 @@ import javax.swing.JList;
   * horizontal display.
 */
 
-public class ImageListControlList extends JList
+public class ImageListControlList extends JList<ImageListItem>
 {
 //
 // CONSTRUCTORS
 //
   
-  public ImageListControlList()
-  {
+  public ImageListControlList() {
     super();
   }
 
-  public ImageListControlList(Object[] array)
-  {
+  public ImageListControlList(ImageListItem[] array) {
     super(array);
   }
 

@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.Map;
-
+import java.util.Optional;
 
 /**
  * This interface simplifies making a request to a Rhythmyx application or
@@ -33,58 +33,94 @@ import java.util.Map;
  */
 public interface IPSRemoteRequesterEx extends IPSRemoteRequester
 {
-
    /**
     * Makes an http/s request to the specified binary resource, providing
     * the key-value pairs in the params map as html parameters. Expects that a
     * byte array will be returned.
     *
-    * @param resource Never <code>null</code> or empty. Must be a full path
+    * @param resource Never {@code null} or empty. Must be a full path
     *    to the target resource without the root path, e.g. app/res.xml. (assume
     *    the full path including the root is, /Rhythmyx/app/res.xml)
     *
     * @param params A set of name/value pairs. Each key is a String, while
     *    each value is either a String or a List of Strings. If a list
-    *    is supplied, then an htlm param with the name of the key will
-    *    be created for each entry.
+    *    is supplied, then an html param with the name of the key will
+    *    be created for each entry. May be {@code null} or empty.
     *
-    * @return The byte array representing the returned data, may be empty if
-    * no data was returned
+    * @return The byte array representing the returned data, never {@code null}
+    *    but may be empty if no data was returned
     *
     * @throws IOException If any problems occur while communicating with the
     *    server.
+    * @throws IllegalArgumentException if resource is {@code null} or empty
     */
-   public byte[] getBinary(String resource, Map params)
-      throws IOException;
+   byte[] getBinary(String resource, Map<String, Object> params) throws IOException;
 
    /**
     * Makes an http/s request to the specified binary update resource,
     * providing the key-value pairs in the params map as html parameters.
     *
-    * @param the BinaryFileData array data that represents the binary being sent.
+    * @param files the BinaryFileData array data that represents the binary being sent.
+    *    Never {@code null}, but may be empty.
     *
-    * @param resource Never <code>null</code> or empty. Must be a full path
+    * @param resource Never {@code null} or empty. Must be a full path
     *    to the target resource without the root path, e.g. app/res.xml. (assume
     *    the full path including the root is, /Rhythmyx/app/res.xml)
     *
     * @param params A set of name/value pairs. Each key is a String, while
     *    each value is either a String or a List of Strings. If a list
-    *    is supplied, then an htlm param with the name of the key will
-    *    be created for each entry.
+    *    is supplied, then an html param with the name of the key will
+    *    be created for each entry. May be {@code null} or empty.
     *
-    * @return the <code>PSLocator</code> for this content item. May be <code>
-    * null</code> if the locator could not be retrieved.
+    * @return the {@code PSLocator} for this content item wrapped in an Optional.
+    *    Empty Optional if the locator could not be retrieved.
     *
     * @throws IOException If any problems occur while communicating with the
     *    server.
+    * @throws SAXException If there are problems parsing the response XML.
+    * @throws IllegalArgumentException if resource is {@code null} or empty,
+    *    or if files is {@code null}
     */
-   public PSLocator updateBinary(
-      PSBinaryFileData[] files,
-      String resource,
-      Map params)
-      throws IOException, SAXException;
+   Optional<PSLocator> updateBinary(PSBinaryFileData[] files, String resource,
+                                   Map<String, Object> params)
+                                   throws IOException, SAXException;
 
+   /**
+    * Default method that provides a convenience overload for getBinary without parameters.
+    *
+    * @param resource Never {@code null} or empty. Must be a full path
+    *    to the target resource without the root path.
+    *
+    * @return The byte array representing the returned data, never {@code null}
+    *    but may be empty if no data was returned
+    *
+    * @throws IOException If any problems occur while communicating with the
+    *    server.
+    * @throws IllegalArgumentException if resource is {@code null} or empty
+    */
+   default byte[] getBinary(String resource) throws IOException {
+      return getBinary(resource, null);
+   }
 
-
-
+   /**
+    * Default method that provides a convenience overload for updateBinary without parameters.
+    *
+    * @param files the BinaryFileData array data that represents the binary being sent.
+    *    Never {@code null}, but may be empty.
+    * @param resource Never {@code null} or empty. Must be a full path
+    *    to the target resource without the root path.
+    *
+    * @return the {@code PSLocator} for this content item wrapped in an Optional.
+    *    Empty Optional if the locator could not be retrieved.
+    *
+    * @throws IOException If any problems occur while communicating with the
+    *    server.
+    * @throws SAXException If there are problems parsing the response XML.
+    * @throws IllegalArgumentException if resource is {@code null} or empty,
+    *    or if files is {@code null}
+    */
+   default Optional<PSLocator> updateBinary(PSBinaryFileData[] files, String resource)
+                                           throws IOException, SAXException {
+      return updateBinary(files, resource, null);
+   }
 }

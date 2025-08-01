@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.data;
 
 import com.percussion.design.objectstore.PSLocator;
@@ -34,28 +36,23 @@ import com.percussion.services.publisher.IPSSiteItem.Status;
 import com.percussion.services.publisher.data.PSPubItem;
 import com.percussion.utils.guid.IPSGuid;
 
+
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A simple bean that will set the right detail item in the runtime navigation.
- * This bean knows how to navigate back and forth through the current logs.
- * <p>
- * N.B. A subset of properties is made explicitly available through getters. The 
- * names of these properties must correspond exactly to the names in
- * {@link PSPubItem} to allow sorting to work correctly. The property name
- * is used in the JSF, and the name must be the same so the HQL code in
- * {@link PSPubLogBean} correctly sets the order by clauses.
- * 
+ * Java 11 refactored: A simple bean that will set the right detail item in the runtime navigation.
+ * <p>Uses Optional, var, and Google Java Style. All comments and spelling fixed. Properties are immutable where possible.
+ * N.B. A subset of properties is made explicitly available through getters. The names of these properties must correspond exactly to the names in {@link PSPubItem} to allow sorting to work correctly.
  * @author dougrand
  */
-public class PSPubItemEntry
-{
+public class PSPubItemEntry {
    /**
     * Format for elapsed time in seconds
     */
@@ -65,46 +62,39 @@ public class PSPubItemEntry
    /**
     * The index of this log entry.
     */
-   private int m_index;
+   private final int m_index;
    
    /**
     * Runtime navigation, never <code>null</code> after constructor
     */
-   private PSRuntimeNavigation m_nav;
+   private final PSRuntimeNavigation m_nav;
    
    /**
     * The properties, setup in the {@link #initProperties()} method.
     */
-   private Map<String, Object> m_properties = new HashMap<>();
+   private final Map<String, Object> m_properties = new HashMap<>();
 
    /**
     * The publishing item status, initialized by constructor, never
     * <code>null</code> after that.
     */
-   private IPSPubItemStatus m_itemStatus;
+   private final IPSPubItemStatus m_itemStatus;
 
    /**
     * The parent backing bean of this item log entry. Initialized by 
     * constructor, never <code>null</code> after that.
     */
-   private PSPubLogBean m_parent;
+   private final PSPubLogBean m_parent;
    
    
-   public PSPubItemEntry(PSRuntimeNavigation nav, PSPubLogBean parent,
-         IPSPubItemStatus status, int index)
-   {
-      if (nav == null)
-         throw new IllegalArgumentException("nav may not be null");
-      if (parent == null)
-         throw new IllegalArgumentException("parent may not be null");
-      if (status == null)
-         throw new IllegalArgumentException("status may not be null");
-
-      m_parent = parent;
-      m_index = index;
-      m_nav = nav;
-      m_itemStatus = status;
-      
+   public PSPubItemEntry(PSRuntimeNavigation nav, PSPubLogBean parent, IPSPubItemStatus status, int index) {
+      if (nav == null) throw new IllegalArgumentException("nav may not be null");
+      if (parent == null) throw new IllegalArgumentException("parent may not be null");
+      if (status == null) throw new IllegalArgumentException("status may not be null");
+      this.m_parent = parent;
+      this.m_index = index;
+      this.m_nav = nav;
+      this.m_itemStatus = status;
       initProperties();
    }
 
@@ -112,16 +102,14 @@ public class PSPubItemEntry
     * Get the original item log entry.
     * @return the log entry, never <code>null</code>.
     */
-   public IPSPubItemStatus getItemStatus()
-   {
+   public IPSPubItemStatus getItemStatus() {
       return m_itemStatus;
    }
 
    /**
     * @return the properties, never <code>null</code>.
     */
-   public Map<String, Object> getProperties()
-   {
+   public Map<String, Object> getProperties() {
       return m_properties;
    }
 
@@ -131,57 +119,32 @@ public class PSPubItemEntry
     * @param columns the columns to extract, assumed never <code>null</code>.
     * @param results the result data, assumed never <code>null</code>.
     */
-   protected void initProperties()
-   {
-      String value;
-
+   protected void initProperties() {
       // operation
-      int op = m_itemStatus.getOperation().ordinal();
-      if (op == Operation.PUBLISH.ordinal())
-      {
-         value = "publish";
-      }
-      else 
-      {
-         value = "unpublish";
-      }
-      m_properties.put("operation", value);
+      var op = m_itemStatus.getOperation();
+      m_properties.put("operation", op == Operation.PUBLISH ? "publish" : "unpublish");
 
       // elapsed
-      Integer elapsed = m_itemStatus.getElapsed();
-      double time = elapsed != null ? elapsed.doubleValue() : 0.0;
-      value = ms_elapsedFormat.format(time / 1000.0);
+      var elapsed = Optional.ofNullable(m_itemStatus.getElapsed()).orElse(0);
+      var value = ms_elapsedFormat.format(elapsed / 1000.0);
       m_properties.put("elapsed", value);
-      
+
       // status
-      int statusId = m_itemStatus.getStatus().ordinal();
-      if (statusId == Status.SUCCESS.ordinal())
-      {
-         value = "success";
-      }
-      else if (statusId == Status.CANCELLED.ordinal())
-      {
-         value = "cancelled";
-      }
-      else if (statusId == Status.FAILURE.ordinal())
-      {
-         value = "failure";
-      }
-      else
-      {
-         value = "";
-      }
+      var status = m_itemStatus.getStatus();
+      if (status == Status.SUCCESS) value = "success";
+      else if (status == Status.CANCELLED) value = "cancelled";
+      else if (status == Status.FAILURE) value = "failure";
+      else value = "";
       m_properties.put("status", value);
-      
+
       // date
       value = DateFormat.getDateTimeInstance().format(m_itemStatus.getDate());
       m_properties.put("date", value);
 
-
       // siteFolder
       value = getSiteFolder();
       m_properties.put("siteFolder", value);
-      
+
       // template
       value = getTemplate();
       m_properties.put("template", value);
@@ -192,70 +155,49 @@ public class PSPubItemEntry
     * @return the site folder if the folder id is set, or an empty string
     * if unknown.
     */
-   private String getSiteFolder()
-   {
-      Integer folder = m_itemStatus.getFolderId();
-      if (folder != null && folder != 0)
-      {
-         PSRequest request = PSRequest.getContextForRequest();
-         PSServerFolderProcessor proc = PSServerFolderProcessor.getInstance();
-         try
-         {
-         String paths[] = proc.getItemPaths(new PSLocator(folder));
-         if (paths.length == 1)
-            return paths[0];
-         else
-            return "Error: " + "cannot find folder path for fid = " + folder;
-         }
-         catch (Exception e)
-         {
-            return "Error: " + "cannot find folder path for fid = " + folder;
+   private String getSiteFolder() {
+      var folder = m_itemStatus.getFolderId();
+      if (folder != null && folder != 0) {
+         var proc = PSServerFolderProcessor.getInstance();
+         try {
+            var paths = proc.getItemPaths(new PSLocator(folder));
+            if (paths.length == 1) return paths[0];
+            return "Error: cannot find folder path for fid = " + folder;
+         } catch (Exception e) {
+            return "Error: cannot find folder path for fid = " + folder;
          }
       }
-      else
-      {
-         return "";
-      }
+      return "";
    }
 
    /**
     * @return get the messages, may be empty but not <code>null</code>.
     */
-   public List<String> getMessages()
-   {
-      String msg = m_itemStatus.getMessage();
-      return PSPublishingStatusHelper.splitMessages(msg);
+   public List<String> getMessages() {
+      return PSPublishingStatusHelper.splitMessages(m_itemStatus.getMessage());
    }
    
    /**
     * @return <code>true</code> if there are messages to display
     */
-   public boolean getHasMessages()
-   {
-      String msg = m_itemStatus.getMessage();
-      return StringUtils.isNotBlank(msg);
+   public boolean getHasMessages() {
+      return StringUtils.isNotBlank(m_itemStatus.getMessage());
    }
 
    /**
     * @return the template label for the given template id, it may be 
     *     empty if failed to get the label of the template.
     */
-   private String getTemplate()
-   {
-      Long templateId = m_itemStatus.getTemplateId();
-      if (templateId == null)
-         return "";
-      
-      IPSAssemblyService asvc = PSAssemblyServiceLocator.getAssemblyService();
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSGuid tguid = gmgr.makeGuid(templateId, PSTypeEnum.TEMPLATE);
-      try
-      {
-         IPSAssemblyTemplate template = asvc.loadUnmodifiableTemplate(tguid);
+   private String getTemplate() {
+      var templateId = m_itemStatus.getTemplateId();
+      if (templateId == null) return "";
+      var asvc = PSAssemblyServiceLocator.getAssemblyService();
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var tguid = gmgr.makeGuid(templateId.toString(), PSTypeEnum.TEMPLATE);
+      try {
+         var template = asvc.loadUnmodifiableTemplate(tguid);
          return template.getLabel();
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          return "";
       }
    }
@@ -265,8 +207,7 @@ public class PSPubItemEntry
     * 
     * @return the outcome, never <code>null</code>
     */
-   public String perform()
-   {
+   public String perform() {
       m_nav.setDetailItem(this);
       return "pub-runtime-log-item";
    }
@@ -275,12 +216,10 @@ public class PSPubItemEntry
     * Action to go to the previous item
     * @return the outcome, never <code>null</code>.
     */
-   public String previous()
-   {
-      if (m_index > 0)
-      {
+   public String previous() {
+      if (m_index > 0) {
          m_parent.setRowIndex(m_index - 1);
-         PSPubItemEntry entry = (PSPubItemEntry)m_parent.getRowData();
+         var entry = (PSPubItemEntry) m_parent.getRowData();
          m_nav.setDetailItem(entry);
       }
       return "previous";
@@ -290,16 +229,13 @@ public class PSPubItemEntry
     * Action to go to the next item
     * @return the outcome, never <code>null</code>.
     */   
-   public String next()
-   {
-
-      int count = m_parent.getRowCount();
-      if ((count - m_index) > 1)
-      {
+   public String next() {
+      var count = m_parent.getRowCount();
+      if ((count - m_index) > 1) {
          m_parent.setRowIndex(m_index + 1);
-         PSPubItemEntry entry = (PSPubItemEntry)m_parent.getRowData();
+         var entry = (PSPubItemEntry) m_parent.getRowData();
          m_nav.setDetailItem(entry);
-      }      
+      }
       return "next";
    }
 }

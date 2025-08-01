@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -66,7 +67,7 @@ public class PSTransitionDefDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
@@ -82,26 +83,21 @@ public class PSTransitionDefDependencyHandler
     }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      
-      List deps = new ArrayList<>();
-      Iterator ids = getChildPairIdsFromTable(TRANSITIONS_TABLE, TRANSITION_ID, 
-         WORKFLOW_ID, null);
-      while (ids.hasNext())
-      {
-         String id = (String)ids.next();
-         PSPairDependencyId pairId = new PSPairDependencyId(id);
-         PSDependency dep = getDependency(tok, pairId.getChildId(), 
-            PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, 
-            pairId.getParentId());
-         if (dep != null)
-            deps.add(dep);
       }
-      
-      return deps.iterator();
+
+      var ids = getChildPairIdsFromTable(TRANSITIONS_TABLE, TRANSITION_ID, WORKFLOW_ID, null);
+      return ids.stream()
+         .map(id -> {
+            var pairId = new PSPairDependencyId(id);
+            return getDependency(tok, pairId.getChildId(), PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE, pairId.getParentId());
+         })
+         .filter(dep -> dep != null)
+         .iterator();
    }
    
    // see base class

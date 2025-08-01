@@ -15,167 +15,116 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+/**
+ * Represents an assembly Template.
+ * Sunny Sal: "Template ka hero, slots ka zero!"
+ */
 @XmlRootElement(name = "Template")
 @Schema(name = "Template", description = "Represents an assembly Template")
 public class Template {
-    /**
-     * The template's id
-     */
+
     private Guid id;
-
-    /**
-     * The hibernate object version
-     */
     private Integer version;
-
-    /**
-     * The template name
-     */
     private String name;
-
-    /**
-     * The template displayed label
-     */
     private String label;
-
-    /**
-     * The location prefix
-     */
     private String locationPrefix;
-
-    /**
-     * The location suffix
-     */
     private String locationSuffix;
-
-    /**
-     * The assembler
-     */
     private String assembler;
-
-    /**
-     * The assembly url - may reference the template content item or the
-     * application depending on the kind of assembler
-     */
     private String assemblyUrl;
-
-    /**
-     * The stylesheet name
-     */
     private String styleSheet;
-
-    /**
-     * The aa type
-     */
     private int aaType;
-
-    /**
-     * The output format
-     */
     private int outputFormat;
-
-    /**
-     * Publish when value
-     */
-    private Character publishWhen; //= PublishWhen.Unspecified.getValue();
-
-    private Integer templateType; //= new Integer(TemplateType.Shared.ordinal());
-
+    private Character publishWhen;
+    private Integer templateType;
     private String description;
-
     private String template;
-
     private String mimeType;
-
     private String charset;
-
-
     private List<TemplateBinding> bindings = new ArrayList<>();
-
     private Set<TemplateSlot> slots = new HashSet<>();
-
-
-    private Integer globalTemplateUsage;// = new Integer(GlobalTemplateUsage.None.ordinal());
-
+    private Integer globalTemplateUsage;
     private Long globalTemplate;
 
-    public Guid getId() {
-        return id;
+    public Template() {
+        // Default constructor
+    }
+
+    public Optional<Guid> getId() {
+        return Optional.ofNullable(id);
     }
 
     public void setId(Guid id) {
         this.id = id;
     }
 
-    public Integer getVersion() {
-        return version;
+    public Optional<Integer> getVersion() {
+        return Optional.ofNullable(version);
     }
 
     public void setVersion(Integer version) {
         this.version = version;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getLabel() {
-        return label;
+    public Optional<String> getLabel() {
+        return Optional.ofNullable(label);
     }
 
     public void setLabel(String label) {
         this.label = label;
     }
 
-    public String getLocationPrefix() {
-        return locationPrefix;
+    public Optional<String> getLocationPrefix() {
+        return Optional.ofNullable(locationPrefix);
     }
 
     public void setLocationPrefix(String locationPrefix) {
         this.locationPrefix = locationPrefix;
     }
 
-    public String getLocationSuffix() {
-        return locationSuffix;
+    public Optional<String> getLocationSuffix() {
+        return Optional.ofNullable(locationSuffix);
     }
 
     public void setLocationSuffix(String locationSuffix) {
         this.locationSuffix = locationSuffix;
     }
 
-    public String getAssembler() {
-        return assembler;
+    public Optional<String> getAssembler() {
+        return Optional.ofNullable(assembler);
     }
 
     public void setAssembler(String assembler) {
         this.assembler = assembler;
     }
 
-    public String getAssemblyUrl() {
-        return assemblyUrl;
+    public Optional<String> getAssemblyUrl() {
+        return Optional.ofNullable(assemblyUrl);
     }
 
     public void setAssemblyUrl(String assemblyUrl) {
         this.assemblyUrl = assemblyUrl;
     }
 
-    public String getStyleSheet() {
-        return styleSheet;
+    public Optional<String> getStyleSheet() {
+        return Optional.ofNullable(styleSheet);
     }
 
     public void setStyleSheet(String styleSheet) {
@@ -198,48 +147,48 @@ public class Template {
         this.outputFormat = outputFormat;
     }
 
-    public Character getPublishWhen() {
-        return publishWhen;
+    public Optional<Character> getPublishWhen() {
+        return Optional.ofNullable(publishWhen);
     }
 
     public void setPublishWhen(Character publishWhen) {
         this.publishWhen = publishWhen;
     }
 
-    public Integer getTemplateType() {
-        return templateType;
+    public Optional<Integer> getTemplateType() {
+        return Optional.ofNullable(templateType);
     }
 
     public void setTemplateType(Integer templateType) {
         this.templateType = templateType;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getTemplate() {
-        return template;
+    public Optional<String> getTemplate() {
+        return Optional.ofNullable(template);
     }
 
     public void setTemplate(String template) {
         this.template = template;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public Optional<String> getMimeType() {
+        return Optional.ofNullable(mimeType);
     }
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
 
-    public String getCharset() {
-        return charset;
+    public Optional<String> getCharset() {
+        return Optional.ofNullable(charset);
     }
 
     public void setCharset(String charset) {
@@ -262,21 +211,19 @@ public class Template {
         this.slots = slots;
     }
 
-    public Integer getGlobalTemplateUsage() {
-        return globalTemplateUsage;
+    public Optional<Integer> getGlobalTemplateUsage() {
+        return Optional.ofNullable(globalTemplateUsage);
     }
 
     public void setGlobalTemplateUsage(Integer globalTemplateUsage) {
         this.globalTemplateUsage = globalTemplateUsage;
     }
 
-    public Long getGlobalTemplate() {
-        return globalTemplate;
+    public Optional<Long> getGlobalTemplate() {
+        return Optional.ofNullable(globalTemplate);
     }
 
     public void setGlobalTemplate(Long globalTemplate) {
         this.globalTemplate = globalTemplate;
     }
-
-    public Template(){}
 }

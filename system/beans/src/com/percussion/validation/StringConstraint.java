@@ -18,10 +18,10 @@
 package com.percussion.validation;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.swing.JComboBox;
@@ -33,15 +33,14 @@ import javax.swing.text.JTextComponent;
  *
  * @see ValidationConstraint
  */
-public class StringConstraint implements ComponentValidationConstraint
-{
-   /** 
+public class StringConstraint implements ComponentValidationConstraint {
+
+   /**
     * Constructs the object to do basic validation for checking empty component
     * value.
     */
-   public StringConstraint()
-   {
-      m_invalidChar = null;
+   public StringConstraint() {
+      this.invalidCharacters = null;
    }
 
    /** 
@@ -49,112 +48,116 @@ public class StringConstraint implements ComponentValidationConstraint
     * supplied string do not present in the component value in addition to empty
     * string validation.
     * 
-    * @param s the string with invalid characters, may not be <code>null</code>
+    * @param invalidChars the string with invalid characters, may not be {@code null}
     * or empty.
+    * @throws IllegalArgumentException if invalidChars is null or empty
     */
-   public StringConstraint(String s)
-   {
-      if(s == null || s.trim().length() == 0)
-         throw new IllegalArgumentException("s may not be null or empty.");
-         
-      m_invalidChar = s;
+   public StringConstraint(String invalidChars) {
+      if (invalidChars == null || invalidChars.trim().isEmpty()) {
+         throw new IllegalArgumentException("invalidChars may not be null or empty.");
+      }
+      this.invalidCharacters = invalidChars;
    }
 
-   // implementing interface ComponentValidationConstraint
-   public String getErrorText(String label)
-   {
-      if(label == null || label.trim().length() == 0)
-         label = "";
-      if (label.endsWith(":"))
-         label = label.substring(0, label.length()-1);
-      List args = new ArrayList();
-      args.add(label);
+   @Override
+   public String getErrorText(String label) {
+      var effectiveLabel = Optional.ofNullable(label)
+         .filter(l -> !l.trim().isEmpty())
+         .map(l -> l.endsWith(":") ? l.substring(0, l.length() - 1) : l)
+         .orElse("");
+
       String key;
-      if (m_errorMsg[0] == null)
-      {
+      List<Object> args;
+      if (lastErrorCharacter == null) {
          key = "emptyField";
-      }
-      else
-      {
+         args = List.of(effectiveLabel);
+      } else {
          key = "invalidChar";
-         args.add(m_errorMsg[0]);
-         args.add(m_invalidChar);
+         args = List.of(effectiveLabel, lastErrorCharacter, invalidCharacters);
       }
-      return MessageFormat.format(ms_res.getString(key), args.toArray()); 
+
+      return MessageFormat.format(RESOURCE_BUNDLE.getString(key), args.toArray());
    }
    
-   // implementing interface ValidationConstraint
-   public String getErrorText()
-   {
+   @Override
+   public String getErrorText() {
       return getErrorText(null);
    }
-   
 
-   // implementing interface ValidationConstraint
-   public void checkComponent(Object suspect) throws ValidationException
-   {
-      String data;
-      // initializing data
-      if (suspect instanceof JTextComponent)
-      {
-         JTextComponent c = (JTextComponent) suspect;
-         if ( null != c.getDocument())
-            data = c.getText();
-         else
-            data = "";
-      }
-      else if (suspect instanceof JComboBox)
-      {
-         Object o = ((JComboBox)suspect).getSelectedItem();
-         if ( null == o )
-            data = "";
-         else
-            data = o.toString();
-      }
-      else   // this should never happen... 
-         throw new IllegalArgumentException( 
-            "Component null or not text field or combo box" );
-      
-      if ( null == data )
-         data = "";
-         
-      // begin validation
-      if (m_invalidChar != null)
-      {
-         for (int j = 0; j < data.length(); j++)
-         {
-            for (int i = 0; i < m_invalidChar.length(); i++)
-            {
-               if (data.charAt(j) == m_invalidChar.charAt(i))
-               {
-                  m_errorMsg[0] = new String(String.valueOf(data.charAt(j)));
-                  throw new ValidationException();
-               }            
-            }
+   @Override
+   public void checkComponent(Object suspect) throws ValidationException {
+      var data = extractTextFromComponent(suspect);
+
+      // Check for invalid characters
+      if (invalidCharacters != null) {
+         var invalidChar = findInvalidCharacter(data);
+         if (invalidChar.isPresent()) {
+            lastErrorCharacter = String.valueOf(invalidChar.get());
+            throw new ValidationException();
          }
       }
       
-      // if component is empty      
-      if ( data.trim().length() == 0 )  
-      {
-         m_errorMsg[0] = null;
+      // Check if component is empty
+      if (data.trim().isEmpty()) {
+         lastErrorCharacter = null;
          throw new ValidationException();
       }
    }
 
    /**
-    * The string representing not allowed characters in the component value. 
-    * Initialized to <code>null</code> and set with a value if it is 
-    * constructed using {@link #StringConstraint(String) }. 
+    * Extracts text from the given component.
+    *
+    * @param component the component to extract text from
+    * @return the text content, never {@code null}
+    * @throws IllegalArgumentException if component is not supported
     */
-   private String m_invalidChar;
-   
+   private String extractTextFromComponent(Object component) {
+      if (component instanceof JTextComponent) {
+         var textComponent = (JTextComponent) component;
+         return Optional.ofNullable(textComponent.getDocument())
+            .map(doc -> textComponent.getText())
+            .orElse("");
+      } else if (component instanceof JComboBox) {
+         var comboBox = (JComboBox<?>) component;
+         return Optional.ofNullable(comboBox.getSelectedItem())
+            .map(Object::toString)
+            .orElse("");
+      } else {
+         throw new IllegalArgumentException(
+            "Component must be a text field or combo box, but was: " +
+            (component != null ? component.getClass().getSimpleName() : "null"));
+      }
+   }
+
    /**
-    * The array of error messages, initally set with <code>null</code>s for its
-    * elements and may be modified with actual error messages when the 
-    * components to validate fails on validation.
+    * Finds the first invalid character in the given text.
+    *
+    * @param text the text to check
+    * @return the first invalid character found, or empty if none found
     */
-   private Object[] m_errorMsg = {null};
+   private Optional<Character> findInvalidCharacter(String text) {
+      if (invalidCharacters == null) {
+         return Optional.empty();
+      }
+
+      return text.chars()
+         .filter(ch -> invalidCharacters.indexOf(ch) >= 0)
+         .mapToObj(ch -> (char) ch)
+         .findFirst();
+   }
+
+   /**
+    * The string representing not allowed characters in the component value. 
+    * Initialized to {@code null} and set with a value if it is
+    * constructed using {@link #StringConstraint(String)}.
+    */
+   private final String invalidCharacters;
+
+   /**
+    * The last error character that caused validation to fail.
+    * Used for error message generation.
+    */
+   private String lastErrorCharacter;
 
    /** 
     * A string of invalid characters that is typically not used in the normal
@@ -170,19 +173,22 @@ public class StringConstraint implements ComponentValidationConstraint
    /**
     * The static resource bundle to provide the error messages.
     */
-   private static ResourceBundle ms_res = null;
-   static
-   {
-      try
-      {
-          ms_res = ResourceBundle.getBundle( 
+   private static final ResourceBundle RESOURCE_BUNDLE = createResourceBundle();
+
+   /**
+    * Creates the resource bundle with proper error handling.
+    *
+    * @return the resource bundle, never {@code null}
+    */
+   private static ResourceBundle createResourceBundle() {
+      try {
+         return ResourceBundle.getBundle(
             "com.percussion.validation.ValidationResources",
-                                         Locale.getDefault() );
-      }catch(MissingResourceException mre)
-      {
-          System.out.println( mre );
+            Locale.getDefault());
+      } catch (MissingResourceException e) {
+         System.err.println("Warning: Could not load validation resources: " + e.getMessage());
+         // Return a fallback empty resource bundle
+         return ResourceBundle.getBundle("java.util.ListResourceBundle", Locale.getDefault());
       }
    }
 }
-
- 

@@ -19,7 +19,11 @@ package com.percussion.dashboardmanagement.dao;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.share.dao.IPSGenericDao;
 
-public interface IPSDashboardDao extends IPSGenericDao<PSDashboard, String>
-{
-
+/**
+ * Data access object for {@link PSDashboard}.
+ * <p>
+ * Sunny Sal says: "Dashboard Dao, now Java 11 ready!"
+ */
+public interface IPSDashboardDao extends IPSGenericDao<PSDashboard, String> {
+    // No additional methods yet. Extend for custom dashboard queries.
 }

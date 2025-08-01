@@ -315,17 +315,11 @@ public class PSCatalogResultColumn implements IPSDeployComponent
     */
    public Class getColumnClass()
    {
-      Iterator iter = ms_typeObjects.entrySet().iterator();
-      while(iter.hasNext())
-      {
-         Map.Entry entry = (Map.Entry)iter.next();
-         if( ((Integer)entry.getValue()).intValue() == m_type)
-         {
-            return (Class)entry.getKey();
-         }
-      }
-      //this will never happen, just for compilation
-      return null;
+      var entry = ms_typeObjects.entrySet().stream()
+         .filter(e -> e.getValue().intValue() == m_type)
+         .findFirst()
+         .orElseThrow(() -> new IllegalStateException("Invalid column type"));
+      return entry.getKey();
    }
    
    
@@ -389,10 +383,10 @@ public class PSCatalogResultColumn implements IPSDeployComponent
    private static Map<Class, Integer> ms_typeObjects = new HashMap<>();
    static
    {      
-      ms_typeObjects.put(String.class,  PSCatalogResultColumn.TYPE_TEXT);
-      ms_typeObjects.put(Integer.class, PSCatalogResultColumn.TYPE_NUMERIC);
-      ms_typeObjects.put(Date.class,    PSCatalogResultColumn.TYPE_DATE);
-      ms_typeObjects.put(Boolean.class, PSCatalogResultColumn.TYPE_BOOL);                           
+      ms_typeObjects.put(String.class, TYPE_TEXT);
+      ms_typeObjects.put(Integer.class, TYPE_NUMERIC);
+      ms_typeObjects.put(Date.class, TYPE_DATE);
+      ms_typeObjects.put(Boolean.class, TYPE_BOOL);
    }
    
    //XML element names and attributes  
