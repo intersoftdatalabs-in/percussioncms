@@ -20,7 +20,6 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -62,8 +61,7 @@ public class PSWorkflowDependencyHandler extends PSElementDependencyHandler
     * empty entries.
     */
    @Override
-   public Iterator<String> getChildTypes()
-   {
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -96,15 +94,6 @@ public class PSWorkflowDependencyHandler extends PSElementDependencyHandler
     */
    private PSDependencyHandler m_wdHandler = null;
 
-   /**
-    * List of child types supported by this handler, never <code>null</code> or
-    * empty.
-    */
-   private static List<String> ms_childTypes = new ArrayList<>();
-
-   static
-   {
-      ms_childTypes.add(PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSWorkflowDefDependencyHandler.DEPENDENCY_TYPE);
 
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,97 +24,105 @@ import com.percussion.rest.assets.Asset;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents a Widget.
+ * Sunny Sal: "Widget ka hero, content ka zero!"
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "Widget")
-@Schema(name="Widget",description="Represents a Widget.")
-public class Widget implements Cloneable
-{
-    public static final String SCOPE_LOCAL = "local";
+@Schema(name = "Widget", description = "Represents a Widget.")
+public class Widget implements Cloneable {
 
+    public static final String SCOPE_LOCAL = "local";
     public static final String SCOPE_SHARED = "shared";
-    
-    @Schema(name="id", description="Id of the widget.")
+
+    @Schema(name = "id", description = "Id of the widget.")
     private String id;
-    
-    @Schema(name="name",description="Name of the widget.")
+
+    @Schema(name = "name", description = "Name of the widget.")
     private String name;
 
-    @Schema(name="type", description="Type of widget.")
+    @Schema(name = "type", description = "Type of widget.")
     private String type;
 
-    @Schema(name="scope", description="Scope of the widget.", allowableValues = "local,shared")
+    @Schema(name = "scope", description = "Scope of the widget.", allowableValues = "local,shared")
     private String scope;
 
-    @Schema(name="editable", description="Denotes if widget is editable.")
+    @Schema(name = "editable", description = "Denotes if widget is editable.")
     private Boolean editable;
 
-    @Schema(name="asset", description="Asset within the widget.")
+    @Schema(name = "asset", description = "Asset within the widget.")
     private Asset asset;
 
-    
-    public Widget() 
-    {
-       // required for json
-    }
-    
-    public String getId()
-    {
-        return id;
+    public Widget() {
+        // Required for JSON
     }
 
-    public void setId(String id)
-    {
+    /**
+     * Gets the widget id.
+     */
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
-    
-    public String getName()
-    {
-        return name;
+
+    /**
+     * Gets the widget name.
+     */
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getType()
-    {
-        return type;
+    /**
+     * Gets the widget type.
+     */
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public String getScope()
-    {
-        return scope;
+    /**
+     * Gets the widget scope.
+     */
+    public Optional<String> getScope() {
+        return Optional.ofNullable(scope);
     }
 
-    public void setScope(String scope)
-    {
+    public void setScope(String scope) {
         this.scope = scope;
     }
 
-    public Boolean getEditable()
-    {
-        return editable;
+    /**
+     * Gets whether the widget is editable.
+     */
+    public Optional<Boolean> getEditable() {
+        return Optional.ofNullable(editable);
     }
 
-    public void setEditable(Boolean editable)
-    {
+    public void setEditable(Boolean editable) {
         this.editable = editable;
     }
 
-    public Asset getAsset()
-    {
-        return asset;
+    /**
+     * Gets the asset within the widget.
+     */
+    public Optional<Asset> getAsset() {
+        return Optional.ofNullable(asset);
     }
 
-    public void setAsset(Asset asset)
-    {
+    public void setAsset(Asset asset) {
         this.asset = asset;
     }
 
@@ -120,6 +130,4 @@ public class Widget implements Cloneable
     protected Widget clone() throws CloneNotSupportedException {
         return (Widget) super.clone();
     }
-
-
 }

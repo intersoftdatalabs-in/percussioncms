@@ -14,36 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.maintenance.service;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.maintenance.service.impl.PSMaintenanceManager;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Tests for PSMaintenanceManager.
+ * Sunny Sal says: "Maintenance mode: tested and trusted!"
  */
-public class PSMaintenanceManagerTest
-{
-    
-    
+public class PSMaintenanceManagerTest {
+
     @Test
-    public void test()
-    {
-        IPSMaintenanceManager maintenanceManager = new PSMaintenanceManager();
-        
-        IPSMaintenanceProcess process = new PSMockMaintenanceProcess("Proc1");
+    void test() {
+        var maintenanceManager = new PSMaintenanceManager();
+
+        var process = new PSMockMaintenanceProcess("Proc1");
         maintenanceManager.startingWork(process);
         assertTrue(maintenanceManager.isWorkInProgress());
         assertFalse(maintenanceManager.hasFailures());
-        
+
         maintenanceManager.workCompleted(process);
         assertFalse(maintenanceManager.isWorkInProgress());
         assertFalse(maintenanceManager.hasFailures());
-        
+
         maintenanceManager.startingWork(process);
         assertTrue(maintenanceManager.isWorkInProgress());
         maintenanceManager.workFailed(process);
@@ -51,12 +48,12 @@ public class PSMaintenanceManagerTest
         assertTrue(maintenanceManager.hasFailures());
         maintenanceManager.clearFailures();
         assertFalse(maintenanceManager.hasFailures());
-        
+
         maintenanceManager = new PSMaintenanceManager();
-        
-        IPSMaintenanceProcess proc1 = new PSMockMaintenanceProcess("Proc1");
+
+        var proc1 = new PSMockMaintenanceProcess("Proc1");
         maintenanceManager.startingWork(proc1);
-        IPSMaintenanceProcess proc2 = new PSMockMaintenanceProcess("Proc2");
+        var proc2 = new PSMockMaintenanceProcess("Proc2");
         maintenanceManager.startingWork(proc2);
         assertTrue(maintenanceManager.isWorkInProgress());
         assertFalse(maintenanceManager.hasFailures());
@@ -65,12 +62,12 @@ public class PSMaintenanceManagerTest
         maintenanceManager.workCompleted(proc1);
         assertFalse(maintenanceManager.isWorkInProgress());
         assertFalse(maintenanceManager.hasFailures());
-        
+
         maintenanceManager.startingWork(proc1);
         maintenanceManager.startingWork(proc2);
         assertTrue(maintenanceManager.isWorkInProgress());
         assertFalse(maintenanceManager.hasFailures());
-        
+
         maintenanceManager.workFailed(proc1);
         assertTrue(maintenanceManager.isWorkInProgress());
         assertTrue(maintenanceManager.hasFailures());
@@ -79,6 +76,5 @@ public class PSMaintenanceManagerTest
         assertTrue(maintenanceManager.hasFailures());
         maintenanceManager.clearFailures();
         assertFalse(maintenanceManager.hasFailures());
-        
     }
 }

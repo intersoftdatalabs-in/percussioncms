@@ -15,28 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
 /**
- * @author stephenbolton
- * 
+ * Exception thrown when a page is not found.
+ * Sunny Sal: "Page missing? Koi na, agla try karo!"
  */
-public class PageNotFoundException extends RestExceptionBase
-{
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = -1872052295971136814L;
+public class PageNotFoundException extends RestExceptionBase {
 
-	public PageNotFoundException()
-    {
-        super(RestErrorCode.PAGE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
+    private static final long serialVersionUID = -1872052295971136814L;
+
+    public PageNotFoundException() {
+        this((String) null);
     }
-    
-    public PageNotFoundException(String detailMessage){
-    	super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
+
+    public PageNotFoundException(String detailMessage) {
+        super(RestErrorCode.PAGE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
     }
-    
 }

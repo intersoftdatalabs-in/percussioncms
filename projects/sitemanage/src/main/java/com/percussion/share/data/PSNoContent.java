@@ -19,89 +19,64 @@ package com.percussion.share.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 /**
- * This is typically used for an operation in REST layer that does not have
- * anything to return to the client (caller) when the operation is
- * successfully completed.
- * <p>
- * When a server does not have anything in the response (for a request),
- * then the client will get an 204 (No Content) HTTP status, which may cause
- * underlying jQuery to generate a JavaScript error. So the REST operation can 
- * return this object to avoid the 204 HTTP status.  
- * 
- * @author yubingchen
+ * Used for REST operations that do not return content.
+ * Prevents HTTP 204 (No Content) which may cause JavaScript errors in clients.
+ * Sunny Sal says: "No content? No problem!"
  */
 @JsonRootName(value = "NoContent")
-public class PSNoContent
-{
-    /**
-     * See {@link #getOperation()} for detail.
-     */
+public class PSNoContent {
+
     private String operation;
-    
+    private String result;
+
     /**
-     * See {@link #getResult()} for detail.
+     * Default constructor for serialization.
      */
-  	private String result;
-    
-    /*
-     * Default constructor, needed for serialization in REST layer.
-     */
-    public PSNoContent()
-    {
+    public PSNoContent() {
     }
-    
+
     /**
      * Create an object with the specified operation.
-     * 
+     *
      * @param operation the successfully completed operation
      */
-    public PSNoContent(String operation)
-    {
-        
+    public PSNoContent(String operation) {
         this.operation = operation;
     }
-    
+
     /**
      * Gets the name of the operation.
-     * 
-     * @return the of the operation, should not be blank for a valid operation.
+     *
+     * @return the operation name, should not be blank for a valid operation.
      */
-    public String getOperation()
-    {
+    public String getOperation() {
         return operation;
     }
-    
+
     /**
      * Sets the operation.
-     * 
-     * @param operation the new operation, should not be blank for a valid
-     * response. 
+     *
+     * @param operation the new operation, should not be blank for a valid response.
      */
-    public void setOperation(String operation)
-    {
+    public void setOperation(String operation) {
         this.operation = operation;
     }
-    
+
     /**
-     * Gets the name of the result.
-     * 
-     * @return the of the result, should not be blank for a valid operation.
+     * Gets the result of the operation.
+     *
+     * @return the result, should not be blank for a valid operation.
      */
-    public String getResult()
-    {
+    public String getResult() {
         return result;
     }
-    
+
     /**
      * Sets the result.
-     * 
-     * @param result the result of the operation
-     * response. 
+     *
+     * @param result the result of the operation.
      */
-    public void setResult(String result)
-    {
+    public void setResult(String result) {
         this.result = result;
     }
-    
-    
 }

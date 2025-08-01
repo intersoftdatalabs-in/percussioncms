@@ -79,8 +79,8 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testLoadSimpleItem() throws Exception
    {
-      IPSContentRepository rep = PSContentInternalLocator.getLegacyRepository();
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
+      var rep = PSContentInternalLocator.getLegacyRepository();
+      var guids = new ArrayList<IPSGuid>();
       // Add items of several content types, including at least one with
       // children and one with a blob column for this test. This test
       // uses the default fast forward content. You will need to modify
@@ -95,15 +95,15 @@ public class PSContentRepositoryTest extends ServletTestCase
       guids.add(new PSLegacyGuid(503, 1)); // Brief
       guids.add(new PSLegacyGuid(501, 1)); // Press release
       long start = System.nanoTime();
-      List<Node> results = rep.loadByGUID(guids, null);
+      var results = rep.loadByGUID(guids, null);
       long end = System.nanoTime();
       System.out.println("Loaded elements in "
             + ((end - start) / (guids.size() * 1000)) + " micros per node");
-      Node image = results.get(0);
-      Node generic = results.get(1);
-      Node genword = results.get(2);
-      Node brief = results.get(3);
-      Node press = results.get(4);
+      var image = results.get(0);
+      var generic = results.get(1);
+      var genword = results.get(2);
+      var brief = results.get(3);
+      var press = results.get(4);
       assertEquals("390", image.getUUID());
       assertEquals("335", generic.getUUID());
       assertEquals("375", genword.getUUID());
@@ -121,7 +121,7 @@ public class PSContentRepositoryTest extends ServletTestCase
       assertEquals(1002, image.getProperty("rx:sys_communityid").getLong());
       assertEquals("EI Global Financial Service Fund - regional mix.jpg", image
             .getProperty("rx:sys_title").getString());
-      Calendar cal = image.getProperty("rx:sys_contentstartdate").getDate();
+      var cal = image.getProperty("rx:sys_contentstartdate").getDate();
       assertEquals(8, cal.get(Calendar.MONTH) + 1);
       assertEquals(15, cal.get(Calendar.DAY_OF_MONTH));
       assertEquals(2007, cal.get(Calendar.YEAR));
@@ -153,31 +153,29 @@ public class PSContentRepositoryTest extends ServletTestCase
 
    public void skipTestLoadChildren() throws Exception
    {
-      IPSContentRepository rep = PSContentInternalLocator.getLegacyRepository();
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
+      var rep = PSContentInternalLocator.getLegacyRepository();
+      var guids = new ArrayList<IPSGuid>();
       guids.add(new PSLegacyGuid(503, 4)); // Brief with children
-      List<Node> results = rep.loadByGUID(guids, null);
+      var results = rep.loadByGUID(guids, null);
       assertEquals(1, results.size());
-      Node brief = results.get(0); // Check children
-      NodeIterator niter = brief.getNodes("authors");
+      var brief = results.get(0); // Check children
+      var niter = brief.getNodes("authors");
       assertTrue(niter.getSize() > 0);
-      Node author = niter.nextNode();
-      Property first = author.getProperty("rx:First");
-      Property last = author.getProperty("rx:Last");
-      Property rank = author.getProperty("rx:sys_sortrank");
+      var author = niter.nextNode();
+      var first = author.getProperty("rx:First");
+      var last = author.getProperty("rx:Last");
+      var rank = author.getProperty("rx:sys_sortrank");
       assertNotNull(first);
       assertNotNull(last);
       assertNotNull(first.getString());
-      assertNotNull(last.getString()); // Try again, but defer child loaded and
-      // then get the child
+      assertNotNull(last.getString());
       assertNotNull(rank.getString());
-      PSContentMgrConfig cfg = new PSContentMgrConfig();
+      var cfg = new PSContentMgrConfig();
       cfg.addOption(PSContentMgrOption.LOAD_MINIMAL);
       results = rep.loadByGUID(guids, cfg);
-      brief = results.get(0); // Should force load here
+      brief = results.get(0);
       niter = brief.getNodes("authors");
       assertTrue(niter.getSize() > 0);
-      // Check that each sortrank is increasing
       long lastrank = -1;
       while (niter.hasNext())
       {
@@ -196,22 +194,14 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testBodyAccessor() throws Exception
    {
-      IPSContentRepository rep = PSContentInternalLocator.getLegacyRepository();
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
-      // Add items of several content types, including at least one with
-      // children and one with a blob column for this test. This test
-      // uses the default fast forward content. You will need to modify
-      // one of the standard FF content types to include a simple child
-      // and a multi-valued child to make this a complete test.
-      //
-      // Also required is to populate the child data for the test content
-      // type
+      var rep = PSContentInternalLocator.getLegacyRepository();
+      var guids = new ArrayList<IPSGuid>();
       guids.add(new PSLegacyGuid(335, 1)); // Generic
-      PSContentMgrConfig cfg = new PSContentMgrConfig();
+      var cfg = new PSContentMgrConfig();
       cfg.setBodyAccess(new BodyAccessTester());
-      List<Node> results = rep.loadByGUID(guids, cfg);
-      Node generic = results.get(0);
-      String body = generic.getProperty("rx:body").getString();
+      var results = rep.loadByGUID(guids, cfg);
+      var generic = results.get(0);
+      var body = generic.getProperty("rx:body").getString();
       assertEquals(TESTRESULT, body);
    }
 
@@ -221,12 +211,12 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testLoadByPath() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      List<String> paths = new ArrayList<String>();
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var paths = new ArrayList<String>();
       paths.add("//Sites/EnterpriseInvestments/Files/EI Sample PDF.pdf");
       paths
          .add("//Sites/EnterpriseInvestments/Briefs/Rates are down, have you refinanced?");
-      Collection<Node> results = mgr.findItemsByPath(null, paths, null);
+      var results = mgr.findItemsByPath(null, paths, null);
       assertTrue(results.size() > 0);
 
       // Get time for loading specific item both ways
@@ -236,11 +226,11 @@ public class PSContentRepositoryTest extends ServletTestCase
       start = System.nanoTime();
       results = mgr.findItemsByPath(null, paths, null);
       end = System.nanoTime();
-      Node n1 = results.iterator().next();
+      var n1 = results.iterator().next();
       System.out.println("Loaded item " + n1.getUUID() + " by path in "
             + ((end - start) / 1000) + " microseconds");
 
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
+      var guids = new ArrayList<IPSGuid>();
       guids.add(((PSContentNode) n1).getGuid());
       start = System.nanoTime();
       results = mgr.findItemsByGUID(guids, null);
@@ -255,8 +245,8 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testLoadRevisionsByPath() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      List<String> paths = new ArrayList<String>();
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var paths = new ArrayList<String>();
       long start = System.nanoTime();
       paths
             .add("//Sites/EnterpriseInvestments/AboutEnterpriseInvestments/Page - About Enterprise Investments#1");
@@ -264,12 +254,12 @@ public class PSContentRepositoryTest extends ServletTestCase
             .add("//Sites/EnterpriseInvestments/AboutEnterpriseInvestments/Page - About Enterprise Investments#2");
       paths
             .add("//Sites/EnterpriseInvestments/AboutEnterpriseInvestments/Page - About Enterprise Investments#3");
-      Collection<Node> results = mgr.findItemsByPath(null, paths, null);
-      Node n1 = results.iterator().next();
+      var results = mgr.findItemsByPath(null, paths, null);
+      var n1 = results.iterator().next();
       long end = System.nanoTime();
       System.out.println("Loaded 3 items " + n1.getUUID() + " by guid in "
             + ((end - start) / 3000) + " microseconds per item");
-      for (Node n : results)
+      for (var n : results)
       {
          System.out.println("Item guid: " + n.getUUID());
       }
@@ -282,8 +272,8 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testItemNotFoundException() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      List<String> paths = new ArrayList<String>();
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var paths = new ArrayList<String>();
       paths.add("//Sites/EnterpriseInvestments/item that does not exist");
       try
       {
@@ -299,10 +289,9 @@ public class PSContentRepositoryTest extends ServletTestCase
          assertTrue("Wrong exception thrown", false);
       }
 
-      List<IPSGuid> ids = new ArrayList<IPSGuid>();
+      var ids = new ArrayList<IPSGuid>();
       ids.add(new PSLegacyGuid(1000000000, 100000000));
-      // Non existent guid
-      List<Node> nodes = mgr.findItemsByGUID(ids, null);
+      var nodes = mgr.findItemsByGUID(ids, null);
       assertTrue("No exception where one expected", nodes.isEmpty());
    }
 
@@ -312,30 +301,30 @@ public class PSContentRepositoryTest extends ServletTestCase
     */
    public void testLoadTimes() throws Exception
    {
-      IPSCmsObjectMgr cms = PSCmsObjectMgrLocator.getObjectManager();
-      Collection<PSComponentSummary> generics = cms
+      var cms = PSCmsObjectMgrLocator.getObjectManager();
+      var generics = cms
             .findComponentSummariesByType(311);
-      Collection<PSComponentSummary> briefs = cms
+      var briefs = cms
             .findComponentSummariesByType(302);
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
+      var guids = new ArrayList<IPSGuid>();
 
-      for (PSComponentSummary s : generics)
+      for (var s : generics)
       {
          guids.add(new PSLegacyGuid(s.getContentId(), s.getCurrentLocator()
                .getRevision()));
       }
-      for (PSComponentSummary s : briefs)
+      for (var s : briefs)
       {
          guids.add(new PSLegacyGuid(s.getContentId(), s.getCurrentLocator()
                .getRevision()));
       }
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
+      var mgr = PSContentMgrLocator.getContentMgr();
 
-      PSStopwatch sw = new PSStopwatch();
+      var sw = new PSStopwatch();
       sw.start();
-      PSContentMgrConfig cfg = new PSContentMgrConfig();
+      var cfg = new PSContentMgrConfig();
       cfg.addOption(PSContentMgrOption.LAZY_LOAD_CHILDREN);
-      Collection<Node> nodes = mgr.findItemsByGUID(guids, cfg);
+      var nodes = mgr.findItemsByGUID(guids, cfg);
       sw.stop();
       System.out.println("Loading " + guids.size() + " items. " + nodes.size()
             + " items were actually loaded in " + sw);

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,68 +27,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * {@link PSFileSystemPathItemService} subclass that points to the "web_resources"
- * directory of the CM1 root dir.
- * 
- * @author miltonpividori
- *
+ * Path item service for the "web_resources" directory of the CM1 root dir.
  */
-public class PSWebResourcesPathItemService extends PSFileSystemPathItemService
-{
-    /**
-     * @param folderHelper
-     */
-    public PSWebResourcesPathItemService(IPSFolderHelper folderHelper, IPSFileSystemService fileSystemManagerService,
-            IPSListViewHelper listViewHelper)
-    {
+public class PSWebResourcesPathItemService extends PSFileSystemPathItemService {
+
+    public PSWebResourcesPathItemService(
+            IPSFolderHelper folderHelper,
+            IPSFileSystemService fileSystemManagerService,
+            IPSListViewHelper listViewHelper) {
         super(folderHelper, fileSystemManagerService, listViewHelper);
     }
-    
-    /* (non-Javadoc)
-     * @see com.percussion.pathmanagement.service.impl.PSFileSystemPathItemService#getFullFolderPath(java.lang.String)
-     */
+
     @Override
     protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
         PSPathUtils.validatePath(path);
-        
-        String fullFolderPath = WEB_RESOURCES_ROOT;
-        if (!path.equals("/"))
-        {
+        var fullFolderPath = WEB_RESOURCES_ROOT;
+        if (!"/".equals(path)) {
             fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
         }
-        
         return fullFolderPath;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.percussion.pathmanagement.service.impl.PSFileSystemPathItemService
-     * #findRoot()
-     */
     @Override
     protected PSPathItem findRoot() throws PSPathNotFoundServiceException {
-        PSPathItem rootItem = findItem("/");
-        
+        var rootItem = findItem("/");
         rootItem.setName(rootName);
-        
-        String fullFolderPath = getFullFolderPath("/");
+        var fullFolderPath = getFullFolderPath("/");
         rootItem.setFolderPath(fullFolderPath);
-        
-        // FIXME This "Design" value should not be here. Take a look at PSPathService to know how
-        // it's handled.
+
+        // FIXME This "Design" value should not be here. See PSPathService for proper handling.
         rootItem.setFolderPaths(Arrays.asList("//Design"));
-        
+
         Map<String, String> displayProperties = new HashMap<>();
         displayProperties.put(IPSListViewHelper.TITLE_NAME, rootName);
         rootItem.setDisplayProperties(displayProperties);
-        
+
         return rootItem;
     }
-    
-    // FIXME These values here should not have "Design" in it. However, it doesn't work
-    // without it.
+
+    // FIXME These values here should not have "Design" in them. However, it doesn't work without it.
     public static final String WEB_RESOURCES_ROOT_SUB = "/Design/web_resources";
     public static final String WEB_RESOURCES_ROOT = "/" + WEB_RESOURCES_ROOT_SUB;
 }

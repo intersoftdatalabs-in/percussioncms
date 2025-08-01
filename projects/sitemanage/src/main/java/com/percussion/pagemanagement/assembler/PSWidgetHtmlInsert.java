@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,59 +20,45 @@ package com.percussion.pagemanagement.assembler;
 import java.util.List;
 
 /**
- * Html that gets inserted into the page requested by
- * the widgets.
+ * HTML that gets inserted into the page as requested by widgets.
  * @author adamgent
- *
  */
-public class PSWidgetHtmlInsert
-{
+public class PSWidgetHtmlInsert {
+
     private List<String> top;
-
     private List<String> bottom;
-
     private List<String> before;
-
     private List<String> after;
 
-    public List<String> getTop()
-    {
+    public List<String> getTop() {
         return top;
     }
 
-    public void setTop(List<String> top)
-    {
+    public void setTop(List<String> top) {
         this.top = top;
     }
 
-    public List<String> getBottom()
-    {
+    public List<String> getBottom() {
         return bottom;
     }
 
-    public void setBottom(List<String> bottom)
-    {
+    public void setBottom(List<String> bottom) {
         this.bottom = bottom;
     }
 
-    public List<String> getBefore()
-    {
+    public List<String> getBefore() {
         return before;
     }
 
-    public void setBefore(List<String> before)
-    {
+    public void setBefore(List<String> before) {
         this.before = before;
     }
 
-    public List<String> getAfter()
-    {
+    public List<String> getAfter() {
         return after;
     }
 
-    public void setAfter(List<String> after)
-    {
+    public void setAfter(List<String> after) {
         this.after = after;
     }
-
 }

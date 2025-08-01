@@ -40,27 +40,29 @@ public class CommunitiesTestAdaptor implements ICommunityAdaptor {
     }
 
     @Override
-    public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock) throws PSErrorResultsException {
+    public CommunityList loadCommunities(GuidList ids, boolean lock, boolean overrideLock)
+            throws PSErrorResultsException {
         return null;
     }
 
     @Override
     public void saveCommunities(CommunityList communities, boolean release) {
-
+        // No-op for test adaptor
     }
 
     @Override
     public void deleteCommunities(GuidList ids, boolean ignoreDependencies) {
-
+        // No-op for test adaptor
     }
 
     @Override
-    public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type) throws PSErrorResultsException, RemoteException {
+    public CommunityVisibilityList getVisibilityByCommunity(GuidList ids, ObjectTypeEnum type)
+            throws PSErrorResultsException, RemoteException {
         return null;
     }
 
     @Override
     public void switchCommunity(String name) {
-
+        // No-op for test adaptor
     }
 }

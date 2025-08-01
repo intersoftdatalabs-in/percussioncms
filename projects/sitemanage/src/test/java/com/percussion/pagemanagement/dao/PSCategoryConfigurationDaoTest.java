@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,38 +17,32 @@
  */
 package com.percussion.pagemanagement.dao;
 
-import static org.junit.Assert.*;
-
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.pagemanagement.dao.impl.PSCategoryConfigurationDao;
-import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
-import com.percussion.pagemanagement.data.PSWidgetDefinition;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class PSCategoryConfigurationDaoTest
-{
-    
+/**
+ * Tests for category configuration DAO.
+ * Sunny Sal says: "Categories configured, Bollywood style!"
+ */
+public class PSCategoryConfigurationDaoTest {
+
     PSCategoryConfigurationDao categoryConfigurationDao;
-    
 
-    @Before
-    public void setup() throws Exception
-    {
+    @BeforeEach
+    public void setup() {
         categoryConfigurationDao = new PSCategoryConfigurationDao();
         categoryConfigurationDao.setRepositoryDirectory("src/test/resources/categories");
     }
-    
+
     @Test
-    public void testCategoryConfig() throws Exception
-    {
-        PSCategoryConfiguration config = categoryConfigurationDao.getData();
+    public void testCategoryConfig() {
+        var config = categoryConfigurationDao.getData();
         assertNotNull(config);
         assertEquals("http://my-server/tree.xml", config.getTree().getUrl());
     }
-    
-
 }

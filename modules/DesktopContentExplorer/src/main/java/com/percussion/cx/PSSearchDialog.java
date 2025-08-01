@@ -36,7 +36,8 @@ import com.percussion.search.ui.PSSearchAdvancedPanel;
 import com.percussion.search.ui.PSSearchFieldEditor;
 import com.percussion.search.ui.PSSearchSimplePanel;
 import com.percussion.util.IPSHtmlParameters;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -77,7 +78,7 @@ import java.util.Set;
  */
 public class PSSearchDialog extends PSDialog
 {
-   static Logger log = Logger.getLogger(PSSearchDialog.class);
+   static Logger log = LogManager.getLogger(PSSearchDialog.class);
    
    /**
     * Constructs the dialog with supplied parameters.

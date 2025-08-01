@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,22 +24,17 @@ import com.percussion.sitemanage.data.PSSiteSection;
 import java.util.List;
 
 /**
- * Interface for the site architecture Dao. It extends IPSGenericDao and the get
- * method returns the site architecture. The architecture includes the site
- * details and section under it expanded to first level. To get the sub sections
- * of any section, callers should use getSiteSubSections method.
- * 
- * @author bjoginipally
- * 
+ * Data access object for site architecture.
+ * Sunny Sal says: "Architecture is not just for buildings, yaar!"
  */
-public interface IPSSiteArchitectureDao extends
-      IPSGenericDao<PSSiteArchitecture, String>
-{
-   /**
-    * Returns the subsections of the given item.
-    * @param id Must be a valid guid of the navigation type item.
-    * @return The sub sections of the given item. 
-    * @throws LoadException
-    */
-   public List<PSSiteSection> getSections(String id) throws LoadException;
+public interface IPSSiteArchitectureDao extends IPSGenericDao<PSSiteArchitecture, String> {
+
+    /**
+     * Returns the subsections of the given navigation item.
+     *
+     * @param id the GUID of the navigation type item, not blank.
+     * @return the subsections of the given item, never {@code null}.
+     * @throws LoadException if an error occurs loading the sections.
+     */
+    List<PSSiteSection> getSections(String id) throws LoadException;
 }

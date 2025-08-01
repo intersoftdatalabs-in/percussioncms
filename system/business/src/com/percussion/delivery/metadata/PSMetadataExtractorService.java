@@ -60,8 +60,7 @@ import static org.apache.commons.lang.Validate.notEmpty;
  * @author miltonpividori
  * 
  */
-public class PSMetadataExtractorService implements IPSMetadataExtractorService
-{
+public class PSMetadataExtractorService implements IPSMetadataExtractorService {
 
     /**
      * Logger for this class.
@@ -74,9 +73,8 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService
 
     private static final String APPS_SUFFIX = "apps";
 
-    public PSMetadataExtractorService()
-    {
-       
+    public PSMetadataExtractorService() {
+
     }
 
     /* (non-Javadoc)
@@ -157,42 +155,39 @@ public class PSMetadataExtractorService implements IPSMetadataExtractorService
      * (non-Javadoc)
      * @see com.percussion.metadata.extractor.IPSMetadataExtractorService#process(java.io.Reader, java.lang.String)
      */
-    public PSMetadataEntry process(Reader reader, String mimeType, String pagePath, Map<String,Object> additional)
-    {
+    @Override
+    public PSMetadataEntry process(Reader reader, String mimeType, String pagePath, Map<String, Object> additional) {
         log.debug("Extracting metadata from Reader source");
-
-        PathSplit ps = new PathSplit("/", pagePath);
+        var ps = new PathSplit("/", pagePath);
         PSReaderDocumentSource source = null;
         PSMetadataEntry ret;
         try {
             if (reader == null) {
-                //The file isn't going to be handled by the extraction tool so return the additional meta data
                 ret = new PSMetadataEntry();
                 if (additional != null) {
-                    for (String key : additional.keySet()) {
-                        ret.addProperty(new PSMetadataProperty(key, additional.get(key).toString()));
-                    }
+                    additional.forEach((key, value) -> {
+                        if (value != null) {
+                            ret.addProperty(new PSMetadataProperty(key, value.toString()));
+                        }
+                    });
                 }
             } else {
-
                 source = new PSReaderDocumentSource(reader, mimeType);
-                return runExtraction(source, ps.getPagePath(),
-                        ps.getPageName(), ps.getFolder(), ps.getSite(), additional);
-
+                return runExtraction(source, ps.getPagePath(), ps.getPageName(), ps.getFolder(), ps.getSite(), additional);
             }
             return ret;
-        }
-        catch (IOException e)
-        {
-          
+        } catch (IOException e) {
             String message = "Error reading from the reader object";
-            
             log.error(message, e);
-            throw new RuntimeException(message,e);
-        }
-        finally {
-                 if (source!=null)
-                    try{source.close();}catch(Exception e){/*Ignore*/}
+            throw new RuntimeException(message, e);
+        } finally {
+            if (source != null) {
+                try {
+                    source.close();
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
         }
     }
     

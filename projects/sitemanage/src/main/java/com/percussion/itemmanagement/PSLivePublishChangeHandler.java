@@ -67,10 +67,10 @@ import java.util.Set;
  *
  */
 @Component("livePublishChangeHandler")
-public class PSLivePublishChangeHandler implements IPSContentChangeHandler
-{
+public class PSLivePublishChangeHandler implements IPSContentChangeHandler {
+
     private static final Logger log = LogManager.getLogger(PSLivePublishChangeHandler.class);
-    
+
     private IPSContentChangeService changeSvc;
     private IPSWorkflowHelper wfHelper;
     private IPSIdMapper idMapper;
@@ -79,12 +79,17 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
     private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
     private IPSPageTemplateService pageTemplateService;
     private IPSResourceDefinitionService resourceDefinitionService;
-    
+
     @Autowired
-    public PSLivePublishChangeHandler(IPSContentChangeService changeSvc, IPSWorkflowHelper wfHelper, IPSIdMapper idMapper, 
-            IPSFolderHelper folderHelper, IPSSiteDataService siteDataService, IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
-            IPSPageTemplateService pageTemplateService, IPSResourceDefinitionService resourceDefinitionService)
-    {
+    public PSLivePublishChangeHandler(
+            IPSContentChangeService changeSvc,
+            IPSWorkflowHelper wfHelper,
+            IPSIdMapper idMapper,
+            IPSFolderHelper folderHelper,
+            IPSSiteDataService siteDataService,
+            IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+            IPSPageTemplateService pageTemplateService,
+            IPSResourceDefinitionService resourceDefinitionService) {
         changeSvc.addContentChangeHander(this);
         this.changeSvc = changeSvc;
         this.wfHelper = wfHelper;
@@ -97,32 +102,31 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
     }
 
     public void handleEvent(PSEditorChangeEvent e) throws PSDataServiceException, PSNotFoundException {
-        switch (e.getActionType())
-        {
-           case PSEditorChangeEvent.ACTION_TRANSITION:
-               handleTransition(e);
-               break;
-           case PSEditorChangeEvent.ACTION_DELETE:
-               handleDelete(e);
-               break;
-           case PSEditorChangeEvent.ACTION_UPDATE:
-               handleUpdate(e);
+        switch (e.getActionType()) {
+            case PSEditorChangeEvent.ACTION_TRANSITION:
+                handleTransition(e);
+                break;
+            case PSEditorChangeEvent.ACTION_DELETE:
+                handleDelete(e);
+                break;
+            case PSEditorChangeEvent.ACTION_UPDATE:
+                handleUpdate(e);
+                break;
+            default:
+                // No action
         }
     }
 
-    
     @Override
-    public void handleEvent(PSRelationshipChangeEvent e)
-    {
+    public void handleEvent(PSRelationshipChangeEvent e) {
         // handle delete for a shared asset, check if owner is a Live page
-        PSRelationshipSet rels = e.getRelationships();
-        Iterator<PSRelationship> iter = rels.iterator();
-        String id="<not set>";
-        while(iter.hasNext())
-        {
+        var rels = e.getRelationships();
+        var iter = rels.iterator();
+        var id = "<not set>";
+        while (iter.hasNext()) {
             try {
-                PSRelationship rel = iter.next();
-                PSLocator owner = rel.getOwner();
+                var rel = iter.next();
+                var owner = rel.getOwner();
                 id = idMapper.getString(owner);
                 if (isPublishedPage(id)) {
                     doAdd(id, getPageSiteId(id));
@@ -131,67 +135,56 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
                 } else if (wfHelper.isTemplate(id)) {
                     handleTemplateChange(id);
                 }
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 log.debug("Skipping content change event for item id:" + id + " most likely item was deleted. Root exception follows: ", ex);
             }
-        }        
+        }
     }
 
     /**
      * @param e
      */
     private void handleTransition(PSEditorChangeEvent e) throws PSDataServiceException, PSNotFoundException {
-        IPSGuid guid = idMapper.getGuid(new PSLocator(e.getContentId()));
-        String id = guid.toString();
+        var guid = idMapper.getGuid(new PSLocator(e.getContentId()));
+        var id = guid.toString();
         long contentTypeId = e.getContentTypeId();
         PSItemTypeEnum itemType = wfHelper.getItemTypeFromCType(contentTypeId);
         if (!(itemType.equals(PSItemTypeEnum.PAGE) || itemType.equals(PSItemTypeEnum.ASSET))) {
             return;
         }
-        
-        if (wfHelper.isArchived(id))
-        {
+
+        if (wfHelper.isArchived(id)) {
             handleRemove(id, itemType, contentTypeId);
-        }
-        else
-        {
-            if (isPending(id))
-            {
+        } else {
+            if (isPending(id)) {
                 // if not scheduled, add.  If scheduled, remove queued entry if any
                 if (wfHelper.getComponentSummary(id).getContentStartDate() == null) {
                     handleAdd(id, itemType, PSContentChangeType.PENDING_LIVE, contentTypeId);
-                }
-                else {
+                } else {
                     doRemove(id, PSContentChangeType.PENDING_LIVE);
                 }
             }
             //Add or remove from staging
-            if(isStagingItem(id))
-            {
-                 handleAdd(id, itemType, PSContentChangeType.PENDING_STAGED, contentTypeId);
-            }
-            else
-            {
+            if (isStagingItem(id)) {
+                handleAdd(id, itemType, PSContentChangeType.PENDING_STAGED, contentTypeId);
+            } else {
                 doRemove(id, PSContentChangeType.PENDING_STAGED);
             }
         }
     }
-    
 
     private void handleDelete(PSEditorChangeEvent e) throws PSDataServiceException {
-        IPSGuid guid = idMapper.getGuid(new PSLocator(e.getContentId()));
-        String id = guid.toString();
+        var guid = idMapper.getGuid(new PSLocator(e.getContentId()));
+        var id = guid.toString();
         long contentTypeId = e.getContentTypeId();
         PSItemTypeEnum itemType = wfHelper.getItemTypeFromCType(contentTypeId);
         if (!(itemType.equals(PSItemTypeEnum.PAGE) || itemType.equals(PSItemTypeEnum.ASSET))) {
             return;
         }
-        
+
         if (itemType.equals(PSItemTypeEnum.PAGE)) {
             doRemove(id);
-        }
-        else
-        {
+        } else {
             if (isResource(contentTypeId)) {
                 doRemove(id);
             }
@@ -202,81 +195,63 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
      * @param e
      */
     private void handleUpdate(PSEditorChangeEvent e) throws IPSGenericDao.SaveException, PSValidationException, PSNotFoundException, IPSPageService.PSPageException {
-        IPSGuid guid = idMapper.getGuid(new PSLocator(e.getContentId()));
-        String id = guid.toString();
-        if (wfHelper.isLocalAsset(id))
-        {
-            Set<String> owners = widgetAssetRelationshipService.getRelationshipOwners(id);
-            for (String owner : owners)
-            {
-                if (wfHelper.isTemplate(owner))
-                {
+        var guid = idMapper.getGuid(new PSLocator(e.getContentId()));
+        var id = guid.toString();
+        if (wfHelper.isLocalAsset(id)) {
+            var owners = widgetAssetRelationshipService.getRelationshipOwners(id);
+            for (var owner : owners) {
+                if (wfHelper.isTemplate(owner)) {
                     handleTemplateChange(owner);
-                }
-                else if(wfHelper.isPage(owner) && isStagingItem(owner))
-                {
+                } else if (wfHelper.isPage(owner) && isStagingItem(owner)) {
                     try {
                         doAdd(owner, PSContentChangeType.PENDING_STAGED, getPageSiteId(owner));
                     } catch (IPSGenericDao.SaveException saveException) {
                         log.error(saveException.getMessage());
-                        log.debug(saveException.getMessage(),saveException);
+                        log.debug(saveException.getMessage(), saveException);
                         //continue processing
                     }
                 }
             }
-        }
-        else if(wfHelper.isPage(id) && isStagingItem(id))
-        {
+        } else if (wfHelper.isPage(id) && isStagingItem(id)) {
             doAdd(id, PSContentChangeType.PENDING_STAGED, getPageSiteId(id));
         }
     }
 
-
     private void handleAdd(String id, PSItemTypeEnum itemType, PSContentChangeType changeType, long contentTypeId) throws PSDataServiceException, PSNotFoundException {
-        if (itemType.equals(PSItemTypeEnum.PAGE))
-        {
+        if (itemType.equals(PSItemTypeEnum.PAGE)) {
             // page approved
             doAdd(id, changeType, getPageSiteId(id));
-        }
-        else
-        {
-            if (isResource(contentTypeId))
-            {
-               doAdd(id, changeType, getAssetSiteIds(id));
+        } else {
+            if (isResource(contentTypeId)) {
+                doAdd(id, changeType, getAssetSiteIds(id));
             }
-            
+
             handleAssetChangeForPages(id);
         }
     }
 
-
     private void handleRemove(String id, PSItemTypeEnum itemType, long contentTypeId) throws PSDataServiceException {
-        if (itemType.equals(PSItemTypeEnum.PAGE))
-        {
+        if (itemType.equals(PSItemTypeEnum.PAGE)) {
             doRemove(id);
-        }
-        else
-        {
+        } else {
             if (isResource(contentTypeId)) {
                 doRemove(id);
             }
-            
+
             handleAssetChangeForPages(id);
         }
     }
-    
 
     /**
      * @param assetId
      */
     private void handleAssetChangeForPages(String assetId) throws PSValidationException, IPSPageService.PSPageException {
         // shared asset is approved (all live pages, all templates using it-their pages)
-        Set<String> owners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
+        var owners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
         Set<String> pageOwners = new HashSet<>();
         Set<String> pageOwnersStaging = new HashSet<>();
         Set<String> templateOwners = new HashSet<>();
-        for (String owner : owners)
-        {
+        for (var owner : owners) {
             try {
 
                 if (isPublishedPage(owner)) {
@@ -292,10 +267,9 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
                 //continue
             }
         }
-        
+
         // process page owners first, then templates as a page may be added and subsequently removed by a template change
-        for (String owner : pageOwners)
-        {
+        for (var owner : pageOwners) {
             try {
                 doAdd(owner, getPageSiteId(owner));
             } catch (IPSGenericDao.SaveException e) {
@@ -304,8 +278,7 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
                 //continue loop
             }
         }
-        for(String owner : pageOwnersStaging)
-        {
+        for (var owner : pageOwnersStaging) {
             try {
                 doAdd(owner, PSContentChangeType.PENDING_STAGED, getPageSiteId(owner));
             } catch (IPSGenericDao.SaveException e) {
@@ -314,28 +287,23 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
                 //continue loop
             }
         }
-        for (String owner : templateOwners)
-        {
+        for (var owner : templateOwners) {
             handleTemplateChange(owner);
         }
     }
-    
+
     private void handleTemplateChange(String templateId) throws IPSPageService.PSPageException {
         // Find all live pages using the template, need to get non-revision specific id
         templateId = idMapper.getString(new PSLocator(idMapper.getLocator(templateId).getId()));
-        List<Integer> pageIds = pageTemplateService.findPageIdsByTemplate(templateId);
-        for (Integer id : pageIds)
-        {
-            String pageId = idMapper.getString(new PSLocator(id));
+        var pageIds = pageTemplateService.findPageIdsByTemplate(templateId);
+        for (var id : pageIds) {
+            var pageId = idMapper.getString(new PSLocator(id));
             try {
-            if (isPublishedPage(pageId))
-            {
+                if (isPublishedPage(pageId)) {
                     doAdd(pageId, getPageSiteId(pageId));
-            }
-            else if(wfHelper.isItemInStagingState(id))
-            {
+                } else if (wfHelper.isItemInStagingState(id)) {
                     doAdd(pageId, PSContentChangeType.PENDING_STAGED, getPageSiteId(pageId));
-            }
+                }
             } catch (IPSGenericDao.SaveException | PSValidationException | PSNotFoundException e) {
                 log.error(PSExceptionUtils.getMessageForLog(e));
                 log.debug(e.getMessage());
@@ -345,17 +313,16 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
     }
 
     private void doAdd(String id, long... siteIds) throws IPSGenericDao.SaveException {
-    	doAdd(id, PSContentChangeType.PENDING_LIVE, siteIds);
-    	doAdd(id, PSContentChangeType.PENDING_STAGED, siteIds);
+        doAdd(id, PSContentChangeType.PENDING_LIVE, siteIds);
+        doAdd(id, PSContentChangeType.PENDING_STAGED, siteIds);
     }
+
     private void doAdd(String id, PSContentChangeType changeType, long... siteIds) throws IPSGenericDao.SaveException {
-        for (long siteId : siteIds)
-        {
-            if (siteId == -1L)
-            {
+        for (long siteId : siteIds) {
+            if (siteId == -1L) {
                 return;
             }
-            
+
             PSContentChangeEvent changeEvent = new PSContentChangeEvent();
             changeEvent.setChangeType(changeType);
             changeEvent.setContentId(idMapper.getContentId(id));
@@ -363,17 +330,15 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
 
             changeSvc.contentChanged(changeEvent);
         }
-        
+
     }
-    
-    private void doRemove(String id)
-    {
+
+    private void doRemove(String id) {
         doRemove(id, PSContentChangeType.PENDING_LIVE);
         doRemove(id, PSContentChangeType.PENDING_STAGED);
     }
 
-    private void doRemove(String id, PSContentChangeType changeType)
-    {
+    private void doRemove(String id, PSContentChangeType changeType) {
         long siteId = getPageSiteId(id);
 
         changeSvc.deleteChangeEvents(siteId, idMapper.getContentId(id), changeType);
@@ -385,30 +350,26 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
     }
 
     private boolean isStagingItem(String id) throws PSValidationException, PSNotFoundException {
-    	return (wfHelper.isPage(id) || wfHelper.isAsset(id)) && isStagingItem(idMapper.getContentId(id));
+        return (wfHelper.isPage(id) || wfHelper.isAsset(id)) && isStagingItem(idMapper.getContentId(id));
     }
-    
-    private boolean isStagingItem(int contentId)
-    {
-    	return wfHelper.isItemInStagingState(contentId);
+
+    private boolean isStagingItem(int contentId) {
+        return wfHelper.isItemInStagingState(contentId);
     }
-    
+
     private boolean isPending(String id) throws PSValidationException {
         return wfHelper.isPending(id);
     }
-    
+
     /**
      * Get the site id for a page
-     * 
+     *
      * @param id an item id
-     * 
      * @return the site id, or -1 if the item is not found in a site folder (or is an asset)
      */
-    private long getPageSiteId(String id)
-    {
-        List<IPSSite> sites = folderHelper.getItemSites(id);
-        if (sites.isEmpty())
-        {
+    private long getPageSiteId(String id) {
+        var sites = folderHelper.getItemSites(id);
+        if (sites.isEmpty()) {
             return -1L;
         }
         return sites.get(0).getSiteId();
@@ -417,57 +378,46 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
     private long[] getAssetSiteIds(String assetId) throws PSNotFoundException {
         List<Long> siteList = new ArrayList<>();
         String allowedSites = folderHelper.getRootLevelFolderAllowedSitesPropertyValue(assetId);
-        if (!StringUtils.isBlank(allowedSites))
-        {
+        if (!StringUtils.isBlank(allowedSites)) {
             String[] allowedIds = allowedSites.split(",");
-            
-            for (String id : allowedIds)
-            {
-                try
-                {
+
+            for (String id : allowedIds) {
+                try {
                     IPSGuid guid = PSGuidUtils.makeGuid(id, PSTypeEnum.SITE);
-                    try{
-                        PSSiteSummary sum = siteDataService.findByLegacySiteId(guid.toString(),false);
-                        log.debug("Found site with id "+guid.toString());
-                    }
-                    catch(DataServiceLoadException | PSValidationException de){
+                    try {
+                        PSSiteSummary sum = siteDataService.findByLegacySiteId(guid.toString(), false);
+                        log.debug("Found site with id " + guid.toString());
+                    } catch (DataServiceLoadException | PSValidationException de) {
                         //Ignore if the site doesn't exist, we don't update folder properties on site delete.
                         log.debug("Folder property has a site with ID " + id + " but it doesn't exist in the system and ignored.");
                         continue;
                     }
                     siteList.add(Long.valueOf(id));
-                }
-                catch (NumberFormatException e)
-                {
+                } catch (NumberFormatException e) {
                     // ignore it
-                }                
+                }
             }
-        }
-        else
-        {
+        } else {
             List<PSSiteSummary> sums = siteDataService.findAll();
-            for (PSSiteSummary sum : sums)
-            {
+            for (PSSiteSummary sum : sums) {
                 siteList.add(sum.getSiteId());
             }
         }
-        
+
         // remove any sites that do xml or db pub for incremental
         List<Long> results = new ArrayList<>();
-        for (Long siteId : siteList)
-        {
-            if (canPublishAssetIncremental(siteId))
-            {
+        for (Long siteId : siteList) {
+            if (canPublishAssetIncremental(siteId)) {
                 results.add(siteId);
             }
         }
-        
+
         return Longs.toArray(results);
     }
-    
+
     private boolean canPublishAssetIncremental(Long siteId) throws PSNotFoundException {
         PSPubServer pubServer = PSSitePublishDaoHelper.getDefaultPubServer(PSGuidUtils.makeGuid(siteId, PSTypeEnum.SITE));
-        if(pubServer == null){
+        if (pubServer == null) {
             return false;
         }
         return !pubServer.isXmlFormat() && !pubServer.isDatabaseType();
@@ -475,15 +425,12 @@ public class PSLivePublishChangeHandler implements IPSContentChangeHandler
 
     private boolean isResource(long contentTypeId) throws PSDataServiceException {
         boolean isResource = false;
-        try
-        {
+        try {
             isResource = !resourceDefinitionService.findAssetResourcesForType(PSItemDefManager.getInstance().contentTypeIdToName(contentTypeId)).isEmpty();
+        } catch (PSInvalidContentTypeException e) {
+            log.error("Failed to determine if change involves a resource: " + e.getLocalizedMessage());
         }
-        catch (PSInvalidContentTypeException e)
-        {
-            log.error("Failed to determine if change involves a resource: " + e.getLocalizedMessage());        
-        }
-        
+
         return isResource;
     }
 }

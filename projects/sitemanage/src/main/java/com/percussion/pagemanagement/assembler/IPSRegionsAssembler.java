@@ -19,36 +19,33 @@ package com.percussion.pagemanagement.assembler;
 import com.percussion.pagemanagement.service.IPSTemplateService;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.PSAssemblyException;
-
 import java.util.Collection;
 
 /**
- * Batch Assembles a collection of regions.
- * 
+ * Batch-assembles a collection of regions.
+ *
+ * <p>Implementations must be thread-safe and stateless.
+ *
  * @author adamgent
  * @see IPSRegionAssembler
- *
  */
-public interface IPSRegionsAssembler
-{
+public interface IPSRegionsAssembler {
 
     /**
-     * Assembles a collection of regions
-     * by using the given {@link IPSRegionAssembler regionAssembler} and
-     * then stores the {@link PSRegionResult results} into the 
-     * {@link PSPageAssemblyContext#getRegions() context region results map}.
-     * 
-     * @param regionAssembler never <code>null</code>.
-     * @param assemblyItem never <code>null</code>.
-     * @param context The results of given {@link IPSRegionAssembler} should be stored in the context. Never <code>null</code>.
-     * @param mergedRegions never <code>null</code>.
-     * @see PSPageAssemblyContext#getRegions()
+     * Assembles a collection of regions using the given {@link IPSRegionAssembler},
+     * and stores the {@link PSRegionResult} results in the {@link PSPageAssemblyContext#getRegions()} map.
+     *
+     * @param regionAssembler never {@code null}
+     * @param assemblyItem never {@code null}
+     * @param context never {@code null}; results are stored here
+     * @param mergedRegions never {@code null}
+     * @throws IPSTemplateService.PSTemplateException if template expansion fails
+     * @throws PSAssemblyException if assembly fails
      */
-    public void assembleRegions(
+    void assembleRegions(
             IPSRegionAssembler regionAssembler,
-            IPSAssemblyItem assemblyItem, 
+            IPSAssemblyItem assemblyItem,
             PSPageAssemblyContext context,
-            Collection<PSMergedRegion> mergedRegions) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
-
+            Collection<PSMergedRegion> mergedRegions
+    ) throws IPSTemplateService.PSTemplateException, PSAssemblyException;
 }
-

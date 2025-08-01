@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,20 +23,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.percussion.share.data.PSAbstractDataObject;
-import org.json.JSONObject;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-//import javax.xml.bind.annotation.XmlAttribute;
-
-//FB: CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE NC 1-16-16
+/**
+ * Represents a category tree for Percussion CMS.
+ */
 @XmlRootElement(name = "CategoryTree")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @XmlAccessorType(XmlAccessType.PROPERTY)
@@ -52,7 +49,7 @@ public class PSCategory extends PSAbstractDataObject implements Cloneable {
 
     @XmlElement(name = "Children")
     @JsonProperty("topLevelNodes")
-    @XmlElementWrapper(nillable=true)
+    @XmlElementWrapper(nillable = true)
     public List<PSCategoryNode> getTopLevelNodes() {
         return topLevelNodes;
     }
@@ -81,13 +78,13 @@ public class PSCategory extends PSAbstractDataObject implements Cloneable {
 
     @Override
     public String toString() {
-        return "PSCategory [ title=" + title
-                + ", allowedSite=" + allowedSites + ", topLevelNodes=" + topLevelNodes + "]";
+        return "PSCategory [title=" + title
+                + ", allowedSites=" + allowedSites + ", topLevelNodes=" + topLevelNodes + "]";
     }
 
     @Override
     public PSCategory clone() throws CloneNotSupportedException {
-        PSCategory category = (PSCategory) super.clone();
+        var category = (PSCategory) super.clone();
         category.setTitle(this.getTitle());
         if (this.getTopLevelNodes() != null) {
             category.setTopLevelNodes(new ArrayList<>(this.getTopLevelNodes()));
@@ -95,26 +92,25 @@ public class PSCategory extends PSAbstractDataObject implements Cloneable {
         return category;
     }
 
-    /***
-     * Hydrate this object from a josn string
-     * @param json
+    /**
+     * Hydrate this object from a JSON string.
+     * @param json the JSON string
      */
-    public void fromJSON(String json){
-
+    public void fromJSON(String json) {
+        // Not implemented; consider using ObjectMapper.readValue if needed.
     }
 
-    /***
-     * Convert this object to a JSON string
-     * @return
+    /**
+     * Convert this object to a JSON string.
+     * @return JSON string representation or null if serialization fails.
      */
-    public String toJSON(){
-        String ret = null;
-        try{
-            ObjectMapper mapper = new ObjectMapper();
-            ret= mapper.writeValueAsString(this);
+    public String toJSON() {
+        try {
+            var mapper = new ObjectMapper();
+            return mapper.writeValueAsString(this);
         } catch (JsonProcessingException e) {
             System.out.println(e.getMessage());
+            return null;
         }
-        return ret;
     }
 }

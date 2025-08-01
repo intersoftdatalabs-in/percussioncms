@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,16 +18,12 @@
 package com.percussion.role.web.service;
 
 import static java.util.Arrays.asList;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.role.data.PSRole;
 import com.percussion.role.service.IPSRoleService;
@@ -37,471 +34,407 @@ import com.percussion.share.test.PSTestDataCleaner;
 import com.percussion.user.data.PSUser;
 import com.percussion.user.data.PSUserList;
 import com.percussion.user.web.service.PSUserServiceRestClient;
+import org.hamcrest.core.CombinableMatcher;
+import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.hamcrest.core.CombinableMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 /**
- * Test the role service through rest.
+ * Test the role service through REST.
+ * Sunny Sal: "Role REST test, Java 11 and JUnit 5, abhi picture baaki hai!"
  */
-
-public class PSRoleServiceRestTest extends PSRestTestCase<PSRoleServiceRestClient>
-{
+class PSRoleServiceRestTest extends PSRestTestCase<PSRoleServiceRestClient> {
 
     protected PSRole role;
-    
+
     @Override
-    protected PSRoleServiceRestClient getRestClient(String baseUrl)
-    {
-        PSRoleServiceRestClient c = new PSRoleServiceRestClient();
+    protected PSRoleServiceRestClient getRestClient(String baseUrl) {
+        var c = new PSRoleServiceRestClient();
         c.setUrl(baseUrl);
         return c;
     }
-    
-    private PSUserServiceRestClient getUserServiceRestClient() throws Exception
-    {
-        PSUserServiceRestClient c = new PSUserServiceRestClient();
+
+    private PSUserServiceRestClient getUserServiceRestClient() throws Exception {
+        var c = new PSUserServiceRestClient();
         c.setUrl(baseUrl);
         setupClient(c);
         return c;
     }
-    
-    @Before
-    public void setupRole() {
+
+    @BeforeEach
+    void setupRole() {
         role = createRole("MyTestRole", "MyDescription", "Dashboard");
     }
-    
-    @After
-    public void runCleaner() {
+
+    @AfterEach
+    void runCleaner() {
         roleCleaner.clean();
     }
 
     @Test
-    public void testCreate() throws Exception
-    {
+    void testCreate() throws Exception {
         roleCleaner.add(role.getName());
         restClient.create(role);
-        
-        PSStringWrapper strWrapper = new PSStringWrapper();
+
+        var strWrapper = new PSStringWrapper();
         strWrapper.setValue(role.getName());
         assertEquals(role, restClient.find(strWrapper));
-        
-        PSRole roleWithUser = createRole("MyTestRoleWithUser", "Role with user", "Dashboard");
+
+        var roleWithUser = createRole("MyTestRoleWithUser", "Role with user", "Dashboard");
         roleWithUser.getUsers().add("Admin");
         roleCleaner.add(roleWithUser.getName());
         restClient.create(roleWithUser);
-        
+
         strWrapper.setValue(roleWithUser.getName());
         assertEquals(roleWithUser, restClient.find(strWrapper));
     }
 
     @Test
-    public void testDelete() throws Exception
-    {
+    void testDelete() throws Exception {
         testCreate();
-        
-        //Add Contributor user to role
-        PSStringWrapper strWrapper = new PSStringWrapper();
+
+        // Add Contributor user to role
+        var strWrapper = new PSStringWrapper();
         strWrapper.setValue(role.getName());
-        PSRole existingRole = restClient.find(strWrapper);
+        var existingRole = restClient.find(strWrapper);
         existingRole.getUsers().add("Contributor");
         restClient.update(existingRole);
-        
+
         restClient.delete(strWrapper);
-        //If successful the cleaner does not need to remove the user.
+        // If successful the cleaner does not need to remove the user.
         roleCleaner.remove(role.getName());
-        
-        try
-        {
+
+        Exception exception = null;
+        try {
             restClient.find(strWrapper);
             fail("Role " + role.getName() + " should not exist");
+        } catch (Exception e) {
+            exception = e;
         }
-        catch (Exception e)
-        {
-            // expected
-        }
-        
-        //Make sure Contributor user is no longer in role
-        PSUser user = getUserServiceRestClient().find("Contributor");
+        assertNotNull(exception);
+
+        // Make sure Contributor user is no longer in role
+        var user = getUserServiceRestClient().find("Contributor");
         assertFalse(user.getRoles().contains(role.getName()));
     }
-    
+
     @Test
-    public void testDeleteSystemRolesShouldFail() throws Exception
-    {
-        PSStringWrapper strWrapper = new PSStringWrapper();
-        
-        for (String sysRole : PSRoleService.SYSTEM_ROLES)
-        {
-            try
-            {
+    void testDeleteSystemRolesShouldFail() throws Exception {
+        var strWrapper = new PSStringWrapper();
+
+        for (var sysRole : PSRoleService.SYSTEM_ROLES) {
+            Exception exception = null;
+            try {
                 strWrapper.setValue(sysRole);
                 restClient.delete(strWrapper);
                 fail("Should not be able to delete role '" + sysRole + "'");
+            } catch (Exception e) {
+                exception = e;
             }
-            catch (Exception e)
-            {
-                // expected
-            }
+            assertNotNull(exception);
         }
     }
 
     @Test
-    public void testFind() throws Exception
-    {
+    void testFind() throws Exception {
         testCreate();
-        PSStringWrapper strWrapper = new PSStringWrapper();
+        var strWrapper = new PSStringWrapper();
         strWrapper.setValue(role.getName());
-        PSRole actual = restClient.find(strWrapper);
+        var actual = restClient.find(strWrapper);
         assertThat(actual.getName(), is(equalTo(role.getName())));
         assertThat(actual.getDescription(), is(equalTo(role.getDescription())));
     }
-    
-    @Test    
-    public void testCannotRemoveSelfFromAdminRole() throws Exception
-    {
-        PSUser actual = getUserServiceRestClient().getCurrentUser();
+
+    @Test
+    void testCannotRemoveSelfFromAdminRole() throws Exception {
+        var actual = getUserServiceRestClient().getCurrentUser();
         assertThat(actual.getRoles(), hasItem(IPSRoleService.ADMINISTRATOR_ROLE));
-        
-        PSStringWrapper strWrapper = new PSStringWrapper();
+
+        var strWrapper = new PSStringWrapper();
         strWrapper.setValue(IPSRoleService.ADMINISTRATOR_ROLE);
-        
-        PSRole adminRole = restClient.find(strWrapper); 
+
+        var adminRole = restClient.find(strWrapper);
         adminRole.getUsers().remove(actual.getName());
         assertThat(adminRole.getUsers(), not(hasItem(actual.getName())));
-       
-        try
-        {
+
+        Exception exception = null;
+        try {
             restClient.update(adminRole);
+        } catch (Exception e) {
+            exception = e;
         }
-        catch (Exception e)
-        {
-            assertTrue(e.getMessage().indexOf("cannot.remove.user.admin.role") > 0);
-        }
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("cannot.remove.user.admin.role"));
     }
 
     /**
      * Add and remove Admin role for different user, not for current user.
-     * 
-     * @throws Exception if error occurs.
      */
-    @Test    
-    public void testAddRemoveUserFromAdminRole() throws Exception
-    {
+    @Test
+    void testAddRemoveUserFromAdminRole() throws Exception {
         testCreate();
         role.setUsers(asList("Admin", "Contributor"));
-        PSRole actual = restClient.update(role);
+        var actual = restClient.update(role);
         assertThat(actual.getUsers(), CombinableMatcher.<Iterable<String>>both(hasItem("Contributor")).and(hasItem("Admin")));
 
         actual.setUsers(asList("Contributor"));
         actual = restClient.update(actual);
-        
+
         assertThat(actual.getUsers(), hasItem("Contributor"));
         assertThat(actual.getUsers(), not(hasItem("Admin")));
     }
-    
+
     @Test
-    public void testGetAvailableUsers() throws Exception
-    {
+    void testGetAvailableUsers() throws Exception {
         testCreate();
-        
-        PSUserList roleUsers = getUserServiceRestClient().getUsersByRole(role.getName());
+
+        var roleUsers = getUserServiceRestClient().getUsersByRole(role.getName());
         assertTrue(roleUsers.getUsers().isEmpty());
-        
-        PSUserList users = getUserServiceRestClient().getUsers();
+
+        var users = getUserServiceRestClient().getUsers();
         assertTrue(users.getUsers().contains("Editor"));
         assertTrue(users.getUsers().contains("Contributor"));
         assertEquals(users, restClient.getAvailableUsers(role));
-        
+
         role.setUsers(asList("Editor", "Contributor"));
         restClient.update(role);
-        
-        PSUserList availableUsers = restClient.getAvailableUsers(role);
+
+        var availableUsers = restClient.getAvailableUsers(role);
         assertEquals(users.getUsers().size() - 2, availableUsers.getUsers().size());
         assertFalse(availableUsers.getUsers().contains("Editor"));
         assertFalse(availableUsers.getUsers().contains("Contributor"));
     }
-    
+
     @Test
-    public void testUpdateUsers() throws Exception
-    {
+    void testUpdateUsers() throws Exception {
         testCreate();
-        
-        PSUserList roleUsers = getUserServiceRestClient().getUsersByRole(role.getName());
+
+        var roleUsers = getUserServiceRestClient().getUsersByRole(role.getName());
         assertTrue(roleUsers.getUsers().isEmpty());
- 
-        PSUser editor = getUserServiceRestClient().find("Editor");
+
+        var editor = getUserServiceRestClient().find("Editor");
         assertFalse(editor.getRoles().contains(role.getName()));
-        
-        PSUser contributor = getUserServiceRestClient().find("Contributor");
+
+        var contributor = getUserServiceRestClient().find("Contributor");
         assertFalse(contributor.getRoles().contains(role.getName()));
-        
+
         role.setUsers(asList("Editor", "Contributor"));
-        PSRole roleWithUsers = restClient.update(role);
-        
+        var roleWithUsers = restClient.update(role);
+
         assertEquals(2, roleWithUsers.getUsers().size());
         assertTrue(roleWithUsers.getUsers().contains("Editor"));
         assertTrue(roleWithUsers.getUsers().contains("Contributor"));
-        
+
         editor = getUserServiceRestClient().find("Editor");
         assertTrue(editor.getRoles().contains(role.getName()));
-        
+
         contributor = getUserServiceRestClient().find("Contributor");
         assertTrue(contributor.getRoles().contains(role.getName()));
-        
-        role.setUsers(new ArrayList<String>());
-        PSRole roleNoUsers = restClient.update(role);
-        
+
+        role.setUsers(new ArrayList<>());
+        var roleNoUsers = restClient.update(role);
+
         assertTrue(roleNoUsers.getUsers().isEmpty());
-        
+
         editor = getUserServiceRestClient().find("Editor");
         assertFalse(editor.getRoles().contains(role.getName()));
-        
+
         contributor = getUserServiceRestClient().find("Contributor");
         assertFalse(contributor.getRoles().contains(role.getName()));
     }
-    
-    @Test
-    public void testRoleHomepage() throws Exception
-    {
-    	//Make sure Admin homepage is Dashboard
-    	PSStringWrapper temp = new PSStringWrapper();
-    	temp.setValue("Admin");
-    	PSRole adminRole = restClient.find(temp);
-    	assertEquals(adminRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);
-    	//Update the homepage
-    	adminRole.setHomepage(IPSRoleService.HOMEPAGE_TYPE_EDITOR);
-    	restClient.update(adminRole);
-    	adminRole = restClient.find(temp);
-    	assertEquals(adminRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_EDITOR);  
-    	//Reset the homepage for Admin
-    	adminRole.setHomepage(IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);
-    	restClient.update(adminRole);
 
-    	//Test a new role
-    	PSRole role = createRole("HomepageRole","To test home page",IPSRoleService.HOMEPAGE_TYPE_EDITOR);
+    @Test
+    void testRoleHomepage() throws Exception {
+        // Make sure Admin homepage is Dashboard
+        var temp = new PSStringWrapper();
+        temp.setValue("Admin");
+        var adminRole = restClient.find(temp);
+        assertEquals(adminRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);
+        // Update the homepage
+        adminRole.setHomepage(IPSRoleService.HOMEPAGE_TYPE_EDITOR);
+        restClient.update(adminRole);
+        adminRole = restClient.find(temp);
+        assertEquals(adminRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_EDITOR);
+        // Reset the homepage for Admin
+        adminRole.setHomepage(IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);
+        restClient.update(adminRole);
+
+        // Test a new role
+        var role = createRole("HomepageRole", "To test home page", IPSRoleService.HOMEPAGE_TYPE_EDITOR);
         roleCleaner.add(role.getName());
         restClient.create(role);
-    	temp.setValue(role.getName());
-    	PSRole testRole = restClient.find(temp);
-    	assertEquals(testRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_EDITOR);
-        
-        //Test a new role with home as homepage
-        PSRole role1 = createRole("HomepageRole1","To test home page",IPSRoleService.HOMEPAGE_TYPE_HOME);
+        temp.setValue(role.getName());
+        var testRole = restClient.find(temp);
+        assertEquals(testRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_EDITOR);
+
+        // Test a new role with home as homepage
+        var role1 = createRole("HomepageRole1", "To test home page", IPSRoleService.HOMEPAGE_TYPE_HOME);
         roleCleaner.add(role1.getName());
         restClient.create(role1);
         temp.setValue(role1.getName());
-        PSRole testRole1 = restClient.find(temp);
+        var testRole1 = restClient.find(temp);
         assertEquals(testRole1.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_HOME);
 
-        //Test invalid homepage case
-    	role.setHomepage("InvalidHomePage");
-    	restClient.update(role);
-    	temp.setValue(role.getName());
-    	testRole = restClient.find(temp);
-    	assertEquals(testRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);  
-        
+        // Test invalid homepage case
+        role.setHomepage("InvalidHomePage");
+        restClient.update(role);
+        temp.setValue(role.getName());
+        testRole = restClient.find(temp);
+        assertEquals(testRole.getHomepage(), IPSRoleService.HOMEPAGE_TYPE_DASHBOARD);
     }
-    
+
     @Test
-    public void testUpdate()throws Exception
-    {
-        String intialDescription = "Role with description";
-        
-        String changedDescription = "Role description is changed";
-            
-        PSRole roleWithDescription = createRole("MyTestRole", intialDescription);
-        
-        
+    void testUpdate() throws Exception {
+        var intialDescription = "Role with description";
+        var changedDescription = "Role description is changed";
+        var roleWithDescription = createRole("MyTestRole", intialDescription);
+
         roleCleaner.add(roleWithDescription.getName());
-        PSRole created = restClient.create(roleWithDescription);
-        
+        var created = restClient.create(roleWithDescription);
+
         assertEquals(created.getDescription(), intialDescription);
-        
+
         roleWithDescription.setDescription(changedDescription);
-        
-        PSRole role = restClient.update(roleWithDescription);
-        
+
+        var role = restClient.update(roleWithDescription);
+
         assertEquals(role.getDescription(), changedDescription);
-        
-        assertTrue(!role.getDescription().equals(intialDescription));
+
+        assertNotEquals(role.getDescription(), intialDescription);
     }
-    
+
     @Test
-    public void testValidateForDelete() throws Exception
-    {
+    void testValidateForDelete() throws Exception {
         PSUser user = null;
-        try
-        {
+        try {
             testCreate();
 
-            PSStringWrapper strWrapper = new PSStringWrapper();
+            var strWrapper = new PSStringWrapper();
             strWrapper.setValue(role.getName());
-            
-            try
-            {
+
+            try {
                 restClient.validateForDelete(restClient.find(strWrapper));
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 fail("Unexpected warning");
             }
 
-            //Create a new user and add it to the role
+            // Create a new user and add it to the role
             user = new PSUser();
             user.setName("MyTestUser");
             user.setRoles(Collections.singletonList(role.getName()));
             user = getUserServiceRestClient().create(user);
 
-            try
-            {
+            try {
                 restClient.validateForDelete(restClient.find(strWrapper));
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 fail("Unexpected warning");
             }
-            
+
             user.getRoles().add("Contributor");
             user = getUserServiceRestClient().update(user);
-            
-            try
-            {
+
+            try {
                 restClient.validateForDelete(restClient.find(strWrapper));
+            } catch (Exception e) {
+                fail("Unexpected warning");
             }
-            catch (Exception e)
-            {
-                fail("Unexpected warning");              
-            }
-            
-            PSRole contributor = new PSRole();
+
+            var contributor = new PSRole();
             contributor.setName("Contributor");
-            
-            PSStringWrapper contribWrapper = new PSStringWrapper();
+
+            var contribWrapper = new PSStringWrapper();
             contribWrapper.setValue(contributor.getName());
-                        
-            try
-            {
+
+            try {
                 restClient.validateForDelete(restClient.find(contribWrapper));
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // warning expected for workflow, not user
                 assertTrue(e.getMessage().contains("Default Workflow"));
                 assertFalse(e.getMessage().contains(user.getName()));
             }
-            
+
             user.getRoles().remove(role.getName());
             user = getUserServiceRestClient().update(user);
-                                   
-            try
-            {
+
+            try {
                 restClient.validateForDelete(restClient.find(contribWrapper));
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // warning not expected for user, expected for workflow
                 assertFalse(e.getMessage().contains(user.getName()));
                 assertTrue(e.getMessage().contains("Default Workflow"));
             }
-        }
-        finally
-        {
-            if (user != null)
-            {
+        } finally {
+            if (user != null) {
                 getUserServiceRestClient().delete(user.getName());
             }
         }
     }
-    
+
     @Test
-    public void testValidateDeleteUsersFromRole() throws Exception
-    {
-        List<String> userNames = new ArrayList<String>();
-        try
-        {
-            PSUser user1 = new PSUser();
+    void testValidateDeleteUsersFromRole() throws Exception {
+        var userNames = new ArrayList<String>();
+        try {
+            var user1 = new PSUser();
             user1.setName("MyTestUser1");
             user1.setRoles(Collections.singletonList("Editor"));
             user1 = getUserServiceRestClient().create(user1);
             userNames.add(user1.getName());
-            
-            PSUser user2 = new PSUser();
+
+            var user2 = new PSUser();
             user2.setName("MyTestUser2");
             user2.setRoles(Collections.singletonList("Editor"));
             user2 = getUserServiceRestClient().create(user2);
             userNames.add(user2.getName());
-                        
-            PSUser user3 = new PSUser();
+
+            var user3 = new PSUser();
             user3.setName("MyTestUser3");
             user3.setRoles(asList("Editor", "Contributor"));
             user3 = getUserServiceRestClient().create(user3);
             userNames.add(user3.getName());
-            
-            PSUserList userList = new PSUserList();
+
+            var userList = new PSUserList();
             userList.setUsers(Collections.singletonList(user3.getName()));
-            
-            try
-            {
+
+            try {
                 restClient.validateDeleteUsersFromRole(userList);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 fail("Unexpected warning");
             }
-            
+
             userList.setUsers(userNames);
-            
-            try
-            {
+
+            try {
                 restClient.validateDeleteUsersFromRole(userList);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 fail("Unexpected warning");
             }
-        }
-        finally
-        {
-            for (String userName : userNames)
-            {
+        } finally {
+            for (var userName : userNames) {
                 getUserServiceRestClient().delete(userName);
             }
         }
-        
-        
     }
-    
-    private PSTestDataCleaner<String> roleCleaner = new PSTestDataCleaner<String>() {
 
+    private final PSTestDataCleaner<String> roleCleaner = new PSTestDataCleaner<>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
-            PSStringWrapper strWrapper = new PSStringWrapper();
+        protected void clean(String id) throws Exception {
+            var strWrapper = new PSStringWrapper();
             strWrapper.setValue(id);
             restClient.delete(strWrapper);
         }
-        
     };
-    
-    private PSRole createRole(String name, String description)
-    {
+
+    private PSRole createRole(String name, String description) {
         return createRole(name, description, null);
     }
-    private PSRole createRole(String name, String description, String homepage)
-    {
-        PSRole newRole = new PSRole();
+
+    private PSRole createRole(String name, String description, String homepage) {
+        var newRole = new PSRole();
         newRole.setName(name);
         newRole.setDescription(description);
-        newRole.setHomepage(homepage);    
+        newRole.setHomepage(homepage);
         return newRole;
     }
-     
 }
-

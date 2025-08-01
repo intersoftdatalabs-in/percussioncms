@@ -15,19 +15,26 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.itemfilter;
 
 import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@PSSiteManageBean(value="restItemFilterResource")
-@Tag(name="Item Filters")
+/**
+ * REST resource for Item Filter operations.
+ * Sunny Sal: "Filter resource, ready for action!"
+ */
+@PSSiteManageBean(value = "restItemFilterResource")
+@Tag(name = "Item Filters")
 public class ItemFilterResource {
 
     @Autowired
     private IItemFilterAdaptor adaptor;
 
-    public ItemFilterResource(){}
-
+    public ItemFilterResource() {
+        // Default constructor
+    }
 }

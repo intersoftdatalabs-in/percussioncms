@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.errors.UnexpectedException;
@@ -28,69 +30,63 @@ import com.percussion.server.PSUserSession;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.util.PSSiteManageBean;
-
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.NotFoundException;
 import java.util.List;
+import java.util.Locale;
 
+/**
+ * Adaptor for user preferences management in Percussion CMS.
+ */
 @PSSiteManageBean
 public class PreferencesAdaptor implements IPreferenceAdaptor {
 
     private static final Logger log = LogManager.getLogger(PreferencesAdaptor.class);
 
     @Autowired
-    IPSCmsObjectMgr objectMgr;
+    private IPSCmsObjectMgr objectMgr;
 
     @Override
     public UserPreferenceList getAllUserPreferences() {
-        PSUserSession session = getSession();
-
-        List<PSPersistentProperty> userPrefs =  objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
-
+        var session = getSession();
+        var userPrefs = objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
         return ApiUtils.convertUserProperties(userPrefs);
     }
 
     @Override
     public UserPreferenceList saveAllUserPreferences(UserPreferenceList prefs) {
-        PSUserSession session = getSession();
-
-        //Update user preferences
+        var session = getSession();
         try {
-
-                   for(UserPreference pref : prefs){
-                       objectMgr.savePersistentPropertyMeta(ApiUtils.convertUserPreferenceToMeta(pref));
-                       objectMgr.savePersistentProperty(ApiUtils.convertUserPreference(pref));
-                   }
-
-                   return this.getAllUserPreferences();
-        }catch(Exception e){
-            log.error("An error happened when updating user preferences.",e);
+            for (var pref : prefs) {
+                objectMgr.savePersistentPropertyMeta(ApiUtils.convertUserPreferenceToMeta(pref));
+                objectMgr.savePersistentProperty(ApiUtils.convertUserPreference(pref));
+            }
+            return this.getAllUserPreferences();
+        } catch (Exception e) {
+            log.error("An error occurred when updating user preferences.", e);
             throw new UnexpectedException();
         }
     }
 
     @Override
     public UserPreference loadPreference(String preference) {
-        PSUserSession session = getSession();
-
-        for(PSPersistentProperty p : objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry())){
-            if(p.getName().toLowerCase().equals(preference.toLowerCase())){
-                return ApiUtils.convertUserProperty(p);
-            }
-        }
-        //If we get this far we didn't find the preference.
-        throw new NotFoundException();
+        var session = getSession();
+        var userPrefs = objectMgr.findPersistentPropertiesByName(session.getRealAuthenticatedUserEntry());
+        return userPrefs.stream()
+                .filter(p -> p.getName().equalsIgnoreCase(preference))
+                .findFirst()
+                .map(ApiUtils::convertUserProperty)
+                .orElseThrow(NotFoundException::new);
     }
 
     @Override
     public UserPreference savePreference(UserPreference pref) {
-        PSUserSession session = getSession();
-        PSPersistentProperty p = ApiUtils.convertUserPreference(pref);
-        PSPersistentPropertyMeta pm = ApiUtils.convertUserPreferenceToMeta(pref);
+        var session = getSession();
+        var p = ApiUtils.convertUserPreference(pref);
+        var pm = ApiUtils.convertUserPreferenceToMeta(pref);
 
         objectMgr.savePersistentPropertyMeta(pm);
         objectMgr.savePersistentProperty(p);
@@ -100,20 +96,16 @@ public class PreferencesAdaptor implements IPreferenceAdaptor {
 
     @Override
     public void deletePreference(UserPreference pref) {
-        PSUserSession session = getSession();
-
-        if(session.getUserProperties().contains(pref)){
+        var session = getSession();
+        if (session.getUserProperties().contains(pref)) {
             objectMgr.deletePersistentProperty(ApiUtils.convertUserPreference(pref));
-        }else{
+        } else {
             throw new NotFoundException();
         }
     }
 
-    private PSUserSession getSession(){
+    private PSUserSession getSession() {
         PSRequest req = PSSecurityFilter.getCurrentRequest();
-
         return req.getUserSession();
     }
-
-
 }

@@ -20,7 +20,12 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents an ActionMenu parameter.
+ */
 @XmlRootElement(name = "ActionMenuParameter")
 @Schema(description = "An ActionMenu parameter")
 public class ActionMenuParameter {
@@ -29,29 +34,53 @@ public class ActionMenuParameter {
     private String value;
     private String description;
 
-    public ActionMenuParameter(){}
+    public ActionMenuParameter() {}
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    public Optional<String> getValue() {
+        return Optional.ofNullable(value);
     }
 
     public void setValue(String value) {
         this.value = value;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ActionMenuParameter)) return false;
+        var that = (ActionMenuParameter) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value, description);
+    }
+
+    @Override
+    public String toString() {
+        return "ActionMenuParameter{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }

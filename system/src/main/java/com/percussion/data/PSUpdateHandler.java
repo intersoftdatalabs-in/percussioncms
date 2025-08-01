@@ -22,10 +22,8 @@ import com.percussion.debug.PSDebugLogHandler;
 import com.percussion.debug.PSTraceMessageFactory;
 import com.percussion.design.objectstore.PSDataSet;
 import com.percussion.error.PSNotFoundException;
-import com.percussion.design.objectstore.PSPipe;
-import com.percussion.design.objectstore.PSRequestLink;
 import com.percussion.design.objectstore.PSResultPage;
-import com.percussion.design.objectstore.PSResultPageSet;
+// ...existing imports...
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.error.PSBackEndUpdateProcessingError;
 import com.percussion.error.PSErrorException;
@@ -151,10 +149,10 @@ import java.util.Vector;
  * @version      1.0
  * @since      1.0
  */
-public class PSUpdateHandler extends PSDataHandler
-{
+// REFACTORED: CP-JAVA11
+public class PSUpdateHandler extends PSDataHandler {
 
-   private static final Logger log = LogManager.getLogger(PSUpdateHandler.class);
+    private static final Logger log = LogManager.getLogger(PSUpdateHandler.class);
 
    /**
     * Construct a data modification handler to manage the inserting,
@@ -193,77 +191,70 @@ public class PSUpdateHandler extends PSDataHandler
     *
     * @exception   PSInvalidRequestTypeException If ds contains no update pipes.
     */
-   public PSUpdateHandler(PSApplicationHandler app, PSDataSet ds)
-      throws PSInvalidRequestTypeException, PSIllegalArgumentException,
+    public PSUpdateHandler(PSApplicationHandler app, PSDataSet ds)
+            throws PSInvalidRequestTypeException, PSIllegalArgumentException,
             java.sql.SQLException, PSSystemValidationException,
-            PSNotFoundException, PSExtensionException
-   {
-      super(app, ds);
+            PSNotFoundException, PSExtensionException {
+        super(app, ds);
 
-      // the transaction set is the real work horse
-      m_transactionSet = new PSTransactionSet(app, ds);
+        // The transaction set is the real work horse
+        m_transactionSet = new PSTransactionSet(app, ds);
 
-      m_styleSheetEvaluators = null;   /* default to no style sheet */
+        m_styleSheetEvaluators = null; // default to no style sheet
 
-      /* if this update causes a query to be fired, prepare the request
-       * generator. Otherwise, set the result set converter we'll be
-       * using.
-       */
-      if (!ds.isOutputResultPages()) {
-         PSRequestLink link = ds.getOutputRequestLink();
-         if (link != null) {
-            try {
-               m_outputGenerator = new PSRequestRedirector(app, link);
-            } catch (PSNotFoundException e) {
-               if(e.getErrorCode() == 0){
-                  throw new PSSystemValidationException("Error in initialization application : "
-                          + app.getName() + " Error: " + PSExceptionUtils.getMessageForLog(e),null, ds);
-               }
-               throw new PSSystemValidationException(
-                  e.getErrorCode(), e.getErrorArguments(),
-                  app.getApplicationDefinition(), ds);
+        // If this update causes a query to be fired, prepare the request generator. Otherwise, set the result set converter.
+        if (!ds.isOutputResultPages()) {
+            var link = ds.getOutputRequestLink();
+            if (link != null) {
+                try {
+                    m_outputGenerator = new PSRequestRedirector(app, link);
+                } catch (PSNotFoundException e) {
+                    if (e.getErrorCode() == 0) {
+                        throw new PSSystemValidationException("Error in initialization application : "
+                                + app.getName() + " Error: " + PSExceptionUtils.getMessageForLog(e), null, ds);
+                    }
+                    throw new PSSystemValidationException(
+                            e.getErrorCode(), e.getErrorArguments(),
+                            app.getApplicationDefinition(), ds);
+                }
             }
-         }
-      }
-      else {
-         PSCollection pageSet = null;
-         PSResultPageSet rs = ds.getOutputResultPages();
-         if (rs != null)
-            pageSet = rs.getResultPages();
-         int size = (pageSet == null) ? 0 : pageSet.size();
-         if (size != 0)
-            m_styleSheetEvaluators = new PSSetStyleSheetEvaluator[size];
-         for (int i = 0; i < size; i++) {
-            // now build the style sheet object
-            PSResultPage page = (PSResultPage)pageSet.get(i);
-
-            try {
-               m_styleSheetEvaluators[i] = new PSSetStyleSheetEvaluator(
-                  app.getLocalizedURL(page.getStyleSheet()),
-                  page,
-                  page.getConditionals());
-            } catch (java.net.MalformedURLException e) {
-               Object[] args = { app.getName(), ds.getName(),
-                  page.getStyleSheet() };
-               throw new PSIllegalArgumentException(
-                  com.percussion.design.objectstore.IPSObjectStoreErrors.STYLE_SHEET_BAD_URL,
-                  args);
+        } else {
+            PSCollection pageSet = null;
+            var rs = ds.getOutputResultPages();
+            if (rs != null)
+                pageSet = rs.getResultPages();
+            int size = (pageSet == null) ? 0 : pageSet.size();
+            if (size != 0)
+                m_styleSheetEvaluators = new PSSetStyleSheetEvaluator[size];
+            if (pageSet != null) {
+                for (int i = 0; i < size; i++) {
+                    // Build the style sheet object
+                    var page = (PSResultPage) pageSet.get(i);
+                    try {
+                        m_styleSheetEvaluators[i] = new PSSetStyleSheetEvaluator(
+                                app.getLocalizedURL(page.getStyleSheet()),
+                                page,
+                                page.getConditionals());
+                    } catch (java.net.MalformedURLException e) {
+                        Object[] args = {app.getName(), ds.getName(), page.getStyleSheet()};
+                        throw new PSIllegalArgumentException(
+                                com.percussion.design.objectstore.IPSObjectStoreErrors.STYLE_SHEET_BAD_URL,
+                                args);
+                    }
+                }
             }
-         }
-      }
+        }
 
-      PSPipe pipe = ds.getPipe();
+        var pipe = ds.getPipe();
 
-      // and our final step, prepare the post-processing extensions
-      // now uses a vector
-     m_resultDocProcessors= new Vector();
-      loadExtensions(
-         m_appHandler,
-         pipe.getResultDataExtensions(),
-         IPSResultDocumentProcessor.class.getName(),
-         m_resultDocProcessors);
-
-   }
+        // Prepare the post-processing extensions
+        m_resultDocProcessors = new Vector<>();
+        loadExtensions(
+                m_appHandler,
+                pipe.getResultDataExtensions(),
+                IPSResultDocumentProcessor.class.getName(),
+                m_resultDocProcessors);
+    }
 
    /* ************ IPSRequestHandler Interface Implementation ************ */
 
@@ -304,8 +295,7 @@ public class PSUpdateHandler extends PSDataHandler
    public PSException makeRequest(PSRequest request, boolean sendResponse)
    {
       PSExecutionData execData = null;
-      int curExec = -1;
-      IPSExecutionStep[] curPlan = null;
+      // Removed unused variables curExec and curPlan
       PSRequestStatistics stats = request.getStatistics();
       /* Remember how many rows we started with so we can determine if any
        * rows were modified when an exception is thrown. This allows us to
@@ -473,8 +463,7 @@ public class PSUpdateHandler extends PSDataHandler
       {
          /* catch anything that comes our way */
          String source = "";
-         if ((curPlan != null) && (curExec > 0) && (curExec < curPlan.length))
-            source = curPlan[curExec].toString();
+         // Dead code removed: source assignment was unused
 
          String sessId = "";
          PSUserSession sess = request.getUserSession();
@@ -542,13 +531,12 @@ public class PSUpdateHandler extends PSDataHandler
     * @throws IllegalArgumentException if <code>listener</code> is
     * <code>null</code>.
     */
-   public void addTableChangeListener(IPSTableChangeListener listener)
-   {
-      if(listener == null)
-         throw new IllegalArgumentException("listener may not be null");
-
-      m_listeners.add(listener);
-   }
+    public void addTableChangeListener(IPSTableChangeListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("listener may not be null");
+        }
+        m_listeners.add(listener);
+    }
 
 
    /* ********* IPSInternalRequestHandler Interface Implementation ********* */
@@ -732,27 +720,27 @@ public class PSUpdateHandler extends PSDataHandler
     * is in interest of listeners. Initialized to an empty list and never
     * <code>null</code> after that.
     */
-   private List m_listeners = new ArrayList();
+    private final List<IPSTableChangeListener> m_listeners = new ArrayList<>();
 
    /**
     * The transaction set groups all the inserts, updates and deletes.
     * It is capable of breaking up the incoming data and dispatching it to
     * the appropriate transaction members.
     */
-   private PSTransactionSet               m_transactionSet;
+    private PSTransactionSet m_transactionSet;
 
    /**
     * The output generator for this update. It may fire a query link or
     * produce XML output based upon the update statistics.
     */
-   private IPSResultGenerator               m_outputGenerator = null;
+    private IPSResultGenerator m_outputGenerator = null;
 
    /**
     * A vector from result doc processor extension refs to extension runners
     */
-    private Vector m_resultDocProcessors=null;
+    private Vector<PSExtensionRunner> m_resultDocProcessors = null;
 
-   private PSSetStyleSheetEvaluator[]   m_styleSheetEvaluators;
+    private PSSetStyleSheetEvaluator[] m_styleSheetEvaluators;
 
 }
 

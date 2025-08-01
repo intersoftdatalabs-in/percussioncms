@@ -21,20 +21,18 @@ import com.percussion.rest.MainTest;
 import com.percussion.rest.errors.RestError;
 import com.percussion.rest.errors.RestErrorCode;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Disabled;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-
-
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PagesTest extends MainTest
 {
    
@@ -165,7 +163,7 @@ public class PagesTest extends MainTest
     }
     
     @Test
-    @Ignore
+    @Disabled
     public void testPage()
     {
     	
@@ -185,24 +183,20 @@ public class PagesTest extends MainTest
     }
     
     @Test
-    public void testRenamePage(){
-    		
-    		Page p = target("pages/rename/sitea/path1/pathsub/pathsub2/page1.html/newname.html")
-    		.request(MediaType.APPLICATION_JSON)
-    		.accept(MediaType.APPLICATION_JSON)
-    		.post(Entity.json("{}"),Page.class);
-    		assertTrue("New Name Should Match", p.getName().equals("newname.html"));
+    public void testRenamePage() {
+        var p = target("pages/rename/sitea/path1/pathsub/pathsub2/page1.html/newname.html")
+                .request(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .post(Entity.json("{}"), Page.class);
+        assertTrue(p.getName().equals("newname.html"), "New Name Should Match");
     }
-    
+
     @Test
-    public void testNeverNull(){
-    	Page p = new Page();
-    	
-    	p.setRecentUsers(null);
-    	p.setBookmarkedUsers(null);
-    	
-    	assertTrue("Should Never be Null", p.getBookmarkedUsers()!=null);
-    	assertTrue("Should Never be Null", p.getRecentUsers()!=null);
-      
+    public void testNeverNull() {
+        var p = new Page();
+        p.setRecentUsers(null);
+        p.setBookmarkedUsers(null);
+        assertTrue(p.getBookmarkedUsers() != null, "Should Never be Null");
+        assertTrue(p.getRecentUsers() != null, "Should Never be Null");
     }
 }

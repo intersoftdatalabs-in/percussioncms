@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,77 +18,58 @@
  */
 package com.percussion.services.assembly.jexl;
 
-import java.util.List;
-
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test keyword utilities
- * 
+ * Test keyword utilities.
+ *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
-public class PSKeywordUtilsTest extends ServletTestCase
-{
-   /**
-    * Test retrieval code
-    */
-   public void testRetrieval() 
-   {
-      PSKeywordUtils ku = new PSKeywordUtils();
-      List<String[]> choices = ku.keywordChoices("Publishable");
-      assertNotNull(choices);
-      assertEquals(4, choices.size());
-   }
-   
-   /**
-    * Test formatting of html options
-    */
-   public void testChoices() 
-   {
-      PSKeywordUtils ku = new PSKeywordUtils();
-      String compare = "<OPTION value='n'>Unpublish</OPTION>\n" + 
-            "<OPTION value='y'>Publish</OPTION>\n" + 
-            "<OPTION value='i'>Ignore</OPTION>\n" + 
-            "<OPTION value='u' selected=\'true\'>Archive</OPTION>\n";
-      String result = ku.keywordSelectChoices("Publishable","u");
-      assertEquals(compare,result);
-   }
-   
-   /**
-    * Test label retrieval
-    */
-   public void testLabel()
-   {
-      PSKeywordUtils ku = new PSKeywordUtils();
-      
-      assertEquals("Archive",ku.getLabel("Publishable","u"));
-      assertEquals("",ku.getLabel("Publishable","z"));
-   }
-   
-   
-   /**
-    * Test label retrieval
-    */
-   public void testLocaleLabel()
-   {
-      PSKeywordUtils ku = new PSKeywordUtils();
-      
-      assertEquals("Archive",ku.getLabel("Publishable","u","en_us"));
-      assertEquals("",ku.getLabel("Publishable","z","en_us"));
-   }   
-   
-   /**
-    * Test choices from a content type field
-    */
-   public void testFieldChoices()
-   {
-      PSKeywordUtils ku = new PSKeywordUtils();
-      String ctn = "rffGeneric";
-      
-      assertEquals("Normal", ku.getChoiceLabel(ctn, "usage", "N"));
-      assertEquals("Landing Page", ku.getChoiceLabel(ctn, "usage", "L"));
-   }
+@Tag("IntegrationTest")
+public class PSKeywordUtilsTest {
+
+    @Test
+    public void testRetrieval() {
+        var ku = new PSKeywordUtils();
+        var choices = ku.keywordChoices("Publishable");
+        assertNotNull(choices);
+        assertEquals(4, choices.size());
+    }
+
+    @Test
+    public void testChoices() {
+        var ku = new PSKeywordUtils();
+        var compare = "<OPTION value='n'>Unpublish</OPTION>\n"
+                + "<OPTION value='y'>Publish</OPTION>\n"
+                + "<OPTION value='i'>Ignore</OPTION>\n"
+                + "<OPTION value='u' selected='true'>Archive</OPTION>\n";
+        var result = ku.keywordSelectChoices("Publishable", "u");
+        assertEquals(compare, result);
+    }
+
+    @Test
+    public void testLabel() {
+        var ku = new PSKeywordUtils();
+        assertEquals("Archive", ku.getLabel("Publishable", "u"));
+        assertEquals("", ku.getLabel("Publishable", "z"));
+    }
+
+    @Test
+    public void testLocaleLabel() {
+        var ku = new PSKeywordUtils();
+        assertEquals("Archive", ku.getLabel("Publishable", "u", "en_us"));
+        assertEquals("", ku.getLabel("Publishable", "z", "en_us"));
+    }
+
+    @Test
+    public void testFieldChoices() {
+        var ku = new PSKeywordUtils();
+        var ctn = "rffGeneric";
+        assertEquals("Normal", ku.getChoiceLabel(ctn, "usage", "N"));
+        assertEquals("Landing Page", ku.getChoiceLabel(ctn, "usage", "L"));
+    }
 }

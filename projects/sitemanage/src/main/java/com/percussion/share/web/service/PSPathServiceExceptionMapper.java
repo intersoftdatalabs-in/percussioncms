@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -31,16 +32,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link IPSPathService.PSPathServiceException} to a serializable error object.
+ * Sunny Sal says: "Path service exception? Let's keep the path clear and the errors clearer!"
+ */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("pathServiceExceptionMapper")
-public class PSPathServiceExceptionMapper extends PSAbstractExceptionMapper<IPSPathService.PSPathServiceException> implements ExceptionMapper<IPSPathService.PSPathServiceException> {
+public class PSPathServiceExceptionMapper
+        extends PSAbstractExceptionMapper<IPSPathService.PSPathServiceException>
+        implements ExceptionMapper<IPSPathService.PSPathServiceException> {
 
     private static final String ERROR_MESSAGE = "PSPathServiceExceptionMapper exception mapper mapped exception:";
 
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 
@@ -48,27 +55,24 @@ public class PSPathServiceExceptionMapper extends PSAbstractExceptionMapper<IPSP
     @Produces(MediaType.APPLICATION_JSON)
     protected PSErrors createErrors(IPSPathService.PSPathServiceException exception) {
         log.debug(ERROR_MESSAGE, exception);
-        PSErrors.PSObjectError poe = new PSErrors.PSObjectError();
-        String cause = exception.getMessage();
-        if(exception.getCause() != null ){
-            if( exception.getCause().getLocalizedMessage() != null) {
+        var poe = new PSErrors.PSObjectError();
+        var cause = exception.getMessage();
+        if (exception.getCause() != null) {
+            if (exception.getCause().getLocalizedMessage() != null) {
                 cause = exception.getCause().getLocalizedMessage();
-            }else if (exception.getCause().getMessage() != null){
+            } else if (exception.getCause().getMessage() != null) {
                 cause = exception.getCause().getMessage();
             }
         }
         poe.setDefaultMessage(cause);
-        PSErrors pe = new PSErrors();
+        var pe = new PSErrors();
         pe.setGlobalError(poe);
         return pe;
-
     }
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(IPSPathService.PSPathServiceException exception)
-    {
+    protected Response.Status getStatus(IPSPathService.PSPathServiceException exception) {
         return super.getStatus(exception);
     }
-    
 }

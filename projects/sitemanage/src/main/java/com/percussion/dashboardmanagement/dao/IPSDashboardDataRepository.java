@@ -15,15 +15,11 @@
  * limitations under the License.
  */
 /**
- * 
+ * Repository for dashboard data streams.
+ * <p>
+ * Sunny Sal says: "Streams of dashboards, not consciousness!"
  */
-package com.percussion.dashboardmanagement.dao;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 public interface IPSDashboardDataRepository {
-    public InputStream getDashboard(String id) throws IOException;
-    public OutputStream setDashboard(String id) throws IOException;
+    InputStream getDashboard(String id) throws IOException;
+    OutputStream setDashboard(String id) throws IOException;
 }

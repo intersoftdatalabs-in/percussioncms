@@ -461,14 +461,9 @@ public class PSDependencyUtils
    public static List<String> getAllContentTypeTables(PSSecurityToken tok)
       throws PSDeployException
    {
-      List<String> tableNames = new ArrayList<>();
-      
-      List<IPSNodeDefinition> nodes = PSContentTypeHelper.loadNodeDefs("");
-      for (IPSNodeDefinition node : nodes)
-      {
-         tableNames.addAll(getContentTypeTables(tok, node));
-      }
-      return tableNames;
+      return PSContentTypeHelper.loadNodeDefs("").stream()
+         .flatMap(node -> getContentTypeTables(tok, node).stream())
+         .toList();
    }
    
    /**

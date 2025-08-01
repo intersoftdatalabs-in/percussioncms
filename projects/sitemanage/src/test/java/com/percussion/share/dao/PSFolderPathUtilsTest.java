@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,58 @@
 package com.percussion.share.dao;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
 import static com.percussion.share.dao.PSFolderPathUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.share.data.IPSFolderPath;
 import com.percussion.share.data.IPSItemSummary;
 
+/**
+ * Tests for {@link PSFolderPathUtils}.
+ * Sunny Sal: "Folder path utils, Java 11, and path ka hero!"
+ */
+public class PSFolderPathUtilsTest {
 
-public class PSFolderPathUtilsTest
-{
-    private String a = "//a";
-    private String ab = "//a/b";
-    private String abc = "//a/b/c";
-    private String abTrick = "//ab";
-    private String b = "//b";
+    private final String a = "//a";
+    private final String ab = "//a/b";
+    private final String abc = "//a/b/c";
+    private final String abTrick = "//ab";
+    private final String b = "//b";
     private String actual;
     private String expected;
-    private String ext = ".jpg";
-    private IPSItemSummary mockItemSummary = new ItemSummary();
-    private List<String> folderPaths = new ArrayList<String>();
-    
+    private final String ext = ".jpg";
+    private final IPSItemSummary mockItemSummary = new ItemSummary();
+    private List<String> folderPaths = new ArrayList<>();
+
     private void assertResults() {
-        assertEquals("Strings should equal", expected, actual);
+        assertEquals(expected, actual, "Strings should equal");
     }
-    
+
     @Test
-    public void testConcatPath() throws Exception
-    {
+    void testConcatPath() {
         expected = abc;
         actual = concatPath("//a", "b", "c");
         assertResults();
     }
 
     @Test
-    public void testReplaceInvalidCharacters() throws Exception
-    {
+    void testReplaceInvalidCharacters() {
         actual = replaceInvalidItemNameCharacters("stuff/called/poop?");
         expected = "stuff-called-poop-";
         assertResults();
-        
+
         actual = replaceInvalidItemNameCharacters("stuff.jpg");
         expected = "stuff.jpg";
         assertResults();
     }
-    
+
     @Test
-    public void testGetName() throws Exception
-    {
+    void testGetName() {
         expected = "a";
         actual = getName(a);
         assertResults();
@@ -76,15 +77,14 @@ public class PSFolderPathUtilsTest
         expected = "b";
         actual = getName(ab);
         assertResults();
-        
+
         expected = "ab";
         actual = getName(abTrick);
         assertResults();
     }
-    
+
     @Test
-    public void testGetBaseName() throws Exception
-    {
+    void testGetBaseName() {
         expected = "a";
         actual = getBaseName(a + ext);
         assertResults();
@@ -92,16 +92,14 @@ public class PSFolderPathUtilsTest
         expected = "b";
         actual = getBaseName(ab + ext);
         assertResults();
-        
+
         expected = "ab";
         actual = getBaseName(abTrick);
         assertResults();
     }
-    
 
     @Test
-    public void testAddEnumeration() throws Exception
-    {
+    void testAddEnumeration() {
         expected = a + numberName(1);
         actual = addEnumeration(a, 1);
         assertResults();
@@ -109,104 +107,85 @@ public class PSFolderPathUtilsTest
         expected = ab + numberName(1) + ext;
         actual = addEnumeration(ab + ext, 1);
         assertResults();
-        
+
         expected = "//a/b/c-1.txt";
         actual = addEnumeration(abc + ".txt", 1);
         assertResults();
-        
     }
-    
-    
+
     @Test
-    public void testMatchingDescedentPaths() throws Exception
-    {
-     
-        List<String> actual = matchingDescedentPaths(a, asList(a,ab,abc,b,abTrick));
-        assertEquals(asList(a,ab,abc), actual);
+    void testMatchingDescedentPaths() {
+        var actualList = matchingDescedentPaths(a, asList(a, ab, abc, b, abTrick));
+        assertEquals(asList(a, ab, abc), actualList);
     }
+
     @Test
-    public void testResolveFolderPath() throws Exception
-    {
-        folderPaths = asList(b,a,abc);
+    void testResolveFolderPath() {
+        folderPaths = asList(b, a, abc);
         expected = a;
-        actual = resolveFolderPath(mockItemSummary, fp(a),fp(ab));
+        actual = resolveFolderPath(mockItemSummary, fp(a), fp(ab));
         assertResults();
-        
-        folderPaths = asList(b,abc);
+
+        folderPaths = asList(b, abc);
         expected = abc;
-        actual = resolveFolderPath(mockItemSummary, fp(a),fp(ab));
+        actual = resolveFolderPath(mockItemSummary, fp(a), fp(ab));
         assertResults();
     }
-    
+
     private FolderPath fp(String fp) {
         return new FolderPath(fp);
     }
-    
+
     @Test
-    public void testIsDescedentPath() throws Exception
-    {
+    void testIsDescedentPath() {
         assertTrue(isDescedentPath(ab, a));
         assertFalse(isDescedentPath(abTrick, a));
         assertFalse(isDescedentPath(abTrick, ab));
         assertFalse(isDescedentPath(ab, abTrick));
     }
-    @Test(expected=IllegalArgumentException.class)
-    public void testValidatePath() throws Exception
-    {
-        validatePath("asdfasdf");
-    }
-    
+
     @Test
-    public void testParentPath() throws Exception
-    {
+    void testValidatePath() {
+        assertThrows(IllegalArgumentException.class, () -> validatePath("asdfasdf"));
+    }
+
+    @Test
+    void testParentPath() {
         expected = "//";
         actual = parentPath(a);
         assertResults();
-        
+
         expected = a;
         actual = parentPath(ab);
         assertResults();
-        
+
         expected = ab;
         actual = parentPath(abc);
         assertResults();
-        
     }
-    
+
     public class ItemSummary extends MockItemSummary {
-    
         @Override
-        public List<String> getFolderPaths()
-        {
+        public List<String> getFolderPaths() {
             return folderPaths;
         }
-    
     }
-    
-    
-    public class FolderPath implements IPSFolderPath {
 
+    public class FolderPath implements IPSFolderPath {
         protected String folderPath;
 
-        
-        public FolderPath(String folderPath)
-        {
-            super();
+        public FolderPath(String folderPath) {
             this.folderPath = folderPath;
         }
 
-        public String getFolderPath()
-        {
+        @Override
+        public String getFolderPath() {
             return folderPath;
         }
 
-        public void setFolderPath(String folderPath)
-        {
+        @Override
+        public void setFolderPath(String folderPath) {
             this.folderPath = folderPath;
         }
-        
-        
     }
-
 }
-

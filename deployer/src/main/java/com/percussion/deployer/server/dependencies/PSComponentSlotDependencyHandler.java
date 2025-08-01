@@ -122,7 +122,8 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
+   @Override
+   public Iterator<String> getChildTypes()
    {
       return ms_childTypes.iterator();
    }
@@ -134,6 +135,7 @@ public class PSComponentSlotDependencyHandler extends PSPairIdDependencyHandler
    }
 
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;

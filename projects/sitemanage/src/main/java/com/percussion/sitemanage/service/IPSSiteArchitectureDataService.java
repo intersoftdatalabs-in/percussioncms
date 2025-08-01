@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,17 +22,21 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.data.PSSiteArchitecture;
 
 /**
- * Site architecture data service class. This interface extends from
- * {@link IPSDataService}.
- * 
- * @author bjoginipally
- * 
+ * Site architecture data service interface.
+ * Extends {@link IPSDataService}.
  */
-public interface IPSSiteArchitectureDataService extends
-      IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String>
-{
+public interface IPSSiteArchitectureDataService
+      extends IPSDataService<PSSiteArchitecture, PSSiteArchitecture, String> {
+
    /**
-    * Returns the site site architecture object.
+    * Returns the site architecture object for the given ID.
+    *
+    * @param id the site ID, not null.
+    * @return the site architecture object.
+    * @throws PSValidationException if validation fails.
+    * @throws DataServiceLoadException if loading fails.
+    * @throws DataServiceNotFoundException if not found.
     */
-   PSSiteArchitecture find(String id) throws PSValidationException, DataServiceLoadException,DataServiceNotFoundException;
+   PSSiteArchitecture find(String id)
+         throws PSValidationException, DataServiceLoadException, DataServiceNotFoundException;
 }

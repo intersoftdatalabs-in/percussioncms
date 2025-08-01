@@ -29,143 +29,91 @@ import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.sitemanage.service.PSSiteTemplates.CreateTemplate;
 import com.percussion.sitemanage.service.impl.PSSiteTemplateService;
-
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-//import static java.util.Arrays.*;
-//import static org.hamcrest.CoreMatchers.*;
-//import static org.junit.matchers.JUnitMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Scenario description: 
- * @author adamgent, Oct 14, 2009
+ * Scenario description: Validation for site templates.
+ * // REFACTORED: CP-JAVA11
+ * @author adamgent, Oct 14, 2009 (modernized by Sunny Sal)
  */
-@RunWith(JMock.class)
-public class PSSiteTemplateServiceValidationTest
-{
+@Tag("IntegrationTest")
+public class PSSiteTemplateServiceValidationTest {
 
-    Mockery context = new JUnit4Mockery();
+    private Mockery context = new JUnit4Mockery();
+    private PSSiteTemplateService sut;
 
-    PSSiteTemplateService sut;
+    private IPSTemplateService templateService;
+    private IPSSiteSectionMetaDataService siteSectionMetaDataService;
+    private IPSiteDao siteDao;
+    private IPSSiteImportService siteImportService;
+    private IPSSiteManager siteMgr;
+    private IPSAsyncJobService asyncJobService;
+    private IPSPageService pageService;
+    private IPSAssetService assetService;
+    private IPSItemWorkflowService itemWorkflowService;
+    private IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
+    private IPSPageTemplateService pageTemplateService;
+    private IPSFolderHelper folderHelper;
 
-    IPSTemplateService templateService;
-    IPSSiteSectionMetaDataService siteSectionMetaDataService;
-    IPSiteDao siteDao;
-    IPSSiteImportService siteImportService;
-    IPSSiteManager siteMgr;
-    IPSAsyncJobService asyncJobService;
-    IPSPageService pageService;
-    IPSAssetService assetService; 
-    IPSItemWorkflowService itemWorkflowService; 
-    IPSWidgetAssetRelationshipService widgetAssetRelationshipService;
-    IPSPageTemplateService pageTemplateService;
-    IPSFolderHelper folderHelper;
-    
-    @Before
-    public void setUp() throws Exception
-    {
+    @BeforeEach
+    public void setUp() {
         templateService = context.mock(IPSTemplateService.class);
         siteSectionMetaDataService = context.mock(IPSSiteSectionMetaDataService.class);
         siteDao = context.mock(IPSiteDao.class);
         asyncJobService = context.mock(IPSAsyncJobService.class);
         pageService = context.mock(IPSPageService.class);
-        assetService = context.mock(IPSAssetService.class); 
+        assetService = context.mock(IPSAssetService.class);
         itemWorkflowService = context.mock(IPSItemWorkflowService.class);
         widgetAssetRelationshipService = context.mock(IPSWidgetAssetRelationshipService.class);
         pageTemplateService = context.mock(IPSPageTemplateService.class);
         siteMgr = context.mock(IPSSiteManager.class);
         folderHelper = context.mock(IPSFolderHelper.class);
 
-        
-        
-        sut = new PSSiteTemplateService(siteDao, siteSectionMetaDataService, templateService, asyncJobService, 
+        sut = new PSSiteTemplateService(siteDao, siteSectionMetaDataService, templateService, asyncJobService,
                 pageService, assetService, itemWorkflowService, widgetAssetRelationshipService, pageTemplateService, siteMgr, folderHelper);
     }
-    
-    
+
     @Test
     public void shouldValidateSiteTemplatesAndNOTFailForEmptySiteTemplates() throws PSBeanValidationException {
-        /*
-         * Given: empty site templates.
-         */
-        PSSiteTemplates siteTemplates = new PSSiteTemplates();
-
-        /* 
-         * Expect:validation to be called but nothing should happen.
-         */
-
+        var siteTemplates = new PSSiteTemplates();
         context.checking(new Expectations() {{
+            // No expectations, just validation
         }});
-
-        /*
-         * When: we call validation
-         */
         sut.validate(siteTemplates);
-
-        /*
-         * Then: we should have nothing happen.
-         */
+        // No exception expected
     }
-    
-    @Test()
-    public void shouldValidateCreateTemplatesAndFailIfNoSourceTemplateId() throws PSBeanValidationException {
-        /*
-         * Given: Site templates with a bad create template.
-         */
-        PSSiteTemplates siteTemplates = new PSSiteTemplates();
-        CreateTemplate ct = new CreateTemplate();
+
+    @Test
+    public void shouldValidateCreateTemplatesAndFailIfNoSourceTemplateId() {
+        var siteTemplates = new PSSiteTemplates();
+        var ct = new CreateTemplate();
         ct.setName("SetName");
-        //null source template id is invalid.
-        ct.setSourceTemplateId(null);
+        ct.setSourceTemplateId(null); // null source template id is invalid
         siteTemplates.getCreateTemplates().add(ct);
-        /* 
-         * Expect:validation to be called but nothing should happen.
-         */
-
         context.checking(new Expectations() {{
+            // No expectations, just validation
         }});
-
-        /*
-         * When: we call validation
-         */
-        sut.validate(siteTemplates);
-
-        /*
-         * Then: we should have an exception thrown as it is invalid.
-         */
+        assertThrows(PSBeanValidationException.class, () -> sut.validate(siteTemplates));
     }
-    
-    
+
+    @Test
     public void shouldValidateCreateTemplates() throws PSBeanValidationException {
-        /*
-         * Given: Site templates with a valid create template.
-         */
-        PSSiteTemplates siteTemplates = new PSSiteTemplates();
-        CreateTemplate ct = new CreateTemplate();
+        var siteTemplates = new PSSiteTemplates();
+        var ct = new CreateTemplate();
         ct.setName("SetName");
         ct.setSourceTemplateId("sourceTemplateId");
         siteTemplates.getCreateTemplates().add(ct);
-        /* 
-         * Expect:validation to be called but nothing should happen.
-         */
-
         context.checking(new Expectations() {{
+            // No expectations, just validation
         }});
-
-        /*
-         * When: we call validation
-         */
         sut.validate(siteTemplates);
-
-        /*
-         * Then: we should have nothing happen.
-         */
+        // No exception expected
     }
-
 }

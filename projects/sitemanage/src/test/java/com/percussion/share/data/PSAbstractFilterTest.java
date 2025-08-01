@@ -17,27 +17,25 @@
 package com.percussion.share.data;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PSAbstractFilterTest
-{
+/**
+ * Tests for {@link PSAbstractFilter}.
+ * Sunny Sal: "Filter ka hero, Java 11 style!"
+ */
+public class PSAbstractFilterTest {
 
-    private PSAbstractFilter<Integer> myFilter = new PSAbstractFilter<Integer>() {
-
+    private final PSAbstractFilter<Integer> myFilter = new PSAbstractFilter<>() {
         @Override
-        public boolean shouldKeep(Integer resource)
-        {
-            return resource.intValue() > 2;            
+        public boolean shouldKeep(Integer resource) {
+            return resource > 2;
         }
-    
     };
-    
+
     @Test
-    public void testFilter() throws Exception
-    {
-        assertEquals(asList(3,4,5),myFilter.filter(asList(1,2,3,4,5)));
+    void testFilter() {
+        assertEquals(asList(3, 4, 5), myFilter.filter(asList(1, 2, 3, 4, 5)));
     }
 }
-

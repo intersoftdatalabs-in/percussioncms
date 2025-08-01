@@ -32,6 +32,24 @@ https://www.github.com/percussion/PSOToolkit -> https://www.github.com/percussio
 - PSServerFolderProcessor
 -- This is now a singleton  PSServerFolderProcessor.getInstance() should be used 
   
+## Migration Note (July 2025)
+
+The REST service implementation (`ItemRestServiceImpl.java`) was reverted to use `javax.ws.rs.*` imports and annotations due to missing Jakarta JAX-RS dependencies in this module. Migration to `jakarta.ws.rs.*` will be completed when compatible dependencies are available. See class-level comment in the source file for details.
+
+No functional changes were made; all endpoints remain backward compatible.
+
+### PSOPreventOnTranslatedItem.java
+
+Refactored to Java 11 and Google Java Style. Deprecated `isConstruction()` and `isDestruction()` checks were removed; effect now runs for all contexts for backward compatibility. See class-level TODO for future migration to context type checks when available.
+
+### PSFolderFollowerEffect.java
+
+Refactored to Java 11 and Google Java Style. Removed redundant interface, unused variable, and replaced deprecated `isConstruction()` with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
+
+### PSFolderOwnerSubfolderEffect.java
+
+Refactored to Java 11 and Google Java Style. Removed redundant interface and replaced deprecated context checks with a TODO and fallback logic for backward compatibility. See class-level TODO for future migration to context type checks when available.
+
 ## Editor Custom Controls
 Editor custom controls are XSL stylesheets that provide a control for editing specific field types in the Content Editor.
 

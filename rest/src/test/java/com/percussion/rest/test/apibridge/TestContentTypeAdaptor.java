@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contenttypes.ContentType;
@@ -25,15 +27,19 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Test adaptor for ContentType API bridge.
+ */
 @Component
 public class TestContentTypeAdaptor implements IContentTypesAdaptor {
 
-    public TestContentTypeAdaptor(){
-
+    public TestContentTypeAdaptor() {
+        // Default constructor
     }
 
-    /***
-     * List all content types available to the System
+    /**
+     * Lists all content types available to the system.
+     *
      * @param baseUri Requesting URI
      * @return A list of all available Content Types
      */
@@ -42,8 +48,9 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
         return null;
     }
 
-    /***
-     * List ContentTypes available for the specified Site
+    /**
+     * Lists ContentTypes available for the specified Site.
+     *
      * @param baseUri Originating URI
      * @param siteId Site Id for Site to filter Types by
      * @return An array of ContentTypes
@@ -53,8 +60,9 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
         return null;
     }
 
-    /***
-     * List ContentTypes available for the specified Site
+    /**
+     * Lists ContentTypes available for the specified Site using a filter.
+     *
      * @param baseUri Originating URI
      * @param filter A ContentTypeFilter that can be used to filter content types.
      * @return An array of ContentTypes

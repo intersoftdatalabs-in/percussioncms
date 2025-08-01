@@ -16,10 +16,10 @@
  */
 package com.percussion.proxyconfig.service.impl;
 
-import static org.apache.commons.lang.Validate.notNull;
-import static com.percussion.share.dao.PSSerializerUtils.unmarshalWithValidation;
 import static com.percussion.share.dao.PSSerializerUtils.marshal;
+import static com.percussion.share.dao.PSSerializerUtils.unmarshalWithValidation;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.proxyconfig.data.PSProxyConfig;
@@ -46,168 +46,93 @@ import org.apache.logging.log4j.Logger;
  * @author LucasPiccoli
  *
  */
-public class PSProxyConfigLoader
-{
-   /**
-    * Logger for this class
-    */
+public class PSProxyConfigLoader {
     public static final Logger log = LogManager.getLogger(PSProxyConfigLoader.class);
-   
-   /**
-    * List of all proxy configurations loaded from the file
-    */
-   private List<PSProxyConfig> proxyConfigurations;
-   
-   public PSProxyConfigLoader(File configFile)
-   {
-       notNull(configFile);
-       
-       proxyConfigurations = new ArrayList<>();
-       
-       if (configFile.exists()) {
-           try {
-               readAndEncryptConfigFile(configFile);
-           } catch (CloneNotSupportedException e) {
-               throw new RuntimeException(e);
-           }
-       }
-   }
+    private final List<PSProxyConfig> proxyConfigurations;
 
-   /**
-    * @return the proxyConfigurations
-    */
-   public List<PSProxyConfig> getProxyConfigurations()
-   {
-      return proxyConfigurations;
-   }
+    public PSProxyConfigLoader(File configFile) {
+        notNull(configFile);
+        proxyConfigurations = new ArrayList<>();
+        if (configFile.exists()) {
+            try {
+                readAndEncryptConfigFile(configFile);
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 
-   /**
-    * If the configuration file exists, read every present Proxy server
-    * configuration. Loads every password.
-    * 
-    * @param configFile the proxy configuration file.
-    */
-   private void readAndEncryptConfigFile(File configFile) throws CloneNotSupportedException {
-      ProxyConfigurations config = getProxyConfig(configFile);
-       PSProxyConfig proxyConfig;
-       String encrypterKey = PSLegacyEncrypter.getInstance(PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)).getPartOneKey();
-       boolean configChanged = false;
-       
-       for (ProxyConfig s : config.getConfigs())
-       {
-           log.debug("Proxy Configuration: {}" , s.getHost());
-           
-           proxyConfig = new PSProxyConfig(s);
-           proxyConfigurations.add(proxyConfig);
-           
-           configChanged = processPassword(s.getPassword(), configFile,proxyConfig, encrypterKey);
-       }
+    public List<PSProxyConfig> getProxyConfigurations() {
+        return List.copyOf(proxyConfigurations);
+    }
 
-       if (configChanged)
-       {
-          updateConfigFile(configFile, config);
-       }
-   }
+    private void readAndEncryptConfigFile(File configFile) throws CloneNotSupportedException {
+        var config = getProxyConfig(configFile);
+        var encrypterKey = PSLegacyEncrypter.getInstance(PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)).getPartOneKey();
+        var configChanged = false;
+        for (var s : config.getConfigs()) {
+            log.debug("Proxy Configuration: {}", s.getHost());
+            var proxyConfig = new PSProxyConfig(s);
+            proxyConfigurations.add(proxyConfig);
+            configChanged |= processPassword(s.getPassword(), configFile, proxyConfig, encrypterKey);
+        }
+        if (configChanged) {
+            updateConfigFile(configFile, config);
+        }
+    }
 
-   /**
-    * processPassword
-    * @param pwd
-    * @param proxyConfig
-    * @param encrypterKey 
-    * @return true if the password was encrypted by the process. false if it was already encrypted.
-    */
-   private boolean processPassword(Password pwd,File configFile, PSProxyConfig proxyConfig, String encrypterKey)
-   {
-      if (pwd == null)
-         return false;
-      String pwdVal = pwd.getValue();
-      String decryptedPassword;
-       if (pwd.isEncrypted())
-      {
-          try {
-            decryptedPassword = PSEncryptor.decryptProperty(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),configFile.getAbsolutePath(),null,pwdVal);
-          }catch (PSEncryptionException e) {
-              try {
-                  decryptedPassword = PSEncryptor.decryptWithOldKey(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), pwdVal);
+    private boolean processPassword(Password pwd, File configFile, PSProxyConfig proxyConfig, String encrypterKey) {
+        if (pwd == null) return false;
+        var pwdVal = pwd.getValue();
+        String decryptedPassword;
+        if (pwd.isEncrypted()) {
+            try {
+                decryptedPassword = PSEncryptor.decryptProperty(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), configFile.getAbsolutePath(), null, pwdVal);
+            } catch (PSEncryptionException e) {
+                try {
+                    decryptedPassword = PSEncryptor.decryptWithOldKey(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), pwdVal);
+                } catch (PSEncryptionException pe) {
+                    decryptedPassword = PSLegacyEncrypter.getInstance(PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)).decrypt(pwdVal, encrypterKey, null);
+                }
+                String enc = null;
+                try {
+                    enc = PSEncryptor.encryptProperty(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), configFile.getAbsolutePath(), null, pwdVal);
+                } catch (PSEncryptionException e2) {
+                    log.error("Error encrypting password: {}", e2.getMessage(), e2);
+                    enc = "";
+                }
+                pwd.setValue(enc);
+                pwd.setEncrypted(Boolean.TRUE);
+                proxyConfig.setPassword(decryptedPassword);
+                return true;
+            }
+            proxyConfig.setPassword(decryptedPassword);
+            return false;
+        }
+        return false;
+    }
 
-              } catch (PSEncryptionException pe) {
-                  decryptedPassword = PSLegacyEncrypter.getInstance(PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
-                  ).decrypt(pwdVal, encrypterKey, null);
+    private void updateConfigFile(File configFile, ProxyConfigurations config) {
+        try (var fileWriter = new FileWriter(configFile); var bfWriter = new BufferedWriter(fileWriter)) {
+            bfWriter.write(marshal(config));
+        } catch (IOException e) {
+            log.error("Error writing the proxy configuration file: {}", PSExceptionUtils.getMessageForLog(e));
+        }
+    }
 
-              }
-              String enc = null;
-              try {
-                  enc = PSEncryptor.encryptProperty(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), configFile.getAbsolutePath(), null, pwdVal);
-              } catch (PSEncryptionException e2) {
-                  log.error("Error encrypting password:{} " + e2.getMessage(), e2);
-                  enc = "";
-              }
-              pwd.setValue(enc);
-              pwd.setEncrypted(Boolean.TRUE);
-              proxyConfig.setPassword(decryptedPassword);
-              return true;
-          }
-          proxyConfig.setPassword(decryptedPassword);
-          return false;
-      }
-       return false;
-   }
-
-   /**
-    * @param configFile configuration file
-    * @param config valid configuration
-    */
-   private void updateConfigFile(File configFile, ProxyConfigurations config)
-   {
-      // Update config file with encrypted passwords
-      FileWriter fileWriter = null;
-      BufferedWriter bfWriter = null;
-      try
-      {
-          fileWriter = new FileWriter(configFile);
-          bfWriter = new BufferedWriter(fileWriter);
-          bfWriter.write(marshal(config));
-      }
-      catch (IOException e)
-      {
-          log.error("Error writing the proxy configuration file: " +
-                  PSExceptionUtils.getMessageForLog(e));
-      }
-      finally
-      {
-          IOUtils.closeQuietly(bfWriter);
-          IOUtils.closeQuietly(fileWriter);
-      }
-   }
-
-   /**
-    * Reads the configuration file and returns a ProxyConfigurations object.
-    * 
-    * @param configFile the configuration file, assumed not <code>null</code>.
-    * 
-    * @return main configuration object. Never <code>null</code>.
-    */
-   private ProxyConfigurations getProxyConfig(File configFile)
-   {
-       try(InputStream in = new FileInputStream(configFile))
-       {
-           return unmarshalWithValidation(in, ProxyConfigurations.class);
-       }
-       catch (Exception e)
-       {
-          String msg = "Unknown Exception";
-          Throwable cause = e.getCause();
-          if(cause != null && isNotBlank(cause.getLocalizedMessage()))
-          {
-             msg = cause.getLocalizedMessage();
-          }
-          else if(isNotBlank(e.getLocalizedMessage()))
-          {
-             msg = e.getLocalizedMessage();
-          }
-          log.error("Error getting proxy server configurations from file: " +  msg);
-          return new ProxyConfigurations();
-       }
-   }
-
+    private ProxyConfigurations getProxyConfig(File configFile) {
+        try (InputStream in = new FileInputStream(configFile)) {
+            return unmarshalWithValidation(in, ProxyConfigurations.class);
+        } catch (Exception e) {
+            var msg = "Unknown Exception";
+            var cause = e.getCause();
+            if (cause != null && isNotBlank(cause.getLocalizedMessage())) {
+                msg = cause.getLocalizedMessage();
+            } else if (isNotBlank(e.getLocalizedMessage())) {
+                msg = e.getLocalizedMessage();
+            }
+            log.error("Error getting proxy server configurations from file: {}", msg);
+            return new ProxyConfigurations();
+        }
+    }
 }

@@ -28,7 +28,6 @@ import java.util.List;
 @PSSiteManageBean
 public class ContentListAdaptor implements IContentListsAdaptor {
 
-
     public ContentListAdaptor() {
     }
 
@@ -86,7 +85,7 @@ public class ContentListAdaptor implements IContentListsAdaptor {
      */
     @Override
     public void deleteContentList(long id) {
-
+        // No-op
     }
 
     /***

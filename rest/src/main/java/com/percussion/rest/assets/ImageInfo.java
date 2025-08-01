@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,41 +23,51 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 @XmlRootElement(name = "ImageInfo")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary image.")
-public class ImageInfo extends BinaryFile
-{
-	private int width;
-	private int height;
-	
-	/**
-	 * @return the width
-	 */
-	public int getWidth()
-	{
-		return width;
-	}
-	/**
-	 * @param width the width to set
-	 */
-	public void setWidth(int width)
-	{
-		this.width = width;
-	}
-	/**
-	 * @return the height
-	 */
-	public int getHeight()
-	{
-		return height;
-	}
-	/**
-	 * @param height the height to set
-	 */
-	public void setHeight(int height)
-	{
-		this.height = height;
-	}
+@Schema(description = "Represents a binary image.")
+public class ImageInfo extends BinaryFile {
+
+    private int width;
+    private int height;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ImageInfo)) return false;
+        if (!super.equals(o)) return false;
+        var that = (ImageInfo) o;
+        return width == that.width && height == that.height;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), width, height);
+    }
+
+    @Override
+    public String toString() {
+        return "ImageInfo{" +
+                "width=" + width +
+                ", height=" + height +
+                "} " + super.toString();
+    }
 }

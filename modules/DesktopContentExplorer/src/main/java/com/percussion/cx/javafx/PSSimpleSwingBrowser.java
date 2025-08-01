@@ -53,7 +53,8 @@ import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,7 +85,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow
 
    private static final String CANNOT_READ_MESSAGE = "Screen reader cannot read embedded browser.  Select button to open in system browser.";
 
-   static Logger log = Logger.getLogger(PSSimpleSwingBrowser.class);
+   static Logger log = LogManager.getLogger(PSSimpleSwingBrowser.class);
 
    private static boolean isMac = System.getProperty("os.name").toLowerCase(Locale.US).startsWith("mac");
    

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.servlet;
 
 import com.percussion.cms.PSCmsException;
@@ -56,141 +57,133 @@ import static com.percussion.pathmanagement.service.impl.PSPathUtils.SITES_FINDE
 
 /**
  * The servlet used to preview content of the item, where the item is specified by its folder path.
- * 
+ * <p>
+ * Refactored for Java 11 and Google Java Style.
+ * </p>
  * @author YuBingChen
  */
-public class PSPreviewItemContent extends HttpServlet
-{
+public class PSPreviewItemContent extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger log = LogManager.getLogger(PSPreviewItemContent.class);
     private static PSRenderLinkService linkService;
     private static IPSiteDao siteDao;
-    
-    public PSPreviewItemContent()
-    {
+
+    public PSPreviewItemContent() {
         super();
         PSSpringWebApplicationContextUtils.injectDependencies(this);
     }
-    
-    @Override
-    protected void service(HttpServletRequest request,
-          HttpServletResponse response)
-    {
-        String requestUri = request.getRequestURI();
-        String revision = request.getParameter(IPSHtmlParameters.SYS_REVISION);
-        
-        try
-        {
-            String type = request.getParameter("type");
-            if (requestUri.endsWith("favicon.ico"))
-                return;
-            String url = createAssemblyUrl(requestUri, revision, type);
-            
-            HttpServletRequest forwardReq = getRequestFromUrl(url, request);
-            
-            RequestDispatcher disp = request.getRequestDispatcher("/assembler/render");
-            disp.forward(forwardReq, response);
-        }catch (ServletException | UnsupportedOperationException| PSCmsException | PSDataServiceException | PSRequestParsingException | PSNotFoundException | IOException e) {
-                log.error("Unable to preview resource:{} Error: {}",requestUri,
-                        PSExceptionUtils.getMessageForLog(e));
-                try {
-                    response.sendError(404);
-                } catch (IOException ioException) {
-                    response.setStatus(404);
-                }
-        }
 
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response) {
+        var requestUri = request.getRequestURI();
+        var revision = request.getParameter(IPSHtmlParameters.SYS_REVISION);
+
+        try {
+            var type = request.getParameter("type");
+            if (requestUri.endsWith("favicon.ico")) {
+                return;
+            }
+            var url = createAssemblyUrl(requestUri, revision, type);
+            var forwardReq = getRequestFromUrl(url, request);
+            var disp = request.getRequestDispatcher("/assembler/render");
+            disp.forward(forwardReq, response);
+        } catch (ServletException | UnsupportedOperationException | PSCmsException | PSDataServiceException | PSRequestParsingException | PSNotFoundException | IOException e) {
+            log.error("Unable to preview resource:{} Error: {}", requestUri, PSExceptionUtils.getMessageForLog(e));
+            try {
+                response.sendError(404);
+            } catch (IOException ioException) {
+                response.setStatus(404);
+            }
+        }
     }
 
-    
     @SuppressWarnings("unchecked")
-    private HttpServletRequest getRequestFromUrl(String url, HttpServletRequest request) throws PSRequestParsingException
-    {
-        PSMutableUrl mutableUrl = new PSMutableUrl(url);
-        Map<String, String> params = mutableUrl.getParamMap();
+    private HttpServletRequest getRequestFromUrl(String url, HttpServletRequest request) throws PSRequestParsingException {
+        var mutableUrl = new PSMutableUrl(url);
+        var params = mutableUrl.getParamMap();
 
-        Map<String, String[]> params2 = new HashMap<>();
-        for (Map.Entry<String, String> entry : params.entrySet())
-        {
-            params2.put(entry.getKey(), new String[]{entry.getValue()});
+        var params2 = new HashMap<String, String[]>();
+        for (var entry : params.entrySet()) {
+            params2.put(entry.getKey(), new String[] { entry.getValue() });
         }
 
-        PSServletRequestWrapper wrapReq = new PSServletRequestWrapper(request);
+        var wrapReq = new PSServletRequestWrapper(request);
         wrapReq.setParameterMap(params2);
-        
+
         return wrapReq;
     }
-    
+
     /**
      * Creates the assembly URL from the specified item path.
+     *
      * @param path the path of the item, assumed not blank.
      * @param revision the id of the revision, can be blank
      * @param renderType it is "xml", "html" or "database", assumed not blank.
      * @return the assembly URL, not blank.
      */
-    private String createAssemblyUrl(String path, String revision, String renderType) throws PSDataServiceException, PSNotFoundException, PSCmsException, UnsupportedEncodingException {
-        IPSGuid id = getItemId(path, revision);
-        if (id!=null) {
-            IPSCmsObjectMgr objMgr = PSCmsObjectMgrLocator.getObjectManager();
-            PSComponentSummary item = objMgr.loadComponentSummary(id.getUUID());
+    private String createAssemblyUrl(String path, String revision, String renderType)
+            throws PSDataServiceException, PSNotFoundException, PSCmsException, UnsupportedEncodingException {
+        var id = getItemId(path, revision);
+        if (id != null) {
+            var objMgr = PSCmsObjectMgrLocator.getObjectManager();
+            var item = objMgr.loadComponentSummary(id.getUUID());
 
             if (item.isFolder()) {
-
-
-                PSSiteSummary siteSum = siteDao.findByPath("/" + path);
-                if (!path.endsWith("/"))
+                var siteSum = siteDao.findByPath("/" + path);
+                if (!path.endsWith("/")) {
                     path += "/";
+                }
                 path += siteSum.getDefaultDocument();
                 // get default page id
                 id = getItemId(path, revision);
             }
         }
-        if (id==null)
-                throw new PSNotFoundException(path);
-        PSInlineLinkRequest linkRequest = new PSInlineLinkRequest();
+        if (id == null) {
+            throw new PSNotFoundException(path);
+        }
+        var linkRequest = new PSInlineLinkRequest();
         linkRequest.setTargetId(id.toString());
         PSInlineRenderLink renderLink;
-        if (path.startsWith(SITES_FINDER_ROOT))
+        if (path.startsWith(SITES_FINDER_ROOT)) {
             renderLink = linkService.renderPreviewPageLink(id.toString(), renderType);
-        else
+        } else {
             renderLink = linkService.renderPreviewResourceLink(linkRequest);
-
+        }
         return renderLink.getUrl();
     }
 
     /**
      * Gets the ID of the item from its path.
-     * @param path the path if the item in question.
+     *
+     * @param path the path of the item in question.
      * @param revision the id of the revision, can be blank
-     * @return the ID of the item, never <code>null</code>.
+     * @return the ID of the item, never {@code null}.
      * @throws PSNotFoundException if cannot find the item from the path.
      */
-    private IPSGuid getItemId(String path, String revision) throws PSNotFoundException, PSCmsException, UnsupportedEncodingException {
+    private IPSGuid getItemId(String path, String revision)
+            throws PSNotFoundException, PSCmsException, UnsupportedEncodingException {
         path = escapeChars(path);
         path = PSPathUtils.getFolderPath(path);
 
-        int revisionId = -1;
-        PSServerFolderProcessor srv = PSServerFolderProcessor.getInstance();
+        var revisionId = -1;
+        var srv = PSServerFolderProcessor.getInstance();
 
-            if(!StringUtils.isBlank(revision))
-            {
-                revisionId = Integer.parseInt(revision);
-            }
+        if (!StringUtils.isBlank(revision)) {
+            revisionId = Integer.parseInt(revision);
+        }
 
-            int id = srv.getIdByPath(path);
+        var id = srv.getIdByPath(path);
 
+        if (id == -1) {
+            throw new PSNotFoundException("Cannot find item with path = \"" + path + "\".");
+        }
 
-
-            if (id == -1)
-                throw new PSNotFoundException("Cannot find item with path = \"" + path + "\".");
-            
-            return new PSLegacyGuid(id, revisionId);
-
+        return new PSLegacyGuid(id, revisionId);
     }
 
     /**
-     * Manual decode the '+' character as the browser may not do it correctly, 
-     * which will cause the <code>URLDecoder.decode</code> method to mistakenly 
+     * Manually decode the '+' character as the browser may not do it correctly,
+     * which will cause the {@code URLDecoder.decode} method to mistakenly
      * replace it with a whitespace.
      * Tested in the following browsers:
      * <ul>
@@ -199,40 +192,32 @@ public class PSPreviewItemContent extends HttpServlet
      * <li>Safari 4</li>
      * <li>Google Chrome</li>
      * </ul>
-     * 
+     *
      * @param path the path to decode manually
-     * @return
-     *      the same path but with the '+' symbol replaced by '%2B'
+     * @return the same path but with the '+' symbol replaced by '%2B'
      */
     private String escapeChars(String path) throws UnsupportedEncodingException {
-        String ret = path;
-
-        String test = URLDecoder.decode(path, "utf8");
-        if(!test.equals(path)) {
+        var ret = path;
+        var test = URLDecoder.decode(path, "utf8");
+        if (!test.equals(path)) {
             ret = test;
         }
-
         return ret;
     }
 
-    public static void setRenderLinkService(PSRenderLinkService service)
-    {
+    public static void setRenderLinkService(PSRenderLinkService service) {
         linkService = service;
     }
-    
-    public static PSRenderLinkService getRenderLinkService()
-    {
+
+    public static PSRenderLinkService getRenderLinkService() {
         return linkService;
-    }   
-    
-    public static IPSiteDao getSiteDao()
-    {
+    }
+
+    public static IPSiteDao getSiteDao() {
         return siteDao;
     }
 
-    public static void setSiteDao(IPSiteDao dao)
-    {
+    public static void setSiteDao(IPSiteDao dao) {
         siteDao = dao;
     }
-
 }

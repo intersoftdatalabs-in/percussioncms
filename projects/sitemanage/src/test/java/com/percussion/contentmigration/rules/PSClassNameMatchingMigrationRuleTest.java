@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,20 +17,18 @@
  */
 package com.percussion.contentmigration.rules;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.share.test.PSTestUtils;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
+ * Unit tests for PSClassNameMatchingMigrationRule.
  * @author JaySeletz
- *
  */
-public class PSClassNameMatchingMigrationRuleTest
-{
+public class PSClassNameMatchingMigrationRuleTest {
 
     private static final String SRC_DOC = "source.html";
     private static final String MULTI_CLASS_SRC_DOC = "multiClassSource.html";
@@ -45,80 +44,70 @@ public class PSClassNameMatchingMigrationRuleTest
     private static final String MULTI_CLASS_ALL_MATCH = "multiClassMatchTgt.html";
     private static final String MULTI_CLASS_PARENT_MATCH = "multiClassParentMatchTgt.html";
     private static final String MULTI_CLASS_NO_PARENT_MATCH = "multiClassNoParentMatchTgt.html";
-    
-    private static PSClassNameMatchingMigrationRule RULE = new PSClassNameMatchingMigrationRule();
+
+    private static final PSClassNameMatchingMigrationRule RULE = new PSClassNameMatchingMigrationRule();
 
     @Test
-    public void testNoMatch()
-    {
+    void testNoMatch() {
         assertNull(extractMatch(SRC_DOC, "noMatchTgt.html", SINGLE_WIDGET_ID));
     }
 
-
     @Test
-    public void testSingleMatch()
-    {
-        String match = extractMatch(SRC_DOC, "singleMatchTgt.html", SINGLE_WIDGET_ID); 
+    void testSingleMatch() {
+        var match = extractMatch(SRC_DOC, "singleMatchTgt.html", SINGLE_WIDGET_ID);
         assertNotNull(match);
         assertEquals(SINGLE_CONTENT_TO_MATCH, match);
     }
-    
+
     @Test
-    public void testSingleNoParentMatch()
-    {
-        String match = extractMatch(SRC_DOC, SINGLE_PARENT_CONTENT_TO_MATCH, PARENT_WIDGET_ID); 
-        String expected = loadResourceAsDocument(SINGLE_PARENT_CONTENT_TO_MATCH).getElementById(SINGLE_PARENT_CONTENT_TO_MATCH_ID).html();
-        assertNull(match);        
+    void testSingleNoParentMatch() {
+        var match = extractMatch(SRC_DOC, SINGLE_PARENT_CONTENT_TO_MATCH, PARENT_WIDGET_ID);
+        var expected = loadResourceAsDocument(SINGLE_PARENT_CONTENT_TO_MATCH)
+                .getElementById(SINGLE_PARENT_CONTENT_TO_MATCH_ID).html();
+        assertNull(match);
     }
-    
+
     @Test
-    public void testMutliParentMatch()
-    {
-        String match = extractMatch(SRC_DOC, MULTI_PARENT_CONTENT_TO_MATCH, MULTI_WIDGET_ID); 
-        String expected = loadResourceAsDocument(MULTI_PARENT_CONTENT_TO_MATCH).getElementById(MULTI_PARENT_CONTENT_TO_MATCH_ID).html();
+    void testMutliParentMatch() {
+        var match = extractMatch(SRC_DOC, MULTI_PARENT_CONTENT_TO_MATCH, MULTI_WIDGET_ID);
+        var expected = loadResourceAsDocument(MULTI_PARENT_CONTENT_TO_MATCH)
+                .getElementById(MULTI_PARENT_CONTENT_TO_MATCH_ID).html();
         assertNotNull(match);
-        
         assertEquals(expected, match);
     }
 
     @Test
-    public void testNoParentMatch()
-    {
-        String match = extractMatch(SRC_DOC, MULTI_PARENT_CONTENT_NO_MATCH, MULTI_WIDGET_ID); 
-        assertNull(match);        
-    }
-    
-    @Test
-    public void testMultiClassMatch()
-    {
-        String match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_ALL_MATCH, SINGLE_WIDGET_ID); 
-        assertNotNull(match);        
+    void testNoParentMatch() {
+        var match = extractMatch(SRC_DOC, MULTI_PARENT_CONTENT_NO_MATCH, MULTI_WIDGET_ID);
+        assertNull(match);
     }
 
     @Test
-    public void testMultiClassParentMatch()
-    {
-        String match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_PARENT_MATCH, SINGLE_WIDGET_ID); 
-        assertNotNull(match);        
+    void testMultiClassMatch() {
+        var match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_ALL_MATCH, SINGLE_WIDGET_ID);
+        assertNotNull(match);
     }
 
     @Test
-    public void testMultiClassNoParentMatch()
-    {
-        String match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_NO_PARENT_MATCH, SINGLE_WIDGET_ID); 
-        assertNull(match);        
+    void testMultiClassParentMatch() {
+        var match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_PARENT_MATCH, SINGLE_WIDGET_ID);
+        assertNotNull(match);
     }
 
-    private String extractMatch(String srcFile, String tgtFile, String widgetId)
-    {
-        Document sourceDoc = loadResourceAsDocument(srcFile);
-        Document targetDoc = loadResourceAsDocument(tgtFile);
+    @Test
+    void testMultiClassNoParentMatch() {
+        var match = extractMatch(MULTI_CLASS_SRC_DOC, MULTI_CLASS_NO_PARENT_MATCH, SINGLE_WIDGET_ID);
+        assertNull(match);
+    }
+
+    private String extractMatch(String srcFile, String tgtFile, String widgetId) {
+        var sourceDoc = loadResourceAsDocument(srcFile);
+        var targetDoc = loadResourceAsDocument(tgtFile);
         return RULE.findMatchingContent(widgetId, sourceDoc, targetDoc);
     }
-    
-    private Document loadResourceAsDocument(String fileName)
-    {
-        String content = PSTestUtils.resourceToString(getClass(), fileName);
-        return Jsoup.parseBodyFragment(content);        
-    }    
+
+    private Document loadResourceAsDocument(String fileName) {
+        var content = PSTestUtils.resourceToString(getClass(), fileName);
+        return Jsoup.parseBodyFragment(content);
+    }
 }

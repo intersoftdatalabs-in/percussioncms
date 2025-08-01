@@ -21,6 +21,7 @@ package com.percussion.rx.delivery;
  * 
  * @author dougrand
  */
+// REFACTORED: CP-JAVA11
 public interface IPSDeliveryErrors
 {
    /**

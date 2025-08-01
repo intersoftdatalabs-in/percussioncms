@@ -101,7 +101,6 @@ import static org.apache.commons.lang.Validate.notNull;
 @PSSiteManageBean("assemblyItemHelper")
 public class PSAssemblyItemBridge {
 
-    
     /*
      * The number of collaborators here is ridiculous.
      * Need to look into making this better as this class
@@ -130,8 +129,7 @@ public class PSAssemblyItemBridge {
             IPSFolderHelper folderHelper, IPSAssetService assetService, IPSIdMapper idMapper,
             PSItemIdResolver itemIdResolver, IPSPageService pageService, IPSTemplateService templateService,
             IPSSiteTemplateService siteTemplateService, IPSSiteDataService siteDataService,
-            PSItemDefManager itemDefManager, IPSContentDesignWs contentDesignWs)
-    {
+            PSItemDefManager itemDefManager, IPSContentDesignWs contentDesignWs) {
         super();
         this.resourceDefinitionService = resourceDefinitionService;
         this.renderLinkContextFactory = renderLinkContextFactory;
@@ -157,18 +155,15 @@ public class PSAssemblyItemBridge {
      * @return never <code>null</code>.
      */
     public PSResourceInstance createResourceInstance(PSContentListItem item, String resourceId) throws PSDataServiceException {
-
-        IPSLinkableItem linkableItem = createLinkableItem(item.getItemId());
-        PSRenderLinkContext context = this.renderLinkContextFactory.create(item, linkableItem);
-        if (isBlank(resourceId))
-        {
-            PSAssetResource resourceDef = resourceDefinitionService.findDefaultAssetResourceForType(linkableItem.getType());
+        var linkableItem = createLinkableItem(item.getItemId());
+        var context = this.renderLinkContextFactory.create(item, linkableItem);
+        if (isBlank(resourceId)) {
+            var resourceDef = resourceDefinitionService.findDefaultAssetResourceForType(linkableItem.getType());
             resourceId = resourceDef.getUniqueId();
         }
-        
         return resourceLinkandLocationService.createResourceInstance(context, linkableItem, resourceId);
     }
-    
+
     /**
      * Convenience method that gets the first resource location from an assembly item.
      * If the resource is paginated this would only return the first page.
@@ -177,15 +172,11 @@ public class PSAssemblyItemBridge {
      * @return never <code>null</code>.
      */
     public PSResourceLocation getResourceLocation(PSContentListItem listItem, String resourceId) throws PSDataServiceException {
-        PSResourceInstance resource;
-
-        resource = createResourceInstance(listItem, resourceId);
-
-        List<PSResourceLinkAndLocation> linkAndLocations = resourceLinkandLocationService.resolveLinkAndLocations(resource);
+        var resource = createResourceInstance(listItem, resourceId);
+        var linkAndLocations = resourceLinkandLocationService.resolveLinkAndLocations(resource);
         if (linkAndLocations.isEmpty()) {
             return null;
         }
-
         return linkAndLocations.get(0).getResourceLocation();
     }    
     
@@ -198,9 +189,8 @@ public class PSAssemblyItemBridge {
      * 
      * @throws Exception if an error occurs.
      */
-    private Node getNode(IPSGuid guid) throws Exception 
-    {
-        List<IPSGuid> guids = Collections.singletonList(guid);
+    private Node getNode(IPSGuid guid) throws Exception {
+        var guids = Collections.singletonList(guid);
         return contentDesignWs.findNodesByIds(guids, true).get(0);
     }
     
@@ -224,22 +214,20 @@ public class PSAssemblyItemBridge {
      * @return never <code>null</code>.
      */
     public PSResourceInstance createResourceInstance(IPSAssemblyItem assemblyItem) throws PSAssemblyException {
-        
-        PSResourceInstance rvalue = getResourceInstance(assemblyItem);
+        var rvalue = getResourceInstance(assemblyItem);
         if (rvalue != null) {
             return rvalue;
         }
-        
-        String resourceDefinitionId = getResourceDefinitionId(assemblyItem);
+        var resourceDefinitionId = getResourceDefinitionId(assemblyItem);
         notNull(resourceDefinitionId, "resourceDefinitionId");
-        String id = idMapper.getString(assemblyItem.getId());
-        IPSLinkableItem linkableItem = PSPathUtils.getLinkableItem(id);
-        PSRenderLinkContext context = getRenderLinkContext(assemblyItem, linkableItem);
+        var id = idMapper.getString(assemblyItem.getId());
+        var linkableItem = PSPathUtils.getLinkableItem(id);
+        var context = getRenderLinkContext(assemblyItem, linkableItem);
 
         try {
             return resourceLinkandLocationService.createResourceInstance(context, linkableItem, resourceDefinitionId);
         } catch (PSDataServiceException e) {
-            throw new PSAssemblyException(22,e,id);
+            throw new PSAssemblyException(22, e, id);
         }
     }
     
@@ -250,9 +238,11 @@ public class PSAssemblyItemBridge {
      * @return never <code>null</code>.
      */
     public PSResourceLocation getResourceLocation(IPSAssemblyItem assemblyItem) throws PSAssemblyException, IPSAssetService.PSAssetServiceException {
-        PSResourceInstance resource = createResourceInstance(assemblyItem);
-        List<PSResourceLinkAndLocation> linkAndLocations = resourceLinkandLocationService.resolveLinkAndLocations(resource);
-        if (linkAndLocations.isEmpty()){ return null;}
+        var resource = createResourceInstance(assemblyItem);
+        var linkAndLocations = resourceLinkandLocationService.resolveLinkAndLocations(resource);
+        if (linkAndLocations.isEmpty()) {
+            return null;
+        }
         return linkAndLocations.get(0).getResourceLocation();
     }
 
@@ -277,15 +267,14 @@ public class PSAssemblyItemBridge {
      * @see PSResourceAssemblyResultExpander
      */
     public void setAssemblyResultExpander(IPSAssemblyItem item) {
-        item.setParameterValue(IPSAssemblyResultExpander.ASSEMBLY_RESULT_EXPANDER_PARAM, 
+        item.setParameterValue(IPSAssemblyResultExpander.ASSEMBLY_RESULT_EXPANDER_PARAM,
                 PSResourceAssemblyResultExpander.ASSEMBLY_RESULT_EXPANDER_NAME);
     }
-    
+
     public void setResourceInstance(IPSAssemblyItem item, PSResourceInstance ri) {
         notNull(ri, "ri");
         item.getBindings().put(PERC_RESOURCE_BINDING_NAME, ri);
     }
-    
     
     /**
      * Creates a render asset from an assembly item.
@@ -294,57 +283,35 @@ public class PSAssemblyItemBridge {
      * @see PSRenderAsset
      */
     public PSRenderAsset createRenderAsset(IPSAssemblyItem assemblyItem) throws PSDataServiceException {
-        PSRenderAsset asset = new PSRenderAsset();
-        String id = idMapper.getString(assemblyItem.getId());
-        PSAssetSummary sum = assetService.find(id);
+        var asset = new PSRenderAsset();
+        var id = idMapper.getString(assemblyItem.getId());
+        var sum = assetService.find(id);
         PSItemSummaryUtils.copyProperties(sum, asset);
         asset.setNode(assemblyItem.getNode());
         asset.setFields(new PSJcrNodeMap(assemblyItem.getNode()));
-        
+
         int folderId = assemblyItem.getFolderId();
         String path = null;
-        /*
-         * See if the assembly items folder is ok to use.
-         */
-        if (folderId > 0)
-        {
-            try
-            {
+        if (folderId > 0) {
+            try {
                 path = folderHelper.findPathFromLegacyFolderId(folderId);
-
-            }
-            catch (Exception e)
-            {
-                log.warn("Error generating folder path for folder id: {} " , folderId, e);
+            } catch (Exception e) {
+                log.warn("Error generating folder path for folder id: {}", folderId, e);
             }
         }
-        /*
-         * If the assembly items folder is not ok then we need to
-         * resolve the path.
-         */
-        if (path == null || ! asset.getFolderPaths().contains(path)) {
-            notNull(assemblyItem.getSiteId(), 
-                    "The assemblyItem must have a site associated with it.");
-            String siteId = idMapper.getString(assemblyItem.getSiteId());
-            PSSiteSummary site = siteDataService.findByLegacySiteId(siteId, false);
+        if (path == null || !asset.getFolderPaths().contains(path)) {
+            notNull(assemblyItem.getSiteId(), "The assemblyItem must have a site associated with it.");
+            var siteId = idMapper.getString(assemblyItem.getSiteId());
+            var site = siteDataService.findByLegacySiteId(siteId, false);
             path = renderLinkService.resolveFolderPath(asset, site);
         }
-        
-        /*
-         * TODO: Well if we can't find a folder path we will at least log it.
-         * We should check if its a local asset. If it is then we should 
-         * not care if it has a folder path or not.
-         */
         if (path == null) {
             if (log.isDebugEnabled()) {
                 log.debug("Could not find a proper folder path for item: " + asset);
             }
         }
-        
         asset.setFolderPath(path);
-        
         asset.setOwnerId(assemblyItem.getOwnerId());
-        
         return asset;
     }
     
@@ -673,4 +640,3 @@ public class PSAssemblyItemBridge {
     
     
 }
-

@@ -20,11 +20,7 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
-
-
 
 /**
  * Class to handle packaging and deploying a site deployable element.
@@ -61,9 +57,9 @@ public class PSSiteDependencyHandler extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
+   @Override
+   public Iterator<String> getChildTypes() {
+      return List.of(PSSiteDefDependencyHandler.DEPENDENCY_TYPE).iterator();
    }
 
    // see base class
@@ -92,15 +88,4 @@ public class PSSiteDependencyHandler extends PSElementDependencyHandler
     *  if it is <code>null</code>, will never be <code>null</code> after that.
     */
    private PSDependencyHandler m_sdHandler = null;
-
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List ms_childTypes = new ArrayList();
-
-   static
-   {
-      ms_childTypes.add(PSSiteDefDependencyHandler.DEPENDENCY_TYPE);
-   }
 }

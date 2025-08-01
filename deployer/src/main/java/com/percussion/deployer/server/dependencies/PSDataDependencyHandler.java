@@ -247,20 +247,11 @@ public class PSDataDependencyHandler extends PSSchemaDependencyHandler
    private PSJdbcTableData setDataForReplace(PSJdbcTableData srcData)
       throws PSDeployException
    {
-      List tgtRowList = new ArrayList();
-      Iterator rows = srcData.getRows();
-      while (rows.hasNext())
-      {
-         PSJdbcRowData srcRow = (PSJdbcRowData)rows.next();
-         PSJdbcRowData tgtRow = new PSJdbcRowData(srcRow.getColumns(),
-            PSJdbcRowData.ACTION_REPLACE);
-         tgtRowList.add(tgtRow);
-      }
+      var tgtRowList = srcData.getRows().stream()
+         .map(row -> new PSJdbcRowData(row.getColumns(), PSJdbcRowData.ACTION_REPLACE))
+         .toList();
 
-      PSJdbcTableData newData = new PSJdbcTableData(srcData.getName(),
-         tgtRowList.iterator());
-
-      return newData;
+      return new PSJdbcTableData(srcData.getName(), tgtRowList.iterator());
    }
 
 

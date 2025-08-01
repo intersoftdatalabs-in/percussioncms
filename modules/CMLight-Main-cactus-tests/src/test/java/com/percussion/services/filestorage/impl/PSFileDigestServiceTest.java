@@ -29,6 +29,7 @@ import org.apache.cactus.ServletTestCase;
 import org.apache.commons.io.FileUtils;
 import org.junit.experimental.categories.Category;
 
+// REFACTORED: CP-JAVA11
 @Category(IntegrationTest.class)
 public class PSFileDigestServiceTest extends ServletTestCase
 {
@@ -37,35 +38,30 @@ public class PSFileDigestServiceTest extends ServletTestCase
     */
    public void testCreateChecksum() throws Exception
    {
-      IPSFileDigestService fdsvc = getFileDigestService();
-         
-      FileInputStream fin = null;
-      try
-      {
-         PSPurgableTempFile testXml = createFile("This is a test xml file");
-         PSPurgableTempFile testTxt = createFile("This is a test txt file");
-         
-         assertFalse(FileUtils.contentEquals(testXml, testTxt));
-        
-         fin = new FileInputStream(testXml);
-         String xmlChecksum1 = fdsvc.createChecksum(fin);
+      var fdsvc = getFileDigestService();
+
+      var testXml = createFile("This is a test xml file");
+      var testTxt = createFile("This is a test txt file");
+
+      assertFalse(org.apache.commons.io.FileUtils.contentEquals(testXml, testTxt));
+
+      try (var finXml1 = new FileInputStream(testXml)) {
+         var xmlChecksum1 = fdsvc.createChecksum(finXml1);
          assertNotNull(xmlChecksum1);
-         
-         fin = new FileInputStream(testXml);
-         String xmlChecksum2 = fdsvc.createChecksum(fin);
-         assertNotNull(xmlChecksum2);
-         assertEquals(xmlChecksum1, xmlChecksum2);
-         
-         fin = new FileInputStream(testTxt);
-         String txtChecksum = fdsvc.createChecksum(fin);
-         assertNotNull(txtChecksum);
-         assertFalse(txtChecksum.equals(xmlChecksum1));
+
+         try (var finXml2 = new FileInputStream(testXml)) {
+            var xmlChecksum2 = fdsvc.createChecksum(finXml2);
+            assertNotNull(xmlChecksum2);
+            assertEquals(xmlChecksum1, xmlChecksum2);
+         }
       }
-      finally
-      {
-         if (fin != null)
-         {
-            fin.close();
+
+      try (var finTxt = new FileInputStream(testTxt)) {
+         var txtChecksum = fdsvc.createChecksum(finTxt);
+         assertNotNull(txtChecksum);
+         try (var finXml = new FileInputStream(testXml)) {
+            var xmlChecksum = fdsvc.createChecksum(finXml);
+            assertFalse(txtChecksum.equals(xmlChecksum));
          }
       }
    }
@@ -75,26 +71,22 @@ public class PSFileDigestServiceTest extends ServletTestCase
     */
    public void testGetAlgorithm() throws Exception
    {
-      IPSFileDigestService fdsvc = getFileDigestService();
-   
+      var fdsvc = getFileDigestService();
       assertNotNull(fdsvc.getAlgorithm());
    }
 
    private PSPurgableTempFile createFile(String content) throws IOException
    {
-      PSPurgableTempFile f = new PSPurgableTempFile("tmp", "tmp", null);
-      
-      FileWriter fw = new FileWriter(f);
-      fw.write(content);
-      fw.close();
-      
+      var f = new PSPurgableTempFile("tmp", "tmp", null);
+      try (var fw = new FileWriter(f)) {
+         fw.write(content);
+      }
       return f;
    }
-   
+
    private IPSFileDigestService getFileDigestService()
    {
       return (IPSFileDigestService) PSBaseServiceLocator.getBean(
-            "sys_digestService");      
+            "sys_digestService");
    }
-      
 }

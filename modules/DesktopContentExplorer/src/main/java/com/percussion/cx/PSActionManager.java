@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.cx;
 
 import com.percussion.border.PSFocusBorder;
@@ -83,7 +85,8 @@ import javafx.application.Platform;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -93,7 +96,6 @@ import org.xml.sax.SAXException;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -101,6 +103,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -144,7 +149,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener
 
    private PSDesktopExplorerWindow dceWindow = null;
    
-   static Logger log = Logger.getLogger(PSActionManager.class);
+   static Logger log = LogManager.getLogger(PSActionManager.class);
 
    /**
     * Constructs the action manager with supplied parameters, a reference back
@@ -1826,8 +1831,10 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener
          String warning = m_applet.getResourceString(getClass(), key);
          String title = m_applet.getResourceString(getClass(), "Error");
          warning = PSLineBreaker.wrapString(warning, 78, 77, "\n");
-         int result = JOptionPane.showConfirmDialog(getApplet(), warning, title, JOptionPane.YES_NO_OPTION);
-         paramsValid = result == JOptionPane.YES_OPTION;
+         
+         // Use JavaFX Alert instead of JOptionPane for better integration
+         var result = showJavaFXConfirmDialog(warning, title);
+         paramsValid = result;
       }
 
       if (!paramsValid)
@@ -2489,8 +2496,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener
             {
                String msg = "Failed to acquire initial states of items, no items were transitioned: "
                      + e.getLocalizedMessage();
-               JOptionPane.showMessageDialog(getApplet().getDialogParentFrame(), msg, "Fatal Error",
-                     JOptionPane.ERROR_MESSAGE);
+               showJavaFXErrorDialog(msg, "Fatal Error");
                monitor.setStatus(PSProcessMonitor.STATUS_COMPLETE);
             }
 
@@ -6133,6 +6139,54 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener
    public PSSearchConfig getSearchConfig()
    {
       return m_searchViewMgr.getSearchConfig();
+   }
+
+   /**
+    * Shows a JavaFX confirmation dialog as replacement for JOptionPane.
+    * This provides better integration with the JavaFX-based application.
+    * 
+    * @param message the message to display
+    * @param title the dialog title
+    * @return true if user clicked Yes/OK, false otherwise
+    */
+   private boolean showJavaFXConfirmDialog(String message, String title) {
+      if (Platform.isFxApplicationThread()) {
+         var alert = new Alert(Alert.AlertType.CONFIRMATION);
+         alert.setTitle(title);
+         alert.setHeaderText(null);
+         alert.setContentText(message);
+         
+         var result = alert.showAndWait();
+         return result.isPresent() && result.get() == ButtonType.OK;
+      } else {
+         // If not on JavaFX thread, fall back to JOptionPane for now
+         // This ensures compatibility while migrating
+         return javax.swing.JOptionPane.showConfirmDialog(
+            getApplet(), message, title, javax.swing.JOptionPane.YES_NO_OPTION
+         ) == javax.swing.JOptionPane.YES_OPTION;
+      }
+   }
+
+   /**
+    * Shows a JavaFX error dialog as replacement for JOptionPane error messages.
+    * 
+    * @param message the error message to display
+    * @param title the dialog title
+    */
+   private void showJavaFXErrorDialog(String message, String title) {
+      if (Platform.isFxApplicationThread()) {
+         var alert = new Alert(Alert.AlertType.ERROR);
+         alert.setTitle(title);
+         alert.setHeaderText(null);
+         alert.setContentText(message);
+         alert.showAndWait();
+      } else {
+         // Fall back to JOptionPane for compatibility
+         javax.swing.JOptionPane.showMessageDialog(
+            getApplet().getDialogParentFrame(), message, title, 
+            javax.swing.JOptionPane.ERROR_MESSAGE
+         );
+      }
    }
 
 

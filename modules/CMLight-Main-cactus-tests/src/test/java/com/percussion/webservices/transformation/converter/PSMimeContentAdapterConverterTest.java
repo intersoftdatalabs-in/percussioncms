@@ -27,67 +27,63 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * Test case for the {@link PSMimeContentAdapterConverter}
+ * Unit tests for the {@link PSMimeContentAdapterConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSMimeContentAdapterConverterTest extends PSConverterTestBase
-{
-  /**
-    * Tests the conversion from a server to a client object.
-    *  
-    * @throws Exception if the test fails 
-    */
-   @SuppressWarnings(value={"unchecked"})
-   public void testConversion() throws Exception
-   {
-      String data = "some content...";
-      ByteArrayInputStream in; 
-      in = new ByteArrayInputStream(data.getBytes());
+public class PSMimeContentAdapterConverterTest extends PSConverterTestBase {
 
-      PSMimeContentAdapter ca1 = new PSMimeContentAdapter();
-      ca1.setContent(in);
-      ca1.setContentLength(data.getBytes().length);
-      ca1.setName("test");
-      ca1.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 123));
-      
-      PSMimeContentAdapter ca2 = (PSMimeContentAdapter) roundTripConversion(
-         PSMimeContentAdapter.class, 
-         com.percussion.webservices.system.PSMimeContentAdapter.class, 
-         ca1);
-      ca1.setContent(new ByteArrayInputStream(data.getBytes()));
-      assertEquals(ca1, ca2);
-      
-      ca2.setAttachmentId(12);
-      ca2.setContentLength(1000);
-      ca2.setName("test2");
-      ca2.setCharacterEncoding("enc");
-      ca2.setMimeType(IPSMimeContentTypes.MIME_TYPE_APPLICATION_XML);
-      ca2.setTransferEncoding(IPSMimeContentTypes.MIME_ENC_BINARY);
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    @SuppressWarnings("unchecked")
+    public void testConversion() throws Exception {
+        var data = "some content...";
+        var in = new ByteArrayInputStream(data.getBytes());
 
-      PSMimeContentAdapter ca3 = (PSMimeContentAdapter) roundTripConversion(
-         PSMimeContentAdapter.class, 
-         com.percussion.webservices.system.PSMimeContentAdapter.class, 
-         ca2);
-      assertEquals(ca2, ca3);
-      
-      PSMimeContentAdapter ca4 = new PSMimeContentAdapter();
-      ca4.setContent(new ByteArrayInputStream(data.getBytes()));
-      ca4.setContentLength(data.getBytes().length);
-      ca4.setName("test4");
-      ca4.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456));
-      
-      List<PSMimeContentAdapter> srcList = 
-         new ArrayList<PSMimeContentAdapter>();
-      srcList.add(ca1);
-      srcList.add(ca2);
-      srcList.add(ca4);
-      List<PSMimeContentAdapter> tgtList = roundTripListConversion(
-         com.percussion.webservices.system.PSMimeContentAdapter[].class, 
-         srcList);
-      srcList.get(0).setContent(new ByteArrayInputStream(data.getBytes()));
-      srcList.get(2).setContent(new ByteArrayInputStream(data.getBytes()));
-      assertEquals(srcList, tgtList);
-   }
+        var ca1 = new PSMimeContentAdapter();
+        ca1.setContent(in);
+        ca1.setContentLength(data.getBytes().length);
+        ca1.setName("test");
+        ca1.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 123));
+
+        var ca2 = (PSMimeContentAdapter) roundTripConversion(
+                PSMimeContentAdapter.class,
+                com.percussion.webservices.system.PSMimeContentAdapter.class,
+                ca1);
+        ca1.setContent(new ByteArrayInputStream(data.getBytes()));
+        assertEquals(ca1, ca2);
+
+        ca2.setAttachmentId(12);
+        ca2.setContentLength(1000);
+        ca2.setName("test2");
+        ca2.setCharacterEncoding("enc");
+        ca2.setMimeType(IPSMimeContentTypes.MIME_TYPE_APPLICATION_XML);
+        ca2.setTransferEncoding(IPSMimeContentTypes.MIME_ENC_BINARY);
+
+        var ca3 = (PSMimeContentAdapter) roundTripConversion(
+                PSMimeContentAdapter.class,
+                com.percussion.webservices.system.PSMimeContentAdapter.class,
+                ca2);
+        assertEquals(ca2, ca3);
+
+        var ca4 = new PSMimeContentAdapter();
+        ca4.setContent(new ByteArrayInputStream(data.getBytes()));
+        ca4.setContentLength(data.getBytes().length);
+        ca4.setName("test4");
+        ca4.setGUID(new PSGuid(PSTypeEnum.CONFIGURATION, 456));
+
+        var srcList = new ArrayList<PSMimeContentAdapter>();
+        srcList.add(ca1);
+        srcList.add(ca2);
+        srcList.add(ca4);
+        var tgtList = roundTripListConversion(
+                com.percussion.webservices.system.PSMimeContentAdapter[].class,
+                srcList);
+        srcList.get(0).setContent(new ByteArrayInputStream(data.getBytes()));
+        srcList.get(2).setContent(new ByteArrayInputStream(data.getBytes()));
+        assertEquals(srcList, tgtList);
+    }
 }
-

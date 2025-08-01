@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import static org.apache.commons.lang.Validate.notEmpty;
@@ -28,49 +30,47 @@ import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
+import java.util.Optional;
+
 /**
  * Object to represent an unused asset in a given page.
- * 
+ *
  * @author Santiago M. Murchio
- * 
  */
 @XmlRootElement(name = "UnusedAssetSummary")
 @JsonRootName("UnusedAssetSummary")
-public class PSUnusedAssetSummary extends PSDataItemSummary implements IPSItemSummary, Comparable<PSUnusedAssetSummary>
-{
+public class PSUnusedAssetSummary extends PSDataItemSummary implements IPSItemSummary, Comparable<PSUnusedAssetSummary> {
+
     /**
-     * This fields is used to label the asset on the UI, in the unused assets
-     * tray. The items will have the form 'Untitled < asset type label > <#>'.
+     * This field is used to label the asset on the UI, in the unused assets tray.
+     * The items will have the form 'Untitled < asset type label > <#>'.
      */
     private String title = "Untitled";
-    
+
     /**
-     * This is the icon to use for the asset when the even 'onhover' takes
-     * place. It is the same as the asset icon, just adding the 'Over' word in
-     * the last part of the file name. For example, for icon widgetIcon.png, the
-     * over icon would be widgetIconOver.png.
+     * This is the icon to use for the asset when the event 'onhover' takes place.
+     * It is the same as the asset icon, just adding the 'Over' word in the last part of the file name.
+     * For example, for icon widgetIcon.png, the over icon would be widgetIconOver.png.
      */
     private String overIcon;
-    
+
     /**
-     * This field is used to get the widget Id on the UI, in the unused assets
-     * tray. This data is required to edit and delete unused assets.
+     * This field is used to get the widget Id on the UI, in the unused assets tray.
+     * This data is required to edit and delete unused assets.
      */
     private String widgetId;
-    
+
     private int relationshipId;
-    
-    public PSUnusedAssetSummary()
-    {
+
+    public PSUnusedAssetSummary() {
         super();
     }
-    
+
     /**
      * @param summary
      */
-    public PSUnusedAssetSummary(PSDataItemSummary summary)
-    {
-        super(); 
+    public PSUnusedAssetSummary(PSDataItemSummary summary) {
+        super();
         setName(summary.getName());
         setId(summary.getId());
         setLabel(summary.getLabel());
@@ -84,31 +84,24 @@ public class PSUnusedAssetSummary extends PSDataItemSummary implements IPSItemSu
     @NotNull
     @NotEmpty
     @NotBlank
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         notEmpty(title);
         this.title = title;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     @Override
-    public int compareTo(PSUnusedAssetSummary other)
-    {
+    public int compareTo(PSUnusedAssetSummary other) {
         return title.compareTo(other.title);
     }
 
     /**
      * @param overIcon the overIcon to set
      */
-    public void setOverIcon(String overIcon)
-    {
+    public void setOverIcon(String overIcon) {
         notEmpty(overIcon);
         this.overIcon = overIcon;
     }
@@ -119,8 +112,7 @@ public class PSUnusedAssetSummary extends PSDataItemSummary implements IPSItemSu
     @NotNull
     @NotEmpty
     @NotBlank
-    public String getOverIcon()
-    {
+    public String getOverIcon() {
         return overIcon;
     }
 
@@ -130,30 +122,25 @@ public class PSUnusedAssetSummary extends PSDataItemSummary implements IPSItemSu
     @NotNull
     @NotEmpty
     @NotBlank
-    public String getWidgetId()
-    {
+    public String getWidgetId() {
         return widgetId;
     }
 
     /**
      * @param widgetId the widgetId to set
      */
-    public void setWidgetId(String widgetId)
-    {
+    public void setWidgetId(String widgetId) {
         this.widgetId = widgetId;
     }
 
-    public int getRelationshipId()
-    {
+    public int getRelationshipId() {
         return relationshipId;
     }
 
     /**
      * @param relationshipId the relationshipId to set
      */
-    public void setRelationshipId(int relationshipId)
-    {
+    public void setRelationshipId(int relationshipId) {
         this.relationshipId = relationshipId;
     }
-    
 }

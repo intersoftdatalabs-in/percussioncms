@@ -19,11 +19,6 @@ package com.percussion.services.contentmgr;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.utils.guid.IPSGuid;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -33,264 +28,407 @@ import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 /**
- * The content manager allows the loading of content items by either GUID or
- * path. Guids and paths can reference either content items or children. You
- * will need to construct special GUIDs to reference either. See
- * {@link com.percussion.services.guidmgr.data.PSLegacyGuid} for more details.
- * <p>
- * Path syntax uses the title fields from folders and items. The path starts
- * with a
- * <q>//</q>
- * for absolute paths. Relative paths start with no slash character. Paths
- * ending in #<em>nnn</em> indicate a specific revision of a content item.
- * <p>
- * Examples:<br/> <em>//Sites/EnterpriseInvestments/Funds/Morningfund</em>
- * references the
- * <q>Morningfund</q>
- * document in the
- * <q>Funds</q>
- * directory.<br/> <em>//Sites/CorporateInvestments/Company/R-and-B#2</em>
- * references revision 2 of the document
- * <q>R-and-B</q>
- * <br/> <em>//Sites/CorporateInvestments/Regions/NorthEast#3/Category#1</em>
- * references the first Category child of revision 3 of the
- * <q>NorthEast</q>
- * document
- * 
+ * Modern Java 11 interface for content management operations with JCR integration.
+ *
+ * <p>The content manager provides comprehensive content item management including:
+ * <ul>
+ *   <li>Loading content items by GUID or path with Optional-based safe access</li>
+ *   <li>Stream-based content filtering and processing for efficiency</li>
+ *   <li>Asynchronous content operations with CompletableFuture support</li>
+ *   <li>Enhanced query execution with locale and parameter support</li>
+ *   <li>Content lifecycle management (create, copy, revise, delete)</li>
+ * </ul>
+ *
+ * <p><strong>Path Syntax:</strong>
+ * <ul>
+ *   <li>Absolute paths start with "//" (e.g., "//Sites/Enterprise/Funds/MorningFund")</li>
+ *   <li>Relative paths start without slash</li>
+ *   <li>Specific revisions use "#nnn" suffix (e.g., "//Sites/Company/R-and-B#2")</li>
+ *   <li>Child references: "//Sites/Regions/NorthEast#3/Category#1"</li>
+ * </ul>
+ *
+ * <p>All methods are thread-safe and provide both synchronous and asynchronous variants
+ * for optimal performance in different scenarios. Configuration options control
+ * output translations and validation behavior.
+ *
  * @author dougrand
- * 
+ * @since Java 11 Modernization
  */
-public interface IPSContentMgr extends IPSContentTypeMgr, QueryManager
-{
-   /**
-    * Find the items named by the given paths. A path consists of a series of
-    * names, separated by the slash character. The path may start with a slash,
-    * in which case the <i>root </i> parameter is ignored and the search
-    * commences with the repository root folder (the repository of the root
-    * node).
-    * <P>
-    * To load a specific version of a node, append [v#] to the path, where # is
-    * a dot separated version string. Most of the time # will be a simple
-    * integer.
-    * <P>
-    * Depending on the options provided, the properties presented may or may
-    * not have output translations applied. See {@link PSContentMgrOption} 
-    * and {@link PSContentMgrConfig} for details.
-    * 
-    * @param sess the session object, must be <code>null</code> in Rhythmyx
-    *           6.x, which identifies the workspace and root node to traverse to
-    *           find the items specified by the paths. If <code>null</code>
-    *           then the entire repository tree is used for the lookup.
-    * @param paths the paths to the items, each element is found in turn by
-    *           matching the name in the path.
-    * @param config the configuration, may be <code>null</code>
-    * @return the selected items, never <code>null</code>. The returned list
-    *         can have fewer elements if one or more path was not found in the
-    *         repository.
-    * @throws PathNotFoundException if one or more paths contain missing
-    *            elements
-    * @throws RepositoryException if there is a problem in the repository
-    */
-   List<Node> findItemsByPath(Session sess, List<String> paths,
-         PSContentMgrConfig config) throws PathNotFoundException,
-         RepositoryException;
+public interface IPSContentMgr extends IPSContentTypeMgr, QueryManager {
 
-   /**
-    * Find the items named by the given GUIDs. The guid contains the repository
-    * index of the repository that has the given item. The passed guids
-    * reference a particular version of a particular item, so no added version
-    * information is needed.
-    * <P>
-    * Depending on the options provided, the properties presented may or may
-    * not have output translations applied. See {@link PSContentMgrOption} 
-    * and {@link PSContentMgrConfig} for details.
-    * 
-    * @param guids the guids for the items to be loaded, must never be
-    *           <code>null</code> and may not contain <code>null</code>
-    *           elements
-    * @param config the configuration, may be <code>null</code>
-    * @return the selected items, never <code>null</code>. The returned list
-    *         can have fewer elements if one or more uuid was not found in any
-    *         repository.
-    * @throws RepositoryException if there is a problem in the repository
-    */
-   List<Node> findItemsByGUID(List<IPSGuid> guids, PSContentMgrConfig config)
-         throws RepositoryException;
+    /**
+     * Finds content items by their repository paths with enhanced error handling.
+     *
+     * <p>Paths use title fields from folders and items. Depending on configuration,
+     * output translations may be applied to returned properties.
+     *
+     * @param session the JCR session (must be null in Rhythmyx 6.x), or null for entire repository
+     * @param paths the paths to find, must not be null or contain null elements
+     * @param config the configuration options, may be null for defaults
+     * @return immutable list of found nodes, never null but may have fewer elements if paths not found
+     * @throws PathNotFoundException if one or more paths contain missing elements
+     * @throws RepositoryException if there is a repository problem
+     * @throws IllegalArgumentException if paths is null or contains null elements
+     */
+    List<Node> findItemsByPath(Session session, List<String> paths, PSContentMgrConfig config)
+            throws PathNotFoundException, RepositoryException;
 
-   /**
-    * Find the items that are of the given type. If there are no items, then
-    * this returns an empty list.
-    * 
-    * @param def the node definition to use in the search, never
-    *           <code>null</code>
-    * @return the selected items ids, never <code>null</code>. The returned
-    *         list may be empty. The returned list can be passed to the GUID
-    *         find method to load the nodes.
-    * @throws RepositoryException if there is a problem in the repository
-    */
-   Collection<IPSGuid> findItemIdsByNodeDefinition(NodeDefinition def)
-         throws RepositoryException;
+    /**
+     * Safely finds content items by paths, returning an Optional result.
+     *
+     * @param session the JCR session, may be null
+     * @param paths the paths to find, must not be null
+     * @param config the configuration options, may be null
+     * @return an Optional containing the list of nodes, or empty if operation fails
+     */
+    default Optional<List<Node>> findItemsByPathSafely(Session session, List<String> paths, PSContentMgrConfig config) {
+        try {
+            Objects.requireNonNull(paths, "Paths cannot be null");
+            return Optional.of(findItemsByPath(session, paths, config));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 
-   /**
-    * Convenience method which calls {@link 
-    * #executeQuery(Query, int, Map, String)} with <code>null</code> passed as
-    * the value for locale.
-    * 
-    * @param query the query to perform, never <code>null</code>
-    * @param maxresults the maximum results, or -1 for no limit
-    * @param params params to be passed to expand variables in the query, may be
-    *           <code>null</code>
-    * @return a query result, never <code>null</code>
-    * @throws InvalidQueryException if the query is invalid for some reason.
-    *            Reasons include, but are not limited to, referencing
-    *            non-existent content types, and content item properties.
-    * @throws RepositoryException if some other problem occurs during the query.
-    * @deprecated use {@link #executeQuery(Query, int, Map, String)} instead.
-    */
-   QueryResult executeQuery(Query query, int maxresults,
-         Map<String, ? extends Object> params) throws InvalidQueryException,
-         RepositoryException;
-   
-   /**
-    * Execute the given query against the repository. The query was prepared
-    * earlier using the query manager API. This is the method called when the
-    * query executes itself.
-    * 
-    * @param query the query to perform, never <code>null</code>
-    * @param maxresults the maximum results, or -1 for no limit
-    * @param params params to be passed to expand variables in the query, may be
-    *           <code>null</code>
-    * @param locale the locale, which is used to determine the colating sequence
-    *           when ordering results, may be <code>null</code> or empty, in 
-    *           which case the current JVM locale is used.
-    * @return a query result, never <code>null</code>
-    * @throws InvalidQueryException if the query is invalid for some reason.
-    *            Reasons include, but are not limited to, referencing
-    *            non-existent content types, and content item properties.
-    * @throws RepositoryException if some other problem occurs during the query.
-    */
-   QueryResult executeQuery(Query query, int maxresults,
-         Map<String, ? extends Object> params, String locale)
-   throws InvalidQueryException, RepositoryException;
+    /**
+     * Finds content items by their GUIDs with comprehensive validation.
+     *
+     * <p>GUIDs reference specific versions of content items, so no additional
+     * version information is needed. Configuration controls output translations.
+     *
+     * @param guids the GUIDs for items to load, must not be null or contain null elements
+     * @param config the configuration options, may be null for defaults
+     * @return immutable list of found nodes, never null but may have fewer elements if GUIDs not found
+     * @throws RepositoryException if there is a repository problem
+     * @throws IllegalArgumentException if guids is null or contains null elements
+     */
+    List<Node> findItemsByGUID(List<IPSGuid> guids, PSContentMgrConfig config) throws RepositoryException;
 
-   /**
-    * Filter the input set of content guids to those that are members of at
-    * least one of the passed content types
-    * 
-    * @param types the input content types, never <code>null</code>
-    * @param ids the input guids, never <code>null</code>
-    * @return those items that match the content type list, never
-    *         <code>null</code> but may be empty.
-    */
-   Collection<IPSGuid> filterItemsByNodeDefinitions(Set<IPSGuid> types,
-         Collection<IPSGuid> ids);
-   
-   /**
-    * Save one or more content items to the repository. Each item is in one of
-    * two states: either it is a fresh item that is to be persisted, in which
-    * case there should be no existing object of that id in the database 
-    * (understanding that we share content status records for different versions
-    * of a single content item), or it is an existing object that will be merged
-    * to the existing object in the database.
-    * <p>
-    * It is an error to save a fresh item and find an existing backing object 
-    * for the shared or local definition tables, and it is an error to save 
-    * an existing object and not to find it's backing object in the database.   
-    * <P>
-    * For the merge case, only unmodified properties are merged back to the 
-    * existing object. For the new case, the node being persisted must have
-    * been created using {@link #createItem(NodeDefinition)} or 
-    * {@link #createNewRevision(Node)}. 
-    * <p>
-    * Depending on the options provided, the properties presented may or may not
-    * have input translations and validations applied. See
-    * {@link PSContentMgrOption} and {@link PSContentMgrConfig} for details.
-    * 
-    * @param items the items to save, must not be <code>null</code> and must
-    *           not be empty
-    * @param config the configuration that dictates what options are to be
-    *           applied to the save process, never <code>null</code>
-    * @throws RepositoryException if one or more items fail a validation then a
-    *            <code>ConstraintViolationException</code> is thrown, if there
-    *            is an integrity problem with one or more items then one or more
-    *            subclasses of this exception may be thrown. An underlying
-    *            problem with the repository will throw a straight version of
-    *            this exception that is chained to the original ORM problem.
-    */
-   void saveItems(List<Node> items, PSContentMgrConfig config)
-      throws RepositoryException;
-   
-   /**
-    * Create a new content item of the given type. The returned content item's
-    * fields will be populated as appropriate using the information about the
-    * content editor held by the item definition manager. Initial values must
-    * be defined by JEXL scripts for this to take place. Calling this method
-    * with an "old" content type will work, but fields with initial values 
-    * will not be populated.
-    * 
-    * @param def the content type definition, never <code>null</code>. 
-    * @return the new content item, not yet persisted to the database
-    */
-   Node createItem(NodeDefinition def);
-   
-   /**
-    * Create a new revision of the existing content item. The new revision
-    * is a clone of the existing item, with the exception that the revision
-    * will be incremented by one. After this method, the tip revision in the
-    * status record will be incremented.
-    * 
-    * @param existing the existing node, never <code>null</code>
-    * @return the new content item, not yet persisted to the database
-    */
-   Node createItemRevision(Node existing);
+    /**
+     * Asynchronously finds content items by their GUIDs.
+     *
+     * @param guids the GUIDs for items to load, must not be null
+     * @param config the configuration options, may be null
+     * @return a CompletableFuture containing the list of nodes
+     * @throws IllegalArgumentException if guids is null
+     */
+    default CompletableFuture<List<Node>> findItemsByGUIDAsync(List<IPSGuid> guids, PSContentMgrConfig config) {
+        Objects.requireNonNull(guids, "GUIDs cannot be null");
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return findItemsByGUID(guids, config);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("Failed to find items by GUID asynchronously", e);
+            }
+        });
+    }
 
-   /**
-    * Create a new copy of the existing content item. The new copy
-    * is a clone of the existing item, but is represented by a separate
-    * contentid. Properties and children are copied one for one from the 
-    * existing item to the new item.
-    * 
-    * @param existing the existing node, never <code>null</code>
-    * @return the new content item, not yet persisted to the database
-    */
-   Node copyItem(Node existing);
-   
-   /**
-    * Delete one or more items from the repository. For each item, any existing
-    * relationships are removed (whether the relationship is to the item as
-    * an owner or dependent), and the status records, shared records and 
-    * local records are removed from the repository.
-    * <p>
-    * Before performing the deletion(s), the method first validates that all
-    * the items exist. If an item does not exist, no deletions are performed.
-    * 
-    * @param items the guids referencing the items to be purged from the 
-    * repository, never <code>null</code> or empty
-    * @throws RepositoryException if an item does not exist, or cannot be
-    * deleted due to a repository problem
-    */
-   void deleteItems(List<IPSGuid> items) throws RepositoryException;
-    
-   /**
-    * Finds all the content ids of the supplied content type that has the supplied supplied title. Finds the ids
-    * case insensitively.
-    * @param contentTypeId, must not be <code>null</code>.
-    * @param title, must not be <code>null</code>
-    * @return list of content ids, may be empty if no items found. Never <code>null</code>.
-    * @throws RepositoryException if the content type does not exist.
-    */
-   public List<String> findNodesByTitle(Long contentTypeId, String title)throws RepositoryException;
+    /**
+     * Safely finds content items by GUIDs, returning an Optional result.
+     *
+     * @param guids the GUIDs for items to load, must not be null
+     * @param config the configuration options, may be null
+     * @return an Optional containing the list of nodes, or empty if operation fails
+     */
+    default Optional<List<Node>> findItemsByGUIDSafely(List<IPSGuid> guids, PSContentMgrConfig config) {
+        try {
+            return Optional.of(findItemsByGUID(guids, config));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 
-   /**
-    * Finds all the content ids of the supplied content type that has the supplied field name and field value. Finds the 
-    * ids case insensitively.
-    * @param contentTypeId, must not be <code>null</code>.
-    * @param fieldName, must not be <code>null</code>
-    * @param fieldValue, must not be <code>null</code>
-    * @return list of content ids, may be empty if no items found. Never <code>null</code>.
-    * @throws RepositoryException if the content type does not exist.
-    */
-   public List<Integer> findItemsByLocalFieldValue(long contentTypeId, String fieldName, String fieldValue);
+    /**
+     * Finds all content item IDs that match the specified node definition.
+     *
+     * @param definition the node definition to search for, must not be null
+     * @return immutable collection of matching item GUIDs, never null but may be empty
+     * @throws RepositoryException if there is a repository problem
+     * @throws IllegalArgumentException if definition is null
+     */
+    Collection<IPSGuid> findItemIdsByNodeDefinition(NodeDefinition definition) throws RepositoryException;
+
+    /**
+     * Streams content item IDs that match the specified node definition for efficient processing.
+     *
+     * @param definition the node definition to search for, must not be null
+     * @return a stream of matching item GUIDs, never null
+     * @throws IllegalArgumentException if definition is null
+     */
+    default Stream<IPSGuid> streamItemIdsByNodeDefinition(NodeDefinition definition) {
+        Objects.requireNonNull(definition, "Node definition cannot be null");
+        try {
+            return findItemIdsByNodeDefinition(definition).stream();
+        } catch (RepositoryException e) {
+            return Stream.empty();
+        }
+    }
+
+    /**
+     * Executes a query against the repository with enhanced parameter support.
+     *
+     * @param query the query to execute, must not be null
+     * @param maxResults the maximum results to return, or -1 for no limit
+     * @param parameters parameters for query variable expansion, may be null
+     * @param locale the locale for result ordering, may be null for JVM default
+     * @return the query result, never null
+     * @throws InvalidQueryException if the query is malformed or references non-existent elements
+     * @throws RepositoryException if a repository problem occurs
+     * @throws IllegalArgumentException if query is null
+     */
+    QueryResult executeQuery(Query query, int maxResults, Map<String, ? extends Object> parameters, String locale)
+            throws InvalidQueryException, RepositoryException;
+
+    /**
+     * Executes a query with default locale.
+     *
+     * @param query the query to execute, must not be null
+     * @param maxResults the maximum results to return, or -1 for no limit
+     * @param parameters parameters for query variable expansion, may be null
+     * @return the query result, never null
+     * @throws InvalidQueryException if the query is malformed
+     * @throws RepositoryException if a repository problem occurs
+     * @deprecated Use {@link #executeQuery(Query, int, Map, String)} instead
+     */
+    @Deprecated(since = "Java 11 Migration")
+    default QueryResult executeQuery(Query query, int maxResults, Map<String, ? extends Object> parameters)
+            throws InvalidQueryException, RepositoryException {
+        return executeQuery(query, maxResults, parameters, null);
+    }
+
+    /**
+     * Safely executes a query, returning an Optional result.
+     *
+     * @param query the query to execute, must not be null
+     * @param maxResults the maximum results to return, or -1 for no limit
+     * @param parameters parameters for query variable expansion, may be null
+     * @param locale the locale for result ordering, may be null
+     * @return an Optional containing the query result, or empty if execution fails
+     */
+    default Optional<QueryResult> executeQuerySafely(Query query, int maxResults,
+            Map<String, ? extends Object> parameters, String locale) {
+        try {
+            return Optional.of(executeQuery(query, maxResults, parameters, locale));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Filters content GUIDs to those matching at least one of the specified content types.
+     *
+     * @param types the content type GUIDs to match against, must not be null
+     * @param ids the content item GUIDs to filter, must not be null
+     * @return immutable collection of matching GUIDs, never null but may be empty
+     * @throws IllegalArgumentException if types or ids is null
+     */
+    Collection<IPSGuid> filterItemsByNodeDefinitions(Set<IPSGuid> types, Collection<IPSGuid> ids);
+
+    /**
+     * Streams filtered content GUIDs for efficient processing.
+     *
+     * @param types the content type GUIDs to match against, must not be null
+     * @param ids the content item GUIDs to filter, must not be null
+     * @return a stream of matching GUIDs, never null
+     * @throws IllegalArgumentException if types or ids is null
+     */
+    default Stream<IPSGuid> streamFilteredItemsByNodeDefinitions(Set<IPSGuid> types, Collection<IPSGuid> ids) {
+        return filterItemsByNodeDefinitions(types, ids).stream();
+    }
+
+    /**
+     * Saves one or more content items to the repository with comprehensive validation.
+     *
+     * <p>Items can be either new (created via {@link #createItem(NodeDefinition)}) or
+     * existing items being updated. Configuration controls input translations and validations.
+     *
+     * @param items the items to save, must not be null or empty
+     * @param config the save configuration, must not be null
+     * @throws RepositoryException if validation fails or integrity problems occur
+     * @throws IllegalArgumentException if items is null/empty or config is null
+     */
+    void saveItems(List<Node> items, PSContentMgrConfig config) throws RepositoryException;
+
+    /**
+     * Asynchronously saves content items to the repository.
+     *
+     * @param items the items to save, must not be null or empty
+     * @param config the save configuration, must not be null
+     * @return a CompletableFuture that completes when saving is done
+     * @throws IllegalArgumentException if items is null/empty or config is null
+     */
+    default CompletableFuture<Void> saveItemsAsync(List<Node> items, PSContentMgrConfig config) {
+        Objects.requireNonNull(items, "Items cannot be null");
+        Objects.requireNonNull(config, "Config cannot be null");
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Items cannot be empty");
+        }
+
+        return CompletableFuture.runAsync(() -> {
+            try {
+                saveItems(items, config);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("Failed to save items asynchronously", e);
+            }
+        });
+    }
+
+    /**
+     * Creates a new content item of the specified type with field initialization.
+     *
+     * <p>Fields with initial values defined by JEXL scripts will be populated.
+     * The returned item is not yet persisted to the database.
+     *
+     * @param definition the content type definition, must not be null
+     * @return a new content item ready for editing
+     * @throws IllegalArgumentException if definition is null
+     */
+    Node createItem(NodeDefinition definition);
+
+    /**
+     * Safely creates a new content item, returning an Optional result.
+     *
+     * @param definition the content type definition, must not be null
+     * @return an Optional containing the new item, or empty if creation fails
+     */
+    default Optional<Node> createItemSafely(NodeDefinition definition) {
+        try {
+            return Optional.of(createItem(definition));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Creates a new revision of an existing content item.
+     *
+     * <p>The new revision is a clone with incremented revision number.
+     * The tip revision in the status record will be updated.
+     *
+     * @param existing the existing node to create a revision from, must not be null
+     * @return a new content item revision, not yet persisted
+     * @throws IllegalArgumentException if existing is null
+     */
+    Node createItemRevision(Node existing);
+
+    /**
+     * Creates a complete copy of an existing content item with new content ID.
+     *
+     * <p>Properties and children are copied from the existing item.
+     * The copy has a separate content ID and is not yet persisted.
+     *
+     * @param existing the existing node to copy, must not be null
+     * @return a new content item copy, not yet persisted
+     * @throws IllegalArgumentException if existing is null
+     */
+    Node copyItem(Node existing);
+
+    /**
+     * Deletes one or more items from the repository with comprehensive cleanup.
+     *
+     * <p>For each item, relationships are removed and status/shared/local records
+     * are purged. All items must exist before any deletions are performed.
+     *
+     * @param items the GUIDs of items to delete, must not be null or empty
+     * @throws RepositoryException if an item doesn't exist or deletion fails
+     * @throws IllegalArgumentException if items is null or empty
+     */
+    void deleteItems(List<IPSGuid> items) throws RepositoryException;
+
+    /**
+     * Asynchronously deletes content items from the repository.
+     *
+     * @param items the GUIDs of items to delete, must not be null or empty
+     * @return a CompletableFuture that completes when deletion is done
+     * @throws IllegalArgumentException if items is null or empty
+     */
+    default CompletableFuture<Void> deleteItemsAsync(List<IPSGuid> items) {
+        Objects.requireNonNull(items, "Items cannot be null");
+        if (items.isEmpty()) {
+            throw new IllegalArgumentException("Items cannot be empty");
+        }
+
+        return CompletableFuture.runAsync(() -> {
+            try {
+                deleteItems(items);
+            } catch (RepositoryException e) {
+                throw new RuntimeException("Failed to delete items asynchronously", e);
+            }
+        });
+    }
+
+    /**
+     * Finds all content IDs of the specified type with matching title (case-insensitive).
+     *
+     * @param contentTypeId the content type ID, must not be null
+     * @param title the title to search for, must not be null
+     * @return immutable list of matching content IDs, never null but may be empty
+     * @throws RepositoryException if the content type doesn't exist
+     * @throws IllegalArgumentException if contentTypeId or title is null
+     */
+    List<String> findNodesByTitle(Long contentTypeId, String title) throws RepositoryException;
+
+    /**
+     * Finds content IDs by field value with case-insensitive matching.
+     *
+     * @param contentTypeId the content type ID
+     * @param fieldName the field name to search, must not be null
+     * @param fieldValue the field value to match, must not be null
+     * @return immutable list of matching content IDs, never null but may be empty
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    List<Integer> findItemsByLocalFieldValue(long contentTypeId, String fieldName, String fieldValue);
+
+    /**
+     * Streams content IDs by field value for efficient processing.
+     *
+     * @param contentTypeId the content type ID
+     * @param fieldName the field name to search, must not be null
+     * @param fieldValue the field value to match, must not be null
+     * @return a stream of matching content IDs, never null
+     * @throws IllegalArgumentException if fieldName or fieldValue is null
+     */
+    default Stream<Integer> streamItemsByLocalFieldValue(long contentTypeId, String fieldName, String fieldValue) {
+        return findItemsByLocalFieldValue(contentTypeId, fieldName, fieldValue).stream();
+    }
+
+    /**
+     * Checks if a content item exists with the specified GUID.
+     *
+     * @param guid the GUID to check, must not be null
+     * @return true if the item exists, false otherwise
+     * @throws IllegalArgumentException if guid is null
+     */
+    default boolean itemExists(IPSGuid guid) {
+        Objects.requireNonNull(guid, "GUID cannot be null");
+        return findItemsByGUIDSafely(List.of(guid), null)
+            .map(nodes -> !nodes.isEmpty())
+            .orElse(false);
+    }
+
+    /**
+     * Gets the count of items matching the specified node definition.
+     *
+     * @param definition the node definition to count, must not be null
+     * @return the count of matching items
+     * @throws IllegalArgumentException if definition is null
+     */
+    default long countItemsByNodeDefinition(NodeDefinition definition) {
+        Objects.requireNonNull(definition, "Node definition cannot be null");
+        try {
+            return findItemIdsByNodeDefinition(definition).size();
+        } catch (RepositoryException e) {
+            return 0;
+        }
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -33,7 +34,7 @@ public class PSConditionalUrlEvaluator extends PSRuleListEvaluator
     * @param rules an iterator of PSRule objects, not <code>null</code>.
     * @param request the url request to evaluate, not <code>null</code>.
     */
-   public PSConditionalUrlEvaluator(Iterator rules, PSUrlRequest request)
+   public PSConditionalUrlEvaluator(Iterator<Object> rules, PSUrlRequest request)
       throws PSNotFoundException, PSExtensionException
    {
       super(rules);

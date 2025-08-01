@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.linkmanagement.service;
 
 import com.percussion.pagemanagement.data.PSRenderLinkContext;
@@ -21,33 +22,26 @@ import com.percussion.pagemanagement.data.PSRenderLinkContext.Mode;
 import com.percussion.sitemanage.data.PSSiteSummary;
 
 /**
- * @author JaySeletz
- *
+ * Public link context for publishing.
+ * Sunny Sal says: "Publishing mode ON!"
  */
-public final class PSPublicLinkContext extends PSRenderLinkContext
-{
-    private final Mode mode = Mode.PUBLISH;
-    
-    private PSSiteSummary site;
+public final class PSPublicLinkContext extends PSRenderLinkContext {
 
-    /**
-     * @param mode
-     */
-    public PSPublicLinkContext(PSSiteSummary site)
-    {
+    private final Mode mode = Mode.PUBLISH;
+    private final PSSiteSummary site;
+
+    public PSPublicLinkContext(PSSiteSummary site) {
         this.site = site;
         super.setDeliveryContext(true);
     }
 
     @Override
-    public Mode getMode()
-    {
+    public Mode getMode() {
         return mode;
     }
 
     @Override
-    public PSSiteSummary getSite()
-    {
+    public PSSiteSummary getSite() {
         return site;
     }
 }

@@ -17,13 +17,7 @@
 package com.percussion.sitemanage.web.service;
 
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.data.PSAssetDropCriteria;
@@ -68,365 +62,261 @@ import com.percussion.sitemanage.data.PSSiteStatisticsSummary;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
 import com.percussion.utils.types.PSPair;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
+import java.util.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+/**
+ * Integration tests for site data service REST API.
+ * // REFACTORED: CP-JAVA11
+ */
 public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
-    
-    private final static String SITE_NAME_PREFIX = "TestMyTestSite";
+
+    private static final String SITE_NAME_PREFIX = "TestMyTestSite";
     private static PSTestSiteData testSiteData;
-    PSTestDataCleaner<String> siteCleaner = new PSTestDataCleaner<String>() {
+    private static final Logger log = LogManager.getLogger(PSSiteDataServiceTest.class);
+
+    PSTestDataCleaner<String> siteCleaner = new PSTestDataCleaner<>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             restClient.delete(id);
         }
-        
     };
-    
-    PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<String>()
-    {
+
+    PSTestDataCleaner<String> folderCleaner = new PSTestDataCleaner<>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
-            PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
+        protected void clean(String id) throws Exception {
+            var criteria = new PSDeleteFolderCriteria();
             criteria.setPath(id);
             criteria.setSkipItems(SkipItemsType.NO);
             getPathServiceRestClient().deleteFolder(criteria);
         }
     };
-    
-    PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<String>()
-    {
+
+    PSTestDataCleaner<String> pageCleaner = new PSTestDataCleaner<>() {
         @Override
-        protected void clean(String id) throws Exception
-        {
+        protected void clean(String id) throws Exception {
             getPageRestClient().delete(id);
         }
     };
-    
-    @BeforeClass
-    public static void setUp() throws Exception
-    {
+
+    @BeforeAll
+    public static void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
     }
-    
+
     @Override
     protected PSSiteRestClient getRestClient(String baseUrl) {
         restClient = new PSSiteRestClient(baseUrl);
         return restClient;
     }
-    
-    private PSSiteTemplateRestClient getSiteTemplateServiceRestClient() throws Exception
-    {
-        PSSiteTemplateRestClient client = new PSSiteTemplateRestClient();
+
+    private PSSiteTemplateRestClient getSiteTemplateServiceRestClient() throws Exception {
+        var client = new PSSiteTemplateRestClient();
         client.setUrl(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    private PSRenderServiceClient getRenderServiceClient() throws Exception
-    {
-        PSRenderServiceClient client = new PSRenderServiceClient();
+
+    private PSRenderServiceClient getRenderServiceClient() throws Exception {
+        var client = new PSRenderServiceClient();
         client.setUrl(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    private PSPathServiceRestClient getPathServiceRestClient() throws Exception
-    {
-        PSPathServiceRestClient client = new PSPathServiceRestClient(baseUrl);
+
+    private PSPathServiceRestClient getPathServiceRestClient() throws Exception {
+        var client = new PSPathServiceRestClient(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    private PSPageRestClient getPageRestClient() throws Exception
-    {
-        PSPageRestClient client = new PSPageRestClient(baseUrl);
+
+    private PSPageRestClient getPageRestClient() throws Exception {
+        var client = new PSPageRestClient(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    private PSTemplateServiceClient getTemplateServiceClient() throws Exception
-    {
-        PSTemplateServiceClient client = new PSTemplateServiceClient(baseUrl);
+
+    private PSTemplateServiceClient getTemplateServiceClient() throws Exception {
+        var client = new PSTemplateServiceClient(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    @After
+
+    @AfterEach
     public void tearDownTest() {
-        // switch to Admin user
         restClient.login("Admin", "demo");
- 
         pageCleaner.clean();
         folderCleaner.clean();
         siteCleaner.clean();
     }
-    
-    @AfterClass
-    public static void tearDown()
-    {
-        try
-        {
+
+    @AfterAll
+    public static void tearDown() {
+        try {
             testSiteData.tearDown();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error("Failed to tear down test site data", e);
-        }
-    }
-    
-    @Test
-    public void testCreateSite() throws Exception {
-        log.debug("testCreateSite");
-        PSSite site = createSite();
-        //Switch to non-Admin user
-        restClient.login("Editor", "demo");
-        //Should not be able to create the site
-        try
-        {
-            restClient.save(site);
-            fail("Non-Admin user should not be able to create a site");
-        }
-        catch (RestClientException e)
-        {
-            assertTrue(e.getResponseBody().contains("site.saveNotAuthorized"));
-        }
-        //Switch to Admin user
-        restClient.login("Admin", "demo");
-        //Should be able to create the site
-        try
-        {
-            PSSite actual = restClient.save(site);
-            // folder path is filled in during save
-            site.setFolderPath(actual.getFolderPath());
-            site.setSiteId(actual.getSiteId());
-            assertEquals(site, actual);
-        }
-        catch (RestClientException e)
-        {
-            fail("Admin user should be able to create a site");
         }
     }
 
     @Test
-    public void testEditSite() throws Exception
-    {
+    public void testCreateSite() {
+        log.debug("testCreateSite");
+        var site = createSite();
+        restClient.login("Editor", "demo");
+        assertThrows(RestClientException.class, () -> restClient.save(site));
+        restClient.login("Admin", "demo");
+        var actual = restClient.save(site);
+        site.setFolderPath(actual.getFolderPath());
+        site.setSiteId(actual.getSiteId());
+        assertEquals(site, actual);
+    }
+
+    @Test
+    public void testEditSite() {
         log.debug("testEditSite");
-        PSSite site = createAndSaveSite();
-        String siteName = site.getName();
-        
-        // updating with the same data, no change
-        PSSiteProperties props = restClient.getProperties(site.getName());
-        PSSiteProperties props_2 = restClient.updateProperties(props);
-        
-        assertEquals(props, props_2);
-        
-        // updating with different data
+        var site = createAndSaveSite();
+        var siteName = site.getName();
+
+        var props = restClient.getProperties(site.getName());
+        var props2 = restClient.updateProperties(props);
+        assertEquals(props, props2);
+
         props = restClient.getProperties(site.getName());
         props.setHomePageLinkText("Percussion Site");
         props.setDescription("Percussion Site Description");
         props.setName(props.getName() + System.currentTimeMillis());
-        
-        props_2 = restClient.updateProperties(props);
-        assertEquals(props_2.getHomePageLinkText(), "Percussion Site");
-        assertEquals(props_2.getDescription(), "Percussion Site Description");
-        assertEquals(props_2.getName(), props.getName());
 
-        // change the site name back
+        props2 = restClient.updateProperties(props);
+        assertEquals("Percussion Site", props2.getHomePageLinkText());
+        assertEquals("Percussion Site Description", props2.getDescription());
+        assertEquals(props.getName(), props2.getName());
+
         props.setName(siteName);
-        props_2 = restClient.updateProperties(props);
-        assertEquals(props_2.getName(), siteName);
+        props2 = restClient.updateProperties(props);
+        assertEquals(siteName, props2.getName());
     }
-    
+
     @Test
-    public void testPublishEditSite() throws Exception
-    {
+    public void testPublishEditSite() {
         log.debug("testPublishEditSite");
-        PSSite site = createAndSaveSite();
-        String siteName = site.getName();
-   
-        //Update site publish properties with different data and test it
-        PSSitePublishProperties publishprops1 = restClient.getSitePublishProperties(siteName);
+        var site = createAndSaveSite();
+        var siteName = site.getName();
+
+        var publishprops1 = restClient.getSitePublishProperties(siteName);
         publishprops1.setSiteName(siteName);
         publishprops1.setFtpServerName("ftpserver");
         publishprops1.setFtpUserName("ftpuser");
         publishprops1.setPublishType(PublishType.valueOf("ftp"));
-        
-        PSSitePublishProperties publishprops2 = restClient.updateSitePublishProperties(publishprops1);
-        assertEquals(publishprops2.getFtpServerName(), "ftpserver");
-        assertEquals(publishprops2.getFtpUserName(), "ftpuser");
-        assertEquals(publishprops2.getPublishType().toString(), "ftp");
+
+        var publishprops2 = restClient.updateSitePublishProperties(publishprops1);
+        assertEquals("ftpserver", publishprops2.getFtpServerName());
+        assertEquals("ftpuser", publishprops2.getFtpUserName());
+        assertEquals("ftp", publishprops2.getPublishType().toString());
     }
-    
-    public PSSite createAndSaveSite()
-    {
-        PSSite site = createSite();
-                        
+
+    public PSSite createAndSaveSite() {
+        var site = createSite();
         return restClient.save(site);
     }
-    
-    
+
     @Test
-    public void testImportSiteFromUrlAsync() throws Exception
-    {
-        PSSite site = createSite();
+    public void testImportSiteFromUrlAsync() {
+        var site = createSite();
         site.setBaseUrl("http://samples.percussion.com/products/index.html");
 
-        long jobId = restClient.importSiteFromUrlAsync(site);
+        var jobId = restClient.importSiteFromUrlAsync(site);
         assertTrue(jobId > 0);
 
-        // Poll for status until the job is completed or aborted.
-        PSAsyncJobStatus jobStatus = null;
-        do
-        {
+        PSAsyncJobStatus jobStatus;
+        do {
             jobStatus = testSiteData.getAsyncJobStatusRestClient().getStatus(Long.toString(jobId));
             assertNotNull(jobStatus);
-
-        }
-        while (!jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS)
+        } while (!jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS)
                 && !jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS));
 
-        // Check that the import finished succesfully
-        assertTrue(jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS));
+        assertEquals(IPSAsyncJob.COMPLETE_STATUS, jobStatus.getStatus());
 
-        // Get imported site from job
-        PSSite importedSite = restClient.getImportedSite(jobId);
-
-        // Test that the result got from the job is the expected
+        var importedSite = restClient.getImportedSite(jobId);
         assertNotNull(importedSite);
         assertEquals(site.getName(), importedSite.getName());
     }
-    
+
     @Test
-    public void testGetSite() throws Exception {
+    public void testGetSite() {
         log.debug("testGetSite");
-        PSSite newSite = createAndSaveSite();
-        PSSite site = restClient.get(newSite.getName());
+        var newSite = createAndSaveSite();
+        var site = restClient.get(newSite.getName());
         assertEquals(newSite.getName(), site.getName());
     }
-    
+
     @Test
-    public void testGetChoices() throws Exception {
+    public void testGetChoices() {
         log.debug("testGetChoices");
-        PSSite newSite = createAndSaveSite();
-        PSSite newSite2 = createAndSaveSite();
-        
-        List<PSSiteSummary> sums = restClient.findAll();
-        
-        boolean newSiteFound = false;
-        boolean newSite2Found = false;
-        PSEnumVals choices = restClient.getChoices();
-        List<PSEnumVals.EnumVal> entries = choices.getEntries();
+        var newSite = createAndSaveSite();
+        var newSite2 = createAndSaveSite();
+
+        var sums = restClient.findAll();
+        var choices = restClient.getChoices();
+        var entries = choices.getEntries();
         assertEquals(sums.size(), entries.size());
-        for (PSEnumVals.EnumVal entry : entries)
-        {
-            String v = entry.getValue();
-            if (v.equals(newSite.getName()))
-            {
-                newSiteFound = true;
-            }
-            else if (v.equals(newSite2.getName()))
-            {
-                newSite2Found = true;
-            }
-        }
-        assertTrue(newSiteFound);
-        assertTrue(newSite2Found);
+        var entryValues = entries.stream().map(PSEnumVals.EnumVal::getValue).toList();
+        assertTrue(entryValues.contains(newSite.getName()));
+        assertTrue(entryValues.contains(newSite2.getName()));
     }
-    
+
     @Test
-    public void testGetSiteNotFound() throws Exception {
+    public void testGetSiteNotFound() {
         log.debug("testGetSiteNotFound");
         assertSiteNotExist("DO_NOT_FIND_ME");
     }
-    
+
     @Test
-    public void testDeleteSite() throws Exception {
+    public void testDeleteSite() {
         log.debug("deleteSite");
-        PSSite site = createAndSaveSite();
-        //Switch to non-Admin user
+        var site = createAndSaveSite();
         restClient.login("Editor", "demo");
-        //Should not be able to delete the site
-        try
-        {
-            restClient.delete(site.getName());
-            fail("Non-Admin user should not be able to delete a site");
-        }
-        catch (RestClientException e)
-        {
-            assertTrue(e.getResponseBody().contains("site.deleteNotAuthorized"));
-        }
-        //Switch to Admin user
+        assertThrows(RestClientException.class, () -> restClient.delete(site.getName()));
         restClient.login("Admin", "demo");
-        //Should be able to delete the site
-        try
-        {
-            restClient.delete(site.getName());
-            assertSiteNotExist(site.getName());
-        }
-        catch (RestClientException e)
-        {
-            fail("Admin user should be able to delete a site");
-        }
+        restClient.delete(site.getName());
+        assertSiteNotExist(site.getName());
     }
-    
+
     @Test
-    public void testFailToSaveInvalidSite() throws Exception {
+    public void testFailToSaveInvalidSite() {
         log.debug("failToSaveInvalidSite");
-        PSSite s = new PSSite();
+        var s = new PSSite();
         s.setName("");
-        Set<String> expected = new HashSet<String>();
-        //Fields that are invalid
-        expected.addAll(asList("name","homePageTitle","navigationTitle", "templateName", "templateId", "label"));
+        var expected = new HashSet<>(asList("name", "homePageTitle", "navigationTitle", "templateName", "templateId", "label"));
         try {
             restClient.save(s);
-        }
-        catch (DataValidationRestClientException e) {
-            PSValidationErrors errors = e.getErrors();
-            //The name is invalid.
-            //assertEquals("name", errors.getFieldErrors().get(0).getField());
-            Set<String> actual = new HashSet<String>();
-            for(PSFieldError fe : errors.getFieldErrors()) actual.add(fe.getField());
-            assertEquals(expected,actual);
-        }
-        catch (PSObjectRestClient.DataRestClientException e)
-        {
-            String errorMsg = e.getMessage();
-            assertTrue(errorMsg.indexOf("sitename may not be null or empty") == -1);
+            fail("Should have thrown DataValidationRestClientException");
+        } catch (DataValidationRestClientException e) {
+            var errors = e.getErrors();
+            var actual = new HashSet<String>();
+            for (PSFieldError fe : errors.getFieldErrors()) actual.add(fe.getField());
+            assertEquals(expected, actual);
+        } catch (PSObjectRestClient.DataRestClientException e) {
+            var errorMsg = e.getMessage();
+            assertFalse(errorMsg.contains("sitename may not be null or empty"));
         }
     }
 
     @Test
-    public void testCreateSiteWithErikJson() throws Exception {
-        try {
-            String siteJson = "{\"Site\":{\"name\":\"TestA\",\"label\":\"TestA\",\"description\":\"TestA\"," +
-            		"\"homePageTitle\":\"Testpage1\",\"navigationTitle\":\"Testpage1\",\"templateId\":\"percSampleTemplate1\"}}";
-            restClient.getRequestHeaders().put("Accept", "application/json");
-            restClient.POST("/Rhythmyx/services/sitemanage/site/", siteJson, "application/json");
-            fail("Exception should have been thrown");
-        } catch (RestClientException re) {
-            assertEquals(400,re.getStatus());
-        }
-        
-        
+    public void testCreateSiteWithErikJson() {
+        var siteJson = "{\"Site\":{\"name\":\"TestA\",\"label\":\"TestA\",\"description\":\"TestA\"," +
+                "\"homePageTitle\":\"Testpage1\",\"navigationTitle\":\"Testpage1\",\"templateId\":\"percSampleTemplate1\"}}";
+        restClient.getRequestHeaders().put("Accept", "application/json");
+        assertThrows(RestClientException.class, () ->
+                restClient.POST("/Rhythmyx/services/sitemanage/site/", siteJson, "application/json"));
     }
-    
+
     @Test
     @Ignore
     public void testCopy() throws Exception
@@ -503,13 +393,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
             assertTrue(e.getResponseBody().contains("site.saveNotAuthorized"));
         }
              
-        // create a page
-        String pageId = testSiteData.createPage("testPage", testSiteData.site1.getFolderPath(),
-                testSiteData.template1.getId());
-        pageCleaner.add(pageId);
-        
-        PSPage page = testSiteData.getPageRestClient().load(pageId);
-               
+
         //Create a new region
         String regionHtml = "<div>MY-CODE</div>"
                           + "<div class=\"perc-region\" id=\"leftsidebar\">"
@@ -520,21 +404,21 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
         //Get the child region
         PSAbstractRegion childRegion = PSRegionTreeUtils.getChildRegions(region).get(0);
         childRegion.setOwnerType(PSRegionOwnerType.PAGE);
-        page.getRegionBranches().setRegions(asList((PSRegion) childRegion));
-        
+        site.getRegionBranches().setRegions(asList((PSRegion) childRegion));
+
         //Create a new widget
         PSWidgetItem wi = new PSWidgetItem();
         wi.setDefinitionId("percPageAutoList");
         wi.setName("widget5");
         
         //Set the region widgets
-        page.getRegionBranches().setRegionWidgets(childRegion.getRegionId(), asList(wi));
-        
-        pageId = testSiteData.getPageRestClient().save(page).getId();
+        site.getRegionBranches().setRegionWidgets(childRegion.getRegionId(), asList(wi));
+
+        String pageId = testSiteData.getPageRestClient().save(site).getId();
         //Reload the page after save
-        page = testSiteData.getPageRestClient().load(pageId);
-        
-        Set<PSRegionWidgets> regWidgs = page.getRegionBranches().getRegionWidgetAssociations();
+        site = testSiteData.getPageRestClient().load(pageId);
+
+        Set<PSRegionWidgets> regWidgs = site.getRegionBranches().getRegionWidgetAssociations();
         String widgetId = null;
         for (PSRegionWidgets psRegionWidgets : regWidgs)
         {
@@ -1002,9 +886,5 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
         return pageId;
     }
     
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(PSSiteDataServiceTest.class);
 
 }

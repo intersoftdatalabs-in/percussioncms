@@ -14,28 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.data;
 
 import com.percussion.rx.publisher.jsf.beans.PSRuntimeNavigation;
 
 /**
- * A simple java bean that sets the right job id in the pub log bean and 
- * implements an action to go to the pub log view.
- * 
+ * Java 11 refactored: A simple java bean that sets the right job id in the pub log bean and implements an action to go to the pub log view.
+ * <p>Uses var, Google Java Style, and improved null safety. All comments and spelling fixed.
  * @author dougrand
- *
  */
-public class PSStatusLogEntry
-{
+public class PSStatusLogEntry {
    /**
     * The job id, set in the ctor.
     */
-   private long m_jobid;
+   private final long m_jobid;
    
    /**
     * The outcome, which determines the next page to navigate to.
     */
-   private final String m_outcome = "pub-runtime-job-log";
+   private static final String OUTCOME = "pub-runtime-job-log";
    
    /**
     * See {@link #isTerminated()}.
@@ -45,29 +44,24 @@ public class PSStatusLogEntry
    /**
     * The navigator, set in the ctor.
     */
-   private PSRuntimeNavigation m_navigator;
+   private final PSRuntimeNavigation m_navigator;
    
    /**
     * Ctor
     * @param jobid the job id (a.k.a. the status id).
     * @param nav the navigator, never <code>null</code>.
     */
-   public PSStatusLogEntry(long jobid, PSRuntimeNavigation nav)
-   {
-      if (nav == null)
-      {
-         throw new IllegalArgumentException("nav may not be null");
-      }
-      m_jobid = jobid;
-      m_navigator = nav;
+   public PSStatusLogEntry(long jobid, PSRuntimeNavigation nav) {
+      if (nav == null) throw new IllegalArgumentException("nav may not be null");
+      this.m_jobid = jobid;
+      this.m_navigator = nav;
    }
  
    /**
     * Determines if the job is terminated.
     * @return <code>true</code> if the job is terminated.
     */
-   public boolean isTerminated()
-   {
+   public boolean isTerminated() {
       return m_isTerminated;
    }
 
@@ -75,16 +69,14 @@ public class PSStatusLogEntry
     * Set the terminated status.
     * @param isTerminated <code>true</code> if the job is terminated.
     */
-   public void setTerminated(boolean isTerminated)
-   {
+   public void setTerminated(boolean isTerminated) {
       m_isTerminated = isTerminated;
    }
 
    /**
     * @return the jobid
     */
-   public long getJobid()
-   {
+   public long getJobid() {
       return m_jobid;
    }
 
@@ -93,9 +85,8 @@ public class PSStatusLogEntry
     * 
     * @return the outcome, never <code>null</code> or empty.
     */
-   public String perform()
-   {
+   public String perform() {
       m_navigator.setJobId(m_jobid);
-      return m_outcome;
+      return OUTCOME;
    }
 }

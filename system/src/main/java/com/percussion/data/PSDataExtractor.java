@@ -19,6 +19,7 @@ package com.percussion.data;
 
 import com.percussion.design.objectstore.IPSReplacementValue;
 
+import java.util.Objects;
 
 /**
  * The PSDataExtractor abstract class can be extended by classes wanting
@@ -34,49 +35,54 @@ public abstract class PSDataExtractor implements IPSDataExtractor
    /**
     * Construct the extractor for the specified source object.
     *
-    * @param   source      the source object for this extractor
+    * @param source the source object for this extractor, may not be {@code null}
+    * @throws IllegalArgumentException if source is {@code null}
     */
    protected PSDataExtractor(IPSReplacementValue source)
    {
-      this(new IPSReplacementValue[] { source });
+      this(new IPSReplacementValue[] { Objects.requireNonNull(source, "source cannot be null") });
    }
 
    /**
-    * Construct the extractor for the specified source object.
+    * Construct the extractor for the specified source objects.
     *
-    * @param   source      the source object(s) for this extractor
+    * @param source the source object(s) for this extractor, may not be {@code null}
+    * @throws IllegalArgumentException if source is {@code null}
     */
    protected PSDataExtractor(IPSReplacementValue[] source)
    {
       super();
-      m_sourceReplacementValues = source;
+      m_sourceReplacementValues = Objects.requireNonNull(source, "source array cannot be null");
    }
 
    /**
-    * Get the source IPSReplacementValue object used to create this
+    * Get the source IPSReplacementValue objects used to create this
     * extractor.
     *
-    * @return               the source object (may be <code>null</code>)
+    * @return the source objects, never {@code null}
     */
    public IPSReplacementValue[] getSource()
    {
-      return m_sourceReplacementValues;
+      return m_sourceReplacementValues.clone();
    }
    
    /**
     * Gets the first IPSReplacementValue object used to create this extractor.
     * 
-    * @return the first IPSReplacementValue object, may be <code>null</code>.
+    * @return the first IPSReplacementValue object, may be {@code null} if
+    *         the source array is empty
     */
    public IPSReplacementValue getSingleSource()
    {
-      if (m_sourceReplacementValues == null || 
-         m_sourceReplacementValues.length == 0)
+      if (m_sourceReplacementValues.length == 0) {
          return null;
-         
-      return (IPSReplacementValue) m_sourceReplacementValues[0]; 
+      }
+
+      return m_sourceReplacementValues[0];
    }
 
-   protected IPSReplacementValue[] m_sourceReplacementValues;
+   /**
+    * The source replacement values, never {@code null} after construction.
+    */
+   protected final IPSReplacementValue[] m_sourceReplacementValues;
 }
-

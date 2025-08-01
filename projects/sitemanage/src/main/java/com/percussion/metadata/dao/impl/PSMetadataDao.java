@@ -34,8 +34,8 @@ import javax.persistence.PersistenceContext;
 import java.util.Collection;
 
 /**
- * @author erikserating
- *
+ * Hibernate-based implementation of {@link com.percussion.metadata.dao.IPSMetadataDao}.
+ * Sunny Sal says: "Hibernate: because even your metadata wants to nap!"
  */
 @PSSiteManageBean("metadataDao")
 @Transactional
@@ -44,160 +44,111 @@ public class PSMetadataDao implements com.percussion.metadata.dao.IPSMetadataDao
     @PersistenceContext
     private EntityManager entityManager;
 
-    private Session getSession(){
+    private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+
+    private Session getSession() {
         return entityManager.unwrap(Session.class);
     }
 
-    private static final Logger log = LogManager.getLogger(IPSConstants.CONTENTREPOSITORY_LOG);
+    @Override
+    public PSMetadata create(PSMetadata data) throws IPSGenericDao.SaveException {
+        var session = getSession();
+        try {
+            session.save(data);
+        } catch (HibernateException e) {
+            var msg = "create(PSMetadata data) database error " + e.getMessage();
+            log.error(msg);
+            throw new IPSGenericDao.SaveException(msg, e);
+        } finally {
+            try {
+                session.flush();
+            } catch (Exception e) {
+                log.error("Error releasing session in create: {}", PSExceptionUtils.getMessageForLog(e));
+            }
+        }
+        return data;
+    }
 
-    
-   @Override
-   public PSMetadata create(PSMetadata data)throws IPSGenericDao.SaveException
-   {
-      Session session = getSession();
-      try 
-      {   
-          session.save(data);
-      }
-      catch(HibernateException e)
-      {   
-          String msg = "create(PSMetadata data) database error " + e.getMessage(); 
-          log.error(msg);
-          throw new IPSGenericDao.SaveException(msg, e); 
-      }
-      finally
-      {
-          try 
-          {
-        	  session.flush();
-          }
-          catch (Exception e) 
-          {
-        	  log.error("Error releasing session in create: {}", PSExceptionUtils.getMessageForLog(e));
-          }
-      }
-      return data;      
-   }
-   
-   @Override
-   public void delete(String key) throws IPSGenericDao.DeleteException, IPSGenericDao.LoadException {
-      PSMetadata data = find(key);
-      if (data == null)
-      {
-         log.warn("delete(String key) Attempted to delete non-existant metadata entry.");
-         return;
-      }
-      delete(data);      
-   }
-   
-   @Override
-   public void delete(PSMetadata data) throws IPSGenericDao.DeleteException
-   {      
-      Session session = getSession();
-      
-      try
-      {         
-         session.delete(data);
-      }
-      catch (HibernateException e)
-      {
-         String msg = "delete(PSMetadata data) database error " + e.getMessage(); 
-         log.error(msg);
-         throw new IPSGenericDao.DeleteException(msg, e);  
-      }
-      finally
-      {
-         try 
-         {
-        	 session.flush();
+    @Override
+    public void delete(String key) throws IPSGenericDao.DeleteException, IPSGenericDao.LoadException {
+        var data = find(key);
+        if (data == null) {
+            log.warn("delete(String key) Attempted to delete non-existent metadata entry.");
+            return;
+        }
+        delete(data);
+    }
 
-         }
-         catch (Exception e) 
-         {
-        	 log.error("Error releasing session in delete: {} " ,PSExceptionUtils.getMessageForLog(e));
-         }
-         
-      }      
-   }
-   
-   @Override
-   public PSMetadata save(PSMetadata data) throws IPSGenericDao.SaveException
-   {
-      String emsg; 
-      Session session = getSession();
-      try 
-      {   
-          String key = data.getKey();
-          PSMetadata existing =  session.get(PSMetadata.class, key);
-          if(existing == null)
-          {
-              emsg = "Attempt to modify non-existant record " + key; 
-              log.error(emsg);
-              throw new IPSGenericDao.SaveException(emsg);
-          }
-          existing.setData(data.getData());
-          session.update(existing); 
-           
-      }
-      catch(HibernateException he)
-      {   
-          emsg = "save(PSMetadata data) database error " + he.getMessage(); 
-          log.error(emsg);
-          throw new IPSGenericDao.SaveException(emsg, he); 
-      }
-      finally
-      {
-    	  try 
-    	  {
-    		  session.flush();
+    @Override
+    public void delete(PSMetadata data) throws IPSGenericDao.DeleteException {
+        var session = getSession();
+        try {
+            session.delete(data);
+        } catch (HibernateException e) {
+            var msg = "delete(PSMetadata data) database error " + e.getMessage();
+            log.error(msg);
+            throw new IPSGenericDao.DeleteException(msg, e);
+        } finally {
+            try {
+                session.flush();
+            } catch (Exception e) {
+                log.error("Error releasing session in delete: {}", PSExceptionUtils.getMessageForLog(e));
+            }
+        }
+    }
 
-    	  }
-    	  catch(Exception e) 
-    	  {
-    		  log.error("Error releasing session in save: {}",PSExceptionUtils.getMessageForLog(e));
-    	  } 
-      }
-      return data;
-   }
-   
-   @Override
-   public PSMetadata find(String key) throws IPSGenericDao.LoadException {
-      Session session = getSession();
-      
-      try
-      {
-        return  session.get(PSMetadata.class, key);
+    @Override
+    public PSMetadata save(PSMetadata data) throws IPSGenericDao.SaveException {
+        var session = getSession();
+        try {
+            var key = data.getKey();
+            var existing = session.get(PSMetadata.class, key);
+            if (existing == null) {
+                var emsg = "Attempt to modify non-existent record " + key;
+                log.error(emsg);
+                throw new IPSGenericDao.SaveException(emsg);
+            }
+            existing.setData(data.getData());
+            session.update(existing);
+        } catch (HibernateException he) {
+            var emsg = "save(PSMetadata data) database error " + he.getMessage();
+            log.error(emsg);
+            throw new IPSGenericDao.SaveException(emsg, he);
+        } finally {
+            try {
+                session.flush();
+            } catch (Exception e) {
+                log.error("Error releasing session in save: {}", PSExceptionUtils.getMessageForLog(e));
+            }
+        }
+        return data;
+    }
 
-      }
-      catch (HibernateException e)
-      {
-         String msg = "find(String key) database error " + e.getMessage(); 
-         log.error(msg);
-         throw new IPSGenericDao.LoadException(msg, e);  
-      }
+    @Override
+    public PSMetadata find(String key) throws IPSGenericDao.LoadException {
+        var session = getSession();
+        try {
+            return session.get(PSMetadata.class, key);
+        } catch (HibernateException e) {
+            var msg = "find(String key) database error " + e.getMessage();
+            log.error(msg);
+            throw new IPSGenericDao.LoadException(msg, e);
+        }
+    }
 
-   }
-   
-   @Override
-   @SuppressWarnings("unchecked")
-   @Transactional
-   public Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException {
-      String emsg;
-      Session session = getSession();
-      Collection<PSMetadata> results;
-      try
-      {
-          results = session.createCriteria(PSMetadata.class)
-             .add(Restrictions.ilike("key", prefix, MatchMode.START)).list();
-          return results;
-      }
-      catch (HibernateException he)
-      {
-          emsg = "findByPrefix(String prefix) database error " + he.getMessage(); 
-          log.error(emsg);
-          throw new IPSGenericDao.LoadException(emsg, he); 
-      }
-
-   }   
- 
+    @Override
+    @SuppressWarnings("unchecked")
+    @Transactional
+    public Collection<PSMetadata> findByPrefix(String prefix) throws IPSGenericDao.LoadException {
+        var session = getSession();
+        try {
+            return session.createCriteria(PSMetadata.class)
+                    .add(Restrictions.ilike("key", prefix, MatchMode.START))
+                    .list();
+        } catch (HibernateException he) {
+            var emsg = "findByPrefix(String prefix) database error " + he.getMessage();
+            log.error(emsg);
+            throw new IPSGenericDao.LoadException(emsg, he);
+        }
+    }
 }

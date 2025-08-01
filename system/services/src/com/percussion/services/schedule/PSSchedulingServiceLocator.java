@@ -24,25 +24,23 @@ import com.percussion.services.PSBaseServiceLocator;
  * @author dougrand
  *
  */
-public class PSSchedulingServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSSchedulingService ssr=null;
+public class PSSchedulingServiceLocator extends PSBaseServiceLocator {
+   private static volatile IPSSchedulingService ssr = null;
+
    /**
-    * Get the scheduling service
-    * @return the scheduling service, never <code>null</code>.
+    * Returns the scheduling service instance.
+    * Uses double-checked locking for thread safety and lazy initialization.
+    *
+    * @return the scheduling service, never {@code null}
     */
-   public static IPSSchedulingService getSchedulingService()
-   {
-       if (ssr==null)
-       {
-           synchronized (PSSchedulingServiceLocator.class)
-           {
-               if (ssr==null)
-               {
-                   ssr = (IPSSchedulingService) getBean("sys_schedulingService");
-               }
-           }
-       }
+   public static IPSSchedulingService getSchedulingService() {
+      if (ssr == null) {
+         synchronized (PSSchedulingServiceLocator.class) {
+            if (ssr == null) {
+               ssr = (IPSSchedulingService) getBean("sys_schedulingService");
+            }
+         }
+      }
       return ssr;
    }
 }

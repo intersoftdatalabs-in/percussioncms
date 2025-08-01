@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,54 +18,59 @@
 
 package com.percussion.licensemanagement.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a module license.
+ * Sunny Sal says: "License modules like a boss!"
+ */
 @XmlRootElement(name = "moduleLicense")
-public class PSModuleLicense
-{
+public class PSModuleLicense {
+
     private String name;
     private String key;
     private String handshake;
     private String apiProvider;
     private String uiProvider;
-    public String getKey()
-    {
-        return key;
+
+    public Optional<String> getKey() {
+        return Optional.ofNullable(key);
     }
-    public void setKey(String key)
-    {
+
+    public void setKey(String key) {
         this.key = key;
     }
-    public String getHandshake()
-    {
-        return handshake;
+
+    public Optional<String> getHandshake() {
+        return Optional.ofNullable(handshake);
     }
-    public void setHandshake(String handshake)
-    {
+
+    public void setHandshake(String handshake) {
         this.handshake = handshake;
     }
-    public String getApiProvider()
-    {
-        return apiProvider;
+
+    public Optional<String> getApiProvider() {
+        return Optional.ofNullable(apiProvider);
     }
-    public void setApiProvider(String apiProvider)
-    {
+
+    public void setApiProvider(String apiProvider) {
         this.apiProvider = apiProvider;
     }
-    public String getUiProvider()
-    {
-        return uiProvider;
+
+    public Optional<String> getUiProvider() {
+        return Optional.ofNullable(uiProvider);
     }
-    public void setUiProvider(String uiProvider)
-    {
+
+    public void setUiProvider(String uiProvider) {
         this.uiProvider = uiProvider;
     }
-    public String getName()
-    {
-        return name;
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
-    public void setName(String name)
-    {
+
+    public void setName(String name) {
         this.name = name;
     }
 }

@@ -67,8 +67,7 @@ public class PSTransactionLogSummary  implements IPSDeployComponent
     * @return an iterator over zero or more <code>PSTransactionSummary</code>
     * objects, it will never be <code>null</code>, but may be empty.
     */
-   public Iterator getTransactions()
-   {
+   public Iterator<PSTransactionSummary> getTransactions() {
       return m_transax.iterator();
    }
 
@@ -96,20 +95,13 @@ public class PSTransactionLogSummary  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-
-      Iterator list = m_transax.iterator();
-      while (list.hasNext())
-      {
-         PSTransactionSummary tranx = (PSTransactionSummary) list.next();
-         root.appendChild(tranx.toXml(doc));
       }
 
+      var root = doc.createElement(XML_NODE_NAME);
+      m_transax.forEach(tranx -> root.appendChild(tranx.toXml(doc)));
       return root;
    }
 
@@ -119,30 +111,24 @@ public class PSTransactionLogSummary  implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
+      }
 
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
       }
 
       m_transax.clear();
-
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element childEl = tree.getNextElement(PSTransactionSummary.XML_NODE_NAME,
-         FIRST_FLAGS);
-      while ( childEl != null )
-      {
-         PSTransactionSummary tranx = new PSTransactionSummary(childEl);
-         m_transax.add(tranx);
-
-         childEl = tree.getNextElement(PSTransactionSummary.XML_NODE_NAME,
-            NEXT_FLAGS);
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var childEl = tree.getNextElement(PSTransactionSummary.XML_NODE_NAME, FIRST_FLAGS);
+      while (childEl != null) {
+         m_transax.add(new PSTransactionSummary(childEl));
+         childEl = tree.getNextElement(PSTransactionSummary.XML_NODE_NAME, NEXT_FLAGS);
       }
    }
 
@@ -190,7 +176,7 @@ public class PSTransactionLogSummary  implements IPSDeployComponent
     * A list of <code>PSTransactionSummary</code> objects. It will never to
     * <code>null</code>, but may be empty.
     */
-   private List m_transax = new ArrayList();
+   private List<PSTransactionSummary> m_transax = new ArrayList<>();
 
    /**
     * flags to walk to a child node of a XML tree

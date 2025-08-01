@@ -46,10 +46,14 @@ import org.w3c.dom.Document;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -102,19 +106,13 @@ public class PSSharedGroupDependencyHandler
 
    
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
-      // get all shared groups
-      List deps = new ArrayList();
-      PSContentEditorSharedDef sharedDef = PSDependencyUtils.getSharedDef();
-      Iterator groups = sharedDef.getFieldGroups();      
-      while (groups.hasNext()) 
-      {
-         PSSharedFieldGroup group = (PSSharedFieldGroup)groups.next();
-         deps.add(createDependency(m_def, group.getName(), group.getName()));
-      }
-      
-      return deps.iterator();      
+      var sharedDef = PSDependencyUtils.getSharedDef();
+      return sharedDef.getFieldGroups().stream()
+         .map(group -> createDependency(m_def, group.getName(), group.getName()))
+         .iterator();
    }
    
    // see base class
@@ -192,69 +190,36 @@ public class PSSharedGroupDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-         
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-      
-      // Before getting file list, check the content type for System controls. 
-      // These are not allowed to be packaged.
-      checkServerControls(tok, dep);
-      
-      // Build list of dependency files
-      List<PSDependencyFile> files = new ArrayList<>();
-      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
-      
-      // get group and figure out which file it's from
-      PSSharedFieldGroup group = null;
-      File grpFile = null;
-      File[] grpFiles = os.getContentEditorSharedDefFiles();
-      if (grpFiles != null)
-      {
-         for (int i = 0; i < grpFiles.length; i++) 
-         {
-            PSContentEditorSharedDef def;
-            try 
-            {
-               def = os.getContentEditorSharedDef(grpFiles[i].getName());
-            }
-            catch (Exception e) 
-            {
-               throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-                  e.getLocalizedMessage());
-            }
-            
-            if ((group = def.getSharedGroup(dep.getDependencyId())) != null)
-            {
-               grpFile = grpFiles[i];
-               break;
-            }
-         }
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
 
-      if (group == null)
-      {
-         Object[] args = {dep.getObjectTypeName(), dep.getDependencyId(), 
-               dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, 
-            args);
-      }
-      
-      
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      checkServerControls(tok, dep);
+
+      var os = PSServerXmlObjectStore.getInstance();
+      var grpFiles = os.getContentEditorSharedDefFiles();
+
+      var group = Arrays.stream(grpFiles)
+         .map(file -> {
+            try {
+               var def = os.getContentEditorSharedDef(file.getName());
+               return def.getSharedGroup(dep.getDependencyId());
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
+         })
+         .filter(Objects::nonNull)
+         .findFirst()
+         .orElseThrow(() -> new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()}));
+
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
       PSXmlDocumentBuilder.replaceRoot(doc, group.toXml(doc));
-      File groupDocFile = createXmlFile(doc);
-      files.add(new PSDependencyFile(PSDependencyFile.TYPE_SHARED_GROUP_XML, 
-         groupDocFile, grpFile));
-            
-      return files.iterator();
+      var groupDocFile = createXmlFile(doc);
+
+      return List.of(new PSDependencyFile(PSDependencyFile.TYPE_SHARED_GROUP_XML, groupDocFile)).iterator();
    }
 
    // see base class

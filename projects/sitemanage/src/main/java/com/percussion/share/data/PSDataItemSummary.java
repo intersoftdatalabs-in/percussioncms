@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -33,35 +34,33 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.List;
 
-@XmlSeeAlso({PSPage.class,
-        PSSiteSummary.class,
-        PSAsset.class,
-        PSAssetSummary.class,
-        PSDataItemSummarySingleFolderPath.class,
-        PSEmptyPage.class,
-        PSNullSiteSummary.class,
-        PSOrphanedAssetSummary.class,
-        PSPathItem.class,
-        PSWidgetItemSummary.class
+/**
+ * Data summary for items in Percussion CMS.
+ * Sunny Sal says: "Summaries so sharp, even your boss will be impressed!"
+ */
+@XmlSeeAlso({
+    PSPage.class,
+    PSSiteSummary.class,
+    PSAsset.class,
+    PSAssetSummary.class,
+    PSDataItemSummarySingleFolderPath.class,
+    PSEmptyPage.class,
+    PSNullSiteSummary.class,
+    PSOrphanedAssetSummary.class,
+    PSPathItem.class,
+    PSWidgetItemSummary.class
 })
 @XmlRootElement
-public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary
-{
-
+public class PSDataItemSummary extends PSAbstractPersistantObject implements IPSItemSummary {
 
     private String id;
     private String name;
-    
     private List<String> folderPaths;
-    
     private String icon;
-    
     private Category category;
-    
     private boolean revisionable = false;
-    
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * See {@link #getType()} for detail.
      */
@@ -71,148 +70,125 @@ public class PSDataItemSummary extends PSAbstractPersistantObject implements IPS
      * See {@link #getLabel()} for detail.
      */
     private String label;
-    
+
     @Override
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
     @Override
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
-    }    
-    
-    public String getName()
-    {
+    }
+
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public List<String> getFolderPaths()
-    {
+    public List<String> getFolderPaths() {
         return folderPaths;
     }
 
-    public void setFolderPaths(List<String> paths)
-    {
+    public void setFolderPaths(List<String> paths) {
         this.folderPaths = paths;
     }
 
-    public String getIcon()
-    {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon)
-    {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 
     /**
      * Gets the content type of the item.
-     * 
+     *
      * @return the content type, not blank for a valid object.
      */
     @NotNull
     @NotEmpty
     @NotBlank
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * Sets the content type of the item.
-     * 
+     *
      * @param type new content type, should not be blank for a valid object.
-     *  
      * @see #getType()
      */
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
     /**
      * Determines if this is a folder.
-     * 
-     * @return <code>true</code> if this is a folder; otherwise return 
-     * <code>false</code>.
+     *
+     * @return true if this is a folder; otherwise false.
      */
-    public boolean isFolder()
-    {
+    public boolean isFolder() {
         return "Folder".equals(type) || "FSFolder".equals(type);
     }
-    
+
     @Override
-    public boolean isPage()
-    {
+    public boolean isPage() {
         return "percPage".equals(type);
     }
-    
-    public boolean isResource()
-    {
-        return !isPage() && ("percImageAsset".equals(type) || "percFileAsset".equals(type) ||
-                "percFlashAsset".equals(type));
+
+    public boolean isResource() {
+        return !isPage() && (
+            "percImageAsset".equals(type) ||
+            "percFileAsset".equals(type) ||
+            "percFlashAsset".equals(type)
+        );
     }
 
-    public Category getCategory()
-    {
+    public Category getCategory() {
         return category;
     }
-    
-    public void setCategory(Category category)
-    {
+
+    public void setCategory(Category category) {
         this.category = category;
     }
-    
+
     /**
      * Gets the content type label of the item.
-     * 
+     *
      * @return the content type label, not blank for a valid object.
      */
     @NotNull
     @NotEmpty
     @NotBlank
-    public String getLabel()
-    {
+    public String getLabel() {
         return label;
     }
 
     /**
      * Sets the content type label of the item.
-     * 
+     *
      * @param label new content type label, should not be blank for a valid object.
-     *  
      * @see #getLabel()
      */
-    public void setLabel(String label)
-    {
+    public void setLabel(String label) {
         this.label = label;
     }
-    
-    
-    
-    public boolean isRevisionable()
-    {
+
+    public boolean isRevisionable() {
         return revisionable;
     }
 
-    public void setRevisionable(boolean revisionable)
-    {
+    public void setRevisionable(boolean revisionable) {
         this.revisionable = revisionable;
     }
 
-
-
     /**
-     * The type for a site item summary
+     * The type for a site item summary.
      */
-    public static final String TYPE_SITE = "site";    
+    public static final String TYPE_SITE = "site";
 }

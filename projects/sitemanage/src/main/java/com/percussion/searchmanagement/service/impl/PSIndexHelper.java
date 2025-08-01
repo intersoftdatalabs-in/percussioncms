@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.searchmanagement.service.impl;
 
 import com.percussion.design.objectstore.PSLocator;
@@ -28,73 +29,47 @@ import org.springframework.stereotype.Component;
 import javax.inject.Singleton;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
- * 
- * @author robertjohansen
- *
- *This class is meant to assist in loading locators
- *into the search index queue. It has its own thread to
- *handle the work so when large amounts of items need to be 
- *indexed due to a change of an item then we are not holding
- *up the UI and the user can continue his or her task. The processing
- *becomes a background process.
+ * Assists in loading locators into the search index queue using a background thread.
  */
 @Component("indexHelper")
 @Singleton
-public class PSIndexHelper implements Runnable
-{
+public class PSIndexHelper implements Runnable {
     private static final Logger log = LogManager.getLogger(PSIndexHelper.class);
 
     private final PSSearchIndexEventQueue queue = PSSearchIndexEventQueue.getInstance();
-
-    private CopyOnWriteArrayList<PSLocator> ids;
-
+    private final CopyOnWriteArrayList<PSLocator> ids = new CopyOnWriteArrayList<>();
     private static final Object lock = new Object();
-
     private final Thread thread;
 
-    public PSIndexHelper()
-    {
-        ids = new CopyOnWriteArrayList<>();
+    public PSIndexHelper() {
         thread = new Thread(this);
         thread.setDaemon(true);
         thread.start();
     }
 
-
     /**
-     * Add items to the concurrent data structure so that they can
-     * be processed by the background process.
-     * @param locas<PSLocator> locas
+     * Add items to the concurrent data structure for background processing.
      */
     @SuppressFBWarnings("NN_NAKED_NOTIFY")
-    public void addItemsForIndex(Set<PSLocator> locas)
-    {
-        try
-        {
+    public void addItemsForIndex(Set<PSLocator> locas) {
+        try {
             ids.addAll(locas);
-        }
-        catch (Exception e)
-        {
-            log.warn("Could not add Item ids to be indexed: {} Error: {}" , this.getClass().getName(),
+        } catch (Exception e) {
+            log.warn("Could not add Item ids to be indexed: {} Error: {}", getClass().getName(),
                     PSExceptionUtils.getMessageForLog(e));
-        }
-        finally
-        {
-            synchronized (lock)
-            {
+        } finally {
+            synchronized (lock) {
                 lock.notifyAll();
             }
         }
     }
 
     /**
-     * The real work of the background process.
-     * Adds the locators into the search index queue
+     * The real work of the background process. Adds the locators into the search index queue.
      */
     public void index() throws InterruptedException {
-
-        //idle in background until there is content to be indexed.
         synchronized (lock) {
             while (ids.isEmpty()) {
                 try {
@@ -105,16 +80,12 @@ public class PSIndexHelper implements Runnable
             }
         }
 
-        try
-        {
-            for (PSLocator locator : ids)
-            {
+        try {
+            for (var locator : ids) {
                 queue.indexItem(locator);
                 ids.remove(locator);
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.warn("Trouble adding content to search index queue - {} Error: {}",
                     PSIndexHelper.class.getName(),
                     PSExceptionUtils.getMessageForLog(e));
@@ -122,15 +93,13 @@ public class PSIndexHelper implements Runnable
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         do {
             try {
                 index();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-
         } while (!Thread.currentThread().isInterrupted());
     }
 }

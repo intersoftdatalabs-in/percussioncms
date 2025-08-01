@@ -20,23 +20,18 @@ package com.percussion.delivery.metadata;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
-public class PSMetadataExtractorServiceLocator extends PSBaseServiceLocator
-{
-    private static volatile IPSMetadataExtractorService mes=null;
+public class PSMetadataExtractorServiceLocator extends PSBaseServiceLocator {
+    private static volatile IPSMetadataExtractorService mes = null;
 
-      public static IPSMetadataExtractorService getMetadataExtractorService() 
-         throws PSMissingBeanConfigurationException
-      {
-          if (mes==null)
-          {
-              synchronized (PSMetadataExtractorServiceLocator.class)
-              {
-                  if (mes==null)
-                  {
-                      mes = (IPSMetadataExtractorService) getCtx().getBean("sys_metadataExtractor");
-                  }
-              }
-          }
-         return mes;
-      }
+    public static IPSMetadataExtractorService getMetadataExtractorService()
+            throws PSMissingBeanConfigurationException {
+        if (mes == null) {
+            synchronized (PSMetadataExtractorServiceLocator.class) {
+                if (mes == null) {
+                    mes = (IPSMetadataExtractorService) getCtx().getBean("sys_metadataExtractor");
+                }
+            }
+        }
+        return mes;
+    }
 }

@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * It contains the result of an executed task 
+ * Contains the result of an executed task.
  *
  * @author Yu-Bing Chen
  */

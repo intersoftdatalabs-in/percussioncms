@@ -1,4 +1,4 @@
-      /*
+/*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,136 +15,278 @@
  * limitations under the License.
  */
 
-      package com.percussion.widgets.image.web.impl;
+package com.percussion.widgets.image.web.impl;
 
-      import com.percussion.error.PSExceptionUtils;
-      import com.percussion.util.PSBaseBean;
-      import com.percussion.widgets.image.data.CachedImageMetaData;
-      import com.percussion.widgets.image.data.ImageData;
-      import com.percussion.widgets.image.services.ImageCacheManager;
-      import com.percussion.widgets.image.services.ImageResizeManager;
-      import net.sf.json.JSON;
-      import net.sf.json.JSONObject;
-      import net.sf.json.JSONSerializer;
-      import org.apache.commons.lang.Validate;
-      import org.apache.logging.log4j.LogManager;
-      import org.apache.logging.log4j.Logger;
-      import org.springframework.beans.factory.annotation.Autowired;
-      import org.springframework.stereotype.Controller;
-      import org.springframework.validation.BindingResult;
-      import org.springframework.web.bind.annotation.ModelAttribute;
-      import org.springframework.web.bind.annotation.PostMapping;
-      import org.springframework.web.bind.annotation.RequestMapping;
-      import org.springframework.web.servlet.ModelAndView;
+import com.percussion.error.PSExceptionUtils;
+import com.percussion.util.PSBaseBean;
+import com.percussion.widgets.image.data.CachedImageMetaData;
+import com.percussion.widgets.image.data.ImageData;
+import com.percussion.widgets.image.services.ImageCacheManager;
+import com.percussion.widgets.image.services.ImageResizeManager;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-      import java.awt.*;
-      import java.io.ByteArrayInputStream;
-      import java.io.InputStream;
+import java.awt.*;
+import java.io.ByteArrayInputStream;
+import java.util.Objects;
+import java.util.Optional;
 
-      @Controller
-      @RequestMapping("/imageWidget/resizeImage.do")
-      @PSBaseBean("imageWidgetResize")
-      public class ImageResizeController {
+/**
+ * Spring MVC controller for handling image resize operations.
+ * Processes resize requests with optional cropping and rotation parameters.
+ *
+ * @since Java 11
+ */
+@Controller
+@RequestMapping("/imageWidget/resizeImage.do")
+@PSBaseBean("imageWidgetResize")
+public class ImageResizeController {
 
-          private static final Logger log = LogManager.getLogger(ImageResizeController.class);
-          private String viewName="imageWidgetJSONView";
-          private String modelObjectName="results";
-          @Autowired
-          private ImageCacheManager imageCacheManager;
-          @Autowired
-          private ImageResizeManager imageResizeManager;
+    private static final Logger log = LogManager.getLogger(ImageResizeController.class);
 
-          @PostMapping()
-          public ModelAndView handle(@ModelAttribute("results") ResizeImageBean bean, BindingResult result) {
-              ModelAndView mav = new ModelAndView("imageWidgetJSONView");
-              try {
-                  CachedImageMetaData cimd = resizeImage(bean);
-                  JSON json = JSONSerializer.toJSON(cimd);
-                  mav.addObject(getModelObjectName(), json);
-              } catch (Exception ex) {
-                  String emsg = "Unexpected exception " + PSExceptionUtils.getMessageForLog(ex);
-                  log.error(emsg);
-                  log.debug(ex);
-                  JSON json = new JSONObject().accumulate("error", emsg);
-                  mav.addObject(getModelObjectName(), json);
-              }
+    /** Default view name for JSON responses */
+    private static final String DEFAULT_VIEW_NAME = "imageWidgetJSONView";
 
-              return mav;
-          }
+    /** Default model object name */
+    private static final String DEFAULT_MODEL_OBJECT_NAME = "results";
 
-          protected CachedImageMetaData resizeImage(ResizeImageBean bean)
-                  throws Exception {
-              Dimension size = null;
-              Rectangle cropBox = null;
-              int rotate = 0;
+    private String viewName = DEFAULT_VIEW_NAME;
+    private String modelObjectName = DEFAULT_MODEL_OBJECT_NAME;
 
-              Validate.notEmpty(bean.getImageKey(), "You must supply an image key");
+    @Autowired
+    private ImageCacheManager imageCacheManager;
 
-              if ((bean.getWidth() != 0) || (bean.getHeight() != 0)) {
-                  size = new Dimension(bean.getWidth(), bean.getHeight());
-                  log.debug("new image size is {}" ,size);
-              }
+    @Autowired
+    private ImageResizeManager imageResizeManager;
 
-              if ((bean.getX() != 0) && (bean.getY() != 0) && (bean.getDeltaX() != 0) && (bean.getDeltaY() != 0)) {
-                  cropBox = new Rectangle(bean.getX(), bean.getY(), bean.getDeltaX(), bean.getDeltaY());
-                  log.debug("new image crop box is {}" , cropBox);
-              }
-              if (bean.getRotate() != 0) {
-                  rotate = bean.getRotate();
-                  log.debug("rotate is {}" , rotate);
-              }
-              ImageData imageData = this.imageCacheManager.getImage(bean.getImageKey());
-              Validate.notNull(imageData, "Image to be resized was not found");
-              InputStream is = new ByteArrayInputStream(imageData.getBinary());
+    /**
+     * Handles POST requests for image resizing operations.
+     *
+     * @param bean the resize parameters bean
+     * @param result binding result for validation
+     * @return ModelAndView containing the resize result or error information
+     */
+    @PostMapping
+    public ModelAndView handle(@ModelAttribute("results") ResizeImageBean bean, BindingResult result) {
+        var mav = new ModelAndView(viewName);
 
-              this.imageResizeManager.setExtension(imageData.getExt());
-              this.imageResizeManager.setContentType(imageData.getMimeType());
-              this.imageResizeManager.setImageFormat(imageData.getExt());
+        try {
+            var validationError = validateResizeBean(bean);
+            if (validationError.isPresent()) {
+                log.error("Validation failed: {}", validationError.get());
+                var errorJson = new JSONObject().accumulate("error", validationError.get());
+                mav.addObject(getModelObjectName(), errorJson);
+                return mav;
+            }
 
-              try {
-                  ImageData imageReturnData = this.imageResizeManager.generateImage(is, cropBox, size, rotate);
-                  String key = this.imageCacheManager.addImage(imageReturnData);
-                  return new CachedImageMetaData(imageReturnData, key);
-              } catch(IllegalArgumentException e) {
-                  log.error("Can not resize image with this format. Error: {}", PSExceptionUtils.getMessageForLog(e));
-                  log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-              }
+            var cachedMetadata = resizeImage(bean);
+            var json = JSONSerializer.toJSON(cachedMetadata);
+            mav.addObject(getModelObjectName(), json);
 
-              String key = this.imageCacheManager.addImage(imageData);
-              return new CachedImageMetaData(imageData, key);
+            log.debug("Successfully processed resize request for image key: {}", bean.getImageKey());
 
+        } catch (Exception ex) {
+            var errorMessage = "Unexpected exception during image resize: " + PSExceptionUtils.getMessageForLog(ex);
+            log.error(errorMessage, ex);
 
-          }
+            var errorJson = new JSONObject().accumulate("error", errorMessage);
+            mav.addObject(getModelObjectName(), errorJson);
+        }
 
-          public String getViewName() {
-              return viewName;
-          }
+        return mav;
+    }
 
-          public void setViewName(String viewName) {
-              this.viewName = viewName;
-          }
+    /**
+     * Validates the resize bean parameters.
+     *
+     * @param bean the resize bean to validate
+     * @return Optional containing error message, or empty if valid
+     */
+    private Optional<String> validateResizeBean(ResizeImageBean bean) {
+        if (bean == null) {
+            return Optional.of("Resize bean must not be null");
+        }
 
-          public String getModelObjectName() {
-              return this.modelObjectName;
-          }
+        if (StringUtils.isBlank(bean.getImageKey())) {
+            return Optional.of("Image key is required");
+        }
 
-          public void setModelObjectName(String modelObjectName) {
-              this.modelObjectName = modelObjectName;
-          }
+        // Validate crop box parameters - if any are specified, all must be valid
+        if (hasCropParameters(bean) && !isValidCropBox(bean)) {
+            return Optional.of("Invalid crop box parameters - all crop coordinates must be positive");
+        }
 
-          public ImageCacheManager getImageCacheManager() {
-              return this.imageCacheManager;
-          }
+        // Validate resize dimensions
+        if ((bean.getWidth() < 0) || (bean.getHeight() < 0)) {
+            return Optional.of("Width and height must be non-negative");
+        }
 
-          public void setImageCacheManager(ImageCacheManager imageCacheManager) {
-              this.imageCacheManager = imageCacheManager;
-          }
+        return Optional.empty();
+    }
 
-          public ImageResizeManager getImageResizeManager() {
-              return this.imageResizeManager;
-          }
+    /**
+     * Checks if crop parameters are specified.
+     */
+    private boolean hasCropParameters(ResizeImageBean bean) {
+        return bean.getX() != 0 || bean.getY() != 0 || bean.getDeltaX() != 0 || bean.getDeltaY() != 0;
+    }
 
-          public void setImageResizeManager(ImageResizeManager imageResizeManager) {
-              this.imageResizeManager = imageResizeManager;
-          }
-      }
+    /**
+     * Validates crop box parameters.
+     */
+    private boolean isValidCropBox(ResizeImageBean bean) {
+        return bean.getX() > 0 && bean.getY() > 0 && bean.getDeltaX() > 0 && bean.getDeltaY() > 0;
+    }
+
+    /**
+     * Performs the image resize operation with optional cropping and rotation.
+     *
+     * @param bean the resize parameters
+     * @return cached image metadata for the resized image
+     * @throws Exception if resize operation fails
+     */
+    protected CachedImageMetaData resizeImage(ResizeImageBean bean) throws Exception {
+        var imageKey = bean.getImageKey().trim();
+        log.debug("Processing resize for image key: {}", imageKey);
+
+        // Get original image data
+        var originalImageOpt = imageCacheManager.getImageOptional(imageKey);
+        if (originalImageOpt.isEmpty()) {
+            throw new IllegalArgumentException("Image not found for key: " + imageKey);
+        }
+
+        var originalImage = originalImageOpt.get();
+        var binaryDataOpt = originalImage.getBinaryOptional();
+        if (binaryDataOpt.isEmpty()) {
+            throw new IllegalArgumentException("Image contains no binary data");
+        }
+
+        // Build resize parameters
+        var resizeParams = buildResizeParameters(bean);
+
+        // Configure resize manager
+        configureResizeManager(originalImage);
+
+        try (var inputStream = new ByteArrayInputStream(binaryDataOpt.get())) {
+            var resizedImage = imageResizeManager.generateImage(
+                inputStream,
+                resizeParams.cropBox().orElse(null),
+                resizeParams.targetSize().orElse(null),
+                resizeParams.rotation()
+            );
+
+            var newKey = imageCacheManager.addImage(resizedImage);
+            log.debug("Created resized image with key: {}", newKey);
+
+            return new CachedImageMetaData(resizedImage, newKey);
+
+        } catch (IllegalArgumentException e) {
+            log.warn("Cannot resize image with current format, returning original: {}",
+                PSExceptionUtils.getMessageForLog(e));
+
+            // Return original image if resize fails
+            var fallbackKey = imageCacheManager.addImage(originalImage);
+            return new CachedImageMetaData(originalImage, fallbackKey);
+        }
+    }
+
+    /**
+     * Builds resize parameters from the bean.
+     */
+    private ResizeParameters buildResizeParameters(ResizeImageBean bean) {
+        var targetSize = Optional.<Dimension>empty();
+        if (bean.getWidth() > 0 || bean.getHeight() > 0) {
+            targetSize = Optional.of(new Dimension(bean.getWidth(), bean.getHeight()));
+            log.debug("Target size: {}", targetSize.get());
+        }
+
+        var cropBox = Optional.<Rectangle>empty();
+        if (isValidCropBox(bean)) {
+            cropBox = Optional.of(new Rectangle(bean.getX(), bean.getY(), bean.getDeltaX(), bean.getDeltaY()));
+            log.debug("Crop box: {}", cropBox.get());
+        }
+
+        var rotation = bean.getRotate();
+        if (rotation != 0) {
+            log.debug("Rotation: {} degrees", rotation);
+        }
+
+        return new ResizeParameters(targetSize, cropBox, rotation);
+    }
+
+    /**
+     * Configures the resize manager with image metadata.
+     */
+    private void configureResizeManager(ImageData imageData) {
+        Optional.ofNullable(imageData.getExt())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(ext -> {
+                imageResizeManager.setExtension(ext);
+                imageResizeManager.setImageFormat(ext);
+            });
+
+        Optional.ofNullable(imageData.getMimeType())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(imageResizeManager::setContentType);
+    }
+
+    public String getViewName() {
+        return viewName;
+    }
+
+    public void setViewName(String viewName) {
+        this.viewName = StringUtils.isNotBlank(viewName) ? viewName.trim() : DEFAULT_VIEW_NAME;
+    }
+
+    public String getModelObjectName() {
+        return modelObjectName;
+    }
+
+    public void setModelObjectName(String modelObjectName) {
+        this.modelObjectName = StringUtils.isNotBlank(modelObjectName)
+            ? modelObjectName.trim()
+            : DEFAULT_MODEL_OBJECT_NAME;
+    }
+
+    public ImageCacheManager getImageCacheManager() {
+        return imageCacheManager;
+    }
+
+    public void setImageCacheManager(ImageCacheManager imageCacheManager) {
+        this.imageCacheManager = Objects.requireNonNull(imageCacheManager,
+            "ImageCacheManager must not be null");
+    }
+
+    public ImageResizeManager getImageResizeManager() {
+        return imageResizeManager;
+    }
+
+    public void setImageResizeManager(ImageResizeManager imageResizeManager) {
+        this.imageResizeManager = Objects.requireNonNull(imageResizeManager,
+            "ImageResizeManager must not be null");
+    }
+
+    /**
+     * Record class representing resize parameters.
+     *
+     * @param targetSize optional target dimensions
+     * @param cropBox optional crop rectangle
+     * @param rotation rotation angle in degrees
+     */
+    private record ResizeParameters(
+        Optional<Dimension> targetSize,
+        Optional<Rectangle> cropBox,
+        int rotation
+    ) {}
+}

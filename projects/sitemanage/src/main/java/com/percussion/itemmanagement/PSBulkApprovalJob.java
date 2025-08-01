@@ -45,36 +45,26 @@ import java.util.Map;
  * @author leonardohildt
  * 
  */
-public class PSBulkApprovalJob extends PSAsyncJob
-{
+public class PSBulkApprovalJob extends PSAsyncJob {
 
     private static final Logger log = LogManager.getLogger(PSBulkApprovalJob.class);
 
     private static final String APPROVED_ITEM = "Approved";
-
     private static final String FAILED_APPROVAL_ITEM = "Failed";
 
     private PSItemWorkflowService itemWorkflowService;
-
     private IPSWorkflowHelper workflowHelper;
-    
     private IPSFolderHelper folderHelper;
-    
     private IPSIdMapper idMapper;
-    
     private IPSUserService userService;
-    
     private boolean isAdmin = false;
 
     PSApprovableItems items;
-    
     List<PSApprovableItem> processedItems = new ArrayList<>();
-    
     private Map<String, String> approvalErrors = new HashMap<>();
 
     @Override
-    protected void doInit(Object config)
-    {
+    protected void doInit(Object config) {
         items = (PSApprovableItems) config;
         items.setProcessedItems(processedItems);
         setResult(items);
@@ -82,16 +72,11 @@ public class PSBulkApprovalJob extends PSAsyncJob
     }
 
     @Override
-    public void doRun()
-    {
+    public void doRun() {
         isAdmin = userService.isAdminUser(PSWebserviceUtils.getUserName());
-        for (PSApprovableItem item : items.getApprovableItems())
-        {
-            if (item.isApprove())
-            {
-                approvePage(item);
-            }
-        }
+        items.getApprovableItems().stream()
+            .filter(PSApprovableItem::isApprove)
+            .forEach(this::approvePage);
         items.setErrors(approvalErrors);
         setStatus(COMPLETE_STATUS);
         setCompleted();
@@ -101,43 +86,31 @@ public class PSBulkApprovalJob extends PSAsyncJob
      * Approves a single page.
      * @param item Details of the page assumed not <code>null</code>.
      */
-    private void approvePage(PSApprovableItem item)
-    {
-        try
-        {
-
-            if(isInApprovedState(item) || isCheckedOutByOthers(item) || !hasFolderAccess(item) || !hasApproveTransition(item))
-            {
+    private void approvePage(PSApprovableItem item) {
+        try {
+            if (isInApprovedState(item) || isCheckedOutByOthers(item)
+                    || !hasFolderAccess(item) || !hasApproveTransition(item)) {
                 processedItems.add(item);
                 return;
             }
-            
-            PSItemTransitionResults transitionResult = itemWorkflowService.performApproveTransition(
+
+            var transitionResult = itemWorkflowService.performApproveTransition(
                     item.getId(), false, null);
 
-            if (transitionResult.getFailedAssets().isEmpty())
-            {
+            if (transitionResult.getFailedAssets().isEmpty()) {
                 item.setApprovalStatus(APPROVED_ITEM);
-                PSState state = workflowHelper.getState(item.getId());
+                var state = workflowHelper.getState(item.getId());
                 item.setStatus(state.getName());
                 processedItems.add(item);
-            }
-            else
-            {
-                String msg = "You cannot approve this page as one or more related asset(s) could not be approved.";
+            } else {
+                var msg = "You cannot approve this page as one or more related asset(s) could not be approved.";
                 handleError(item, msg);
             }
-                
-            
-        }
-        catch(PSItemWorkflowServiceException iwe)
-        {
+        } catch (PSItemWorkflowServiceException iwe) {
             handleError(item, iwe.getLocalizedMessage());
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             log.error(e);
-            String msg = "Unexpected error occurred while approving the item.";
+            var msg = "Unexpected error occurred while approving the item.";
             handleError(item, msg);
         }
     }
@@ -148,14 +121,12 @@ public class PSBulkApprovalJob extends PSAsyncJob
      * @return true if it is checked out by someone else.
      */
     private boolean isCheckedOutByOthers(PSApprovableItem item) throws PSValidationException {
-        boolean result = false;
-        if(workflowHelper.isCheckedOutToSomeoneElse((item.getId())))
-        {
-            String msg = "You cannot approve this page as it is being edited by someone else.";
+        if (workflowHelper.isCheckedOutToSomeoneElse(item.getId())) {
+            var msg = "You cannot approve this page as it is being edited by someone else.";
             handleError(item, msg);
-            result = true;            
+            return true;
         }
-        return result;
+        return false;
     }
 
     /**
@@ -164,20 +135,17 @@ public class PSBulkApprovalJob extends PSAsyncJob
      * @return true if the user has approve transition.
      */
     private boolean hasApproveTransition(PSApprovableItem item) throws PSValidationException {
-        if(isAdmin) {
+        if (isAdmin) {
             return true;
         }
-        boolean result = true;
-        if(!workflowHelper.isApproveAvailableToCurrentUser(item.getId()))
-        {
-            String msg = "You do not have permission to approve this page.";
+        if (!workflowHelper.isApproveAvailableToCurrentUser(item.getId())) {
+            var msg = "You do not have permission to approve this page.";
             handleError(item, msg);
-            result = false;            
+            return false;
         }
-        return result;
+        return true;
     }
 
-    
     /**
      * Helper method to check whether user has at least write permission to the parent folder. 
      * If user doesn't have the access then updates the item status and error message.
@@ -185,27 +153,21 @@ public class PSBulkApprovalJob extends PSAsyncJob
      * @return true if user has at least write access or false.
      */
     private boolean hasFolderAccess(PSApprovableItem item) throws PSValidationException {
-        if(isAdmin) {
+        if (isAdmin) {
             return true;
         }
-        //check folder permission
-        IPSGuid itemGuid = idMapper.getGuid(item.getId());
-        IPSGuid parentFolder = folderHelper.getParentFolderId(itemGuid);
-        PSFolderPermission.Access access = folderHelper.getFolderAccessLevel(parentFolder.toString());
-        boolean result = false;
-        if(access.equals(PSFolderPermission.Access.ADMIN) || access.equals(PSFolderPermission.Access.WRITE))
-        {
-            result = true;
-        }
-        else
-        {
-            String msg = "You do not have permission to approve this page.";
+        var itemGuid = idMapper.getGuid(item.getId());
+        var parentFolder = folderHelper.getParentFolderId(itemGuid);
+        var access = folderHelper.getFolderAccessLevel(parentFolder.toString());
+        if (access.equals(PSFolderPermission.Access.ADMIN) || access.equals(PSFolderPermission.Access.WRITE)) {
+            return true;
+        } else {
+            var msg = "You do not have permission to approve this page.";
             handleError(item, msg);
-            result = false;
+            return false;
         }
-        return result;
     }
-    
+
     /**
      * Helper method to check whether the item is already in an approved state or not
      * if it is in, then updates the supplied item and returns true otherwise false.
@@ -213,80 +175,66 @@ public class PSBulkApprovalJob extends PSAsyncJob
      * @return true if the item is already in approved state.
      */
     private boolean isInApprovedState(PSApprovableItem item) throws PSValidationException {
-        boolean result = false;
-        if(workflowHelper.isLive(item.getId()) || workflowHelper.isPending(item.getId()))
-        {
+        if (workflowHelper.isLive(item.getId()) || workflowHelper.isPending(item.getId())) {
             item.setApprovalStatus(APPROVED_ITEM);
-            PSState state = workflowHelper.getState(item.getId());
+            var state = workflowHelper.getState(item.getId());
             item.setStatus(state.getName());
             processedItems.add(item);
-            result = true;
+            return true;
         }
-        return result;
+        return false;
     }
-    
+
     /**
      * Helper method to handle error for an item.
      * @param item assumed not <code>null</code>.
      * @param msg assumed not <code>null</code>.
      */
-    private void handleError(PSApprovableItem item, String msg)
-    {
+    private void handleError(PSApprovableItem item, String msg) {
         item.setApprovalStatus(FAILED_APPROVAL_ITEM);
         item.setApprovalMessage(msg);
         approvalErrors.put(item.getName(), msg);
         processedItems.add(item);
     }
-    
-    public PSItemWorkflowService getItemWorkflowService()
-    {
+
+    public PSItemWorkflowService getItemWorkflowService() {
         return itemWorkflowService;
     }
 
-    public void setItemWorkflowService(PSItemWorkflowService itemWorkflowService)
-    {
+    public void setItemWorkflowService(PSItemWorkflowService itemWorkflowService) {
         this.itemWorkflowService = itemWorkflowService;
     }
 
-    public IPSWorkflowHelper getWorkflowHelper()
-    {
+    public IPSWorkflowHelper getWorkflowHelper() {
         return workflowHelper;
     }
 
-    public void setWorkflowHelper(IPSWorkflowHelper workflowHelper)
-    {
+    public void setWorkflowHelper(IPSWorkflowHelper workflowHelper) {
         this.workflowHelper = workflowHelper;
     }
 
-    public IPSFolderHelper getFolderHelper()
-    {
+    public IPSFolderHelper getFolderHelper() {
         return folderHelper;
     }
 
-    public void setFolderHelper(IPSFolderHelper folderHelper)
-    {
+    public void setFolderHelper(IPSFolderHelper folderHelper) {
         this.folderHelper = folderHelper;
     }
 
-    public IPSIdMapper getIdMapper()
-    {
+    public IPSIdMapper getIdMapper() {
         return idMapper;
     }
 
-    public void setIdMapper(IPSIdMapper idMapper)
-    {
+    public void setIdMapper(IPSIdMapper idMapper) {
         this.idMapper = idMapper;
     }
 
-    public IPSUserService getUserService()
-    {
+    public IPSUserService getUserService() {
         return userService;
     }
 
-    public void setUserService(IPSUserService userService)
-    {
+    public void setUserService(IPSUserService userService) {
         this.userService = userService;
     }
-
 
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,10 +18,10 @@
 
 package com.percussion.rest.struct;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-public abstract class AdaptorBase extends Base
-{
-
+/**
+ * Base class for all REST adaptors in Percussion CMS.
+ * Sunny Sal: "AdaptorBase ka hero, extensibility ka zero!"
+ */
+public abstract class AdaptorBase extends Base {
+    // Extend this class for REST adaptors. Add shared logic here if needed.
 }

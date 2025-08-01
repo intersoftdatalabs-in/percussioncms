@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.pagemanagement.data.PSWidgetDefinition;
@@ -45,31 +46,28 @@ import static org.apache.commons.lang.Validate.notNull;
  * @author adamgent
  *
  */
-public class PSWidgetUtils
-{
+public class PSWidgetUtils {
 
-    private PSWidgetUtils(){
-        //noop
+    private PSWidgetUtils() {
+        // noop
     }
 
-    private static UserPrefMapper userPrefMapper = new UserPrefMapper();
-    
+    private static final UserPrefMapper userPrefMapper = new UserPrefMapper();
+
     private static class UserPrefMapper extends PSCollectionUtils.MapperValueAdapter<String, UserPref> {
-        public String getKey(UserPref value)
-        {
+        public String getKey(UserPref value) {
             return value.getName();
         }
     }
-    
-    private static CssPrefMapper cssPrefMapper = new CssPrefMapper();
-    
+
+    private static final CssPrefMapper cssPrefMapper = new CssPrefMapper();
+
     private static class CssPrefMapper extends PSCollectionUtils.MapperValueAdapter<String, CssPref> {
-        public String getKey(CssPref value)
-        {
+        public String getKey(CssPref value) {
             return value.getName();
         }
     }
-    
+
     /**
      * 
      * @param definition never <code>null</code>.
@@ -77,19 +75,19 @@ public class PSWidgetUtils
      */
     public static Map<String, UserPref> getUserPrefs(PSWidgetDefinition definition) {
         notNull(definition);
-        List<UserPref> prefs = definition.getUserPref();
+        var prefs = definition.getUserPref();
         return userPrefMapper.toMap(prefs);
     }
-    
+
     /**
      * @param definition never <code>null</code>.
      * @return key is prop name, never <code>null</code>
      */
     public static Map<String, CssPref> getCssPrefs(PSWidgetDefinition definition) {
-        List<CssPref> prefs = definition.getCssPref();
+        var prefs = definition.getCssPref();
         return cssPrefMapper.toMap(prefs);
     }
-    
+
     /**
      * Gets the enumerated values for the property definition
      * if it has any.
@@ -98,24 +96,24 @@ public class PSWidgetUtils
      */
     public static Set<Object> getEnums(AbstractUserPref userPref) {
         notNull(userPref, "userPref");
-        List<EnumValue> ev = userPref.getEnumValue();
-        Set<Object> enums = new HashSet<>();
+        var ev = userPref.getEnumValue();
+        var enums = new HashSet<Object>();
         if (ev != null) {
-            for(EnumValue e : ev) {
-                Object validValue = PSSerializerUtils.getObjectFromJson(e.getValue());
+            for (var e : ev) {
+                var validValue = PSSerializerUtils.getObjectFromJson(e.getValue());
                 enums.add(validValue);
             }
         }
         return enums;
     }
-    
+
     /**
      * Checks to see if the property is a enum type.
      * @param userPref never <code>null</code>.
      * @return never <code>null</code>.
      */
     public static boolean isEnum(AbstractUserPref userPref) {
-       return PSWidgetPropertyDataType.ENUM == PSWidgetPropertyDataType.fromDefinition(userPref);
+        return PSWidgetPropertyDataType.ENUM == PSWidgetPropertyDataType.fromDefinition(userPref);
     }
 
     /**
@@ -129,12 +127,12 @@ public class PSWidgetUtils
      * @throws PSWidgetPropertyCoercionException see {@link #coerceProperty(String, Object, Class)}
      */
     public static Object convertRawProperty(String json, AbstractUserPref userPref) throws PSWidgetPropertyCoercionException {
-        Class<?> klass = getJavaType(userPref);
-        String name = userPref.getName();
-        Object object = PSSerializerUtils.getObjectFromJson(json);
+        var klass = getJavaType(userPref);
+        var name = userPref.getName();
+        var object = PSSerializerUtils.getObjectFromJson(json);
         return coerceProperty(name, object, klass);
     }
-    
+
     /**
      * Coerce an object into the correct java type for the given property definition.
      * @param object never <code>null</code>.
@@ -142,11 +140,11 @@ public class PSWidgetUtils
      * @return never <code>null</code>.
      * @throws PSWidgetPropertyCoercionException see {@link #coerceProperty(String, Object, Class)}
      */
-    public static Object coerceProperty(Object object, AbstractUserPref userPref) throws PSWidgetPropertyCoercionException{
-        Class<?> klass = getJavaType(userPref);
+    public static Object coerceProperty(Object object, AbstractUserPref userPref) throws PSWidgetPropertyCoercionException {
+        var klass = getJavaType(userPref);
         return coerceProperty(userPref.getName(), object, klass);
     }
-    
+
     /**
      * Gets the default value for the given property definition.
      * @param userPref never <code>null</code>.
@@ -162,13 +160,12 @@ public class PSWidgetUtils
      * @param userPref never <code>null</code>.
      * @return never <code>null</code>.
      */
-    public static Class<?> getJavaType(AbstractUserPref userPref)
-    {
-        String dt = userPref.getDatatype();
+    public static Class<?> getJavaType(AbstractUserPref userPref) {
+        var dt = userPref.getDatatype();
         dt = dt == null ? "string" : dt.toLowerCase();
         return PSWidgetPropertyDataType.parseType(dt).getJavaType();
     }
-    
+
     /**
      * Coerce the given object into different object of the given type.
      * If the given type is the same as the object, the object is returned.
@@ -187,56 +184,43 @@ public class PSWidgetUtils
      * @throws PSWidgetPropertyCoercionException coersion exception if the property can't be coerced.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T coerceProperty(String name, Object object, Class<T> dataType) 
-        throws PSWidgetPropertyCoercionException {
+    public static <T> T coerceProperty(String name, Object object, Class<T> dataType)
+            throws PSWidgetPropertyCoercionException {
         notEmpty(name, "name");
         notNull(dataType, "dataType");
         if (object == null)
             return null;
-        
+
         boolean emptyString = false;
-        
+
         T rvalue = null;
-        try
-        {
-            if (dataType.isAssignableFrom(object.getClass()))
-            {
+        try {
+            if (dataType.isAssignableFrom(object.getClass())) {
                 rvalue = (T) object;
-            }
-            else if (object instanceof String)
-            {
-                String s = (String) object;
+            } else if (object instanceof String) {
+                var s = (String) object;
                 if (s.isEmpty()) {
                     emptyString = true;
-                }
-                else if (Number.class.isAssignableFrom(dataType))
-                {
+                } else if (Number.class.isAssignableFrom(dataType)) {
                     rvalue = (T) NumberUtils.createNumber(s);
-                }
-                else if (Boolean.class.isAssignableFrom(dataType))
-                {
+                } else if (Boolean.class.isAssignableFrom(dataType)) {
                     rvalue = (T) Boolean.valueOf(Boolean.parseBoolean(s));
                 }
             }
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new PSWidgetPropertyCoercionException(name, object, dataType, e);
         }
-        
+
         if (emptyString) {
             throw new PSWidgetPropertyBlankStringCoercionException(name, object, dataType);
         }
         if (rvalue == null) {
             throw new PSWidgetPropertyCoercionException(name, object, dataType);
         }
-        
-        return rvalue;
 
+        return rvalue;
     }
-    
-    
-    
+
     /**
      * Gets the default values from the given definition and set the default
      * values to the given widget item if the properties do not exist in in
@@ -245,11 +229,10 @@ public class PSWidgetUtils
      * @param item the widget item, assumed not <code>null</code>.
      * @param def the widget definition, assumed not <code>null</code>.
      */
-    public static void setDefaultValuesFromDefinition(PSWidgetItem item, PSWidgetDefinition def)
-    {
+    public static void setDefaultValuesFromDefinition(PSWidgetItem item, PSWidgetDefinition def) {
         setDefaultValuesFromDefinition(item.getProperties(), def.getUserPref());
     }
-    
+
     /**
      * Gets the default values from the given definition and set the default
      * values to the given widget item if the properties do not exist in in
@@ -258,77 +241,63 @@ public class PSWidgetUtils
      * @param props the widget properties, assumed not <code>null</code>.
      * @param prefs the widget property definitions, assumed not <code>null</code>.
      */
-    public static void setDefaultValuesFromDefinition(Map<String,Object> props, List<? extends AbstractUserPref> prefs)
-    {
-        Set<String> propNames = props.keySet();
-        for (AbstractUserPref pref : prefs)
-        {
-            String defValue = pref.getDefaultValue();
-            if (defValue !=  null && !propNames.contains(pref.getName()))
-            {
-                Object v = PSWidgetUtils.getDefaultValue(pref);
+    public static void setDefaultValuesFromDefinition(Map<String, Object> props, List<? extends AbstractUserPref> prefs) {
+        var propNames = props.keySet();
+        for (var pref : prefs) {
+            var defValue = pref.getDefaultValue();
+            if (defValue != null && !propNames.contains(pref.getName())) {
+                var v = PSWidgetUtils.getDefaultValue(pref);
                 props.put(pref.getName(), v);
             }
         }
     }
-    
+
     /**
      * Indicates a data type coercion error for widget properties.
      * @author adamgent
      *
      */
-    public static class PSWidgetPropertyCoercionException extends RuntimeException
-    {
-
+    public static class PSWidgetPropertyCoercionException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
         private final String name;
         private final transient Object value;
         private final Class<?> dataType;
 
-        public PSWidgetPropertyCoercionException(String name, Object object, Class<?> dataType)
-        {
+        public PSWidgetPropertyCoercionException(String name, Object object, Class<?> dataType) {
             this(name, object, dataType, null);
         }
-        
 
-        public PSWidgetPropertyCoercionException(String name, Object object, Class<?> dataType, Throwable cause)
-        {
+        public PSWidgetPropertyCoercionException(String name, Object object, Class<?> dataType, Throwable cause) {
             super(format("Failed convert property:{0}, value:{1}, datatype:{2}", name, object, dataType), cause);
             this.name = name;
             this.value = object;
             this.dataType = dataType;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
-        public Object getValue()
-        {
+
+        public Object getValue() {
             return value;
         }
-        public Class<?> getDataType()
-        {
-            return dataType;
-        } 
 
+        public Class<?> getDataType() {
+            return dataType;
+        }
     }
-    
+
     /**
      * Indicates failed to coerce because the inputted object was a blank string (but never <code>null</code>).
      * @author adamgent
      *
      */
-    public static class PSWidgetPropertyBlankStringCoercionException extends PSWidgetPropertyCoercionException
-    {
+    public static class PSWidgetPropertyBlankStringCoercionException extends PSWidgetPropertyCoercionException {
         private static final long serialVersionUID = 1L;
 
-        public PSWidgetPropertyBlankStringCoercionException(String name, Object object, Class<?> dataType)
-        {
+        public PSWidgetPropertyBlankStringCoercionException(String name, Object object, Class<?> dataType) {
             super(name, object, dataType);
         }
-        
     }
 }
-

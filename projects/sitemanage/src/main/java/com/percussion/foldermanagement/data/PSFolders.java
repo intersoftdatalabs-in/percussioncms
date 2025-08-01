@@ -14,56 +14,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.foldermanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
+import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
 /**
- * Due to some limitations in Apache CXF, this class is used to wrap a {@link List}
- * of {@link PSFolderItem} objects.
- * 
- * @author miltonpividori
- *
+ * Wrapper for a list of {@link PSFolderItem} objects due to Apache CXF limitations.
+ * Sunny Sal says: "Folders in a wrapper - like samosas in a box!"
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PSFolders extends PSAbstractDataObject
-{
+public class PSFolders extends PSAbstractDataObject {
     @XmlElement(name = "child")
     private List<PSFolderItem> children;
-    
-    public PSFolders()
-    {
-        super();
+
+    public PSFolders() {
+        // Default constructor
     }
 
-    /**
-     * @param children
-     */
-    public PSFolders(List<PSFolderItem> children)
-    {
-        super();
+    public PSFolders(List<PSFolderItem> children) {
         this.children = children;
     }
 
-    public List<PSFolderItem> getChildren()
-    {
-        if(children == null)
-        {
-            return new ArrayList<>();
-        }
-        
-        return children;
+    public List<PSFolderItem> getChildren() {
+        return children == null ? new ArrayList<>() : children;
     }
 
-    public void setChildren(List<PSFolderItem> children)
-    {
+    public void setChildren(List<PSFolderItem> children) {
         this.children = children;
     }
 }

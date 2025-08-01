@@ -14,76 +14,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.percussion.share.data.PSDataItemSummary;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
- * Class to use internally to use attributes from orphan assets. 
- * 
- * @author Santiago M. Murchio
+ * Class to use internally to use attributes from orphan assets.
  *
+ * @author Santiago M. Murchio
  */
 @XmlRootElement
-public class PSOrphanedAssetSummary extends PSDataItemSummary
-{
+public class PSOrphanedAssetSummary extends PSDataItemSummary {
+
     private static final long serialVersionUID = 1L;
 
     /**
      * Represents the SLOT_ID field from a {@link PSRelationship} object.
      */
     private String slotId;
-    
+
     /**
      * Represents the WIDGET_NAME field from a {@link PSRelationship} object.
      */
     private String widgetName;
-    
+
     private int relationshipId;
-    
-    public PSOrphanedAssetSummary()
-    {
+
+    public PSOrphanedAssetSummary() {
         super();
     }
-    
-    public PSOrphanedAssetSummary(String assetId, String slotId, String widgetName, int relationshipId)
-    {
+
+    public PSOrphanedAssetSummary(String assetId, String slotId, String widgetName, int relationshipId) {
         setId(assetId);
         this.slotId = slotId;
         this.widgetName = widgetName;
         this.relationshipId = relationshipId;
     }
 
-    public String getSlotId()
-    {
-        return slotId;
+    public Optional<String> getSlotId() {
+        return Optional.ofNullable(slotId);
     }
 
-    public void setSlotId(String slotId)
-    {
+    public void setSlotId(String slotId) {
         this.slotId = slotId;
     }
 
-    public String getWidgetName()
-    {
-        return widgetName;
+    public Optional<String> getWidgetName() {
+        return Optional.ofNullable(widgetName);
     }
 
-    public void setWidgetName(String widgetName)
-    {
+    public void setWidgetName(String widgetName) {
         this.widgetName = widgetName;
     }
-    
-    public int getRelationshipId()
-    {
+
+    public int getRelationshipId() {
         return relationshipId;
     }
-    
-    public void setRelationshipId(int id)
-    {
+
+    public void setRelationshipId(int id) {
         relationshipId = id;
     }
-
 }

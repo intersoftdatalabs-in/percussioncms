@@ -14,20 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service;
 
 /**
- * 
  * Manages the publishing of resources.
- * For right now this only includes url and file location but will eventually
- * include additional publishing information such as the rendering of a resource and what its mime type is.
- * 
+ * For now, this only includes URL and file location but will eventually
+ * include additional publishing information such as the rendering of a resource and what its MIME type is.
+ *
  * @author adamgent
  * @see IPSResourceLinkAndLocationService
- *
  */
-public interface IPSResourceService extends IPSResourceLinkAndLocationService
-{
-
+public interface IPSResourceService extends IPSResourceLinkAndLocationService {
+    // Marker interface for resource publishing services.
 }
-

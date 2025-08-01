@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -33,17 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-
 
 @Path("/widget")
 @Component("widgetRestService")
@@ -52,21 +45,18 @@ public class PSWidgetRestService {
 
     private static final Logger log = LogManager.getLogger(PSWidgetRestService.class);
 
-    private IPSWidgetService widgetService;
-  
+    private final IPSWidgetService widgetService;
+
     @Autowired
-    public PSWidgetRestService(IPSWidgetService widgetService)
-    {
+    public PSWidgetRestService(IPSWidgetService widgetService) {
         this.widgetService = widgetService;
     }
 
-    
     @POST
     @Path("/validate/item")
-    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    public PSSpringValidationException validateWidgetItem(PSWidgetItem widgetItem)
-    {
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public PSSpringValidationException validateWidgetItem(PSWidgetItem widgetItem) {
         try {
             return widgetService.validateWidgetItem(widgetItem);
         } catch (PSPropertiesValidationException e) {
@@ -75,14 +65,12 @@ public class PSWidgetRestService {
             throw new WebApplicationException(e);
         }
     }
-    
 
     @GET
     @Path("/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    public PSWidgetSummary find(@PathParam("id") String id)
-    {
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public PSWidgetSummary find(@PathParam("id") String id) {
         try {
             return widgetService.find(id);
         } catch (PSDataServiceException e) {
@@ -91,11 +79,11 @@ public class PSWidgetRestService {
             throw new WebApplicationException(e);
         }
     }
-    
+
     @GET
     @Path("/")
-    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     public List<PSWidgetSummary> findAll() {
         try {
             return new PSWidgetSummaryList(widgetService.findAll());
@@ -105,11 +93,11 @@ public class PSWidgetRestService {
             throw new WebApplicationException(e);
         }
     }
-    
+
     @GET
     @Path("/type/{type:.*}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
     public List<PSWidgetSummary> findByType(@PathParam("type") String type, @QueryParam("filterDisabledWidgets") String filterDisabledWidgets) {
         try {
             return new PSWidgetSummaryList(widgetService.findByType(type, filterDisabledWidgets));
@@ -122,10 +110,9 @@ public class PSWidgetRestService {
 
     @GET
     @Path("/full/{id}")
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    public PSWidgetDefinition load(@PathParam("id") String id)
-    {
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public PSWidgetDefinition load(@PathParam("id") String id) {
         try {
             return widgetService.load(id);
         } catch (PSDataServiceException e) {
@@ -135,21 +122,17 @@ public class PSWidgetRestService {
         }
     }
 
-    @POST    
+    @POST
     @Path("/packageinfo")
-    @Produces({MediaType.APPLICATION_JSON,MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN,MediaType.APPLICATION_XML})
-    public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request)
-    {
+    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN, MediaType.APPLICATION_XML})
+    public PSWidgetPackageInfoResult findWidgetPackageInfo(PSWidgetPackageInfoRequest request) {
         try {
             return widgetService.findWidgetPackageInfo(request);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw new WebApplicationException(e);
         }
     }
-
-    
-
 }

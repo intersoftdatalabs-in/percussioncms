@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.contexts.Context;
@@ -24,13 +26,15 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Test adaptor for Context API bridge.
+ */
 @Component
 public class TestContextAdaptor implements IContextsAdaptor {
 
-
     @Override
     public void deleteContext(URI baseURI, String id) {
-
+        // No-op for test adaptor
     }
 
     @Override

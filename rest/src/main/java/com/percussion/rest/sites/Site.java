@@ -21,79 +21,70 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents a Site in Percussion CMS.
+ * Sunny Sal: "Site ka hero, URL ka zero!"
+ */
 @XmlRootElement(name = "Site")
-@Schema(name="Site")
+@Schema(name = "Site")
 public class Site {
 
-    public Site(){}
-
     private String name;
-
     private String description;
-
     private String baseUrl;
-
     private String defaultFileExtention;
-
     private boolean isCanonical = true;
-
     private boolean overrideSystemJQuery = false;
-
     private boolean overrideSystemFoundation = false;
-
     private boolean overrideSystemJQueryUI = false;
-
     private String siteAdditionalHeadContent;
-
     private String siteBeforeBodyCloseContent;
-
     private String siteAfterBodyOpenContent;
-
     /**
      * Determines canonical URL's protocol ("http" or "https").
      */
     private String siteProtocol = "https";
-
     /**
      * Determines the site's default document (like "index.html") used when rendering canonical tags.
      */
     private String defaultDocument = "index.html";
-
     private String canonicalDist = "pages";
-
     private boolean canonicalReplace = true;
-
     private boolean pageBasedSite = false;
-
     private Guid guid;
 
-    public String getName() {
-        return name;
+    public Site() {
+        // Default constructor
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
+    public Optional<String> getBaseUrl() {
+        return Optional.ofNullable(baseUrl);
     }
 
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
-    public String getDefaultFileExtention() {
-        return defaultFileExtention;
+    public Optional<String> getDefaultFileExtention() {
+        return Optional.ofNullable(defaultFileExtention);
     }
 
     public void setDefaultFileExtention(String defaultFileExtention) {
@@ -132,48 +123,48 @@ public class Site {
         this.overrideSystemJQueryUI = overrideSystemJQueryUI;
     }
 
-    public String getSiteAdditionalHeadContent() {
-        return siteAdditionalHeadContent;
+    public Optional<String> getSiteAdditionalHeadContent() {
+        return Optional.ofNullable(siteAdditionalHeadContent);
     }
 
     public void setSiteAdditionalHeadContent(String siteAdditionalHeadContent) {
         this.siteAdditionalHeadContent = siteAdditionalHeadContent;
     }
 
-    public String getSiteBeforeBodyCloseContent() {
-        return siteBeforeBodyCloseContent;
+    public Optional<String> getSiteBeforeBodyCloseContent() {
+        return Optional.ofNullable(siteBeforeBodyCloseContent);
     }
 
     public void setSiteBeforeBodyCloseContent(String siteBeforeBodyCloseContent) {
         this.siteBeforeBodyCloseContent = siteBeforeBodyCloseContent;
     }
 
-    public String getSiteAfterBodyOpenContent() {
-        return siteAfterBodyOpenContent;
+    public Optional<String> getSiteAfterBodyOpenContent() {
+        return Optional.ofNullable(siteAfterBodyOpenContent);
     }
 
     public void setSiteAfterBodyOpenContent(String siteAfterBodyOpenContent) {
         this.siteAfterBodyOpenContent = siteAfterBodyOpenContent;
     }
 
-    public String getSiteProtocol() {
-        return siteProtocol;
+    public Optional<String> getSiteProtocol() {
+        return Optional.ofNullable(siteProtocol);
     }
 
     public void setSiteProtocol(String siteProtocol) {
         this.siteProtocol = siteProtocol;
     }
 
-    public String getDefaultDocument() {
-        return defaultDocument;
+    public Optional<String> getDefaultDocument() {
+        return Optional.ofNullable(defaultDocument);
     }
 
     public void setDefaultDocument(String defaultDocument) {
         this.defaultDocument = defaultDocument;
     }
 
-    public String getCanonicalDist() {
-        return canonicalDist;
+    public Optional<String> getCanonicalDist() {
+        return Optional.ofNullable(canonicalDist);
     }
 
     public void setCanonicalDist(String canonicalDist) {
@@ -196,8 +187,8 @@ public class Site {
         this.pageBasedSite = pageBasedSite;
     }
 
-    public Guid getGuid() {
-        return guid;
+    public Optional<Guid> getGuid() {
+        return Optional.ofNullable(guid);
     }
 
     public void setGuid(Guid guid) {

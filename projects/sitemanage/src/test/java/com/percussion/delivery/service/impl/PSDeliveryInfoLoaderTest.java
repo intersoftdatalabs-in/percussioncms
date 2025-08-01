@@ -25,11 +25,10 @@ import com.percussion.share.dao.PSSerializerUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,36 +39,31 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PSDeliveryInfoLoaderTest
 {
 
     private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public java.nio.file.Path temporaryFolder;
 
     private String rxdeploydir;
 
-    
     private PSDeliveryInfoLoader loader;
-    
-    @Before
+
+    @BeforeEach
     public void setUp()
     {
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", temporaryFolder.toFile().getAbsolutePath());
 
         loader = getDeliveryInfoLoader("DeliveryServerConfigTest.xml");
     }
 
-    @After
+    @AfterEach
     public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
         if(rxdeploydir != null)
             System.setProperty("rxdeploydir",rxdeploydir);
     }
@@ -239,22 +233,19 @@ public class PSDeliveryInfoLoaderTest
     
     private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
     {
-        // Copy mixed passwords to temp directory
-        File tempConfigFile = File.createTempFile("deliveryServers", ".xml");
-        OutputStream out = Files.newOutputStream(tempConfigFile.toPath());
-        try {
+        var tempConfigFile = File.createTempFile("deliveryServers", ".xml");
+        try (var out = Files.newOutputStream(tempConfigFile.toPath())) {
             IOUtils.copy(baseConfigFile, out);
         } catch (Exception e){
             return tempConfigFile;
-    }
-        
+        }
         return tempConfigFile;
     }
     
-    public  PSDeliveryInfoLoader getDeliveryInfoLoader(String configFile)
+    public PSDeliveryInfoLoader getDeliveryInfoLoader(String configFile)
     {
-        URL url = this.getClass().getResource(configFile);
-        
+        var url = this.getClass().getResource(configFile);
+
         try
         {
             if (url != null)
@@ -262,15 +253,11 @@ public class PSDeliveryInfoLoaderTest
             else
                 return new PSDeliveryInfoLoader(new File(configFile));
         }
-        catch (URISyntaxException e)
+        catch (URISyntaxException | PSServerConfigException e)
         {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        } catch (PSServerConfigException e) {
-            log.error(PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-        
         return null;
     }
 }

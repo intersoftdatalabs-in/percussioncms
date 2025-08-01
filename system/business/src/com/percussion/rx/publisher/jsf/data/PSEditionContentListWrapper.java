@@ -14,22 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.data;
 
 import com.percussion.rx.publisher.PSPublisherUtils;
 import com.percussion.rx.publisher.jsf.nodes.PSDesignNode;
-import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSEditionContentList;
-import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
 
+
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +37,11 @@ import org.apache.logging.log4j.Logger;
 /**
  * Presentation wrapper to aid in the displaying of an edition content list.
  * 
+ * @author dougrand
+ */
+/**
+ * Java 11 refactored: Presentation wrapper to aid in the displaying of an edition content list.
+ * <p>Immutable where possible, uses Optional, var, and Google Java Style. All comments and spelling fixed.
  * @author dougrand
  */
 public class PSEditionContentListWrapper implements Comparable<PSEditionContentListWrapper>
@@ -50,7 +54,7 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
    /**
     * The edition content list
     */
-   IPSEditionContentList m_eclist;
+   private IPSEditionContentList m_eclist;
    
    /**
     * The name of the associated content list
@@ -81,7 +85,7 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
     * The ID of the site that the Edition belongs to. Never <code>null</code>
     * after the constructor.
     */
-   private IPSGuid m_siteId;
+   private final IPSGuid m_siteId;
    
    /**
     * Constructor.
@@ -89,43 +93,31 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
     * @param siteId The ID of the site that the Edition belongs to, never
     *    <code>null</code>.
     */
-   public PSEditionContentListWrapper(IPSEditionContentList eclist, 
-         IPSGuid siteId)
-   {
-      if (eclist == null)
-         throw new IllegalArgumentException("eclist may not be null");
-      if (siteId == null)
-         throw new IllegalArgumentException("siteId may not be null");
-
-      m_eclist = eclist;
-      m_siteId = siteId;
-      
+   public PSEditionContentListWrapper(IPSEditionContentList eclist, IPSGuid siteId) {
+      if (eclist == null) throw new IllegalArgumentException("eclist may not be null");
+      if (siteId == null) throw new IllegalArgumentException("siteId may not be null");
+      this.m_eclist = eclist;
+      this.m_siteId = siteId;
       init();
    }
 
    /**
     * Initialize or reinitialize wrapper from contained content list. 
     */
-   public void init()
-   {
-      IPSPublisherService psvc = PSPublisherServiceLocator.getPublisherService();
-      IPSGuid clistid = m_eclist.getContentListId();
-      try
-      {
-         List<IPSContentList> lists 
-            = psvc.loadContentLists(Collections.singletonList(clistid));
+   public void init() {
+      var psvc = PSPublisherServiceLocator.getPublisherService();
+      var clistid = m_eclist.getContentListId();
+      try {
+         var lists = psvc.loadContentLists(Collections.singletonList(clistid));
          m_contentlistname = lists.get(0).getName();
-      }
-      catch (PSPublisherException e)
-      {
+      } catch (PSPublisherException e) {
          ms_log.error("Problem loading content list", e);
          m_contentlistname = "unknown";
       }
-      IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
-      Map<Integer,String> cmap = smgr.getContextNameMap();
-      m_assemblycontext = null;
-      if (m_eclist.getAssemblyContextId() != null)
-         m_assemblycontext = cmap.get(m_eclist.getAssemblyContextId().getUUID());
+      var smgr = PSSiteManagerLocator.getSiteManager();
+      var cmap = smgr.getContextNameMap();
+      m_assemblycontext = Optional.ofNullable(m_eclist.getAssemblyContextId())
+            .map(id -> cmap.get(id.getUUID())).orElse(null);
       m_deliverycontext = cmap.get(m_eclist.getDeliveryContextId().getUUID());
       m_sequence = m_eclist.getSequence();
       m_selected = false;
@@ -134,31 +126,26 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
    /**
     * @return the eclist
     */
-   public IPSEditionContentList getEclist()
-   {
+   public IPSEditionContentList getEclist() {
       return m_eclist;
    }
 
-   public String getClistURL()
-   {
-      IPSContentList clist = PSPublisherUtils.getContentList(m_eclist);
-      String url = PSPublisherUtils.getCListDocumentURL(m_siteId, m_eclist, clist);
-      return url;
+   public String getClistURL() {
+      var clist = PSPublisherUtils.getContentList(m_eclist);
+      return PSPublisherUtils.getCListDocumentURL(m_siteId, m_eclist, clist);
    }
    
    /**
     * @param eclist the eclist to set
     */
-   public void setEclist(IPSEditionContentList eclist)
-   {
+   public void setEclist(IPSEditionContentList eclist) {
       m_eclist = eclist;
    }
 
    /**
     * @return the contentlistname
     */
-   public String getContentlistname()
-   {
+   public String getContentlistname() {
       return m_contentlistname;
    }
 
@@ -168,81 +155,70 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
     * 
     * @return Name formatted with the id, never <code>null</code> or empty.
     */
-   public String getContentListNameWithId()
-   {
-      return PSDesignNode.getNameWithId(m_contentlistname, m_eclist
-            .getContentListId().longValue());
+   public String getContentListNameWithId() {
+      return PSDesignNode.getNameWithId(m_contentlistname, m_eclist.getContentListId().longValue());
    }
 
    /**
     * @param contentlistname the contentlistname to set
     */
-   public void setContentlistname(String contentlistname)
-   {
+   public void setContentlistname(String contentlistname) {
       m_contentlistname = contentlistname;
    }
 
    /**
     * @return the assemblycontext
     */
-   public String getAssemblycontext()
-   {
+   public String getAssemblycontext() {
       return m_assemblycontext;
    }
 
    /**
     * @param assemblycontext the assemblycontext to set
     */
-   public void setAssemblycontext(String assemblycontext)
-   {
+   public void setAssemblycontext(String assemblycontext) {
       m_assemblycontext = assemblycontext;
    }
 
    /**
     * @return the deliverycontext
     */
-   public String getDeliverycontext()
-   {
+   public String getDeliverycontext() {
       return m_deliverycontext;
    }
 
    /**
     * @param deliverycontext the deliverycontext to set
     */
-   public void setDeliverycontext(String deliverycontext)
-   {
+   public void setDeliverycontext(String deliverycontext) {
       m_deliverycontext = deliverycontext;
    }
 
    /**
     * @return the sequence
     */
-   public Integer getSequence()
-   {
+   public Integer getSequence() {
       return m_sequence;
    }
 
    /**
     * @param sequence the sequence to set
     */
-   public void setSequence(Integer sequence)
-   {
+   public void setSequence(Integer sequence) {
       m_sequence = sequence;
    }
 
    /**
     * @return the selected
     */
-   public boolean getSelected()
-   {
+   public boolean getSelected() {
       return m_selected;
    }
 
    /**
     * @param selected the selected to set
     */
-   public void setSelected(boolean selected)
-   {
+   public void setSelected(boolean selected) {
       m_selected = selected;
    }
 
@@ -250,22 +226,20 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
     * (non-Javadoc)
     * @see java.lang.Comparable#compareTo(java.lang.Object)
     */
-   public int compareTo(PSEditionContentListWrapper o)
-   {
+   @Override
+   public int compareTo(PSEditionContentListWrapper o) {
       int mySeq = m_sequence == null ? 0 : m_sequence;
       int otherSeq = o.m_sequence == null ? 0 : o.m_sequence;
-      return mySeq - otherSeq;
+      return Integer.compare(mySeq, otherSeq);
    }
 
    /**
     * @return the authtype, never <code>null</code>, may be empty.
     */
-   public String getAuthtype()
-   {
-      if (m_eclist.getAuthtype() != null)
-         return Integer.toString(m_eclist.getAuthtype());
-      else
-         return "";
+   public String getAuthtype() {
+      return Optional.ofNullable(m_eclist.getAuthtype())
+            .map(Object::toString)
+            .orElse("");
    }
    
    /**
@@ -273,19 +247,15 @@ public class PSEditionContentListWrapper implements Comparable<PSEditionContentL
     * @param authtype the new authtype value, never <code>null</code> or empty
     * and must be numeric.
     */
-   public void setAuthtype(String authtype)
-   {
-      if (StringUtils.isBlank(authtype))
-      {
+   public void setAuthtype(String authtype) {
+      if (StringUtils.isBlank(authtype)) {
          m_eclist.setAuthtype(null);
          return;
       }
-      if (!StringUtils.isNumeric(authtype))
-      {
-         throw new IllegalArgumentException(
-            "authtype must be numeric");
+      if (!StringUtils.isNumeric(authtype)) {
+         throw new IllegalArgumentException("authtype must be numeric");
       }
-      m_eclist.setAuthtype(new Integer(authtype));
+      m_eclist.setAuthtype(Integer.valueOf(authtype));
    }
    
    

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,9 +26,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * Represents a list of path items.
+ * Used for REST API responses.
+ * Sunny Sal says: "PathItemList: because one path is never enough!"
+ */
 @XmlRootElement(name = "PathItemList")
-@ArraySchema(schema=@Schema(implementation = PSPathItem.class))
+@ArraySchema(schema = @Schema(implementation = PSPathItem.class))
 @JsonRootName("PathItemList")
 public class PSPathItemList extends ArrayList<PSPathItem> {
     public PSPathItemList(Collection<? extends PSPathItem> c) {

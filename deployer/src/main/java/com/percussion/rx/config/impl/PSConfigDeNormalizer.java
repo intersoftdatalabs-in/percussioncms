@@ -40,16 +40,15 @@ import java.util.TreeMap;
  */
 public class PSConfigDeNormalizer
 {
-
    /**
     * Get singleton instance of the <code>PSConfigDeNormalizer</code>.
     * 
     * @return the instance, never <code>null</code>.
     */
-   public static PSConfigDeNormalizer getInstance()
-   {
-      if (ms_instance == null)
+   public static PSConfigDeNormalizer getInstance() {
+      if (ms_instance == null) {
          ms_instance = new PSConfigDeNormalizer();
+      }
       return ms_instance;
    }
 
@@ -83,44 +82,40 @@ public class PSConfigDeNormalizer
     */
    public String getDeNormalizedXml(Map<String, Object> props,
          List<String> errors, String publisherName, String publisherPrefix,
-         String solutionName)
-   {
-      if (props == null)
+         String solutionName) {
+      if (props == null) {
          throw new IllegalArgumentException("props must not be null");
-      if (StringUtils.isBlank(publisherPrefix))
-         throw new IllegalArgumentException(
-               "publisherPrefix must not be empty");
-      if (StringUtils.isBlank(publisherName))
+      }
+      if (StringUtils.isBlank(publisherPrefix)) {
+         throw new IllegalArgumentException("publisherPrefix must not be empty");
+      }
+      if (StringUtils.isBlank(publisherName)) {
          throw new IllegalArgumentException("publisherName must not be empty");
-      if (StringUtils.isBlank(solutionName))
+      }
+      if (StringUtils.isBlank(solutionName)) {
          throw new IllegalArgumentException("solutionName must not be empty");
-      String prefix = publisherPrefix + "." + solutionName + ".";
-
-      Document configDoc = PSXmlDocumentBuilder.createXmlDocument(
+      }
+      var prefix = publisherPrefix + "." + solutionName + ".";
+      var configDoc = PSXmlDocumentBuilder.createXmlDocument(
             ELEM_SOLUTION_CONFIGURATIONS, null, null);
-      Element rootElem = configDoc.getDocumentElement();
-      rootElem.setAttribute("xmlns:xsi",
-            "http://www.w3.org/2001/XMLSchema-instance");
-      rootElem
-            .setAttribute("xsi:noNamespaceSchemaLocation", "localConfig.xsd");
+      var rootElem = configDoc.getDocumentElement();
+      rootElem.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+      rootElem.setAttribute("xsi:noNamespaceSchemaLocation", "localConfig.xsd");
       rootElem.setAttribute(ATTR_PUBLISHER_PREFIX, publisherPrefix);
       rootElem.setAttribute(ATTR_PUBLISHER_NAME, publisherName);
-      Element solConfig = configDoc.createElement(ELEM_SOLUTION_CONFIG);
+      var solConfig = configDoc.createElement(ELEM_SOLUTION_CONFIG);
       solConfig.setAttribute(ATTR_NAME, solutionName);
       rootElem.appendChild(solConfig);
       // Build the rest of the elements from the map of properties here.
-      Map<String, Object> sortedProps = sortMap(props);
-      boolean hasFixMe = false;
-      for (String name : sortedProps.keySet())
-      {
-         hasFixMe = hasFixMe
-               | handleProperties(configDoc, solConfig, prefix, name,
-                     sortedProps.get(name), true);
+      var sortedProps = sortMap(props);
+      var hasFixMe = false;
+      for (var name : sortedProps.keySet()) {
+         hasFixMe = hasFixMe | handleProperties(configDoc, solConfig, prefix, name, sortedProps.get(name), true);
       }
-      if (hasFixMe)
-      {
-         if (errors == null)
+      if (hasFixMe) {
+         if (errors == null) {
             errors = new ArrayList<>(1);
+         }
          errors.add(0, ERROR_FIXME);
       }
       addComments(rootElem, errors);
@@ -134,32 +129,25 @@ public class PSConfigDeNormalizer
     * @param parent assumed not <code>null</code>.
     * @param errors may be <code>null</code> or empty.
     */
-   private void addComments(Element parent, List<String> errors)
-   {
-      Document doc = parent.getOwnerDocument();
-      StringBuilder buff = new StringBuilder();
-      buff.append(NEWLINE);
-      buff.append(NEWLINE);
+   private void addComments(Element parent, List<String> errors) {
+      var doc = parent.getOwnerDocument();
+      var buff = new StringBuilder();
+      buff.append(NEWLINE).append(NEWLINE);
       buff.append("Generated on ");
-      FastDateFormat formatter = FastDateFormat.getInstance(DATE_FORMAT);
+      var formatter = FastDateFormat.getInstance(DATE_FORMAT);
       buff.append(formatter.format(new Date()));
       buff.append(NEWLINE);
-      if (errors != null && !errors.isEmpty())
-      {
+      if (errors != null && !errors.isEmpty()) {
          buff.append(NEWLINE);
          buff.append("Errors Occurred:");
          buff.append(NEWLINE);
          buff.append("================");
          buff.append(NEWLINE);
-         for (String err : errors)
-         {
-            buff.append("- ");
-            buff.append(err);
-            buff.append(NEWLINE);
-            buff.append(NEWLINE);
+         for (var err : errors) {
+            buff.append("- ").append(err).append(NEWLINE).append(NEWLINE);
          }
       }
-      Comment comment = doc.createComment(buff.toString());
+      var comment = doc.createComment(buff.toString());
       parent.insertBefore(comment, parent.getFirstChild());
    }
 
@@ -181,76 +169,55 @@ public class PSConfigDeNormalizer
    @SuppressWarnings("unchecked")
    private boolean handleProperties(final Document doc, final Element parent,
          final String prefix, final String name, final Object prop,
-         boolean nameTobeFixed)
-   {
-      boolean hasFixMe = false;
+         boolean nameTobeFixed) {
+      var hasFixMe = false;
       Element el = null;
-      if (prop == null)
-      {
-         String fixedName = nameTobeFixed ? fixName(name, prefix) : name;
+      if (prop == null) {
+         var fixedName = nameTobeFixed ? fixName(name, prefix) : name;
          hasFixMe = fixedName.startsWith(FIXME_INVALID_PREFIX);
          el = doc.createElement(ELEM_PROPERTY);
          el.setAttribute(ATTR_NAME, fixedName);
-      }
-      else if (prop instanceof Map)
-      {
-         Map<String, Object> sortedProps = sortMap((Map<String, Object>) prop);
+      } else if (prop instanceof Map) {
+         var sortedProps = sortMap((Map<String, Object>) prop);
          el = doc.createElement(ELEM_PROPERTY_SET);
-         if (name != null)
-         {
-            String fixedName = nameTobeFixed ? fixName(name, prefix) : name;
+         if (name != null) {
+            var fixedName = nameTobeFixed ? fixName(name, prefix) : name;
             hasFixMe = fixedName.startsWith(FIXME_INVALID_PREFIX);
             el.setAttribute(ATTR_NAME, fixedName);
          }
-         for (String key : sortedProps.keySet())
-         {
-            hasFixMe = hasFixMe
-                  | handleProperties(doc, el, prefix, key, sortedProps
-                        .get(key), false);
+         for (var key : sortedProps.keySet()) {
+            hasFixMe = hasFixMe | handleProperties(doc, el, prefix, key, sortedProps.get(key), false);
          }
-      }
-      else if (prop instanceof Collection)
-      {
-         String fixedName = nameTobeFixed ? fixName(name, prefix) : name;
+      } else if (prop instanceof Collection) {
+         var fixedName = nameTobeFixed ? fixName(name, prefix) : name;
          hasFixMe = fixedName.startsWith(FIXME_INVALID_PREFIX);
          el = doc.createElement(ELEM_PROPERTY);
          el.setAttribute(ATTR_NAME, fixedName);
-         Iterator iter = ((Collection) prop).iterator();
+         var iter = ((Collection) prop).iterator();
          Element values = null;
          // Create a ELEM_PVALUES element if there are collection is empty, in
          // which case it creates an empty pvalues element or if the instance of
          // elements is String. Otherwise a propertySet element is created in
          // the next recursive call.
-         if(((Collection) prop).isEmpty() || iter.next() instanceof String)
-         {
+         if (((Collection) prop).isEmpty() || iter.next() instanceof String) {
             values = doc.createElement(ELEM_PVALUES);
             el.appendChild(values);
-         }
-         else
-         {
+         } else {
             values = el;
          }
-         for (Object obj : (Collection) prop)
-         {
-            hasFixMe = hasFixMe
-                  | handleProperties(doc, values, prefix, null, obj, false);
+         for (var obj : (Collection) prop) {
+            hasFixMe = hasFixMe | handleProperties(doc, values, prefix, null, obj, false);
          }
-      }
-      else if (prop instanceof PSPair)
-      {
-         PSPair pair = (PSPair) prop;
+      } else if (prop instanceof PSPair) {
+         var pair = (PSPair) prop;
          el = doc.createElement(ELEM_PAIR);
          el.setAttribute(ATTR_VALUE + "1", toString(pair.getFirst()));
          el.setAttribute(ATTR_VALUE + "2", toString(pair.getSecond()));
-      }
-      else if (parent.getNodeName().equals(ELEM_PVALUES))
-      {
+      } else if (parent.getNodeName().equals(ELEM_PVALUES)) {
          el = doc.createElement(ELEM_PVALUE);
          el.appendChild(doc.createTextNode(toString(prop)));
-      }
-      else
-      {
-         String fixedName = nameTobeFixed ? fixName(name, prefix) : name;
+      } else {
+         var fixedName = nameTobeFixed ? fixName(name, prefix) : name;
          hasFixMe = fixedName.startsWith(FIXME_INVALID_PREFIX);
          el = doc.createElement(ELEM_PROPERTY);
          el.setAttribute(ATTR_NAME, fixedName);

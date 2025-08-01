@@ -17,6 +17,7 @@
 
 package com.percussion.HTTPClient;
 
+import java.util.Objects;
 
 /**
  * This class holds a Name/Value pair of strings. It's used for headers,
@@ -29,11 +30,10 @@ package com.percussion.HTTPClient;
 public final class NVPair
 {
     /** the name */
-    private String name;
+    private final String name;
 
     /** the value */
-    private String value;
-
+    private final String value;
 
     // Constructors
 
@@ -41,56 +41,85 @@ public final class NVPair
      * Creates a new name/value pair and initializes it to the
      * specified name and value.
      *
-     * @param name  the name
-     * @param value the value
+     * @param name  the name, may be {@code null}
+     * @param value the value, may be {@code null}
      */
     public NVPair(String name, String value)
     {
-	this.name  = name;
-	this.value = value;
+        this.name = name;
+        this.value = value;
     }
 
     /**
      * Creates a copy of a given name/value pair.
      *
-     * @param p the name/value pair to copy
+     * @param p the name/value pair to copy, may not be {@code null}
+     * @throws IllegalArgumentException if p is {@code null}
      */
     public NVPair(NVPair p)
     {
-	this(p.name, p.value);
+        this(Objects.requireNonNull(p, "NVPair cannot be null").name, p.value);
     }
-
 
     // Methods
 
     /**
      * Get the name.
      *
-     * @return the name
+     * @return the name, may be {@code null}
      */
-    public final String getName()
+    public String getName()
     {
-	return name;
+        return name;
     }
 
     /**
      * Get the value.
      *
-     * @return the value
+     * @return the value, may be {@code null}
      */
-    public final String getValue()
+    public String getValue()
     {
-	return value;
+        return value;
     }
 
+    /**
+     * Compares this object with another for equality.
+     *
+     * @param obj The object to compare with.
+     *
+     * @return {@code true} if the objects are equal, {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+
+        var other = (NVPair) obj;
+        return Objects.equals(name, other.name) &&
+               Objects.equals(value, other.value);
+    }
+
+    /**
+     * Returns the hash code for this object.
+     *
+     * @return The hash code.
+     */
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(name, value);
+    }
 
     /**
      * Produces a string containing the name and value of this instance.
      *
      * @return a string containing the class name and the name and value
      */
+    @Override
     public String toString()
     {
-	return getClass().getName() + "[name=" + name + ",value=" + value + "]";
+        return getClass().getName() + "[name=" + name + ",value=" + value + "]";
     }
 }

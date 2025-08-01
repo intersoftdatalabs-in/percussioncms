@@ -23,7 +23,9 @@ import com.percussion.deployer.objectstore.IPSDeployComponent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Describes the location of a literal id within a <code>PSApplication</code>
@@ -174,18 +176,18 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent
     * objects, never <code>null</code>, guaranteed to include at least this
     * context object.
     */
-   public Iterator getAllContexts()
-   {
-      List ctxList = new ArrayList();
-      
-      PSApplicationIdContext parent = this;
-      while (parent != null)
-      {
-         ctxList.add(parent);
-         parent = parent.getParentCtx();
-      }
-      
-      return ctxList.iterator();
+   public Iterator<PSApplicationIdContext> getAllContexts() {
+       return getParentContexts().iterator();
+   }
+
+   private List<PSApplicationIdContext> getParentContexts() {
+       var contexts = new ArrayList<PSApplicationIdContext>();
+       var parent = this;
+       while (parent != null) {
+           contexts.add(parent);
+           parent = parent.getParentCtx();
+       }
+       return contexts;
    }
    
    /**
@@ -491,19 +493,14 @@ public abstract class PSApplicationIdContext implements IPSDeployComponent
     * @throws IllegalArgumentException if <code>text</code> is <code>null</code> 
     * or empty.
     */
-   protected String addParentDisplayText(String text)
-   {
-      if (text == null || text.trim().length() == 0)
-         throw new IllegalArgumentException("text may not be null or empty");
-         
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-      {
-         text += SPACE + getBundle().getString("appIdCtxMsgJoin") +  
-            SPACE + parent.getDisplayText();
-      }   
-      
-      return text;
+   protected String addParentDisplayText(String text) {
+       if (text == null || text.trim().isEmpty()) {
+           throw new IllegalArgumentException("text may not be null or empty");
+       }
+
+       return Optional.ofNullable(getParentCtx())
+           .map(parent -> text + SPACE + getBundle().getString("appIdCtxMsgJoin") + SPACE + parent.getDisplayText())
+           .orElse(text);
    }
    
    /**

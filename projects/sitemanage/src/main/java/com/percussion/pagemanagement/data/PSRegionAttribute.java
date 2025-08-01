@@ -21,20 +21,23 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
+/**
+ * Represents an attribute for a region (e.g., HTML attribute).
+ */
 @XmlRootElement(name = "RegionAttribute")
 public class PSRegionAttribute {
 
-    public PSRegionAttribute()
-    {
-        // Required JaxB no arg constructor
+    private String name;
+    private String value;
+
+    public PSRegionAttribute() {
+        // Required JaxB no-arg constructor
     }
+
     public PSRegionAttribute(String name, String value) {
         this.name = name;
         this.value = value;
     }
-
-    private String name;
-    private String value;
 
     @XmlElement
     public String getName() {
@@ -58,7 +61,7 @@ public class PSRegionAttribute {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSRegionAttribute)) return false;
-        PSRegionAttribute that = (PSRegionAttribute) o;
+        var that = (PSRegionAttribute) o;
         return Objects.equals(getName(), that.getName()) && Objects.equals(getValue(), that.getValue());
     }
 
@@ -69,10 +72,9 @@ public class PSRegionAttribute {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("PSRegionAttribute{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", value='").append(value).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "PSRegionAttribute{" +
+                "name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

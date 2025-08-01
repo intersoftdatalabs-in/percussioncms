@@ -14,39 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
+/**
+ * Represents a render result.
+ */
 @XmlRootElement(name = "RenderResult")
-@JsonRootName( "RenderResult")
-public class PSRenderResult extends PSAbstractDataObject
-{
-    
+@JsonRootName("RenderResult")
+public class PSRenderResult extends PSAbstractDataObject {
+
     private static final long serialVersionUID = 1L;
     private String result;
     private String regionId;
-    
-    public String getRegionId()
-    {
+
+    public String getRegionId() {
         return regionId;
     }
 
-    public void setRegionId(String regionId)
-    {
+    public void setRegionId(String regionId) {
         this.regionId = regionId;
     }
 
-    public String getResult()
-    {
+    public String getResult() {
         return result;
     }
-    
-    public void setResult(String result)
-    {
+
+    public void setResult(String result) {
         this.result = result;
     }
-    
 }

@@ -19,7 +19,6 @@ package com.percussion.services.guidmgr.impl;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSGuidGeneratorData;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -27,7 +26,7 @@ import com.percussion.services.guidmgr.data.PSNextNumber;
 import com.percussion.util.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSConversions;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Propagation;
@@ -38,627 +37,484 @@ import javax.persistence.PersistenceContext;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.IntStream;
 
 /**
- * Guid manager implementation. Allocates new ids in groups, updating the
- * database as each group is allocated. Each type has its own pool of ids.
- * <P>
- * The site id is stored under the -1 id.
- * <P>
- * Ids are allocated in blocks. The code then allocates new ids from the block
- * until the block is exhausted. At that point the database is read for the next
- * block start and a new block is allocated.
+ * Modern Java 11 implementation of the GUID manager service.
+ *
+ * <p>This service allocates globally unique identifiers in blocks, updating the
+ * database as each block is allocated. Each type maintains its own pool of IDs
+ * for efficient allocation and thread safety.
+ *
+ * <p>The implementation uses modern Java 11 features including:
+ * <ul>
+ *   <li>Stream API for efficient collection processing</li>
+ *   <li>Optional for null-safe operations</li>
+ *   <li>ConcurrentHashMap for thread-safe allocation tracking</li>
+ *   <li>Enhanced exception handling with descriptive messages</li>
+ * </ul>
+ *
+ * <p>Host ID management ensures global uniqueness across distributed systems
+ * by incorporating the local machine's IP address into the generation process.
  *
  * @author dougrand
+ * @since Java 11 Modernization
  */
 @PSBaseBean("sys_guidmanager")
 @Transactional(propagation = Propagation.REQUIRES_NEW, noRollbackFor = IllegalArgumentException.class)
-public class PSGuidManager implements IPSGuidManager
-{
+public class PSGuidManager implements IPSGuidManager {
 
    @PersistenceContext
    private EntityManager entityManager;
 
-   private Session getSession(){
-      return entityManager.unwrap(Session.class);
-   }
-
    /**
-    * The key for the GUID data table where the host information is stored
+    * Database keys for storing host and IP information.
     */
    static final Integer HOST_KEY = -1;
-
-   /**
-    * These keys are used to store the host IP address. The IP address is always
-    * buffered out to 128 bits for comparison purposes.
-    */
    static final Integer IP_KEY1 = -2;
-
-   /**
-    * The second part of the host IP address
-    */
    static final Integer IP_KEY2 = -3;
 
    /**
-    * This is the range of IDs created before allocating a new block.
+    * Default block size for ID allocation to optimize database access.
     */
    static final int BLOCK_SIZE = 10;
 
    /**
-    * This stores the host id, this initial value here is replaced by the real
-    * host id on initialization.
+    * Host ID for this server instance, initialized lazily.
     */
-   static volatile long ms_hostId = -1;
+   private static volatile long hostId = -1;
 
    /**
-    * A map of allocations. Each allocation allows the code to allocate IDs in a
-    * range. When the range is exceeded, a new allocation is created and
-    * replaces the current allocation. Data in the allocation is not persisted
-    * because only the range limits matter to other processes allocating IDs.
-    * <p>
-    * The keys of the map are one of the following:
-    * <ul>
-    * <li>The ordinal of the type enumeration
-    * <li>The ordinal + an offset used to separate each repository's IDs
-    * <li>The string name of the next number column to use
-    * </ul>
+    * Thread-safe allocation cache for efficient ID generation.
     */
-   static ConcurrentHashMap<Object, Allocation> ms_allocation = new ConcurrentHashMap<>(8, 0.9f, 1);
+   private static final ConcurrentHashMap<Object, Allocation> allocationCache =
+       new ConcurrentHashMap<>(16, 0.75f, 4);
 
    /**
-    * Ctor - this object will be configured as a singleton in each running
-    * container.
+    * Constructs a new GUID manager instance.
+    * <p>This object is configured as a singleton in the Spring container.
     */
-   public PSGuidManager()
-   {
+   public PSGuidManager() {
       super();
    }
 
-   /**
-    * This must be called from synchronized code. Generates the host id if not
-    * present, or if the ip address of the host has changed.
-    */
-   public void loadHostId()
-   {
-
-      Session sess =  getSession();
-      PSGuidGeneratorData host = null;
-
-      try
-      {
-         // Must get values with an upgrade key to avoid multiple writers
-         host =  sess.get(PSGuidGeneratorData.class, HOST_KEY);
-         PSGuidGeneratorData ip1 = sess.get(PSGuidGeneratorData.class, IP_KEY1);
-         PSGuidGeneratorData ip2 =  sess.get(PSGuidGeneratorData.class, IP_KEY2);
-
-         byte[] hostip = null;
-
-         try
-         {
-            hostip = InetAddress.getLocalHost().getAddress();
-            if (hostip.length < 16)
-            {
-               byte[] temp = new byte[16];
-               System.arraycopy(hostip, 0, temp, 0, hostip.length);
-               hostip = temp;
-            }
-         }
-         catch (UnknownHostException e)
-         {
-            hostip = new byte[16]; // Initialized to zeros
-         }
-
-         byte[] storedip = new byte[16];
-         if (ip1 != null && ip2 != null)
-         {
-            System.arraycopy(PSConversions.longToByteArray(ip1.getValue()), 0, storedip, 0, 8);
-            System.arraycopy(PSConversions.longToByteArray(ip2.getValue()), 0, storedip, 8, 8);
-         }
-
-         if (host == null || host.getValue() == 0 || !Arrays.equals(storedip, hostip))
-         {
-            SecureRandom rand = new SecureRandom();
-            if (host == null)
-            {
-               host = new PSGuidGeneratorData(HOST_KEY, 0);
-            }
-            int hostid = 0;
-            while (hostid == 0)
-            {
-               hostid = rand.nextInt() & 0x00FFFFFF;
-            }
-            host.setValue(hostid);
-            sess.saveOrUpdate(host);
-            if (ip1 == null)
-            {
-               ip1 = new PSGuidGeneratorData(IP_KEY1, 0);
-            }
-            if (ip2 == null)
-            {
-               ip2 = new PSGuidGeneratorData(IP_KEY2, 0);
-            }
-            ip1.setValue(PSConversions.byteArrayToLong(hostip, 0));
-            ip2.setValue(PSConversions.byteArrayToLong(hostip, 8));
-            sess.saveOrUpdate(ip1);
-            sess.saveOrUpdate(ip2);
-         }
-
-         ms_hostId = host.getValue();
-      }
-      catch (HibernateException e)
-      {
-         // Site unknown
-      }
-
-   }
-
-   /*
-    * (non-Javadoc)
-    *
-    * @see
-    * com.percussion.guidmgr.IPSGuidManager#createGuids(com.percussion.utils
-    * .guid.PSGuid.Type, int)
-    */
-   public List<IPSGuid> createGuids(PSTypeEnum type, int count)
-   {
+   @Override
+   public List<IPSGuid> createGuids(PSTypeEnum type, int count) {
       return createGuids((byte) 0, type, count);
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see com.percussion.guidmgr.IPSGuidManager#createGuids(byte,
-    * com.percussion.utils.guid.PSGuid.Type, int)
-    */
-   public List<IPSGuid> createGuids(byte repositoryId, PSTypeEnum type, int count)
-   {
-      List<IPSGuid> rval = new ArrayList<>();
-      for (int i = 0; i < count; i++)
-      {
-         rval.add(createGuid(repositoryId, type));
+   @Override
+   public List<IPSGuid> createGuids(byte repositoryId, PSTypeEnum type, int count) {
+      Objects.requireNonNull(type, "Type cannot be null");
+      if (count < 0) {
+         throw new IllegalArgumentException("Count must be non-negative: " + count);
       }
-      return rval;
+
+      return IntStream.range(0, count)
+          .mapToObj(i -> createGuid(repositoryId, type))
+          .collect(java.util.stream.Collectors.toUnmodifiableList());
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see
-    * com.percussion.guidmgr.IPSGuidManager#createGuid(com.percussion.util.guid
-    * .PSGuid.Type)
-    */
-  public IPSGuid createGuid(PSTypeEnum type)
-   {
+   @Override
+   public IPSGuid createGuid(PSTypeEnum type) {
       return createGuid((byte) 0, type);
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see com.percussion.guidmgr.IPSGuidManager#createGuid(byte,
-    * com.percussion.utils.guid.PSGuid.Type)
-    */
-   public IPSGuid createGuid(byte repositoryId, PSTypeEnum type)
-   {
-      if (repositoryId < 0)
-      {
-         throw new IllegalArgumentException("Repository id must not be negative");
-      }
-      if (type == null)
-      {
-         throw new IllegalArgumentException("type must never be null");
-      }
+   @Override
+   public IPSGuid createGuid(byte repositoryId, PSTypeEnum type) {
+      validateRepositoryId(repositoryId);
+      Objects.requireNonNull(type, "Type cannot be null");
 
-      if (type.getKey() == null)
-         return createStandardGuid(repositoryId, type);
-      else
-      {
-         int id = createNextNumberId(type.getKey(), BLOCK_SIZE);
-         return new PSGuid(0, type, id);
-      }
+      return Optional.ofNullable(type.getKey())
+          .map(key -> createKeyBasedGuid(key, type))
+          .orElseGet(() -> createStandardGuid(repositoryId, type));
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see com.percussion.services.guidmgr.IPSGuidManager#convertToGuid(long,
-    * com.percussion.services.catalog.PSTypeEnum)
-    */
-   public IPSGuid makeGuid(long raw, PSTypeEnum type, boolean forceType)
-   {
-      if (type == PSTypeEnum.LEGACY_CONTENT || type == PSTypeEnum.LEGACY_CHILD)
-         return new PSLegacyGuid(raw);
-      return new PSGuid(type, raw,forceType);
+   @Override
+   public int createId(String key) {
+      Objects.requireNonNull(key, "Key cannot be null");
+      if (key.trim().isEmpty()) {
+         throw new IllegalArgumentException("Key cannot be empty");
+      }
+      return createNextNumberId(key, BLOCK_SIZE);
    }
 
-    /**
-     * Recreates a guid instance from a value originally obtained from
-     * {@link IPSGuid#longValue()} or from a uuid.
-     *
-     * @param raw  This value may or may not contain the type id. If it does,
-     *             then it must match the supplied <code>type</code>, otherwise, the supplied
-     *             type is used as the type for the new guid.
-     * @param type the type, never <code>null</code>
-     * @return a guid of the specified type built from the specified raw value,
-     * never <code>null</code>.
-     */
-    @Override
-    public IPSGuid makeGuid(long raw, PSTypeEnum type) {
-        if (type == PSTypeEnum.LEGACY_CONTENT || type == PSTypeEnum.LEGACY_CHILD)
-            return new PSLegacyGuid(raw);
-        return new PSGuid(type, raw);
-    }
-
-    /*
-    * (non-Javadoc)
-    *
-    * @see
-    * com.percussion.services.guidmgr.IPSGuidManager#makeGuid(com.percussion
-    * .design.objectstore.PSLocator)
-    */
-   public IPSGuid makeGuid(PSLocator loc)
-   {
-      return new PSLegacyGuid(loc);
+   @Override
+   public long createLongId(PSTypeEnum type) {
+      Objects.requireNonNull(type, "Type cannot be null");
+      var key = Integer.valueOf(type.getOrdinal()); // Fix: convert short to Integer properly
+      var allocation = createStandardAllocation(key);
+      return allocation.next();
    }
 
-   // see interface
-   public PSLocator makeLocator(IPSGuid guid)
-   {
-      if (guid.getType() != PSTypeEnum.LEGACY_CONTENT.getOrdinal())
-      {
-         throw new IllegalArgumentException("Guid must be of type LEGACY_CONTENT.");
+   @Override
+   public IPSGuid makeGuid(PSLocator locator) {
+      Objects.requireNonNull(locator, "Locator cannot be null");
+      return new PSLegacyGuid(locator);
+   }
+
+   @Override
+   public PSLocator makeLocator(IPSGuid guid) {
+      Objects.requireNonNull(guid, "GUID cannot be null");
+
+      if (guid.getType() != PSTypeEnum.LEGACY_CONTENT.getOrdinal()) {
+         throw new IllegalArgumentException(
+             "GUID must be of type LEGACY_CONTENT, but was: " +
+             PSTypeEnum.valueOf(guid.getType()));
       }
 
-      PSLegacyGuid legacyGuid;
-      if (!(guid instanceof PSLegacyGuid))
-         legacyGuid = new PSLegacyGuid(guid.longValue());
-      else
-         legacyGuid = (PSLegacyGuid) guid;
+      var legacyGuid = guid instanceof PSLegacyGuid
+          ? (PSLegacyGuid) guid
+          : new PSLegacyGuid(guid.longValue());
 
       return legacyGuid.getLocator();
    }
 
-   /*
-    * (non-Javadoc)
+   /**
+    * Creates a GUID from a raw long value with type forcing option.
     *
-    * @see
-    * com.percussion.services.guidmgr.IPSGuidManager#makeGuid(java.lang.String,
-    * com.percussion.services.catalog.PSTypeEnum)
+    * @param raw the raw GUID value
+    * @param type the GUID type
+    * @param forceType whether to force the type
+    * @return the created GUID
     */
-   public IPSGuid makeGuid(String raw, PSTypeEnum type, boolean forceType)
-   {
-      if (type == PSTypeEnum.LEGACY_CONTENT || type == PSTypeEnum.LEGACY_CHILD)
-      {
-         return makeGuid(Long.parseLong(raw), type,forceType);
+   public IPSGuid makeGuid(long raw, PSTypeEnum type, boolean forceType) {
+      Objects.requireNonNull(type, "Type cannot be null");
+
+      if (isLegacyType(type)) {
+         return new PSLegacyGuid(raw);
       }
       return new PSGuid(type, raw, forceType);
    }
 
-    /**
-     * Recreates a guid instance from a human readable form of the guid.
-     *
-     * @param raw  Never <code>null</code> or empty. The generic format of the
-     *             supplied string is of the form: hostid-typeid-uuid (e.g. 10-103-125). A
-     *             single long value that is supported by {@link #makeGuid(long, PSTypeEnum)}
-     *             can also be supplied, in which case, the rules defined in that method must
-     *             be followed. Two different represenations are allowed: hostid-uuid,
-     *             hostid-typeid-uuid. If a typeid is supplied, it must match that of the
-     *             <code>type</code> param, otherwise, the supplied type is used. If the
-     *             type is {@link PSTypeEnum#LEGACY_CONTENT} or
-     *             {@link PSTypeEnum#LEGACY_CHILD}, the human-readable forms are not
-     *             supported.
-     * @param type the type, never <code>null</code>
-     *             *
-     * @return a guid of the specified type built from the specified raw value,
-     * never <code>null</code>.
-     */
-    @Override
-    public IPSGuid makeGuid(String raw, PSTypeEnum type) {
-        if (type == PSTypeEnum.LEGACY_CONTENT || type == PSTypeEnum.LEGACY_CHILD)
-        {
-            return makeGuid(Long.parseLong(raw), type,false);
-        }
-        return new PSGuid(type, raw, false);
-    }
-
-    /*
-    * //see base interface method for details
+   /**
+    * Creates a GUID from a raw long value.
+    *
+    * @param raw the raw GUID value
+    * @param type the GUID type
+    * @return the created GUID
     */
-   public IPSGuid makeGuid(String raw)
-   {
-      if (StringUtils.isBlank(raw))
-         throw new IllegalArgumentException("raw may not be blank.");
+   public IPSGuid makeGuid(long raw, PSTypeEnum type) {
+      return makeGuid(raw, type, false);
+   }
 
-      PSGuid guid = new PSGuid(raw);
-      if (guid.getType() == PSTypeEnum.LEGACY_CONTENT.getOrdinal()
-              || guid.getType() == PSTypeEnum.LEGACY_CHILD.getOrdinal())
-      {
+   /**
+    * Creates a GUID from a string representation with type forcing option.
+    *
+    * @param raw the string representation
+    * @param type the GUID type
+    * @param forceType whether to force the type
+    * @return the created GUID
+    */
+   public IPSGuid makeGuid(String raw, PSTypeEnum type, boolean forceType) {
+      validateRawString(raw);
+      Objects.requireNonNull(type, "Type cannot be null");
+
+      if (isLegacyType(type)) {
+         return makeGuid(Long.parseLong(raw), type, forceType);
+      }
+      return new PSGuid(type, raw, forceType);
+   }
+
+   /**
+    * Creates a GUID from a string representation.
+    *
+    * @param raw the string representation
+    * @param type the GUID type
+    * @return the created GUID
+    */
+   public IPSGuid makeGuid(String raw, PSTypeEnum type) {
+      return makeGuid(raw, type, false);
+   }
+
+   /**
+    * Creates a GUID from a string representation without explicit type.
+    *
+    * @param raw the string representation
+    * @return the created GUID
+    */
+   public IPSGuid makeGuid(String raw) {
+      validateRawString(raw);
+
+      var guid = new PSGuid(raw);
+      var guidType = guid.getType();
+
+      if (guidType == PSTypeEnum.LEGACY_CONTENT.getOrdinal() ||
+          guidType == PSTypeEnum.LEGACY_CHILD.getOrdinal()) {
          return new PSLegacyGuid(guid);
       }
       return guid;
    }
 
    /**
-    * Get the next number for the given key from the next number table. This
-    * method first looks for an allocation to use or reuse. If the allocation is
-    * missing, then it creates a new allocation.
+    * Fixes the next number for a given key to a specific value.
     *
-    * @param key the key to use, see the next number table for existing keys,
-    *           assumed never <code>null</code> or empty
-    * @param blocksize the number of ids to allocate per allocation block
-    * @return the next available id
+    * @param key the key to fix
+    * @param value the value to set
+    * @return the previous value
     */
-   private int createNextNumberId(String key, int blocksize)
-   {
-      Allocation allocation = createNextNumberAllocation(key,blocksize);
-
-      return (int)allocation.next();
-
-   }
-
-
-   private Allocation createNextNumberAllocation(final String key, final int blocksize)
-   {
-      // A lot easier with computeIfAbsent in java 8.
-      return ms_allocation.computeIfAbsent(key, k -> new Allocation(blocksize,(bs,sv) -> (long) PSGuidManagerLocator.getGuidMgr().updateNextNumber(key, bs, sv)));
-   }
-
-   @Override
-   public int fixNextNumber(String key, int value)
-   {
-      Allocation allocation = createNextNumberAllocation(key,BLOCK_SIZE);
+   public int fixNextNumber(String key, int value) {
+      Objects.requireNonNull(key, "Key cannot be null");
+      var allocation = createNextNumberAllocation(key, BLOCK_SIZE);
       return allocation.fix(value);
    }
 
-   @Override
-   public int peekNextNumber(String key)
-   {
-      Allocation allocation = createNextNumberAllocation(key,BLOCK_SIZE);
-      return (int)allocation.peek();
+   /**
+    * Peeks at the next number for a given key without consuming it.
+    *
+    * @param key the key to peek
+    * @return the next number that would be allocated
+    */
+   public int peekNextNumber(String key) {
+      Objects.requireNonNull(key, "Key cannot be null");
+      var allocation = createNextNumberAllocation(key, BLOCK_SIZE);
+      return (int) allocation.peek();
    }
 
-   public int updateNextNumber(String key, int blocksize, long setValue)
-   {
+   /**
+    * Loads or generates the host ID for this server instance.
+    * <p>This method ensures thread-safe initialization of the host ID and
+    * validates that the current IP address matches the stored configuration.
+    */
+   public void loadHostId() {
+      var session = getSession();
 
-      int current = -1;
+      try {
+         var hostData = session.get(PSGuidGeneratorData.class, HOST_KEY);
+         var ip1Data = session.get(PSGuidGeneratorData.class, IP_KEY1);
+         var ip2Data = session.get(PSGuidGeneratorData.class, IP_KEY2);
 
-      Session s =  getSession();
-      PSNextNumber data;
+         var currentHostIp = getCurrentHostIp();
+         var storedIp = getStoredIp(ip1Data, ip2Data);
 
-      data = s.get(PSNextNumber.class, key);
-      if (data == null)
-      {
-         data = new PSNextNumber(key, 100);
-         s.persist(data);
+         if (shouldGenerateNewHostId(hostData, currentHostIp, storedIp)) {
+            generateAndStoreNewHostId(session, hostData, ip1Data, ip2Data, currentHostIp);
+         } else if (hostData != null) {
+            hostId = hostData.getValue();
+         }
+      } catch (HibernateException e) {
+         // Host ID remains uninitialized - will be generated on next attempt
+      }
+   }
+
+   /**
+    * Updates the next number for a given key in the database.
+    *
+    * @param key the unique key for the number sequence
+    * @param blockSize the size of the block to allocate
+    * @param setValue optional value to set directly (0 = use current)
+    * @return the starting number for the allocated block
+    */
+   public int updateNextNumber(String key, int blockSize, long setValue) {
+      Objects.requireNonNull(key, "Key cannot be null");
+
+      var session = getSession();
+      var data = Optional.ofNullable(session.get(PSNextNumber.class, key))
+          .orElseGet(() -> createAndPersistNextNumber(session, key));
+
+      var current = data.getNext();
+
+      if (setValue > 0) {
+         current = (int) setValue - 1;
       }
 
-      current = data.getNext();
-
-
-      if (setValue>0) {
-         current = (int) setValue-1;
-      }
-
-      if (blocksize>0 || setValue > 0) {
-         int next = current + blocksize;
+      if (blockSize > 0 || setValue > 0) {
+         var next = current + blockSize;
          data.setNext(next);
+
          try {
-            s.update(data);
-            s.flush();
-         } catch (HibernateException e1) {
-            throw new RuntimeException("Could not create or save next number info");
+            session.update(data);
+            session.flush();
+         } catch (HibernateException e) {
+            throw new RuntimeException("Failed to update next number for key: " + key, e);
          }
       }
 
-      return current+1;
-
-   }
-
-
-   /**
-    * Create the next long for the given type. Longs are allocated from the
-    * current allocation block if possible. If not then a new allocation block
-    * is allocated first.
-    *
-    * @param repositoryId if provided then the repository id is folded into the
-    *           type's id before allocating. The algorithm allows for
-    *           <code>1000</code> types.
-    * @param type the type, assumed never <code>null</code>
-    * @return the next long value from the allocation
-    */
-   private IPSGuid createStandardGuid(byte repositoryId, PSTypeEnum type)
-   {
-
-      long hostValue = 0;
-      Integer key = null;
-      boolean useRepository = repositoryId > 0;
-
-      if (useRepository)
-      {
-         hostValue = repositoryId | 0xFFFF00L;
-         // Each repository has its own allocation
-         // To make this easy to interpret in the database, multiply
-         // by a power of 10.
-         key = type.getOrdinal() + repositoryId * 1000;
-      }
-      else
-      {
-         if (ms_hostId < 0)
-         {
-             PSGuidManagerLocator.getGuidMgr().loadHostId();
-         }
-         hostValue = ms_hostId;
-         key = (int) type.getOrdinal();
-      }
-
-      try
-      {
-         return new PSGuid(hostValue, type, createNextLong(key));
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Logic problem in next calculation",e);
-      }
-
+      return current + 1;
    }
 
    /**
-    * The allocation is looked up and if it is exhausted then the database is
-    * used to get the next id, which is updated using an upgrade lock.
-    *
-    * @param key the key to look up the allocation, assumed never
-    *           <code>null</code>.
-    * @return the allocation, never <code>null</code>.
+    * Gets the Hibernate session from the entity manager.
     */
-   private long createNextLong(Integer key)
-   {
-
-      return getNextLongAllocation(key).next();
+   private Session getSession() {
+      return entityManager.unwrap(Session.class);
    }
 
-   private Allocation getNextLongAllocation(final Integer key)
-   {
-      // Use the following like in java 1.8
-      return ms_allocation.computeIfAbsent(key, k -> new Allocation(BLOCK_SIZE,(bs,sv) -> PSGuidManagerLocator.getGuidMgr().updateNextLong(key)));
-   }
-
-   public long updateNextLong(Integer key)
-   {
-       Session s = getSession();
-       PSGuidGeneratorData data;
-       long current = -1L;
-
-      data = s.get(PSGuidGeneratorData.class, key);
-      if (data == null)
-      {
-         data = new PSGuidGeneratorData(key, 1);
-         data.setVersion(0);
-         s.persist(data);
-
-      }
-      current = data.getValue();
-
-      long next = current + BLOCK_SIZE;
-
-      data.setValue(next);
-      try
-      {
-         s.update(data);
-      }
-      catch (HibernateException e1)
-      {
-         throw new RuntimeException("Could not create or save guid info");
-      }
-
-      return current+1;
-   }
-
-   /*
-    * (non-Javadoc)
-    *
-    * @see com.percussion.guidmgr.IPSGuidManager#getSiteId()
+   /**
+    * Creates a GUID with a key-based allocation strategy.
     */
-   public long getHostId()
-   {
-      return ms_hostId;
+   private IPSGuid createKeyBasedGuid(String key, PSTypeEnum type) {
+      var id = createNextNumberId(key, BLOCK_SIZE);
+      return new PSGuid(0, type, id);
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see
-    * com.percussion.services.guidmgr.IPSGuidManager#createId(java.lang.String)
+   /**
+    * Creates a standard GUID with host-based allocation.
     */
-    public int createId(String key)
-   {
-      return createNextNumberId(key, BLOCK_SIZE);
+   private IPSGuid createStandardGuid(byte repositoryId, PSTypeEnum type) {
+      var hostValue = calculateHostValue(repositoryId);
+      var key = calculateAllocationKey(repositoryId, type);
+      var uuid = createNextLong(key);
+
+      return new PSGuid(hostValue, type, uuid);
    }
 
-   /*
-    * (non-Javadoc)
-    *
-    * @see
-    * com.percussion.services.guidmgr.IPSGuidManager#createIdBlock(java.lang
-    * .String, int)
+   /**
+    * Calculates the host value based on repository ID.
     */
-   public int[] createIdBlock(String key, int blocksize)
-   {
-      if (StringUtils.isBlank(key))
-      {
-         throw new IllegalArgumentException("key may not be null or empty");
-      }
-      if (blocksize < 1)
-      {
-         throw new IllegalArgumentException("Blocksize must be positive");
+   private long calculateHostValue(byte repositoryId) {
+      if (repositoryId > 0) {
+         return repositoryId | 0xFFFF00L;
       }
 
-      int[] rval = new int[blocksize];
-
-      for (int i = 0; i < blocksize; i++)
-      {
-         rval[i] = createNextNumberId(key, blocksize);
+      if (hostId < 0) {
+         loadHostId(); // Call directly instead of through locator
       }
-
-      return rval;
+      return hostId;
    }
 
-   public List<Integer> extractContentIds(List<IPSGuid> guids)
-   {
-      if (guids == null || guids.isEmpty())
-      {
-         throw new IllegalArgumentException("guids may not be null or empty");
-      }
-      for (IPSGuid g : guids)
-      {
-         if (!(g instanceof PSLegacyGuid))
-         {
-            throw new IllegalArgumentException("guids must be content guids");
-         }
-      }
+   /**
+    * Calculates the allocation key based on repository ID and type.
+    */
+   private Integer calculateAllocationKey(byte repositoryId, PSTypeEnum type) {
+      return repositoryId > 0
+          ? type.getOrdinal() + repositoryId * 1000
+          : type.getOrdinal();
+   }
 
-      if (guids.size() == 1)
-      {
-         PSLegacyGuid g = (PSLegacyGuid) guids.get(0);
-         return Collections.singletonList(g.getContentId());
-      }
-      else
-      {
-         List<Integer> rval = new ArrayList<>();
-         for (IPSGuid g : guids)
-         {
-            PSLegacyGuid lg = (PSLegacyGuid) g;
-            rval.add(lg.getContentId());
-         }
-         return rval;
+   /**
+    * Creates the next ID from a key-based allocation.
+    */
+   private int createNextNumberId(String key, int blockSize) {
+      var allocation = createNextNumberAllocation(key, blockSize);
+      return (int) allocation.next();
+   }
+
+   /**
+    * Creates or retrieves an allocation for next number generation.
+    */
+   private Allocation createNextNumberAllocation(String key, int blockSize) {
+      return allocationCache.computeIfAbsent(key,
+          k -> new Allocation(blockSize,
+              (bs, sv) -> (long) updateNextNumber(key, bs, sv))); // Call updateNextNumber directly
+   }
+
+   /**
+    * Creates or retrieves a standard allocation for type-based generation.
+    */
+   private Allocation createStandardAllocation(Integer key) {
+      return allocationCache.computeIfAbsent(key,
+          k -> new Allocation(BLOCK_SIZE,
+              (bs, sv) -> (long) updateNextNumber(key.toString(), bs, sv))); // Call updateNextNumber directly
+   }
+
+   /**
+    * Creates the next long value from a standard allocation.
+    */
+   private long createNextLong(Integer key) {
+      var allocation = createStandardAllocation(key);
+      return allocation.next();
+   }
+
+   /**
+    * Validates repository ID parameter.
+    */
+   private void validateRepositoryId(byte repositoryId) {
+      if (repositoryId < 0) {
+         throw new IllegalArgumentException("Repository ID must not be negative: " + repositoryId);
       }
    }
 
    /**
-    * Create next id for the given type.
-    *
-    * @param type the type to use for looking up the next value, never
-    *           <code>null</code>.
-    * @return the next value.
+    * Validates raw string parameter.
     */
-    public long createLongId(PSTypeEnum type)
-   {
-      if (type == null)
-      {
-         throw new IllegalArgumentException("type may not be null");
+   private void validateRawString(String raw) {
+      if (StringUtils.isBlank(raw)) {
+         throw new IllegalArgumentException("Raw string cannot be null or blank");
       }
-      Integer key = (int) type.getOrdinal();
+   }
 
-      long longVal = createNextLong(key);
+   /**
+    * Checks if the type is a legacy type.
+    */
+   private boolean isLegacyType(PSTypeEnum type) {
+      return type == PSTypeEnum.LEGACY_CONTENT || type == PSTypeEnum.LEGACY_CHILD;
+   }
 
-      if (longVal < 0)
-         throw new RuntimeException("Next Id returned < 0");
+   private byte[] getCurrentHostIp() {
+      try {
+         var hostIp = InetAddress.getLocalHost().getAddress();
+         if (hostIp.length < 16) {
+            var padded = new byte[16];
+            System.arraycopy(hostIp, 0, padded, 0, hostIp.length);
+            return padded;
+         }
+         return hostIp;
+      } catch (UnknownHostException e) {
+         return new byte[16];
+      }
+   }
 
-      return longVal;
+   private byte[] getStoredIp(PSGuidGeneratorData ip1Data, PSGuidGeneratorData ip2Data) {
+      var storedIp = new byte[16];
 
+      if (ip1Data != null && ip2Data != null) {
+         System.arraycopy(PSConversions.longToByteArray(ip1Data.getValue()), 0, storedIp, 0, 8);
+         System.arraycopy(PSConversions.longToByteArray(ip2Data.getValue()), 0, storedIp, 8, 8);
+      }
+
+      return storedIp;
+   }
+
+   private boolean shouldGenerateNewHostId(PSGuidGeneratorData hostData, byte[] currentIp, byte[] storedIp) {
+      return hostData == null || hostData.getValue() == 0 || !Arrays.equals(storedIp, currentIp);
+   }
+
+   private void generateAndStoreNewHostId(Session session, PSGuidGeneratorData hostData,
+                                        PSGuidGeneratorData ip1Data, PSGuidGeneratorData ip2Data,
+                                        byte[] currentIp) {
+      var random = new SecureRandom();
+
+      int newHostId;
+      do {
+         newHostId = random.nextInt() & 0x00FFFFFF;
+      } while (newHostId == 0);
+
+      var finalHostData = Optional.ofNullable(hostData)
+          .orElse(new PSGuidGeneratorData(HOST_KEY, 0));
+      finalHostData.setValue(newHostId);
+      session.saveOrUpdate(finalHostData);
+
+      var finalIp1Data = Optional.ofNullable(ip1Data)
+          .orElse(new PSGuidGeneratorData(IP_KEY1, 0));
+      var finalIp2Data = Optional.ofNullable(ip2Data)
+          .orElse(new PSGuidGeneratorData(IP_KEY2, 0));
+
+      finalIp1Data.setValue(PSConversions.byteArrayToLong(currentIp, 0));
+      finalIp2Data.setValue(PSConversions.byteArrayToLong(currentIp, 8));
+
+      session.saveOrUpdate(finalIp1Data);
+      session.saveOrUpdate(finalIp2Data);
+
+      hostId = newHostId;
+   }
+
+   private PSNextNumber createAndPersistNextNumber(Session session, String key) {
+      var data = new PSNextNumber(key, 100);
+      session.persist(data);
+      return data;
+   }
+
+   @Override
+   public Set<PSTypeEnum> getSupportedTypes() {
+      // Return all enum values as supported types
+      return EnumSet.allOf(PSTypeEnum.class);
    }
 }

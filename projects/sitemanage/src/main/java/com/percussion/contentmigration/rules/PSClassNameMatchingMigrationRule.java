@@ -16,14 +16,13 @@
  */
 package com.percussion.contentmigration.rules;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * Find a content match based on the class name of an element. If multiple
@@ -35,58 +34,34 @@ import java.util.Set;
  * 
  * @author JaySeletz
  */
-public class PSClassNameMatchingMigrationRule extends PSBaseMatchingMigrationRule
-{
+public class PSClassNameMatchingMigrationRule extends PSBaseMatchingMigrationRule {
     @Override
-    protected String matchOnRule(String widgetId, Document sourceDoc, Document targetDoc)
-    {
-        // find region
-        Element regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
-        if(regionElem == null) {
+    protected String matchOnRule(String widgetId, Document sourceDoc, Document targetDoc) {
+        var regionElem = findEnclosingRegionElement(widgetId, sourceDoc);
+        if (regionElem == null) {
             return null;
         }
-        
-        // filter non-perc classnames
-        PSClassNameMatcher srcMatch = new PSClassNameMatcher(regionElem);
-        Set<String> classNames = srcMatch.getCurrentElementClasses();
-        if (classNames.isEmpty())
-        {
-            // nothing to match on
+        var srcMatch = new PSClassNameMatcher(regionElem);
+        var classNames = srcMatch.getCurrentElementClasses();
+        if (classNames.isEmpty()) {
             return null;
-        }            
-        
-        // Find matches in the target doc
-        Elements elems = findMatches(targetDoc, classNames);
-        if (elems.size() == 0)
-        {
-            // nothing matches
-            return null;  
         }
-        
-        if (elems.size() == 1)
-        {
-            // exactly 1 match, we are done!
+        var elems = findMatches(targetDoc, classNames);
+        if (elems.isEmpty()) {
+            return null;
+        }
+        if (elems.size() == 1) {
             return elems.get(0).html();
-        }   
-        
-        if (!srcMatch.hasMoreParents())
-        {
-            // no match, no parents, nothing left to match on
-            return null; 
         }
-        
-        List<PSClassNameMatcher> matches = new ArrayList<>();
-        for (Element elem : elems)
-        {
+        if (!srcMatch.hasMoreParents()) {
+            return null;
+        }
+        var matches = new ArrayList<PSClassNameMatcher>();
+        for (var elem : elems) {
             matches.add(new PSClassNameMatcher(elem));
         }
-        
-        Element match = findParentMatch(srcMatch, matches);
-        if (match == null) {
-            return null;
-        }
-        
-        return match.html();
+        var match = findParentMatch(srcMatch, matches);
+        return match == null ? null : match.html();
     }
 
     /**
@@ -97,23 +72,18 @@ public class PSClassNameMatchingMigrationRule extends PSBaseMatchingMigrationRul
      * 
      * @return The match if found, otherwise <code>null</code>.
      */
-    private Element findParentMatch(PSClassNameMatcher srcMatch, List<PSClassNameMatcher> matches)
-    {
-        Set<String> classNames = srcMatch.getNextParentElementClasses();
+    private Element findParentMatch(PSClassNameMatcher srcMatch, List<PSClassNameMatcher> matches) {
+        var classNames = srcMatch.getNextParentElementClasses();
         if (classNames.isEmpty()) {
             return null;
-        }// nothing left to match
-        
+        }
         filterParentMatches(matches, classNames);
         if (matches.isEmpty()) {
             return null;
         }
-        
         if (matches.size() == 1) {
             return matches.get(0).getSrcElement();
         }
-        
-        // recurse up the parent stack and try again
         return findParentMatch(srcMatch, matches);
     }
 
@@ -124,42 +94,31 @@ public class PSClassNameMatchingMigrationRule extends PSBaseMatchingMigrationRul
      * @param matches The matches to check, assumed not <code>null</code>, the set is modified.
      * @param classNames The set of classnames to check, assumed not <code>null<code/> or empty. 
      */
-    private void filterParentMatches(List<PSClassNameMatcher> matches, Set<String> classNames)
-    {
-        Iterator<PSClassNameMatcher> iter = matches.iterator();
-        while (iter.hasNext())
-        {
-            PSClassNameMatcher match = iter.next();
+    private void filterParentMatches(List<PSClassNameMatcher> matches, Set<String> classNames) {
+        var iter = matches.iterator();
+        while (iter.hasNext()) {
+            var match = iter.next();
             if (!match.matchParentClasses(classNames)) {
                 iter.remove();
             }
         }
     }
 
-    private Elements findMatches(Document targetDoc, Set<String> classNames)
-    {
-        Elements found = new Elements();
-        //FB: SBSC_USE_StringBuilder_CONCATENATION NC 1-17-16
-        StringBuilder buffer = new StringBuilder();
-        for (String className : classNames)
-        {
+    private org.jsoup.select.Elements findMatches(Document targetDoc, Set<String> classNames) {
+        var found = new org.jsoup.select.Elements();
+        var buffer = new StringBuilder();
+        for (var className : classNames) {
             buffer.append(".").append(className);
         }
-        String clsSelector = buffer.toString();
-        
-        Elements elems = targetDoc.select(clsSelector);
-        if(elems != null && elems.size()==1)
-        {
+        var clsSelector = buffer.toString();
+        var elems = targetDoc.select(clsSelector);
+        if (elems != null && elems.size() == 1) {
             found.addAll(elems);
-        }
-        else
-        {
-            for (String className : classNames)
-            {
+        } else {
+            for (var className : classNames) {
                 elems = targetDoc.select("." + className);
-                for (Element element : elems)
-                {
-                    if(!found.contains(element)) {
+                for (var element : elems) {
+                    if (!found.contains(element)) {
                         found.add(element);
                     }
                 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,277 +21,206 @@ import com.percussion.cms.objectstore.PSInvalidContentTypeException;
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
-import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
-import com.percussion.design.objectstore.PSPipe;
 import com.percussion.design.objectstore.PSUISet;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSFieldConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSFieldConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object as well as a
-    * server array of objects to a client array of objects and back.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   public void testConversion() throws Exception
-   {
-      // register the item definition used for testing
-      PSItemConverterTest.getTestItemDefManager();
+public class PSFieldConverterTest extends PSConverterTestBase {
 
-      // create the source object
-      PSItemField source = createItemField();
-      source.setContentType(ms_contentType);
-      
-      PSItemField target = (PSItemField) roundTripConversion(
-         PSItemField.class, 
-         com.percussion.webservices.content.PSField.class, source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-      
-      // create the source array
-      PSItemField[] sourceArray = new PSItemField[1];
-      sourceArray[0] = source;
-      
-      PSItemField[] targetArray = (PSItemField[]) roundTripConversion(
-         PSItemField[].class, 
-         com.percussion.webservices.content.PSField[].class, sourceArray);
-      
-      // verify the the round-trip array is equal to the source array
-      assertTrue(sourceArray.length == targetArray.length);
-      assertTrue(sourceArray[0].equals(targetArray[0]));
-   }
-   
-   /**
-    * Test a list of server object conversion to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      PSItemField source = createItemField();
-      source.setContentType(ms_contentType);
+    /**
+     * Tests the conversion from a server to a client object as well as a
+     * server array of objects to a client array of objects and back.
+     */
+    public void testConversion() throws Exception {
+        // Register the item definition used for testing
+        PSItemConverterTest.getTestItemDefManager();
 
-      List<PSItemField> sourceList = new ArrayList<PSItemField>();
-      sourceList.add(source);
-      
-      List<PSItemField> targetList = roundTripListConversion(
-         com.percussion.webservices.content.PSField[].class, sourceList);
+        // Create the source object
+        var source = createItemField();
+        source.setContentType(ms_contentType);
 
-      assertTrue(sourceList.equals(targetList));
-   }
+        var target = (PSItemField) roundTripConversion(
+                PSItemField.class,
+                com.percussion.webservices.content.PSField.class, source);
 
-   /* (non-Javadoc)
-    * @see PSConverterTestBase#roundTripConversion(Class, Class, Object)
-    */
-   @Override
-   protected Object roundTripConversion(Class serverType, Class clientType, 
-      Object source)
-   {
-      if (serverType == null)
-         throw new IllegalArgumentException("serverType cannot be null");
-      
-      if (clientType == null)
-         throw new IllegalArgumentException("clientType cannot be null");
-      
-      if (source == null)
-         throw new IllegalArgumentException("source cannot be null");
-      
-      if (!source.getClass().getName().equals(serverType.getName()))
-         throw new IllegalArgumentException(
-            "source must be of type serverType");
-      
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert server to client object
-      Converter converter = factory.getConverter(serverType);
-      Object clientObject = converter.convert(clientType, source);
-      
-      // set content type
-      String contentType = ms_contentType;
-      if (clientObject instanceof com.percussion.webservices.content.PSField)
-      {         
-         com.percussion.webservices.content.PSField field = 
-            (com.percussion.webservices.content.PSField) clientObject;
-         field.setContentType(contentType);
-      }
-      else if (clientObject instanceof com.percussion.webservices.content.PSField[])
-      {
-         com.percussion.webservices.content.PSField[] fields = 
-            (com.percussion.webservices.content.PSField[]) clientObject;
-         for (com.percussion.webservices.content.PSField field : fields)
-            field.setContentType(contentType);
-      }
-      
-      // convert client to server object
-      converter = factory.getConverter(clientType);
-      Object serverObject = converter.convert(serverType, clientObject);
-      if (serverObject instanceof PSItemField)
-      {         
-         PSItemField field = (PSItemField) serverObject;
-         field.setContentType(contentType);
-      }
-      else if (serverObject instanceof PSItemField[])
-      {
-         PSItemField[] fields = (PSItemField[]) serverObject;
-         for (PSItemField field : fields)
-            field.setContentType(contentType);
-      }
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
 
-      return serverObject;
-   }
+        // Create the source array
+        var sourceArray = new PSItemField[]{source};
 
-   /* (non-Javadoc)
-    * @see PSConverterTestBase#roundTripListConversion(Class, List)
-    */
-   @Override
-   protected List roundTripListConversion(Class cz, List srcList) 
-      throws Exception
-   {
-      if (! cz.isArray())
-         throw new IllegalArgumentException("cz must be an instance of array.");
-      
-      if (srcList == null)
-         throw new IllegalArgumentException("srcList must not be null.");
-      
-      PSTransformerFactory factory = PSTransformerFactory.getInstance();
-      
-      // convert from list to array
-      Converter converter = factory.getConverter(cz);
-      Object[] array = (Object[]) converter.convert(cz, srcList);
-      
-      // set content type
-      if (array instanceof com.percussion.webservices.content.PSField[])
-      {
-         com.percussion.webservices.content.PSField[] fields = 
-            (com.percussion.webservices.content.PSField[]) array;
-         for (com.percussion.webservices.content.PSField field : fields)
-            field.setContentType(ms_contentType);
-      }
-      
-      // convert from array to list
-      converter = factory.getConverter(List.class);
-      List target = (List) converter.convert(List.class, array);
-      
-      return target;
-   }
+        var targetArray = (PSItemField[]) roundTripConversion(
+                PSItemField[].class,
+                com.percussion.webservices.content.PSField[].class, sourceArray);
 
-   /**
-    * Create as item field for testing.
-    * 
-    * @return the new item field, never <code>null</code>.
-    */
-   private PSItemField createItemField() throws Exception
-   {
-      String fieldName = "sys_title";
-      
-      PSField fieldDef = getFieldDef(ms_contentType, fieldName);
-      PSUISet uiDef = getUiDef(ms_contentType, fieldName);
-      
-      PSItemField field = new PSItemField(fieldDef, uiDef, false);
-      
-      return field;
-   }
-   
-   /**
-    * Get the field definition for the specified name.
-    * 
-    * @param contentType the content type name for which to get the field 
-    *    definition, not <code>null</code> or empty.
-    * @param name the name for the field to get the definition for, not
-    *    <code>null</code> or empty.
-    * @return the requested field definition, never <code>null</code>.
-    */
-   @SuppressWarnings("unchecked")
-   public static PSField getFieldDef(String contentType, String name)
-   {
-      if (StringUtils.isBlank(contentType))
-         throw new IllegalArgumentException(
-            "contentType cannot be null or empty");
-      
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name cannot be null or empty");
-      
-      PSItemDefManager itemDefMgr = PSItemConverterTest.getTestItemDefManager();
-      
-      try
-      {
-         PSItemDefinition def = itemDefMgr.getItemDef(contentType, 
-            PSItemDefManager.COMMUNITY_ANY);
-         return def.getFieldByName(name);
-      }
-      catch (PSInvalidContentTypeException e)
-      {
-         throw new ConversionException(
-            "Unregistered content type : " + contentType);
-      }
-   }
-   
-   /**
-    * Get the UI definition for the specified field name.
-    * 
-    * @param contentType the content type name for which to get the UI 
-    *    definition, not <code>null</code> or empty.
-    * @param name the name of the field for which to get the UI definition,
-    *    not <code>null</code> or empty.
-    * @return the first UI definition found for the specified field name,
-    *    may be <code>null</code> if none was found.
-    * @throws Exception for any error.
-    */
-   public static PSUISet getUiDef(String contentType, String name) 
-      throws Exception
-   {
-      if (StringUtils.isBlank(contentType))
-         throw new IllegalArgumentException(
-            "contentType cannot be null or empty");
+        // Verify the round-trip array is equal to the source array
+        assertEquals(sourceArray.length, targetArray.length);
+        assertEquals(sourceArray[0], targetArray[0]);
+    }
 
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name cannot be null or empty");
+    /**
+     * Test a list of server object conversion to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var source = createItemField();
+        source.setContentType(ms_contentType);
 
-      PSItemDefManager itemDefMgr = PSItemConverterTest.getTestItemDefManager();
-      
-      try
-      {
-         PSItemDefinition def = itemDefMgr.getItemDef(contentType, 
-            PSItemDefManager.COMMUNITY_ANY);
-         PSContentEditorPipe pipe = 
-            (PSContentEditorPipe) def.getContentEditor().getPipe();
-         PSDisplayMapping mapping = 
-            pipe.getMapper().getUIDefinition().getMapping(name);
-         if (mapping == null)
-            throw new ConversionException(
-               "Unknown field name " + name +
-               " in item definition for content type " + contentType);
-         
-         return mapping.getUISet();
-      }
-      catch (PSInvalidContentTypeException e)
-      {
-         throw new ConversionException(
-            "Unregistered content type : " + contentType);
-      }
-   }
-   
-   /**
-    * The content type used for testing.
-    */
-   private static final String ms_contentType = "Press Release";
+        var sourceList = new ArrayList<PSItemField>();
+        sourceList.add(source);
+
+        var targetList = roundTripListConversion(
+                com.percussion.webservices.content.PSField[].class, sourceList);
+
+        assertEquals(sourceList, targetList);
+    }
+
+    @Override
+    protected Object roundTripConversion(Class serverType, Class clientType, Object source) {
+        if (serverType == null) throw new IllegalArgumentException("serverType cannot be null");
+        if (clientType == null) throw new IllegalArgumentException("clientType cannot be null");
+        if (source == null) throw new IllegalArgumentException("source cannot be null");
+        if (!source.getClass().getName().equals(serverType.getName()))
+            throw new IllegalArgumentException("source must be of type serverType");
+
+        var factory = PSTransformerFactory.getInstance();
+
+        // Convert server to client object
+        var converter = factory.getConverter(serverType);
+        var clientObject = converter.convert(clientType, source);
+
+        // Set content type
+        var contentType = ms_contentType;
+        if (clientObject instanceof com.percussion.webservices.content.PSField) {
+            ((com.percussion.webservices.content.PSField) clientObject).setContentType(contentType);
+        } else if (clientObject instanceof com.percussion.webservices.content.PSField[]) {
+            for (var field : (com.percussion.webservices.content.PSField[]) clientObject) {
+                field.setContentType(contentType);
+            }
+        }
+
+        // Convert client to server object
+        converter = factory.getConverter(clientType);
+        var serverObject = converter.convert(serverType, clientObject);
+        if (serverObject instanceof PSItemField) {
+            ((PSItemField) serverObject).setContentType(contentType);
+        } else if (serverObject instanceof PSItemField[]) {
+            for (var field : (PSItemField[]) serverObject) {
+                field.setContentType(contentType);
+            }
+        }
+
+        return serverObject;
+    }
+
+    @Override
+    protected List roundTripListConversion(Class cz, List srcList) throws Exception {
+        if (!cz.isArray()) throw new IllegalArgumentException("cz must be an instance of array.");
+        if (srcList == null) throw new IllegalArgumentException("srcList must not be null.");
+
+        var factory = PSTransformerFactory.getInstance();
+
+        // Convert from list to array
+        var converter = factory.getConverter(cz);
+        var array = (Object[]) converter.convert(cz, srcList);
+
+        // Set content type
+        if (array instanceof com.percussion.webservices.content.PSField[]) {
+            for (var field : (com.percussion.webservices.content.PSField[]) array) {
+                field.setContentType(ms_contentType);
+            }
+        }
+
+        // Convert from array to list
+        converter = factory.getConverter(List.class);
+        return (List) converter.convert(List.class, array);
+    }
+
+    /**
+     * Create an item field for testing.
+     *
+     * @return the new item field, never {@code null}.
+     */
+    private PSItemField createItemField() throws Exception {
+        var fieldName = "sys_title";
+        var fieldDef = getFieldDef(ms_contentType, fieldName);
+        var uiDef = getUiDef(ms_contentType, fieldName);
+        return new PSItemField(fieldDef, uiDef, false);
+    }
+
+    /**
+     * Get the field definition for the specified name.
+     *
+     * @param contentType the content type name for which to get the field definition, not blank.
+     * @param name        the name for the field to get the definition for, not blank.
+     * @return the requested field definition, never {@code null}.
+     */
+    @SuppressWarnings("unchecked")
+    public static PSField getFieldDef(String contentType, String name) {
+        if (StringUtils.isBlank(contentType))
+            throw new IllegalArgumentException("contentType cannot be null or empty");
+        if (StringUtils.isBlank(name))
+            throw new IllegalArgumentException("name cannot be null or empty");
+
+        var itemDefMgr = PSItemConverterTest.getTestItemDefManager();
+
+        try {
+            var def = itemDefMgr.getItemDef(contentType, PSItemDefManager.COMMUNITY_ANY);
+            return def.getFieldByName(name);
+        } catch (PSInvalidContentTypeException e) {
+            throw new ConversionException("Unregistered content type : " + contentType);
+        }
+    }
+
+    /**
+     * Get the UI definition for the specified field name.
+     *
+     * @param contentType the content type name for which to get the UI definition, not blank.
+     * @param name        the name of the field for which to get the UI definition, not blank.
+     * @return the first UI definition found for the specified field name, may be {@code null} if none was found.
+     * @throws Exception for any error.
+     */
+    public static PSUISet getUiDef(String contentType, String name) throws Exception {
+        if (StringUtils.isBlank(contentType))
+            throw new IllegalArgumentException("contentType cannot be null or empty");
+        if (StringUtils.isBlank(name))
+            throw new IllegalArgumentException("name cannot be null or empty");
+
+        var itemDefMgr = PSItemConverterTest.getTestItemDefManager();
+
+        try {
+            var def = itemDefMgr.getItemDef(contentType, PSItemDefManager.COMMUNITY_ANY);
+            var pipe = (PSContentEditorPipe) def.getContentEditor().getPipe();
+            var mapping = pipe.getMapper().getUIDefinition().getMapping(name);
+            if (mapping == null)
+                throw new ConversionException(
+                        "Unknown field name " + name +
+                                " in item definition for content type " + contentType);
+
+            return mapping.getUISet();
+        } catch (PSInvalidContentTypeException e) {
+            throw new ConversionException("Unregistered content type : " + contentType);
+        }
+    }
+
+    /**
+     * The content type used for testing.
+     */
+    private static final String ms_contentType = "Press Release";
 }

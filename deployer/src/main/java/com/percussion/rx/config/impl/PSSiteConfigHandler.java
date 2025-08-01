@@ -53,8 +53,8 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
       {
          return false;
       }
-      
-      PSSiteConfigHandler other = (PSSiteConfigHandler) otherObj;
+
+      var other = (PSSiteConfigHandler) otherObj;
       return new EqualsBuilder().append(m_siteNames, other.m_siteNames)
             .isEquals();
    }
@@ -94,7 +94,7 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
    {
       if (getNames() != null)
          throw new IllegalStateException("Cannot set both name and names");
-      
+
       super.setName(name);
    }
 
@@ -125,8 +125,8 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
    {
       if (getName() != null)
          throw new IllegalStateException("Cannot set both names and name.");
-      
-      m_siteNames.put(NAMES, names);      
+
+      m_siteNames.put(NAMES, names);
    }
 
    /*
@@ -135,10 +135,10 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
    @Override
    public List<PSPair<Object, ObjectState>> getDesignObjects(
          Map<String, Object> cachedObjs) throws PSNotFoundException {
-      List<PSPair<Object, ObjectState>> result = new ArrayList<>();
-      for (PSPair<String, ObjectState> name : getObjectNames())
+      var result = new ArrayList<PSPair<Object, ObjectState>>();
+      for (var name : getObjectNames())
       {
-         Object site = getSite(name.getFirst(), cachedObjs, getSiteModel());
+         var site = getSite(name.getFirst(), cachedObjs, getSiteModel());
          result.add(new PSPair<>(site, name.getSecond()));
       }
       return result;
@@ -147,12 +147,12 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
    @Override
    public Object getDefaultDesignObject(Map<String, Object> cachedObjs) throws PSNotFoundException {
       Object site = null;
-      String siteName = getName();
+      var siteName = getName();
       // if the name property is blank get the first available name from site
       // names object.
       if (StringUtils.isBlank(siteName))
       {
-         Object namesObj = getNames();
+         var namesObj = getNames();
          // If the names object value is a replacement value then get all site
          // names by turning it into *
          if ((namesObj instanceof String)
@@ -160,7 +160,7 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
          {
             namesObj = "*";
          }
-         Collection<String> names = PSConfigUtils.getObjectNames(namesObj,
+         var names = PSConfigUtils.getObjectNames(namesObj,
                getSiteModel(), NAMES);
          if (names != null && !names.isEmpty())
             siteName = names.iterator().next();
@@ -205,7 +205,7 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
       }
       else
       {
-         Map<String, Object> prevProps = getPrevExtraProperties();
+         var prevProps = getPrevExtraProperties();
          if (prevProps != null && (!prevProps.isEmpty()))
          {
             names = PSConfigUtils.getObjectNames(prevProps.get(NAMES),
@@ -221,7 +221,7 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
     */
    private IPSDesignModel getSiteModel()
    {
-      IPSDesignModelFactory factory = PSDesignModelFactoryLocator
+      var factory = PSDesignModelFactoryLocator
             .getDesignModelFactory();
       return factory.getDesignModel(PSTypeEnum.SITE);
    }
@@ -242,8 +242,8 @@ public class PSSiteConfigHandler extends PSObjectConfigHandler
          Map<String, Object> cachedObjs, IPSDesignModel model) throws PSNotFoundException {
       if (cachedObjs.get(name) != null)
          return cachedObjs.get(name);
-      
-      IPSSite site = (IPSSite) model.loadModifiable(name);
+
+      var site = (IPSSite) model.loadModifiable(name);
       cachedObjs.put(name, site);
       return site;
    }

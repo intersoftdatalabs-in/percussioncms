@@ -14,42 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.share.data.PSAbstractDataObject;
 
 /**
- * Data object for returning Asset names and their URLs
- * 
- * @author luisteixeira
- * @author adamgent
+ * Data object for returning Asset names and their URLs.
  */
-@JsonRootName( "AssetEditor")
-public class PSAssetEditor extends PSAbstractDataObject
-{
+@JsonRootName("AssetEditor")
+public class PSAssetEditor extends PSAbstractDataObject {
 
     private static final long serialVersionUID = 1L;
+
     private String icon;
     private String title;
     private String url;
     private Integer workflowId;
     private Integer legacyFolderId;
     private String assetType;
-    
-    
 
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
-    
-    
 
     /**
      * The folder where the asset should be created.
@@ -58,94 +51,83 @@ public class PSAssetEditor extends PSAbstractDataObject
      * &sys_folderid=100
      * </pre>
      * where 100 is the folder id value.
-     * <p>
-     * The folder id is needed instead of the path because of 
-     * the legacy content forms use it instead of folder path.
-     * @return never <code>null</code>.
+     * The folder id is needed instead of the path because legacy content forms use it instead of folder path.
+     *
+     * @return the legacy folder id, may be {@code null}.
      */
-    public Integer getLegacyFolderId()
-    {
+    public Integer getLegacyFolderId() {
         return legacyFolderId;
     }
 
-    public void setLegacyFolderId(Integer folderId)
-    {
+    public void setLegacyFolderId(Integer folderId) {
         this.legacyFolderId = folderId;
     }
 
     /**
      * The url of the content type editor associated with the asset or widget.
-     * @return never <code>null</code>.
+     *
+     * @return never {@code null}.
      */
-    public String getUrl()
-    {
+    public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url)
-    {
+    public void setUrl(String url) {
         this.url = url;
     }
 
-
-    public String getIcon()
-    {
+    public String getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon)
-    {
+    public void setIcon(String icon) {
         this.icon = icon;
     }
 
     /**
      * The id of the workflow the asset goes in, if the content type produces
-     * resource then it is set to Local Content workfow id, otherwise shared
+     * resource then it is set to Local Content workflow id, otherwise shared
      * content workflow id.
-     * @return never <code>null</code>.
-     * 
+     *
+     * @return the workflow id, may be {@code null}.
      * @TODO as we don't have shared content workflow, this value needs to be set
      * to any other workflow that is available other than Local Content.
      */
-    public Integer getWorkflowId()
-    {
+    public Integer getWorkflowId() {
         return workflowId;
     }
 
-    public void setWorkflowId(Integer workflowId)
-    {
+    public void setWorkflowId(Integer workflowId) {
         this.workflowId = workflowId;
     }
 
-    
     /**
-     * @return the asset type if set, otherwise <code>null</code>. This value is meaningful, when the criteria is created 
-     * for an asset. If it is not for an asset the value will be <code>null</code>.
+     * @return the asset type if set, otherwise {@code null}. This value is meaningful when the criteria is created
+     * for an asset. If it is not for an asset the value will be {@code null}.
      */
-    public String getAssetType()
-    {
-       return assetType;
+    public String getAssetType() {
+        return assetType;
     }
 
     /**
-     * Set the asset type to shared if the asset is a shared asset other wise set it to local.
+     * Set the asset type to shared if the asset is a shared asset otherwise set it to local.
+     *
      * @param assetType The type of the asset, must be a valid asset type.
      */
-    public void setAssetType(String assetType)
-    {
-       if(!(assetType.equals(ASSET_TYPE_LOCAL) || assetType.equals(ASSET_TYPE_SHARED)))
-          throw new IllegalArgumentException("invalid asset type.");
-       this.assetType = assetType;
+    public void setAssetType(String assetType) {
+        if (!(ASSET_TYPE_LOCAL.equals(assetType) || ASSET_TYPE_SHARED.equals(assetType))) {
+            throw new IllegalArgumentException("invalid asset type.");
+        }
+        this.assetType = assetType;
     }
 
     /**
      * Constant for the shared asset type.
      */
-    public static String ASSET_TYPE_SHARED = "shared";
-    
+    public static final String ASSET_TYPE_SHARED = "shared";
+
     /**
      * Constant for the local asset type.
      */
-    public static String ASSET_TYPE_LOCAL = "local";
-
+    public static final String ASSET_TYPE_LOCAL = "local";
 }

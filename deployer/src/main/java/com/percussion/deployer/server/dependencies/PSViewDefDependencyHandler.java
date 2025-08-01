@@ -50,8 +50,8 @@ public class PSViewDefDependencyHandler extends PSSearchObjectDependencyHandler
    }
    
    // see base class
-   public String getType()
-   {
+   @Override
+   public String getType() {
       return DEPENDENCY_TYPE;
    }
 

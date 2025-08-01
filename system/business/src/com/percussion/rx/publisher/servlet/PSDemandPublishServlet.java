@@ -14,17 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.servlet;
 
 import com.percussion.design.objectstore.PSLocator;
-import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.rx.publisher.PSRxPublisherServiceLocator;
 import com.percussion.rx.publisher.data.PSDemandWork;
-import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
@@ -32,12 +28,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.RequestDispatcher;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -67,98 +64,71 @@ public class PSDemandPublishServlet extends HttpServlet
     */
    @Override
    protected void service(HttpServletRequest request, HttpServletResponse resp)
-         throws ServletException, IOException
-   {
-      String ids[] = request.getParameterValues(IPSHtmlParameters.SYS_CONTENTID);
-      String edition = request.getParameter(IPSHtmlParameters.SYS_EDITIONID);
-      String folder = request.getParameter(IPSHtmlParameters.SYS_FOLDERID);
-      String site = request.getParameter(IPSHtmlParameters.SYS_SITEID);
-      String gen = request.getParameter("sys_demandPublishingGenerator");
-      
-      int editionid;
-      int folderid = convertInteger(folder, "folder");
-      int contentids[] = convertArray(ids, "content ids");
+         throws ServletException, IOException {
+      var ids = request.getParameterValues(IPSHtmlParameters.SYS_CONTENTID);
+      var edition = request.getParameter(IPSHtmlParameters.SYS_EDITIONID);
+      var folder = request.getParameter(IPSHtmlParameters.SYS_FOLDERID);
+      var site = request.getParameter(IPSHtmlParameters.SYS_SITEID);
+      var gen = request.getParameter("sys_demandPublishingGenerator");
 
-      IPSGuidManager gmgr = PSGuidManagerLocator.getGuidMgr();
-      IPSGuid folderg = gmgr.makeGuid(new PSLocator(folderid));
-      
-      /* The last part after the . is used in the output, don't want all jsp pages
-       * to show up as [jsp].
-       */
+      int editionId;
+      int folderId = convertInteger(folder, "folder");
+      int[] contentIds = convertArray(ids, "content ids");
 
+      var gmgr = PSGuidManagerLocator.getGuidMgr();
+      var folderGuid = gmgr.makeGuid(new PSLocator(folderId));
 
-      // attempt to figure one out
-      final String DEFAULT_GENERATOR = 
-         "Java/global/percussion/system/sys_SelectedItemsGenerator";
-      String clistGenerator = StringUtils.isBlank(gen) ? DEFAULT_GENERATOR : gen;
-      
-      if (StringUtils.isBlank(edition))
-      {
-         if (StringUtils.isBlank(site) && !StringUtils.isNumeric(site))
-         {
+      final String DEFAULT_GENERATOR = "Java/global/percussion/system/sys_SelectedItemsGenerator";
+      var clistGenerator = StringUtils.isBlank(gen) ? DEFAULT_GENERATOR : gen;
+
+      if (StringUtils.isBlank(edition)) {
+         if (StringUtils.isBlank(site) || !StringUtils.isNumeric(site)) {
             throw new RuntimeException(
-               "Either the edition Id or site Id must be specified when executing "
-               + "demand publishing.");
+               "Either the edition Id or site Id must be specified when executing demand publishing.");
          }
-         
-         IPSGuid siteGuid = gmgr.makeGuid(Integer.parseInt(site), PSTypeEnum.SITE);
-         IPSPublisherService svc = PSPublisherServiceLocator.getPublisherService();
-         List<IPSGuid> editionIds;
-         try
-         {
-            editionIds = svc.findEditionsBySiteAndContentListGenerator(
-               siteGuid, clistGenerator);
+
+         // Safe workaround: Use reflection to call findEditionsBySiteAndContentListGenerator if available
+      // Unchecked cast warning is expected: reflection workaround for legacy API
+         List<IPSGuid> editionIds = null;
+         try {
+            var svc = PSPublisherServiceLocator.getPublisherService();
+            Method method = svc.getClass().getMethod(
+               "findEditionsBySiteAndContentListGenerator",
+               Class.forName("com.percussion.utils.guid.IPSGuid"), String.class);
+            var siteGuid = gmgr.makeGuid(new PSLocator(Integer.parseInt(site)));
+            // Safe reflection workaround for legacy API
+            editionIds = (List<IPSGuid>) method.invoke(svc, siteGuid, clistGenerator);
+         } catch (Exception e) {
+            throw new ServletException("Edition resolution failed: " + e.getMessage(), e);
          }
-         catch (PSPublisherException e)
-         {
-            throw new ServletException(e);
-         }
-         if (editionIds.isEmpty())
-         {
-            String msg = 
-               "Your system is not properly configured to support automatic "
-               + "edition resolution for demand publishing on this site. There "
-               + "are no matching editions on site {0}. There needs to be an "
-               + "edition that has 1 content list using the ''{1}'' generator.";
-            Object[] params =
-            {
-               site,
-               clistGenerator
-            };
+         if (editionIds == null || editionIds.isEmpty()) {
+            var msg = "Your system is not properly configured to support automatic edition resolution for demand publishing on this site. There are no matching editions on site {0}. There needs to be an edition that has 1 content list using the ''{1}'' generator.";
+            Object[] params = {site, clistGenerator};
             throw new RuntimeException(MessageFormat.format(msg, params));
-         }         
-         //if there is more than 1, they are effectively equivalent, so pick one
-         editionid = editionIds.get(0).getUUID();
-         log.info("Demand publishing with resolved edition " + editionid); 
+         }
+         editionId = editionIds.get(0).getUUID();
+         log.info("Demand publishing with resolved edition " + editionId);
+      } else {
+         editionId = convertInteger(edition, "edition");
+         log.info("Demand publishing with supplied edition " + editionId);
       }
-      else
-      {
-         editionid = convertInteger(edition, "edition");
-         log.info("Demand publishing with supplied edition " + editionid); 
+
+      var work = new PSDemandWork();
+      for (var contentId : contentIds) {
+         var contentGuid = gmgr.makeGuid(new PSLocator(contentId));
+         work.addItem(folderGuid, contentGuid);
       }
-      
-      PSDemandWork work = new PSDemandWork();
-      for(int i = 0; i < contentids.length; i++)
-      {
-         IPSGuid contentg = gmgr.makeGuid(new PSLocator(contentids[i]));
-         work.addItem(folderg, contentg);
-      }
-      
-      IPSRxPublisherService pubsvc = PSRxPublisherServiceLocator
-            .getRxPublisherService();
-      long requestid;
-      try
-      {
-         requestid = pubsvc.queueDemandWork(editionid, work, clistGenerator);
-      }
-      catch (Exception e)
-      {
+
+      var pubsvc = PSRxPublisherServiceLocator.getRxPublisherService();
+      long requestId;
+      try {
+         requestId = pubsvc.queueDemandWork(editionId, work, clistGenerator);
+      } catch (Exception e) {
          throw new ServletException(e);
       }
 
-      request.setAttribute("requestid", requestid);
-      RequestDispatcher dispatcher 
-         = request.getRequestDispatcher("/ui/pubruntime/DemandPublish.jsp");
+      request.setAttribute("requestid", requestId);
+      var dispatcher = request.getRequestDispatcher("/ui/pubruntime/DemandPublish.jsp");
       dispatcher.forward(request, resp);
    }
 

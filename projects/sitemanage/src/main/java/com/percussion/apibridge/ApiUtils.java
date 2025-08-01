@@ -100,10 +100,9 @@ public class ApiUtils {
      * @param guid
      * @return
      */
-    public static Guid convertGuid(IPSGuid guid){
-        Guid ret = new Guid();
-
-        if(guid!=null) {
+    public static Guid convertGuid(IPSGuid guid) {
+        var ret = new Guid();
+        if (guid != null) {
             ret.setHostId(guid.getHostId());
             ret.setLongValue(guid.longValue());
             ret.setType(guid.getType());
@@ -114,8 +113,7 @@ public class ApiUtils {
         return ret;
     }
 
-    public static IPSGuid convertGuid(Guid guid){
-
+    public static IPSGuid convertGuid(Guid guid) {
         return PSGuidManagerLocator.getGuidMgr().makeGuid(guid.getStringValue());
     }
 
@@ -148,12 +146,9 @@ public class ApiUtils {
      * @return
      */
     public static List<IPSGuid> convertGuids(GuidList ids) {
-
-        List<IPSGuid> ret = new ArrayList<>();
-
-        for(Guid g : ids){
-            PSGuid ps_g = new PSGuid();
-
+        var ret = new ArrayList<IPSGuid>();
+        for (var g : ids) {
+            var ps_g = new PSGuid();
             ps_g.setHostId(g.getHostId());
             ps_g.setType(g.getType());
             ps_g.setUUID(g.getUuid());
@@ -242,15 +237,10 @@ public class ApiUtils {
      * @return
      */
     public static Collection<? extends CommunityVisibility> convertPSCommunityVisibilities(List<PSCommunityVisibility> ps_visibilities) {
-
-        CommunityVisibilityList ret = null;
-        ArrayList<CommunityVisibility> visibilities = new ArrayList<>();
-        Iterator it = ps_visibilities.iterator();
-        while(it.hasNext()){
-            PSCommunityVisibility pv = (PSCommunityVisibility)it.next();
+        var visibilities = new ArrayList<CommunityVisibility>();
+        for (var pv : ps_visibilities) {
             visibilities.add(convertPSCommunityVisibility(pv));
         }
-
         return new CommunityVisibilityList(visibilities);
     }
 
@@ -269,7 +259,7 @@ public class ApiUtils {
 
 
     public static ObjectSummary convertPSObjectSummary(PSObjectSummary s) {
-        ObjectSummary ret = new ObjectSummary();
+        var ret = new ObjectSummary();
         ret.setDescripion(s.getDescription());
         ret.setGuid(convertGuid(s.getGUID()));
         ret.setId(s.getId());
@@ -279,7 +269,6 @@ public class ApiUtils {
         ret.setObjectLocked(s.isObjectLocked());
         ret.setLockSummary(convertPSObjectLockSummary(s.getLocked()));
         ret.setPermissions(convertPSUserAccessLevel(s.getPermissions()));
-
         return ret;
     }
 
@@ -477,19 +466,16 @@ public class ApiUtils {
     }
 
     public static AclList convertAcls(List<IPSAcl> loadAcls) {
-        ArrayList<Acl> acls = new ArrayList<>();
-        for(IPSAcl p_acl : loadAcls){
-            acls.add(convertAcl((PSAclImpl)p_acl));
+        var acls = new ArrayList<Acl>();
+        for (var p_acl : loadAcls) {
+            acls.add(convertAcl((PSAclImpl) p_acl));
         }
-        
         return new AclList(acls);
-
     }
 
-    public  static Acl convertAcl(PSAclImpl p_acl) {
+    public static Acl convertAcl(PSAclImpl p_acl) {
         Acl ret = null;
-
-        if(p_acl != null) {
+        if (p_acl != null) {
             ret = new Acl();
             ret.setName(p_acl.getName());
             ret.setGuid(convertGuid(p_acl.getGUID()));
@@ -507,12 +493,11 @@ public class ApiUtils {
      * @return
      */
     public static AclEntryList convertAclEntries(Collection<IPSAclEntry> p_entries) {
-
-        ArrayList<AclEntry> entries = new ArrayList<>();
-        for(IPSAclEntry p_e : p_entries){
-            entries.add(convertAclEntry((PSAclEntryImpl)p_e));
+        var entries = new ArrayList<AclEntry>();
+        for (var p_e : p_entries) {
+            entries.add(convertAclEntry((PSAclEntryImpl) p_e));
         }
-        return  new AclEntryList(entries);
+        return new AclEntryList(entries);
     }
 
     public  static AclEntry convertAclEntry(PSAclEntryImpl p_e) {
@@ -552,10 +537,9 @@ public class ApiUtils {
     }
 
     public static List<IPSAcl> convertAcls(AclList aclList) {
-        ArrayList<IPSAcl> p_acls = new ArrayList<>();
-
-        for(Acl a : aclList){
-            PSAclImpl p_a = new PSAclImpl();
+        var p_acls = new ArrayList<IPSAcl>();
+        for (var a : aclList) {
+            var p_a = new PSAclImpl();
             p_a.setObjectType(a.getObjectType());
             p_a.setObjectId(a.getObjectId());
             p_a.setGUID(convertGuid(a.getGuid()));
@@ -569,11 +553,9 @@ public class ApiUtils {
     }
 
     public static GuidList convertGuids(Collection<IPSGuid> p_guids) {
-
-        ArrayList<Guid> guids = new ArrayList<>();
-
-        for(IPSGuid p_g : p_guids){
-            Guid g = new Guid();
+        var guids = new ArrayList<Guid>();
+        for (var p_g : p_guids) {
+            var g = new Guid();
             g.setUntypedString(p_g.toStringUntyped());
             g.setUuid(p_g.getUUID());
             g.setType(p_g.getType());
@@ -651,11 +633,10 @@ public class ApiUtils {
     }
 
     public static List<ActionMenu> convertPSActionMenuList(List<PSActionMenu> actionMenus) {
-        ArrayList<ActionMenu> ret = new ArrayList<>();
-        for(PSActionMenu pa : actionMenus) {
+        var ret = new ArrayList<ActionMenu>();
+        for (var pa : actionMenus) {
             ret.add(convertPSActionMenu(pa));
         }
-
         return ret;
     }
 

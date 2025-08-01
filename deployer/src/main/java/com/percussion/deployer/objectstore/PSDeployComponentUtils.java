@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.stream.Stream;
 
 /**
  * Class for utility methods used by deployment components
@@ -128,19 +129,13 @@ public class PSDeployComponentUtils
     *
     * @return The copied list, will not be <code>null</code>, but may be empty.
     */
-   public static <T> List<T> cloneList(Iterator<T> iter)
-   {
-      if (iter == null)
-         throw new IllegalArgumentException("iter may not be null");
-
-      // Create an empty list
-      List<T> list = new ArrayList<>();
-
-      // Add each element of iterator to the List
-      iter.forEachRemaining(list::add);
-
-      // Return the List
-      return list;
+   public static <T> List<T> cloneList(Iterator<T> iter) {
+    if (iter == null) {
+        throw new IllegalArgumentException("iter may not be null");
+    }
+    var list = new ArrayList<T>();
+    iter.forEachRemaining(list::add);
+    return list;
    }
 
    /**
@@ -455,32 +450,19 @@ public class PSDeployComponentUtils
     * @return An iterator over zero or more <code>Map.Entry</code> objects, 
     * never <code>null</code>.
     */
-   public static Iterator convertToEntries(Map paramMap)
-   {
-      if (paramMap == null)
-         throw new IllegalArgumentException("paramMap may not be null");
-      
-      List entryList = new ArrayList();
-      
-      Iterator entries = paramMap.entrySet().iterator();
-      while (entries.hasNext())
-      {
-         Map.Entry entry = (Map.Entry)entries.next();
-         if (entry.getValue() instanceof Collection)
-         {
-            Iterator values = ((Collection)entry.getValue()).iterator();
-            while (values.hasNext())
-            {
-               entryList.add(new PSEntrySet(entry.getKey(), values.next()));
+   public static Iterator<Map.Entry<String, Object>> convertToEntries(Map<String, Object> paramMap) {
+    if (paramMap == null) {
+        throw new IllegalArgumentException("paramMap may not be null");
+    }
+    return paramMap.entrySet().stream()
+        .flatMap(entry -> {
+            var value = entry.getValue();
+            if (value instanceof Collection) {
+                return ((Collection<?>) value).stream().map(v -> Map.entry(entry.getKey(), v));
             }
-         }
-         else
-         {
-            entryList.add(new PSEntrySet(entry.getKey(), entry.getValue()));
-         }
-      }
-      
-      return entryList.iterator();
+            return Stream.of(Map.entry(entry.getKey(), value));
+        })
+        .iterator();
    }
 
 

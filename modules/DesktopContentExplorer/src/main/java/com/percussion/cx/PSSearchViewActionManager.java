@@ -35,7 +35,8 @@ import com.percussion.util.PSHtmlParamDocument;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -60,7 +61,7 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class PSSearchViewActionManager
 {
-   static Logger log = Logger.getLogger(PSSearchViewActionManager.class);
+   static Logger log = LogManager.getLogger(PSSearchViewActionManager.class);
    
    /**
     * Constructs the manager with the supplied connection objects to server

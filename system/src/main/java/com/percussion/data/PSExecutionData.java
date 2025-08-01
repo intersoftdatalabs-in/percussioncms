@@ -56,6 +56,8 @@ import java.util.Stack;
  * may be accessed, modified or removed. Additional information may also
  * be added.
  *
+ * // REFACTORED: CP-JAVA11
+ *
  * @see        PSQueryOptimizer
  * @see        IPSExecutionStep
  *
@@ -86,7 +88,7 @@ public class PSExecutionData implements AutoCloseable
       m_AppHandler = ah;
       m_ReqHandler = dh;
       m_Request = req;
-      m_ResultSetStack = new Stack();
+      m_ResultSetStack = new Stack<>();
    }
 
    /**
@@ -250,7 +252,7 @@ public class PSExecutionData implements AutoCloseable
    {
       if (m_Connections == null)
       {
-         m_Connections = new ArrayList();
+         m_Connections = new ArrayList<>();
          m_connectionDetailList = new ArrayList<>();
       }
 
@@ -342,8 +344,7 @@ public class PSExecutionData implements AutoCloseable
     *
     * @return     the stack of result sets
     */
-   public Stack getResultSetStack()
-   {
+   public Stack<ResultSet> getResultSetStack() {
       return m_ResultSetStack;
    }
 
@@ -354,7 +355,7 @@ public class PSExecutionData implements AutoCloseable
    public void addPreparedStatement(PreparedStatement stmt)
    {
       if (m_Statements == null)
-         m_Statements = new ArrayList();
+         m_Statements = new ArrayList<>();
 
       m_Statements.add(stmt);
    }
@@ -372,9 +373,15 @@ public class PSExecutionData implements AutoCloseable
     * Get the list of prepared statements. This is used
     * by the handler to close any opened statements.
     */
-   public List getPreparedStatements()
-   {
-      return m_Statements;
+   public List<PreparedStatement> getPreparedStatements() {
+      if (m_Statements == null) {
+         return new ArrayList<>();
+      }
+      List<PreparedStatement> result = new ArrayList<>();
+      for (var stmt : m_Statements) {
+         result.add((PreparedStatement) stmt);
+      }
+      return result;
    }
 
    /**
@@ -643,13 +650,6 @@ public class PSExecutionData implements AutoCloseable
    }
 
 
-   protected void finalize()
-      throws Throwable
-   {
-      release();  /* release the DB connections!!! */
-      super.finalize();
-   }
-
    /**
     * Set temp file resource information on this execution data.  This will
     * be used to allow the mime content converter to return the relevant
@@ -906,9 +906,9 @@ public class PSExecutionData implements AutoCloseable
    private PSRequest                   m_Request         = null;
    private PSErrorHandler              m_ErrorHandler    = null;
    private PSLogHandler                m_LogHandler      = null;
-   private List                        m_Connections     = null;
-   private Stack                       m_ResultSetStack  = null;
-   private List                        m_Statements      = null;
+private List<Object> m_Connections = null;
+private Stack<ResultSet> m_ResultSetStack = null;
+private List<Object> m_Statements = null;
    private ResultSetMetaData           m_CurRSMetaData   = null;
    private Object[]                    m_CurRowData      = null;
    private int                         m_resultPageIndex = -1;

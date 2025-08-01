@@ -34,17 +34,13 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
  * </p>
  * @author YuBingChen
  */
-public class PSNamespacehandler extends NamespaceHandlerSupport
-{
-   /**
-    * Register parsers for all custom elements.
-    */
-   public void init()
-   {
-      registerBeanDefinitionParser("list",
-            new PSListBeanDefinitionParser());
-      registerBeanDefinitionParser("map",
-            new PSMapBeanDefinitionParser());
-   }
-
+public class PSNamespacehandler extends NamespaceHandlerSupport {
+    /**
+     * Register parsers for all custom elements.
+     */
+    @Override
+    public void init() {
+        registerBeanDefinitionParser("list", new PSListBeanDefinitionParser());
+        registerBeanDefinitionParser("map", new PSMapBeanDefinitionParser());
+    }
 }

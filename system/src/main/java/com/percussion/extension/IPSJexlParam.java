@@ -32,7 +32,25 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME) 
 @Target(ElementType.ANNOTATION_TYPE)
 public @interface IPSJexlParam {
-   String   name();
-   String   type() default "";
-   String   description();
+
+   /**
+    * The name of the parameter.
+    *
+    * @return the parameter name, never {@code null}
+    */
+   String name();
+
+   /**
+    * The type of the parameter.
+    *
+    * @return the parameter type, empty string if not specified
+    */
+   String type() default "";
+
+   /**
+    * The description of the parameter.
+    *
+    * @return the parameter description, never {@code null}
+    */
+   String description();
 }

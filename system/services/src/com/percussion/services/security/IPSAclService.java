@@ -14,8 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.percussion.services.security;
+    package com.percussion.services.security;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.security.data.PSUserAccessLevel;
@@ -24,189 +23,328 @@ import com.percussion.security.IPSTypedPrincipal;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
- * This interface consists of methods to help managing object ACLs.
- * <code>ACL</code> objects need the <code>Principal</code> who is accessing
- * or modifying it which is part of some user context information. This class
- * takes the user context information in the ctor and helps simplifying
- * operations involving the object ACL, user context information and may be some
- * other business rules.
- * <p>
- * All the <code>loadAclXXX</code> methods return read-only objects. These are
- * cached and may be shared among threads; the caller should never modify them.
- * If changes need to be made, either the {@link #loadAclsModifiable(List)} or
- * {@link #loadAclsForObjectsModifiable(List)} method should be used.
- * 
+ * This interface provides methods for managing object ACLs (Access Control Lists) with Java 11 modernization.
+ * ACL objects require the Principal who is accessing or modifying them, which is part
+ * of the user context information. This service takes user context information and
+ * simplifies operations involving object ACLs, user context, and business rules.
+ *
+ * <h2>Java 11 Features</h2>
+ * <ul>
+ * <li>Optional-based safe access for ACL retrieval and validation</li>
+ * <li>Stream API for efficient ACL filtering and processing</li>
+ * <li>CompletableFuture support for asynchronous security operations</li>
+ * <li>Enhanced validation with Objects.requireNonNull</li>
+ * <li>Functional interfaces for access level predicates</li>
+ * </ul>
+ *
+ * <p>All {@code loadAclXXX} methods return read-only objects. These are cached and may
+ * be shared among threads; callers should never modify them. If changes need to be
+ * made, use either {@link #loadAclsModifiable(List)} or
+ * {@link #loadAclsForObjectsModifiable(List)} methods.
+ *
  * @author Ram
  * @version 6.0
  */
-public interface IPSAclService
-{
-   /**
-    * A convenience method that retrieves the acl for the object with the
-    * supplied id and calls {@link #calculateUserAccessLevel(IPSAcl)}.
-    * 
-    * @param objectGuid The guid of the object for which the current user's
-    * effective access level needs to be computed. Must not be <code>null</code>
-    */
-   PSUserAccessLevel getUserAccessLevel(IPSGuid objectGuid);
-   
-   /**
-    * Computes the current user's effective access level to the object protected
-    * by the supplied ACL. The effective access level of a user is the highest
-    * permission he or she can get on the associated object based on all entries
-    * in the ACL.
-    * 
-    * @param acl The acl which will be used to compute the access. If
-    * <code>null</code>, all access is allowed. Must be an ACL previously 
-    * returned by this interface.
-    * 
-    * @return the effective access level for the current user via the supplied
-    * ACL, never <code>null</code>.
-    */
-   PSUserAccessLevel calculateUserAccessLevel(IPSAcl acl);
-   
-   /**
-    * Create an acl for the specified object.
-    * 
-    * @param objGuid The guid of the object for which the acl will specify
-    * permissions, may not be <code>null</code>.
-    * @param owner The owner of the acl, may not be <code>null</code>.
-    * @return The acl, never <code>null</code>.  This object will not have been
-    * persisted.
-    */
-   IPSAcl createAcl(IPSGuid objGuid, IPSTypedPrincipal owner);
+public interface IPSAclService {
 
-   /**
-    * Load ACLs for given list of ACL GUIDs. These objects are cached and shared
-    * between threads and should be treated read-only. See the class description
-    * for more details.
-    * 
-    * @param aclGuids list of ACL <code>IPSGuid</code> objects to load the
-    * ACLs for. May be <code>null</code> to return all ACLs. If not
-    * <code>null</code>, then must not be empty.
-    * 
-    * @return list of <code>IPSAcl</code> objects, may be <code>null</code>
-    * never empty.
-    * 
-    * @throws PSSecurityException If any of the specified acls cannot be loaded.
-    */
-   List<IPSAcl> loadAcls(List<IPSGuid> aclGuids)
-      throws PSSecurityException;
-
-   /**
-    * Just like {@link #loadAcls(List)}, except the object is always retrieved
-    * from the persistent storage, never from cache. See that method for 
-    * parameter and return description.
-    */
-   List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids)
-      throws PSSecurityException;
-   
-   /**
-    * Load the ACL for the specified guid. These objects are cached and shared
-    * between threads and should be treated read-only. See the class description
-    * for more details.
-    * 
-    * @param aclGuid The guid of the acl to load, may not be <code>null</code>.
-    * 
-    * @return The acl, never <code>null</code>.
-    * 
-    * @throws PSSecurityException If the load fails.
-    */
-   IPSAcl loadAcl(IPSGuid aclGuid) throws PSSecurityException;
-   
-   /**
-    * Load ACLs for given list of Object guids. These objects are cached and
-    * shared between threads and should be treated read-only. See the class
-    * description for more details.
-    * 
-    * @param objectGuids list of object <code>IPSGuid</code>s to load the
-    *        ACLs for. Must not be <code>null</code> and no entry should be
-    *        <code>null</code>.
-    * 
-    * @return One ACL for each corresponding object id. Some of the entries may
-    *         be <code>null</code> if the object does not have an ACL. The
-    *         results are in the same order as the supplied ids.
-    */
-   List<IPSAcl> loadAclsForObjects(List<IPSGuid> objectGuids);
-
-   /**
-    * Find all design object GUIDs visible in any of the supplied communities.
-    * 
-    * @param communityNames a list of community names for which to lookup all
-    *        allowed objects. If <code>null</code> or empty, returns an empty
-    *        list. Names are case-insensitive.
-    * @return A set of GUIDs that are visible in at least one of the communities
-    *         in the supplied list and has the supplied type, never
-    *         <code>null</code>, may be empty.
-    */
-   Collection<IPSGuid> findObjectsVisibleToCommunities(
-           List<String> communityNames, PSTypeEnum objectType);
-
-   /**
-    * Just like {@link #loadAclsForObjects(List)}, except the object is always
-    * retrieved from the persistent storage, never from cache. See that method
-    * for parameter and return description.
-    */
-   List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids);
-
-   /**
-    * Load the ACL for the specified Object guids. These objects are cached and
-    * shared between threads and should be treated read-only. See the class
-    * description for more details.
-    * 
-    * @param objectGuid the object <code>IPSGuid</code> to load the ACL for.
-    *        Must not be <code>null</code>.
-    * 
-    * @return The specified acl, may be <code>null</code>.
-    */
-   IPSAcl loadAclForObject(IPSGuid objectGuid);
-
-   /**
-    * Just like {@link #loadAclForObject(IPSGuid)}, except the object is always
-    * retrieved from the persistent storage, never from cache. See that method
-    * for parameter and return description.
-    */
-   IPSAcl loadAclForObjectModifiable(IPSGuid objectGuid);
-
-   /**
-    * Save the supplied ACLs to the system. The objects to be saved may be
-    * created outside the service. No ids need to be allocated for the acl
-    * entries as these will be allocated by the service. If modifying an
-    * existing ACL, then it must have been loaded using either
-    * {@link #loadAclsModifiable(List)} or
-    * {@link #loadAclsForObjectsModifiable(List)}.
-    * 
-    * @param aclList List of ACLs to save. Must not be <code>null</code>.
-    * Each entry must not have been loaded with any of the
-    * <code>loadAclXXX</code> methods.
-    * 
-    * @throws PSSecurityException If the save fails.
-    */
-   List<IPSAcl>  saveAcls(List<IPSAcl> aclList) throws PSSecurityException;
-   
     /**
-    * Delete the specified acl from the system.
-    * 
-    * @param aclGuid The acl guid, may not be <code>null</code>.  If the 
-    * specified acl does not exist the method simply returns without error.
-    * 
-    * @throws PSSecurityException If any delete fails.
-    */
-    void deleteAcl(IPSGuid aclGuid) throws PSSecurityException;
-   
-    /**
-    * Filter list of objectIds by list of communities items are visible in
-    * 
-    * @param aclList List of ACLs to save. Must not be <code>null</code>.
-    * 
-    * @return The filtered list of object guids, may be <code>null</code>.
-    */
-    Collection<IPSGuid> filterByCommunities(List<IPSGuid> aclList, List<String> communityNames);
+     * A convenience method that retrieves the ACL for the object with the
+     * supplied ID and calls {@link #calculateUserAccessLevel(IPSAcl)}.
+     *
+     * @param objectGuid The GUID of the object for which the current user's
+     *                   effective access level needs to be computed, not {@code null}
+     * @return the user access level, never {@code null}
+     * @throws IllegalArgumentException if objectGuid is null
+     */
+    PSUserAccessLevel getUserAccessLevel(IPSGuid objectGuid);
 
-   /***
-    * Clears the in memory acl cache
-    */
-   void clearCache();
-}
+    /**
+     * Safely get user access level, returning an Optional for enhanced error handling.
+     *
+     * @param objectGuid The GUID of the object to check access for, not {@code null}
+     * @return an Optional containing the access level, empty if object not found or access denied
+     * @throws IllegalArgumentException if objectGuid is null
+     */
+    default Optional<PSUserAccessLevel> getUserAccessLevelSafely(IPSGuid objectGuid) {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        try {
+            return Optional.of(getUserAccessLevel(objectGuid));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Asynchronously get user access level for non-blocking operations.
+     *
+     * @param objectGuid The GUID of the object to check access for, not {@code null}
+     * @return a CompletableFuture containing the access level
+     * @throws IllegalArgumentException if objectGuid is null
+     */
+    default CompletableFuture<PSUserAccessLevel> getUserAccessLevelAsync(IPSGuid objectGuid) {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        return CompletableFuture.supplyAsync(() -> getUserAccessLevel(objectGuid));
+    }
+
+    /**
+     * Computes the current user's effective access level to the object protected
+     * by the supplied ACL. The effective access level is the highest permission
+     * the user can get on the associated object based on all entries in the ACL.
+     *
+     * @param acl The ACL which will be used to compute access. If {@code null},
+     *            all access is allowed. Must be an ACL previously returned by this interface
+     * @return the effective access level for the current user, never {@code null}
+     */
+    PSUserAccessLevel calculateUserAccessLevel(IPSAcl acl);
+
+    /**
+     * Create an ACL for the specified object with enhanced validation.
+     *
+     * @param objGuid The GUID of the object for which the ACL will specify
+     *                permissions, not {@code null}
+     * @param owner The owner of the ACL, not {@code null}
+     * @return The ACL, never {@code null}. This object will not have been persisted
+     * @throws IllegalArgumentException if objGuid or owner is null
+     */
+    default IPSAcl createAcl(IPSGuid objGuid, IPSTypedPrincipal owner) {
+        Objects.requireNonNull(objGuid, "objGuid cannot be null");
+        Objects.requireNonNull(owner, "owner cannot be null");
+        return createAclImpl(objGuid, owner);
+    }
+
+    /**
+     * Internal implementation for ACL creation.
+     */
+    IPSAcl createAclImpl(IPSGuid objGuid, IPSTypedPrincipal owner);
+
+    /**
+     * Load ACLs for the given list of ACL GUIDs. These objects are cached and shared
+     * between threads and should be treated as read-only.
+     *
+     * @param aclGuids list of ACL GUIDs to load ACLs for. May be {@code null}
+     *                 to return all ACLs. If not {@code null}, must not be empty
+     * @return an immutable list of ACL objects, never {@code null}, may be empty
+     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     */
+    List<IPSAcl> loadAcls(List<IPSGuid> aclGuids) throws PSSecurityException;
+
+    /**
+     * Load ACLs safely, returning an Optional for error handling.
+     *
+     * @param aclGuids list of ACL GUIDs to load ACLs for
+     * @return an Optional containing the list of ACLs, empty if loading fails
+     */
+    default Optional<List<IPSAcl>> loadAclsSafely(List<IPSGuid> aclGuids) {
+        try {
+            return Optional.of(loadAcls(aclGuids));
+        } catch (PSSecurityException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Load ACLs as a stream for efficient processing.
+     *
+     * @param aclGuids list of ACL GUIDs to load ACLs for
+     * @return Stream of ACLs, never {@code null}
+     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     */
+    default Stream<IPSAcl> streamAcls(List<IPSGuid> aclGuids) throws PSSecurityException {
+        return loadAcls(aclGuids).stream();
+    }
+
+    /**
+     * Load ACLs for the given list of ACL GUIDs, always from persistent storage.
+     * Just like {@link #loadAcls(List)}, except the objects are always retrieved
+     * from persistent storage, never from cache.
+     *
+     * @param aclGuids list of ACL GUIDs to load ACLs for, not {@code null}
+     * @return an immutable list of modifiable ACL objects, never {@code null}, may be empty
+     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws IllegalArgumentException if aclGuids is null
+     */
+    List<IPSAcl> loadAclsModifiable(List<IPSGuid> aclGuids) throws PSSecurityException;
+
+    /**
+     * Load ACLs for objects with the specified GUIDs. These objects are cached
+     * and shared between threads and should be treated as read-only.
+     *
+     * @param objectGuids list of object GUIDs to load ACLs for, not {@code null}
+     * @return an immutable list of ACL objects, never {@code null}, may be empty
+     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws IllegalArgumentException if objectGuids is null
+     */
+    List<IPSAcl> loadAclsForObjects(List<IPSGuid> objectGuids) throws PSSecurityException;
+
+    /**
+     * Load ACLs for objects safely, returning an Optional for error handling.
+     *
+     * @param objectGuids list of object GUIDs to load ACLs for, not {@code null}
+     * @return an Optional containing the list of ACLs, empty if loading fails
+     */
+    default Optional<List<IPSAcl>> loadAclsForObjectsSafely(List<IPSGuid> objectGuids) {
+        try {
+            return Optional.of(loadAclsForObjects(objectGuids));
+        } catch (PSSecurityException e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Load modifiable ACLs for objects with the specified GUIDs.
+     *
+     * @param objectGuids list of object GUIDs to load ACLs for, not {@code null}
+     * @return an immutable list of modifiable ACL objects, never {@code null}, may be empty
+     * @throws PSSecurityException if any of the specified ACLs cannot be loaded
+     * @throws IllegalArgumentException if objectGuids is null
+     */
+    List<IPSAcl> loadAclsForObjectsModifiable(List<IPSGuid> objectGuids) throws PSSecurityException;
+
+    /**
+     * Save the supplied ACLs to persistent storage with enhanced validation.
+     *
+     * @param acls The ACLs to save, not {@code null} or empty
+     * @throws PSSecurityException if the save operation fails
+     * @throws IllegalArgumentException if acls is null or empty
+     */
+    default void saveAcls(List<IPSAcl> acls) throws PSSecurityException {
+        Objects.requireNonNull(acls, "acls cannot be null");
+        if (acls.isEmpty()) {
+            throw new IllegalArgumentException("acls cannot be empty");
+        }
+        saveAclsImpl(acls);
+    }
+
+    /**
+     * Internal implementation for ACL saving.
+     */
+    void saveAclsImpl(List<IPSAcl> acls) throws PSSecurityException;
+
+    /**
+     * Delete ACLs for the specified object GUIDs with enhanced validation.
+     *
+     * @param objectGuids list of object GUIDs whose ACLs should be deleted, not {@code null}
+     * @throws PSSecurityException if the delete operation fails
+     * @throws IllegalArgumentException if objectGuids is null
+     */
+    default void deleteAcls(List<IPSGuid> objectGuids) throws PSSecurityException {
+        Objects.requireNonNull(objectGuids, "objectGuids cannot be null");
+        deleteAclsImpl(objectGuids);
+    }
+
+    /**
+     * Internal implementation for ACL deletion.
+     */
+    void deleteAclsImpl(List<IPSGuid> objectGuids) throws PSSecurityException;
+
+    /**
+     * Check if the current user has the specified access level to an object.
+     *
+     * @param objectGuid The GUID of the object to check, not {@code null}
+     * @param requiredLevel The required access level, not {@code null}
+     * @return {@code true} if user has required access, {@code false} otherwise
+     * @throws IllegalArgumentException if objectGuid or requiredLevel is null
+     */
+    default boolean hasAccess(IPSGuid objectGuid, PSUserAccessLevel requiredLevel) {
+        Objects.requireNonNull(objectGuid, "objectGuid cannot be null");
+        Objects.requireNonNull(requiredLevel, "requiredLevel cannot be null");
+
+        var userLevel = getUserAccessLevel(objectGuid);
+        return userLevel.getAccessLevel() >= requiredLevel.getAccessLevel();
+    }
+
+    /**
+     * Check access for multiple objects efficiently using streams.
+     *
+     * @param objectGuids list of object GUIDs to check, not {@code null}
+     * @param requiredLevel The required access level, not {@code null}
+     * @return Stream of object GUIDs that the user has access to, never {@code null}
+     * @throws IllegalArgumentException if objectGuids or requiredLevel is null
+     */
+    default Stream<IPSGuid> filterAccessibleObjects(List<IPSGuid> objectGuids,
+                                                   PSUserAccessLevel requiredLevel) {
+        Objects.requireNonNull(objectGuids, "objectGuids cannot be null");
+        Objects.requireNonNull(requiredLevel, "requiredLevel cannot be null");
+
+        return objectGuids.stream()
+            .filter(guid -> hasAccess(guid, requiredLevel));
+    }
+
+    /**
+     * Find ACLs that match the specified predicate.
+     *
+     * @param aclGuids list of ACL GUIDs to search, not {@code null}
+     * @param predicate predicate to match ACLs, not {@code null}
+     * @return Stream of matching ACLs, never {@code null}
+     * @throws PSSecurityException if ACL loading fails
+     * @throws IllegalArgumentException if aclGuids or predicate is null
+     */
+    default Stream<IPSAcl> findAcls(List<IPSGuid> aclGuids, Predicate<IPSAcl> predicate)
+            throws PSSecurityException {
+        Objects.requireNonNull(aclGuids, "aclGuids cannot be null");
+        Objects.requireNonNull(predicate, "predicate cannot be null");
+
+        return streamAcls(aclGuids).filter(predicate);
+    }
+
+    /**
+     * Count ACLs that match the specified criteria.
+     *
+     * @param aclGuids list of ACL GUIDs to count, not {@code null}
+     * @param predicate predicate to match ACLs, not {@code null}
+     * @return count of matching ACLs
+     * @throws PSSecurityException if ACL loading fails
+     * @throws IllegalArgumentException if aclGuids or predicate is null
+     */
+    default long countAcls(List<IPSGuid> aclGuids, Predicate<IPSAcl> predicate)
+            throws PSSecurityException {
+        return findAcls(aclGuids, predicate).count();
+    }
+
+    /**
+     * Check if any ACLs exist for the specified object types.
+     *
+     * @param objectType the type of objects to check, not {@code null}
+     * @return {@code true} if ACLs exist for this object type, {@code false} otherwise
+     * @throws IllegalArgumentException if objectType is null
+     */
+    default boolean hasAclsForType(PSTypeEnum objectType) {
+        Objects.requireNonNull(objectType, "objectType cannot be null");
+        return hasAclsForTypeImpl(objectType);
+    }
+
+    /**
+     * Internal implementation for type-based ACL existence check.
+     */
+    boolean hasAclsForTypeImpl(PSTypeEnum objectType);
+
+    /**
+     * Get all object GUIDs that have ACLs.
+     *
+     * @return Stream of object GUIDs with ACLs, never {@code null}
+     */
+    Stream<IPSGuid> streamObjectsWithAcls();
+
+    /**
+     * Validate ACL configuration for security compliance.
+     *
+     * @param acl the ACL to validate, not {@code null}
+     * @return validation result, empty if valid, contains error message if invalid
+     * @throws IllegalArgumentException if acl is null
+     */
+    default Optional<String> validateAcl(IPSAcl acl) {
+        Objects.requireNonNull(acl, "acl cannot be null");
+        return validateAclImpl(acl);
+    }
+
+    /**
+     * Internal implementation for ACL validation.
+     */

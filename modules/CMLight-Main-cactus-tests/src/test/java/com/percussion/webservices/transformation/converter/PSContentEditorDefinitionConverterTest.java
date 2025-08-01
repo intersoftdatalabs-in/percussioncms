@@ -29,93 +29,65 @@ import java.io.FileInputStream;
 import org.junit.experimental.categories.Category;
 import org.w3c.dom.Document;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSContentEditorDefinitionConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSContentEditorDefinitionConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object as well as a
-    * server array of objects to a client array of objects and back.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   public void testConversion() throws Exception
-   {
-      File configDir = new File(PSServer.getRxFile(CFG_DIR));
-      File cmsDir = new File(configDir, CMS_DIR);
-      File cfgDirShared = new File(cmsDir, CMS_SHARED_DIR);
-      
-      FileInputStream in = null;
-      
-      // test system definition
-      try
-      {
-         File def = new File(cmsDir, "ContentEditorSystemDef.xml");
-         in = new FileInputStream(def);
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-         PSContentEditorSystemDef systemSource = 
-            new PSContentEditorSystemDef(doc);
-         
-         PSContentEditorSystemDef systemTarget = 
-            (PSContentEditorSystemDef) roundTripConversion(
-               PSContentEditorSystemDef.class, 
-               PSContentEditorDefinition.class, 
-               systemSource);
-         
-         assertTrue(systemSource.equals(systemTarget));
-      }
-      finally
-      {
-         if (in != null)
-         {
-            in.close();
-         }
-      }
-      
-      // test shared definition
-      try
-      {
-         File def = new File(cfgDirShared, "rxs_ct_shared.xml");
-         in = new FileInputStream(def);
-         Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-         PSContentEditorSharedDef sharedSource = 
-            new PSContentEditorSharedDef(doc);
-         
-         PSContentEditorSharedDef sharedTarget = 
-            (PSContentEditorSharedDef) roundTripConversion(
-               PSContentEditorSharedDef.class, 
-               PSContentEditorDefinition.class, 
-               sharedSource);
-         
-         assertTrue(sharedSource.equals(sharedTarget));
-      }
-      finally
-      {
-         if (in != null)
-         {
-            in.close();
-         }
-      }
-   }
-   
-   /**
-    * Constant for the directory containing content management configurations.
-    * Assumed to be relative to the Rx root directory.
-    */
-   private static final String CFG_DIR = "rxconfig";
+public class PSContentEditorDefinitionConverterTest extends PSConverterTestBase {
 
-   /**
-    * Constant for the directory containing content editor configurations.
-    * Assumed to be relative to the {@link #CFG_DIR} directory.
-    */
-   private static final String CMS_DIR = "Server/ContentEditors";
+    /**
+     * Tests the conversion from a server to a client object as well as a
+     * server array of objects to a client array of objects and back.
+     */
+    public void testConversion() throws Exception {
+        var configDir = new File(PSServer.getRxFile(CFG_DIR));
+        var cmsDir = new File(configDir, CMS_DIR);
+        var cfgDirShared = new File(cmsDir, CMS_SHARED_DIR);
 
-   /**
-    * Constant for the directory containing content editor shared configs.
-    * Assumed to be relative to the {@link #CMS_DIR} directory.
-    */
-   private static final String CMS_SHARED_DIR = "shared";
+        // test system definition
+        try (var in = new FileInputStream(new File(cmsDir, "ContentEditorSystemDef.xml"))) {
+            Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+            var systemSource = new PSContentEditorSystemDef(doc);
+
+            var systemTarget = (PSContentEditorSystemDef) roundTripConversion(
+                    PSContentEditorSystemDef.class,
+                    PSContentEditorDefinition.class,
+                    systemSource);
+
+            assertEquals(systemSource, systemTarget);
+        }
+
+        // test shared definition
+        try (var in = new FileInputStream(new File(cfgDirShared, "rxs_ct_shared.xml"))) {
+            Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+            var sharedSource = new PSContentEditorSharedDef(doc);
+
+            var sharedTarget = (PSContentEditorSharedDef) roundTripConversion(
+                    PSContentEditorSharedDef.class,
+                    PSContentEditorDefinition.class,
+                    sharedSource);
+
+            assertEquals(sharedSource, sharedTarget);
+        }
+    }
+
+    /**
+     * Constant for the directory containing content management configurations.
+     * Assumed to be relative to the Rx root directory.
+     */
+    private static final String CFG_DIR = "rxconfig";
+
+    /**
+     * Constant for the directory containing content editor configurations.
+     * Assumed to be relative to the {@link #CFG_DIR} directory.
+     */
+    private static final String CMS_DIR = "Server/ContentEditors";
+
+    /**
+     * Constant for the directory containing content editor shared configs.
+     * Assumed to be relative to the {@link #CMS_DIR} directory.
+     */
+    private static final String CMS_SHARED_DIR = "shared";
 }
-

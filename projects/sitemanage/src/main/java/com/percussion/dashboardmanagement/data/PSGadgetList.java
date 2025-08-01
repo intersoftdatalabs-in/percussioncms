@@ -23,12 +23,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 
 @XmlRootElement(name = "gadget")
-@ArraySchema(schema=@Schema(implementation =PSGadget.class))
+@ArraySchema(schema = @Schema(implementation = PSGadget.class))
 public class PSGadgetList extends ArrayList<PSGadget> {
     public PSGadgetList(Collection<? extends PSGadget> c) {
-        super(c);
+        super(c != null ? c : List.of());
     }
 }

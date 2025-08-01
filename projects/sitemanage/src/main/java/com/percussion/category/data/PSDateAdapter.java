@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,26 +20,32 @@ package com.percussion.category.data;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
+/**
+ * JAXB adapter for serializing/deserializing LocalDateTime as ISO-8601 strings.
+ */
 public class PSDateAdapter extends XmlAdapter<String, LocalDateTime> {
 
-	@Override
-	public String marshal(LocalDateTime date) throws Exception {
+    @Override
+    public String marshal(LocalDateTime date) {
+        return Optional.ofNullable(date)
+                .map(LocalDateTime::toString)
+                .orElse(null);
+    }
 
-		if(date != null) {
-			return date.toString();
-		}
-
-		return null;
-	}
-
-	@Override
-	public LocalDateTime unmarshal(String date) throws Exception {
+    @Override
+    public LocalDateTime unmarshal(String date) {
         try {
-            return LocalDateTime.parse(date);
-        }catch(Exception e){
-            ;
+            return Optional.ofNullable(date)
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(LocalDateTime::parse)
+                    .orElse(null);
+        } catch (DateTimeParseException e) {
+            // Log or handle parse exception as needed
+            return null;
         }
-        return null;
     }
 }

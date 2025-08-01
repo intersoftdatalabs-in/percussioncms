@@ -30,50 +30,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 @PSSiteManageBean("relationshipCataloger")
-public class PSRelationshipCataloger implements IPSRelationshipCataloger
-{
-    private IPSSystemWs systemWs;
-    private IPSIdMapper idMapper;
-    private PSItemDefManager itemDefManager;
-    
+public class PSRelationshipCataloger implements IPSRelationshipCataloger {
+
+    private final IPSSystemWs systemWs;
+    private final IPSIdMapper idMapper;
+    private final PSItemDefManager itemDefManager;
+
     @Autowired
-    public PSRelationshipCataloger(IPSIdMapper idMapper, PSItemDefManager itemDefManager, IPSSystemWs systemWs)
-    {
-        super();
+    public PSRelationshipCataloger(
+            IPSIdMapper idMapper,
+            PSItemDefManager itemDefManager,
+            IPSSystemWs systemWs) {
         this.idMapper = idMapper;
         this.itemDefManager = itemDefManager;
         this.systemWs = systemWs;
     }
 
-    public List<String> findOwners(String id, String name, String contentType, String slotName) 
-    {
-        IPSGuid guid = idMapper.getGuid(id);
-        
-        PSRelationshipFilter filter = new PSRelationshipFilter();
+    @Override
+    public List<String> findOwners(String id, String name, String contentType, String slotName) {
+        var guid = idMapper.getGuid(id);
+        var filter = new PSRelationshipFilter();
         filter.setName(name);
         if (contentType != null) {
-            long ctid = getContentTypeId(contentType);
+            var ctid = getContentTypeId(contentType);
             filter.setOwnerContentTypeId(ctid);
         }
-        List<IPSGuid> guids = systemWs.findOwners(guid, filter);
-        List<String> ids = new ArrayList<>();
-        for (IPSGuid gid: guids) {
-            ids.add(idMapper.getString(gid));
-        }
+        var guids = systemWs.findOwners(guid, filter);
+        var ids = new ArrayList<String>();
+        guids.forEach(gid -> ids.add(idMapper.getString(gid)));
         return ids;
     }
-    
-    private long getContentTypeId( String contentType ) 
-    {
-        try
-        {
+
+    private long getContentTypeId(String contentType) {
+        try {
             return itemDefManager.contentTypeNameToId(contentType);
-        }
-        catch (PSInvalidContentTypeException e)
-        {
+        } catch (PSInvalidContentTypeException e) {
             throw new RuntimeException("Invalid content type name", e);
         }
-    
     }
-
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.deliverytypes.DeliveryType;
@@ -24,8 +26,12 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Test adaptor for DeliveryType API bridge.
+ */
 @Component
-public class TestDeliveryTypeAdaptor implements IDeliveryTypeAdaptor  {
+public class TestDeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
+
     @Override
     public DeliveryType getDeliveryTypeById(URI baseURI, String id) {
         return null;
@@ -38,7 +44,7 @@ public class TestDeliveryTypeAdaptor implements IDeliveryTypeAdaptor  {
 
     @Override
     public void deleteDeliveryTypeById(URI baseURI, String id) {
-
+        // No-op for test adaptor
     }
 
     @Override

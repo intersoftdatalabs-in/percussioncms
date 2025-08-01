@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.pagemanagement.extension;
 
 import com.percussion.extension.IPSUdfProcessor;
@@ -30,72 +30,58 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Generate "friendly" preview link or URL for a page or asset.
- * 
- * @author yubingchen
- *
+ * Generates a "friendly" preview link or URL for a page or asset.
+ * Sunny Sal says: "Friendly URLs—because nobody likes an unfriendly link!"
  */
-public class PSGeneratePreviewLink extends com.percussion.extension.PSSimpleJavaUdfExtension
-{
+public class PSGeneratePreviewLink extends com.percussion.extension.PSSimpleJavaUdfExtension {
 
     private static final Logger log = LogManager.getLogger(PSGeneratePreviewLink.class);
-    
+
     /**
-     * It returns a "friendly URL", which is the finder path from UI.
-     * 
-     * See {@link IPSUdfProcessor#processUdf(Object[], IPSRequestContext) processUdf} for detail.
-     * 
-     * @param params the parameters for this extension, never <code>null</code>. It contains
-     * the content ID (1st element) and revision (2nd element) of the page or asset in question.
-     * @param request the parameter request, never <code>null</code>
+     * Returns a "friendly URL", which is the finder path from UI.
+     *
+     * @param params  the parameters for this extension, never null. It contains
+     *                the content ID (1st element) and revision (2nd element) of the page or asset in question.
+     * @param request the parameter request, never null
      */
-    public Object processUdf(Object[] params, IPSRequestContext request)
-    {
-        IPSGuid id = getContentId(params);
-        IPSContentWs service = PSContentWsLocator.getContentWebservice();
-        String[] paths = service.findItemPaths(id);
-        if (paths.length == 0)
-        {
-            String msg1 = "Failed to generate friendly URL for content ID = " + id;
-            IPSCmsObjectMgr cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
+    @Override
+    public Object processUdf(Object[] params, IPSRequestContext request) {
+        var id = getContentId(params);
+        var service = PSContentWsLocator.getContentWebservice();
+        var paths = service.findItemPaths(id);
+        if (paths.length == 0) {
+            var msg1 = "Failed to generate friendly URL for content ID = " + id;
+            var cmsMgr = PSCmsObjectMgrLocator.getObjectManager();
             if (cmsMgr.findItemEntry(id.getUUID()) != null) {
                 log.debug("{} as the item does not exist.", msg1);
-            }
-            else {
+            } else {
                 log.debug("{} as the item is not under a folder.", msg1);
             }
-            
-            return "";            
+            return "";
         }
-        
         return PSPathUtils.getFinderPath(paths[0]);
     }
 
     /**
      * Gets the content ID from the specified parameters.
+     *
      * @param params the parameters, expecting 1st parameter is the content ID and 2nd is the revision.
-     * @return the content ID in GUID, never <code>null</code>.
+     * @return the content ID in GUID, never null.
      */
-    private IPSGuid getContentId(Object[] params)
-    {
+    private IPSGuid getContentId(Object[] params) {
         if (params.length < 2) {
             throw new IllegalArgumentException("params must contain 2 parameters.");
         }
-        
-        int contentId = getIntParameter(params, 0);
-        int revision = getIntParameter(params, 1);
-        
+        var contentId = getIntParameter(params, 0);
+        var revision = getIntParameter(params, 1);
         return new PSLegacyGuid(contentId, revision);
     }
-    
-    private int getIntParameter(Object params[], int index)
-    {
-        Object p = params[index];
+
+    private int getIntParameter(Object[] params, int index) {
+        var p = params[index];
         if (!(p instanceof Integer)) {
             throw new IllegalArgumentException("Parameter[" + index + "] is not Integer.");
         }
-        
-        return ((Integer)p).intValue();
+        return (Integer) p;
     }
-    
 }

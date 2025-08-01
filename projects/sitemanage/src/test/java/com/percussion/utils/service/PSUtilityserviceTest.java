@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,55 +18,55 @@
 
 package com.percussion.utils.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.security.PSEncryptor;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.utils.service.impl.PSUtilityService;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.io.File;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
-public class PSUtilityserviceTest
-{
+/**
+ * Tests for PSUtilityService encryption/decryption.
+ */
+public class PSUtilityserviceTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    File temporaryFolder;
 
     private String rxdeploydir;
 
-    @Before
-    public void setup(){
-        this.rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+    @BeforeEach
+    public void setup() {
+        rxdeploydir = System.getProperty("rxdeploydir");
+        System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
     }
 
-    @After
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
+    @AfterEach
+    public void teardown() {
+        // Reset the deploy dir property if it was set prior to test
+        if (rxdeploydir != null) {
+            System.setProperty("rxdeploydir", rxdeploydir);
+        }
     }
-
 
     @Test
-    public void encryptDecryptStringTest()
-    {
-        String defaultKey = PSLegacyEncrypter.getInstance(
-                temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
+    public void encryptDecryptStringTest() {
+        var defaultKey = PSLegacyEncrypter.getInstance(
+                temporaryFolder.getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
         ).DEFAULT_KEY();
 
-        String stringTobeEncrypted = "http://www.yahoo.com";
+        var stringToBeEncrypted = "http://www.yahoo.com";
 
-        PSUtilityService service = new PSUtilityService();
+        var service = new PSUtilityService();
 
-        String encryptedString = service.encryptString(stringTobeEncrypted, defaultKey);
+        var encryptedString = service.encryptString(stringToBeEncrypted, defaultKey);
 
-        String decryptedString = service.decryptString(encryptedString, defaultKey);
-        assertEquals(stringTobeEncrypted, decryptedString);
-
+        var decryptedString = service.decryptString(encryptedString, defaultKey);
+        assertEquals(stringToBeEncrypted, decryptedString);
     }
 }

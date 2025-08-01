@@ -28,6 +28,7 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 
 
@@ -55,66 +56,60 @@ public class PSContentDependencyHandler extends PSDataObjectDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      return getChildDepsFromParentID(CONTENT_TABLE, CONTENT_ID, 
-         CONTENTTYPE_ID, dep.getDependencyId(), 
-         PSContentDefDependencyHandler.DEPENDENCY_TYPE, tok).iterator();
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return getChildDepsFromParentID(CONTENT_TABLE, CONTENT_ID, CONTENTTYPE_ID, dep.getDependencyId(), PSContentDefDependencyHandler.DEPENDENCY_TYPE, tok).iterator();
    }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException, PSNotFoundException {
-      if (tok == null)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException, PSNotFoundException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      
-      List deps = new ArrayList();
-
-      Iterator defDeps = getContentTypeHandler().getDependencies(tok);
-      while (defDeps.hasNext())
-      {
-         PSDependency defDep = (PSDependency)defDeps.next();
-         PSDependency dep = new PSDeployableElement(PSDependency.TYPE_SHARED,
-            defDep.getDependencyId(), DEPENDENCY_TYPE,
-            m_def.getObjectTypeName(), defDep.getDisplayName(),
-            m_def.supportsIdTypes(), m_def.supportsIdMapping(),
-            m_def.supportsUserDependencies(), m_def.supportsParentId());
-
-         deps.add(dep);
       }
+
+      var deps = new ArrayList<PSDependency>();
+      getContentTypeHandler().getDependencies(tok).forEachRemaining(defDep -> {
+         var dep = new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            defDep.getDependencyId(),
+            DEPENDENCY_TYPE,
+            m_def.getObjectTypeName(),
+            defDep.getDisplayName(),
+            m_def.supportsIdTypes(),
+            m_def.supportsIdMapping(),
+            m_def.supportsUserDependencies(),
+            m_def.supportsParentId());
+         deps.add(dep);
+      });
 
       return deps.iterator();
    }
 
 
    // see base class
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-      
-      PSDependency dep = null;
-      PSDependency ctDep = getContentTypeHandler().getDependency(tok, id);
-      if (ctDep != null)
-      {
-         dep = new PSDeployableElement(PSDependency.TYPE_SHARED,
-            ctDep.getDependencyId(), DEPENDENCY_TYPE,
-            m_def.getObjectTypeName(), ctDep.getDisplayName(),
-            m_def.supportsIdTypes(), m_def.supportsIdMapping(),
-            m_def.supportsUserDependencies(), m_def.supportsParentId());
+   @Override
+   public PSDependency getDependency(PSSecurityToken tok, String id) throws PSDeployException, PSNotFoundException {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
       }
-      return dep;
+
+      var ctDep = getContentTypeHandler().getDependency(tok, id);
+      return Optional.ofNullable(ctDep)
+         .map(dep -> new PSDeployableElement(
+            PSDependency.TYPE_SHARED,
+            dep.getDependencyId(),
+            DEPENDENCY_TYPE,
+            m_def.getObjectTypeName(),
+            dep.getDisplayName(),
+            m_def.supportsIdTypes(),
+            m_def.supportsIdMapping(),
+            m_def.supportsUserDependencies(),
+            m_def.supportsParentId()))
+         .orElse(null);
    }
 
    /**

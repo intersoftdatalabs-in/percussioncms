@@ -35,93 +35,90 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+// REFACTORED: CP-JAVA11
 @PSSiteManageBean("renderLinkContextFactory")
-public class PSRenderLinkContextFactory implements IPSRenderLinkContextFactory
-{
+public class PSRenderLinkContextFactory implements IPSRenderLinkContextFactory {
+
     private IPSIdMapper idMapper;
     private IPSSiteDataService siteDataService;
 
     @Autowired
-    public PSRenderLinkContextFactory(IPSIdMapper idMapper, IPSSiteDataService siteDataService)
-    {
-        super();
+    public PSRenderLinkContextFactory(IPSIdMapper idMapper, IPSSiteDataService siteDataService) {
         this.idMapper = idMapper;
         this.siteDataService = siteDataService;
     }
 
-    public PSAssemblyRenderLinkContext create(PSContentListItem listItem, IPSLinkableItem item) throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
-        PSAssemblyRenderLinkContext linkContext = new PSAssemblyRenderLinkContext();
-        
+    @Override
+    public PSAssemblyRenderLinkContext create(PSContentListItem listItem, IPSLinkableItem item)
+            throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
+        var linkContext = new PSAssemblyRenderLinkContext();
         linkContext.setFolderPath(item.getFolderPath());
         linkContext.setLegacyFileContext(listItem.getContext());
         linkContext.setLegacyLinkContext(listItem.getContext());
         linkContext.setSite(getSite(listItem.getSiteId(), item));
         linkContext.setFilter("public");
         linkContext.setDeliveryContext(true); // content list item only need to get the publish location, never linked url/location
-        
-        return linkContext;        
+        return linkContext;
     }
 
-    public PSAssemblyRenderLinkContext create(IPSAssemblyItem assemblyItem, IPSLinkableItem item) throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSFilterException, PSValidationException {
-        PSAssemblyRenderLinkContext linkContext = new PSAssemblyRenderLinkContext();
-        
+    @Override
+    public PSAssemblyRenderLinkContext create(IPSAssemblyItem assemblyItem, IPSLinkableItem item)
+            throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSFilterException, PSValidationException {
+        var linkContext = new PSAssemblyRenderLinkContext();
         linkContext.setFolderPath(item.getFolderPath());
         linkContext.setLegacyFileContext(assemblyItem.getDeliveryContext());
         linkContext.setLegacyLinkContext(assemblyItem.getContext());
         linkContext.setSite(getSite(assemblyItem.getSiteId(), item));
         linkContext.setFilter(assemblyItem.getFilter().getName());
-
         return linkContext;
     }
 
-    public PSAssemblyRenderLinkContext createPreview(PSPage page) throws DataServiceNotFoundException, PSValidationException {
-        PSAssemblyRenderLinkContext linkContext = new PSAssemblyRenderLinkContext();
-        
+    @Override
+    public PSAssemblyRenderLinkContext createPreview(PSPage page)
+            throws DataServiceNotFoundException, PSValidationException {
+        var linkContext = new PSAssemblyRenderLinkContext();
         linkContext.setFolderPath(page.getFolderPath());
         linkContext.setLegacyFileContext(0);
         linkContext.setLegacyLinkContext(0);
         linkContext.setSite(siteDataService.findByPath(page.getFolderPath()));
         linkContext.setFilter("preview");
-        
         return linkContext;
     }
 
+    @Override
     public PSAssemblyRenderLinkContext createAssetPreview(String folderPath, PSAssetSummary asset) {
-        PSAssemblyRenderLinkContext linkContext = new PSAssemblyRenderLinkContext();
-        
+        var linkContext = new PSAssemblyRenderLinkContext();
         linkContext.setFolderPath(folderPath);
         linkContext.setLegacyFileContext(0);
         linkContext.setLegacyLinkContext(0);
         linkContext.setSite(PSNullSiteSummary.getInstance());
-        linkContext.setFilter("preview"); 
-        
+        linkContext.setFilter("preview");
         return linkContext;
-        
     }
-    
+
     /**
-     * Gets the site from the specified site ID if not <code>null</code>; 
+     * Gets the site from the specified site ID if not <code>null</code>;
      * otherwise gets the site from the specified linkable item.
-     *  
+     *
      * @param siteId the site ID, may be <code>null</code>.
-     * @param item the linkable item, assumed not <code>null</code>.
-     * 
+     * @param item   the linkable item, assumed not <code>null</code>.
      * @return the site, which may be {@link PSNullSiteSummary} if the site
      * is unknown from both parameters, never <code>null</code>.
      */
-    private PSSiteSummary getSite(IPSGuid siteId, IPSLinkableItem item) throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
+    private PSSiteSummary getSite(IPSGuid siteId, IPSLinkableItem item)
+            throws IPSDataService.DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
         PSSiteSummary rvalue = null;
         if (siteId != null && siteId.getUUID() != 0) {
-            String legacySiteId = idMapper.getString(siteId);
-            if (isNotBlank(legacySiteId))
+            var legacySiteId = idMapper.getString(siteId);
+            if (isNotBlank(legacySiteId)) {
                 rvalue = siteDataService.findByLegacySiteId(legacySiteId, false);
-        }
-        else if (item.getFolderPath() != null) {
+            }
+        } else if (item.getFolderPath() != null) {
             rvalue = siteDataService.findByPath(item.getFolderPath());
         }
-        if (rvalue == null)
+        if (rvalue == null) {
             rvalue = PSNullSiteSummary.getInstance();
+        }
         return rvalue;
     }
-    
 }

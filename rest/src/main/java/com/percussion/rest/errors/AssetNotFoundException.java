@@ -15,23 +15,27 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
-public class AssetNotFoundException extends RestExceptionBase
-{
-	public AssetNotFoundException()
-    {
-        super(RestErrorCode.ASSET_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
-    }
-	
-	public AssetNotFoundException(String message)
-	{
-		super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
-	}
+/**
+ * Exception thrown when an asset is not found.
+ * Sunny Sal: "Asset dhoondho, nahi mila? Not found, boss!"
+ */
+public class AssetNotFoundException extends RestExceptionBase {
 
-	public AssetNotFoundException(Throwable t){
-		super(t);
-	}
+    public AssetNotFoundException() {
+        this((String) null);
+    }
+
+    public AssetNotFoundException(String message) {
+        super(RestErrorCode.ASSET_NOT_FOUND, message, null, Response.Status.NOT_FOUND);
+    }
+
+    public AssetNotFoundException(Throwable t) {
+        super(t);
+    }
 }

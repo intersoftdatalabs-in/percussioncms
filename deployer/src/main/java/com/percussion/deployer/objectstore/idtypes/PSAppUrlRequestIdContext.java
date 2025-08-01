@@ -26,6 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 
 /**
  * ID Context to represent a <code>PSUrlRequest</code> object
@@ -160,19 +161,15 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
-      if (m_name != null)
-         root.setAttribute(XML_ATTR_NAME, m_name);
+      var root = doc.createElement(XML_NODE_NAME);
+      Optional.ofNullable(m_name).ifPresent(name -> root.setAttribute(XML_ATTR_NAME, name));
       root.setAttribute(XML_ATTR_HREF, m_href);
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-         root.appendChild(parent.toXml(doc));
-
+      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
       return root;
    }
    
@@ -182,32 +179,28 @@ public class PSAppUrlRequestIdContext extends PSApplicationIdContext
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      String name = sourceNode.getAttribute(XML_ATTR_NAME);
-      if (name != null && name.trim().length() > 0)
-         m_name = name;
-      else
-         m_name = null;
-         
-      m_href = sourceNode.getAttribute(XML_ATTR_HREF);
-      if (m_href == null)
-         m_href = "";
-         
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (ctxEl != null)
-         setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
+
+      m_name = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_NAME))
+         .filter(name -> !name.trim().isEmpty())
+         .orElse(null);
+
+      m_href = Optional.ofNullable(sourceNode.getAttribute(XML_ATTR_HREF))
+         .orElse("");
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
    }
    
    // see IPSDeployComponent interface

@@ -15,22 +15,32 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.rest.acls;
 
 import com.percussion.security.IPSTypedPrincipal;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 
 @XmlRootElement
 @Schema(description = "Typed Principal")
-public class TypedPrincipal implements  IPSTypedPrincipal{
+public class TypedPrincipal implements IPSTypedPrincipal {
 
-    @Schema(description="name", required=true)
+    @Schema(description = "name", required = true)
     private String name;
-    @Schema(description="type", required = true)
-    private IPSTypedPrincipal.PrincipalTypes type;
+
+    @Schema(description = "type", required = true)
+    private PrincipalTypes type;
+
+    public TypedPrincipal() {}
+
+    public TypedPrincipal(String name, PrincipalTypes type) {
+        this.name = name;
+        this.type = type;
+    }
 
     public String getName() {
         return name;
@@ -40,111 +50,77 @@ public class TypedPrincipal implements  IPSTypedPrincipal{
         this.name = name;
     }
 
-    public IPSTypedPrincipal.PrincipalTypes getType() {
+    public PrincipalTypes getType() {
         return type;
     }
 
-    public void setType(IPSTypedPrincipal.PrincipalTypes type) {
+    public void setType(PrincipalTypes type) {
         this.type = type;
     }
 
-    /**
-     * Test if the principaltype specified matches with this.
-     *
-     * @param principalType Entry type to check, must be one fo the PrincipalTypes
-     *                      enumerations.
-     * @return <code>true</code> if supplied entry type matches with this
-     * object's type <code>false</code> otherwise.
-     */
     @Override
     public boolean isType(PrincipalTypes principalType) {
-        return false;
+        return type == principalType;
     }
 
-    /**
-     * Is this principal a community?
-     *
-     * @return <code>true</code> if this entry type is community
-     * <code>false</code> otherwise.
-     */
     @Override
     public boolean isCommunity() {
-        return false;
+        return type == PrincipalTypes.COMMUNITY;
     }
 
-    /**
-     * Is this ACL entry a community?
-     *
-     * @return <code>true</code> if this entry type is role <code>false</code>
-     * otherwise.
-     */
     @Override
     public boolean isRole() {
-        return false;
+        return type == PrincipalTypes.ROLE;
     }
 
-    /**
-     * Is this principal a user?
-     *
-     * @return <code>true</code> if this entry type is user (or system entry)
-     * <code>false</code> otherwise.
-     */
     @Override
     public boolean isUser() {
-        return false;
+        return type == PrincipalTypes.USER || type == PrincipalTypes.SYSTEM_ENTRY;
     }
 
-    /**
-     * Is this principal a group?
-     *
-     * @return <code>true</code> if this entry type is group <code>false</code>
-     * otherwise.
-     */
     @Override
     public boolean isGroup() {
-        return false;
+        return type == PrincipalTypes.GROUP;
     }
 
-    /**
-     * Is this principal a subject?
-     *
-     * @return <code>true</code> if this principal type is subject<code>false</code>
-     * otherwise.
-     */
     @Override
     public boolean isSubject() {
-        return false;
+        return type == PrincipalTypes.SUBJECT;
     }
 
-    /**
-     * Is this principal a system entry?
-     *
-     * @return <code>true</code> if this entry type special user entry
-     * <code>false</code> otherwise.
-     */
     @Override
     public boolean isSystemEntry() {
-        return false;
+        return type == PrincipalTypes.SYSTEM_ENTRY;
     }
 
-    /**
-     * Is this principal a system community?
-     *
-     * @return <code>true</code> if this entry system community
-     * <code>false</code> otherwise.
-     */
     @Override
     public boolean isSystemCommunity() {
-        return false;
+        return type == PrincipalTypes.SYSTEM_COMMUNITY;
     }
 
-    /**
-     * Get principal type.
-     *
-     * @return one of the PrincipalTypes enumerations.
-     */
     @Override
     public PrincipalTypes getPrincipalType() {
-        return null;
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "TypedPrincipal{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TypedPrincipal)) return false;
+        var that = (TypedPrincipal) o;
+        return Objects.equals(name, that.name) && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, type);
     }
 }

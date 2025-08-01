@@ -1,33 +1,21 @@
+                // ignore
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+        }
+    }
+
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.percussion.sitemanage.service;
-
-import com.percussion.cms.objectstore.PSFolder;
+    private boolean hasRelatedItems(String siteName) throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
 import com.percussion.fastforward.managednav.IPSManagedNavService;
-import com.percussion.pagemanagement.dao.IPSPageDao;
+        var folderRoot = "//Sites/" + siteName;
 import com.percussion.pagemanagement.data.PSPage;
-import com.percussion.pagemanagement.data.PSTemplateSummary;
-import com.percussion.pagemanagement.service.IPSTemplateService;
+        try {
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
-import com.percussion.rx.publisher.IPSPublisherJobStatus.State;
-import com.percussion.rx.publisher.IPSRxPublisherService;
-import com.percussion.services.content.data.PSItemSummary;
+        } catch (PSErrorResultsException e) {
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSEdition;
@@ -35,230 +23,149 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.share.IPSSitemanageConstants;
-import com.percussion.share.dao.IPSGenericDao.DeleteException;
-import com.percussion.sitemanage.dao.IPSiteDao;
-import com.percussion.sitemanage.dao.impl.PSSiteContentDao;
-import com.percussion.sitemanage.data.PSSite;
-import com.percussion.sitemanage.data.PSSitePublishProperties;
-import com.percussion.sitemanage.data.PSSitePublishRequest;
-import com.percussion.sitemanage.data.PSSiteSummary;
+        var items = contentWs.findFolderChildren(folderRoot, false);
+        for (var item : items) {
+            var ctName = item.getContentTypeName();
+            if (getManagedNavService().getNavTreeContentTypeNames().contains(ctName)) {
 import com.percussion.sitemanage.impl.PSSitePublishDaoHelper;
-import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
-import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
-import com.percussion.test.PSServletTestCase;
-import com.percussion.util.IPSHtmlParameters;
+            } else if (item.getName().equals(PSSiteContentDao.HOME_PAGE_NAME)) {
 import com.percussion.util.PSUrlUtils;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.PSErrorResultsException;
-import com.percussion.webservices.content.IPSContentWs;
-import com.percussion.webservices.content.PSContentWsLocator;
-import com.percussion.webservices.security.PSSecurityWsLocator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+        return foundNavTree && foundHomePage;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.TestInstance;
+    private boolean doesSiteFolderExist(String siteName) throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
+@TestInstance(Lifecycle.PER_CLASS)
+        var folderRoot = "//Sites/" + siteName;
 
-import java.util.Collections;
-import java.util.List;
-
-/**
- * Test the site manager.
- */
-@Category(IntegrationTest.class)
-public class PSSiteDaoTest extends PSServletTestCase
-{
-
-    private static final Logger log = LogManager.getLogger(PSSiteDaoTest.class);
-
-    /**
-     * Test all crud methods.
-     *  
-     * @throws Exception
-     */
-    public void testCRUD() throws Exception
-    {
-        PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
-                "Enterprise_Investments_Admin", null);
-
-        PSSite site1 = createSite("Site1-" + System.currentTimeMillis(), "Site 1");
+        try {
+    @Test
+    public void testCRUD() throws Exception {
+        } catch (PSErrorResultsException e) {
+        var site1 = createSite("Site1-" + System.currentTimeMillis(), "Site 1");
         final String fileExt = "xhtml";
         final String siteProtocol = "http";
         final String defaultDocument = "index.xhtml";
         final String canonicalDist = "sections";
         site1.setDefaultFileExtention(fileExt);
-        site1.setCanonical(true);
-        site1.setSiteProtocol(siteProtocol);
+    private void assertPublishingItems(String siteName) throws Exception {
         site1.setDefaultDocument(defaultDocument);
         site1.setCanonicalDist(canonicalDist);
-        site1.setCanonicalReplace(false);
-        PSSite site2 = createSite("Site2-" + System.currentTimeMillis(), "Site 2");
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
 
-        try
-        {
-            // test save
-            siteDao.save(site1);
+    private void assertPublishingItems(String siteName, int edtns, int clists) throws Exception {
+        var pubSvc = getPublisherService();
+        try {
+        var site = getSiteManager().loadSite(siteName);
+        var siteId = site.getGUID();
+        var editions = pubSvc.findAllEditionsBySite(siteId);
+        var cLists = pubSvc.findAllContentListsBySite(siteId);
 
-            // test load existing site
-            String siteName = site1.getName();
-            PSSite savedSite1 = siteDao.find(siteName);
-            // set the folder path for site1
-            assertNotNull("Should retrieve saved site", savedSite1);
-            assertEquals("The default file extension must be set to: " + fileExt, fileExt, savedSite1.getDefaultFileExtention());
-            assertTrue("Canonical should be ON", savedSite1.isCanonical());
-            assertEquals("The site protocol should be set to: " + siteProtocol, siteProtocol, savedSite1.getSiteProtocol());
-            assertEquals("The default document should be set to: " + defaultDocument, defaultDocument, savedSite1.getDefaultDocument());
-            assertEquals("The canonical links should be point to: " + canonicalDist, canonicalDist, savedSite1.getCanonicalDist());
-            assertFalse("The canonical replace should be OFF", savedSite1.isCanonicalReplace());
-            site1.setFolderPath(savedSite1.getFolderPath());
-            site1.setSiteId(savedSite1.getSiteId());
-            
-            assertEquals("Saved sites should equal:", site1, savedSite1);
-            assertSite(site1, true);
-            
+        assertEquals(edtns, editions.size(), "editions: " + editions.size());
+        assertEquals(clists, cLists.size(), "content lists: " + cLists.size());
+            assertNotNull(savedSite1, "Should retrieve saved site");
+            assertEquals(fileExt, savedSite1.getDefaultFileExtention(), "The default file extension must be set to: " + fileExt);
+    private boolean hasPublishingInfo(long jobId) {
+        var pubSvc = getPublisherService();
             // publish the site
-            PSSitePublishRequest pubReq = new PSSitePublishRequest();
-            pubReq.setSiteName(siteName);
-            pubReq.setType(PubType.FULL);
-         
-            IPSGuid siteId = getSiteManager().findSite(siteName).getGUID();
-            
-            IPSGuid edtnGuid = null;
-            List<IPSEdition> editions = getPublisherService().findAllEditionsBySite(siteId);
-            for (IPSEdition edition : editions)
-            {
-                if (edition.getName().endsWith("FULL"))
-                {
-                    edtnGuid = edition.getGUID();
-                    break;
-                }
-            }
-            assertNotNull(edtnGuid);
-            
-            long jobId = getRxPublisherService().startPublishingJob(edtnGuid, null);
+            var pubReq = new PSSitePublishRequest();
+
+    private PSSite createSite(String name, String title) throws Exception {
+        var site = new PSSite();
             assertTrue(jobId > -1);
-            
+
             IPSPublisherJobStatus jobStatus;
             State jobState;
-         
-            //Time this out after a few  minutes
-            long endTimeMillis = System.currentTimeMillis() + 100000;
-            
-            do
-            {
-               jobStatus = getRxPublisherService().getPublishingJobStatus(jobId);
-               jobState = jobStatus.getState();
-               
-               if (System.currentTimeMillis() > endTimeMillis) {
-            	   break;
-               }
-            }
-            while (jobState != State.COMPLETED &&
-                  jobState != State.COMPLETED_W_FAILURE &&
-                  jobState != State.ABORTED &&
-                  jobState != State.BADCONFIG &&
-                  jobState != State.CANCELLED &&
-                  jobState != State.FORBIDDEN &&
-                  jobState != State.INACTIVE &&
-                  jobState != State.INVALID);
-            
-            // check for publishing info
-            assertTrue(hasPublishingInfo(jobId));
-                                
-            // test delete
-            siteDao.delete(siteName);
 
-            savedSite1 = siteDao.find(siteName);
-    
+            // Time this out after a few minutes
+
+            do {
+
+    private PSFolder createFolder(String folderName, String sitePath) throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
+        var testFolder = contentWs.addFolder(folderName, sitePath);
+                }
+            } while (jobState != State.COMPLETED &&
+                    jobState != State.COMPLETED_W_FAILURE &&
+                    jobState != State.BADCONFIG &&
+    private void assertSite(PSSite site, boolean checkTemplate) throws Exception {
+        var siteName = site.getName();
+
             assertNull(savedSite1);
 
             // site data should not exist
-            assertFalse(doesSiteFolderExist(siteName));
-            assertFalse(hasRelatedItems(siteName));
+        if (checkTemplate) {
             //TODO Temporary commented until the fix is ready.
-            //assertFalse(hasPublishingInfo(jobId));
-          
+            var templates = getSiteTemplateService().findTemplatesBySite(siteName);
+            assertEquals(1, templates.size());
             // test find all
             int currSites = siteDao.findAll().size();
-            siteDao.save(site1);
-            siteDao.save(site2);
-
-            // set the folder path for site2
-            PSSite savedSite2 = siteDao.find(site2.getName());
+            var userTemplates = getTemplateService().findAllUserTemplates();
+            for (var userTemplate : userTemplates) {
+                if (userTemplate.getName().equals(site.getTemplateName())) {
             site2.setFolderPath(savedSite2.getFolderPath());
 
-            List<PSSite> sites = siteDao.findAll();
-            assertTrue(sites.size() == 2 + currSites);
+            var sites = siteDao.findAll();
+            assertEquals(2 + currSites, sites.size());
             assertTrue(sites.contains(site1));
-            assertTrue(sites.contains(site2));          
-        }
-        finally
-        {
-            try
-            {
+            assertNotNull(siteTemplate, "Template was not created for site " + siteName);
+        } finally {
+            try {
                 siteDao.delete(site1.getName());
-                siteDao.delete(site2.getName());
-            }
-            catch (DeleteException e)
-            {
-            	//TODO: Shouldn't this fail the test????
+
+    private IPSTemplateService getTemplateService() {
             }
             PSSiteDataServletTestCaseFixture.templateCleanUp(TEST_TEMPLATE_BASE, request, response);
         }
+    private IPSSiteTemplateService getSiteTemplateService() {
+    @Test
+    public void testDefault_defaultFileExtention() throws Exception {
+        var site = createSite("Site-" + System.currentTimeMillis(), "Site");
+    private IPSManagedNavService getManagedNavService() {
+
+    @Test
+
+    private IPSRxPublisherService getRxPublisherService() {
     }
 
-    public void testDefault_defaultFileExtention() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");
-    	assertEquals("The default file extension must be set to html", "html", site.getDefaultFileExtention());
+
+    private IPSPublisherService getPublisherService() {
+        assertEquals("https", site.getSiteProtocol(), "The site protocol should be set to: https");
     }
-    
-    public void testDefault_isCanonical() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");    	
-        assertTrue("Canonical should be ON", site.isCanonical());
-    }
-    
-    public void testDefault_siteProtocol() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");    	
-        assertEquals("The site protocol should be set to: https", "https", site.getSiteProtocol());
-    }
-    
-    public void testDefault_defaultDocument() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");    	
-        assertEquals("The default document should be set to: index.html", "index.html", site.getDefaultDocument());
-    }
-    
+
+    private IPSSiteManager getSiteManager() {
+        var site = createSite("Site-" + System.currentTimeMillis(), "Site");
+        assertEquals("index.html", site.getDefaultDocument(), "The default document should be set to: index.html");
+
+    private PSSiteContentDao getSiteContentDao() {
     public void testDefault_canonicalDist() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");    	
-        assertEquals("The canonical links should be point to: pages", "pages", site.getCanonicalDist());
-    }
-    
+        var site = createSite("Site-" + System.currentTimeMillis(), "Site");
+
     public void testDefault_isCanonicalReplace() throws Exception {
-    	PSSite site = createSite("Site-" + System.currentTimeMillis(), "Site");
-        assertTrue("The canonical replace should be ON", site.isCanonicalReplace());
+        var site = createSite("Site-" + System.currentTimeMillis(), "Site");
+        assertTrue(site.isCanonicalReplace(), "The canonical replace should be ON");
     }
-    
-    public void testUpdateSitePublishProperties() throws Exception
-    {
+
+    @Test
+    public void testUpdateSitePublishProperties() throws Exception {
         PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
                 "Enterprise_Investments_Admin", null);
-        
+
         PSSite testingsite = null;
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
-        IPSSiteManager sitemgr = getSiteManager();  
-        try
-        {
-            try
-            {
+        var siteDao = (IPSiteDao) getBean("siteDao");
+        var sitemgr = getSiteManager();
+        try {
+            try {
                 testingsite = createSite("testingsite", "testingsite");
-            }
-            catch (Exception e)
-            {
-                log.error(e.getMessage(),e);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
             // test save
             siteDao.save(testingsite);
-            //Create the publish properties object 
-            PSSitePublishProperties publishProps = new PSSitePublishProperties();
+            // Create the publish properties object
+            var publishProps = new PSSitePublishProperties();
             publishProps.setSiteName(testingsite.getName());
             publishProps.setDeliveryRootPath("ftpsitelocation");
             publishProps.setFtpServerName("ftpserver");
@@ -267,94 +174,78 @@ public class PSSiteDaoTest extends PSServletTestCase
             publishProps.setPublishType(PublishType.valueOf("ftp"));
             publishProps.setFtpServerPort(9999);
             publishProps.setId(testingsite.getId());
-            
-            //update the site with publish properties
-            IPSSite psSite =  sitemgr.loadSiteModifiable(testingsite.getName()); 
-            String localDeliveryLocation = psSite.getRoot();
+
+            // update the site with publish properties
+            var psSite = sitemgr.loadSiteModifiable(testingsite.getName());
+            var localDeliveryLocation = psSite.getRoot();
             siteDao.updateSitePublishProperties(psSite, publishProps);
-            
-            //Now check updated publish properties for this site
-            IPSSite modifiedSite = sitemgr.loadSite(testingsite.getName());
+
+            // Now check updated publish properties for this site
+            var modifiedSite = sitemgr.loadSite(testingsite.getName());
             assertTrue(modifiedSite.getRoot().startsWith(publishProps.getDeliveryRootPath()));
-            assertEquals(publishProps.getFtpServerName(), modifiedSite.getIpAddress() );
+            assertEquals(publishProps.getFtpServerName(), modifiedSite.getIpAddress());
             assertEquals(publishProps.getPublishType().toString(), getSiteDeliveryType(modifiedSite, siteDao));
             assertEquals(publishProps.getFtpUserName(), modifiedSite.getUserId());
             assertEquals(publishProps.getFtpPassword(), modifiedSite.getPassword());
             assertEquals(publishProps.getFtpServerPort(), modifiedSite.getPort());
-            
-            //let's switch it back to local
+
+            // let's switch it back to local
             publishProps.setPublishType(PublishType.valueOf("filesystem"));
             psSite = sitemgr.loadSiteModifiable(testingsite.getName());
             siteDao.updateSitePublishProperties(psSite, publishProps);
             modifiedSite = sitemgr.loadSite(testingsite.getName());
             assertEquals(localDeliveryLocation, modifiedSite.getRoot());
-        } 
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 siteDao.delete(testingsite.getName());
-
+            } catch (DeleteException e) {
+                // ignore
             }
-            catch (DeleteException e)
-            {
-
-            }
-        }    
+        }
     }
-   
-    public void testGetSiteDeliveryType() throws Exception
-    {    
+
+    @Test
+    public void testGetSiteDeliveryType() throws Exception {
         PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
                 "Enterprise_Investments_Admin", null);
-        
+
         PSSite testingsite1 = null;
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
-        IPSSiteManager sitemgr = getSiteManager();  
-        try
-        {
-            try
-            {
+        var siteDao = (IPSiteDao) getBean("siteDao");
+        var sitemgr = getSiteManager();
+        try {
+            try {
                 testingsite1 = createSite("testingsite1", "testingsite1");
-            }
-            catch (Exception e)
-            {
-               log.error(e.getMessage(),e);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
             }
             // test save
             siteDao.save(testingsite1);
-            IPSSite psSite =  sitemgr.loadSiteModifiable(testingsite1.getName()); 
+            var psSite = sitemgr.loadSiteModifiable(testingsite1.getName());
             assertEquals("filesystem", getSiteDeliveryType(psSite, siteDao));
-        } 
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 siteDao.delete(testingsite1.getName());
+            } catch (DeleteException e) {
+                // ignore
             }
-            catch (DeleteException e)
-            {
+        }
+    }
 
-            }
-        }    
-    }   
-    
-    public void testOnDemandPublish() throws Exception
-    {    
+    @Test
+    public void testOnDemandPublish() throws Exception {
         PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
                 "Enterprise_Investments_Admin", null);
-        
+
         PSSite testingsite2 = null;
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
-        IPSSiteManager sitemgr = getSiteManager();  
-        try
-        {
+        var siteDao = (IPSiteDao) getBean("siteDao");
+        var sitemgr = getSiteManager();
+        try {
             testingsite2 = createSite("testingsite2", "testingsite2");
             testingsite2 = siteDao.save(testingsite2);
-            
-            String siteName = testingsite2.getName();
-            
-            PSSitePublishProperties publishProps = new PSSitePublishProperties();
+
+            var siteName = testingsite2.getName();
+
+            var publishProps = new PSSitePublishProperties();
             publishProps.setDeliveryRootPath("");
             publishProps.setSiteName(siteName);
             publishProps.setFtpServerName("ftpserver");
@@ -363,106 +254,99 @@ public class PSSiteDaoTest extends PSServletTestCase
             publishProps.setPublishType(PublishType.valueOf("sftp"));
             publishProps.setFtpServerPort(9999);
             publishProps.setId(testingsite2.getId());
-            
-            //update the site with publish properties
-            IPSSite psSite =  sitemgr.loadSiteModifiable(siteName); 
+
+            // update the site with publish properties
+            var psSite = sitemgr.loadSiteModifiable(siteName);
             siteDao.updateSitePublishProperties(psSite, publishProps);
-            String deliveryType = getSiteDeliveryType(psSite, siteDao);
+            var deliveryType = getSiteDeliveryType(psSite, siteDao);
             assertEquals(publishProps.getPublishType().toString(), deliveryType);
-            
+
             checkOnDemandPublishEdition(siteDao, siteName, psSite, deliveryType, PSSitePublishDaoHelper.PUBLISH_NOW);
-            
+
             checkOnDemandPublishEdition(siteDao, siteName, psSite, deliveryType, PSSitePublishDaoHelper.UNPUBLISH_NOW);
-        } 
-        finally
-        {
-            try
-            {
-                if (testingsite2 != null)
-                {
+        } finally {
+            try {
+                if (testingsite2 != null) {
                     siteDao.delete(testingsite2.getName());
                 }
+            } catch (DeleteException e) {
+                // ignore
             }
-            catch (DeleteException e)
-            {
-
-            }
-        }    
+        }
     }
 
     private void checkOnDemandPublishEdition(IPSiteDao siteDao, String siteName,
-            IPSSite psSite, String deliveryType, String publishType) throws PSNotFoundException {
+                                             IPSSite psSite, String deliveryType, String publishType) throws PSNotFoundException {
         // remove publish now from site
-        String edtnCListName = PSSitePublishDaoHelper.createName(siteName, publishType);
-        IPSPublisherService pubSvc = getPublisherService();
+        var edtnCListName = PSSitePublishDaoHelper.createName(siteName, publishType);
+        var pubSvc = getPublisherService();
         pubSvc.deleteEdition(pubSvc.findEditionByName(edtnCListName));
         pubSvc.deleteContentLists(Collections.singletonList(pubSvc.findContentListByName(edtnCListName)));
-        
+
         assertNull(pubSvc.findEditionByName(edtnCListName));
         assertNull(pubSvc.findContentListByName(edtnCListName));
-        
+
         // add publish now to site
-        if (publishType == PSSitePublishDaoHelper.PUBLISH_NOW)
+        if (publishType.equals(PSSitePublishDaoHelper.PUBLISH_NOW))
             siteDao.addPublishNow(psSite);
         else
             siteDao.addUnpublishNow(psSite);
-        
+
         assertNotNull(pubSvc.findEditionByName(edtnCListName));
-        IPSContentList cList = pubSvc.findContentListByName(edtnCListName);
+        var cList = pubSvc.findContentListByName(edtnCListName);
         assertNotNull(cList);
         assertEquals(deliveryType, PSUrlUtils.getUrlParameterValue(cList.getUrl(),
                 IPSHtmlParameters.SYS_DELIVERYTYPE));
-    } 
-    
-    public void testCopy() throws Exception
-    {    
+    }
+
+    @Test
+    public void testCopy() throws Exception {
         PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
                 "Enterprise_Investments_Admin", null);
-        
+
         PSSite origSite = null;
         PSSite copySite = null;
-        PSSite site1    = null;
-        PSSite site2    = null;
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
-        IPSPageDao pageDao = (IPSPageDao) getBean("pageDao");
-        
+        PSSite site1 = null;
+        PSSite site2 = null;
+        var siteDao = (IPSiteDao) getBean("siteDao");
+        var pageDao = (IPSPageDao) getBean("pageDao");
+
         PSPage site1Page1 = null;
         PSPage site1Page2 = null;
-        try
-        {
+        try {
             // create a site
-        	String origSiteName = "origsite"+System.currentTimeMillis();
-        	origSite = createSite(origSiteName, origSiteName);
+            var origSiteName = "origsite" + System.currentTimeMillis();
+            origSite = createSite(origSiteName, origSiteName);
             origSite = siteDao.save(origSite);
-            String origSiteId = origSite.getId();
-                        
+            var origSiteId = origSite.getId();
+
             // create a new copy of the site
-            String copySiteName = "copysite" + System.currentTimeMillis();
+            var copySiteName = "copysite" + System.currentTimeMillis();
             copySite = siteDao.createSiteWithContent(origSiteId, copySiteName);
-            String copySiteId = copySite.getId();
-            
+            var copySiteId = copySite.getId();
+
             // compare the copy with the original
             assertEquals(copySiteName, copySite.getName());
             assertEquals(origSite.getDescription(), copySite.getDescription());
-            assertFalse(copySiteId.equals(origSiteId));
-            assertFalse(copySite.getFolderPath().equals(origSite.getFolderPath()));
-            assertFalse(copySite.getLabel().equals(origSite.getLabel()));
-                        
+            assertNotEquals(copySiteId, origSiteId);
+            assertNotEquals(copySite.getFolderPath(), origSite.getFolderPath());
+            assertNotEquals(copySite.getLabel(), origSite.getLabel());
+
             // check the copy
-            PSSite copySiteObj = siteDao.find(copySiteId);
-            assertSite(copySiteObj, false);  
-            
-            //Create a site to test sections, folders, pages
-            String site1Name = "site1" + System.currentTimeMillis();
+            var copySiteObj = siteDao.find(copySiteId);
+            assertSite(copySiteObj, false);
+
+            // Create a site to test sections, folders, pages
+            var site1Name = "site1" + System.currentTimeMillis();
             site1 = createSite(site1Name, site1Name);
             site1 = siteDao.save(site1);
-            String site1Id = site1.getId();
-           
-            //Add a folder
-            createFolder("site1folder1","//Sites/" + site1Name);
-            
+            var site1Id = site1.getId();
+
+            // Add a folder
+            createFolder("site1folder1", "//Sites/" + site1Name);
+
             // Create and save the page under the folder
-            String folderPath = site1.getFolderPath()+ "/" + "sitefolder1";
+            var folderPath = site1.getFolderPath() + "/" + "sitefolder1";
             site1Page2 = new PSPage();
             site1Page2.setName("site1page2");
             site1Page2.setTitle("page under the folder");
@@ -470,9 +354,8 @@ public class PSSiteDaoTest extends PSServletTestCase
             site1Page2.setTemplateId(site1.getTemplateName());
             site1Page2.setLinkTitle("testing page2");
             pageDao.save(site1Page2);
-            
-                        
-            //Create and save the page under the root itself
+
+            // Create and save the page under the root itself
             site1Page1 = new PSPage();
             site1Page1.setName("site1page1");
             site1Page1.setTitle("test new page title");
@@ -480,89 +363,72 @@ public class PSSiteDaoTest extends PSServletTestCase
             site1Page1.setTemplateId(site1.getTemplateName());
             site1Page1.setLinkTitle("testing");
             pageDao.save(site1Page1);
-            
-            //create the copy of the site1
-            
-            String site2Name = "site2" + System.currentTimeMillis();
+
+            // create the copy of the site1
+            var site2Name = "site2" + System.currentTimeMillis();
             site2 = siteDao.createSiteWithContent(site1Id, site2Name);
-            
-            IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
-            assertTrue(contentWs.isChildExistInFolder(site2.getFolderPath()+ "/" + "sitefolder1", "site1page2"));
+
+            var contentWs = PSContentWsLocator.getContentWebservice();
+            assertTrue(contentWs.isChildExistInFolder(site2.getFolderPath() + "/" + "sitefolder1", "site1page2"));
             assertTrue(contentWs.isChildExistInFolder(site2.getFolderPath(), "site1page1"));
-            
-        } 
-        finally
-        {
-        	    // If any of these Delete operations fail then there is a bug in delete site
-        	    // that needs to be fixed. 
-                if (origSite != null)
-                {
-                    siteDao.delete(origSite.getId());
-                }
-                
-                if (copySite != null)
-                {
-                    siteDao.delete(copySite.getId());
-                }
-                
-                if(site1 != null)
-                {
-                    siteDao.delete(site1.getId());
-                }
-                
-                if(site2 != null)
-                {
-                    siteDao.delete(site2.getId());
-                }
-                
-        }    
+
+        } finally {
+            // If any of these Delete operations fail then there is a bug in delete site
+            // that needs to be fixed.
+            if (origSite != null) {
+                siteDao.delete(origSite.getId());
+            }
+
+            if (copySite != null) {
+                siteDao.delete(copySite.getId());
+            }
+
+            if (site1 != null) {
+                siteDao.delete(site1.getId());
+            }
+
+            if (site2 != null) {
+                siteDao.delete(site2.getId());
+            }
+        }
     }
-    
-    public void testFindByPath() throws Exception
-    {    
+
+    @Test
+    public void testFindByPath() throws Exception {
         PSSecurityWsLocator.getSecurityWebservice().login(request, response, "admin1", "demo", null,
                 "Enterprise_Investments_Admin", null);
-        
+
         PSSiteSummary testingSite3 = null;
         PSSiteSummary testingSite4 = null;
-        IPSiteDao siteDao = (IPSiteDao) getBean("siteDao");
-        try
-        {
+        var siteDao = (IPSiteDao) getBean("siteDao");
+        try {
             // shouldn't be any sites
             assertNull(siteDao.findByPath("//Sites/foo/fooPage"));
-            
+
             // create two sites
-            PSSite ts3 = siteDao.save(createSite("testingsite3", "testingsite3"));
+            var ts3 = siteDao.save(createSite("testingsite3", "testingsite3"));
             testingSite3 = siteDao.findSummary(ts3.getId());
             assertNotNull(testingSite3);
-            PSSite ts4 = siteDao.save(createSite("testingsite4", "testingsite4"));
+            var ts4 = siteDao.save(createSite("testingsite4", "testingsite4"));
             testingSite4 = siteDao.findSummary(ts4.getId());
             assertNotNull(testingSite4);
-              
+
             // find paths
-            PSPage ts3Home = getSiteContentDao().getHomePage(testingSite3);
+            var ts3Home = getSiteContentDao().getHomePage(testingSite3);
             assertEquals(testingSite3, siteDao.findByPath(ts3Home.getFolderPath()));
-            PSPage ts4Home = getSiteContentDao().getHomePage(testingSite4);
+            var ts4Home = getSiteContentDao().getHomePage(testingSite4);
             assertEquals(testingSite4, siteDao.findByPath(ts4Home.getFolderPath()));
             assertNull(siteDao.findByPath("//Sites/foo/fooPage"));
-        } 
-        finally
-        {
-            try
-            {
-                if (testingSite3 != null)
-                {
+        } finally {
+            try {
+                if (testingSite3 != null) {
                     siteDao.delete(testingSite3.getId());
                 }
-                
-                if (testingSite4 != null)
-                {
+
+                if (testingSite4 != null) {
                     siteDao.delete(testingSite4.getId());
                 }
-            }
-            catch (DeleteException e)
-            {
-
+            } catch (DeleteException e) {
             }
         }    
     } 

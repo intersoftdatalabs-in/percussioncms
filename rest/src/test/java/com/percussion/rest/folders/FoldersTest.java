@@ -28,12 +28,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class FoldersTest extends MainTest
 {
 
@@ -188,55 +188,37 @@ public class FoldersTest extends MainTest
     }
     
     @Test
-    public void testMoveFolderItem(){
-    	
-    	MoveFolderItem request = new MoveFolderItem("/site/folder/item","/site/newfolder/newsub");
-    	
-    	
-    	
-        Response response =	target("folders/move/item")
+    public void testMoveFolderItem() {
+        var request = new MoveFolderItem("/site/folder/item", "/site/newfolder/newsub");
+        var response = target("folders/move/item")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
-        
-        Status s = response.readEntity(Status.class);
-        
-        assertEquals(s.getMessage(), "Moved OK");
-    	
+        var s = response.readEntity(Status.class);
+        assertEquals("Moved OK", s.getMessage());
     }
-    
+
     @Test
-    public void testMoveFolder(){
-MoveFolderItem request = new MoveFolderItem("/site/folder","/site/newfolder/newsub");
-    	
-    	
-    	
-        Response response =	target("folders/move/folder")
+    public void testMoveFolder() {
+        var request = new MoveFolderItem("/site/folder", "/site/newfolder/newsub");
+        var response = target("folders/move/folder")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
-        
-       Status status = response.readEntity(Status.class);
-   
-       assertEquals(status.getMessage(),"Moved OK");
+        var status = response.readEntity(Status.class);
+        assertEquals("Moved OK", status.getMessage());
     }
-    
+
     @Test
-    public void testRenameFolder(){
-    	
-    	
-    	
-        Response response =	target("folders/rename/site/folder/subfolder/newsubfoldername")
+    public void testRenameFolder() {
+        var response = target("folders/rename/site/folder/subfolder/newsubfoldername")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{}", MediaType.APPLICATION_JSON_TYPE));
-        
-        Folder f = response.readEntity(Folder.class);
-        
-        assertEquals(f.getPath(), "folder");
-        assertEquals(f.getSiteName(), "site");
-        assertEquals(f.getName(), "newsubfoldername"); 
-    	
+        var f = response.readEntity(Folder.class);
+        assertEquals("folder", f.getPath());
+        assertEquals("site", f.getSiteName());
+        assertEquals("newsubfoldername", f.getName());
     }
     
 }

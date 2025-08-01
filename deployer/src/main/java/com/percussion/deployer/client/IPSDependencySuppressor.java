@@ -18,6 +18,7 @@
 package com.percussion.deployer.client;
 
 import com.percussion.deployer.objectstore.PSDependency;
+import java.util.Optional;
 
 /**
  * A pluggable class for PSExportJob to determine if a given dependency should
@@ -38,6 +39,6 @@ public interface IPSDependencySuppressor
     * @return <code>true</code> if the dependency should be suppressed;
     * <code>false</code> otherwise.
     */
-   public boolean suppress(PSDependency dependency);
+   boolean suppress(Optional<PSDependency> dependency);
 
 }

@@ -44,56 +44,29 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-public class PSMapBeanDefinitionParser extends
-      AbstractSingleBeanDefinitionParser
-{
-   @SuppressWarnings("unchecked")
-   @Override
-   protected Class getBeanClass(@SuppressWarnings("unused")
-   Element element)
-   {
-      return HashMap.class;
-   }
-   
-   @SuppressWarnings("unchecked")
-   @Override
-   protected void doParse(Element element, BeanDefinitionBuilder bean)
-   {
-      // this will never be null since the schema explicitly requires that a value be supplied
-      String lookupKey = element.getAttribute("lookupKey");
-      
-      IPSBeanProperties pMgr = PSBeanPropertiesLocator.getBeanProperties();
-      PSPair<Object, Boolean> result = PSConfigMapper
-            .resolveSimplePlaceholder(lookupKey, pMgr.getProperties());
-      Map map = null;
-      if (result.getSecond())
-      {
-         // treat null value as an empty map
-         if (result.getFirst() == null)
-         {
-            map = Collections.emptyMap();
-         }
-         else if (!(result.getFirst() instanceof Map))
-         {
-            ms_log
-                  .warn("The \"Map\" type is expected for the replaced value of \""
-                        + lookupKey
-                        + "\". However, the type of the replaced value is: "
-                        + map.getClass().getName());
-         }
-         else
-         {
-            map = (Map) result.getFirst();
-         }
-      }
+public class PSMapBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+    @Override
+    protected Class<?> getBeanClass(Element element) {
+        return HashMap.class;
+    }
 
-      bean.addConstructorArgValue(map);
-   }
-   
-   /**
-    * Logger for this class.
-    */
-   private static final Logger ms_log = LogManager.getLogger("PSMapBeanDefinitionParser");
-   
+    @Override
+    protected void doParse(Element element, BeanDefinitionBuilder bean) {
+        var lookupKey = element.getAttribute("lookupKey");
+        var pMgr = PSBeanPropertiesLocator.getBeanProperties();
+        var result = PSConfigMapper.resolveSimplePlaceholder(lookupKey, pMgr.getProperties());
+        Map<?, ?> map = null;
+        if (result.getSecond()) {
+            if (result.getFirst() == null) {
+                map = Collections.emptyMap();
+            } else if (!(result.getFirst() instanceof Map)) {
+                ms_log.warn("The 'Map' type is expected for the replaced value of '{}'. However, the type of the replaced value is: {}", lookupKey, result.getFirst().getClass().getName());
+            } else {
+                map = (Map<?, ?>) result.getFirst();
+            }
+        }
+        bean.addConstructorArgValue(map);
+    }
 
+    private static final Logger ms_log = LogManager.getLogger("PSMapBeanDefinitionParser");
 }

@@ -29,10 +29,10 @@ import org.quartz.utils.ConnectionProvider;
 
 /**
  * Provides Rhythmyx database connection to Quartz.
- * Uses statically defined datasource manager, which should be set with
+ * <p>Uses statically defined datasource manager, which should be set with
  * {@link #setDatasourceManager(IPSDatasourceManager)} before calling
- * {@link #getConnection()} the first time.
- * 
+ * {@link #getConnection()} the first time.</p>
+ *
  * @author Andriy Palamarchuk
  */
 public class PSRhythmyxConnectionProvider implements ConnectionProvider

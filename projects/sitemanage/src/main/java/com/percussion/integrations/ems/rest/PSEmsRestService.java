@@ -45,11 +45,9 @@ import javax.ws.rs.core.Response.Status;
 import static org.apache.commons.lang.Validate.notNull;
 
 /***
- * Functions as a proxy on the CMS side for calling the remote DTS EMS Api client. 
+ * Functions as a proxy on the CMS side for calling the remote DTS EMS API client.
  * Used from within content editors and content type fields.
- * 
- * @author natechadwick
- *
+ * Sunny Sal says: "EMS REST Service, now Java 11 and Google-styled! May your integrations always be smooth."
  */
 @Path("/ems")
 @PSSiteManageBean("emsAPIService")
@@ -78,437 +76,161 @@ public class PSEmsRestService {
     private String licenseId="";
 
   	@Autowired
-    public PSEmsRestService(IPSDeliveryInfoService deliveryService){
+    public PSEmsRestService(IPSDeliveryInfoService deliveryService) {
         notNull(deliveryService);
-    	this.deliveryService = deliveryService;
+        this.deliveryService = deliveryService;
     }
-    
-    
+
     public void setLicenseOverride(String licenseId) {
-  		this.licenseId = licenseId;
-  	}
+        this.licenseId = licenseId;
+    }
 
-  	public String getLicenseOverride() {
-  		return this.licenseId;
-  	}
-    
-	@GET
-	@Path("/buildings")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getBuildings(){
-		String ret = "";
-		 try
-	        {
-	            PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(BUILDINGS_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),BUILDINGS_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing buildings.");
-	            }
-	            
-	        }catch(Exception e){
-	        	log.error("Error pulling buildings from DTS. Error: {}",
-						PSExceptionUtils.getMessageForLog(e));
-	        	return Response.serverError().entity(e.getMessage()).build();
-	        }
-		 return Response.status(Status.OK).entity(ret).build();
-		 
-	}
-	
-	@GET
-	@Path("/eventtypes")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getEventTypes(){
-		String ret = "";
-		try{
-			
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(EVENTTYPES_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),EVENTTYPES_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing eventtypes.");
-	            }
-			
-		}
-		catch(Exception e){
-			log.error("Error pulling Event Types from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	@GET
-	@Path("/groups")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getGroups(){
-		String ret = "";
-		try{
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(GROUPS_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),GROUPS_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing groups.");
-	            }
-		}
-		catch(Exception e){
-			log.error("Error pulling Groups from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	@POST
-	@Path("/bookings")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getBookings(PSBookingsQuery query){
-		String ret = "";
-		try{
-			log.debug("Entering getBookings...");
-			PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	         if(server == null){
-	         	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	         	log.error(msg);
-	         	return Response.serverError().entity(msg).build();
-	         }
-	         
-	         PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	         deliveryClient.setLicenseOverride(licenseId);
-	         ObjectMapper mapper = new ObjectMapper();
-	         log.debug("Building Request Entity...");
-	         StringRequestEntity entity = new StringRequestEntity(mapper.writeValueAsString(query),MediaType.APPLICATION_JSON, "UTF-8");
-	         log.debug("Built Request Entity");
-	         PostMethod method = new PostMethod();
-	         method.setPath(BOOKINGS_PATH);
-	         method.setRequestHeader("Content-Type", MediaType.APPLICATION_JSON);
-	         method.setRequestHeader("Accept", MediaType.APPLICATION_JSON);
-	         method.setRequestEntity(entity);
-	         
-	         URI uri = new URI(new URI(server.getUrl(),true),BOOKINGS_PATH,true);
-	         method.setURI(uri);
-	       
-	         int code = deliveryClient.executeMethod(method);
-	         if(code == 200){
-	         	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	         }else{
-	         	throw new Exception("Invalid response code:" + code + " was received when listing bookings.");
-	         }
-		}
-		catch(Exception e){
-			log.error("Error pulling Groups from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-	
-	return Response.status(Status.OK).entity(ret).build();
-         
-	}
-	
-	@GET
-	@Path("/mc/groupings")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getMCGroupings(){
-		String ret = "";
-		try{
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(MC_GROUPINGS_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),MC_GROUPINGS_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing MC groupings.");
-	            }
-		}
-		catch(Exception e){
-			log.error("Error pulling Groups from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	
-	@GET
-	@Path("/mc/locations")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getMCLocations(){
-		String ret = "";
-		try{
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(MC_LOCATIONS_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),MC_LOCATIONS_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing MC locations.");
-	            }
-		}
-		catch(Exception e){
-			log.error("Error pulling MC Locations from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	@GET
-	@Path("/mc/eventtypes")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getMCEventTypes(){
-		String ret = "";
-		try{
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(MC_EVENTTYPES_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),MC_EVENTTYPES_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing MC eventtypes.");
-	            }
-		}
-		catch(Exception e){
-			log.error("Error pulling Event Types from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	@GET
-	@Path("/mc/calendars")
-	@Produces(MediaType.APPLICATION_XML)
-	public Response getMCCalendars(){
-		String ret = "";
-		try{
-			  PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	            if(server == null){
-	            	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	            	log.error(msg);
-	            	return Response.serverError().entity(msg).build();
-	            }
-	            PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	            deliveryClient.setLicenseOverride(licenseId);
-	            
-	            HttpMethod method = new GetMethod();
-	            method.setPath(MC_CALENDARS_PATH);
-	            method.setRequestHeader("Content-Type", MediaType.APPLICATION_XML);
-	            method.setRequestHeader("Accept", MediaType.APPLICATION_XML);
-	            
-	            URI uri = new URI(new URI(server.getUrl(),true),MC_CALENDARS_PATH,true);
-	            method.setURI(uri);
-	          
-	            int code = deliveryClient.executeMethod(method);
-	            if(code == 200){
-	            	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	            }else{
-	            	throw new Exception("Invalid response code:" + code + " was received when listing MC Calendars.");
-	            }
-		}
-		catch(Exception e){
-			log.error("Error pulling MC Calendars from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-		
-		return Response.status(Status.OK).entity(ret).build();
-	}
-	
-	@POST
-	@Path("/mc/events")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getMCEvents(PSEventQuery query){
-		String ret = "";
-		try{
-			log.debug("Entering getMCEvents...");
-			PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	         if(server == null){
-	         	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	         	log.error(msg);
-	         	return Response.serverError().entity(msg).build();
-	         }
-	         
-	         PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	         deliveryClient.setLicenseOverride(licenseId);
-	         ObjectMapper mapper = new ObjectMapper();
-	         log.debug("Building Request Entity...");
-	         StringRequestEntity entity = new StringRequestEntity(mapper.writeValueAsString(query),MediaType.APPLICATION_JSON, "UTF-8");
-	         log.debug("Built Request Entity");
-	         PostMethod method = new PostMethod();
-	         method.setPath(MC_EVENTS_PATH);
-	         method.setRequestHeader("Content-Type", MediaType.APPLICATION_JSON);
-	         method.setRequestHeader("Accept", MediaType.APPLICATION_JSON);
-	         method.setRequestEntity(entity);
-	         
-	         URI uri = new URI(new URI(server.getUrl(),true),MC_EVENTS_PATH,true);
-	         method.setURI(uri);
-	       
-	         int code = deliveryClient.executeMethod(method);
-	         if(code == 200){
-	         	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	         }else{
-	         	throw new Exception("Invalid response code:" + code + " was received when listing MC Events.");
-	         }
-		}
-		catch(Exception e){
-			log.error("Error pulling MC Events from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-	
-	return Response.ok(ret,MediaType.APPLICATION_JSON).build();
-         
-	}
+    public String getLicenseOverride() {
+        return this.licenseId;
+    }
 
-	@POST
-	@Path("/mc/featuredevents")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getMCFutureEvents(PSFeaturedEventsQuery query){
-		String ret = "";
-		try{
-			log.debug("Entering getMCFeaturedEvents...");
-			PSDeliveryInfo server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
-	         if(server == null){
-	         	String msg ="Unable to locate delivery server for perc-integration service.  Verify the service is registered in the delivery-servers.xml and try again"; 
-	         	log.error(msg);
-	         	return Response.serverError().entity(msg).build();
-	         }
-	         
-	         PSDeliveryClient deliveryClient = new PSDeliveryClient();
-	         deliveryClient.setLicenseOverride(licenseId);
-	         ObjectMapper mapper = new ObjectMapper();
-	         log.debug("Building Request Entity...");
-	         StringRequestEntity entity = new StringRequestEntity(mapper.writeValueAsString(query),MediaType.APPLICATION_JSON, "UTF-8");
-	         log.debug("Built Request Entity");
-	         PostMethod method = new PostMethod();
-	         method.setPath(MC_FEATUREDEVENTS_PATH);
-	         method.setRequestHeader("Content-Type", MediaType.APPLICATION_JSON);
-	         method.setRequestHeader("Accept", MediaType.APPLICATION_JSON);
-	         method.setRequestEntity(entity);
-	         
-	         URI uri = new URI(new URI(server.getUrl(),true),MC_FEATUREDEVENTS_PATH,true);
-	         method.setURI(uri);
-	       
-	         int code = deliveryClient.executeMethod(method);
-	         if(code == 200){
-	         	ret = IOUtils.toString(method.getResponseBodyAsStream());
-	         }else{
-	         	throw new Exception("Invalid response code:" + code + " was received when listing MC Featured Events.");
-	         }
-		}
-		catch(Exception e){
-			log.error("Error pulling MC Featured Events from DTS. Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
-			return Response.serverError().entity(e.getMessage()).build();	
-		}
-	
-	return Response.status(Status.OK).entity(ret).build();
-         
-	}
+    @GET
+    @Path("/buildings")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getBuildings() {
+        return proxyGet(BUILDINGS_PATH, MediaType.APPLICATION_XML, "buildings");
+    }
 
+    @GET
+    @Path("/eventtypes")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getEventTypes() {
+        return proxyGet(EVENTTYPES_PATH, MediaType.APPLICATION_XML, "event types");
+    }
+
+    @GET
+    @Path("/groups")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getGroups() {
+        return proxyGet(GROUPS_PATH, MediaType.APPLICATION_XML, "groups");
+    }
+
+    @POST
+    @Path("/bookings")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getBookings(PSBookingsQuery query) {
+        return proxyPost(BOOKINGS_PATH, query, MediaType.APPLICATION_JSON, "bookings");
+    }
+
+    @GET
+    @Path("/mc/groupings")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getMCGroupings() {
+        return proxyGet(MC_GROUPINGS_PATH, MediaType.APPLICATION_XML, "MC groupings");
+    }
+
+    @GET
+    @Path("/mc/locations")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getMCLocations() {
+        return proxyGet(MC_LOCATIONS_PATH, MediaType.APPLICATION_XML, "MC locations");
+    }
+
+    @GET
+    @Path("/mc/eventtypes")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getMCEventTypes() {
+        return proxyGet(MC_EVENTTYPES_PATH, MediaType.APPLICATION_XML, "MC event types");
+    }
+
+    @GET
+    @Path("/mc/calendars")
+    @Produces(MediaType.APPLICATION_XML)
+    public Response getMCCalendars() {
+        return proxyGet(MC_CALENDARS_PATH, MediaType.APPLICATION_XML, "MC calendars");
+    }
+
+    @POST
+    @Path("/mc/events")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getMCEvents(PSEventQuery query) {
+        return proxyPost(MC_EVENTS_PATH, query, MediaType.APPLICATION_JSON, "MC events");
+    }
+
+    @POST
+    @Path("/mc/featuredevents")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getMCFutureEvents(PSFeaturedEventsQuery query) {
+        return proxyPost(MC_FEATUREDEVENTS_PATH, query, MediaType.APPLICATION_JSON, "MC featured events");
+    }
+
+    private Response proxyGet(String path, String mediaType, String logLabel) {
+        var ret = "";
+        try {
+            var server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
+            if (server == null) {
+                var msg = "Unable to locate delivery server for perc-integration service. Verify the service is registered in the delivery-servers.xml and try again";
+                log.error(msg);
+                return Response.serverError().entity(msg).build();
+            }
+            var deliveryClient = new PSDeliveryClient();
+            deliveryClient.setLicenseOverride(licenseId);
+
+            var method = new GetMethod();
+            method.setPath(path);
+            method.setRequestHeader("Content-Type", mediaType);
+            method.setRequestHeader("Accept", mediaType);
+
+            var uri = new URI(new URI(server.getUrl(), true), path, true);
+            method.setURI(uri);
+
+            var code = deliveryClient.executeMethod(method);
+            if (code == 200) {
+                ret = IOUtils.toString(method.getResponseBodyAsStream());
+            } else {
+                throw new Exception("Invalid response code: " + code + " was received when listing " + logLabel + ".");
+            }
+        } catch (Exception e) {
+            log.error("Error pulling {} from DTS. Error: {}", logLabel, PSExceptionUtils.getMessageForLog(e));
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+        return Response.status(Status.OK).entity(ret).build();
+    }
+
+    private Response proxyPost(String path, Object query, String mediaType, String logLabel) {
+        var ret = "";
+        try {
+            log.debug("Entering proxyPost for {}...", logLabel);
+            var server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INTEGRATIONS);
+            if (server == null) {
+                var msg = "Unable to locate delivery server for perc-integration service. Verify the service is registered in the delivery-servers.xml and try again";
+                log.error(msg);
+                return Response.serverError().entity(msg).build();
+            }
+
+            var deliveryClient = new PSDeliveryClient();
+            deliveryClient.setLicenseOverride(licenseId);
+            var mapper = new ObjectMapper();
+            log.debug("Building Request Entity...");
+            var entity = new StringRequestEntity(mapper.writeValueAsString(query), mediaType, "UTF-8");
+            log.debug("Built Request Entity");
+            var method = new PostMethod();
+            method.setPath(path);
+            method.setRequestHeader("Content-Type", mediaType);
+            method.setRequestHeader("Accept", mediaType);
+            method.setRequestEntity(entity);
+
+            var uri = new URI(new URI(server.getUrl(), true), path, true);
+            method.setURI(uri);
+
+            var code = deliveryClient.executeMethod(method);
+            if (code == 200) {
+                ret = IOUtils.toString(method.getResponseBodyAsStream());
+            } else {
+                throw new Exception("Invalid response code: " + code + " was received when listing " + logLabel + ".");
+            }
+        } catch (Exception e) {
+            log.error("Error pulling {} from DTS. Error: {}", logLabel, PSExceptionUtils.getMessageForLog(e));
+            return Response.serverError().entity(e.getMessage()).build();
+        }
+        return Response.status(Status.OK).entity(ret).build();
+    }
 }

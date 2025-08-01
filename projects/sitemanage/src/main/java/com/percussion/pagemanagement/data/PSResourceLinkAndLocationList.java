@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,10 +25,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSResourceLinkAndLocation.
+ */
 @XmlRootElement(name = "psResourceLinkAndLocation")
-@ArraySchema(schema=@Schema(implementation = PSResourceLinkAndLocation.class))
+@ArraySchema(schema = @Schema(implementation = PSResourceLinkAndLocation.class))
 public class PSResourceLinkAndLocationList extends ArrayList<PSResourceLinkAndLocation> {
+    public PSResourceLinkAndLocationList() {
+        super();
+    }
     public PSResourceLinkAndLocationList(Collection<? extends PSResourceLinkAndLocation> c) {
         super(c);
     }

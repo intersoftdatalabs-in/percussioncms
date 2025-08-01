@@ -14,96 +14,87 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Name/path container for activity which also includes the content types of the active items.
  */
-public class PSActivityNode
-{
-    String siteName;
-    String name;
-    String path;
-    List<String> contentTypes;
-    
-    public PSActivityNode(String siteName, String name, String path, List<String> contentTypes)
-    {
-        this.siteName = siteName;
-        this.name = name;
-        this.path = path;
-        this.contentTypes = contentTypes;
+public class PSActivityNode {
+
+    private String siteName;
+    private String name;
+    private String path;
+    private List<String> contentTypes;
+
+    public PSActivityNode(String siteName, String name, String path, List<String> contentTypes) {
+        this.siteName = Objects.requireNonNull(siteName, "siteName must not be null");
+        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.path = Objects.requireNonNull(path, "path must not be null");
+        this.contentTypes = List.copyOf(Objects.requireNonNull(contentTypes, "contentTypes must not be null"));
     }
-    
-    public PSActivityNode(String siteName, String name, String path, String contentType)
-    {
-        this(siteName, name, path, Collections.singletonList(contentType));
+
+    public PSActivityNode(String siteName, String name, String path, String contentType) {
+        this(siteName, name, path, List.of(Objects.requireNonNull(contentType, "contentType must not be null")));
     }
-    
+
     /**
      * @return the name
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * @param name the name to set
      */
-    public void setName(String name)
-    {
-        this.name = name;
+    public void setName(String name) {
+        this.name = Objects.requireNonNull(name, "name must not be null");
     }
 
     /**
      * @return the path
      */
-    public String getPath()
-    {
+    public String getPath() {
         return path;
     }
 
     /**
      * @param path the path to set
      */
-    public void setPath(String path)
-    {
-        this.path = path;
+    public void setPath(String path) {
+        this.path = Objects.requireNonNull(path, "path must not be null");
     }
 
     /**
      * @return the contentTypes
      */
-    public List<String> getContentTypes()
-    {
-        return contentTypes;
+    public List<String> getContentTypes() {
+        return List.copyOf(contentTypes);
     }
 
     /**
      * @param contentTypes the contentTypes to set
      */
-    public void setContentTypes(List<String> contentTypes)
-    {
-        this.contentTypes = contentTypes;
+    public void setContentTypes(List<String> contentTypes) {
+        this.contentTypes = List.copyOf(Objects.requireNonNull(contentTypes, "contentTypes must not be null"));
     }
 
     /**
      * @return the siteName
      */
-    public String getSiteName()
-    {
+    public String getSiteName() {
         return siteName;
     }
 
     /**
      * @param siteName the siteName to set
      */
-    public void setSiteName(String siteName)
-    {
-        this.siteName = siteName;
+    public void setSiteName(String siteName) {
+        this.siteName = Objects.requireNonNull(siteName, "siteName must not be null");
     }
-
 }

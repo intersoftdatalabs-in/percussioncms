@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,151 +29,128 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
-
-import java.util.List;
+import com.percussion.utils.testing.IntegrationTest;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- *  Test managed nav support code
+ * Test managed nav support code.
  */
-@Category(IntegrationTest.class)
-public class PSNavUnitTest extends ServletTestCase
-{
-   /**
-    * @throws Exception
-    */
-   public void testBasicNode() throws Exception
-   {
-      PSStopwatch sw = new PSStopwatch();
-      PSThreadRequestUtils.initServerThreadRequest();
-      
-      IPSAssemblyItem item = creteWorkItem(309, 487);
-      
-      PSNavHelper helper = new PSNavHelper(item);
-      sw.start();
-      
-     
-      Node navon = helper.findNavNode(item);
-      System.err.println("Loading proxies for parent axis: " + sw);
-      Node self = navon;
-      
-      // Check image children
-      NodeIterator images = self.getNodes("nav:image");
-      System.err.println("Loading children: " + sw);
-      assertTrue(images.getSize() > 0);
-      
-      // Check submenu children of parent
-      NodeIterator submenu = navon.getParent().getNodes("nav:submenu");
-      assertTrue(submenu.getSize() > 0);
-      System.err.println("Loaded parent submenus: " + sw);
-      
-      assertNotNull(navon);
+@Tag("IntegrationTest")
+public class PSNavUnitTest {
 
-      // Test each navon in the parent axis
-      int count = 0;
-      while (navon != null)
-      {
-         PSNavAxisEnum axis = PSNavAxisEnum.ANCESTOR;
-         if (count == 0)
-         {
-            axis = PSNavAxisEnum.SELF;
-         }
-         else if (count == 1)
-         {
-            axis = PSNavAxisEnum.PARENT;
-         }
-         count++;
-         checkNavon(navon, axis);
-         navon = navon.getParent();
-      }
-      
-      sw.stop();
-      System.err.println("Whole test: " + sw);
-   }
+    @Test
+    public void testBasicNode() throws Exception {
+        var sw = new PSStopwatch();
+        PSThreadRequestUtils.initServerThreadRequest();
 
-   /**
+        var item = createWorkItem(309, 487);
+
+        var helper = new PSNavHelper(item);
+        sw.start();
+
+        var navon = helper.findNavNode(item);
+        System.err.println("Loading proxies for parent axis: " + sw);
+        var self = navon;
+
+        // Check image children
+        NodeIterator images = self.getNodes("nav:image");
+        System.err.println("Loading children: " + sw);
+        assertTrue(images.getSize() > 0);
+
+        // Check submenu children of parent
+        NodeIterator submenu = navon.getParent().getNodes("nav:submenu");
+        assertTrue(submenu.getSize() > 0);
+        System.err.println("Loaded parent submenus: " + sw);
+
+        assertNotNull(navon);
+
+        // Test each navon in the parent axis
+        int count = 0;
+        while (navon != null) {
+            var axis = PSNavAxisEnum.ANCESTOR;
+            if (count == 0) {
+                axis = PSNavAxisEnum.SELF;
+            } else if (count == 1) {
+                axis = PSNavAxisEnum.PARENT;
+            }
+            count++;
+            checkNavon(navon, axis);
+            navon = navon.getParent();
+        }
+
+        sw.stop();
+        System.err.println("Whole test: " + sw);
+    }
+
+    @Test
+    public void testGetAncestors() throws PSAssemblyException, RepositoryException, PSCmsException, PSFilterException {
+        PSThreadRequestUtils.initServerThreadRequest();
+
+        var item = createWorkItem(309, 487);
+
+        var helper = new PSNavHelper(item);
+        var navon = helper.findNavNode(item);
+
+        var pnode = (IPSProxyNode) navon;
+        List<Node> ancestors = pnode.getAncestors();
+        assertEquals(1, ancestors.size());
+
+        var rootNode = (IPSProxyNode) pnode.getRoot();
+
+        var rootId = ((IPSProxyNode) ancestors.get(0)).getGuid();
+        assertEquals(rootNode.getGuid(), rootId);
+
+        var item487Id = pnode.getGuid();
+
+        // test navon with 2 parents
+        item = createWorkItem(316, 376);
+        helper = new PSNavHelper(item);
+        navon = helper.findNavNode(item);
+        pnode = (IPSProxyNode) navon;
+        ancestors = pnode.getAncestors();
+        assertEquals(2, ancestors.size());
+
+        var id = ((IPSProxyNode) ancestors.get(0)).getGuid();
+        assertEquals(rootId, id);
+
+        id = ((IPSProxyNode) ancestors.get(1)).getGuid();
+        assertEquals(item487Id, id);
+    }
+
+    /**
+     * Creates a work item with the specified item and folder in the
+     * site (id=301), preview context and revision (3).
      *
-    */
-   public void testGetAncestors() throws PSAssemblyException, RepositoryException, PSCmsException, PSFilterException {
-      PSThreadRequestUtils.initServerThreadRequest();
-      
-      IPSAssemblyItem item = creteWorkItem(309, 487);
-      
-      PSNavHelper helper = new PSNavHelper(item);
-      Node navon = helper.findNavNode(item);
+     * @param folderId the ID of the parent folder of the item.
+     * @param itemId   the content ID of the item.
+     * @return the created work item, never null.
+     */
+    private IPSAssemblyItem createWorkItem(int folderId, int itemId) throws PSAssemblyException {
+        var item = new PSAssemblyWorkItem();
+        item.setParameterValue(IPSHtmlParameters.SYS_ITEMFILTER, "public");
+        item.setParameterValue(IPSHtmlParameters.SYS_SITEID, "301");
+        item.setParameterValue(IPSHtmlParameters.SYS_CONTEXT, "1");
+        item.setParameterValue(IPSHtmlParameters.SYS_CONTENTID, String.valueOf(itemId));
+        item.setParameterValue(IPSHtmlParameters.SYS_REVISION, "3");
+        item.setParameterValue(IPSHtmlParameters.SYS_FOLDERID, String.valueOf(folderId));
+        item.normalize();
+        return item;
+    }
 
-      IPSProxyNode pnode = (IPSProxyNode) navon;
-      List<Node> ancestors = pnode.getAncestors();
-      assertTrue(ancestors.size() == 1);
-      
-      IPSProxyNode rootNode = (IPSProxyNode) pnode.getRoot();
-      
-      IPSGuid rootId = ((IPSProxyNode)ancestors.get(0)).getGuid();
-      assertTrue(rootNode.getGuid().equals(rootId));
-      
-      IPSGuid item487_Id = pnode.getGuid();
+    private void checkNavon(Node navon, PSNavAxisEnum axis) throws Exception {
+        var axisVal = navon.getProperty("nav:axis").getString();
+        var axisEnum = PSNavAxisEnum.valueOf(axisVal);
+        assertEquals(axis, axisEnum);
 
-      // test navon with 2 parents
-      item = creteWorkItem(316, 376);
-      helper = new PSNavHelper(item);
-      navon = helper.findNavNode(item);
-      pnode = (IPSProxyNode) navon;
-      ancestors = pnode.getAncestors();
-      assertTrue(ancestors.size() == 2);
-      
-      IPSGuid id = ((IPSProxyNode) ancestors.get(0)).getGuid();
-      assertTrue(rootId.equals(id));
-      
-      id = ((IPSProxyNode) ancestors.get(1)).getGuid();
-      assertTrue(item487_Id.equals(id));
-   }
-   
-   /**
-    * Creates a work item with the specified item and folder in the 
-    * site (id=301), preview context and revision (3).
-    * 
-    * @param folderId the ID of the parent folder of the item.
-    * @param itemId the content ID of the item.
-    * 
-    * @return the created work item, never <code>null</code>.
-    * 
-    * @throws PSAssemblyException
-    */
-   private IPSAssemblyItem creteWorkItem(int folderId, int itemId)
-         throws PSAssemblyException
-   {
-      IPSAssemblyItem item = new PSAssemblyWorkItem();
-      item.setParameterValue(IPSHtmlParameters.SYS_ITEMFILTER, "public");
-      item.setParameterValue(IPSHtmlParameters.SYS_SITEID, "301");
-      item.setParameterValue(IPSHtmlParameters.SYS_CONTEXT, "1");
-      item.setParameterValue(IPSHtmlParameters.SYS_CONTENTID, "" +itemId);
-      item.setParameterValue(IPSHtmlParameters.SYS_REVISION, "3");
-      item.setParameterValue(IPSHtmlParameters.SYS_FOLDERID, "" + folderId);
-      item.normalize();
-      
-      return item;
-   }
-   
-   /**
-    * @param navon
-    * @param axis
-    * @throws Exception
-    */
-   private void checkNavon(Node navon, PSNavAxisEnum axis)
-         throws Exception
-   {
-      String axis_val = navon.getProperty("nav:axis").getString();
-      PSNavAxisEnum axis_enum = PSNavAxisEnum.valueOf(axis_val);
-      assertEquals(axis, axis_enum);
-
-      Node image = navon.getProperty("nav:selectedImage").getNode();
-      assertNotNull(image);
-   }
+        var image = navon.getProperty("nav:selectedImage").getNode();
+        assertNotNull(image);
+    }
 }

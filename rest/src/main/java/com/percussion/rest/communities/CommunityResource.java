@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,17 +36,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -53,12 +44,15 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@PSSiteManageBean(value="restCommunityResource")
+/**
+ * REST resource for Community operations.
+ */
+@PSSiteManageBean(value = "restCommunityResource")
 @Path("/communities")
 @XmlRootElement
 @Tag(name = "Communities", description = "Community operations")
 @Lazy
-public class CommunityResource implements  ICommunityResource{
+public class CommunityResource implements ICommunityResource {
 
     private static final Logger log = LogManager.getLogger(CommunityResource.class);
 
@@ -68,16 +62,16 @@ public class CommunityResource implements  ICommunityResource{
     @Context
     private UriInfo uriInfo;
 
-    public CommunityResource(){
-        //NOOP
+    public CommunityResource() {
+        // NOOP
     }
 
     @Override
     @POST
     @Path("/bulk")
-    @Operation(summary="Creates a set of communities from an array list of community names.")
+    @Operation(summary = "Creates a set of communities from an array list of community names.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description="OK"),
+            @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "500", description = "ERROR")
     })
     public CommunityList createCommunities(@Parameter(example = "{\"List\":\n" +
@@ -85,7 +79,7 @@ public class CommunityResource implements  ICommunityResource{
             "}") List<String> names) {
         try {
             return adaptor.createCommunities(names);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("An error occurred calling createCommunities", e);
             throw new WebApplicationException(e);
         }
@@ -94,37 +88,36 @@ public class CommunityResource implements  ICommunityResource{
     @Override
     @GET
     @Path("/find")
-    @Produces(
-            {MediaType.APPLICATION_JSON})
-    @Operation(summary = "Get a community by name or pattern.  Get a community by name or pattern.  * is the wildcard.", responses = { @ApiResponse(
+    @Produces({MediaType.APPLICATION_JSON})
+    @Operation(summary = "Get a community by name or pattern. * is the wildcard.", responses = {@ApiResponse(
             responseCode = "200", description = "OK",
-            content = @Content(schema=@Schema(implementation = CommunityList.class),
-            examples = @ExampleObject(value = "{\n" +
-                    "  \"CommunityList\": [\n" +
-                    "    {\n" +
-                    "      \"description\": \"Default Community\",\n" +
-                    "      \"guid\": {\n" +
-                    "        \"hostId\": 0,\n" +
-                    "        \"longValue\": 10,\n" +
-                    "        \"stringValue\": \"0-13-10\",\n" +
-                    "        \"type\": 13,\n" +
-                    "        \"untypedString\": \"0-10\",\n" +
-                    "        \"uuid\": 10\n" +
-                    "      },\n" +
-                    "      \"id\": 10,\n" +
-                    "      \"label\": \"Default\",\n" +
-                    "      \"name\": \"Default\"\n" +
-                    "    }\n" +
-                    "  ]\n" +
-                    "}")))})
+            content = @Content(schema = @Schema(implementation = CommunityList.class),
+                    examples = @ExampleObject(value = "{\n" +
+                            "  \"CommunityList\": [\n" +
+                            "    {\n" +
+                            "      \"description\": \"Default Community\",\n" +
+                            "      \"guid\": {\n" +
+                            "        \"hostId\": 0,\n" +
+                            "        \"longValue\": 10,\n" +
+                            "        \"stringValue\": \"0-13-10\",\n" +
+                            "        \"type\": 13,\n" +
+                            "        \"untypedString\": \"0-10\",\n" +
+                            "        \"uuid\": 10\n" +
+                            "      },\n" +
+                            "      \"id\": 10,\n" +
+                            "      \"label\": \"Default\",\n" +
+                            "      \"name\": \"Default\"\n" +
+                            "    }\n" +
+                            "  ]\n" +
+                            "}")))})
     @ApiResponses(value = {
-            @ApiResponse(responseCode="200", description="OK"),
-            @ApiResponse(responseCode="500", description="ERROR")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "500", description = "ERROR")
     })
-    public CommunityList findCommunities(@Parameter(name="name",required=true) @QueryParam("name") String name) {
+    public CommunityList findCommunities(@Parameter(name = "name", required = true) @QueryParam("name") String name) {
         try {
             return adaptor.findCommunities(name);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("An error occurred calling findCommunities.", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -133,20 +126,18 @@ public class CommunityResource implements  ICommunityResource{
     @Override
     @POST
     @Path("/bulk/load")
-    @Produces(
-            {MediaType.APPLICATION_JSON})
-    @Operation(summary = "Loads one or more communities by guid. Takes a GuidList of communities to retrieve.  Setting the lock header to true will lock the communities on the server.  Setting overrridelock header to true will return the list even if the communities are locked in another session.",
+    @Produces({MediaType.APPLICATION_JSON})
+    @Operation(summary = "Loads one or more communities by guid. Takes a GuidList of communities to retrieve. Setting the lock header to true will lock the communities on the server. Setting overridelock header to true will return the list even if the communities are locked in another session.",
             responses = {
-                    @ApiResponse(responseCode="200", description="OK",
-                            content=@Content(array= @ArraySchema(
-                                    schema=@Schema(implementation =  Community.class)))),
-                    @ApiResponse(responseCode="500", description="ERROR")})
-    public CommunityList loadCommunities(@Parameter(name="ids",required=true) GuidList ids, @Parameter(name="lock") @HeaderParam("lock") boolean lock, @HeaderParam("overridelock")@Parameter(name="overridelock") boolean overridelock) {
+                    @ApiResponse(responseCode = "200", description = "OK",
+                            content = @Content(array = @ArraySchema(
+                                    schema = @Schema(implementation = Community.class)))),
+                    @ApiResponse(responseCode = "500", description = "ERROR")})
+    public CommunityList loadCommunities(@Parameter(name = "ids", required = true) GuidList ids, @Parameter(name = "lock") @HeaderParam("lock") boolean lock, @HeaderParam("overridelock") @Parameter(name = "overridelock") boolean overridelock) {
         try {
-            return  adaptor.loadCommunities(ids,lock,overridelock);
-
+            return adaptor.loadCommunities(ids, lock, overridelock);
         } catch (Exception e) {
-            log.error("An error occurred calling loadCommunities",e);
+            log.error("An error occurred calling loadCommunities", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -155,19 +146,19 @@ public class CommunityResource implements  ICommunityResource{
     @PUT
     @Path("/bulk")
     @ApiResponses(value = {
-            @ApiResponse(responseCode="200", description="OK"),
-            @ApiResponse(responseCode="500", description="ERROR")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "500", description = "ERROR")
     })
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    @Operation(summary = "Saves the communities in the submitted list.  If the release header is set, any locks will be released. To avoid extended locks, please set the release header when calling this method unless you really want to keep them locked.")
+    @Operation(summary = "Saves the communities in the submitted list. If the release header is set, any locks will be released. To avoid extended locks, please set the release header when calling this method unless you really want to keep them locked.")
     public void saveCommunities(@Parameter(description = "communities", required = true) CommunityList communities,
-                                @Parameter(name="release",
-                                        allowEmptyValue = false,required = true)@HeaderParam(value="release") boolean release) {
+                                @Parameter(name = "release",
+                                        allowEmptyValue = false, required = true) @HeaderParam(value = "release") boolean release) {
         try {
             adaptor.saveCommunities(communities, release);
-        }catch(Exception e){
-            log.error("An error occurred call save communities",e);
+        } catch (Exception e) {
+            log.error("An error occurred calling saveCommunities", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -177,14 +168,14 @@ public class CommunityResource implements  ICommunityResource{
     @Path("/bulk")
     @Consumes({MediaType.APPLICATION_JSON})
     @ApiResponses(value = {
-            @ApiResponse(responseCode="200", description="OK"),
-            @ApiResponse(responseCode="500", description="ERROR")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "500", description = "ERROR")
     })
-    @Operation(summary="Accepts a GuidList containing the ids of the Communities to delete.  If the ignoredepencies header is set on the request, then the system won't fail the delete if dependency is relying on this community.")
-    public void deleteCommunities(@Parameter(name="ids") GuidList ids, @Parameter(name="ignoredepencies",required = true) @HeaderParam("ignoredependencies") boolean ignoredependencies) {
+    @Operation(summary = "Accepts a GuidList containing the ids of the Communities to delete. If the ignoredependencies header is set on the request, then the system won't fail the delete if a dependency is relying on this community.")
+    public void deleteCommunities(@Parameter(name = "ids") GuidList ids, @Parameter(name = "ignoredependencies", required = true) @HeaderParam("ignoredependencies") boolean ignoredependencies) {
         try {
             adaptor.deleteCommunities(ids, ignoredependencies);
-        }catch(Exception e){
+        } catch (Exception e) {
             log.error("An error occurred calling deleteCommunities", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -196,11 +187,11 @@ public class CommunityResource implements  ICommunityResource{
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @ApiResponses(value = {
-            @ApiResponse(responseCode="200", description="OK"),
-            @ApiResponse(responseCode="500", description="ERROR")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "500", description = "ERROR")
     })
-    @Operation(summary="Returns the Community visibility list for the specified communities.  If the type header is null or missing, visibility for all object types will be returned.")
-    public CommunityVisibilityList getVisibilityByCommunity(@Parameter(description = "List of GUID",example = "{\"GuidList\": [\n" +
+    @Operation(summary = "Returns the Community visibility list for the specified communities. If the type header is null or missing, visibility for all object types will be returned.")
+    public CommunityVisibilityList getVisibilityByCommunity(@Parameter(description = "List of GUID", example = "{\"GuidList\": [\n" +
             "   {\n" +
             "        \"stringValue\": \"0-13-1003\",\n" +
             "        \"untypedString\": \"0-1003\",\n" +
@@ -217,30 +208,26 @@ public class CommunityResource implements  ICommunityResource{
             "        \"uuid\": 10,\n" +
             "        \"longValue\": 10\n" +
             "      }\n" +
-            "]}") GuidList ids, @Parameter(name="type") @HeaderParam("type") ObjectTypeEnum type) {
-        CommunityVisibilityList list = null;
-
+            "]}") GuidList ids, @Parameter(name = "type") @HeaderParam("type") ObjectTypeEnum type) {
         try {
-            list = adaptor.getVisibilityByCommunity(ids,type);
+            return adaptor.getVisibilityByCommunity(ids, type);
         } catch (Exception e) {
-            log.error("An error occurred calling getVisibilityBuCommunity",e);
+            log.error("An error occurred calling getVisibilityByCommunity", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
-
-        return list;
     }
 
     @POST
     @Path("/switch/{name}")
-    @Operation(summary="Switch the user's session to the specified community. May error out of user does not have access to a Role in specified community",
-    responses={@ApiResponse(responseCode="200",description="OK", content=@Content(schema = @Schema(implementation = Status.class))),
-    @ApiResponse(responseCode="500",description = "Error")})
-    public Status switchCommunity(@Parameter(required=true,description="Name of the community to switch to")@PathParam("name") String name){
-        Status ret = new Status(200,"OK");
-        try{
+    @Operation(summary = "Switch the user's session to the specified community. May error out if user does not have access to a Role in specified community",
+            responses = {@ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(implementation = Status.class))),
+                    @ApiResponse(responseCode = "500", description = "Error")})
+    public Status switchCommunity(@Parameter(required = true, description = "Name of the community to switch to") @PathParam("name") String name) {
+        var ret = new Status(200, "OK");
+        try {
             adaptor.switchCommunity(name);
-        }catch(Exception e){
-            log.error("An error occurred calling switchCommunity",e);
+        } catch (Exception e) {
+            log.error("An error occurred calling switchCommunity", e);
             throw new WebApplicationException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
         return ret;

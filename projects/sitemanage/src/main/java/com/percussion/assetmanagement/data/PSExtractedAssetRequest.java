@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import java.io.InputStream;
@@ -23,22 +25,24 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Used to request the creation of an asset whose content is extracted from an uploaded file.
  */
-public class PSExtractedAssetRequest extends PSAbstractAssetRequest
-{
+public class PSExtractedAssetRequest extends PSAbstractAssetRequest {
+
+    private String selector;
+    private boolean includeOuterHtml;
+
     /**
      * Constructs a new extracted asset request.
-     * 
-     * @param folderPath see {@link #setFolderPath(String)}.
-     * @param type see {@link #setType(AssetType)}.
-     * @param fileName see {@link #setFileName(String)}.
-     * @param fileContents see {@link #setFileContents(InputStream)}.
-     * @param selector see {@link #setSelector(String)}.
+     *
+     * @param folderPath       see {@link #setFolderPath(String)}.
+     * @param type             see {@link #setType(AssetType)}.
+     * @param fileName         see {@link #setFileName(String)}.
+     * @param fileContents     see {@link #setFileContents(InputStream)}.
+     * @param selector         see {@link #setSelector(String)}.
      * @param includeOuterHtml see {@link #setIncludeOuterHtml(boolean)}.
      */
     public PSExtractedAssetRequest(String folderPath, AssetType type, String fileName, InputStream fileContents,
-            String selector, boolean includeOuterHtml)
-    {
-        super();        
+                                  String selector, boolean includeOuterHtml) {
+        super();
         setFolderPath(folderPath);
         setType(type);
         setFileName(fileName);
@@ -46,71 +50,51 @@ public class PSExtractedAssetRequest extends PSAbstractAssetRequest
         setSelector(selector);
         setIncludeOuterHtml(includeOuterHtml);
     }
-    
+
     @Override
-    public void setType(AssetType type)
-    {
-        if (type != AssetType.HTML && type != AssetType.RICH_TEXT && type != AssetType.SIMPLE_TEXT)
-        {
+    public void setType(AssetType type) {
+        if (type != AssetType.HTML && type != AssetType.RICH_TEXT && type != AssetType.SIMPLE_TEXT) {
             throw new IllegalArgumentException("unsupported asset type : " + type);
         }
-        
         super.setType(type);
     }
-    
+
     /**
-     * Gets the css selector used to find content for extraction.
-     * 
-     * @return the selector, may be <code>null</code>.
+     * Gets the CSS selector used to find content for extraction.
+     *
+     * @return the selector, may be {@code null}.
      */
-    public String getSelector()
-    {
+    public String getSelector() {
         return selector;
     }
 
     /**
-     * @param selector may not be <code>null</code> or empty.
+     * Sets the CSS selector for extraction.
+     *
+     * @param selector may not be {@code null} or empty.
      */
-    public void setSelector(String selector)
-    {
-        if (StringUtils.isBlank(selector))
-        {
+    public void setSelector(String selector) {
+        if (StringUtils.isBlank(selector)) {
             throw new IllegalArgumentException("selector may not be blank");
         }
-
         this.selector = selector;
     }
 
     /**
      * Determines whether or not the extracted content should include the selector element.
-     * 
-     * @return <code>true</code> if the outer html should be included in the extracted content, <code>false</code>
-     * otherwise.
+     *
+     * @return {@code true} if the outer HTML should be included in the extracted content, {@code false} otherwise.
      */
-    public boolean shouldIncludeOuterHtml()
-    {
+    public boolean shouldIncludeOuterHtml() {
         return includeOuterHtml;
     }
 
     /**
-     * @param includeOuterHtml <code>true</code> if the selector element should be included in the extracted content,
-     * <code>false</code> otherwise.
+     * Sets whether the selector element should be included in the extracted content.
+     *
+     * @param includeOuterHtml {@code true} if the selector element should be included, {@code false} otherwise.
      */
-    public void setIncludeOuterHtml(boolean includeOuterHtml)
-    {
+    public void setIncludeOuterHtml(boolean includeOuterHtml) {
         this.includeOuterHtml = includeOuterHtml;
     }
-
-    /**
-     * @see #getSelector()
-     * @see #setSelector(String)
-     */
-    private String selector;
-
-    /**
-     * @see #shouldIncludeOuterHtml()
-     * @see #setIncludeOuterHtml(boolean)
-     */
-    private boolean includeOuterHtml;
-
 }

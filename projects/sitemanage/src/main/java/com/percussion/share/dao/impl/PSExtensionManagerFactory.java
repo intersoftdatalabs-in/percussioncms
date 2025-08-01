@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,22 +22,23 @@ import org.springframework.beans.factory.FactoryBean;
 import com.percussion.extension.IPSExtensionManager;
 import com.percussion.server.PSServer;
 
-public class PSExtensionManagerFactory implements FactoryBean
-{
+/**
+ * Factory for obtaining the extension manager.
+ */
+public class PSExtensionManagerFactory implements FactoryBean<IPSExtensionManager> {
 
-    public IPSExtensionManager getObject() throws Exception
-    {
+    @Override
+    public IPSExtensionManager getObject() throws Exception {
         return PSServer.getExtensionManager(null);
     }
 
-    public Class<IPSExtensionManager> getObjectType()
-    {
+    @Override
+    public Class<IPSExtensionManager> getObjectType() {
         return IPSExtensionManager.class;
     }
 
-    public boolean isSingleton()
-    {
+    @Override
+    public boolean isSingleton() {
         return true;
     }
-
 }

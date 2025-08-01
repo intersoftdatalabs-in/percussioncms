@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+   // TODO: Migrate to java.util.Base64 for encoding. Suppressing deprecation for now for backward compatibility.
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -47,24 +49,27 @@ public class PSBinaryData
     * Return the binary data in base64 format (String)
     *
     */
+   /**
+    * Converts the byte array to a Base64-encoded string.
+    *
+    * @return Base64 string or null if byte array is null.
+    * @deprecated Uses deprecated PSBase64Encoder. Migrate to java.util.Base64.
+    */
    public String toBase64String()
    {
       if (m_byte != null)
       {
-         java.io.ByteArrayInputStream in
-            = new java.io.ByteArrayInputStream(m_byte);
-         java.io.ByteArrayOutputStream out
-            = new java.io.ByteArrayOutputStream();
-
+         java.io.ByteArrayInputStream in = new java.io.ByteArrayInputStream(m_byte);
+         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
          try {
             com.percussion.util.PSBase64Encoder.encode(in, out);
          } catch (java.io.IOException e) {
             throw new RuntimeException(e.toString());
          }
-
          return new String(out.toByteArray());
-      } else
+      } else {
          return null;
+      }
    }
 
    /**

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,280 +22,178 @@ import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.data.PSThemeSummary;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * @author LucasPiccoli
- *
+ * Context for site import operations.
  */
-public class PSSiteImportCtx
-{
+public class PSSiteImportCtx {
 
-    String siteUrl;
+    private String siteUrl;
+    private PSSite site;
+    private IPSSiteImportLogger logger;
+    private IPSSiteImportSummaryService summaryService;
+    private Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> summaryStats;
+    private PSThemeSummary themeSummary;
+    private String themesRootDirectory;
+    private String templateId;
+    private String pageName;
+    private String catalogedPageId;
+    private String templateName;
+    private String statusMessagePrefix;
+    private String userAgent;
+    private boolean isCanceled = false;
+    private PSSiteImportConfiguration importConfiguration;
 
-    PSSite site;
-
-    IPSSiteImportLogger logger;
-
-    IPSSiteImportSummaryService summaryService;
-
-    Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> summaryStats;
-
-    PSThemeSummary themeSummary;
-
-    String themesRootDirectory;
-
-    String templateId = null;
-
-    String pageName;
-
-    String catalogedPageId;
-
-    String templateName;
-
-    String statusMessagePrefix;
-
-    String userAgent;
-
-    boolean isCanceled = false;
-
-    PSSiteImportConfiguration importConfiguration;
-
-    /**
-     * @return the siteUrl
-     */
-    public String getSiteUrl()
-    {
-        return siteUrl;
+    public Optional<String> getSiteUrl() {
+        return Optional.ofNullable(siteUrl);
     }
 
-    /**
-     * @param siteUrl the siteUrl to set
-     */
-    public void setSiteUrl(String siteUrl)
-    {
+    public void setSiteUrl(String siteUrl) {
         this.siteUrl = siteUrl;
     }
 
-    /**
-     * @return the site
-     */
-    public PSSite getSite()
-    {
-        return site;
+    public Optional<PSSite> getSite() {
+        return Optional.ofNullable(site);
     }
 
-    /**
-     * @param site the site to set
-     */
-    public void setSite(PSSite site)
-    {
+    public void setSite(PSSite site) {
         this.site = site;
     }
 
     /**
      * Set logger on the context.
      *
-     * @param logger The logger, never <code>null</code>
+     * @param logger The logger, never null.
      */
-    public void setLogger(IPSSiteImportLogger logger)
-    {
+    public void setLogger(IPSSiteImportLogger logger) {
         this.logger = logger;
     }
 
     /**
      * Get the current logger.
      *
-     * @return The logger, never <code>null</code>.
+     * @return The logger, never null.
      * @throws IllegalStateException if no logger has been set.
      */
-    public IPSSiteImportLogger getLogger()
-    {
-        if (logger == null)
+    public IPSSiteImportLogger getLogger() {
+        if (logger == null) {
             throw new IllegalStateException("logger has not been set");
-
+        }
         return logger;
     }
 
-    public PSSiteImportConfiguration getImportConfiguration() {
-        return importConfiguration;
+    public Optional<PSSiteImportConfiguration> getImportConfiguration() {
+        return Optional.ofNullable(importConfiguration);
     }
 
     public void setImportConfiguration(PSSiteImportConfiguration importConfiguration) {
         this.importConfiguration = importConfiguration;
     }
 
-    public IPSSiteImportSummaryService getSummaryService()
-    {
-        return summaryService;
+    public Optional<IPSSiteImportSummaryService> getSummaryService() {
+        return Optional.ofNullable(summaryService);
     }
 
-    public void setSummaryService(IPSSiteImportSummaryService summaryService)
-    {
+    public void setSummaryService(IPSSiteImportSummaryService summaryService) {
         this.summaryService = summaryService;
     }
 
-
-    /**
-     * @return the theme summary
-     */
-    public PSThemeSummary getThemeSummary()
-    {
-        return themeSummary;
+    public Optional<PSThemeSummary> getThemeSummary() {
+        return Optional.ofNullable(themeSummary);
     }
 
-    /**
-     * @param themeSummary the new summary to assign
-     */
-    public void setThemeSummary(PSThemeSummary themeSummary)
-    {
+    public void setThemeSummary(PSThemeSummary themeSummary) {
         this.themeSummary = themeSummary;
     }
 
-    /**
-     * @return the themes root directory absolute path
-     */
-    public String getThemesRootDirectory()
-    {
-        return themesRootDirectory;
+    public Optional<String> getThemesRootDirectory() {
+        return Optional.ofNullable(themesRootDirectory);
     }
 
-    /**
-     * @param themesRootDirectory the themes root directory absolute path
-     */
-    public void setThemesRootDirectory(String themesRootDirectory)
-    {
+    public void setThemesRootDirectory(String themesRootDirectory) {
         this.themesRootDirectory = themesRootDirectory;
     }
 
     /**
      * Get the id of the template if one was created during the import process.
      *
-     * @return The id, or <code>null</code> if a template was not created.
+     * @return The id, or empty if a template was not created.
      */
-    public String getTemplateId()
-    {
-        return templateId;
+    public Optional<String> getTemplateId() {
+        return Optional.ofNullable(templateId);
     }
 
-    /**
-     * Set the id of the template if one was created during the import process, must
-     * be called in order for an import log to be saved.
-     *
-     * @param templateId The template id.
-     */
-    public void setTemplateId(String templateId)
-    {
+    public void setTemplateId(String templateId) {
         this.templateId = templateId;
     }
 
-    /**
-     * @return the pageName
-     */
-    public String getPageName()
-    {
-        return pageName;
+    public Optional<String> getPageName() {
+        return Optional.ofNullable(pageName);
     }
 
-    /**
-     * @param pageName the pageName to set
-     */
-    public void setPageName(String pageName)
-    {
+    public void setPageName(String pageName) {
         this.pageName = pageName;
     }
 
-    /**
-     * @return the templateName
-     */
-    public String getTemplateName()
-    {
-        return templateName;
+    public Optional<String> getTemplateName() {
+        return Optional.ofNullable(templateName);
     }
 
-    /**
-     * @param templateName the templateName to set
-     */
-    public void setTemplateName(String templateName)
-    {
+    public void setTemplateName(String templateName) {
         this.templateName = templateName;
     }
 
-    /**
-     * @return the statusMessagePrefix
-     */
-    public String getStatusMessagePrefix()
-    {
-        return statusMessagePrefix;
+    public Optional<String> getStatusMessagePrefix() {
+        return Optional.ofNullable(statusMessagePrefix);
     }
 
-    /**
-     * @param statusMessagePrefix the statusMessagePrefix to set
-     */
-    public void setStatusMessagePrefix(String statusMessagePrefix)
-    {
+    public void setStatusMessagePrefix(String statusMessagePrefix) {
         this.statusMessagePrefix = statusMessagePrefix;
     }
 
-    /**
-     * @return the userAgent
-     */
-    public String getUserAgent()
-    {
-        return userAgent;
+    public Optional<String> getUserAgent() {
+        return Optional.ofNullable(userAgent);
     }
 
-    /**
-     * @param userAgent the userAgent to set
-     */
-    public void setUserAgent(String userAgent)
-    {
+    public void setUserAgent(String userAgent) {
         this.userAgent = userAgent;
     }
 
     /**
-     * Used when importing cataloged pages. Is the id of the page being
-     * imported.
+     * Used when importing cataloged pages. Is the id of the page being imported.
      *
-     * @return {@link String} may be <code>null</code>.
+     * @return Optional page id.
      */
-    public String getCatalogedPageId()
-    {
-        return catalogedPageId;
+    public Optional<String> getCatalogedPageId() {
+        return Optional.ofNullable(catalogedPageId);
     }
 
-    public void setCatalogedPageId(String catalogedPageId)
-    {
+    public void setCatalogedPageId(String catalogedPageId) {
         this.catalogedPageId = catalogedPageId;
     }
 
-    public void setCanceled(boolean cancelFlag)
-    {
+    public void setCanceled(boolean cancelFlag) {
         isCanceled = cancelFlag;
     }
 
     /**
      * Determines if the current import process has been canceled.
      *
-     * @return <code>true</code> if the import process has been canceled.
+     * @return true if the import process has been canceled.
      */
-    public boolean isCanceled()
-    {
+    public boolean isCanceled() {
         return isCanceled;
     }
+
     /**
      * @return May be null if not set.
      */
-    public Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> getSummaryStats()
-    {
-        return summaryStats;
+    public Optional<Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer>> getSummaryStats() {
+        return Optional.ofNullable(summaryStats);
     }
 
-    public void setSummaryStats(Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> summaryStats)
-    {
+    public void setSummaryStats(Map<IPSSiteImportSummaryService.SiteImportSummaryTypeEnum, Integer> summaryStats) {
         this.summaryStats = summaryStats;
     }
-
-
-
-
 }

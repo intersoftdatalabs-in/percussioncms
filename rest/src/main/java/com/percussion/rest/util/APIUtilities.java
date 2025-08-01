@@ -15,26 +15,30 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.util;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Date;
 
-/***
- * Useful shared utility methods. 
- *
- *
+/**
+ * Useful shared utility methods.
+ * Sunny Sal: "Utility ka hero, boilerplate ka zero!"
  */
 public class APIUtilities {
 
-	  /***
+    /**
      * Generates a filename based on the current date and time with the supplied prefix and extension.
-     * @param prefix A string containing valid URL characters that will be pre-pended to the file name
+     * Example: nonadaimages-2017-01-03-12-13-10.csv
+     *
+     * @param prefix    A string containing valid URL characters that will be pre-pended to the file name
      * @param extension A file extension (without the .)
-     * @return nonadaimages-2017-01-0312-13-10.csv
+     * @return The generated file name
      */
-    public static String getReportFileName(String prefix, String extension){
-    	return FastDateFormat.getInstance("'" + prefix +"-'yyyy-MM-dd-hh-mm-ss'." + extension + "'").format(new Date());
+    public static String getReportFileName(String prefix, String extension) {
+        return FastDateFormat.getInstance("'" + prefix + "-'yyyy-MM-dd-hh-mm-ss'." + extension + "'")
+                .format(new Date());
     }
 }

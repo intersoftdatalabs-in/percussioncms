@@ -247,9 +247,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>11</source>
+                    <target>11</target>
                     <fork>true</fork>
                     <meminitial>1024m</meminitial>
                     <maxmem>2024m</maxmem>
@@ -314,7 +315,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -408,8 +409,31 @@
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock-junit4</artifactId>
-
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.3</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>javax.activation-api</artifactId>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
@@ -488,7 +512,7 @@
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>jakarta.el</artifactId>
-            <version>4.0.1</version>
+            <version>3.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -534,7 +558,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <dependency>
             <groupId>simple-jndi</groupId>
             <artifactId>simple-jndi</artifactId>
@@ -542,16 +565,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- commons jexl patched 1.1.1 -->
-        <!-- https://mvnrepository.com/artifact/commons-jexl/commons-jexl -->
-        <!-- <dependency> <groupId>commons-jexl</groupId> <artifactId>commons-jexl</artifactId> 
-            <version>1.1</version> </dependency> -->
-        <!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-
-        </dependency>
         <!-- logging -->
         <dependency>
             <groupId>commons-logging</groupId>
@@ -669,7 +682,8 @@
 
         <dependency>
             <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>3.3.0</version>
         </dependency>
 
         <dependency>
@@ -1475,7 +1489,7 @@
         </dependency>
 
     </dependencies>
-    <distributionManagement>
+  <!--  <distributionManagement>
         <snapshotRepository>
             <id>percussion.s3.repo</id>
             <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
@@ -1485,4 +1499,5 @@
             <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
         </repository>
     </distributionManagement>
+    -->
 </project>

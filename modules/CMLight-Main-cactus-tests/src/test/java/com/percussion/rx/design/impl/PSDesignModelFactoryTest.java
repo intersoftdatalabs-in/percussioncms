@@ -1,19 +1,5 @@
-/*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rx.design.impl;
 
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
@@ -55,25 +41,21 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSWebserviceUtils;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-@Category(IntegrationTest.class)
-public class PSDesignModelFactoryTest extends ServletTestCase
-{
+import static org.junit.jupiter.api.Assertions.*;
+
+@Tag("IntegrationTest")
+public class PSDesignModelFactoryTest {
    public void testDesignModelFactory() throws PSNotFoundException {
       for (IPSGuid guid : testGuids)
       {
@@ -495,7 +477,7 @@ public class PSDesignModelFactoryTest extends ServletTestCase
    private Map<PSTypeEnum, String> typeNameVersionMap =
       new HashMap<PSTypeEnum, String>();
      
-   @Override
+   @BeforeEach
    protected void setUp() throws Exception
    {
       testGuids.clear();

@@ -143,14 +143,14 @@ public class PSFieldValidationRulesEvaluator
             throw new IllegalArgumentException("parameters cannot be null");
 
       // check field dimension
-      List submitNames = new ArrayList();
+      List<String> submitNames = new ArrayList<>();
       submitNames.add(m_field.getSubmitName());
-      List displayNames = new ArrayList();
+      List<String> displayNames = new ArrayList<>();
       String label = "unlabeled";
-      if ( null != m_uiSet.getLabel())
+      if (null != m_uiSet.getLabel())
          label = m_uiSet.getLabel().getText();
       displayNames.add(label);
-      List args = new ArrayList();
+      List<String> args = new ArrayList<>();
       Integer transId = PSCommandHandler.getTransitionId(data);
       int dimension = m_field.getOccurrenceDimension(transId);
       int valueCount = getValueCount(m_field.getSubmitName(), page);
@@ -170,24 +170,28 @@ public class PSFieldValidationRulesEvaluator
             else if (m_field.isForceBinary())
             {
                PSRequest request = data.getRequest();
-               Map backupHtmlParams = request.getParameters();
+               Map<String, Object> backupHtmlParams = request.getParameters();
                try
                {
+                  @SuppressWarnings("deprecation")
                   IPSInternalRequestHandler irh =
                      PSServer.getInternalRequestHandler(PSUrlUtils.createUrl(
                         null, null, request.getRequestFileURL(), null, null,
                            new PSRequestContext(request)));
+                  // TODO: Modernize deprecated getInternalRequestHandler usage (CP-JAVA11)
 
                   IPSInternalCommandRequestHandler rh = null;
                   if (irh instanceof IPSInternalCommandRequestHandler)
                   {
                      rh = (IPSInternalCommandRequestHandler) irh;
 
-                     Map htmlParams = PSHtmlParameters.createStandardParams(
+                     @SuppressWarnings("unchecked")
+                     Map<String, Object> htmlParams = PSHtmlParameters.createStandardParams(
                         backupHtmlParams);
+                     // Suppressed unchecked conversion warning for createStandardParams (CP-JAVA11)
                      htmlParams.put(IPSConstants.SUBMITNAME_PARAM_NAME,
                         m_field.getSubmitName());
-                     request.setParameters((HashMap) htmlParams);
+                     request.setParameters((HashMap<String, Object>) htmlParams);
 
                      Document doc = rh.makeInternalRequest(request,
                         PSBinaryCommandHandler.COMMAND_NAME);
@@ -201,7 +205,7 @@ public class PSFieldValidationRulesEvaluator
                }
                finally
                {
-                  request.setParameters((HashMap) backupHtmlParams);
+                  request.setParameters((HashMap<String, Object>) backupHtmlParams);
                }
             }
 
@@ -311,7 +315,7 @@ public class PSFieldValidationRulesEvaluator
       }
       if (o instanceof List)
       {
-         List params = (List) o;
+         List<?> params = (List<?>) o;
          if (params == null || params.isEmpty())
             return 0;
          

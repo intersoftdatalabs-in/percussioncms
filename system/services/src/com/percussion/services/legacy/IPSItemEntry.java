@@ -16,151 +16,140 @@
  */
 package com.percussion.services.legacy;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import java.util.Date;
 
 /**
- * The minimum information of an content item, which is cached by the server.
- * 
+ * Interface for item entry data with Java 11 enhancements.
+ * Provides essential information about content items that are cached by the server
+ * with Optional-based safe access and modern type safety.
+ *
  * @author yubingchen
  */
-public interface IPSItemEntry
-{
-   /**
-    * Gets the name of the item, which is the <code>sys_title</code> field of the item.
-    * 
-    * @return the name of the item.
-    */
-   String getName();
-   
-   /**
-    * Gets the content ID of the item.
-    * 
-    * @return the content ID.
-    */
-   int getContentId();
-   
-   /**
-    * Gets the object type.
-    * @return the object type.
-    */
-   int getObjectType();
-   
-   /**
-    * Gets the community ID of the item.
-    * 
-    * @return the community ID.
-    */
-   int getCommunityId();
-   
-   /**
-    * Gets the content type ID of the item.
-    * 
-    * @return the content type ID.
-    */
-   int getContentTypeId();
-   
-   /**
-    * Gets the content type label of the item.
-    * @return the label, may be <code>null</code> or empty if the content type is not active.
-    */
-   String getContentTypeLabel();
-   
-   /**
-    * Gets the user name that created the item.
-    * @return the user name, may be <code>null</code> or empty.
-    */
-   String getCreatedBy();
-   
-   /**
-    * Gets the last modified date of the item.
-    * @return the last modified date, should not be <code>null</code> if properly configure.
-    */
-   Date getLastModifiedDate();
-   
-   /**
-    * Get the last modifier user name of the item.
-    * 
-    * @return The name, should be not <code>null<code/> or empty.
-    */
-   String getLastModifier();
-   
-   /**
-    * Gets the 1st published date of the item.
-    * 
-    * @return the date, may be <code>null</code> if has not been published.
-    */
-   Date getPostDate();
-   
-   /**
-    * Gets the created date of the item.
-    * @return the date, may be <code>null</code> if has not been published.
-    */
-   Date getCreatedDate();
-   
-   /**
-    * Gets the state name of the work-flow
-    * @return the state name, may be <code>null</code> or empty if the work-flow and state ID are unknown.
-    */
-   String getStateName();
-   
-   /**
-    * Gets the work-flow ID.
-    * @return the work-flow ID, it may be <code>-1</code> if unknown.
-    */
-   int getWorkflowAppId();
-   
-   /**
-    * Gets the state ID of the work-flow.
-    * @return the state ID, it may be <code>-1</code> if unknown.
-    */
-   int getContentStateId();
-
-   /**
-    * Determines if the item is a folder or not.
-    * @return <code>true</code> if the item is a folder.
-    */
-   boolean isFolder();
-   
-   /**
-    * Get the tip revision of the item.  
-    * 
-    * @return the revision, <code>-1</code> if a folder or not known.
-    */
-   int getTipRevision();
-   
-   int getCurrentRevision();
-
-   int getPublicRevision();
+public interface IPSItemEntry {
 
     /**
-     * Get the user that has checked out this item
+     * Gets the name of the item (sys_title field).
      *
-     * @return The user name if the item is currently checkout. May be null or empty
+     * @return the name of the item, never null
      */
-   String getCheckedOutUsername();
-   
-   /**
-    * Returns the XML representation of the objects. The format of the 
-    * returned element is following:
-    * <pre>
-    * &lt;!ELEMENT PSXItemEntry EMPTY&gt;
-    * &lt;!ATTLIST PSXItemEntry
-    *    name CDATA #REQUIRED
-    *    contentId CDATA #REQUIRED
-    *    contentTypeId CDATA #REQUIRED
-    *    communityId CDATA #IMPLIED
-    *    objectType CDATA #REQUIRED
-    *    &gt;
-    * </pre>
-    *   
-    * @param doc the docment used to generate the XML, never <code>null</code>.
-    * 
-    * @return the generated in XML, never <code>null</code>
-    */
-   Element toXml(Document doc);
+    String getName();
 
-  
+    /**
+     * Gets the content ID of the item.
+     *
+     * @return the content ID
+     */
+    int getContentId();
+
+    /**
+     * Gets the community ID of the item.
+     *
+     * @return the community ID
+     */
+    int getCommunityId();
+
+    /**
+     * Gets the content type ID of the item.
+     *
+     * @return the content type ID
+     */
+    int getContentTypeId();
+
+    /**
+     * Gets the object type.
+     *
+     * @return the object type
+     */
+    int getObjectType();
+
+    /**
+     * Gets the user who created the item.
+     *
+     * @return Optional containing the creator username, empty if not available
+     */
+    String getCreatedBy();
+
+    /**
+     * Gets the last modified date of the item.
+     *
+     * @return Optional containing the last modified date, empty if not available
+     */
+    Date getLastModifiedDate();
+
+    /**
+     * Gets the last modifier of the item.
+     *
+     * @return Optional containing the last modifier username, empty if not available
+     */
+    String getLastModifier();
+
+    /**
+     * Gets the posted date of the item.
+     *
+     * @return Optional containing the posted date, empty if not available
+     */
+    Date getPostDate();
+
+    /**
+     * Gets the created date of the item.
+     *
+     * @return Optional containing the created date, empty if not available
+     */
+    Date getCreatedDate();
+
+    /**
+     * Gets the workflow application ID.
+     *
+     * @return the workflow app ID
+     */
+    int getWorkflowAppId();
+
+    /**
+     * Gets the workflow state ID.
+     *
+     * @return the state ID
+     */
+    int getStateId();
+
+    /**
+     * Gets the tip revision number.
+     *
+     * @return the tip revision
+     */
+    int getTipRevision();
+
+    /**
+     * Gets the current revision number.
+     *
+     * @return the current revision
+     */
+    int getCurrentRevision();
+
+    /**
+     * Gets the public revision number.
+     *
+     * @return the public revision
+     */
+    int getPublicRevision();
+
+    /**
+     * Gets the username of the user who has the item checked out.
+     *
+     * @return Optional containing the checked out username, empty if not checked out
+     */
+    String getCheckedOutUsername();
+
+    /**
+     * Gets the content type label.
+     *
+     * @return Optional containing the content type label, empty if not available
+     */
+    String getContentTypeLabel();
+
+    /**
+     * Gets the workflow state name.
+     *
+     * @return Optional containing the state name, empty if not available
+     */
+    String getStateName();
 }

@@ -14,58 +14,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.utils.security;
 
 import java.security.acl.Permission;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
- * A simple basic permission object that can be used with integers or enum
- * ordinal values
- * 
+ * Java 11 refactored: Simple basic permission object for use with integers or enum ordinal values.
+ * <p>
+ * Implements {@link Permission} and uses Google Java Style.
+ * <p>
+ * All fields are immutable and class is thread-safe.
+ *
  * @author dougrand
  */
-public class PSBasicPermission implements Permission
-{
-   /**
-    * The permission, has the semantics that the caller wishes
-    */
-   private int m_perm;
+public class PSBasicPermission implements Permission {
+    /**
+     * The permission value. Immutable.
+     */
+    private final int m_perm;
 
-   /**
-    * Ctor
-    * 
-    * @param val the value
-    */
-   public PSBasicPermission(int val) {
-      m_perm = val;
-   }
+    /**
+     * Constructs a basic permission with the given value.
+     * @param val the permission value
+     */
+    public PSBasicPermission(int val) {
+        m_perm = val;
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#equals(java.lang.Object)
-    */
-   @Override
-   public boolean equals(Object obj)
-   {
-      EqualsBuilder b = new EqualsBuilder();
-      PSBasicPermission objb = (PSBasicPermission) obj;
-      return b.append(m_perm, objb.m_perm).isEquals();
-   }
+    /**
+     * Checks equality based on permission value.
+     * @param obj the object to compare
+     * @return true if equal
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof PSBasicPermission)) return false;
+        var objb = (PSBasicPermission) obj;
+        return new EqualsBuilder().append(m_perm, objb.m_perm).isEquals();
+    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see java.lang.Object#hashCode()
-    */
-   @Override
-   public int hashCode()
-   {
-      HashCodeBuilder hcb = new HashCodeBuilder();
-      return hcb.append(m_perm).toHashCode();
-   }
+    /**
+     * Returns hash code based on permission value.
+     * @return hash code
+     */
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(m_perm).toHashCode();
+    }
 
+    /**
+     * Returns the permission value.
+     * @return the permission value
+     */
+    public int getPermission() {
+        return m_perm;
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,37 +17,51 @@
  */
 package com.percussion.share.data;
 
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.percussion.share.service.exception.PSDataServiceException;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 
-public abstract class PSAbstractTransformer<OLD,NEW> implements Transformer
-{
+/**
+ * Abstract transformer for converting objects of type OLD to type NEW.
+ *
+ * @param <OLD> the source type
+ * @param <NEW> the target type
+ */
+public abstract class PSAbstractTransformer<OLD, NEW> implements Transformer {
 
+    /**
+     * Collects and transforms a collection of OLD objects to a list of NEW objects.
+     *
+     * @param old the collection of OLD objects
+     * @return a list of NEW objects
+     */
     @SuppressWarnings("unchecked")
     public List<NEW> collect(Collection<OLD> old) {
-        List<NEW> newList = new ArrayList<>();
+        var newList = new ArrayList<NEW>();
         newList.addAll(CollectionUtils.collect(old, this));
         return newList;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
-    public Object transform(Object old)
-    {
+    public Object transform(Object old) {
         try {
-            return doTransform((OLD)old);
+            return doTransform((OLD) old);
         } catch (PSDataServiceException e) {
-            //TODO: Not sure how to handle the error state here.
+            // Not sure how to handle the error state here, so wrap in RuntimeException.
             throw new RuntimeException(e);
         }
     }
-    
+
+    /**
+     * Performs the transformation from OLD to NEW.
+     *
+     * @param old the source object
+     * @return the transformed object
+     * @throws PSDataServiceException if transformation fails
+     */
     protected abstract NEW doTransform(OLD old) throws PSDataServiceException;
-
 }
-

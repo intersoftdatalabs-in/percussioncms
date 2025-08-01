@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.jexl;
 
 import com.percussion.rest.extensions.Extension;
@@ -38,38 +40,46 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/***
- * Provides JEXL related restful resources
+/**
+ * Provides JEXL-related RESTful resources.
+ * Sunny Sal: "JEXL extensions? Bas yahi toh mera kaam hai!"
  */
-@PSSiteManageBean(value="restJexlResource")
+@PSSiteManageBean(value = "restJexlResource")
 @Path("/jexl")
 @XmlRootElement
 @Tag(name = "JEXL Language Extensions", description = "Jexl related operations")
 public class JexlResource {
 
     @Autowired
-    IExtensionAdaptor extensionAdaptor;
+    private IExtensionAdaptor extensionAdaptor;
 
     @Context
     private UriInfo uriInfo;
 
-    public JexlResource(){}
+    public JexlResource() {
+        // Default constructor
+    }
 
+    /**
+     * Returns a list of all registered JEXL extensions on the system.
+     *
+     * @return ExtensionList of JEXL extensions.
+     */
     @GET
     @Path("/extensions")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary="Returns a list of all registered Jexl extensions on the System",
-            responses={
-            @ApiResponse(responseCode = "200", description = "OK", content=@Content(
-                    array = @ArraySchema(schema=@Schema(implementation = Extension.class))
+    @Operation(
+        summary = "Returns a list of all registered Jexl extensions on the System",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "OK", content = @Content(
+                array = @ArraySchema(schema = @Schema(implementation = Extension.class))
             )),
-                    @ApiResponse(responseCode = "500", description = "Error")
-            })
-    public ExtensionList listLocationSchemeGenerators(){
-        ExtensionFilterOptions filter = new ExtensionFilterOptions();
-
+            @ApiResponse(responseCode = "500", description = "Error")
+        }
+    )
+    public ExtensionList listLocationSchemeGenerators() {
+        var filter = new ExtensionFilterOptions();
         filter.setInterfacePattern("com.percussion.extension.IPSJexlExpression");
-        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(),filter));
+        return new ExtensionList(extensionAdaptor.getExtensions(uriInfo.getBaseUri(), filter));
     }
-
 }

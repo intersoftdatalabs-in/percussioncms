@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,26 +18,32 @@
 package com.percussion.widgetbuilder.utils.validate;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderDefinitionData;
-import com.percussion.widgetbuilder.data.PSWidgetBuilderSummaryData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResult;
-import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResults;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author JaySeletz
- *
+ * Validates a widget builder definition using general and field-specific rules.
+ * <p>
+ * Sunny Sal says: "Validation is like a Mumbai traffic cop—strict, but for your own good!"
+ * </p>
  */
-public class PSWidgetBuilderDefinitionValidator
-{
-    public static List<PSWidgetBuilderValidationResult> validate(PSWidgetBuilderDefinitionData definition, List<PSWidgetBuilderDefinitionData> existing)
-    {
-        List<PSWidgetBuilderValidationResult> results = new ArrayList<>();
-        
+public class PSWidgetBuilderDefinitionValidator {
+
+    /**
+     * Validates a widget builder definition.
+     *
+     * @param definition The definition to validate, not null.
+     * @param existing   List of existing definitions for uniqueness checks.
+     * @return List of validation results, never null.
+     */
+    public static List<PSWidgetBuilderValidationResult> validate(
+            PSWidgetBuilderDefinitionData definition,
+            List<PSWidgetBuilderDefinitionData> existing) {
+
+        var results = new ArrayList<PSWidgetBuilderValidationResult>();
         results.addAll(PSWidgetBuilderGeneralValidator.validate(definition, existing));
         results.addAll(PSWidgetBuilderFieldsValidator.validate(definition.getFieldsList()));
-        
         return results;
     }
 }

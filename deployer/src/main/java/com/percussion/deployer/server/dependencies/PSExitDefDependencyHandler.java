@@ -49,7 +49,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Class to handle packaging and deploying an exit defintion.
@@ -82,7 +84,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler
    
    
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, com.percussion.services.error.PSNotFoundException {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
@@ -93,8 +95,8 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler
       if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
          throw new IllegalArgumentException("dep wrong type");
       
-      Set appDeps = new HashSet<>();
-      
+      Set<PSDependency> appDeps = new HashSet<>();
+
       // Get the def
       IPSExtensionDef def;
       try
@@ -129,7 +131,7 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
       if (tok == null)
@@ -141,8 +143,8 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler
       if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
          throw new IllegalArgumentException("dep wrong type");
       
-      List fileList = new ArrayList();
-      
+      List<PSDependencyFile> fileList = new ArrayList<>();
+
       try 
       {
          // get the def
@@ -297,14 +299,14 @@ public class PSExitDefDependencyHandler extends PSDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
          
       // get all extensions
-      List deps = new ArrayList();
-      try 
+      List<PSDependency> deps = new ArrayList<>();
+      try
       {
          Iterator exts = m_extMgr.getExtensionNames(null, null, null, null);
          while (exts.hasNext())

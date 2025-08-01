@@ -87,20 +87,15 @@ public abstract class PSPairIdDependencyHandler
    }
    
    // see base c1ass
-   public String getTargetId(PSIdMapping mapping, String id) 
-      throws PSDeployException
-   {
-      if (mapping == null)
-         throw new IllegalArgumentException("mapping may not be null");
-      
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-               
-      PSPairDependencyId pairId = new PSPairDependencyId(id);
-      String newParentId = super.getTargetId(mapping, pairId.getParentId());
-      
-      return PSPairDependencyId.getPairDependencyId(newParentId, 
-         pairId.getChildId());      
+   @Override
+   protected String getTargetId(PSIdMapping mapping, String id) throws PSDeployException {
+      if (mapping == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
+
+      var pairId = new PSPairDependencyId(id);
+      var newParentId = super.getTargetId(mapping, pairId.getParentId());
+      return PSPairDependencyId.getPairDependencyId(newParentId, pairId.getChildId());
    }
    
    /**

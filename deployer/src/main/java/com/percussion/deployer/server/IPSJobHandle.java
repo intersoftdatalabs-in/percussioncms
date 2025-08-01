@@ -21,23 +21,22 @@ package com.percussion.deployer.server;
 /**
  * Handle to the currently executing job, used to update status.
  */
-public interface IPSJobHandle
-{
+public interface IPSJobHandle {
+
    /**
-    * Updates the current status using the supplied message
-    * 
-    * @param message The message, may not be <code>null</code> or empty.
-    * 
-    * @throws IllegalArgumentException if <code>message</code> is invalid.
+    * Updates the current status using the supplied message.
+    *
+    * @param message The message, may not be {@code null} or empty.
+    * @throws IllegalArgumentException if {@code message} is invalid.
     */
-   public void updateStatus(String message);
-   
+   void updateStatus(String message);
+
    /**
     * Determines if the current job has been cancelled.
-    * 
-    * @return <code>true</code> if the job is cancelled and the executing code
+    *
+    * @return {@code true} if the job is cancelled and the executing code
     * should stop at an appropriate point, cleanup as required, and return,
-    * <code>false</code> otherwise.
+    * {@code false} otherwise.
     */
-   public boolean isCancelled();
+   boolean isCancelled();
 }

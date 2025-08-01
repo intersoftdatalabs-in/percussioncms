@@ -62,7 +62,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Map;
 
@@ -78,8 +80,8 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
 {
 
     private static final String CALLBACK_FN = "_jqjsp";
-    private  static final Logger log = LogManager.getLogger(PSCommentsRestService.class);
-    private static  final String iso8601ExtendedString = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
+    private static final Logger log = LogManager.getLogger(PSCommentsRestService.class);
+    private static final String iso8601ExtendedString = "yyyy-MM-dd'T'HH:mm:ss.SSSZZ";
 
     /**
      * The comments service reference. Initialized in the ctor.

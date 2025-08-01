@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.percussion.share.data.PSAbstractPersistantObject;
@@ -25,120 +26,108 @@ import net.sf.oval.constraint.NotNull;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Widget Item is an instance of a widget.
- *
+ * WidgetItem is an instance of a widget.
+ * Sunny Sal says: "Widgets are like samosas—best served hot and with properties!"
  */
 @XmlRootElement(name = "WidgetItem")
-public class PSWidgetItem extends PSAbstractPersistantObject
-{
+public class PSWidgetItem extends PSAbstractPersistantObject {
+
+    private static final long serialVersionUID = -8250773336637959620L;
+
+    @NotBlank
+    @MatchPattern(pattern = {"^-?[1-9][0-9]*"})
+    private String id;
+
+    private String name;
+    private String description;
+
+    @NotNull
+    @NotBlank
+    private String definitionId;
+
+    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, Object> cssProperties = new HashMap<>();
+
+    @Override
+    @NotBlank
+    @XmlElement
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
+    }
+
+    public void setDescription(String desc) {
+        this.description = desc;
+    }
+
+    public String getDefinitionId() {
+        return definitionId;
+    }
+
+    public void setDefinitionId(String widgetId) {
+        this.definitionId = widgetId;
+    }
+
+    @XmlJavaTypeAdapter(PSWidgetPropertyJaxbAdapter.class)
+    public Map<String, Object> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = (properties == null) ? new HashMap<>() : new HashMap<>(properties);
+    }
+
+    /**
+     * CSS properties of the widget.
+     * @return never null.
+     */
+    @XmlJavaTypeAdapter(PSWidgetPropertyJaxbAdapter.class)
+    public Map<String, Object> getCssProperties() {
+        return Collections.unmodifiableMap(cssProperties);
+    }
+
+    public void setCssProperties(Map<String, Object> css) {
+        this.cssProperties = (css == null) ? new HashMap<>() : new HashMap<>(css);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSWidgetItem)) return false;
-        PSWidgetItem that = (PSWidgetItem) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getDefinitionId(), that.getDefinitionId()) && Objects.equals(getProperties(), that.getProperties()) && Objects.equals(getCssProperties(), that.getCssProperties());
+        var that = (PSWidgetItem) o;
+        return Objects.equals(getId(), that.getId())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getDescription(), that.getDescription())
+                && Objects.equals(getDefinitionId(), that.getDefinitionId())
+                && Objects.equals(getProperties(), that.getProperties())
+                && Objects.equals(getCssProperties(), that.getCssProperties());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getName(), getDescription(), getDefinitionId(), getProperties(), getCssProperties());
     }
-
-    @NotBlank
-    @MatchPattern(pattern = {"^-?[1-9][0-9]*"})
-    private String id;
-    
-    private String name;
-    
-    private String description;
-    
-    @NotNull
-    @NotBlank
-    private String definitionId;
-    
-    private Map<String, Object> properties = new HashMap<>();
-    private Map<String, Object> cssProperties = new HashMap<>();
-    
-    @Override
-    @NotBlank
-    @XmlElement
-    public String getId()
-    {
-        return id;
-    }
-
-    @Override
-    public void setId(String id)
-    {
-        this.id = id;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-    
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String desc)
-    {
-        description = desc;
-    }
-    
-    public String getDefinitionId()
-    {
-        return definitionId;
-    }
-
-    public void setDefinitionId(String widgetId)
-    {
-        this.definitionId = widgetId;
-    }
-    
-
-    @XmlJavaTypeAdapter(PSWidgetPropertyJaxbAdapter.class)
-    public Map<String, Object> getProperties()
-    {
-        return properties;
-    }
-
-    public void setProperties(Map<String, Object> properties)
-    {
-        this.properties = properties;
-    }
-    
-    /**
-     * Css properties of the widget
-     * @return never <code>null</code>.
-     */
-    @XmlJavaTypeAdapter(PSWidgetPropertyJaxbAdapter.class)
-    public Map<String, Object> getCssProperties()
-    {
-        return cssProperties;
-    }
-
-    public void setCssProperties(Map<String, Object> css)
-    {
-        this.cssProperties = css;
-    }
-
-
-
-
-
-    private static final long serialVersionUID = -8250773336637959620L;
-
 }

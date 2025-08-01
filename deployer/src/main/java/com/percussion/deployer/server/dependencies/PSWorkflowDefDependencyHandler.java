@@ -171,10 +171,15 @@ public class PSWorkflowDefDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
+
+   private static final List<String> ms_childTypes = List.of(
+      PSStateDefDependencyHandler.DEPENDENCY_TYPE,
+      PSAclDefDependencyHandler.DEPENDENCY_TYPE
+   );
 
    // see base class
    public String getType()

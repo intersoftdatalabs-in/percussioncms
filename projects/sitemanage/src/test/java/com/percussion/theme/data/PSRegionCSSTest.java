@@ -23,25 +23,23 @@ import com.percussion.theme.data.PSRegionCSS.Property;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PSRegionCSSTest extends PSDataObjectTestCase<PSRegionCSS>
-{
+/**
+ * Unit test for {@link PSRegionCSS}.
+ * // REFACTORED: CP-JAVA11
+ */
+public class PSRegionCSSTest extends PSDataObjectTestCase<PSRegionCSS> {
 
     @Override
-    public PSRegionCSS getObject() throws Exception
-    {
-        PSRegionCSS rule = new PSRegionCSS("container", "header");
-        List<Property> properties = new ArrayList<Property>();
+    public PSRegionCSS getObject() {
+        var rule = new PSRegionCSS("container", "header");
+        var properties = new ArrayList<Property>();
 
-        Property property = new Property("font-size", "12px");
-        properties.add(property);
-        property = new Property("border", "2px");
-        properties.add(property);
-        property = new Property("margin", "5px");
-        properties.add(property);
+        properties.add(new Property("font-size", "12px"));
+        properties.add(new Property("border", "2px"));
+        properties.add(new Property("margin", "5px"));
 
         rule.setProperties(properties);
 
         return rule;
     }
-
 }

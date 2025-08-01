@@ -18,7 +18,7 @@
 package com.percussion.servlets;
 
 import com.percussion.server.PSServer;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,10 +32,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
+/**
+ * CORS filter that configures Cross-Origin Resource Sharing settings
+ * based on server properties.
+ */
 @Component(value = "corsFilter")
-public class PSCorsFilter implements Filter {
-
+public final class PSCorsFilter implements Filter {
 
     private CorsFilter filter;
 
@@ -43,65 +47,68 @@ public class PSCorsFilter implements Filter {
      * Called by the web container to indicate to a filter that it is
      * being placed into service.
      *
-     * <p>The servlet container calls the init
-     * method exactly once after instantiating the filter. The init
-     * method must complete successfully before the filter is asked to do any
-     * filtering work.
+     * <p>The servlet container calls the init method exactly once after
+     * instantiating the filter. The init method must complete successfully
+     * before the filter is asked to do any filtering work.
      *
      * <p>The web container cannot place the filter into service if the init
-     * method either
+     * method either:
      * <ol>
      * <li>Throws a ServletException
      * <li>Does not return within a time period defined by the web container
      * </ol>
      *
-     * @param filterConfig
+     * @param filterConfig the filter configuration object
+     * @throws ServletException if an error occurs during initialization
      */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         init();
     }
 
-    private void init(){
+    private void init() {
+        var config = new CorsConfiguration();
 
-        CorsConfiguration config = new CorsConfiguration();
-
-        String  allowed =  PSServer.getProperty("allowedOrigins","*").trim();
-        if(!StringUtils.isEmpty(allowed))
-            allowed = allowed.trim();
-
-        if(!"*".equalsIgnoreCase(allowed)) {
-            config.setAllowedOrigins(Arrays.asList(allowed.split(",", -1)));
-        }
-        String allowedMethods = PSServer.getProperty("allowedMethods","GET,POST,OPTIONS,HEAD,PUT,DELETE,PATCH").trim();
-        if(!StringUtils.isEmpty(allowedMethods)) {
-            allowedMethods = allowedMethods.trim();
-            for (String s : allowedMethods.split(",", -1)) {
-                config.addAllowedMethod(s.trim());
+        // Configure allowed origins
+        var allowed = PSServer.getProperty("allowedOrigins", "*").trim();
+        if (StringUtils.isNotBlank(allowed)) {
+            if (!"*".equalsIgnoreCase(allowed)) {
+                config.setAllowedOrigins(Arrays.asList(allowed.split(",", -1)));
             }
         }
 
-        String allowedHeaders = PSServer.getProperty("allowedHeaders","Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-UA-Compatible, OWASP-CSRFTOKEN,User-Agent").trim();
-        if(!StringUtils.isEmpty(allowedHeaders)) {
-            allowedHeaders = allowedHeaders.trim();
-
-            for (String s : allowedHeaders.split(",", -1)) {
-                config.addAllowedHeader(s.trim());
-            }
+        // Configure allowed methods
+        var allowedMethods = PSServer.getProperty("allowedMethods",
+            "GET,POST,OPTIONS,HEAD,PUT,DELETE,PATCH").trim();
+        if (StringUtils.isNotBlank(allowedMethods)) {
+            Arrays.stream(allowedMethods.split(",", -1))
+                  .map(String::trim)
+                  .forEach(config::addAllowedMethod);
         }
 
-        String allowCredentials = PSServer.getProperty("allowCredentials","false").trim();
-        if(!StringUtils.isEmpty(allowCredentials)){
+        // Configure allowed headers
+        var allowedHeaders = PSServer.getProperty("allowedHeaders",
+            "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers, " +
+            "Authorization, X-Requested-With, X-UA-Compatible, OWASP-CSRFTOKEN, User-Agent").trim();
+        if (StringUtils.isNotBlank(allowedHeaders)) {
+            Arrays.stream(allowedHeaders.split(",", -1))
+                  .map(String::trim)
+                  .forEach(config::addAllowedHeader);
+        }
+
+        // Configure allow credentials
+        var allowCredentials = PSServer.getProperty("allowCredentials", "false").trim();
+        if (StringUtils.isNotBlank(allowCredentials)) {
             config.setAllowCredentials(Boolean.parseBoolean(allowCredentials));
         }
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        var source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         filter = new CorsFilter(source);
     }
 
     /**
-     * The <code>doFilter</code> method of the Filter is called by the
+     * The {@code doFilter} method of the Filter is called by the
      * container each time a request/response pair is passed through the
      * chain due to a client request for a resource at the end of the chain.
      * The FilterChain passed in to this method allows the Filter to pass
@@ -115,29 +122,31 @@ public class PSCorsFilter implements Filter {
      * filter content or headers for input filtering
      * <li>Optionally wrap the response object with a custom implementation to
      * filter content or headers for output filtering
-     * <li>
-     * <ul>
-     * <li><strong>Either</strong> invoke the next entity in the chain
-     * using the FilterChain object
-     * (<code>chain.doFilter()</code>),
-     * <li><strong>or</strong> not pass on the request/response pair to
-     * the next entity in the filter chain to
-     * block the request processing
-     * </ul>
-     * <li>Directly set headers on the response after invocation of the
-     * next entity in the filter chain.
+     * <li>a) <strong>Either</strong> invoke the next entity in the chain
+     * using the FilterChain object ({@code chain.doFilter()}),
+     * <li>b) <strong>or</strong> not pass on the request/response pair to
+     * the next entity in the filter chain to block the request processing
      * </ol>
      *
-     * @param request
-     * @param response
-     * @param chain
+     * @param request  the ServletRequest object contains the client's request
+     * @param response the ServletResponse object contains the filter's response
+     * @param chain    the FilterChain for invoking the next filter or the resource
+     * @throws IOException      if an I/O related error has occurred during the processing
+     * @throws ServletException if an exception has occurred that interferes with the
+     *                          filter's normal operation
      */
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if(filter == null)
-            init();
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        Objects.requireNonNull(request, "request cannot be null");
+        Objects.requireNonNull(response, "response cannot be null");
+        Objects.requireNonNull(chain, "chain cannot be null");
 
-        filter.doFilter(request,response,chain);
+        if (filter != null) {
+            filter.doFilter(request, response, chain);
+        } else {
+            chain.doFilter(request, response);
+        }
     }
 
     /**
@@ -156,7 +165,8 @@ public class PSCorsFilter implements Filter {
      */
     @Override
     public void destroy() {
-        if(filter!=null)
+        if (filter != null) {
             filter.destroy();
+        }
     }
 }

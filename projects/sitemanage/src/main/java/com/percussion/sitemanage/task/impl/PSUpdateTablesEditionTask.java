@@ -70,11 +70,11 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask
     public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, long duration,
             boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception
     {
-        IPSAssemblyTemplate template = getTemplate(params);
+        var template = getTemplate(params);
         if (template == null)
             return;
 
-        Document doc = getTableDefs(edition, template);
+        var doc = getTableDefs(edition, template);
         updateTables(doc, edition);
     }
 
@@ -112,19 +112,19 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask
     private void updateTables(Document doc, IPSEdition edition) throws Exception
     {
         DbmsConnection dbmsConn = null;
-        
+
         try
         {
-            DbmsInfo dbmsInfo = getConnectionInfo(edition);
+            var dbmsInfo = getConnectionInfo(edition);
             if (dbmsInfo == null)
                 dbmsInfo = new DbmsInfo(doc);
             dbmsConn = new DbmsConnection(dbmsInfo);
             dbmsConn.setConnection();
-            
+
             boolean transactionSupport = true;
-            final StringBuilder error_builder = new StringBuilder();
-            final StringBuilder message_builder = new StringBuilder();
-    
+            final var errorBuilder = new StringBuilder();
+            final var messageBuilder = new StringBuilder();
+
             PSJdbcTableFactory.processTables(dbmsConn.getConnection(), dbmsConn.getDbmsDef(),
                   dbmsConn.getTableMetaMap(), null, doc,
                   new PrintStream(System.out)
@@ -134,14 +134,14 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask
                      {
                         if (StringUtils.isBlank(msg))
                            return;
-    
+
                         if (msg.indexOf("Error") >= 0)
-                           error_builder.append(msg);
+                           errorBuilder.append(msg);
                         else
-                           message_builder.append(msg);
+                           messageBuilder.append(msg);
                         char c = msg.charAt(msg.length()-1);
                         if (c != '\r' && c != '\n')
-                           message_builder.append('\n');
+                           messageBuilder.append('\n');
                      }
                   }, log.isDebugEnabled(), transactionSupport);
         }
@@ -164,10 +164,10 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask
      */
     private Document getTableDefs(IPSEdition edition, IPSAssemblyTemplate template) throws PSAssemblyException
     {
-        String xml = template.getTemplate();
+        var xml = template.getTemplate();
         xml = xml.replaceAll("allowSchemaChanges=\"n\" alter=\"n\"", "allowSchemaChanges=\"y\" alter=\"y\"");
         xml = xml.replace("<tabledefset>", "\n<datapublisher dbname=\"cmlite_db\" drivertype=\"jtds:sqlserver\" origin=\"dbo\" resourceName=\"jdbc/cmlite_db\" >\n<tabledefset>");
-        
+
         xml = xml.replace("</tabledefset>", "</tabledefset>\n" +
         "<tabledataset>\n" +
           "<table name=\"PERC_EXPORT_PAGE\">\n" +
@@ -178,9 +178,7 @@ public class PSUpdateTablesEditionTask implements IPSEditionTask
           "</table>\n" +
         "</tabledataset>\n" +
       "</datapublisher>");
-      		
-        //System.out.println("template content: " + xml);
-        
+
         InputStream in;
         try
         {

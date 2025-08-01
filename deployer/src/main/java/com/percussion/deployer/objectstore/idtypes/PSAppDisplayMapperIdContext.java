@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.text.MessageFormat;
+import java.util.Optional;
 
 /**
  * Context to represent a display mapper in a content editor.
@@ -118,18 +119,15 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc should not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_FIELD_SET_REF, m_fieldSetRef);
       root.setAttribute(XML_ATTR_ID, String.valueOf(m_id));
-      PSApplicationIdContext parent = getParentCtx();
-      if (parent != null)
-         root.appendChild(parent.toXml(doc));
-
+      Optional.ofNullable(getParentCtx()).ifPresent(parent -> root.appendChild(parent.toXml(doc)));
       return root;
    }
    
@@ -139,38 +137,32 @@ public class PSAppDisplayMapperIdContext extends PSApplicationIdContext
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      m_fieldSetRef = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_FIELD_SET_REF);
-      String strId = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_ID);
-      try
-      {
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
+
+      m_fieldSetRef = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_FIELD_SET_REF);
+      var strId = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_ID);
+      try {
          m_id = Integer.parseInt(strId);
-      }
-      catch (NumberFormatException e)
-      {
-         Object[] args = {XML_NODE_NAME, XML_ATTR_ID, strId};
+      } catch (NumberFormatException e) {
          throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      }   
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element ctxEl = tree.getNextElement(
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (ctxEl != null)
-         setParentCtx(PSApplicationIDContextFactory.fromXml(ctxEl));
+            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR,
+            new Object[]{XML_NODE_NAME, XML_ATTR_ID, strId}
+         );
+      }
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var ctxEl = tree.getNextElement(PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      Optional.ofNullable(ctxEl).ifPresent(el -> setParentCtx(PSApplicationIDContextFactory.fromXml(el)));
    }
    
    // see IPSDeployComponent interface

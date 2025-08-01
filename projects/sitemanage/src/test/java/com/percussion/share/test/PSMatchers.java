@@ -22,11 +22,8 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import com.percussion.cms.IPSConstants;
 import com.percussion.share.test.xml.PSXhtmlValidator;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.UnsupportedCharsetException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Pattern;
@@ -54,10 +51,8 @@ import org.xml.sax.SAXParseException;
  * @author adamgent
  *
  */
-public class PSMatchers
-{
+public class PSMatchers {
     private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);
-
 
     /**
      * Matches valid urls.
@@ -66,183 +61,149 @@ public class PSMatchers
     public static Matcher<String> validUrl() {
         return new UrlMatcher();
     }
-    
+
     /**
      * Matches blank strings.
      * @return never <code>null</code>.
      */
     public static Matcher<String> blankString() {
-        return new StringMatcher("blank string")
-        {
+        return new StringMatcher("blank string") {
             @Override
-            protected boolean doesMatch(String item) throws Exception
-            {
+            protected boolean doesMatch(String item) {
                 return isBlank(item);
             }
         };
     }
-    
+
     /**
      * Matches Empty Strings
      * @return never <code>null</code>.
      */
     public static Matcher<String> emptyString() {
-        return new StringMatcher("empty string")
-        {
+        return new StringMatcher("empty string") {
             @Override
-            protected boolean doesMatch(String item) throws Exception
-            {
+            protected boolean doesMatch(String item) {
                 return isEmpty(item);
             }
         };
     }
-    
+
     /**
      * Matches Valid XHTML. The doctype needs to be in the HTML for this to work.
      * @return never <code>null</code>.
      */
     public static Matcher<String> validXhtml() {
-        return new TypeSafeMatcher<String>()
-        {
+        return new TypeSafeMatcher<String>() {
 
-            private Collection<SAXParseException> errors = new ArrayList<SAXParseException>();
+            private Collection<SAXParseException> errors = new ArrayList<>();
 
             @Override
-            public boolean matchesSafely(String item)
-            {
-                PSXhtmlValidator validator = new PSXhtmlValidator();
-                InputStream stream;
-                try
-                {
-                    stream = IOUtils.toInputStream(item, "UTF-8");
-                }
-                catch (UnsupportedCharsetException e)
-                {
-                    log.error("Exception in method matchesSafely(): "+e.getMessage());
+            public boolean matchesSafely(String item) {
+                var validator = new PSXhtmlValidator();
+                try (InputStream stream = IOUtils.toInputStream(item, StandardCharsets.UTF_8)) {
+                    var valid = validator.isValid(stream);
+                    errors = validator.getErrors();
+                    return valid;
+                } catch (Exception e) {
+                    log.error("Exception in method matchesSafely(): " + e.getMessage());
                     return false;
                 }
-                boolean valid = validator.isValid(stream);
-                errors = validator.getErrors();
-                return valid;
-
             }
 
             @Override
-            public void describeTo(Description d)
-            {
+            public void describeTo(Description d) {
                 d.appendValueList("", "\n", "", errors);
             }
-            
         };
     }
-    
+
     public static Matcher<String> containsRegEx(String regex) {
         return new RegexFinder(regex);
     }
-    
+
     public abstract static class StringMatcher extends TypeSafeMatcher<String> {
         protected Exception exception;
         protected String name;
 
-        public StringMatcher(String name)
-        {
+        public StringMatcher(String name) {
             super();
             this.name = name;
         }
 
         @Override
-        public boolean matchesSafely(String item)
-        {
+        public boolean matchesSafely(String item) {
             try {
                 return doesMatch(item);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 this.exception = e;
             }
             return false;
         }
-        
+
         protected abstract boolean doesMatch(String item) throws Exception;
 
         protected String getErrorMessage() {
-            return "a " + name + 
-            (exception == null ? "" : " because: " + exception.getMessage());
+            return "a " + name + (exception == null ? "" : " because: " + exception.getMessage());
         }
 
         @Override
-        public void describeTo(Description description)
-        {
+        public void describeTo(Description description) {
             description.appendText(getErrorMessage());
         }
     }
-    
+
     public static class UrlMatcher extends TypeSafeMatcher<String> {
 
         private String errorMessage = "";
-        
+
         @Override
-        public boolean matchesSafely(String spec)
-        {
-            try
-            {
-                new URL(spec);
-            }
-            catch (MalformedURLException e)
-            {
+        public boolean matchesSafely(String spec) {
+            try {
+                new java.net.URL(spec);
+            } catch (java.net.MalformedURLException e) {
                 this.errorMessage = e.getMessage();
                 return false;
             }
             return true;
-            
         }
 
         @Override
-        public void describeTo(Description description)
-        {
+        public void describeTo(Description description) {
             description.appendText("not a url because: " + errorMessage);
         }
     }
-    
-    public static class RegexMatcher extends TypeSafeMatcher<String>{
+
+    public static class RegexMatcher extends TypeSafeMatcher<String> {
         private final String regex;
 
-        public RegexMatcher(String regex){
+        public RegexMatcher(String regex) {
             this.regex = regex;
         }
 
-        public void describeTo(Description description){
+        public void describeTo(Description description) {
             description.appendText("matches regex=");
         }
 
         @Override
-        public boolean matchesSafely(String item)
-        {
-            if (item == null) return false;
-            return item.matches(regex);
+        public boolean matchesSafely(String item) {
+            return item != null && item.matches(regex);
         }
-        
     }
-    
-    public static class RegexFinder extends TypeSafeMatcher<String>{
+
+    public static class RegexFinder extends TypeSafeMatcher<String> {
         private final String regex;
 
-        public RegexFinder(String regex){
+        public RegexFinder(String regex) {
             this.regex = regex;
         }
 
-        public void describeTo(Description description){
+        public void describeTo(Description description) {
             description.appendText("cannot finder pattern: " + regex);
         }
 
         @Override
-        public boolean matchesSafely(String item)
-        {
-            if (item == null) return false;
-            Pattern p = Pattern.compile(regex);
-            return p.matcher(item).find();
+        public boolean matchesSafely(String item) {
+            return item != null && Pattern.compile(regex).matcher(item).find();
         }
-        
     }
-    
 }
-

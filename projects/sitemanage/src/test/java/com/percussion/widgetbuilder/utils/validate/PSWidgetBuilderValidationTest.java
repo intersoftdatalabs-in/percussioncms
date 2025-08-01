@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,7 +17,7 @@
  */
 package com.percussion.widgetbuilder.utils.validate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.widgetbuilder.data.PSWidgetBuilderDefinitionData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
@@ -28,14 +29,12 @@ import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResult.Validat
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author JaySeletz
- *
+ * Tests for widget builder validation logic.
  */
-public class PSWidgetBuilderValidationTest
-{
+public class PSWidgetBuilderValidationTest {
 
     private static final String VERSION_50_CHARS = "1234567890123456.1234567890123456.1234567890123456";
     private static final String CHARS_50 = "A1234567890123456789012345678901234567890123456789";
@@ -43,20 +42,18 @@ public class PSWidgetBuilderValidationTest
     private static final String CHARS_255 = "A12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234";
     private static final String CHARS_1024 = CHARS_255 + CHARS_255 + CHARS_255 + CHARS_255 + "A012";
 
-
     @Test
-    public void testGeneral()
-    {
-        PSWidgetBuilderDefinitionData data = new PSWidgetBuilderDefinitionData();
-        List<PSWidgetBuilderDefinitionData> current = new ArrayList<PSWidgetBuilderDefinitionData>();
-        List<PSWidgetBuilderValidationResult> results = PSWidgetBuilderGeneralValidator.validate(data, current);
+    public void testGeneral() {
+        var data = new PSWidgetBuilderDefinitionData();
+        var current = new ArrayList<PSWidgetBuilderDefinitionData>();
+        var results = PSWidgetBuilderGeneralValidator.validate(data, current);
         assertFalse(results.isEmpty());
         assertTrue(hasError(ValidationCategory.GENERAL, "label", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "prefix", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "author", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "publisherUrl", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "version", results));
-        
+
         data.setLabel("");
         data.setPrefix("");
         data.setAuthor("");
@@ -69,14 +66,14 @@ public class PSWidgetBuilderValidationTest
         assertTrue(hasError(ValidationCategory.GENERAL, "author", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "publisherUrl", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "version", results));
-        
+
         data.setLabel("widget1");
         data.setPrefix("test");
         data.setAuthor("author");
         data.setPublisherUrl("www.test.com");
         data.setVersion("1.0.0");
         testGeneralValue(data, current, "label", true);
-        
+
         data.setPrefix("test_");
         testGeneralValue(data, current, "prefix", false);
         data.setPrefix("test ");
@@ -89,57 +86,55 @@ public class PSWidgetBuilderValidationTest
         testGeneralValue(data, current, "prefix", true);
         data.setPrefix("test");
         testGeneralValue(data, current, "prefix", true);
-        
-        
+
         data.setVersion("foo");
         testGeneralValue(data, current, "version", false);
-        
+
         data.setVersion("1.0");
         testGeneralValue(data, current, "version", false);
-        
+
         data.setVersion("1");
         testGeneralValue(data, current, "version", false);
-        
+
         data.setVersion("2.10.100");
         testGeneralValue(data, current, "version", true);
-        
+
         data.setLabel("1widget");
         testGeneralValue(data, current, "label", false);
-        
+
         data.setLabel(" widget");
         testGeneralValue(data, current, "label", false);
 
         data.setLabel("widget1");
         testGeneralValue(data, current, "label", true);
 
-        
         // copy
-        PSWidgetBuilderDefinitionData data2 = new PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinitionData.createDaoObject(data));
-        
-        // test dupe name
+        var data2 = new PSWidgetBuilderDefinitionData(PSWidgetBuilderDefinitionData.createDaoObject(data));
+
+        // test duplicate name
         current.add(data2);
         testGeneralValue(data, current, "label", false);
         data.setPrefix("foo");
         testGeneralValue(data, current, "label", true);
-        
+
         data.setPrefix(data2.getPrefix());
         data2.setId("1");
         testGeneralValue(data, current, "label", false);
-        
+
         // set id the same so it's the same object
         data.setId(data2.getId());
         testGeneralValue(data, current, "label", true);
-        
+
         // test length
         data.setLabel(CHARS_100);
         data.setPrefix(CHARS_100);
         data.setAuthor(CHARS_100);
-        data.setPublisherUrl(CHARS_100 );
+        data.setPublisherUrl(CHARS_100);
         data.setVersion(VERSION_50_CHARS);
         data.setDescription(CHARS_1024);
         results = PSWidgetBuilderGeneralValidator.validate(data, current);
         assertTrue(results.isEmpty());
-        
+
         data.setLabel(CHARS_100 + "a");
         data.setPrefix(CHARS_100 + "a");
         data.setAuthor(CHARS_100 + "a");
@@ -154,33 +149,31 @@ public class PSWidgetBuilderValidationTest
         assertTrue(hasError(ValidationCategory.GENERAL, "publisherUrl", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "version", results));
         assertTrue(hasError(ValidationCategory.GENERAL, "description", results));
-
     }
 
     @Test
-    public void testFields()
-    {
-        PSWidgetBuilderFieldsListData fields = new PSWidgetBuilderFieldsListData();
-        List<PSWidgetBuilderFieldData> fieldList = new ArrayList<PSWidgetBuilderFieldData>();
+    public void testFields() {
+        var fields = new PSWidgetBuilderFieldsListData();
+        var fieldList = new ArrayList<PSWidgetBuilderFieldData>();
         fields.setFields(fieldList);
-        
-        PSWidgetBuilderFieldData field = new PSWidgetBuilderFieldData();
+
+        var field = new PSWidgetBuilderFieldData();
         fieldList.add(field);
-        
-        List<PSWidgetBuilderValidationResult> results = PSWidgetBuilderFieldsValidator.validate(fields);
+
+        var results = PSWidgetBuilderFieldsValidator.validate(fields);
         assertEquals(3, results.size());
         assertTrue(hasError(ValidationCategory.CONTENT, "name", results));
         assertTrue(hasError(ValidationCategory.CONTENT, "label", results));
         assertTrue(hasError(ValidationCategory.CONTENT, "type", results));
-        
+
         field.setLabel("label");
         field.setName("myname");
         field.setType(FieldType.TEXT.name());
         testField(fields, "name", true);
-        
+
         field.setName("name with space");
         testField(fields, "name", false);
-        
+
         field.setName("1name");
         testField(fields, "name", false);
 
@@ -189,100 +182,97 @@ public class PSWidgetBuilderValidationTest
 
         field.setName("name.");
         testField(fields, "name", false);
-        
+
         field.setName("myname");
         testField(fields, "name", true);
-        
+
         field.setName("prodName");
         testField(fields, "name", true);
-        
+
         field.setName("pName");
         testField(fields, "name", false);
-        
+
         field.setName("pN");
         testField(fields, "name", false);
 
         field.setName("N\u00FAmerodesegmentos");
         testField(fields, "name", false);
-        
+
         field.setName("p");
         testField(fields, "name", true);
 
         field.setName("ADD");
-        testField(fields,"name",false);
-          
+        testField(fields, "name", false);
+
         field.setName("add");
-        testField(fields,"name",false);
-        
-        //set field to something that will pass
-        field.setName("p");      
-        
-        PSWidgetBuilderFieldData field2 = new PSWidgetBuilderFieldData();
+        testField(fields, "name", false);
+
+        // set field to something that will pass
+        field.setName("p");
+
+        var field2 = new PSWidgetBuilderFieldData();
         fieldList.add(field2);
         field2.setLabel("label2");
         field2.setName("name2");
         field2.setType(FieldType.RICH_TEXT.name());
         testField(fields, "name", true);
-        
+
         field2.setName(field.getName());
         testField(fields, "name", false);
-        
+
         field2.setName(" name2");
         field2.setLabel("");
-        
+
         results = PSWidgetBuilderFieldsValidator.validate(fields);
         assertEquals(2, results.size());
         assertTrue(hasError(ValidationCategory.CONTENT, "name", results));
         assertTrue(hasError(ValidationCategory.CONTENT, "label", results));
-        
+
         fieldList.clear();
         fieldList.add(field);
         field.setName(CHARS_50);
         field.setLabel(CHARS_50);
         testField(fields, "name", true);
-        
+
         field.setName(CHARS_50 + "a");
         field.setLabel(CHARS_50 + "a");
+        results = PSWidgetBuilderFieldsValidator.validate(fields);
         assertTrue(hasError(ValidationCategory.CONTENT, "name", results));
         assertTrue(hasError(ValidationCategory.CONTENT, "label", results));
     }
-    
-    private void testGeneralValue(PSWidgetBuilderDefinitionData data, List<PSWidgetBuilderDefinitionData> current, String name, boolean isValid)
-    {
-        List<PSWidgetBuilderValidationResult> results = PSWidgetBuilderGeneralValidator.validate(data, current);
-        if (isValid)
+
+    private void testGeneralValue(
+            PSWidgetBuilderDefinitionData data,
+            List<PSWidgetBuilderDefinitionData> current,
+            String name,
+            boolean isValid) {
+        var results = PSWidgetBuilderGeneralValidator.validate(data, current);
+        if (isValid) {
             assertTrue(results.isEmpty());
-        else
-        {
+        } else {
             assertEquals(1, results.size());
             assertTrue(hasError(ValidationCategory.GENERAL, name, results));
         }
     }
 
-    private void testField(PSWidgetBuilderFieldsListData fields, String name, boolean isValid)
-    {
-        List<PSWidgetBuilderValidationResult> results = PSWidgetBuilderFieldsValidator.validate(fields);
-        
-        if (isValid)
+    private void testField(
+            PSWidgetBuilderFieldsListData fields,
+            String name,
+            boolean isValid) {
+        var results = PSWidgetBuilderFieldsValidator.validate(fields);
+        if (isValid) {
             assertTrue(results.isEmpty());
-        else
-        {
+        } else {
             assertEquals(1, results.size());
             assertTrue(hasError(ValidationCategory.CONTENT, name, results));
         }
     }
-    
 
-    private boolean hasError(ValidationCategory category, String name, List<PSWidgetBuilderValidationResult> results)
-    {
-        for (PSWidgetBuilderValidationResult result : results)
-        {
-            if (category.name().equals(result.getCategory()) && name.equals(result.getName()))
-            {
-                return true;
-            }
-        }
-        return false;
+    private boolean hasError(
+            ValidationCategory category,
+            String name,
+            List<PSWidgetBuilderValidationResult> results) {
+        return results.stream()
+                .anyMatch(result -> category.name().equals(result.getCategory()) && name.equals(result.getName()));
     }
-
 }

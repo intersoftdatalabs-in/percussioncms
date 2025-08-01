@@ -18,31 +18,79 @@ package com.percussion.services.publisher;
 
 import com.percussion.services.PSBaseServiceLocator;
 
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * Content list service locator
- * 
+ * Thread-safe service locator for publisher services with enhanced error handling
+ * and Optional-based safe access patterns. This locator provides modern Java 11
+ * patterns for accessing publisher service instances.
+ *
  * @author dougrand
  */
-public class PSPublisherServiceLocator extends PSBaseServiceLocator
-{
-   private static volatile IPSPublisherService pubService = null;
+public final class PSPublisherServiceLocator extends PSBaseServiceLocator {
+
+   private static final AtomicReference<IPSPublisherService> serviceRef = new AtomicReference<>();
+   private static final String SERVICE_BEAN_NAME = "sys_publisherservice";
+
+   // Private constructor to prevent instantiation
+   private PSPublisherServiceLocator() {
+      super();
+   }
+
    /**
-    * Get the content list service
-    * @return the content list service, never <code>null</code> in a correct
-    * configuration
+    * Get the publisher service with thread-safe lazy initialization.
+    *
+    * @return the publisher service, never {@code null} in a correct configuration
+    * @throws IllegalStateException if the service cannot be located
     */
-   public static IPSPublisherService getPublisherService()
-   {
-      if (pubService==null)
-      {
-         synchronized (PSPublisherServiceLocator.class)
-         {
-            if (pubService==null)
-            {
-               pubService = (IPSPublisherService) getBean("sys_publisherservice");
-            }
+   public static IPSPublisherService getPublisherService() {
+      return serviceRef.updateAndGet(current -> {
+         if (current == null) {
+            var service = (IPSPublisherService) getBean(SERVICE_BEAN_NAME);
+            Objects.requireNonNull(service, "Publisher service bean not found: " + SERVICE_BEAN_NAME);
+            return service;
          }
+         return current;
+      });
+   }
+
+   /**
+    * Get the publisher service safely with Optional wrapper.
+    *
+    * @return Optional containing the publisher service, or empty if not available
+    */
+   public static Optional<IPSPublisherService> getPublisherServiceSafely() {
+      try {
+         return Optional.of(getPublisherService());
+      } catch (Exception e) {
+         return Optional.empty();
       }
-      return pubService;
+   }
+
+   /**
+    * Check if the publisher service is available.
+    *
+    * @return true if the service is available, false otherwise
+    */
+   public static boolean isServiceAvailable() {
+      return getPublisherServiceSafely().isPresent();
+   }
+
+   /**
+    * Reset the cached service instance for testing or reconfiguration.
+    */
+   public static void reset() {
+      serviceRef.set(null);
+   }
+
+   /**
+    * Get the service bean name for configuration reference.
+    *
+    * @return the Spring bean name for the publisher service
+    */
+   public static String getServiceBeanName() {
+      return SERVICE_BEAN_NAME;
    }
 }

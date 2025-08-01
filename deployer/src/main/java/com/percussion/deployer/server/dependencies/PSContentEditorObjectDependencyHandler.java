@@ -41,6 +41,7 @@ import com.percussion.services.error.PSNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Base class for handlers that deploy content editor objects.
@@ -77,25 +78,16 @@ public abstract class PSContentEditorObjectDependencyHandler
    @SuppressWarnings("unchecked")
    protected List<PSDependency> checkUIDef(PSSecurityToken tok,
       PSUIDefinition uiDef) throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null) throw new IllegalArgumentException("tok may not be null");
+      if (uiDef == null) throw new IllegalArgumentException("uiDef may not be null");
 
-      if (uiDef == null)
-         throw new IllegalArgumentException("uiDef may not be null");
+      var childDeps = new ArrayList<PSDependency>();
 
-      List<PSDependency> childDeps = new ArrayList<>();
+      Optional.ofNullable(uiDef.getDefaultUI()).ifPresent(defSets -> 
+         defSets.forEachRemaining(uiSet -> childDeps.addAll(checkUiSet(tok, uiSet)))
+      );
 
-      Iterator defSets = uiDef.getDefaultUI();
-      if (defSets != null)
-      {
-         while (defSets.hasNext())
-         {
-            PSUISet uiSet = (PSUISet)defSets.next();
-            childDeps.addAll(checkUiSet(tok, uiSet));
-         }
-      }
-
-      PSDisplayMapper dispMapper = uiDef.getDisplayMapper();
+      var dispMapper = uiDef.getDisplayMapper();
       childDeps.addAll(checkDisplayMapper(tok, dispMapper));
 
       return childDeps;
@@ -113,29 +105,20 @@ public abstract class PSContentEditorObjectDependencyHandler
    @SuppressWarnings("unchecked")
    protected List<PSDependency> checkDisplayMapper(PSSecurityToken tok,
       PSDisplayMapper mapper) throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null) throw new IllegalArgumentException("tok may not be null");
+      if (mapper == null) throw new IllegalArgumentException("mapper may not be null");
 
-      if (mapper == null)
-         throw new IllegalArgumentException("mapper may not be null");
+      var deps = new ArrayList<PSDependency>();
 
-      List<PSDependency> deps = new ArrayList<>();
+      mapper.forEachRemaining(dispMapping -> {
+          var uiSet = dispMapping.getUISet();
+          deps.addAll(checkUiSet(tok, uiSet));
 
-      Iterator dispMappings = mapper.iterator();
-      while (dispMappings.hasNext())
-      {
-         PSDisplayMapping dispMapping =
-            (PSDisplayMapping)dispMappings.next();
-
-         PSUISet uiSet = dispMapping.getUISet();
-         deps.addAll(checkUiSet(tok, uiSet));
-
-         PSDisplayMapper childMapper = dispMapping.getDisplayMapper();
-         if (childMapper != null)
-         {
-            deps.addAll(checkDisplayMapper(tok, childMapper));
-         }
-      }
+          var childMapper = dispMapping.getDisplayMapper();
+          if (childMapper != null) {
+              deps.addAll(checkDisplayMapper(tok, childMapper));
+          }
+      });
 
       return deps;
    }
@@ -153,71 +136,45 @@ public abstract class PSContentEditorObjectDependencyHandler
     */
    protected List<PSDependency> checkUiSet(PSSecurityToken tok, PSUISet uiSet)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null) throw new IllegalArgumentException("tok may not be null");
+      if (uiSet == null) throw new IllegalArgumentException("uiSet may not be null");
 
-      if (uiSet == null)
-         throw new IllegalArgumentException("uiSet may not be null");
+      var deps = new ArrayList<PSDependency>();
+      var choices = uiSet.getChoices();
 
-      List<PSDependency> deps = new ArrayList<>();
-      PSChoices choices = uiSet.getChoices();
+      var keywordHandler = getDependencyHandler(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
+      var controlHandler = getDependencyHandler(PSControlDependencyHandler.DEPENDENCY_TYPE);
+      var schemaHandler = getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
 
-      PSDependencyHandler keywordHandler = getDependencyHandler(
-         PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-      PSDependencyHandler controlHandler = getDependencyHandler(
-         PSControlDependencyHandler.DEPENDENCY_TYPE);
-      PSDependencyHandler schemaHandler = getDependencyHandler(
-         PSSchemaDependencyHandler.DEPENDENCY_TYPE);
+      Optional.ofNullable(choices).ifPresent(c -> {
+          PSDependency dep = null;
+          if (c.getType() == PSChoices.TYPE_GLOBAL) {
+              dep = keywordHandler.getDependency(tok, String.valueOf(c.getGlobal()));
+          } else if (c.getType() == PSChoices.TYPE_TABLE_INFO) {
+              var ctInfo = c.getTableInfo();
+              if (ctInfo.getDataSource().isBlank()) {
+                  dep = schemaHandler.getDependency(tok, ctInfo.getTableName());
+              }
+          }
 
-      if (choices != null)
-      {
-         PSDependency dep = null;
-         int type = choices.getType();
-         if (type == PSChoices.TYPE_GLOBAL)
-         {
-            dep = keywordHandler.getDependency(tok, String.valueOf(
-               choices.getGlobal()));
-         }
-         else if (type == PSChoices.TYPE_TABLE_INFO)
-         {
-            PSChoiceTableInfo ctInfo = choices.getTableInfo();
-            
-            // include schema from repository datasource only
-            if (ctInfo.getDataSource().trim().length() == 0)
-            {
-               dep = schemaHandler.getDependency(tok, ctInfo.getTableName());
-            }
-         }
-      
-         if (dep != null)
-         {
-            if (dep.getDependencyType() == PSDependency.TYPE_SHARED)
-            {
-               dep.setIsAssociation(false);
-            }
-            
-            deps.add(dep);
-         }
-      }
+          Optional.ofNullable(dep).ifPresent(d -> {
+              if (d.getDependencyType() == PSDependency.TYPE_SHARED) {
+                  d.setIsAssociation(false);
+              }
+              deps.add(d);
+          });
+      });
 
-      PSControlRef controlRef = uiSet.getControl();
-      if (controlRef != null)
-      {
-         String controlName = controlRef.getName();
-         PSDependency controlDep = controlHandler.getDependency(tok,
-            controlName);
-         if (controlDep != null)
-         {
-            int type = controlDep.getDependencyType();
-            if (type == PSDependency.TYPE_SHARED)
-            {
-               controlDep.setIsAssociation(false);
-            }
-            
-            deps.add(controlDep);
-         }
-
-      }
+      var controlRef = uiSet.getControl();
+      Optional.ofNullable(controlRef).ifPresent(ref -> {
+          var controlDep = controlHandler.getDependency(tok, ref.getName());
+          Optional.ofNullable(controlDep).ifPresent(d -> {
+              if (d.getDependencyType() == PSDependency.TYPE_SHARED) {
+                  d.setIsAssociation(false);
+              }
+              deps.add(d);
+          });
+      });
 
       return deps;
    }
@@ -276,25 +233,15 @@ public abstract class PSContentEditorObjectDependencyHandler
     */
    @SuppressWarnings("unchecked")
    protected void transformUIDef(PSIdMap idMap, PSUIDefinition uiDef)
-      throws PSDeployException
-   {
-      if (idMap == null)
-         throw new IllegalArgumentException("idMap may not be null");
+      throws PSDeployException {
+      if (idMap == null) throw new IllegalArgumentException("idMap may not be null");
+      if (uiDef == null) throw new IllegalArgumentException("uiDef may not be null");
 
-      if (uiDef == null)
-         throw new IllegalArgumentException("uiDef may not be null");
+      Optional.ofNullable(uiDef.getDefaultUI()).ifPresent(defSets -> 
+         defSets.forEachRemaining(uiSet -> transformUiSet(idMap, uiSet))
+      );
 
-      Iterator defSets = uiDef.getDefaultUI();
-      if (defSets != null)
-      {
-         while (defSets.hasNext())
-         {
-            PSUISet uiSet = (PSUISet)defSets.next();
-            transformUiSet(idMap, uiSet);
-         }
-      }
-
-      PSDisplayMapper dispMapper = uiDef.getDisplayMapper();
+      var dispMapper = uiDef.getDisplayMapper();
       transformDisplayMapper(idMap, dispMapper);
    }
 
@@ -308,30 +255,19 @@ public abstract class PSContentEditorObjectDependencyHandler
     */
    @SuppressWarnings("unchecked")
    protected void transformDisplayMapper(PSIdMap idMap, PSDisplayMapper mapper)
-      throws PSDeployException
-   {
-      if (idMap == null)
-         throw new IllegalArgumentException("idMap may not be null");
+      throws PSDeployException {
+      if (idMap == null) throw new IllegalArgumentException("idMap may not be null");
+      if (mapper == null) throw new IllegalArgumentException("mapper may not be null");
 
-      if (mapper == null)
-         throw new IllegalArgumentException("mapper may not be null");
+      mapper.forEachRemaining(dispMapping -> {
+          var uiSet = dispMapping.getUISet();
+          transformUiSet(idMap, uiSet);
 
-      Iterator dispMappings = mapper.iterator();
-      while (dispMappings.hasNext())
-      {
-         PSDisplayMapping dispMapping =
-            (PSDisplayMapping)dispMappings.next();
-
-         PSUISet uiSet = dispMapping.getUISet();
-         transformUiSet(idMap, uiSet);
-
-         PSDisplayMapper childMapper = dispMapping.getDisplayMapper();
-         if (childMapper != null)
-         {
-            transformDisplayMapper(idMap, childMapper);
-         }
-      }
-
+          var childMapper = dispMapping.getDisplayMapper();
+          if (childMapper != null) {
+              transformDisplayMapper(idMap, childMapper);
+          }
+      });
    }
 
    /**
@@ -342,24 +278,17 @@ public abstract class PSContentEditorObjectDependencyHandler
     *
     * @throws PSDeployException if any errors occur.
     */
-   protected void transformUiSet(PSIdMap idMap, PSUISet uiSet)
-      throws PSDeployException
-   {
-      if (idMap == null)
-         throw new IllegalArgumentException("idMap may not be null");
+   protected void transformUiSet(PSIdMap idMap, PSUISet uiSet) throws PSDeployException {
+      if (idMap == null) throw new IllegalArgumentException("idMap may not be null");
+      if (uiSet == null) throw new IllegalArgumentException("uiSet may not be null");
 
-      if (uiSet == null)
-         throw new IllegalArgumentException("uiSet may not be null");
-
-      PSChoices choices = uiSet.getChoices();
-
-      if (choices != null && choices.getType() ==
-         PSChoices.TYPE_GLOBAL)
-      {
-         choices.setGlobal(idMap.getNewIdInt(
-            String.valueOf(choices.getGlobal()),
-            PSKeywordDependencyHandler.DEPENDENCY_TYPE));
-      }
+      Optional.ofNullable(uiSet.getChoices()).ifPresent(choices -> {
+          if (choices.getType() == PSChoices.TYPE_GLOBAL) {
+              choices.setGlobal(idMap.getNewIdInt(
+                  String.valueOf(choices.getGlobal()),
+                  PSKeywordDependencyHandler.DEPENDENCY_TYPE));
+          }
+      });
    }
 
    /**
@@ -391,24 +320,14 @@ public abstract class PSContentEditorObjectDependencyHandler
     * @return Iterator over zero or more table names as <code>String</code>
     * objects, never <code>null</code>, may be empty.
     */
-   public static Iterator getLocatorTables(PSContainerLocator locator)
-   {
-      if (locator == null)
-         throw new IllegalArgumentException("locator may not be null");
+   public static Iterator<String> getLocatorTables(PSContainerLocator locator) {
+      if (locator == null) throw new IllegalArgumentException("locator may not be null");
 
-      List<String> tables = new ArrayList<>();
+      var tables = new ArrayList<String>();
 
-      Iterator tableSets = locator.getTableSets();
-      while (tableSets.hasNext())
-      {
-         PSTableSet tableSet = (PSTableSet)tableSets.next();
-         Iterator refs = tableSet.getTableRefs();
-         while (refs.hasNext())
-         {
-            PSTableRef ref = (PSTableRef)refs.next();
-            tables.add(ref.getName());
-         }
-      }
+      locator.getTableSets().forEachRemaining(tableSet -> 
+         tableSet.getTableRefs().forEachRemaining(ref -> tables.add(ref.getName()))
+      );
 
       return tables.iterator();
    }
@@ -424,28 +343,17 @@ public abstract class PSContentEditorObjectDependencyHandler
     *
     * @throws PSDeployException if there are any errors.
     */
-   protected List<PSDependency> checkLocatorTables(PSSecurityToken tok,
-      PSContainerLocator locator)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   protected List<PSDependency> checkLocatorTables(PSSecurityToken tok, PSContainerLocator locator) throws PSDeployException, PSNotFoundException {
+      if (tok == null) throw new IllegalArgumentException("tok may not be null");
+      if (locator == null) throw new IllegalArgumentException("locator may not be null");
 
-      if (locator == null)
-         throw new IllegalArgumentException("locator may not be null");
+      var schemaHandler = getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
+      var childDeps = new ArrayList<PSDependency>();
 
-      PSDependencyHandler schemaHandler = getDependencyHandler(
-         PSSchemaDependencyHandler.DEPENDENCY_TYPE);
-
-      List<PSDependency> childDeps = new ArrayList<>();
-      Iterator tables = getLocatorTables(locator);
-      while (tables.hasNext())
-      {
-         String tableName = (String)tables.next();
-         PSDependency schemaDep =
-            schemaHandler.getDependency(tok, tableName);
-         if (schemaDep != null)
-            childDeps.add(schemaDep);
-      }
+      getLocatorTables(locator).forEachRemaining(tableName -> {
+          var schemaDep = schemaHandler.getDependency(tok, tableName);
+          Optional.ofNullable(schemaDep).ifPresent(childDeps::add);
+      });
 
       return childDeps;
    }

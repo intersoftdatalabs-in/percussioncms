@@ -137,8 +137,8 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or 
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -212,28 +212,19 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException If there are any errors.
     */
-   protected Iterator getDependencyFiles(PSSecurityToken tok, String id)
+   @Override
+   protected Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, String id)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");         
-      
-      List files = new ArrayList();
-      
-      String appName = PSDeployComponentUtils.getAppName(id);
-      File appfile = getAppFile(tok, id);
-      if (appName != null && appfile != null)
-      {
-         File tmpFile = getFileFromApp(tok, appName, appfile);
-         PSDependencyFile depFile = new PSDependencyFile(
-            PSDependencyFile.TYPE_SUPPORT_FILE, tmpFile, appfile);
-         files.add(depFile);
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      return files.iterator();
+
+      var appName = PSDeployComponentUtils.getAppName(id);
+      var appFile = getAppFile(tok, id);
+      return appName != null && appFile != null
+         ? List.of(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, getFileFromApp(tok, appName, appFile), appFile)).iterator()
+         : PSIteratorUtils.emptyIterator();
    }
 
    
@@ -357,11 +348,6 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List ms_childTypes = new ArrayList();
-
-   static
-   {
-      ms_childTypes.add(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
 
 }

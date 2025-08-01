@@ -15,179 +15,91 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
-
 
 import javax.xml.bind.annotation.XmlRootElement;
 import com.percussion.share.data.PSAbstractDataObject;
+import java.util.Optional;
 
 /**
- * This class contains information for a blog of a site
- *
+ * This class contains information for a blog of a site.
  */
-@XmlRootElement(name="SiteBlogProperties")
-public class PSSiteBlogProperties extends PSAbstractDataObject
-{
-    /**
-     * 
-     */
+@XmlRootElement(name = "SiteBlogProperties")
+public class PSSiteBlogProperties extends PSAbstractDataObject {
+
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @return the id
-     */
-    public String getId()
-    {
+    private String id;
+    private String pageId;
+    private String blogPostTemplateId;
+    private String title;
+    private String description;
+    private int blogPostcount;
+    private String lastPublishDate;
+    private String path;
+
+    public String getId() {
         return id;
     }
-    /**
-     * @param id the blog id to set
-     */
-    public void setId(String id)
-    {
+
+    public void setId(String id) {
         this.id = id;
     }
-    /**
-     * @return the blogPostTemplateId
-     */
-    public String getBlogPostTemplateId()
-    {
+
+    public String getBlogPostTemplateId() {
         return blogPostTemplateId;
     }
-    /**
-     * @param blogPostTemplateId the blogPostTemplateId to set
-     */
-    public void setBlogPostTemplateId(String blogPostTemplateId)
-    {
+
+    public void setBlogPostTemplateId(String blogPostTemplateId) {
         this.blogPostTemplateId = blogPostTemplateId;
     }
-    /**
-     * @return the title
-     */
-    public String getTitle()
-    {
+
+    public String getTitle() {
         return title;
     }
-    /**
-     * @param title the title to set
-     */
-    public void setTitle(String title)
-    {
+
+    public void setTitle(String title) {
         this.title = title;
     }
-    
-    /**
-     * @return the description
-     */
-    public String getDescription()
-    {
-        return description;
+
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
+
+    public void setDescription(String description) {
         this.description = description;
     }
-    /**
-     * @return the blogPostcount
-     */
-    public int getBlogPostcount()
-    {
+
+    public int getBlogPostcount() {
         return blogPostcount;
     }
-    /**
-     * @param blogPostcount the blogPostcount to set
-     */
-    public void setBlogPostcount(int blogPostcount)
-    {
+
+    public void setBlogPostcount(int blogPostcount) {
         this.blogPostcount = blogPostcount;
     }
-    /**
-     * @return the lastPublishDate
-     */
-    public String getLastPublishDate()
-    {
-        return lastPublishDate;
+
+    public Optional<String> getLastPublishDate() {
+        return Optional.ofNullable(lastPublishDate);
     }
-    /**
-     * @param lastPublishDate the lastPublishDate to set
-     */
-    public void setLastPublishDate(String lastPublishDate)
-    {
+
+    public void setLastPublishDate(String lastPublishDate) {
         this.lastPublishDate = lastPublishDate;
     }
-     
-    /**
-     * @return the finder path of the blog index page
-     */
-    public String getPath()
-    {
+
+    public String getPath() {
         return path;
     }
-    /**
-     * @param path the finder path of the blog index page to set
-     */
-    public void setPath(String path)
-    {
+
+    public void setPath(String path) {
         this.path = path;
     }
-    
-    /**
-     * @return the id of the index page for this blog
-     */
-    public String getPageId()
-    {
+
+    public String getPageId() {
         return pageId;
     }
-    /**
-     * @param pageId the id of the index page for this blog to set
-     */
-    public void setPageId(String pageId)
-    {
+
+    public void setPageId(String pageId) {
         this.pageId = pageId;
     }
-    
-    /**
-     * Blog Id which is nothing but a section id
-     */
-    private String id;
-    
-    /**
-     * Id of the blog index page
-     */
-    private String pageId;
-    
-    /**
-     * Template id for the blog post
-     */
-    private String blogPostTemplateId;
-    
-    /**
-     * Blog title
-     */
-    private String title;
-    
-    /**
-     * Blog description
-     */
-    private String description;
-    
-    /**
-     * number of posts for the blog
-     */
-    private int blogPostcount;
-    
-    /**
-     * Blog's last publish date
-     */
-    private String lastPublishDate;
-    
-    /**
-     * Path of the blog index page
-     */
-    private String path;
-   
 }
-

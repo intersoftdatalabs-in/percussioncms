@@ -17,73 +17,64 @@
 package com.percussion.sitemanage.importer;
 
 import com.percussion.sitemanage.importer.dao.IPSImportLogDao;
-
 import java.util.concurrent.Executors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Saves log in separate thread, waits for {@link IPSSiteImportLogger#waitForThreads(long)} to return
- * to ensure all threads have had a chance to write to the log
- * 
- * @author JaySeletz
- *
+ * Saves the import log in a separate thread.
+ * Waits for {@link IPSSiteImportLogger#waitForThreads(long)} to ensure all threads have written to the log.
  */
-public class PSDeferredLogWriter implements Runnable
-{
+public class PSDeferredLogWriter implements Runnable {
     private static final Logger log = LogManager.getLogger(PSDeferredLogWriter.class);
-            
-    private String siteId;
-    private String desc;
-    private IPSSiteImportLogger logger;
-    private String objectId;
-    private IPSImportLogDao logDao;
 
-    
+    private final String siteId;
+    private final String desc;
+    private final IPSSiteImportLogger logger;
+    private final String objectId;
+    private final IPSImportLogDao logDao;
+
     /**
-     * Construct a log writer.  Call {@link #saveWhenReady()} to start the deferred log writer thread.
-     * 
-     * @param siteId
-     * @param desc
-     * @param logger
-     * @param objectId
-     * @param logDao
+     * Constructs a log writer. Call {@link #saveWhenReady()} to start the deferred log writer thread.
+     *
+     * @param siteId   The site ID.
+     * @param desc     The description.
+     * @param logger   The logger.
+     * @param objectId The object ID.
+     * @param logDao   The log DAO.
      */
-    public PSDeferredLogWriter(String siteId, String desc, IPSSiteImportLogger logger, String objectId,
-            IPSImportLogDao logDao)
-    {
-        super();
+    public PSDeferredLogWriter(
+            String siteId,
+            String desc,
+            IPSSiteImportLogger logger,
+            String objectId,
+            IPSImportLogDao logDao) {
         this.siteId = siteId;
         this.desc = desc;
         this.logger = logger;
         this.objectId = objectId;
         this.logDao = logDao;
     }
-    
+
     /**
-     * Start a thread and wait for the logger to be ready, then save it
+     * Starts a thread and waits for the logger to be ready, then saves it.
      */
-    public void saveWhenReady()
-    {
+    public void saveWhenReady() {
         Executors.newSingleThreadExecutor().execute(this);
     }
 
-
-    /* (non-Javadoc)
-     * @see java.lang.Runnable#run()
-     */
     @Override
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             logger.waitForThreads(60);
             PSSiteImporter.saveImportLog(objectId, logger, logDao, siteId, desc);
+        } catch (Exception e) {
+            log.error(
+                    "Failed to save import log for ID {} and type {}: {}",
+                    objectId,
+                    logger.getType().name(),
+                    e.getLocalizedMessage(),
+                    e);
         }
-        catch (Exception e)
-        {
-            log.error("Failed to save import log for ID " + objectId + " and type " + logger.getType().name() + ": " + e.getLocalizedMessage(), e);
-        }  
     }
 }

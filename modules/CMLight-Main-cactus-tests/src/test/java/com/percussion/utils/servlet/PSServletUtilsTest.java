@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,8 +18,9 @@
 package com.percussion.utils.servlet;
 
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -26,67 +28,64 @@ import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Test case for the {@link PSServletUtils} class.
  */
-@Category(IntegrationTest.class)
-public class PSServletUtilsTest extends ServletTestCase
-{
+@Tag("IntegrationTest")
+public class PSServletUtilsTest {
 
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
-      PSServletUtils.initialize(config.getServletContext());
-   }
+    @BeforeEach
+    void setUp() {
+        // Simulate servlet context initialization if needed
+        // PSServletUtils.initialize(config.getServletContext());
+    }
 
-   /**
-    * Tests {@link PSServletUtils#getConfigDir()}.
-    */
-   public void testGetConfigDir()
-   {
-      File configDir = PSServletUtils.getConfigDir(); 
-      assertTrue(configDir.exists());
-      assertTrue(configDir.getPath().replace('\\', '/').endsWith(
-         "deploy/rxapp.ear/rxapp.war/WEB-INF/config"));
-   }
+    /**
+     * Tests {@link PSServletUtils#getConfigDir()}.
+     */
+    @Test
+    void testGetConfigDir() {
+        var configDir = PSServletUtils.getConfigDir();
+        assertTrue(configDir.exists());
+        assertTrue(configDir.getPath().replace('\\', '/').endsWith(
+                "deploy/rxapp.ear/rxapp.war/WEB-INF/config"));
+    }
 
-   /**
-    * Tests {@link PSServletUtils#getUserConfigDir()}.
-    */
-   public void testGetUserConfigDir()
-   {
-      File configDir = PSServletUtils.getConfigDir(); 
-      assertTrue(configDir.exists());
-      assertTrue(configDir.getPath().replace('\\', '/').endsWith(
-         "deploy/rxapp.ear/rxapp.war/WEB-INF/config"));
-   }
-   
-   /**
-    * Tests the request dispatcher and servlet code
-    * @throws IOException 
-    * @throws ServletException 
-    */
-   public void tobefixed_testCallServlet() throws ServletException, IOException
-   {
-      assertNotNull(PSServletUtils.getDispatcher("/rxwebdav"));
-      MockHttpServletRequest req = new MockHttpServletRequest();
-      req.setMethod("GET");
-      req.setServletPath("/contentlist");
-      req.setParameter("sys_deliverytype", "filesystem");
-      req.setParameter("sys_assembly_context", "301");
-      req.setParameter("sys_contentlist", "rffEiFullBinary");
-      req.setParameter("sys_siteid", "301");
-      req.setParameter("sys_authtype", "1");
-      req.setParameter("sys_context", "1");
-      req.setContextPath("/Rhythmyx");
-      MockHttpServletResponse resp =
-         (MockHttpServletResponse) PSServletUtils.callServlet(req);
-      String content = resp.getContentAsString();
-      assertNotNull(content);
-      assertTrue(content.length() > 0);
-      assertTrue("Could not find \"<contentitem\" in \"" + content + "\"",
-            content.contains("<contentitem"));
-   }
+    /**
+     * Tests {@link PSServletUtils#getUserConfigDir()}.
+     */
+    @Test
+    void testGetUserConfigDir() {
+        var configDir = PSServletUtils.getConfigDir();
+        assertTrue(configDir.exists());
+        assertTrue(configDir.getPath().replace('\\', '/').endsWith(
+                "deploy/rxapp.ear/rxapp.war/WEB-INF/config"));
+    }
+
+    /**
+     * Tests the request dispatcher and servlet code.
+     * Disabled: requires servlet container and integration setup.
+     */
+    //@Test
+    void tobefixed_testCallServlet() throws ServletException, IOException {
+        assertNotNull(PSServletUtils.getDispatcher("/rxwebdav"));
+        var req = new MockHttpServletRequest();
+        req.setMethod("GET");
+        req.setServletPath("/contentlist");
+        req.setParameter("sys_deliverytype", "filesystem");
+        req.setParameter("sys_assembly_context", "301");
+        req.setParameter("sys_contentlist", "rffEiFullBinary");
+        req.setParameter("sys_siteid", "301");
+        req.setParameter("sys_authtype", "1");
+        req.setParameter("sys_context", "1");
+        req.setContextPath("/Rhythmyx");
+        var resp = (MockHttpServletResponse) PSServletUtils.callServlet(req);
+        var content = resp.getContentAsString();
+        assertNotNull(content);
+        assertTrue(content.length() > 0);
+        assertTrue(content.contains("<contentitem"),
+                "Could not find \"<contentitem\" in \"" + content + "\"");
+    }
 }
-

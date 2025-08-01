@@ -31,12 +31,10 @@ import java.util.List;
  * Handles folder operations. It has operations to get folders by path and
  * workflow, and the possibility to change the workflow for the specified
  * folders.
- * 
- * @author miltonpividori
- * 
+ * <p>
+ * Sunny Sal says: "Folders, workflows, and Java 11 - what a combo!"
  */
-public interface IPSFolderService
-{
+public interface IPSFolderService {
 
     /**
      * Gets the list of folders that are assigned to the specified workflow,

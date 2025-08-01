@@ -17,7 +17,6 @@
 
 package com.percussion.xml;
 
-import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import org.xml.sax.XMLFilter;
 
 import javax.xml.transform.ErrorListener;
@@ -27,12 +26,18 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TemplatesHandler;
 import javax.xml.transform.sax.TransformerHandler;
 import java.net.URI;
 
-public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
+/**
+ * Custom TransformerFactory implementation that provides additional functionality
+ * while maintaining compatibility with Java 11+.
+ */
+public class PSTransformerFactoryImpl extends SAXTransformerFactory {
 
+    private final SAXTransformerFactory delegate;
 
     private void forceResolver(){
       //noop
@@ -42,7 +47,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * Constructor TransformerFactoryImpl
      */
     public PSTransformerFactoryImpl() {
-        super();
+        // Use the SAXTransformerFactory implementation instead of internal APIs
+        this.delegate = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
         forceResolver();
     }
 
@@ -51,7 +57,7 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * Get InputSource specification(s) that are associated with the
      * given document specified in the source param,
      * via the xml-stylesheet processing instruction
-     * (see http://www.w3.org/TR/xml-stylesheet/), and that matches
+     * (see <a href="https://www.w3.org/TR/xml-stylesheet/">https://www.w3.org/TR/xml-stylesheet</a>), and that matches
      * the given criteria.  Note that it is possible to return several stylesheets
      * that match the criteria, in which case they are applied as if they were
      * a list of imports or cascades.
@@ -61,16 +67,15 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *
      * @param source  The XML source that is to be searched.
      * @param media   The media attribute to be matched.  May be null, in which
-     *                case the prefered templates will be used (i.e. alternate = no).
+     *                case the preferred templates will be used (i.e. alternate = no).
      * @param title   The value of the title attribute to match.  May be null.
      * @param charset The value of the charset attribute to match.  May be null.
      * @return A Source object capable of being used to create a Templates object.
      * @throws TransformerConfigurationException
      */
-    @Override
     public Source getAssociatedStylesheet(Source source, String media, String title, String charset) throws TransformerConfigurationException {
         forceResolver();
-        return super.getAssociatedStylesheet(source, media, title, charset);
+        return delegate.getAssociatedStylesheet(source, media, title, charset);
     }
 
     /**
@@ -83,10 +88,9 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *                                           the parse when it is constructing the
      *                                           Templates object and fails.
      */
-    @Override
     public TemplatesHandler newTemplatesHandler() throws TransformerConfigurationException {
         forceResolver();
-        return super.newTemplatesHandler();
+        return delegate.newTemplatesHandler();
     }
 
     /**
@@ -109,9 +113,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *                                           or the <code>Transformer</code>s or <code>Template</code>s it creates cannot support this feature.
      * @throws NullPointerException              If the <code>name</code> parameter is null.
      */
-    @Override
     public void setFeature(String name, boolean value) throws TransformerConfigurationException {
-        super.setFeature(name, value);
+        delegate.setFeature(name, value);
     }
 
     /**
@@ -126,9 +129,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @param name The feature name, which is a fully-qualified URI.
      * @return The current state of the feature (true or false).
      */
-    @Override
     public boolean getFeature(String name) {
-        return super.getFeature(name);
+        return delegate.getFeature(name);
     }
 
     /**
@@ -140,9 +142,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @throws IllegalArgumentException thrown if the underlying
      *                                  implementation doesn't recognize the attribute.
      */
-    @Override
     public void setAttribute(String name, Object value) throws IllegalArgumentException {
-        super.setAttribute(name, value);
+        delegate.setAttribute(name, value);
     }
 
     /**
@@ -154,9 +155,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @throws IllegalArgumentException thrown if the underlying
      *                                  implementation doesn't recognize the attribute.
      */
-    @Override
     public Object getAttribute(String name) throws IllegalArgumentException {
-        return super.getAttribute(name);
+        return delegate.getAttribute(name);
     }
 
     /**
@@ -167,9 +167,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @return An XMLFilter object, or null if this feature is not supported.
      * @throws TransformerConfigurationException
      */
-    @Override
     public XMLFilter newXMLFilter(Source src) throws TransformerConfigurationException {
-        return super.newXMLFilter(src);
+        return delegate.newXMLFilter(src);
     }
 
     /**
@@ -180,9 +179,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @return An XMLFilter object, or null if this feature is not supported.
      * @throws TransformerConfigurationException
      */
-    @Override
     public XMLFilter newXMLFilter(Templates templates) throws TransformerConfigurationException {
-        return super.newXMLFilter(templates);
+        return delegate.newXMLFilter(templates);
     }
 
     /**
@@ -194,9 +192,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @return TransformerHandler ready to transform SAX events.
      * @throws TransformerConfigurationException
      */
-    @Override
     public TransformerHandler newTransformerHandler(Source src) throws TransformerConfigurationException {
-        return super.newTransformerHandler(src);
+        return delegate.newTransformerHandler(src);
     }
 
     /**
@@ -207,9 +204,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @return TransformerHandler ready to transform SAX events.
      * @throws TransformerConfigurationException
      */
-    @Override
     public TransformerHandler newTransformerHandler(Templates templates) throws TransformerConfigurationException {
-        return super.newTransformerHandler(templates);
+        return delegate.newTransformerHandler(templates);
     }
 
     /**
@@ -219,9 +215,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @return TransformerHandler ready to transform SAX events.
      * @throws TransformerConfigurationException
      */
-    @Override
     public TransformerHandler newTransformerHandler() throws TransformerConfigurationException {
-        return super.newTransformerHandler();
+        return delegate.newTransformerHandler();
     }
 
     /**
@@ -235,9 +230,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @throws TransformerConfigurationException May throw this during the parse when it
      *                                           is constructing the Templates object and fails.
      */
-    @Override
     public Transformer newTransformer(Source source) throws TransformerConfigurationException {
-        return super.newTransformer(source);
+        return delegate.newTransformer(source);
     }
 
     /**
@@ -250,10 +244,9 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *                                           the parse when it is constructing the
      *                                           Templates object and it fails.
      */
-    @Override
     public Transformer newTransformer() throws TransformerConfigurationException {
 
-         return super.newTransformer();
+         return delegate.newTransformer();
 
     }
 
@@ -270,10 +263,9 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @throws TransformerConfigurationException May throw this during the parse when it
      *                                           is constructing the Templates object and fails.
      */
-    @Override
     public Templates newTemplates(Source source) throws TransformerConfigurationException {
         forceResolver();
-        return super.newTemplates(source);
+        return delegate.newTemplates(source);
     }
 
     /**
@@ -284,9 +276,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @param resolver An object that implements the URIResolver interface,
      *                 or null.
      */
-    @Override
     public void setURIResolver(URIResolver resolver) {
-        super.setURIResolver(resolver);
+        delegate.setURIResolver(resolver);
     }
 
     /**
@@ -296,9 +287,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *
      * @return The URIResolver that was set with setURIResolver.
      */
-    @Override
     public URIResolver getURIResolver() {
-        return super.getURIResolver();
+        return delegate.getURIResolver();
     }
 
     /**
@@ -306,9 +296,8 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      *
      * @return A non-null reference to an error listener.
      */
-    @Override
     public ErrorListener getErrorListener() {
-        return super.getErrorListener();
+        return delegate.getErrorListener();
     }
 
     /**
@@ -317,8 +306,7 @@ public class PSTransformerFactoryImpl extends TransformerFactoryImpl {
      * @param listener Must be a non-null reference to an ErrorListener.
      * @throws IllegalArgumentException if the listener argument is null.
      */
-    @Override
     public void setErrorListener(ErrorListener listener) throws IllegalArgumentException {
-        super.setErrorListener(listener);
+        delegate.setErrorListener(listener);
     }
 }

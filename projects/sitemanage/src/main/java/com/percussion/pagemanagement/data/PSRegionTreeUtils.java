@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -32,292 +33,242 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import com.percussion.pagemanagement.data.PSRegionTreeUtils.PSRegionNodeWrapper.Type;
-
-
-
 /**
  * Utilities for {@link PSRegionNode} trees.
- * 
  * @author adamgent
- *
  */
-public class PSRegionTreeUtils
-{
+public class PSRegionTreeUtils {
 
     /**
      * Will visit the nodes defined by the order of the iterator.
-     * @param it order of the nodes never <code>null</code>.
-     * @param visitor never <code>null</code>.
+     * @param it order of the nodes, never {@code null}.
+     * @param visitor never {@code null}.
      */
     public static void visitNodes(Iterator<PSRegionNode> it, IPSRegionNodeVisitor visitor) {
         notNull(it);
         notNull(visitor);
-        while(it.hasNext()) {
-            PSRegionNode node = it.next();
+        while (it.hasNext()) {
+            var node = it.next();
             node.accept(visitor);
         }
     }
-    
+
     /**
-     * Will visit the region nodes in natural order of the {@link PSRegionNode} tree. 
+     * Will visit the region nodes in natural order of the {@link PSRegionNode} tree.
      * The order is preorder, depth first search traversal.
-     * See: <a href="http://en.wikipedia.org/wiki/Tree_traversal">http://en.wikipedia.org/wiki/Tree_traversal</a>
-     * 
-     * @param rootNode
-     * @param visitor
+     * See: <a href="http://en.wikipedia.org/wiki/Tree_traversal">Tree traversal</a>
+     * @param rootNode the root node
+     * @param visitor the visitor
      */
     public static void visitNodes(PSRegionNode rootNode, IPSRegionNodeTreeVisitor visitor) {
         notNull(rootNode);
         notNull(visitor);
-        Iterator<PSRegionNodeWrapper> it = new PSRegionNodeWrapperIterator(rootNode);
-        while(it.hasNext()) {
-            PSRegionNodeWrapper nw = it.next();
-            if(nw.type == Type.START) {
+        var it = new PSRegionNodeWrapperIterator(rootNode);
+        while (it.hasNext()) {
+            var nw = it.next();
+            if (nw.type == Type.START) {
                 nw.node.accept(visitor.getStartRegionNodeVisitor());
-            }
-            else if (nw.type == Type.END) {
+            } else if (nw.type == Type.END) {
                 nw.node.accept(visitor.getEndRegionNodeVisitor());
-            }
-            else {
+            } else {
                 isTrue(false);
             }
         }
     }
-    
-    
+
     public static Map<String, PSRegion> regionMap(PSRegionNode rootNode) {
-        Iterator<PSRegion> regions = iterateRegions(rootNode);
-        Map<String, PSRegion> map = new HashMap<>();
-        while(regions.hasNext()) {
-            PSRegion r = regions.next();
+        var regions = iterateRegions(rootNode);
+        var map = new HashMap<String, PSRegion>();
+        while (regions.hasNext()) {
+            var r = regions.next();
             map.put(r.getRegionId(), r);
         }
         return map;
     }
-    
+
     public static Iterator<PSRegion> iterateRegions(PSRegionNode rootNode) {
-        PSRegionNodeWrapperIterator it = new PSRegionNodeWrapperIterator(rootNode);
-        List<PSRegion> regions = new ArrayList<>();
-        while(it.hasNext())
-        {
-            PSRegionNodeWrapper nw = it.next();
-            
+        var it = new PSRegionNodeWrapperIterator(rootNode);
+        var regions = new ArrayList<PSRegion>();
+        while (it.hasNext()) {
+            var nw = it.next();
             if (nw.node instanceof PSRegion && nw.type == Type.START) {
                 regions.add((PSRegion) nw.node);
             }
         }
         return regions.iterator();
     }
-    
-    
+
     public static List<? extends PSRegionNode> getChildren(PSRegionNode node) {
         if (node instanceof PSAbstractRegion) {
-            PSAbstractRegion r = (PSAbstractRegion) node;
-            if (r.getChildren() != null && ! r.getChildren().isEmpty()) {
+            var r = (PSAbstractRegion) node;
+            if (r.getChildren() != null && !r.getChildren().isEmpty()) {
                 return r.getChildren();
             }
         }
         return new ArrayList<>();
     }
-    
+
     @SuppressWarnings("unchecked")
     public static <T extends PSAbstractRegion> List<T> getChildRegions(PSRegionNode node) {
-        List<T> regions = new ArrayList<>();
-        List<? extends PSRegionNode> children = getChildren(node);
-        for(PSRegionNode child : children) {
-            if(child instanceof PSAbstractRegion) {
+        var regions = new ArrayList<T>();
+        var children = getChildren(node);
+        for (var child : children) {
+            if (child instanceof PSAbstractRegion) {
                 regions.add((T) child);
             }
         }
         return regions;
     }
-    
+
     public static boolean isLeaf(PSRegionNode node) {
         if (node instanceof PSAbstractRegion) {
-            List<? extends PSRegionNode>  nodes = ((PSAbstractRegion) node).getChildren();
-            if (nodes != null &&  ! nodes.isEmpty() ) {
+            var nodes = ((PSAbstractRegion) node).getChildren();
+            if (nodes != null && !nodes.isEmpty()) {
                 return false;
             }
         }
         return true;
     }
-    
-    
-    protected static class PSRegionNodeWrapper
-    {
+
+    protected static class PSRegionNodeWrapper {
         protected enum Type {
             START, END
         }
 
         protected PSRegionNode node;
-
         protected Type type;
 
-        public PSRegionNodeWrapper(PSRegionNode node, Type type)
-        {
+        public PSRegionNodeWrapper(PSRegionNode node, Type type) {
             super();
             this.node = node;
             this.type = type;
         }
-
     }
-   
+
     /**
-     * Converts a region Abstract Syntax Tree back into 
-     * template code.
-     * @param rootNode never <code>null</code>.
-     * @return never <code>null</code>.
+     * Converts a region Abstract Syntax Tree back into template code.
+     * @param rootNode never {@code null}.
+     * @return never {@code null}.
      */
     public static String treeToString(PSAbstractRegion rootNode) {
-        StringWriter sw = new StringWriter();
-        PSRegionTreeWriter tw = new PSRegionTreeWriter(sw);
+        var sw = new StringWriter();
+        var tw = new PSRegionTreeWriter(sw);
         tw.write(rootNode);
         return sw.toString();
     }
-    
+
     /**
-     * Retrieves a {@link Set} containing the leaf regions of the template. A
-     * leaf region is a region that does not contain another regions.
-     * 
-     * @param template {@link PSTemplate} object, cannot be <code>null</code>.
-     * @return {@link Set}<{@link PSRegion}> never <code>null</code>.
+     * Retrieves a {@link Set} containing the leaf regions of the template.
+     * A leaf region is a region that does not contain other regions.
+     * @param regionTree {@link PSRegionTree} object, cannot be {@code null}.
+     * @return {@link Set}<{@link PSRegion}> never {@code null}.
      */
-    public static Set<PSRegion> getWidgetRegions(PSRegionTree regionTree)
-    {
+    public static Set<PSRegion> getWidgetRegions(PSRegionTree regionTree) {
         notNull(regionTree);
 
-        if (regionTree.getRootRegion() == null)
-        {
+        if (regionTree.getRootRegion() == null) {
             return new HashSet<>();
         }
 
-        Set<PSRegion> leafRegions = new HashSet<>();
-        List<PSRegion> nodes = getChildRegions(regionTree.getRootRegion());
-        for (PSRegion region : nodes)
-        {
+        var leafRegions = new HashSet<PSRegion>();
+        var nodes = getChildRegions(regionTree.getRootRegion());
+        for (var region : nodes) {
             getWidgetRegionsFromChilds(leafRegions, region);
         }
         return leafRegions;
     }
 
     /**
-     * Recursively iterates over the nodes and get the leaf regions.
-     * 
-     * @param leafRegions {@link Set}<{@link PSRegion}> to save the leaf nodes.
-     *            Must not be <code>null</code>.
+     * Recursively iterates over the nodes and gets the leaf regions.
+     * @param leafRegions {@link Set}<{@link PSRegion}> to save the leaf nodes. Must not be {@code null}.
      * @param node {@link PSRegion} representing the current node.
      */
-    private static void getWidgetRegionsFromChilds(Set<PSRegion> leafRegions, PSRegion node)
-    {
-        if (isWidgetRegion(node))
-        {
+    private static void getWidgetRegionsFromChilds(Set<PSRegion> leafRegions, PSRegion node) {
+        if (isWidgetRegion(node)) {
             leafRegions.add(node);
             return;
         }
-        
-        List<PSRegion> nodes = getChildRegions(node);
-        for (PSRegion region : nodes)
-        {
+        var nodes = getChildRegions(node);
+        for (var region : nodes) {
             getWidgetRegionsFromChilds(leafRegions, region);
         }
     }
 
     /**
-     * Gets the leaf regions of the template and returns those that don't have
-     * widgets in it.
-     * 
-     * @param regionTree
-     * @return {@link Set}<{@link PSRegion}> never <code>null</code>.
+     * Gets the leaf regions of the template and returns those that don't have widgets in them.
+     * @param regionTree the region tree
+     * @return {@link Set}<{@link PSRegion}> never {@code null}.
      */
-    public static Set<PSRegion> getEmptyWidgetRegions(PSRegionTree regionTree)
-    {
+    public static Set<PSRegion> getEmptyWidgetRegions(PSRegionTree regionTree) {
         notNull(regionTree);
-        
-        Set<PSRegion> emptyLeafs = new HashSet<>();
-        Set<PSRegion> leafs = getWidgetRegions(regionTree);
-        Set<String> notEmptyRegions = regionTree.getRegionWidgetsMap().keySet();
-        
-        for(PSRegion region : leafs)
-        {
-            if(!notEmptyRegions.contains(region.getRegionId()))
-            {
-                emptyLeafs.add(region); 
+
+        var emptyLeafs = new HashSet<PSRegion>();
+        var leafs = getWidgetRegions(regionTree);
+        var notEmptyRegions = regionTree.getRegionWidgetsMap().keySet();
+
+        for (var region : leafs) {
+            if (!notEmptyRegions.contains(region.getRegionId())) {
+                emptyLeafs.add(region);
             }
         }
         return emptyLeafs;
     }
 
     /**
-     * A {@link PSRegion} is leaf if:
-     * <p>
-     * <li>its children collection is empty
-     * <li>its children collection is not empty, but the children are instances
-     * of {@link PSRegionCode}
-     * 
-     * @param region {@link PSRegion} object, must not be <code>null</code>
-     * @return <code>true</code> if the region is leaf, <code>false</code>
-     *         otherwise.
+     * A {@link PSRegion} is a leaf if:
+     * <ul>
+     * <li>its children collection is empty</li>
+     * <li>its children collection is not empty, but the children are instances of {@link PSRegionCode}</li>
+     * </ul>
+     * @param region {@link PSRegion} object, must not be {@code null}
+     * @return {@code true} if the region is a leaf, {@code false} otherwise.
      */
-    private static boolean isWidgetRegion(PSRegion region)
-    {
-        if (isEmpty(region.getChildren()))
-        {
+    private static boolean isWidgetRegion(PSRegion region) {
+        if (isEmpty(region.getChildren())) {
             return true;
         }
-
-        if (region.getChildren().size() == 1 && region.getChildren().get(0) instanceof PSRegionCode)
-        {
+        if (region.getChildren().size() == 1 && region.getChildren().get(0) instanceof PSRegionCode) {
             return true;
         }
-
         return false;
     }
-    
-    protected static class PSRegionNodeWrapperIterator implements Iterator<PSRegionNodeWrapper> {        
-        private Stack<PSRegionNodeWrapper> nodeStack = new Stack<>();
-        
-        
-        public PSRegionNodeWrapperIterator(PSRegionNode rootNode)
-        {
+
+    protected static class PSRegionNodeWrapperIterator implements Iterator<PSRegionNodeWrapper> {
+        private final Stack<PSRegionNodeWrapper> nodeStack = new Stack<>();
+
+        public PSRegionNodeWrapperIterator(PSRegionNode rootNode) {
             super();
             nodeStack.push(new PSRegionNodeWrapper(rootNode, Type.START));
         }
 
-
-        public boolean hasNext()
-        {
-            return ! nodeStack.isEmpty();
+        @Override
+        public boolean hasNext() {
+            return !nodeStack.isEmpty();
         }
 
-        public PSRegionNodeWrapper next()
-        {
-            
-            PSRegionNodeWrapper nodeWrapper = nodeStack.pop();
-            PSRegionNode node = nodeWrapper.node;
+        @Override
+        public PSRegionNodeWrapper next() {
+            var nodeWrapper = nodeStack.pop();
+            var node = nodeWrapper.node;
             if (nodeWrapper.type == Type.START) {
                 nodeStack.push(new PSRegionNodeWrapper(nodeWrapper.node, Type.END));
                 if (node instanceof PSAbstractRegion) {
-                    PSAbstractRegion r = (PSAbstractRegion) node;
-                    if ( r.getChildren() != null && ! r.getChildren().isEmpty()) {
-                        List<? extends PSRegionNode> children = r.getChildren();
-                        children = new ArrayList<>(children);
+                    var r = (PSAbstractRegion) node;
+                    if (r.getChildren() != null && !r.getChildren().isEmpty()) {
+                        var children = new ArrayList<>(r.getChildren());
                         Collections.reverse(children);
-                        for( PSRegionNode child : children) {
+                        for (var child : children) {
                             nodeStack.push(new PSRegionNodeWrapper(child, Type.START));
                         }
-                        
                     }
                 }
             }
             return nodeWrapper;
         }
 
-        public void remove()
-        {
+        @Override
+        public void remove() {
             throw new UnsupportedOperationException("remove is not yet supported");
         }
-    
     }
-    
 }

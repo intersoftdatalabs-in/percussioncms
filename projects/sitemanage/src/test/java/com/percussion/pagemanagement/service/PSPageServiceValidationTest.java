@@ -56,6 +56,7 @@ import org.junit.runner.RunWith;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertNotNull;
@@ -115,8 +116,8 @@ public class PSPageServiceValidationTest
         idMapper = context.mock(IPSIdMapper.class);
         widgetAssetRelationshipService = context.mock(IPSWidgetAssetRelationshipService.class);
         widgetService = context.mock(IPSWidgetService.class);
-        itemWorkflowService = context.mock(IPSItemWorkflowService.class);   
-        publishingWs        = context.mock(IPSPublishingWs.class);
+        itemWorkflowService = context.mock(IPSItemWorkflowService.class);
+        publishingWs = context.mock(IPSPublishingWs.class);
         contentItemDao = context.mock(IPSContentItemDao.class);
         templateDao = context.mock(IPSTemplateDao.class);
         siteDao = context.mock(IPSiteDao.class);
@@ -124,8 +125,7 @@ public class PSPageServiceValidationTest
         recentService = context.mock(IPSRecentService.class);
         recycleService = context.mock(IPSRecycleService.class);
         dataItemSummaryService = context.mock(IPSDataItemSummaryService.class);
-        
-        //IPSContentWs contentWs, IPSContentDesignWs contentDesignWs, IPSSystemWs systemWs, IPSIdMapper idMapper
+
         sut = new PSPageService(folderHelperWs, contentDesignWs,contentWs,idMapper, pageDao, widgetAssetRelationshipService,
                 widgetService, itemWorkflowService, publishingWs, pageDaoHelper, contentItemDao, templateDao,
                 siteDao, pageTemplateService, recycleService, dataItemSummaryService);

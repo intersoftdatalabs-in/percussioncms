@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,55 +20,56 @@ package com.percussion.category;
 
 import com.percussion.category.data.PSCategory;
 import com.percussion.category.data.PSCategoryNode;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Unit tests for PSCategory.
+ */
 public class PSCategoryTests {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    java.nio.file.Path tempFolder;
 
-    public PSCategoryTests(){}
+    public PSCategoryTests() {}
 
     @Test
-    @Ignore("TODO: Fix me.  This test will always fail as written.")
-    public void testToJson(){
-        PSCategory cat = new PSCategory();
-
+    @Disabled("TODO: Fix me. This test will always fail as written.")
+    public void testToJson() {
+        var cat = new PSCategory();
         cat.setTitle("TEST");
         cat.setAllowedSites("TEST");
 
-        List<PSCategoryNode> topnodes = new ArrayList<PSCategoryNode>();
-        List<PSCategoryNode> childnodes = new ArrayList<PSCategoryNode>();
+        var topNodes = new ArrayList<PSCategoryNode>();
+        var childNodes = new ArrayList<PSCategoryNode>();
 
-        PSCategoryNode childnode = new PSCategoryNode();
-        childnode.setId("2");
-        childnode.setCreatedBy("L2TEST_CREATED_BY");
-        childnode.setSelectable(true);
-        childnode.setChildNodes(null);
-        childnode.setCreationDate(LocalDateTime.now());
-        childnode.setTitle("L2TEST_TITLE");
-        childnode.setDeleted(false);
-        childnode.setOldId(null);
-        childnode.setAllowedSites(null);
-        childnode.setInitialViewCollapsed(true);
-        childnode.setLastModifiedBy("L2TEST_MODIFIED_BY");
-        childnode.setLastModifiedDate(LocalDateTime.now());
-        childnodes.add(childnode);
+        var childNode = new PSCategoryNode();
+        childNode.setId("2");
+        childNode.setCreatedBy("L2TEST_CREATED_BY");
+        childNode.setSelectable(true);
+        childNode.setChildNodes(null);
+        childNode.setCreationDate(LocalDateTime.now());
+        childNode.setTitle("L2TEST_TITLE");
+        childNode.setDeleted(false);
+        childNode.setOldId(null);
+        childNode.setAllowedSites(null);
+        childNode.setInitialViewCollapsed(true);
+        childNode.setLastModifiedBy("L2TEST_MODIFIED_BY");
+        childNode.setLastModifiedDate(LocalDateTime.now());
+        childNodes.add(childNode);
 
-        PSCategoryNode node = new PSCategoryNode();
+        var node = new PSCategoryNode();
         node.setId("1");
         node.setCreatedBy("L1TEST_CREATED_BY");
         node.setSelectable(true);
-        node.setChildNodes(childnodes);
+        node.setChildNodes(childNodes);
         node.setCreationDate(LocalDateTime.now());
         node.setTitle("L1TEST_TITLE");
         node.setDeleted(false);
@@ -76,10 +78,10 @@ public class PSCategoryTests {
         node.setInitialViewCollapsed(true);
         node.setLastModifiedBy("L1TEST_MODIFIED_BY");
         node.setLastModifiedDate(LocalDateTime.now());
-        topnodes.add(node);
+        topNodes.add(node);
 
-        cat.setTopLevelNodes(topnodes);
+        cat.setTopLevelNodes(topNodes);
 
-        assertEquals("{}",cat.toJSON());
+        assertEquals("{}", cat.toJSON());
     }
 }

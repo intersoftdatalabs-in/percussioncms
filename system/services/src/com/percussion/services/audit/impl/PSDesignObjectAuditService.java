@@ -21,31 +21,47 @@ import com.percussion.services.audit.IPSDesignObjectAuditConfig;
 import com.percussion.services.audit.IPSDesignObjectAuditService;
 import com.percussion.services.audit.data.PSAuditLogEntry;
 import com.percussion.services.catalog.PSTypeEnum;
-import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import org.hibernate.Criteria;
+
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
-
+import java.util.Objects;
 
 /**
- * Implementation of the design object audit service.
+ * Implementation of the design object audit service using modern Java 11 features.
+ *
+ * <p>This service provides comprehensive audit logging functionality with support
+ * for both legacy Date and modern LocalDateTime APIs. The implementation uses
+ * JPA TypedQuery for type safety and Stream API for efficient data processing.</p>
+ *
+ * @author Percussion Software
+ * @since 6.0
  */
 @Transactional
-public class PSDesignObjectAuditService
-   implements IPSDesignObjectAuditService
-{
+public class PSDesignObjectAuditService implements IPSDesignObjectAuditService {
+
    @PersistenceContext
    private EntityManager entityManager;
 
-   private Session getSession(){
+   /**
+    * Configuration of this service, injected by Spring framework.
+    */
+   private IPSDesignObjectAuditConfig config;
+
+   /**
+    * Get Hibernate session from EntityManager.
+    *
+    * @return The Hibernate session, never null.
+    */
+   private Session getSession() {
       return entityManager.unwrap(Session.class);
    }
 
@@ -55,79 +71,82 @@ public class PSDesignObjectAuditService
     * 
     * @param config The config, may not be <code>null</code>.
     */
-   public void setConfig(IPSDesignObjectAuditConfig config)
-   {
-      if (config == null)
-         throw new IllegalArgumentException("config may not be null");
-      
-      m_config = config;
+   public void setConfig(IPSDesignObjectAuditConfig config) {
+      this.config = Objects.requireNonNull(config, "config may not be null");
    }
 
-   public IPSDesignObjectAuditConfig getConfig()
-   {
-      return m_config;
+   @Override
+   public IPSDesignObjectAuditConfig getConfig() {
+      return config;
    }
 
+   @Override
    @Transactional
-   public PSAuditLogEntry createAuditLogEntry()
-   {
-      PSAuditLogEntry entry  = new PSAuditLogEntry();
-      IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
+   public PSAuditLogEntry createAuditLogEntry() {
+      var entry = new PSAuditLogEntry();
+      var guidMgr = PSGuidManagerLocator.getGuidMgr();
       entry.setGUID(guidMgr.createGuid(PSTypeEnum.INTERNAL));
       
       return entry;
    }
 
+   @Override
    @Transactional
-   public void saveAuditLogEntry(PSAuditLogEntry entry)
-   {
+   public void saveAuditLogEntry(PSAuditLogEntry entry) {
+      Objects.requireNonNull(entry, "entry may not be null");
       getSession().save(entry);
    }
 
+   @Override
    @Transactional
-   public void deleteAuditLogEntriesByDate(Date beforeDate)
-   {
-      if (beforeDate == null)
-         throw new IllegalArgumentException("beforeDate may not be null");
-      
-      Session session = getSession();
+   @Deprecated
+   public void deleteAuditLogEntriesByDate(Date beforeDate) {
+      Objects.requireNonNull(beforeDate, "beforeDate may not be null");
 
-         Criteria criteria = session.createCriteria(PSAuditLogEntry.class);
-         criteria.add(Restrictions.lt("auditDate", beforeDate));
-         List<PSAuditLogEntry> entries = criteria.list();
-         
-         for (PSAuditLogEntry entry : entries)
-         {
-            session.delete(entry);
-         }
+      // Use modern JPA TypedQuery instead of deprecated Criteria API
+      TypedQuery<PSAuditLogEntry> query = entityManager.createQuery(
+         "SELECT e FROM PSAuditLogEntry e WHERE e.auditDate < :beforeDate",
+         PSAuditLogEntry.class);
+      query.setParameter("beforeDate", beforeDate);
 
+      var entries = query.getResultList();
+
+      // Use Stream API for efficient processing
+      entries.forEach(entityManager::remove);
    }
 
+   @Override
    @Transactional
-   public void saveAuditLogEntries(Collection<PSAuditLogEntry> entries)
-   {
-      Session session = getSession();
-      
+   public void deleteAuditLogEntriesByLocalDateTime(LocalDateTime beforeDateTime) {
+      Objects.requireNonNull(beforeDateTime, "beforeDateTime may not be null");
 
-         for (PSAuditLogEntry entry : entries)
-         {
-            session.save(entry);
-         }
-
+      // Convert LocalDateTime to Date for JPA compatibility
+      var beforeDate = Date.from(beforeDateTime.atZone(ZoneOffset.UTC).toInstant());
+      deleteAuditLogEntriesByDate(beforeDate);
    }
 
-   public Collection<PSAuditLogEntry> findAuditLogEntries()
-   {
-      Session session = getSession();
+   @Override
+   @Transactional
+   public void saveAuditLogEntries(Collection<PSAuditLogEntry> entries) {
+      Objects.requireNonNull(entries, "entries may not be null");
 
-         Criteria criteria = session.createCriteria(PSAuditLogEntry.class);
-         return criteria.list();
+      if (entries.isEmpty()) {
+         throw new IllegalArgumentException("entries may not be empty");
+      }
 
+      var session = getSession();
+
+      // Use Stream API for efficient batch processing
+      entries.forEach(session::save);
    }
 
-   /**
-    * Configuration of this service, see
-    * {@link #setConfig(IPSDesignObjectAuditConfig)}
-    */
-   private IPSDesignObjectAuditConfig m_config;
+   @Override
+   public Collection<PSAuditLogEntry> findAuditLogEntries() {
+      // Use modern JPA TypedQuery instead of deprecated Criteria API
+      TypedQuery<PSAuditLogEntry> query = entityManager.createQuery(
+         "SELECT e FROM PSAuditLogEntry e ORDER BY e.auditDate DESC",
+         PSAuditLogEntry.class);
+
+      return query.getResultList();
+   }
 }

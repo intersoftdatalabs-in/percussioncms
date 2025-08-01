@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,40 +23,53 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
 @XmlRootElement(name = "Flash")
 @JsonInclude(Include.NON_NULL)
-@Schema(description="Represents a binary Flash file.")
-public class Flash extends ImageInfo
-{
-	private String flashVersion;
-	private String usage;
-	/**
-	 * @return the flashVersion
-	 */
-	public String getFlashVersion()
-	{
-		return flashVersion;
-	}
-	/**
-	 * @param flashVersion the flashVersion to set
-	 */
-	public void setFlashVersion(String flashVersion)
-	{
-		this.flashVersion = flashVersion;
-	}
-	/**
-	 * @return the usage
-	 */
-	public String getUsage()
-	{
-		return usage;
-	}
-	/**
-	 * @param usage the usage to set
-	 */
-	public void setUsage(String usage)
-	{
-		this.usage = usage;
-	}
+@Schema(description = "Represents a binary Flash file.")
+public class Flash extends ImageInfo {
+
+    private String flashVersion;
+    private String usage;
+
+    public Optional<String> getFlashVersion() {
+        return Optional.ofNullable(flashVersion);
+    }
+
+    public void setFlashVersion(String flashVersion) {
+        this.flashVersion = flashVersion;
+    }
+
+    public Optional<String> getUsage() {
+        return Optional.ofNullable(usage);
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Flash)) return false;
+        if (!super.equals(o)) return false;
+        var that = (Flash) o;
+        return Objects.equals(flashVersion, that.flashVersion)
+                && Objects.equals(usage, that.usage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), flashVersion, usage);
+    }
+
+    @Override
+    public String toString() {
+        return "Flash{" +
+                "flashVersion='" + flashVersion + '\'' +
+                ", usage='" + usage + '\'' +
+                "} " + super.toString();
+    }
 }

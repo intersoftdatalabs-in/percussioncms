@@ -17,11 +17,7 @@
 
 package com.percussion.theme;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.data.PSRegionTree;
 import com.percussion.pagemanagement.data.PSRegionTreeTest;
@@ -33,11 +29,8 @@ import com.percussion.theme.data.PSRegionCSS.Property;
 import com.percussion.theme.service.impl.PSRegionCSSFileService;
 import com.percussion.theme.service.impl.PSThemeService;
 import com.percussion.util.PSPurgableTempFile;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,19 +40,20 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class PSRegionCSSFileServiceTest
-{
+/**
+ * Unit tests for {@link PSRegionCSSFileService}.
+ * // REFACTORED: CP-JAVA11
+ */
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class PSRegionCSSFileServiceTest {
+
     private PSThemeService themeService;
-
     private PSRegionCSSFileService cssService;
-
     private List<PSPurgableTempFile> tempFiles;
-    
-    final static int SAMPLE_SIZE = 3;
-    
-    @Before
-    public void setup()
-    {
+    private static final int SAMPLE_SIZE = 3;
+
+    @BeforeEach
+    public void setup() {
         themeService = new PSThemeService();
         themeService.setThemesRootDirectory("src/test/resources/themes");
         themeService.setThemesRootRelativeUrl("/Rhythmyx/web_resources/themes");
@@ -67,267 +61,235 @@ public class PSRegionCSSFileServiceTest
         themeService.setThemesTempRootRelativeUrl("/Rhythmyx/sys_resources/temp/themes");
 
         cssService = new PSRegionCSSFileService();
-        
-        tempFiles = new ArrayList<PSPurgableTempFile>();
+        tempFiles = new ArrayList<>();
     }
 
-    @After
-    public void tearDown()
-    {
-        for (PSPurgableTempFile f : tempFiles)
-        {
+    @AfterEach
+    public void tearDown() {
+        for (var f : tempFiles) {
             f.delete();
         }
     }
-    
-    @Test
-    public void testRead() throws Exception
-    {
-        List<PSRegionCSS> regions = readFromSampleFile();
-        assertTrue(regions.size() == SAMPLE_SIZE);
-        assertEquals("Region CSS file must equals sample data", regions, getSampleRegions());
 
-        List<PSRegionCSS> writeList = writeToTempFileThenRead(regions);
-        assertEquals("Region list, write then read must be equals", regions, writeList);
+    @Test
+    public void testRead() throws Exception {
+        var regions = readFromSampleFile();
+        assertEquals(SAMPLE_SIZE, regions.size());
+        assertEquals(regions, getSampleRegions(), "Region CSS file must equal sample data");
+
+        var writeList = writeToTempFileThenRead(regions);
+        assertEquals(regions, writeList, "Region list, write then read must be equal");
     }
 
     @Test
-    public void testFind() throws Exception
-    {
-        PSRegionCSS regionCSS = cssService.findRegionCSS("container", "header", getSampleFilePath());
-        assertNotNull("Sample file must contain \"container\" & \"header\" region CSS", regionCSS);
+    public void testFind() throws Exception {
+        var regionCSS = cssService.findRegionCSS("container", "header", getSampleFilePath());
+        assertNotNull(regionCSS, "Sample file must contain \"container\" & \"header\" region CSS");
 
         regionCSS = cssService.findRegionCSS("container", "container", getSampleFilePath());
-        assertNotNull("Sample file must contain \"container\" & \"container\" region CSS", regionCSS);
+        assertNotNull(regionCSS, "Sample file must contain \"container\" & \"container\" region CSS");
 
         regionCSS = cssService.findRegionCSS("container", "unkown", getSampleFilePath());
-        assertTrue("Sample file must contain \"container\" & \"unkown\" region CSS", regionCSS == null);
+        assertNull(regionCSS, "Sample file must not contain \"container\" & \"unkown\" region CSS");
     }
 
     @Test
-    public void testSave() throws Exception
-    {
-        PSRegionCSS container = createTestRegionCSS("container", "container");
+    public void testSave() throws Exception {
+        var container = createTestRegionCSS("container", "container");
 
-        PSPurgableTempFile tempFile = copySampleToTempFile();
-        PSRegionCSS regionCSS = cssService.findRegionCSS(container.getOuterRegionName(), container.getRegionName(), tempFile.getAbsolutePath());
-        assertNotNull("Sample file must contain \"container\" & \"container\" region CSS", regionCSS);
-        
+        var tempFile = copySampleToTempFile();
+        var regionCSS = cssService.findRegionCSS(container.getOuterRegionName(), container.getRegionName(), tempFile.getAbsolutePath());
+        assertNotNull(regionCSS, "Sample file must contain \"container\" & \"container\" region CSS");
+
         // test save as update
-        List<PSRegionCSS> regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue(regions.size() == SAMPLE_SIZE);
+        var regions = cssService.read(tempFile.getAbsolutePath());
+        assertEquals(SAMPLE_SIZE, regions.size());
         cssService.save(container, tempFile.getAbsolutePath());
         regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue("The save is an update operation", regions.size() == SAMPLE_SIZE);
-        
+        assertEquals(SAMPLE_SIZE, regions.size(), "The save is an update operation");
+
         // test save as add
         container.setRegionName("middle");
         regionCSS = cssService.findRegionCSS(container.getOuterRegionName(), container.getRegionName(), tempFile.getAbsolutePath());
-        assertNull("Region CSS does not contain \"container\" & \"middle\" region CSS", regionCSS);
-        
+        assertNull(regionCSS, "Region CSS does not contain \"container\" & \"middle\" region CSS");
+
         cssService.save(container, tempFile.getAbsolutePath());
         regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue("The save is an add operation", regions.size() == SAMPLE_SIZE + 1);
+        assertEquals(SAMPLE_SIZE + 1, regions.size(), "The save is an add operation");
     }
-    
-    @SuppressWarnings("unchecked")
+
     @Test
-    public void testSort() throws Exception
-    {
-        PSPurgableTempFile tempFile = copySampleToTempFile();
-        PSRegionCSS middle = createTestRegionCSS("container", "middle");
+    public void testSort() throws Exception {
+        var tempFile = copySampleToTempFile();
+        var middle = createTestRegionCSS("container", "middle");
         cssService.save(middle, tempFile.getAbsolutePath());
-        List<PSRegionCSS> regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue("Just added a region", regions.size() == SAMPLE_SIZE + 1);
-        
-        List<PSRegionCSS> sortRegions = readFromSampleFile();
+        var regions = cssService.read(tempFile.getAbsolutePath());
+        assertEquals(SAMPLE_SIZE + 1, regions.size(), "Just added a region");
+
+        var sortRegions = readFromSampleFile();
         sortRegions.add(middle);
         Collections.sort(sortRegions);
-        
-        assertEquals("The regions should be sorted", sortRegions, regions);
+
+        assertEquals(sortRegions, regions, "The regions should be sorted");
     }
 
     @Test
-    public void testDelete() throws Exception
-    {
+    public void testDelete() throws Exception {
         final String OUTER = "container";
         final String MIDDLE = "middle";
-        PSPurgableTempFile tempFile = copySampleToTempFile();
-        PSRegionCSS regionCSS = cssService.findRegionCSS(OUTER, MIDDLE, tempFile.getAbsolutePath());
-        assertNull("Region CSS does not contain \"container\" & \"middle\" region CSS", regionCSS);
+        var tempFile = copySampleToTempFile();
+        var regionCSS = cssService.findRegionCSS(OUTER, MIDDLE, tempFile.getAbsolutePath());
+        assertNull(regionCSS, "Region CSS does not contain \"container\" & \"middle\" region CSS");
 
         // delete nothing if not exist
-        List<PSRegionCSS> regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue(regions.size() == SAMPLE_SIZE);
+        var regions = cssService.read(tempFile.getAbsolutePath());
+        assertEquals(SAMPLE_SIZE, regions.size());
         cssService.delete(OUTER, MIDDLE, tempFile.getAbsolutePath());
         regions = cssService.read(tempFile.getAbsolutePath());
-        assertTrue("There was nothting to delete", regions.size() == SAMPLE_SIZE);
-        
+        assertEquals(SAMPLE_SIZE, regions.size(), "There was nothing to delete");
+
         final String HEADER = "header";
-        
+
         // delete an existing region
         regionCSS = cssService.findRegionCSS(OUTER, HEADER, tempFile.getAbsolutePath());
-        assertNotNull("Sample file must contain \"container\" & \"header\" region CSS", regionCSS);
-        
+        assertNotNull(regionCSS, "Sample file must contain \"container\" & \"header\" region CSS");
+
         cssService.delete(OUTER, HEADER, tempFile.getAbsolutePath());
         regionCSS = cssService.findRegionCSS(OUTER, HEADER, tempFile.getAbsolutePath());
-        assertNull("Deleted \"container\" & \"header\" region CSS", regionCSS);
+        assertNull(regionCSS, "Deleted \"container\" & \"header\" region CSS");
     }
-    
+
     @Test
-    public void testCopy() throws Exception
-    {
-        PSPurgableTempFile tempFile = copySampleToTempFile();
-        PSPurgableTempFile tempCss = createTempCssFile();
-        
+    public void testCopy() throws Exception {
+        var tempFile = copySampleToTempFile();
+        var tempCss = createTempCssFile();
+
         cssService.copyFile(tempFile.getAbsolutePath(), tempCss.getAbsolutePath());
 
-        // validate the copy result        
-        String srcText = getStringFileFile(tempFile.getAbsolutePath());
-        String targetText = getStringFileFile(tempCss.getAbsolutePath());
+        // validate the copy result
+        var srcText = getStringFileFile(tempFile.getAbsolutePath());
+        var targetText = getStringFileFile(tempCss.getAbsolutePath());
 
         assertEquals(srcText, targetText);
     }
-    
-    private String getStringFileFile(String path) throws IOException
-    {
-        Reader reader = null; 
-        try
-        {
-            reader = new FileReader(path);
+
+    private String getStringFileFile(String path) throws IOException {
+        try (Reader reader = new FileReader(path)) {
             return IOUtils.toString(reader);
         }
-        finally
-        {
-            IOUtils.closeQuietly(reader);
-        }
     }
-    
+
     @Test
-    public void testCreateEmptyRegionCSS() throws Exception
-    {
-        PSPurgableTempFile tempCss = createTempCssFile();
+    public void testCreateEmptyRegionCSS() throws Exception {
+        var tempCss = createTempCssFile();
         tempCss.delete();
-        
+
         assertFalse(tempCss.exists());
 
         cssService.copyFile(null, tempCss.getAbsolutePath());
-        
-        String content = getStringFileFile(tempCss.getAbsolutePath());
-        assertTrue(content.equals(".percDummyRule{/* Dummy rule for correct HTML's LINK tag rendering during editing a template */}"));
+
+        var content = getStringFileFile(tempCss.getAbsolutePath());
+        assertEquals(".percDummyRule{/* Dummy rule for correct HTML's LINK tag rendering during editing a template */}", content);
         assertTrue(tempCss.exists());
     }
-    
-    private PSRegionCSS createTestRegionCSS(String outer, String region)
-    {
-        PSRegionCSS regionCSS = new PSRegionCSS(outer, region);
-        Property p = new Property("height", "11px");
-        List<Property> props = new ArrayList<Property>();
+
+    private PSRegionCSS createTestRegionCSS(String outer, String region) {
+        var regionCSS = new PSRegionCSS(outer, region);
+        var p = new Property("height", "11px");
+        var props = new ArrayList<Property>();
         props.add(p);
         regionCSS.setProperties(props);
-        
+
         return regionCSS;
     }
-    
+
     private List<PSRegionCSS> readFromSampleFile() throws IPSDataService.DataServiceNotFoundException, IPSDataService.DataServiceLoadException, PSValidationException {
-        List<PSRegionCSS> regions = cssService.read(getSampleFilePath());
-        return regions;
+        return cssService.read(getSampleFilePath());
     }
 
     private String getSampleFilePath() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-        PSThemeSummary summary = themeService.find("test");
-        assertNotNull("Region CSS file", summary.getRegionCssFilePath());
-        
+        var summary = themeService.find("test");
+        assertNotNull(summary.getRegionCssFilePath(), "Region CSS file");
+
         return getRegionCssFile(summary);
     }
 
     private List<PSRegionCSS> writeToTempFileThenRead(List<PSRegionCSS> regions) throws IOException, IPSDataService.PSThemeNotFoundException {
-        PSPurgableTempFile tempCss = new PSPurgableTempFile("temp", "css", null);
-        try
-        {
+        var tempCss = new PSPurgableTempFile("temp", "css", null);
+        try {
             cssService.write(tempCss.getAbsolutePath(), regions);
             return cssService.read(tempCss.getAbsolutePath());
-        }
-        finally
-        {
+        } finally {
             tempCss.delete();
         }
     }
 
     private PSPurgableTempFile copySampleToTempFile() throws IOException, IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-        PSPurgableTempFile tempCss = createTempCssFile();
-        List<PSRegionCSS> regions = readFromSampleFile();
+        var tempCss = createTempCssFile();
+        var regions = readFromSampleFile();
         cssService.write(tempCss.getAbsolutePath(), regions);
         return tempCss;
     }
 
-    private String getRegionCssFile(PSThemeSummary summary)
-    {
+    private String getRegionCssFile(PSThemeSummary summary) {
         return themeService.getThemesRootDirectory() + "/" + summary.getRegionCssFilePath();
     }
 
-    private PSPurgableTempFile createTempCssFile() throws IOException
-    {
-        PSPurgableTempFile tempCss = new PSPurgableTempFile("temp", "css", null);
+    private PSPurgableTempFile createTempCssFile() throws IOException {
+        var tempCss = new PSPurgableTempFile("temp", "css", null);
         tempFiles.add(tempCss);
         return tempCss;
     }
-    
-    private PSRegionTree getRegionTree() throws Exception
-    {
-        PSRegionTree tree = PSRegionTreeTest.loadRegionTree();
 
-        List<String> names = Arrays.asList(nameChildren);
-        List<String> regionNames = PSRegionTreeTest.getRegionIds(tree.getDescendentRegions());
+    private PSRegionTree getRegionTree() throws Exception {
+        var tree = PSRegionTreeTest.loadRegionTree();
+
+        var names = Arrays.asList(nameChildren);
+        var regionNames = PSRegionTreeTest.getRegionIds(tree.getDescendentRegions());
         assertEquals(names, regionNames);
-        
+
         return tree;
     }
 
-    private String[] nameChildren = new String[]{"container", "header", "middle", "leftsidebar", "content", "rightsidebar", "footer"};
-    
-    
+    private final String[] nameChildren = new String[]{"container", "header", "middle", "leftsidebar", "content", "rightsidebar", "footer"};
+
     @Test
-    public void testMergeRegionCSSFile() throws Exception 
-    {
+    public void testMergeRegionCSSFile() throws Exception {
         // simply copy resource to target as the merged result
-        PSRegionTree tree = getRegionTree();
+        var tree = getRegionTree();
         validateSourceMergeToTarget(tree, getSampleRegions_2(), getSampleRegions(), getSampleRegions_2());
         validateSourceMergeToTarget(tree, getSampleRegions_2(), getSampleRegions_3(), getSampleRegions_2());
 
         // empty tree, no change to the target
         tree = new PSRegionTree();
         validateSourceMergeToTarget(tree, getSampleRegions_2(), getSampleRegions_3(), getSampleRegions_3());
-        
+
         // empty source, no change to the target
         tree = getRegionTree();
-        validateSourceMergeToTarget(tree, new ArrayList<PSRegionCSS>(), getSampleRegions_3(), getSampleRegions_3());
-        
+        validateSourceMergeToTarget(tree, new ArrayList<>(), getSampleRegions_3(), getSampleRegions_3());
+
         // merged result is mixing the source into target
         validateSourceMergeToTarget(tree, getSampleRegions_4(), getSampleRegions_2(), getSampleRegions_4_merge_2());
-        
     }
 
-    private void validateSourceMergeToTarget(PSRegionTree tree, List<PSRegionCSS> src, 
-            List<PSRegionCSS> target, List<PSRegionCSS> finalRegions) throws Exception
-    {
-        PSPurgableTempFile tempCss = createTempCssFile();
+    private void validateSourceMergeToTarget(PSRegionTree tree, List<PSRegionCSS> src,
+                                            List<PSRegionCSS> target, List<PSRegionCSS> finalRegions) throws Exception {
+        var tempCss = createTempCssFile();
         cssService.write(tempCss.getAbsolutePath(), target);
-        
-        PSPurgableTempFile tempCss_2 = createTempCssFile();
-        cssService.write(tempCss_2.getAbsolutePath(), src);
 
-        cssService.mergeFile(tree, tempCss_2.getAbsolutePath(), tempCss.getAbsolutePath());
-        
-        List<PSRegionCSS> mergedRegions = cssService.read(tempCss.getAbsolutePath());
-        assertEquals("The merge should have copied source to target", mergedRegions, finalRegions);
+        var tempCss2 = createTempCssFile();
+        cssService.write(tempCss2.getAbsolutePath(), src);
+
+        cssService.mergeFile(tree, tempCss2.getAbsolutePath(), tempCss.getAbsolutePath());
+
+        var mergedRegions = cssService.read(tempCss.getAbsolutePath());
+        assertEquals(finalRegions, mergedRegions, "The merge should have copied source to target");
     }
-    
-    private List<PSRegionCSS> getSampleRegions()
-    {
-        List<PSRegionCSS> regions = new ArrayList<PSRegionCSS>();
 
-        PSRegionCSS r = new PSRegionCSS("container", "container");
+    private List<PSRegionCSS> getSampleRegions() {
+        var regions = new ArrayList<PSRegionCSS>();
+
+        var r = new PSRegionCSS("container", "container");
         addProperty(r, "font-family", "Verdana");
         addProperty(r, "font-size", "11px");
         addProperty(r, "font-weight", "normal");
@@ -345,11 +307,10 @@ public class PSRegionCSSFileServiceTest
         return regions;
     }
 
-    private List<PSRegionCSS> getSampleRegions_2()
-    {
-        List<PSRegionCSS> regions = new ArrayList<PSRegionCSS>();
+    private List<PSRegionCSS> getSampleRegions_2() {
+        var regions = new ArrayList<PSRegionCSS>();
 
-        PSRegionCSS r = new PSRegionCSS("container", "container");
+        var r = new PSRegionCSS("container", "container");
         addProperty(r, "font-family", "Verdana");
         addProperty(r, "font-weight", "normal");
         regions.add(r);
@@ -365,11 +326,10 @@ public class PSRegionCSSFileServiceTest
         return regions;
     }
 
-    private List<PSRegionCSS> getSampleRegions_3()
-    {
-        List<PSRegionCSS> regions = new ArrayList<PSRegionCSS>();
+    private List<PSRegionCSS> getSampleRegions_3() {
+        var regions = new ArrayList<PSRegionCSS>();
 
-        PSRegionCSS r = new PSRegionCSS("container", "header");
+        var r = new PSRegionCSS("container", "header");
         addProperty(r, "font-family", "Times,\"Times New Roman\",Georgia,serif");
         addProperty(r, "font-size", "22px");
         regions.add(r);
@@ -380,12 +340,11 @@ public class PSRegionCSSFileServiceTest
 
         return regions;
     }
-    
-    private List<PSRegionCSS> getSampleRegions_4()
-    {
-        List<PSRegionCSS> regions = new ArrayList<PSRegionCSS>();
 
-        PSRegionCSS r = new PSRegionCSS("container", "container");
+    private List<PSRegionCSS> getSampleRegions_4() {
+        var regions = new ArrayList<PSRegionCSS>();
+
+        var r = new PSRegionCSS("container", "container");
         addProperty(r, "font-weight", "normal");
         regions.add(r);
 
@@ -399,18 +358,17 @@ public class PSRegionCSSFileServiceTest
         regions.add(r);
 
         return regions;
-    }    
+    }
 
     /**
      * Gets the result of merging {@link #getSampleRegions_4()} into {@link #getSampleRegions_2()}.
      * @return the merged result.
      */
-    private List<PSRegionCSS> getSampleRegions_4_merge_2()
-    {
-        List<PSRegionCSS> regions = new ArrayList<PSRegionCSS>();
+    private List<PSRegionCSS> getSampleRegions_4_merge_2() {
+        var regions = new ArrayList<PSRegionCSS>();
 
         // from getSampleRegions_4()
-        PSRegionCSS r = new PSRegionCSS("container", "container");
+        var r = new PSRegionCSS("container", "container");
         addProperty(r, "font-weight", "normal");
         regions.add(r);
 
@@ -426,12 +384,10 @@ public class PSRegionCSSFileServiceTest
         regions.add(r);
 
         return regions;
-    }    
-    // private String[] nameChildren = new String[]{"container", "header", "middle", "leftsidebar", "content", "rightsidebar", "footer"};
-    
-    private void addProperty(PSRegionCSS r, String pname, String pvalue)
-    {
-        PSRegionCSS.Property p = new PSRegionCSS.Property(pname, pvalue);
+    }
+
+    private void addProperty(PSRegionCSS r, String pname, String pvalue) {
+        var p = new PSRegionCSS.Property(pname, pvalue);
         r.getProperties().add(p);
     }
 }

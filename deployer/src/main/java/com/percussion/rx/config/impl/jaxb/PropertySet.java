@@ -92,11 +92,8 @@ public class PropertySet {
 
     /**
      * Gets the value of the description property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the description, may be null
      */
     public String getDescription() {
         return description;
@@ -104,11 +101,8 @@ public class PropertySet {
 
     /**
      * Sets the value of the description property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the description to set, may be null
      */
     public void setDescription(String value) {
         this.description = value;
@@ -116,26 +110,12 @@ public class PropertySet {
 
     /**
      * Gets the value of the propertySetOrProperty property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
+     *
+     * <p>This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the propertySetOrProperty property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getPropertySetOrProperty().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Property }
-     * {@link PropertySet }
-     * 
-     * 
+     *
+     * @return the list of Property or PropertySet objects
      */
     public List<Object> getPropertySetOrProperty() {
         if (propertySetOrProperty == null) {
@@ -146,27 +126,17 @@ public class PropertySet {
 
     /**
      * Gets the value of the action property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the action, defaults to "update" if null
      */
     public String getAction() {
-        if (action == null) {
-            return "update";
-        } else {
-            return action;
-        }
+        return action == null ? "update" : action;
     }
 
     /**
      * Sets the value of the action property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the action to set, may be null
      */
     public void setAction(String value) {
         this.action = value;
@@ -174,11 +144,8 @@ public class PropertySet {
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the name, may be null
      */
     public String getName() {
         return name;
@@ -186,14 +153,10 @@ public class PropertySet {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the name to set, may be null
      */
     public void setName(String value) {
         this.name = value;
     }
-
 }

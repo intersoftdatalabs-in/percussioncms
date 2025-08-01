@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,50 +26,34 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Represents an inline link inside a rich text editor.
- * <p>
- * There are many legacy properties that are needed for the inline link parser
- * that will be removed someday.
- * 
+ * There are many legacy properties that are needed for the inline link parser that will be removed someday.
  * @author adamgent
- * 
  */
 @XmlRootElement(name = "InlineRenderLink")
-public class PSInlineRenderLink extends PSRenderLink
-{
+public class PSInlineRenderLink extends PSRenderLink {
 
     private String targetId;
-
     private String thumbUrl;
-
     private String title;
-
     private String altText;
-
     private transient PSResourceDefinition thumbResourceDefinition;
-
     private PSResourceDefinitionType thumbResourceType;
-
     private String thumbResourceDefinitionId;
 
     @Deprecated
     private Integer legacyDependentVariantId;
-
     @Deprecated
     private Integer legacyThumbDependentVariantId;
-
     @Deprecated
     private String legacyRxInlineSlot;
-
     @Deprecated
     private Integer legacyDependentId;
-
     @Deprecated
     private String inlineType;
 
-	private String stateClass;
+    private String stateClass;
 
-    public PSInlineRenderLink()
-    {
+    public PSInlineRenderLink() {
         setUrl("");
         setThumbUrl("");
         setTitle("");
@@ -76,209 +61,126 @@ public class PSInlineRenderLink extends PSRenderLink
     }
 
     /**
-     * Gets value set by setter. see setTitle
-     * 
-     * @return maybe <code>null</code>.
+     * Gets the title for tool tip from item.
+     * @return may be {@code null}.
      */
-    public String getTitle()
-    {
+    public String getTitle() {
         return title;
     }
 
     /**
-     * Set title for tool tip from item. Never empty or <code>null</code>.
-     * 
-     * @param title
+     * Sets the title for tool tip from item.
+     * @param title may be {@code null}.
      */
-    public void setTitle(String title)
-    {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    /**
-     * Gets value set by setter. see setSys_dependentvariantid
-     * 
-     * @return maybeNull
-     */
     @Deprecated
     @XmlElement(name = "sys_dependentvariantid")
-    public Integer getLegacyDependentVariantId()
-    {
+    public Integer getLegacyDependentVariantId() {
         return legacyDependentVariantId;
     }
 
-    /**
-     * Legacy - Set Legacy sys_dependentvariantid User by link parser until
-     * parser is updated.
-     * 
-     * @param sys_dependentvariantid
-     */
     @Deprecated
-    public void setLegacyDependentVariantId(Integer sys_dependentvariantid)
-    {
+    public void setLegacyDependentVariantId(Integer sys_dependentvariantid) {
         this.legacyDependentVariantId = sys_dependentvariantid;
     }
 
-    /**
-     * Gets value set by setter. see setRxinlineslot
-     * 
-     * @return maybe <code>null</code>.
-     */
     @Deprecated
     @XmlElement(name = "rxinlineslot")
-    public String getLegacyRxInlineSlot()
-    {
+    public String getLegacyRxInlineSlot() {
         return legacyRxInlineSlot;
     }
 
-    /**
-     * Legacy - Set Legacy rxinlineslot Used by link parser until parser is
-     * updated.
-     * 
-     * @param rxinlineslot
-     */
     @Deprecated
-    public void setLegacyRxInlineSlot(String rxinlineslot)
-    {
+    public void setLegacyRxInlineSlot(String rxinlineslot) {
         this.legacyRxInlineSlot = rxinlineslot;
     }
 
-    /**
-     * Gets value set by setter. see setSys_dependentid
-     * 
-     * @return maybe <code>null</code>.
-     */
     @Deprecated
     @XmlElement(name = "sys_dependentid")
-    public Integer getLegacyDependentId()
-    {
+    public Integer getLegacyDependentId() {
         return legacyDependentId;
     }
 
-    /**
-     * Legacy - Set Legacy sys_dependentid Used by link parser until parser is
-     * updated.
-     * 
-     * @param sys_dependentid
-     */
     @Deprecated
-    public void setLegacyDependentId(Integer sys_dependentid)
-    {
+    public void setLegacyDependentId(Integer sys_dependentid) {
         this.legacyDependentId = sys_dependentid;
     }
 
-    /**
-     * Gets value set by setter. see setInlinetype
-     * 
-     * @return maybe <code>null</code>.
-     */
     @XmlElement(name = "inlinetype")
     @Deprecated
-    public String getInlineType()
-    {
+    public String getInlineType() {
         return inlineType;
     }
 
-    /**
-     * Legacy - Set Legacy inlinetype Used by link parser until parser is
-     * updated.
-     * 
-     * @param inlinetype
-     */
     @Deprecated
-    public void setInlineType(String inlinetype)
-    {
+    public void setInlineType(String inlinetype) {
         this.inlineType = inlinetype;
     }
 
     /**
-     * Gets value set by setter. see setThumbUrl
-     * 
-     * @return maybe <code>null</code>.
+     * Gets the thumbnail URL if image has a thumbnail.
+     * @return may be {@code null}.
      */
-    public String getThumbUrl()
-    {
+    public String getThumbUrl() {
         return thumbUrl;
     }
 
     /**
-     * Set thumbnail url if image has a thumbnail. Empty if there isn't a
-     * thumbnail. Never <code>null</code>
-     * 
-     * @param thumbUrl
+     * Sets the thumbnail URL if image has a thumbnail.
+     * @param thumbUrl never {@code null}.
      */
-    public void setThumbUrl(String thumbUrl)
-    {
+    public void setThumbUrl(String thumbUrl) {
         this.thumbUrl = thumbUrl;
     }
 
     /**
-     * Gets value set by setter. see setAltText
-     * 
-     * @return never <code>null</code>.
+     * Gets the alt text used for the img HTML tag.
+     * @return never {@code null}.
      */
-    public String getAltText()
-    {
+    public String getAltText() {
         return altText;
     }
 
     /**
-     * Sets altText use to set alt attribute on img html tag.
-     * 
-     * @param altText
+     * Sets the alt text used for the img HTML tag.
+     * @param altText never {@code null}.
      */
-    public void setAltText(String altText)
-    {
+    public void setAltText(String altText) {
         this.altText = altText;
     }
 
-    /**
-     * Gets value set by setter. see setThumbsys_dependentvariantid
-     * 
-     * @return maybe <code>null</code>.
-     */
     @Deprecated
     @XmlElement(name = "thumbsys_dependentvariantid")
-    public Integer getLegacyThumbDependentVariantId()
-    {
+    public Integer getLegacyThumbDependentVariantId() {
         return legacyThumbDependentVariantId;
     }
 
-    /**
-     * Legacy - Sets sys_dependentvariantid Used by link parser until parser is
-     * updated.
-     * 
-     * @param thumbsys_dependentvariantid
-     */
     @Deprecated
-    public void setLegacyThumbDependentVariantId(Integer thumbsys_dependentvariantid)
-    {
+    public void setLegacyThumbDependentVariantId(Integer thumbsys_dependentvariantid) {
         this.legacyThumbDependentVariantId = thumbsys_dependentvariantid;
     }
 
     /**
-     * The id of the object that link is pointing to.
-     * 
-     * @return never <code>null</code>.
+     * Gets the ID of the object that link is pointing to.
+     * @return never {@code null}.
      */
-    public String getTargetId()
-    {
+    public String getTargetId() {
         return targetId;
     }
 
-    public void setTargetId(String pageId)
-    {
+    public void setTargetId(String pageId) {
         this.targetId = pageId;
     }
 
     @XmlTransient
-    public PSResourceDefinition getThumbResourceDefinition()
-    {
+    public PSResourceDefinition getThumbResourceDefinition() {
         return thumbResourceDefinition;
     }
 
-    public void setThumbResourceDefinition(PSResourceDefinition thumbResourceDefinition)
-    {
+    public void setThumbResourceDefinition(PSResourceDefinition thumbResourceDefinition) {
         this.thumbResourceDefinition = thumbResourceDefinition;
         if (thumbResourceDefinition != null) {
             setResourceType(thumbResourceDefinition.getResourceType());
@@ -286,34 +188,27 @@ public class PSInlineRenderLink extends PSRenderLink
         }
     }
 
-    public PSResourceDefinitionType getThumbResourceType()
-    {
+    public PSResourceDefinitionType getThumbResourceType() {
         return thumbResourceType;
     }
 
-    public void setThumbResourceType(PSResourceDefinitionType thumbResourceType)
-    {
+    public void setThumbResourceType(PSResourceDefinitionType thumbResourceType) {
         this.thumbResourceType = thumbResourceType;
     }
 
-    public String getThumbResourceDefinitionId()
-    {
+    public String getThumbResourceDefinitionId() {
         return thumbResourceDefinitionId;
     }
 
-    public void setThumbResourceDefinitionId(String thumbResourceDefinitionId)
-    {
+    public void setThumbResourceDefinitionId(String thumbResourceDefinitionId) {
         this.thumbResourceDefinitionId = thumbResourceDefinitionId;
     }
 
-    public String getStateClass()
-    {
-    	return this.stateClass;
+    public String getStateClass() {
+        return this.stateClass;
     }
-    
-	public void setStateClass(String stateClass) {
-		this.stateClass = stateClass;	
-	}
-	
 
+    public void setStateClass(String stateClass) {
+        this.stateClass = stateClass;
+    }
 }

@@ -14,77 +14,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.ui.service.impl;
 
 import com.percussion.designmanagement.service.IPSFileSystemService;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.ui.service.IPSListViewHelper;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
-
 /**
  * A file-system based implementation of {@link IPSListViewHelper}.
- * 
- * @author miltonpividori
  *
+ * @author miltonpividori
  */
 @Component("fileSystemListViewHelper")
 @Lazy
-public class PSFileSystemListViewHelper extends PSBaseListViewHelper
-{
+public class PSFileSystemListViewHelper extends PSBaseListViewHelper {
     private IPSFileSystemService fileSystemService;
 
-    public PSFileSystemListViewHelper(IPSFileSystemService fileSystemService)
-    {
+    public PSFileSystemListViewHelper(IPSFileSystemService fileSystemService) {
         this.fileSystemService = fileSystemService;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#getDisplayProperties(com.percussion.pathmanagement.data.PSPathItem)
-     */
     @Override
-    protected Map<String, String> getDisplayProperties(PSPathItem pathItem)
-    {
-        Map<String, String> displayProperties = new HashMap<>();
-        
-        File relatedFile = (File) pathItem.getRelatedObject();
-        
+    protected Map<String, String> getDisplayProperties(PSPathItem pathItem) {
+        var displayProperties = new HashMap<String, String>();
+        var relatedFile = (File) pathItem.getRelatedObject();
+
         displayProperties.put(TITLE_NAME, fileSystemService.getNameFromFile(relatedFile));
-        
-        if (!relatedFile.isDirectory())
-        {
+
+        if (!relatedFile.isDirectory()) {
             displayProperties.put(SIZE, String.valueOf(relatedFile.length()));
         }
 
         displayProperties.put(CONTENT_LAST_MODIFIED_DATE_NAME,
                 PSDateUtils.getDateToString(new Date(relatedFile.lastModified())));
-        
+
         return displayProperties;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#expectedRelatedObjectType()
-     */
     @Override
-    protected Class<?> expectedRelatedObjectType()
-    {
+    protected Class<?> expectedRelatedObjectType() {
         return File.class;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.ui.service.impl.PSBaseListViewHelper#isEmptyRelatedObjectSupported()
-     */
     @Override
-    protected boolean areEmptyRelatedObjectsSupported()
-    {
+    protected boolean areEmptyRelatedObjectsSupported() {
         return false;
     }
 }

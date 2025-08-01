@@ -60,24 +60,24 @@ public class PSComponentDependencyHandler extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;
    }
 
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_cdHandler == null)
-         m_cdHandler = getDependencyHandler(
-            PSComponentDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_cdHandler == null) {
+         m_cdHandler = getDependencyHandler(PSComponentDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_cdHandler;
    }
 

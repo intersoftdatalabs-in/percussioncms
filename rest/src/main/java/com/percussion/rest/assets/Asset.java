@@ -30,274 +30,196 @@ import javax.xml.bind.annotation.XmlType;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
-@XmlRootElement(name="Asset")
-@JsonRootName(value="Asset")
+@XmlRootElement(name = "Asset")
+@JsonRootName(value = "Asset")
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder()
 @XmlType(propOrder = {})
 @Schema(description = "Represents a shared asset")
-public class Asset
-{
+public class Asset {
+
     @Schema(description = "fields")
-	private AssetFieldList fields = new AssetFieldList();
-	@Schema(description = "id must match the id of the item for the same server path, usually best not to send id to server.")
-	private String id;
-	private String name;
-	private String type;
-	private String folderPath;
-	private WorkflowInfo workflow;
-	private Date lastModifiedDate;
-	private Date createdDate;
-	private List<LinkRef> links;
-	private ImageInfo image;
-	private ImageInfo thumbnail;
-	private BinaryFile file;
-	private Flash flash;
-	
-	private Boolean remove;
-	
+    private AssetFieldList fields = new AssetFieldList();
 
-    /**
-	 * @return the fields
-	 */
-	public AssetFieldList getFields()
-	{
-		return fields;
-	}
+    @Schema(description = "id must match the id of the item for the same server path, usually best not to send id to server.")
+    private String id;
 
-	/**
-	 * @param fields
-	 *            the fields to set
-	 */
-	public void setFields(AssetFieldList fields)
-	{
-		this.fields = fields;
-	}
+    private String name;
+    private String type;
+    private String folderPath;
+    private WorkflowInfo workflow;
+    private Date lastModifiedDate;
+    private Date createdDate;
+    private List<LinkRef> links;
+    private ImageInfo image;
+    private ImageInfo thumbnail;
+    private BinaryFile file;
+    private Flash flash;
+    private Boolean remove;
 
-	/**
-	 * @return the id
-	 */
-	public String getId()
-	{
-		return id;
-	}
+    public Asset() {}
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(String id)
-	{
-		this.id = id;
-	}
+    // --- Getters and Setters with Optional ---
 
-	/**
-	 * @return the name
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * @return the type
-	 */
-	public String getType()
-	{
-		return type;
-	}
-
-	/**
-	 * @param type
-	 *            the type to set
-	 */
-	public void setType(String type)
-	{
-		this.type = type;
-	}
-
-	/**
-	 * @return the path
-	 */
-	public String getFolderPath()
-	{
-		return folderPath;
-	}
-
-	/**
-	 * @param path
-	 *            the path to set
-	 */
-	public void setFolderPath(String path)
-	{
-		this.folderPath = path;
-	}
-
-	/**
-	 * @return the workflow
-	 */
-	public WorkflowInfo getWorkflow()
-	{
-		return workflow;
-	}
-
-	/**
-	 * @param workflow
-	 *            the workflow to set
-	 */
-	public void setWorkflow(WorkflowInfo workflow)
-	{
-		this.workflow = workflow;
-	}
-
-	/**
-	 * @return the lastModifiedDate
-	 */
-	public Date getLastModifiedDate()
-	{
-		return lastModifiedDate;
-	}
-
-	/**
-	 * @param lastModifiedDate
-	 *            the lastModifiedDate to set
-	 */
-	public void setLastModifiedDate(Date lastModifiedDate)
-	{
-		this.lastModifiedDate = lastModifiedDate;
-	}
-
-	/**
-	 * @return the createdDate
-	 */
-	public Date getCreatedDate()
-	{
-		return createdDate;
-	}
-
-	/**
-	 * @param createdDate the createdDate to set
-	 */
-	public void setCreatedDate(Date createdDate)
-	{
-		this.createdDate = createdDate;
-	}
-
-	/**
-	 * @return the links
-	 */
-	public List<LinkRef> getLinks()
-	{
-		return links;
-	}
-
-	/**
-	 * @param links the links to set
-	 */
-	public void setLinks(List<LinkRef> links)
-	{
-		this.links = links;
-	}
-
-	/**
-	 * @return the image
-	 */
-	public ImageInfo getImage()
-	{
-		return image;
-	}
-
-	/**
-	 * @param image the image to set
-	 */
-	public void setImage(ImageInfo image)
-	{
-		this.image = image;
-	}
-
-	/**
-	 * @return the thumbnail
-	 */
-	public ImageInfo getThumbnail()
-	{
-		return thumbnail;
-	}
-
-	/**
-	 * @param thumbnail the thumbnail to set
-	 */
-	public void setThumbnail(ImageInfo thumbnail)
-	{
-		this.thumbnail = thumbnail;
-	}
-
-	/**
-	 * @return the file
-	 */
-	public BinaryFile getFile()
-	{
-		return file;
-	}
-
-	/**
-	 * @param file the file to set
-	 */
-	public void setFile(BinaryFile file)
-	{
-		this.file = file;
-	}
-
-	/**
-	 * @return the flash
-	 */
-	public Flash getFlash()
-	{
-		return flash;
-	}
-	
-	/**
-     * @return is remove set
-     */
-	public Boolean getRemove()
-    {
-        return remove;
+    public AssetFieldList getFields() {
+        return fields;
     }
 
-	/**
-     * @param remove To remove the asset of not
-     */
-    public void setRemove(Boolean remove)
-    {
+    public void setFields(AssetFieldList fields) {
+        this.fields = fields;
+    }
+
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Optional<String> getFolderPath() {
+        return Optional.ofNullable(folderPath);
+    }
+
+    public void setFolderPath(String path) {
+        this.folderPath = path;
+    }
+
+    public Optional<WorkflowInfo> getWorkflow() {
+        return Optional.ofNullable(workflow);
+    }
+
+    public void setWorkflow(WorkflowInfo workflow) {
+        this.workflow = workflow;
+    }
+
+    public Optional<Date> getLastModifiedDate() {
+        return Optional.ofNullable(lastModifiedDate);
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public Optional<Date> getCreatedDate() {
+        return Optional.ofNullable(createdDate);
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Optional<List<LinkRef>> getLinks() {
+        return Optional.ofNullable(links);
+    }
+
+    public void setLinks(List<LinkRef> links) {
+        this.links = links;
+    }
+
+    public Optional<ImageInfo> getImage() {
+        return Optional.ofNullable(image);
+    }
+
+    public void setImage(ImageInfo image) {
+        this.image = image;
+    }
+
+    public Optional<ImageInfo> getThumbnail() {
+        return Optional.ofNullable(thumbnail);
+    }
+
+    public void setThumbnail(ImageInfo thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public Optional<BinaryFile> getFile() {
+        return Optional.ofNullable(file);
+    }
+
+    public void setFile(BinaryFile file) {
+        this.file = file;
+    }
+
+    public Optional<Flash> getFlash() {
+        return Optional.ofNullable(flash);
+    }
+
+    public void setFlash(Flash flash) {
+        this.flash = flash;
+    }
+
+    public Optional<Boolean> getRemove() {
+        return Optional.ofNullable(remove);
+    }
+
+    public void setRemove(Boolean remove) {
         this.remove = remove;
     }
-	/**
-	 * @param flash the flash to set
-	 */
-	public void setFlash(Flash flash)
-	{
-		this.flash = flash;
-	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Asset)) return false;
-		Asset asset = (Asset) o;
-		return Objects.equals(getFields(), asset.getFields()) && Objects.equals(getId(), asset.getId()) && Objects.equals(getName(), asset.getName()) && Objects.equals(getType(), asset.getType()) && Objects.equals(getFolderPath(), asset.getFolderPath()) && Objects.equals(getWorkflow(), asset.getWorkflow()) && Objects.equals(getLastModifiedDate(), asset.getLastModifiedDate()) && Objects.equals(getCreatedDate(), asset.getCreatedDate()) && Objects.equals(getLinks(), asset.getLinks()) && Objects.equals(getImage(), asset.getImage()) && Objects.equals(getThumbnail(), asset.getThumbnail()) && Objects.equals(getFile(), asset.getFile()) && Objects.equals(getFlash(), asset.getFlash()) && Objects.equals(getRemove(), asset.getRemove());
-	}
+    // --- equals, hashCode, toString ---
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getFields(), getId(), getName(), getType(), getFolderPath(), getWorkflow(), getLastModifiedDate(), getCreatedDate(), getLinks(), getImage(), getThumbnail(), getFile(), getFlash(), getRemove());
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Asset)) return false;
+        var asset = (Asset) o;
+        return Objects.equals(fields, asset.fields)
+                && Objects.equals(id, asset.id)
+                && Objects.equals(name, asset.name)
+                && Objects.equals(type, asset.type)
+                && Objects.equals(folderPath, asset.folderPath)
+                && Objects.equals(workflow, asset.workflow)
+                && Objects.equals(lastModifiedDate, asset.lastModifiedDate)
+                && Objects.equals(createdDate, asset.createdDate)
+                && Objects.equals(links, asset.links)
+                && Objects.equals(image, asset.image)
+                && Objects.equals(thumbnail, asset.thumbnail)
+                && Objects.equals(file, asset.file)
+                && Objects.equals(flash, asset.flash)
+                && Objects.equals(remove, asset.remove);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fields, id, name, type, folderPath, workflow, lastModifiedDate, createdDate, links, image, thumbnail, file, flash, remove);
+    }
+
+    @Override
+    public String toString() {
+        return "Asset{" +
+                "fields=" + fields +
+                ", id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", folderPath='" + folderPath + '\'' +
+                ", workflow=" + workflow +
+                ", lastModifiedDate=" + lastModifiedDate +
+                ", createdDate=" + createdDate +
+                ", links=" + links +
+                ", image=" + image +
+                ", thumbnail=" + thumbnail +
+                ", file=" + file +
+                ", flash=" + flash +
+                ", remove=" + remove +
+                '}';
+    }
 }

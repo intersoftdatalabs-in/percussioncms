@@ -19,30 +19,30 @@ package com.percussion.pagemanagement.assembler;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PSBlogEntry
-{
+/**
+ * Represents a blog entry containing a set of years.
+ */
+public class PSBlogEntry {
 
     private Set<PSBlogYear> years;
 
-    public PSBlogEntry()
-    {
-        super();
+    public PSBlogEntry() {
         this.years = new HashSet<>();
     }
 
     /**
-     * @return the years
+     * Gets the years for this blog entry.
+     * @return the years set, never {@code null}
      */
-    public Set<PSBlogYear> getYears()
-    {
+    public Set<PSBlogYear> getYears() {
         return years;
     }
 
     /**
+     * Sets the years for this blog entry.
      * @param years the years to set
      */
-    public void setYears(Set<PSBlogYear> years)
-    {
+    public void setYears(Set<PSBlogYear> years) {
         this.years = years;
     }
 }

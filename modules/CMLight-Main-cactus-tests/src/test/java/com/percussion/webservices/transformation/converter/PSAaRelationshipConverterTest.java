@@ -26,170 +26,103 @@ import com.percussion.design.objectstore.PSRelationshipConfigTest;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import org.junit.experimental.categories.Category;
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.experimental.categories.Category;
-import org.w3c.dom.Document;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSRelationshipConfigConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSAaRelationshipConverterTest extends PSConverterTestBase
-{
-   /* (non-Javadoc)
-    */
-   @Override
-   protected void setUp() throws Exception
-   {
-      super.setUp();
+public class PSAaRelationshipConverterTest extends PSConverterTestBase {
 
-      PSRelationshipConfigSet cset = PSRelationshipConfigTest.getConfigs();
-      PSRelationshipCommandHandler.reloadConfigs(cset);
-   }
-   
-   /**
-    * Tests the conversion for AA relationship from a server to a client object 
-    * and vice versa.
-    */
-   public void testAaRelationshipConversion() throws Exception
-   {
-      // test with simple relationship
-      PSAaRelationship aaRel = createAaRelationship(1, 2, 3, 4, 5);
-      roundTripConvertion(aaRel);
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        var cset = PSRelationshipConfigTest.getConfigs();
+        PSRelationshipCommandHandler.reloadConfigs(cset);
+    }
 
-   }
+    /**
+     * Tests the conversion for AA relationship from a server to a client object and vice versa.
+     */
+    public void testAaRelationshipConversion() throws Exception {
+        var aaRel = createAaRelationship(1, 2, 3, 4, 5);
+        roundTripConversionAssert(aaRel);
+    }
 
-   /**
-    * Tests the conversion for relationship from a server to a client object 
-    * and vice versa.
-    */
-   public void testRelationshipConversion() throws Exception
-   {
-      // test with simple relationship
-      PSAaRelationship aaRel = createAaRelationship(1, 2, 3, 4, 5);
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      PSRelationship rel = new PSRelationship(aaRel.toXml(doc));
-      roundTripConvertion(rel);
-   }
+    /**
+     * Tests the conversion for relationship from a server to a client object and vice versa.
+     */
+    public void testRelationshipConversion() throws Exception {
+        var aaRel = createAaRelationship(1, 2, 3, 4, 5);
+        var doc = PSXmlDocumentBuilder.createXmlDocument();
+        var rel = new PSRelationship(aaRel.toXml(doc));
+        roundTripConversionAssert(rel);
+    }
 
-   
-   /**
-    * Creates an Active Assembly Relationship from the specified parameters.
-    * 
-    * @param rid the relationship id
-    * @param ownerId the owner id
-    * @param dependentId the dependent id
-    * @param slotId the slot id
-    * @param templateId the template id
-    * 
-    * @return the created AA relationship, never <code>null</code>.
-    */
-   private PSAaRelationship createAaRelationship(int rid, int ownerId, 
-         int dependentId, int slotId, int templateId)
-   {
-      PSRelationshipConfig config = 
-         PSRelationshipCommandHandler.getRelationshipConfig(
-               PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
-      PSRelationship rel = new PSRelationship(rid, new PSLocator(ownerId, 1), 
-            new PSLocator(dependentId, -1), config);
-      rel.setProperty(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotId));
-      rel.setProperty(IPSHtmlParameters.SYS_VARIANTID, String
-            .valueOf(templateId));
-      
-      PSAaRelationship target = new PSAaRelationship(rel); 
-      target.setSortRank(1);
-      
-      return target;
-   }
-   
-   /**
-    * Round trip conversion test for the specified {@link PSRelationship}
-    * 
-    * @param source the to be tested relationship object, assumed not 
-    *    <code>null</code>.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unused")
-   private void roundTripConvertion(PSRelationship source)
-      throws Exception
-   {
-      PSRelationship target;
-      
-      if (source instanceof PSAaRelationship)
-      {
-         target = (PSAaRelationship) roundTripConversion(
-               PSAaRelationship.class,
-               com.percussion.webservices.content.PSAaRelationship.class,
-               source);
-      }
-      else
-      {
-         target = (PSRelationship) roundTripConversion(
-               PSRelationship.class,
-               com.percussion.webservices.system.PSRelationship.class,
-               source);
-      }
+    private PSAaRelationship createAaRelationship(int rid, int ownerId, int dependentId, int slotId, int templateId) {
+        var config = PSRelationshipCommandHandler.getRelationshipConfig(
+                PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY);
+        var rel = new PSRelationship(rid, new PSLocator(ownerId, 1),
+                new PSLocator(dependentId, -1), config);
+        rel.setProperty(IPSHtmlParameters.SYS_SLOTID, String.valueOf(slotId));
+        rel.setProperty(IPSHtmlParameters.SYS_VARIANTID, String.valueOf(templateId));
+        var target = new PSAaRelationship(rel);
+        target.setSortRank(1);
+        return target;
+    }
 
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      String sourceString = PSXmlDocumentBuilder.toString(source.toXml(doc));
-      String targetString = PSXmlDocumentBuilder.toString(target.toXml(doc));
-      
-      //System.out.println(sourceString);
-      //System.out.println(targetString);
-      //assertTrue(sourceString.equals(targetString));
+    private void roundTripConversionAssert(PSRelationship source) throws Exception {
+        PSRelationship target;
+        if (source instanceof PSAaRelationship) {
+            target = (PSAaRelationship) roundTripConversion(
+                    PSAaRelationship.class,
+                    com.percussion.webservices.content.PSAaRelationship.class,
+                    source);
+        } else {
+            target = (PSRelationship) roundTripConversion(
+                    PSRelationship.class,
+                    com.percussion.webservices.system.PSRelationship.class,
+                    source);
+        }
+        var doc = PSXmlDocumentBuilder.createXmlDocument();
+        var sourceString = PSXmlDocumentBuilder.toString(source.toXml(doc));
+        var targetString = PSXmlDocumentBuilder.toString(target.toXml(doc));
+        // System.out.println(sourceString);
+        // System.out.println(targetString);
+        assertEquals(source, target);
+    }
 
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+    /**
+     * Test a list of server objects convert to (client) search array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testConfigListToArray() throws Exception {
+        var srcList = new ArrayList<PSAaRelationship>();
+        srcList.add(createAaRelationship(2, 3, 4, 5, 6));
+        srcList.add(createAaRelationship(20, 30, 40, 50, 60));
 
-   /**
-    * Test a list of server object convert to (client) search array,
-    * and vice versa.
-    *
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testConfigListToArray() throws Exception
-   {
-      //\/\/\/\/\/\/\/\/\/\/\
-      // tset AA relationship
-      //\/\/\/\/\/\/\/\/\/\/\
-      List<PSAaRelationship> srcList = new ArrayList<PSAaRelationship>();
-      srcList.add(createAaRelationship(2, 3, 4, 5, 6));
-      srcList.add(createAaRelationship(20, 30, 40, 50, 60));
+        var tgtList = roundTripListConversion(
+                com.percussion.webservices.content.PSAaRelationship[].class,
+                srcList);
 
-      List<PSAaRelationship> tgtList = roundTripListConversion(
-            com.percussion.webservices.content.PSAaRelationship[].class, 
-            srcList);
+        assertEquals(srcList, tgtList);
 
-      @SuppressWarnings("unused")
-      Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      //PSRelationshipConfigSet tgtSet = new PSRelationshipConfigSet();
-      //for (PSRelationshipConfig c : tgtList) tgtSet.add(c);
-      //String srcString = PSXmlDocumentBuilder.toString(cset.toXml(doc));
-      //String tgtString = PSXmlDocumentBuilder.toString(tgtSet.toXml(doc));
-      //assertTrue(srcString.equals(tgtString));
+        var doc = PSXmlDocumentBuilder.createXmlDocument();
+        var srcList2 = new ArrayList<PSRelationship>();
+        var rel = createAaRelationship(12, 13, 14, 15, 16);
+        srcList2.add(new PSRelationship(rel.toXml(doc)));
+        rel = createAaRelationship(120, 130, 140, 150, 160);
+        srcList2.add(new PSRelationship(rel.toXml(doc)));
 
-      assertTrue(srcList.equals(tgtList));
-
-      //\/\/\/\/\/\/\/\/\/\/\/\/
-      // tset other relationship
-      //\/\/\/\/\/\/\/\/\/\/\/\/
-      List<PSRelationship> srcList2 = new ArrayList<PSRelationship>();
-      PSRelationship rel = createAaRelationship(12, 13, 14, 15, 16);
-      srcList2.add(new PSRelationship(rel.toXml(doc)));
-      rel = createAaRelationship(120, 130, 140, 150, 160);
-      srcList2.add(new PSRelationship(rel.toXml(doc)));
-      
-      List<PSRelationship> tgtList2 = roundTripListConversion(
-            com.percussion.webservices.system.PSRelationship[].class, 
-            srcList2);
-      assertTrue(srcList2.equals(tgtList2));
-
-   }
+        var tgtList2 = roundTripListConversion(
+                com.percussion.webservices.system.PSRelationship[].class,
+                srcList2);
+        assertEquals(srcList2, tgtList2);
+    }
 }
-

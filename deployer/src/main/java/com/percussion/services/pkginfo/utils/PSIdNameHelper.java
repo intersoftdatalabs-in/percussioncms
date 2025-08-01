@@ -1,6 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,178 +23,125 @@ import com.percussion.services.pkginfo.IPSIdNameService;
 import com.percussion.services.pkginfo.PSIdNameServiceLocator;
 import com.percussion.services.pkginfo.data.PSIdName;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * The purpose of this class is to provide a set of utilities for converting
- * package (formerly MSM) dependency id's to actual guids which can then be
- * used to represent the associated design objects as stored in the package
- * element information.  This utility is necessary because not all dependency id
- * values are numeric.  Some dependency id's are the actual names of their
- * associated design objects.  For these values, a new guid will be generated
- * and associated with the dependency id name so that the object can later be
- * referenced by name.  Utilizes the id-name service {@link IPSIdNameService}
- * for loading/saving of id-name mappings.
+ * Utility for converting package dependency IDs to GUIDs and vice versa.
+ * Supports both numeric and name-based IDs. Uses {@link IPSIdNameService}.
  */
-public class PSIdNameHelper
-{
-   /**
-    * Get an id for the given dependency id and type.
-    * 
-    * @param id The dependency id.  May be an object name, a numeric ID, or an
-    * actual guid.  May not be <code>null</code> or empty.
-    * @param type The system type for the dependency object.  May not be
-    * <code>null</code>.
-    * 
-    * @return An {@link IPSGuid} for the given dependency id and type, never
-    * <code>null</code>.
-    */
-   public static IPSGuid getGuid(String id, PSTypeEnum type)
-   {
-      if (StringUtils.isBlank(id))
-      {
-         throw new IllegalArgumentException("id may not be null or empty");
-      }
-      
-      if (type == null)
-      {
-         throw new IllegalArgumentException("type may not be null");
-      }
-      
-      IPSGuid guid;
-      IPSGuidManager guidMgr = PSGuidManagerLocator.getGuidMgr();
-      IPSIdNameService idNameSvc = getIdNameService();
-      
-      if (isSupported(type))
-      {
-         guid = idNameSvc.findId(id, type);
-         if (guid == null)
-         {
-            // create a new guid
-            guid = guidMgr.createGuid(type);
-            String guidStr = guid.toString();
+public class PSIdNameHelper {
+    /**
+     * Returns a GUID for the given dependency ID and type.
+     *
+     * @param id   The dependency ID (name, numeric, or GUID), not blank.
+     * @param type The system type, not null.
+     * @return The corresponding GUID, never null.
+     */
+    public static IPSGuid getGuid(String id, PSTypeEnum type) {
+        if (StringUtils.isBlank(id)) {
+            throw new IllegalArgumentException("id may not be null or empty");
+        }
+        if (type == null) {
+            throw new IllegalArgumentException("type may not be null");
+        }
 
-            // save the id-name mapping
-            idNameSvc.saveIdName(new PSIdName(guidStr, id));    
-         }
-      }
-      else
-      {
-         // make a guid
-         guid = guidMgr.makeGuid(id, type);
-      }
-              
-      return guid;
-   }
+        var guidMgr = PSGuidManagerLocator.getGuidMgr();
+        var idNameSvc = getIdNameService();
 
-   /**
-    * Get the dependency name which corresponds to the given id.
-    * 
-    * @param guid The id for which a name will be returned, never
-    * <code>null</code>.  Must represent a supported type, see
-    * {@link #isSupported(PSTypeEnum)}.
-    * 
-    * @return The dependency name for the id or <code>null</code> if not found.
-    * 
-    * @throws IllegalArgumentException if the guid does not represent a
-    * supported type.
-    */
-   public static String getName(IPSGuid guid)
-   {
-      if (guid == null)
-      {
-         throw new IllegalArgumentException("guid may not be null");
-      }
-      
-      PSTypeEnum type = PSTypeEnum.valueOf(guid.getType());
-      if (!isSupported(type))
-      {
-         throw new IllegalArgumentException("unsupported type [" + type + 
-               "] for guid [" + guid + "]");
-      }
-      
-      return getIdNameService().findName(guid);
-   }
-   
-   /**
-    * Determines if a given type is supported by this helper class.  A type
-    * is supported if the dependency type with which it is associated uses name
-    * (non-numeric) id values.
-    * 
-    * @param type The system type, may not be <code>null</code>.
-    * 
-    * @return <code>true</code> if the type is supported, <code>false</code>
-    * otherwise.
-    */
-   public static boolean isSupported(PSTypeEnum type)
-   {
-      if (type == null)
-      {
-         throw new IllegalArgumentException("type may not be null");
-      }
-      
-      return ms_supportedTypes.contains(type);
-   }
-   
-   /**
-    * Get the id name service.  Initialize if necessary.
-    * 
-    * @return The id name service.  Never <code>null</code>.
-    */
-   public static IPSIdNameService getIdNameService()
-   {
-      if (ms_idNameSvc == null)
-      {
-         ms_idNameSvc = PSIdNameServiceLocator.getIdNameService();
-      }
-      
-      return ms_idNameSvc;
-   }
-   
-   /**
-    * See {@link #isSupported(PSTypeEnum)}.  Never <code>null</code>.
-    */
-   private static Set<PSTypeEnum> ms_supportedTypes = new HashSet<>();
-   
-   /**
-    * The id-name service, may be <code>null</code>.
-    */
-   private static IPSIdNameService ms_idNameSvc = null;
-   
-   static
-   {
-      ms_supportedTypes.add(PSTypeEnum.ACL);
-      ms_supportedTypes.add(PSTypeEnum.APPLICATION);
-      ms_supportedTypes.add(PSTypeEnum.AUTH_TYPE);
-      ms_supportedTypes.add(PSTypeEnum.COMPONENT_SLOT);
-      ms_supportedTypes.add(PSTypeEnum.CONFIGURATION);
-      ms_supportedTypes.add(PSTypeEnum.IMAGE_FILE);
-      ms_supportedTypes.add(PSTypeEnum.CONTENT);
-      ms_supportedTypes.add(PSTypeEnum.CONTENT_ASSEMBLER);
-      ms_supportedTypes.add(PSTypeEnum.RELATIONSHIP);
-      ms_supportedTypes.add(PSTypeEnum.CONTENT_TYPE_TEMPLATE_DEF);
-      ms_supportedTypes.add(PSTypeEnum.CONTROL);
-      ms_supportedTypes.add(PSTypeEnum.CUSTOM);
-      ms_supportedTypes.add(PSTypeEnum.TABLE_DATA);
-      ms_supportedTypes.add(PSTypeEnum.DATABASE_FUNCTION_DEF);
-      ms_supportedTypes.add(PSTypeEnum.EXTENSION);
-      ms_supportedTypes.add(PSTypeEnum.FOLDER);
-      ms_supportedTypes.add(PSTypeEnum.FOLDER_CONTENTS);
-      ms_supportedTypes.add(PSTypeEnum.FOLDER_TRANSLATIONS);
-      ms_supportedTypes.add(PSTypeEnum.FOLDER_TREE);
-      ms_supportedTypes.add(PSTypeEnum.LOADABLE_HANDLER);
-      ms_supportedTypes.add(PSTypeEnum.LOCALE);
-      ms_supportedTypes.add(PSTypeEnum.RELATIONSHIP_CONFIGNAME);
-      ms_supportedTypes.add(PSTypeEnum.ROLE);
-      ms_supportedTypes.add(PSTypeEnum.SHARED_GROUP);
-      ms_supportedTypes.add(PSTypeEnum.TABLE_SCHEMA);
-      ms_supportedTypes.add(PSTypeEnum.STYLESHEET);
-      ms_supportedTypes.add(PSTypeEnum.SUPPORT_FILE);
-      ms_supportedTypes.add(PSTypeEnum.SYSTEM_DEF);
-      ms_supportedTypes.add(PSTypeEnum.TEMPLATE_COMMUNITY_DEF);
-      ms_supportedTypes.add(PSTypeEnum.USER_DEPENDENCY);
-   }
+        if (isSupported(type)) {
+            var guidOpt = Optional.ofNullable(idNameSvc.findId(id, type));
+            if (guidOpt.isPresent()) {
+                return guidOpt.get();
+            }
+            var guid = guidMgr.createGuid(type);
+            idNameSvc.saveIdName(new PSIdName(guid.toString(), id));
+            return guid;
+        } else {
+            return guidMgr.makeGuid(id, type);
+        }
+    }
+
+    /**
+     * Returns the dependency name for the given GUID.
+     *
+     * @param guid The GUID, not null, must be supported type.
+     * @return The dependency name, or null if not found.
+     */
+    public static String getName(IPSGuid guid) {
+        if (guid == null) {
+            throw new IllegalArgumentException("guid may not be null");
+        }
+        var type = PSTypeEnum.valueOf(guid.getType());
+        if (!isSupported(type)) {
+            throw new IllegalArgumentException(
+                "unsupported type [" + type + "] for guid [" + guid + "]");
+        }
+        return getIdNameService().findName(guid);
+    }
+
+    /**
+     * Returns true if the type is supported (uses name-based IDs).
+     *
+     * @param type The system type, not null.
+     * @return true if supported, false otherwise.
+     */
+    public static boolean isSupported(PSTypeEnum type) {
+        if (type == null) {
+            throw new IllegalArgumentException("type may not be null");
+        }
+        return SUPPORTED_TYPES.contains(type);
+    }
+
+    /**
+     * Returns the id-name service, initializing if necessary.
+     */
+    public static IPSIdNameService getIdNameService() {
+        if (idNameSvc == null) {
+            idNameSvc = PSIdNameServiceLocator.getIdNameService();
+        }
+        return idNameSvc;
+    }
+
+    // Supported types for name-based IDs.
+    private static final Set<PSTypeEnum> SUPPORTED_TYPES = new HashSet<>();
+
+    // Id-name service instance.
+    private static IPSIdNameService idNameSvc;
+
+    static {
+        SUPPORTED_TYPES.add(PSTypeEnum.ACL);
+        SUPPORTED_TYPES.add(PSTypeEnum.APPLICATION);
+        SUPPORTED_TYPES.add(PSTypeEnum.AUTH_TYPE);
+        SUPPORTED_TYPES.add(PSTypeEnum.COMPONENT_SLOT);
+        SUPPORTED_TYPES.add(PSTypeEnum.CONFIGURATION);
+        SUPPORTED_TYPES.add(PSTypeEnum.IMAGE_FILE);
+        SUPPORTED_TYPES.add(PSTypeEnum.CONTENT);
+        SUPPORTED_TYPES.add(PSTypeEnum.CONTENT_ASSEMBLER);
+        SUPPORTED_TYPES.add(PSTypeEnum.RELATIONSHIP);
+        SUPPORTED_TYPES.add(PSTypeEnum.CONTENT_TYPE_TEMPLATE_DEF);
+        SUPPORTED_TYPES.add(PSTypeEnum.CONTROL);
+        SUPPORTED_TYPES.add(PSTypeEnum.CUSTOM);
+        SUPPORTED_TYPES.add(PSTypeEnum.TABLE_DATA);
+        SUPPORTED_TYPES.add(PSTypeEnum.DATABASE_FUNCTION_DEF);
+        SUPPORTED_TYPES.add(PSTypeEnum.EXTENSION);
+        SUPPORTED_TYPES.add(PSTypeEnum.FOLDER);
+        SUPPORTED_TYPES.add(PSTypeEnum.FOLDER_CONTENTS);
+        SUPPORTED_TYPES.add(PSTypeEnum.FOLDER_TRANSLATIONS);
+        SUPPORTED_TYPES.add(PSTypeEnum.FOLDER_TREE);
+        SUPPORTED_TYPES.add(PSTypeEnum.LOADABLE_HANDLER);
+        SUPPORTED_TYPES.add(PSTypeEnum.LOCALE);
+        SUPPORTED_TYPES.add(PSTypeEnum.RELATIONSHIP_CONFIGNAME);
+        SUPPORTED_TYPES.add(PSTypeEnum.ROLE);
+        SUPPORTED_TYPES.add(PSTypeEnum.SHARED_GROUP);
+        SUPPORTED_TYPES.add(PSTypeEnum.TABLE_SCHEMA);
+        SUPPORTED_TYPES.add(PSTypeEnum.STYLESHEET);
+        SUPPORTED_TYPES.add(PSTypeEnum.SUPPORT_FILE);
+        SUPPORTED_TYPES.add(PSTypeEnum.SYSTEM_DEF);
+        SUPPORTED_TYPES.add(PSTypeEnum.TEMPLATE_COMMUNITY_DEF);
+        SUPPORTED_TYPES.add(PSTypeEnum.USER_DEPENDENCY);
+    }
 }

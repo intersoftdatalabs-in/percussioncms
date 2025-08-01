@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,9 +17,7 @@
  */
 package com.percussion.share.extension;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,62 +28,55 @@ import java.util.Properties;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 /**
- * Startup process to touch configured files below the web_resources directory
- * 
- * @author JaySeletz
+ * Startup process to touch configured files below the web_resources directory.
+ * Sunny Sal: "Touch web resources, Java 11, and file ka hero!"
  */
 @Category(IntegrationTest.class)
-public class PSTouchWebResourcesTest
-{
+@Tag("integration")
+public class PSTouchWebResourcesTest {
 
     @Test
-    public void test() throws Exception
-    {
-        
-        File tempDir = new File(".");
-        File rootDir = new File(tempDir, "test_cm1_startup");
+    void testTouchFiles() throws Exception {
+        var tempDir = new File(".");
+        var rootDir = new File(tempDir, "test_cm1_startup");
         if (rootDir.exists())
             FileUtils.cleanDirectory(rootDir);
         rootDir.mkdir();
-        
-        List<File> files = new ArrayList<File>();
-        for (int i = 0; i < 2; i++)
-        {
-            File testDir = new File(rootDir, "sub" + i);
-            for (int j = 0; j < 2; j++)
-            {
-                File testFile = new File(testDir, "test" + j + ".txt");
+
+        var files = new ArrayList<File>();
+        for (int i = 0; i < 2; i++) {
+            var testDir = new File(rootDir, "sub" + i);
+            for (int j = 0; j < 2; j++) {
+                var testFile = new File(testDir, "test" + j + ".txt");
                 FileUtils.touch(testFile);
                 testFile.deleteOnExit();
                 files.add(testFile);
             }
         }
-        
-        Date date = new Date();
-        for (File file : files)
-        {
+
+        var date = new Date();
+        for (var file : files) {
             assertFalse(FileUtils.isFileNewer(file, date));
         }
-        
-        PSTouchFiles touchFiles = new PSTouchFiles();
+
+        var touchFiles = new PSTouchFiles();
         touchFiles.setRootDir(rootDir.getPath());
         touchFiles.setDirNames("sub0,sub1");
-        
-        Properties props = new Properties();
-        String propName = PSTouchFiles.getPropName();
+
+        var props = new Properties();
+        var propName = PSTouchFiles.getPropName();
         props.setProperty(propName, "true");
-        
+
         touchFiles.doStartupWork(props);
         assertEquals("false", props.getProperty(propName));
         Collection<File> touchedFiles = FileUtils.listFiles(rootDir, null, true);
-        for (File file : touchedFiles)
-        {
+        for (var file : touchedFiles) {
             assertTrue(FileUtils.isFileNewer(file, date));
         }
     }
-
 }

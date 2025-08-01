@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSAssetSummary objects.
+ */
 @XmlRootElement(name = "AssetSummary")
 public class PSAssetSummaryList extends ArrayList<PSAssetSummary> {
+
+    public PSAssetSummaryList() {
+        super();
+    }
+
     public PSAssetSummaryList(Collection<? extends PSAssetSummary> c) {
         super(c);
     }

@@ -37,44 +37,24 @@ import org.apache.any23.source.FileDocumentSource;
  * @author miltonpividori
  * 
  */
-class PSFileDocumentSource extends FileDocumentSource implements IPSDocumentSource
-{
-    /**
-     * All InputStream object returned by the openInputStream() method.
-     */
-    private List<InputStream> openInputStream;
+class PSFileDocumentSource extends FileDocumentSource implements IPSDocumentSource {
+    private final List<InputStream> openInputStream;
 
-    public PSFileDocumentSource(File file)
-    {
+    public PSFileDocumentSource(File file) {
         super(file);
-
         openInputStream = new ArrayList<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.deri.any23.source.FileDocumentSource#openInputStream()
-     */
     @Override
-    public InputStream openInputStream() throws IOException
-    {
+    public InputStream openInputStream() throws IOException {
         InputStream inputStream = super.openInputStream();
-
         openInputStream.add(inputStream);
-
         return inputStream;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.metadata.extractor.any23.IPSDocumentSource#close()
-     */
-    public void close()
-    {
-        for (InputStream in : openInputStream)
-            IOUtils.closeQuietly(in);
-
+    @Override
+    public void close() {
+        openInputStream.forEach(org.apache.tika.io.IOUtils::closeQuietly);
         openInputStream.clear();
     }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,45 +22,59 @@ import com.percussion.rest.Guid;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
-@XmlRootElement(name="CommunityRole")
-@Schema(description="Represents a Community Role association")
+/**
+ * Represents a Community Role association.
+ */
+@XmlRootElement(name = "CommunityRole")
+@Schema(description = "Represents a Community Role association")
 public class CommunityRole {
 
-    @Schema(description="The long id of the community")
-    private long communityid;
-    @Schema(description="The long id of the Role")
+    @Schema(description = "The long id of the community")
+    private long communityId;
+    @Schema(description = "The long id of the Role")
     private long roleId;
-    @Schema(description="The name of the role")
+    @Schema(description = "The name of the role")
     private String roleName;
-
-    @Schema(description="Guid of the community", required = true)
+    @Schema(description = "Guid of the community", required = true)
     private Guid communityGuid;
-    @Schema(description="Guid of the Role", required=true)
+    @Schema(description = "Guid of the Role", required = true)
     private Guid roleGuid;
 
-    public Guid getCommunityGuid() {
-        return communityGuid;
+    public CommunityRole() {}
+
+    public CommunityRole(long communityId, long roleId, String roleName, Guid communityGuid, Guid roleGuid) {
+        this.communityId = communityId;
+        this.roleId = roleId;
+        this.roleName = roleName;
+        this.communityGuid = communityGuid;
+        this.roleGuid = roleGuid;
+    }
+
+    public Optional<Guid> getCommunityGuid() {
+        return Optional.ofNullable(communityGuid);
     }
 
     public void setCommunityGuid(Guid communityGuid) {
         this.communityGuid = communityGuid;
     }
 
-    public Guid getRoleGuid() {
-        return roleGuid;
+    public Optional<Guid> getRoleGuid() {
+        return Optional.ofNullable(roleGuid);
     }
 
     public void setRoleGuid(Guid roleGuid) {
         this.roleGuid = roleGuid;
     }
 
-    public long getCommunityid() {
-        return communityid;
+    public long getCommunityId() {
+        return communityId;
     }
 
-    public void setCommunityid(long communityid) {
-        this.communityid = communityid;
+    public void setCommunityId(long communityId) {
+        this.communityId = communityId;
     }
 
     public long getRoleId() {
@@ -70,11 +85,39 @@ public class CommunityRole {
         this.roleId = roleId;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public Optional<String> getRoleName() {
+        return Optional.ofNullable(roleName);
     }
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CommunityRole)) return false;
+        var that = (CommunityRole) o;
+        return communityId == that.communityId &&
+                roleId == that.roleId &&
+                Objects.equals(roleName, that.roleName) &&
+                Objects.equals(communityGuid, that.communityGuid) &&
+                Objects.equals(roleGuid, that.roleGuid);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(communityId, roleId, roleName, communityGuid, roleGuid);
+    }
+
+    @Override
+    public String toString() {
+        return "CommunityRole{" +
+                "communityId=" + communityId +
+                ", roleId=" + roleId +
+                ", roleName='" + roleName + '\'' +
+                ", communityGuid=" + communityGuid +
+                ", roleGuid=" + roleGuid +
+                '}';
     }
 }

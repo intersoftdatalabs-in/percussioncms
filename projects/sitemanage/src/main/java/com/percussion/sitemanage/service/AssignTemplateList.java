@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.service;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,9 +25,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * Represents a list of assigned templates.
+ */
 @XmlRootElement(name = "TemplateSummary")
-@ArraySchema(schema=@Schema(implementation = AssignTemplate.class))
+@ArraySchema(schema = @Schema(implementation = AssignTemplate.class))
 public class AssignTemplateList extends ArrayList<AssignTemplate> {
     public AssignTemplateList(Collection<AssignTemplate> c) {
         super(c);

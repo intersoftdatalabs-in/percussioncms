@@ -69,7 +69,7 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler
    protected abstract PSDependencyHandler getChildHandler();
    
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok,
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok,
       PSDependency dep) throws PSDeployException, PSNotFoundException {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
@@ -81,7 +81,7 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler
          throw new IllegalArgumentException("dep wrong type");
       
       String defId = dep.getDependencyId();
-      List childDeps = new ArrayList<>();
+      List<PSDependency> childDeps = new ArrayList<>();
 
       PSDependency defDep = getChildHandler().getDependency(tok, defId);
       if ( defDep != null )
@@ -94,31 +94,18 @@ public abstract class PSElementDependencyHandler extends PSDependencyHandler
    }
 
    // see base class
-   public Iterator getDependencies(PSSecurityToken tok)
+   @Override
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
            throws PSDeployException, PSNotFoundException {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
 
-      // get all registered element definition
-      List<PSDependency> deps = new ArrayList<>();
-
-      Iterator defDeps = getChildHandler().getDependencies(tok);
-      while (defDeps.hasNext())
-      {
-         PSDependency defDep = (PSDependency)defDeps.next();
-         if (defDep.getDependencyType() == PSDependency.TYPE_SYSTEM)
-            continue;
-         
-         PSDependency dep = new PSDeployableElement(PSDependency.TYPE_SHARED,
-            defDep.getDependencyId(), getType(),
-            m_def.getObjectTypeName(), defDep.getDisplayName(),
-            m_def.supportsIdTypes(), m_def.supportsIdMapping(),
-            m_def.supportsUserDependencies(), m_def.supportsParentId());
-
-         deps.add(dep);
-      }
-
-      return deps.iterator();
+      return getChildHandler().getDependencies(tok).stream()
+        .filter(defDep -> defDep.getDependencyType() != PSDependency.TYPE_SYSTEM)
+        .map(defDep -> new PSDeployableElement(PSDependency.TYPE_SHARED, defDep.getDependencyId(), getType(),
+            m_def.getObjectTypeName(), defDep.getDisplayName(), m_def.supportsIdTypes(), m_def.supportsIdMapping(),
+            m_def.supportsUserDependencies(), m_def.supportsParentId()))
+        .iterator();
    }
 
 

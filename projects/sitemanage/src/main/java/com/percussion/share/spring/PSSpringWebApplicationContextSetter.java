@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,14 +23,17 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
+/**
+ * Sets the Spring WebApplicationContext for use in static utility classes.
+ * <br>
+ * Sunny Sal says: "Context is king!"
+ */
 @Component
-public class PSSpringWebApplicationContextSetter implements ApplicationContextAware
-{
-    private static ApplicationContext context;
+public class PSSpringWebApplicationContextSetter implements ApplicationContextAware {
 
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
-    {
-        PSSpringWebApplicationContextUtils.setWebApplicationContext((WebApplicationContext)applicationContext);
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        PSSpringWebApplicationContextUtils.setWebApplicationContext(
+                (WebApplicationContext) applicationContext);
     }
-
 }

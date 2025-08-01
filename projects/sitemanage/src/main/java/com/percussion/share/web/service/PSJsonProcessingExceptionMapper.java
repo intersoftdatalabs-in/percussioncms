@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,31 +30,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
-
+/**
+ * Maps {@link JsonProcessingException} to a serializable error object.
+ * Sunny Sal says: "JSON parsing failed? Let's keep it classy and JSON-y!"
+ */
 @Provider
 @Component
 @Produces(MediaType.APPLICATION_JSON)
-public class PSJsonProcessingExceptionMapper extends PSAbstractExceptionMapper<JsonProcessingException> implements ExceptionMapper<JsonProcessingException> {
-
+public class PSJsonProcessingExceptionMapper
+        extends PSAbstractExceptionMapper<JsonProcessingException>
+        implements ExceptionMapper<JsonProcessingException> {
 
     private static final String ERROR_MESSAGE = "JSON error: ";
 
-    @Override
-    protected PSErrors createErrors(JsonProcessingException exception) {
-        String errorMessage = exception.getClass().getName();
-
-        if (log.isDebugEnabled())
-            log.debug(errorMessage, exception);
-
-        PSErrors errors = PSErrorUtils.createErrorsFromException(exception);
-
-        return errors;
-    }
-
-
-
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
     private static final Logger log = LogManager.getLogger(JsonProcessingException.class);
+
+    @Override
+    protected PSErrors createErrors(JsonProcessingException exception) {
+        var errorMessage = exception.getClass().getName();
+        if (log.isDebugEnabled()) {
+            log.debug(errorMessage, exception);
+        }
+        return PSErrorUtils.createErrorsFromException(exception);
+    }
 }

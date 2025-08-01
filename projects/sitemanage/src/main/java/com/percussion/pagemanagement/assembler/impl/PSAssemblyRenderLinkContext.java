@@ -28,96 +28,81 @@ import com.percussion.sitemanage.data.PSSiteSummary;
  * @author adamgent
  *
  */
-public class PSAssemblyRenderLinkContext extends PSRenderLinkContext
-{
-    
+public class PSAssemblyRenderLinkContext extends PSRenderLinkContext {
+
     @NotNull
     private PSSiteSummary site;
-    
+
     @NotBlank
     @NotNull
     private String filter;
-    
+
     @NotNegative
     @NotNull
     private Number legacyLinkContext;
-    
+
     @NotNegative
     @NotNull
     private Number legacyFileContext;
-    
+
     @Override
-    public PSSiteSummary getSite()
-    {
+    public PSSiteSummary getSite() {
         return site;
     }
-    public void setSite(PSSiteSummary site)
-    {
+
+    public void setSite(PSSiteSummary site) {
         this.site = site;
     }
+
     @Override
-    public Mode getMode()
-    {
-        if (legacyLinkContext == null || 
-        		legacyLinkContext.intValue() == 0) {
-            return Mode.PREVIEW;    
+    public Mode getMode() {
+        if (legacyLinkContext == null || legacyLinkContext.intValue() == 0) {
+            return Mode.PREVIEW;
         }
         return Mode.PUBLISH;
-        
     }
-    public void setMode(Mode mode)
-    {
-        if(Mode.PUBLISH == mode) {
+
+    public void setMode(Mode mode) {
+        if (Mode.PUBLISH == mode) {
             legacyFileContext = 10;
             legacyLinkContext = 20;
-        }
-        else {
+        } else {
             legacyFileContext = 0;
             legacyLinkContext = 0;
         }
     }
-    
-    public String getFilter()
-    {
+
+    public String getFilter() {
         return filter;
     }
 
-    public void setFilter(String filter)
-    {
+    public void setFilter(String filter) {
         this.filter = filter;
     }
 
     /**
-     * This is the assembly context which is normally <code>sys_context</code>
-     * or <code>sys_assembly_context</code>.
-     * parameter in the assembly url.
-     * @return never <code>null</code>.
+     * This is the assembly context which is normally {@code sys_context}
+     * or {@code sys_assembly_context} parameter in the assembly URL.
+     * @return never {@code null}.
      */
-    public Number getLegacyLinkContext()    
-    {
+    public Number getLegacyLinkContext() {
         return legacyLinkContext;
     }
 
-    public void setLegacyLinkContext(Number legacyLinkContext)
-    {
+    public void setLegacyLinkContext(Number legacyLinkContext) {
         this.legacyLinkContext = legacyLinkContext;
     }
 
     /**
-     * This is the delivery context which is the context used to generate file locations in 
-     * in the content list generator.
-     * @return never <code>null</code>.
+     * This is the delivery context which is the context used to generate file locations in
+     * the content list generator.
+     * @return never {@code null}.
      */
-    public Number getLegacyFileContext()
-    {
+    public Number getLegacyFileContext() {
         return legacyFileContext;
     }
 
-    public void setLegacyFileContext(Number legacyFileContext)
-    {
+    public void setLegacyFileContext(Number legacyFileContext) {
         this.legacyFileContext = legacyFileContext;
     }
-    
-    
 }
-

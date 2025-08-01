@@ -52,6 +52,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 
 
@@ -155,17 +157,29 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   protected List<PSDependency> getDepsFromIds(Iterator ids, String dependencyType, 
+   protected List<PSDependency> getDepsFromIds(Iterator<String> ids, String dependencyType,
       PSSecurityToken tok) throws PSDeployException, PSNotFoundException {
-      if (ids == null)
-         throw new IllegalArgumentException("ids may not be null");
-      if ( dependencyType == null || dependencyType.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "dependencyType may not be null or empty");
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (ids == null || dependencyType == null || dependencyType.isBlank() || tok == null) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      return getDepsFromIds(ids, dependencyType, tok, -1);
+      var handler = getDependencyHandler(dependencyType);
+      return ids.hasNext()
+         ? StreamSupport.stream(Spliterators.spliteratorUnknownSize(ids, Spliterator.ORDERED), false)
+            .map(id -> {
+               try {
+                  var dep = handler.getDependency(tok, id);
+                  if (dep != null) {
+                     dep.setDependencyType(PSDependency.TYPE_SHARED);
+                  }
+                  return dep;
+               } catch (PSDeployException | PSNotFoundException e) {
+                  throw new RuntimeException(e);
+               }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList())
+         : List.of();
    }
 
    /**
@@ -190,7 +204,7 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler
     * @throws IllegalArgumentException if any param is invalid.
     * @throws PSDeployException if any other error occurs.
     */
-   protected List<PSDependency> getDepsFromIds(Iterator ids, String dependencyType, 
+   protected List<PSDependency> getDepsFromIds(Iterator<String> ids, String dependencyType,
       PSSecurityToken tok, int depType) throws PSDeployException, PSNotFoundException {
       if (ids == null)
          throw new IllegalArgumentException("ids may not be null");
@@ -249,22 +263,13 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler
          throw new IllegalArgumentException("col may not be null or empty");
    
       // use "Set" to make sure it is a distinct list
-      Set<String> ids = new HashSet<>();
+      Set<String> ids = data != null && data.getRows().hasNext()
+         ? StreamSupport.stream(Spliterators.spliteratorUnknownSize(data.getRows(), Spliterator.ORDERED), false)
+            .map(row -> getColumnValueNullable(table, col, row))
+            .filter(id -> id != null && !id.isBlank())
+            .collect(Collectors.toSet())
+         : Set.of();
 
-      if (data != null && data.getRows().hasNext())
-      {
-         Iterator rows = data.getRows();
-         String id;
-         PSJdbcRowData row;
-         while (rows.hasNext())
-         {
-            row = (PSJdbcRowData)rows.next();
-            id = getColumnValueNullable(table, col, row);
-            if (id != null && id.trim().length() != 0)
-               ids.add(id);               
-         }
-      }
-      
       return ids.iterator();
    }
    
@@ -272,8 +277,8 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler
     * Get a list of distinct application names from a given table data at the 
     * column of <code>col</code>. Note: the column may be a nullable column. 
     * If the value of the column is not <code>null</code> or empty, the format
-    * of it is expected to be <code>../app-name/XXX</code>. 
-    * The <code>app-name</code> will be retrieved and be part of the returned 
+    * of it is <code>../app-name/XXX</code>.
+    * The <code>app-name</code> will be retrieved and be part of the returned
     * list.
     * 
     * @param data The table data, it may be <code>null</code> or it may not
@@ -858,25 +863,15 @@ public abstract class PSDataObjectDependencyHandler extends PSDependencyHandler
       if (filter == null)
          throw new IllegalArgumentException("filter may not be null");
 
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+      var dbmsHelper = PSDbmsHelper.getInstance();
+      var schema = dbmsHelper.catalogTable(table, false);
+      var data = dbmsHelper.catalogTableData(schema, null, filter);
 
-      PSJdbcTableSchema schema = dbmsHelper.catalogTable(table, false);
-      PSJdbcTableData data = dbmsHelper.catalogTableData(
-         schema, null, filter);
-
-      PSDependencyData depData = null;
-      if (isDataRequired && (data == null || (!data.getRows().hasNext())))
-      {
-         Object[] args = {table, filter.toString()};
-         throw new PSDeployException(IPSDeploymentErrors.CANNOT_FIND_DATA, 
-            args);
-      }
-      else if (data != null && data.getRows().hasNext())
-      {
-         depData = new PSDependencyData(schema, data);
+      if (isDataRequired && (data == null || !data.getRows().hasNext())) {
+         throw new PSDeployException(IPSDeploymentErrors.CANNOT_FIND_DATA, new Object[]{table, filter.toString()});
       }
 
-      return depData;
+      return data != null && data.getRows().hasNext() ? new PSDependencyData(schema, data) : null;
    }
    
    /**

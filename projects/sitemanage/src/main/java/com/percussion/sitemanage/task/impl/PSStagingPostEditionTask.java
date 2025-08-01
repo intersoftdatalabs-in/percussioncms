@@ -46,80 +46,70 @@ import java.util.Map;
  */
 public class PSStagingPostEditionTask implements IPSEditionTask {
 
-	@Override
-	public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException 
-	{
-		PSSpringWebApplicationContextUtils.injectDependencies(this);
-	}
+    @Override
+    public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
+        PSSpringWebApplicationContextUtils.injectDependencies(this);
+    }
 
-	@Override
-	public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, 
-			long duration, boolean success, Map<String, String> params, IPSEditionTaskStatusCallback statusService) 
-					throws Exception 
-	{
-		log.info("Started staging post edition task...");
-		PSPublishServerInfo info = pubServerService.getPubServer(site.getSiteId().toString(), Long.toString(edition.getPubServerId().longValue()));
-		debugData(edition, site, startTime, jobId);
-		//Checke whether the server is staging
-		if (PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())) 
-		{
-			log.info("Clearing published items from staging incremenatl queue");
-			//get all the items and delete the incremental events
-			for (IPSPubItemStatus item : statusService.getIterableJobStatus()) {
-				contentChangeService.deleteChangeEvents(site.getSiteId(), item.getContentId(), PSContentChangeType.PENDING_STAGED);
-				log.debug("Cleared the item with id {} from staging incremenatl queue",
-						item.getContentId());
-			}
-		}
-		else
-		{
-			log.info("Server type is not staging, skipping the post edition tasks.");
-		}
-		log.info("Finished staging post edition task...");
-	}
+    @Override
+    public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId,
+            long duration, boolean success, Map<String, String> params, IPSEditionTaskStatusCallback statusService)
+            throws Exception {
+        log.info("Started staging post edition task...");
+        var info = pubServerService.getPubServer(site.getSiteId().toString(), Long.toString(edition.getPubServerId().longValue()));
+        debugData(edition, site, startTime, jobId);
+        // Check whether the server is staging
+        if (PSPubServer.STAGING.equalsIgnoreCase(info.getServerType())) {
+            log.info("Clearing published items from staging incremental queue");
+            // Get all the items and delete the incremental events
+            for (var item : statusService.getIterableJobStatus()) {
+                contentChangeService.deleteChangeEvents(site.getSiteId(), item.getContentId(), PSContentChangeType.PENDING_STAGED);
+                log.debug("Cleared the item with id {} from staging incremental queue", item.getContentId());
+            }
+        } else {
+            log.info("Server type is not staging, skipping the post edition tasks.");
+        }
+        log.info("Finished staging post edition task...");
+    }
 
-	/**
-	 * Helper function that logs debug information.
-	 * @param edition assumed not <code>null</code>
-	 * @param site assumed not <code>null</code>
-	 * @param startTime assumed not <code>null</code>
-	 * @param jobId assumed not <code>null</code>
-	 */
-	private void debugData(IPSEdition edition, IPSSite site, Date startTime, long jobId) {
-		log.debug("Started staging post edition task data: ");
-		log.debug("edition id - " + edition.getGUID().toString());
-		log.debug("site id - " + site.getGUID().toString());
-		log.debug("job id - " + Long.toString(jobId));
-		log.debug("Start time - " + startTime.toString());
-	}
+    /**
+     * Helper function that logs debug information.
+     * @param edition assumed not <code>null</code>
+     * @param site assumed not <code>null</code>
+     * @param startTime assumed not <code>null</code>
+     * @param jobId assumed not <code>null</code>
+     */
+    private void debugData(IPSEdition edition, IPSSite site, Date startTime, long jobId) {
+        log.debug("Started staging post edition task data: ");
+        log.debug("edition id - {}", edition.getGUID().toString());
+        log.debug("site id - {}", site.getGUID().toString());
+        log.debug("job id - {}", Long.toString(jobId));
+        log.debug("Start time - {}", startTime.toString());
+    }
 
-	@Override
-	public TaskType getType() 
-	{
-		return TaskType.POSTEDITION;
-	}
+    @Override
+    public TaskType getType() {
+        return TaskType.POSTEDITION;
+    }
 
-	private IPSContentChangeService contentChangeService;
-	private IPSPubServerService pubServerService;
+    private IPSContentChangeService contentChangeService;
+    private IPSPubServerService pubServerService;
 
-	public IPSContentChangeService getContentChangeService() 
-	{
-		return contentChangeService;
-	}
+    public IPSContentChangeService getContentChangeService() {
+        return contentChangeService;
+    }
 
-	public void setContentChangeService(IPSContentChangeService contentChangeService) 
-	{
-		this.contentChangeService = contentChangeService;
-	}
+    public void setContentChangeService(IPSContentChangeService contentChangeService) {
+        this.contentChangeService = contentChangeService;
+    }
 
-	public IPSPubServerService getPubServerService() 
-	{
-		return pubServerService;
-	}
+    public IPSPubServerService getPubServerService() {
+        return pubServerService;
+    }
 
-	public void setPubServerService(IPSPubServerService pubServerService) 
-	{
-		this.pubServerService = pubServerService;
-	}
+    public void setPubServerService(IPSPubServerService pubServerService) {
+        this.pubServerService = pubServerService;
+    }
+
     protected final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
 }

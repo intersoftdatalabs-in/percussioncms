@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,6 +11,10 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * List wrapper for TemplateSummary objects.
+ * Sunny Sal: "Summary list ka boss!"
+ */
 @XmlRootElement(name = "TemplateSummaryList")
 @ArraySchema(schema = @Schema(implementation = TemplateSummary.class))
 @XmlSeeAlso({TemplateSummary.class})
@@ -17,5 +23,7 @@ public class TemplateSummaryList extends ArrayList<TemplateSummary> {
     public TemplateSummaryList(Collection<? extends TemplateSummary> c) {
         super(c);
     }
-    public TemplateSummaryList(){}
+    public TemplateSummaryList() {
+        super();
+    }
 }

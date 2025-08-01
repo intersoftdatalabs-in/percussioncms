@@ -26,90 +26,71 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSKeywordConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSKeywordConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object as well as a
-    * server array of objects to a client array of objects and back.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSKeyword source = createKeyword("1");
-      
-      PSKeyword target = (PSKeyword) roundTripConversion(
-         PSKeyword.class, 
-         com.percussion.webservices.content.PSKeyword.class, 
-         source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-      
-      // create the source array
-      PSKeyword[] sourceArray = new PSKeyword[1];
-      sourceArray[0] = source;
-      
-      PSKeyword[] targetArray = (PSKeyword[]) roundTripConversion(
-         PSKeyword[].class, 
-         com.percussion.webservices.content.PSKeyword[].class, 
-         sourceArray);
-      
-      // verify the the round-trip array is equal to the source array
-      assertTrue(sourceArray.length == targetArray.length);
-      assertTrue(sourceArray[0].equals(targetArray[0]));
-   }
-   
-   /**
-    * Test a list of server object conversion to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      List<PSKeyword> sourceList = new ArrayList<PSKeyword>();
-      sourceList.add(createKeyword("1"));
-      sourceList.add(createKeyword("2"));
-      
-      List<PSKeyword> targetList = roundTripListConversion(
-            com.percussion.webservices.content.PSKeyword[].class, 
-            sourceList);
+public class PSKeywordConverterTest extends PSConverterTestBase {
 
-      assertTrue(sourceList.equals(targetList));
-   }
+    /**
+     * Tests the conversion from a server to a client object as well as a
+     * server array of objects to a client array of objects and back.
+     */
+    public void testConversion() throws Exception {
+        var source = createKeyword("1");
 
-   /**
-    * Create a keyword for testing.
-    * 
-    * @param index the index used for all keyword members, assumed not 
-    *    <code>null</code> or empty.
-    * @return the new keyword, never <code>null</code>.
-    */
-   private PSKeyword createKeyword(String index)
-   {
-      PSKeyword keyword = new PSKeyword("label_" + index, 
-         "description_" + index, index);
-      keyword.setGUID(new PSGuid(PSTypeEnum.KEYWORD_DEF, 1001));
-      List<PSKeywordChoice> choices = new ArrayList<PSKeywordChoice>();
-      for (int i=0; i<3; i++)
-      {
-         PSKeywordChoice choice = new PSKeywordChoice();
-         choice.setLabel("choice_" + index + "." + i);
-         choice.setDescription("description_" + index + "." + i);
-         choice.setValue("1." + i);
-         choice.setSequence(i);
-         
-         choices.add(choice);
-      }
-      keyword.setChoices(choices);
-      
-      return keyword;
-   }
+        var target = (PSKeyword) roundTripConversion(
+                PSKeyword.class,
+                com.percussion.webservices.content.PSKeyword.class,
+                source);
+
+        assertEquals(source, target);
+
+        var sourceArray = new PSKeyword[]{source};
+        var targetArray = (PSKeyword[]) roundTripConversion(
+                PSKeyword[].class,
+                com.percussion.webservices.content.PSKeyword[].class,
+                sourceArray);
+
+        assertEquals(sourceArray.length, targetArray.length);
+        assertEquals(sourceArray[0], targetArray[0]);
+    }
+
+    /**
+     * Test a list of server object conversion to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var sourceList = new ArrayList<PSKeyword>();
+        sourceList.add(createKeyword("1"));
+        sourceList.add(createKeyword("2"));
+
+        var targetList = roundTripListConversion(
+                com.percussion.webservices.content.PSKeyword[].class,
+                sourceList);
+
+        assertEquals(sourceList, targetList);
+    }
+
+    /**
+     * Create a keyword for testing.
+     */
+    private PSKeyword createKeyword(String index) {
+        var keyword = new PSKeyword("label_" + index,
+                "description_" + index, index);
+        keyword.setGUID(new PSGuid(PSTypeEnum.KEYWORD_DEF, 1001));
+        var choices = new ArrayList<PSKeywordChoice>();
+        for (int i = 0; i < 3; i++) {
+            var choice = new PSKeywordChoice();
+            choice.setLabel("choice_" + index + "." + i);
+            choice.setDescription("description_" + index + "." + i);
+            choice.setValue("1." + i);
+            choice.setSequence(i);
+            choices.add(choice);
+        }
+        keyword.setChoices(choices);
+        return keyword;
+    }
 }
-

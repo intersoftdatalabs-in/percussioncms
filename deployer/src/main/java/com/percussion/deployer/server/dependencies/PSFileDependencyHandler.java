@@ -87,109 +87,53 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler
    }
    
    // see base class
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-         
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-      
-      List files = new ArrayList();
-      File depFile = new File(
-            PSServer.getRxDir().getAbsolutePath(), 
-            PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
-      if (!depFile.exists())
-      {
-         Object[] args = {dep.getObjectTypeName(), dep.getDependencyId(), 
-               dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, 
-            args);
+   @Override
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      files.add(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, 
-         depFile));
-      
-      return files.iterator();
+
+      var depFile = new File(PSServer.getRxDir().getAbsolutePath(), PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
+      if (!depFile.exists()) {
+         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{dep.getObjectTypeName(), dep.getDependencyId(), dep.getDisplayName()});
+      }
+
+      return List.of(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, depFile)).iterator();
    }
 
    // see base class
-   public void installDependencyFiles(PSSecurityToken tok, 
-      PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) 
-         throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-         
-      if (archive == null)
-         throw new IllegalArgumentException("archive may not be null");
-         
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-         
-      if (!dep.getObjectType().equals(getType()))
-         throw new IllegalArgumentException("dep wrong type");
-      
-      if (ctx == null)
-         throw new IllegalArgumentException("ctx may not be null");
-      
-      // get file data
-      Iterator files = archive.getFiles(dep);
-      PSDependencyFile depFile = null;
-      if (files.hasNext())
-      {
-         depFile = (PSDependencyFile)files.next();
+   @Override
+   public void installDependencyFiles(PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) throws PSDeployException {
+      if (tok == null || archive == null || dep == null || ctx == null || !dep.getObjectType().equals(getType())) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      if (depFile == null)
-      {
-         Object[] args = 
-         {
-            PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SUPPORT_FILE], 
-            dep.getObjectType(), dep.getDependencyId(), dep.getDisplayName()
-         };
-         throw new PSDeployException(
-            IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, args);
-      }            
-      
-      int transAction = PSTransactionSummary.ACTION_CREATED;
-      File tgtFile = new File(PSServer.getRxDir().getAbsolutePath(),
-            PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
-      if (tgtFile.exists())
-         transAction = PSTransactionSummary.ACTION_MODIFIED;
-      
-      // create directories if they do not exist
-      File parentDir = tgtFile.getParentFile();
-      if (parentDir != null)
+
+      var files = archive.getFiles(dep);
+      if (!files.hasNext()) {
+         throw new PSDeployException(IPSDeploymentErrors.MISSING_DEPENDENCY_FILE, new Object[]{PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SUPPORT_FILE], dep.getObjectType(), dep.getDependencyId(), dep.getDisplayName()});
+      }
+
+      var depFile = (PSDependencyFile) files.next();
+      var tgtFile = new File(PSServer.getRxDir().getAbsolutePath(), PSDeployComponentUtils.getNormalizedPath(dep.getDependencyId()));
+      var transAction = tgtFile.exists() ? PSTransactionSummary.ACTION_MODIFIED : PSTransactionSummary.ACTION_CREATED;
+
+      var parentDir = tgtFile.getParentFile();
+      if (parentDir != null) {
          parentDir.mkdirs();
-
-         // ensure the timestamp is updated
-         tgtFile.setLastModified(System.currentTimeMillis());
-
-          try (FileOutputStream out = new FileOutputStream(tgtFile)) {
-             try (InputStream in = archive.getFileData(depFile)) {
-                IOTools.copyStream(in, out);
-             }
-          } catch (FileNotFoundException e) {
-             throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-                     e.getLocalizedMessage());
-          } catch (IOException e) {
-             throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-                     e.getLocalizedMessage());
-          }
-
-         addTransactionLogEntry(dep, ctx, tgtFile.getPath(),
-            PSTransactionSummary.TYPE_FILE, transAction);
-
-         // notify whoever interested after a the file is successful installed
-         PSNotificationHelper.notifyFile(tgtFile);                  
       }
 
-   
+      tgtFile.setLastModified(System.currentTimeMillis());
+
+      try (var out = new FileOutputStream(tgtFile); var in = archive.getFileData(depFile)) {
+         IOTools.copyStream(in, out);
+      } catch (IOException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
+
+      addTransactionLogEntry(dep, ctx, tgtFile.getPath(), PSTransactionSummary.TYPE_FILE, transAction);
+      PSNotificationHelper.notifyFile(tgtFile);
+   }
+
    // see base class
    public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
    {
@@ -245,4 +189,3 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler
       return (getDependency(tok, id) != null);
    }
 }
-

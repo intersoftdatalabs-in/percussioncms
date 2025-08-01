@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -45,29 +46,37 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.Validate.notEmpty;
 
+/**
+ * Path item service for the Recycling bin.
+ */
 @Component("recyclePathItemService")
 @Lazy
 public class PSRecyclePathItemService extends PSPathItemService {
 
-    private IPSRecycleService recycleService;
-
-    private IPSManagedNavService navService;
-
+    private final IPSRecycleService recycleService;
+    private final IPSManagedNavService navService;
     private String navTreeType;
-
     private String navonType;
 
     @Autowired
-    public PSRecyclePathItemService(IPSFolderHelper folderHelper,
-                                    IPSIdMapper idMapper, IPSPageService pageService,
-                                    IPSItemWorkflowService itemWorkflowService, IPSAssetService assetService,
-                                    IPSWidgetAssetRelationshipService widgetAssetRelationshipService, IPSContentMgr contentMgr,
-                                    IPSWorkflowService workflowService, @Qualifier("cm1ListViewHelper") IPSListViewHelper listViewHelper,
-                                    IPSUserService userService, IPSRecycleService recycleService, IPSManagedNavService navService) {
+    public PSRecyclePathItemService(
+            IPSFolderHelper folderHelper,
+            IPSIdMapper idMapper,
+            IPSPageService pageService,
+            IPSItemWorkflowService itemWorkflowService,
+            IPSAssetService assetService,
+            IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+            IPSContentMgr contentMgr,
+            IPSWorkflowService workflowService,
+            @Qualifier("cm1ListViewHelper") IPSListViewHelper listViewHelper,
+            IPSUserService userService,
+            IPSRecycleService recycleService,
+            IPSManagedNavService navService) {
         super(folderHelper, idMapper, itemWorkflowService, assetService, widgetAssetRelationshipService,
                 contentMgr, workflowService, pageService, listViewHelper, userService);
         this.recycleService = recycleService;
@@ -78,42 +87,37 @@ public class PSRecyclePathItemService extends PSPathItemService {
     @Override
     protected String getFullFolderPath(String path) {
         notEmpty(path, "path");
-        log.debug("Getting full folder path for path: " + path);
+        log.debug("Getting full folder path for path: {}", path);
 
-        String fullFolderPath = RECYCLING_ROOT;
-        if (!path.equals("/")) {
+        var fullFolderPath = RECYCLING_ROOT;
+        if (!"/".equals(path)) {
             fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
         }
-
         return fullFolderPath;
     }
 
     @Override
     public PSItemProperties findItemProperties(String path) throws PSPathNotFoundServiceException {
         notEmpty(path, "path");
-        if (log.isDebugEnabled())
-            log.debug("find item properties: " + path);
-        String fullFolderPath = getFullFolderPath(path);
-        PSItemProperties props;
-        try
-        {
-            props = folderHelper.findItemProperties(fullFolderPath, RECYCLED_RELATE_TYPE);
+        if (log.isDebugEnabled()) {
+            log.debug("find item properties: {}", path);
         }
-        catch (Exception e)
-        {
+        var fullFolderPath = getFullFolderPath(path);
+        try {
+            return folderHelper.findItemProperties(fullFolderPath, RECYCLED_RELATE_TYPE);
+        } catch (Exception e) {
             throw new PSPathNotFoundServiceException("Path not found: " + path);
         }
-        return props;
     }
 
     @Override
     protected List<PSPathItem> findItems(String path) {
-        String fullPath = getFullFolderPath(path);
-        log.debug("findItems path: " + fullPath);
-        List<PSPathItem> items = new ArrayList<>();
-        List<IPSItemSummary> summaries = recycleService.findChildren(fullPath);
-        for (IPSItemSummary summ : summaries) {
-            PSPathItem pathItem = new PSPathItem();
+        var fullPath = getFullFolderPath(path);
+        log.debug("findItems path: {}", fullPath);
+        var items = new ArrayList<PSPathItem>();
+        var summaries = recycleService.findChildren(fullPath);
+        for (var summ : summaries) {
+            var pathItem = new PSPathItem();
             convert(summ, pathItem);
             pathItem.setPath(path + summ.getName());
             pathItem.setFolderPath(fullPath + summ.getName());
@@ -127,23 +131,17 @@ public class PSRecyclePathItemService extends PSPathItemService {
 
     @Override
     public int deleteFolder(PSDeleteFolderCriteria criteria) throws PSPathServiceException, PSValidationException, IPSDataService.DataServiceNotFoundException, IPSDataService.DataServiceLoadException, PSNotFoundException {
-        PSPathItem folder = findItem(criteria.getPath());
-        if (folder.getCategory() == IPSItemSummary.Category.SECTION_FOLDER)
-        {
-            log.debug("Detected section folder being purged. Id is:" + criteria.getPath());
-            String folderPath = folder.getFolderPath();
-            try
-            {
-                // here we need to purge the navon item
-                // then call super delete folder to handle the rest.
+        var folder = findItem(criteria.getPath());
+        if (folder.getCategory() == IPSItemSummary.Category.SECTION_FOLDER) {
+            log.debug("Detected section folder being purged. Id is: {}", criteria.getPath());
+            var folderPath = folder.getFolderPath();
+            try {
+                // Purge the navon item, then call super delete folder to handle the rest.
                 folderHelper.removeItem(folderPath, idMapper.getString(
                         navService.findNavigationIdFromFolder(folderPath, RECYCLED_RELATE_TYPE)), true);
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 throw new PSPathServiceException(e.getMessage());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 throw new PSPathServiceException("Failed to delete navon from section: " + criteria.getPath(), e);
             }
         }
@@ -152,10 +150,10 @@ public class PSRecyclePathItemService extends PSPathItemService {
 
     @Override
     protected PSPathItem findItem(String path) throws IPSDataService.DataServiceLoadException {
-        String fullPath = getFullFolderPath(path);
-        log.debug("findItem path: " + fullPath);
-        IPSItemSummary summary = recycleService.findItem(fullPath);
-        PSPathItem pathItem = new PSPathItem();
+        var fullPath = getFullFolderPath(path);
+        log.debug("findItem path: {}", fullPath);
+        var summary = recycleService.findItem(fullPath);
+        var pathItem = new PSPathItem();
         convert(summary, pathItem);
         pathItem.setPath(path);
         pathItem.setFolderPath(fullPath);
@@ -164,32 +162,26 @@ public class PSRecyclePathItemService extends PSPathItemService {
     }
 
     @Override
-    protected void convert(IPSItemSummary dataItem, PSPathItem newPathtem) {
-        super.convert(dataItem, newPathtem);
-        newPathtem.setId(dataItem.getId());
-        newPathtem.setName(dataItem.getName());
-        newPathtem.setType(dataItem.getType());
+    protected void convert(IPSItemSummary dataItem, PSPathItem newPathItem) {
+        super.convert(dataItem, newPathItem);
+        newPathItem.setId(dataItem.getId());
+        newPathItem.setName(dataItem.getName());
+        newPathItem.setType(dataItem.getType());
     }
 
     @Override
-    protected boolean shouldFilterItem(IPSItemSummary item)
-    {
+    protected boolean shouldFilterItem(IPSItemSummary item) {
         if (navonType == null) {
             navonType = navService.getNavonContentTypeNames().get(0);
         }
-
         if (navTreeType == null) {
             navTreeType = navService.getNavTreeContentTypeNames().get(0);
         }
-
-        if (item == null || (".system".equals(item.getName())) || (item.getCategory().equals(IPSItemSummary.Category.EXTERNAL_SECTION_FOLDER) ||
-                (navonType != null && navService.getNavonContentTypeNames().contains(item.getType()) ||
-                (navTreeType != null && navService.getNavTreeContentTypeNames().contains(item.getType())))))
-        {
-            return true;
-        }
-
-        return false;
+        return item == null
+                || ".system".equals(item.getName())
+                || item.getCategory().equals(IPSItemSummary.Category.EXTERNAL_SECTION_FOLDER)
+                || (navonType != null && navService.getNavonContentTypeNames().contains(item.getType()))
+                || (navTreeType != null && navService.getNavTreeContentTypeNames().contains(item.getType()));
     }
 
     @Override
@@ -212,39 +204,18 @@ public class PSRecyclePathItemService extends PSPathItemService {
         return RECYCLING_ROOT;
     }
 
-    /**
-     * Constant for the recycling root folder path.
-     */
+    /** Constant for the recycling root folder path. */
     public static final String RECYCLING_ROOT_SUB = "//Folders/$System$";
-    /*
-     * Constant for the Recycling Folder.
-     */
+    /** Constant for the Recycling Folder. */
     public static final String RECYCLING_ROOT = RECYCLING_ROOT_SUB + "/Recycling";
-
-    /**
-     * Constant for the response given when a folder contains in use pages.
-     */
+    /** Constant for the response given when a folder contains in use pages. */
     public static final String PAGES_IN_USE_PAGES = "PagesInUsePages";
-
-    /**
-     * Constant for the response given when a user is not authorized to remove pages in a folder.
-     */
+    /** Constant for the response given when a user is not authorized to remove pages in a folder. */
     public static final String PAGES_NOT_AUTHORIZED = "PagesNotAuthorized";
-
-    /**
-     * Constant for the response given when a folder contains pages linked by templates.
-     */
+    /** Constant for the response given when a folder contains pages linked by templates. */
     public static final String PAGES_IN_USE_TEMPLATES = "PagesInUseTemplates";
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
+    /** The log instance to use for this class, never null. */
     private static final Logger log = LogManager.getLogger(PSRecyclePathItemService.class);
-
-    /**
-     * Static constant to represent the {@link PSRelationshipConfig} constant for recycled content
-     * relationships.
-     */
+    /** Static constant to represent the recycled content relationship type. */
     private static final String RECYCLED_RELATE_TYPE = PSRelationshipConfig.TYPE_RECYCLED_CONTENT;
-
 }

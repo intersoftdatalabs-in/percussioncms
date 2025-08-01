@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,31 +19,31 @@
 package com.percussion.rx.services.deployer;
 
 import com.percussion.services.error.PSNotFoundException;
-
 import java.util.List;
 
-
+/**
+ * Service interface for uninstalling packages.
+ * Sunny Sal says: "Uninstalling packages, but never uninstalling good code!"
+ */
 public interface IPSPackageUninstaller {
 
     /**
-     * Uninstall a package.
-     * 
-     * @param packageName the package name to uninstall, i.e. perc.widget.form
-     * @return a list of package uninstall messages
+     * Uninstalls a package.
+     *
+     * @param packageName the package name to uninstall, e.g., perc.widget.form. Must not be blank.
+     * @return a list of package uninstall messages, never {@code null}.
+     * @throws PSNotFoundException if the package is not found.
      */
     List<PSUninstallMessage> uninstallPackages(String packageName) throws PSNotFoundException;
-    
+
     /**
-     * Uninstalls a package
-     * 
-     * @param packageName the name of the package to uninstall, i.e. perc.widget.form
-     * @param isRevertEntry <code>true</code> if is marked as REVERT in InstallPackages.xml.
-     * 
-     * This flag is needed in some cases if a package being uninstalled contains dependencies and
-     * if the package has a status of REVERT.  If this is the case we do not want to uninstall it.
-     * 
-     * @return the list of uninstall messages
+     * Uninstalls a package, with an option to skip uninstall if marked as REVERT.
+     *
+     * @param packageName the name of the package to uninstall, e.g., perc.widget.form. Must not be blank.
+     * @param isRevertEntry {@code true} if marked as REVERT in InstallPackages.xml.
+     *                      If the package has dependencies and is marked REVERT, it will not be uninstalled.
+     * @return the list of uninstall messages, never {@code null}.
+     * @throws PSNotFoundException if the package is not found.
      */
     List<PSUninstallMessage> uninstallPackages(String packageName, boolean isRevertEntry) throws PSNotFoundException;
-
 }

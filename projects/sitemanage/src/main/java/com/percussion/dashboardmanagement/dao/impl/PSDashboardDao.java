@@ -31,34 +31,24 @@ import com.percussion.webservices.content.IPSContentWs;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @PSSiteManageBean("dashboardDao")
-public class PSDashboardDao extends PSGenericItemDao<PSDashboard> implements IPSDashboardDao
-{
+public class PSDashboardDao extends PSGenericItemDao<PSDashboard> implements IPSDashboardDao {
 
     public static final String FOLDER_PATH = "//Folders/$System$/UserProfiles";
 
     @Autowired
-    public PSDashboardDao(IPSContentWs contentWs, IPSContentMgr contentMgr, IPSIdMapper idMapper)
-    {
+    public PSDashboardDao(IPSContentWs contentWs, IPSContentMgr contentMgr, IPSIdMapper idMapper) {
         super(contentWs, contentMgr, idMapper, PSDashboard.class, "percUserProfile", FOLDER_PATH);
     }
 
-    
-
     @Override
-    protected IPSGuid findContentItemGuid(String id)
-    {
+    protected IPSGuid findContentItemGuid(String id) {
+        // Use search-based lookup for dashboard GUIDs.
         return findContentItemGuidWithSearch(id);
     }
 
-
-
     @Override
-    protected List<String> getFolderPaths(PSDashboard object)
-    {
-        return asList(FOLDER_PATH);
+    protected List<String> getFolderPaths(PSDashboard object) {
+        // All dashboards live in the user profiles folder.
+        return List.of(FOLDER_PATH);
     }
-    
-
-    
-
 }

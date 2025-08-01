@@ -56,7 +56,7 @@ public class PSActionSetter extends PSSimplePropertySetter
       if (!(obj instanceof PSAction))
          throw new IllegalArgumentException("obj type must be PSAction.");
 
-      PSAction action = (PSAction) obj;
+      var action = (PSAction) obj;
       m_actionName = action.getName();
       if (URL_PARAMS.equals(propName))
       {
@@ -83,8 +83,7 @@ public class PSActionSetter extends PSSimplePropertySetter
          return true;
       if (!(obj instanceof PSAction))
          throw new IllegalArgumentException("obj type must be PSAction.");
-      PSAction action = (PSAction) obj;
-      
+      var action = (PSAction) obj;
       if (URL_PARAMS.equals(propName))
       {
          addPropertyDefsForMap(propName, pvalue, getUrlParams(action), defs);
@@ -100,7 +99,7 @@ public class PSActionSetter extends PSSimplePropertySetter
    protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
       if (!(obj instanceof PSAction))
          throw new IllegalArgumentException("obj type must be PSAction.");
-      PSAction action = (PSAction) obj;
+      var action = (PSAction) obj;
       m_actionName = action.getName();
       if(propName.equalsIgnoreCase("URL"))
       {
@@ -131,33 +130,25 @@ public class PSActionSetter extends PSSimplePropertySetter
    {
       if (!(propValue instanceof Map))
       {
-         String msg = "The type of propValue object is not valid for "
+         var msg = "The type of propValue object is not valid for "
                + "this setter. Expected type is Map.";
          throwError(msg, null);
       }
-
-      PSActionParameters aps = action.getParameters();
-      Map<String, String> params = (Map<String, String>) propValue;
-      Iterator<String> iter1 = params.keySet().iterator();
-      while (iter1.hasNext())
-      {
-         String name = iter1.next();
+      var aps = action.getParameters();
+      var params = (Map<String, String>) propValue;
+      for (var name : params.keySet()) {
          aps.setParameter(name, params.get(name));
       }
       // Prepare a delete list by getting current params
       List<PSActionParameter> deleteList = new ArrayList<>();
-      Iterator iter = aps.iterator();
-      while (iter.hasNext())
-      {
-         PSActionParameter param = (PSActionParameter) iter.next();
+      for (var paramObj : aps) {
+         var param = (PSActionParameter) paramObj;
          if (params.get(param.getName()) == null)
             deleteList.add(param);
       }
       // Delete the params in delete list if not empty
-      if (!deleteList.isEmpty())
-      {
-         for (PSActionParameter parameter : deleteList)
-         {
+      if (!deleteList.isEmpty()) {
+         for (var parameter : deleteList) {
             aps.remove(parameter);
          }
       }
@@ -171,12 +162,10 @@ public class PSActionSetter extends PSSimplePropertySetter
     */
    private Map<String, Object> getUrlParams(PSAction action)
    {
-      Map<String, Object> params = new HashMap<>();
-      PSActionParameters aps = action.getParameters();
-      Iterator iter = aps.iterator();
-      while (iter.hasNext())
-      {
-         PSActionParameter param = (PSActionParameter) iter.next();
+      var params = new HashMap<String, Object>();
+      var aps = action.getParameters();
+      for (var paramObj : aps) {
+         var param = (PSActionParameter) paramObj;
          params.put(param.getName(), param.getValue());
       }
       return params;
@@ -191,39 +180,34 @@ public class PSActionSetter extends PSSimplePropertySetter
     */
    private Map<String, Object> getActionVisibility(PSAction action)
    {
-      Map<String, Object> propValue = new HashMap<>();
-      PSActionVisibilityContexts actionContexts = action
-            .getVisibilityContexts();
-      Iterator ctxIter = actionContexts.iterator();
+      var propValue = new HashMap<String, Object>();
+      var actionContexts = action.getVisibilityContexts();
+      var ctxIter = actionContexts.iterator();
       String avCxtName = "";
-      Map<String, String> contexts = getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY);
-      Map<String, String> revContexts = getReverseMap(contexts);
+      var contexts = getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY);
+      var revContexts = getReverseMap(contexts);
       initVisibilityContexts();
       List<String> processedContexts = new ArrayList<>();
       while (ctxIter.hasNext())
       {
-         PSActionVisibilityContext avContext = (PSActionVisibilityContext) ctxIter
-               .next();
+         var avContext = (PSActionVisibilityContext) ctxIter.next();
          avCxtName = avContext.getName();
          processedContexts.add(avCxtName);
-         Iterator propsIter = avContext.iterator();
+         var propsIter = avContext.iterator();
          List<String> values = new ArrayList<>();
-         String resource = m_vcResources.get(avCxtName);
-
+         var resource = m_vcResources.get(avCxtName);
          Map<String, String> supportedVals = new HashMap<>();
          if (resource != null)
             supportedVals = getReverseMap(getResourceLookupData(resource));
-
          while (propsIter.hasNext())
          {
-            String val = (String) propsIter.next();
-            val = supportedVals.get(val) == null ? val : supportedVals
-                  .get(val);
+            var val = (String) propsIter.next();
+            val = supportedVals.get(val) == null ? val : supportedVals.get(val);
             values.add(val);
          }
          propValue.put(revContexts.get(avCxtName), values);
       }
-      for (String cxt : revContexts.keySet())
+      for (var cxt : revContexts.keySet())
       {
          if(!processedContexts.contains(cxt))
          {
@@ -250,59 +234,50 @@ public class PSActionSetter extends PSSimplePropertySetter
    {
       if (!(propValue instanceof Map))
       {
-         String msg = "The type of propValue object is not valid for "
+         var msg = "The type of propValue object is not valid for "
                + "this setter. Expected type is Map.";
          throwError(msg, null);
       }
-      Map<String, String> visContexts = getNormalizedMaps(
-            getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY));
-      PSActionVisibilityContexts actionContexts = action
-      .getVisibilityContexts();
-
-      Map<String, Object> params = (Map<String, Object>) propValue;
-      Iterator<String> iter = params.keySet().iterator();
+      var visContexts = getNormalizedMaps(getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY));
+      var actionContexts = action.getVisibilityContexts();
+      var params = (Map<String, Object>) propValue;
+      var iter = params.keySet().iterator();
       initVisibilityContexts();
       while (iter.hasNext())
       {
-         String context = iter.next();
-         String contextVal = visContexts.get(StringUtils.trimToEmpty(
-               context).toLowerCase());
+         var context = iter.next();
+         var contextVal = visContexts.get(StringUtils.trimToEmpty(context).toLowerCase());
          if (contextVal == null)
          {
-            String msg = "Supplied visibility context ({0}) is invalid.";
+            var msg = "Supplied visibility context ({0}) is invalid.";
             Object[] args = { context };
             throwError(msg, args);
          }
-         Object values = params.get(context);
+         var values = params.get(context);
          if (!(values instanceof String || values instanceof List))
          {
-            String msg = "Unsupported object supplied for values of visibility "
+            var msg = "Unsupported object supplied for values of visibility "
                   + "context ({0}).";
             Object[] args = { context };
             throwError(msg, args);
          }
-         List valList = values instanceof String ? Collections
-               .singletonList(((String) values)) : (List) values;
-         String[] validValues = getValidValues(context, contextVal, valList);
+         List<String> valList = values instanceof String ? Collections.singletonList(((String) values)) : (List<String>) values;
+         var validValues = getValidValues(context, contextVal, valList);
          // Delete the ones that do not exist in the current list
-         PSActionVisibilityContext cxt = actionContexts.getContext(contextVal);
+         var cxt = actionContexts.getContext(contextVal);
          if(cxt == null)
          {
             actionContexts.addContext(contextVal, validValues);
             continue;
          }
          List<String> delList = new ArrayList<>();
-         Iterator iter1 = cxt.iterator();
-         while (iter1.hasNext())
-         {
-            String val = (String) iter1.next();
-            if (!ArrayUtils.contains(validValues, val))
-            {
+         for (var valObj : cxt) {
+            var val = (String) valObj;
+            if (!ArrayUtils.contains(validValues, val)) {
                delList.add(val);
             }
          }
-         for (String val : delList)
-         {
+         for (var val : delList) {
             cxt.remove(val);
          }
          // Add the valid context values.
@@ -327,22 +302,20 @@ public class PSActionSetter extends PSSimplePropertySetter
    {
       List<String> results = new ArrayList<>();
       Map<String, String> supportedVals = new HashMap<>();
-      if (contextVal
-            .equals(PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE))
+      if (contextVal.equals(PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE))
       {
-         IPSDesignModelFactory f = PSDesignModelFactoryLocator
-               .getDesignModelFactory();
-         IPSDesignModel dm = f.getDesignModel(PSTypeEnum.NODEDEF);
-         for (String val : values)
+         var f = PSDesignModelFactoryLocator.getDesignModelFactory();
+         var dm = f.getDesignModel(PSTypeEnum.NODEDEF);
+         for (var val : values)
          {
             try
             {
-               IPSGuid cguid = dm.nameToGuid(val);
+               var cguid = dm.nameToGuid(val);
                results.add(cguid.getUUID() + "");
             }
             catch (Exception e)
             {
-               String msg = "Unsupported value ({0}) is supplied for "
+               var msg = "Unsupported value ({0}) is supplied for "
                      + "context ({1}). Skipping the visibility context "
                      + "setting for action ({2}).";
                Object[] args = { val, context, m_actionName };
@@ -353,24 +326,22 @@ public class PSActionSetter extends PSSimplePropertySetter
       }
       else
       {
-         supportedVals = getNormalizedMaps(getResourceLookupData(m_vcResources
-               .get(contextVal)));
-         for (String val : values)
+         supportedVals = getNormalizedMaps(getResourceLookupData(m_vcResources.get(contextVal)));
+         for (var val : values)
          {
-            String sVal = supportedVals.get(StringUtils.trimToEmpty(val)
-                  .toLowerCase());
+            var sVal = supportedVals.get(StringUtils.trimToEmpty(val).toLowerCase());
             if (sVal == null)
             {
                if (ArrayUtils.contains(m_staticValues, contextVal))
                {
-                  String msg = "Unsupported value ({0}) is supplied for "
+                  var msg = "Unsupported value ({0}) is supplied for "
                         + "context ({1}).";
                   Object[] args = { val, context };
                   throwError(msg, args);
                }
                else
                {
-                  String msg = "Unsupported value ({0}) is supplied for "
+                  var msg = "Unsupported value ({0}) is supplied for "
                         + "context ({1}). Skipping the visibility context "
                         + "setting for action ({2}).";
                   Object[] args = { val, context, m_actionName };
@@ -381,7 +352,7 @@ public class PSActionSetter extends PSSimplePropertySetter
             results.add(sVal);
          }
       }
-      return results.toArray(new String[results.size()]);
+      return results.toArray(new String[0]);
    }
 
    /**
@@ -392,13 +363,9 @@ public class PSActionSetter extends PSSimplePropertySetter
     */
    private Map<String, String> getNormalizedMaps(Map<String, String> inputMap)
    {
-      Map<String, String> normalizedMap = new HashMap<>();
-      Iterator<String> iter = inputMap.keySet().iterator();
-      while (iter.hasNext())
-      {
-         String key = iter.next();
-         normalizedMap.put(StringUtils.trimToEmpty(key).toLowerCase(),
-               inputMap.get(key));
+      var normalizedMap = new HashMap<String, String>();
+      for (var key : inputMap.keySet()) {
+         normalizedMap.put(StringUtils.trimToEmpty(key).toLowerCase(), inputMap.get(key));
       }
       return normalizedMap;
    }
@@ -415,8 +382,8 @@ public class PSActionSetter extends PSSimplePropertySetter
    @SuppressWarnings("unchecked")
    private static Map<String, String> getResourceLookupData(String resource)
    {
-      Map<String, String> data = new HashMap<>();
-      Map params = new HashMap();
+      var data = new HashMap<String, String>();
+      var params = new HashMap();
       try
       {
          int lookupId = Integer.parseInt(resource);
@@ -427,20 +394,15 @@ public class PSActionSetter extends PSSimplePropertySetter
       {
          // Treat this as resource.
       }
-      Document doc = PSConfigUtils.getDocument(resource, params, false);
-      Element elem = doc.getDocumentElement();
-      NodeList nL = elem.getElementsByTagName(PSXENTRY);
+      var doc = PSConfigUtils.getDocument(resource, params, false);
+      var elem = doc.getDocumentElement();
+      var nL = elem.getElementsByTagName(PSXENTRY);
       int sz = nL.getLength();
-      Element psxentry = null;
-      String key = null;
-      String value = null;
       for (int k = 0; k < sz; k++)
       {
-         psxentry = (Element) nL.item(k);
-         key = psxentry.getElementsByTagName(KEY).item(0).getFirstChild()
-               .getNodeValue();
-         value = psxentry.getElementsByTagName(VALUE).item(0).getFirstChild()
-               .getNodeValue();
+         var psxentry = (Element) nL.item(k);
+         var key = psxentry.getElementsByTagName(KEY).item(0).getFirstChild().getNodeValue();
+         var value = psxentry.getElementsByTagName(VALUE).item(0).getFirstChild().getNodeValue();
          data.put(value, key);
       }
       return data;
@@ -451,25 +413,15 @@ public class PSActionSetter extends PSSimplePropertySetter
     */
    private void initVisibilityContexts()
    {
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_ASSIGNMENT_TYPE,
-            "121");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_OBJECT_TYPE,
-            "sys_psxContentEditorCataloger/getObjectTypes");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_CHECKOUT_STATUS,
-            "168");
-      m_vcResources.put(
-            PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE, "172");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_FOLDER_SECURITY,
-            "24");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE,
-            "sys_psxContentEditorCataloger/ContentTypeLookup");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE,
-            "sys_psxContentEditorCataloger/RolesLookup");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE,
-            "sys_psxContentEditorCataloger/LocaleLookup");
-      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE,
-            "sys_psxContentEditorCataloger/WorkflowLookup");
-
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_ASSIGNMENT_TYPE, "121");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_OBJECT_TYPE, "sys_psxContentEditorCataloger/getObjectTypes");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_CHECKOUT_STATUS, "168");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_PUBLISHABLE_TYPE, "172");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_FOLDER_SECURITY, "24");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_CONTENT_TYPE, "sys_psxContentEditorCataloger/ContentTypeLookup");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_ROLES_TYPE, "sys_psxContentEditorCataloger/RolesLookup");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_LOCALES_TYPE, "sys_psxContentEditorCataloger/LocaleLookup");
+      m_vcResources.put(PSActionVisibilityContext.VIS_CONTEXT_WORKFLOWS_TYPE, "sys_psxContentEditorCataloger/WorkflowLookup");
    }
 
    /**
@@ -479,13 +431,11 @@ public class PSActionSetter extends PSSimplePropertySetter
     */
    private Map getReverseMap(Map<String,String> map)
    {
-      Map<String,String> revMap = new HashMap<>();
-      Iterator i = map.entrySet().iterator();
-      while(i.hasNext())
-      {
-         Map.Entry entry = (Map.Entry) i.next();
+      var revMap = new HashMap<String,String>();
+      for (var entryObj : map.entrySet()) {
+         var entry = (Map.Entry) entryObj;
          revMap.put((String)entry.getValue(), (String)entry.getKey());
-      }      
+      }
       return revMap;
    }
    /**
