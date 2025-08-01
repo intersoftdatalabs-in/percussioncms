@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,10 +25,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
 @XmlRootElement(name = "SitePublishItem")
-@ArraySchema(schema=@Schema(implementation = PSSitePublishItem.class))
+@ArraySchema(schema = @Schema(implementation = PSSitePublishItem.class))
 public class PSSitePublishItemList extends ArrayList<PSSitePublishItem> {
+    private static final long serialVersionUID = 1L;
+
     public PSSitePublishItemList(Collection<? extends PSSitePublishItem> c) {
         super(c);
     }

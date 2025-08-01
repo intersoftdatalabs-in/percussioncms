@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.cms.PSCmsException;
@@ -112,23 +113,15 @@ public class PSMenuActionDefDependencyHandler
     *
     * @throws PSDeployException if there are any errors.
     */
-   private void getChildDepFiles(PSComponentProcessorProxy proc, PSDependency dep,
-      List files) throws PSDeployException
-   {
-      Iterator deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
-      if (deps != null)
-      {
-         while (deps.hasNext())
-         {
-            PSDependency child = (PSDependency)deps.next();
-            if (!child.getObjectType().equals(
-               PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE))
-            {
-               continue;
+   private void getChildDepFiles(PSComponentProcessorProxy proc, PSDependency dep, List<PSDependencyFile> files) throws PSDeployException {
+      var deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
+      if (deps != null) {
+         deps.forEachRemaining(child -> {
+            if (child.getObjectType().equals(PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE)) {
+               files.add(getActionDepFile(proc, child, false));
+               getChildDepFiles(proc, child, files);
             }
-            files.add(getActionDepFile(proc, child, false));
-            getChildDepFiles(proc, child, files);
-         }
+         });
       }
    }
 
@@ -145,13 +138,11 @@ public class PSMenuActionDefDependencyHandler
     *
     * @throws PSDeployException if there are any errors.
     */
-   private PSDependencyFile getActionDepFile(PSComponentProcessorProxy proc,
-      PSDependency dep, boolean isLeaf) throws PSDeployException
-   {
-      PSAction action = loadAction(proc, dep, isLeaf);
-      if (!isLeaf)
+   private PSDependencyFile getActionDepFile(PSComponentProcessorProxy proc, PSDependency dep, boolean isLeaf) throws PSDeployException {
+      var action = loadAction(proc, dep, isLeaf);
+      if (!isLeaf) {
          action.getChildren().clear();
-
+      }
       return createDependencyFile(action);
    }
 

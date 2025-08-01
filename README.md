@@ -26,8 +26,9 @@ Download links are available on the project [Releases page](https://github.com/p
 ## I was a Percussion customer, is this where I download updates?
 Yes.  The latest release will be featured in the [Releases page](https://github.com/percussion/percussioncms/releases) on this GitHub project.  For Technical Support please see the [Intersoft support portal](https://percussionsupport.intsof.com). The documentation can be found on https://percussioncmshelp.intsof.com and the old Percussion community has beene re-homed to https://percussioncmshelp.intsof.com.
 
+## Recent Changes
+* **Refactored `PSAssemblyService` for Java 11**: The `PSAssemblyService` class has been modernized to use Java 11 features, including `var`, streams, and improved exception handling. This enhances code readability and maintainability while ensuring backward compatibility.
 
 ## Interested in Contributing?
 
 Check out our [Contributor Page](https://github.com/percussion/percussioncms/blob/development/CONTRIBUTING.md) for more information.
-

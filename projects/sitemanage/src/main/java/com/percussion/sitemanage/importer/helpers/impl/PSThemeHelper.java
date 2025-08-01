@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -34,169 +35,124 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * Helper class to create new theme folder while importing an external site
- * from URL.
- * @author federicoromanelli
- * 
+ * Helper class to create a new theme folder while importing an external site from URL.
+ * Sunny Sal says: "A theme without a name is like a cow without a bell!"
  */
 @Component("themeHelper")
 @Lazy
-public class PSThemeHelper extends PSImportHelper
-{
-    
-    private final String STATUS_MESSAGE = "creating new theme";
-    
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.IPSSiteImportHelper#process(PSPageContent, PSSiteImportCtx)
-     */    
+public class PSThemeHelper extends PSImportHelper {
+
+    private static final Logger log = LogManager.getLogger(PSThemeHelper.class);
+    private static final String STATUS_MESSAGE = "creating new theme";
+
+    public static final String helperCategory = "Theme Creator";
+    public static final String themeCreationCategory = "Theme Creation";
+    public static final String themeDeletionCategory = "Theme Deletion";
+    public static final String fileRenamingCategory = "Theme Files Rename";
+
+    private IPSThemeService themeService;
+    private String themesRootDirectory;
+    private IPSSiteImportLogger logger;
+
+    @Autowired
+    public PSThemeHelper(IPSThemeService themeService) {
+        this.themeService = themeService;
+    }
+
+    public String getThemesRootDirectory() {
+        return themesRootDirectory;
+    }
+
+    @Value("${rxdeploydir}/web_resources/themes")
+    public void setThemesRootDirectory(String themesRootDirectory) {
+        this.themesRootDirectory = themesRootDirectory;
+    }
+
     @Override
-    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException
-    {
+    public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException {
         startTimer();
         logger = context.getLogger();
         PSThemeSummary newThemeSummary = null;
-        try
-        {
-            String newSiteName = processName(context.getSite().getName());
+        try {
+            var newSiteName = processName(context.getSite().getName());
             newThemeSummary = themeService.createFromDefault(newSiteName);
             logger.appendLogMessage(PSLogEntryType.STATUS, helperCategory + " - " + themeCreationCategory,
-                 "Create theme: " + newThemeSummary.getName());            
+                    "Create theme: " + newThemeSummary.getName());
             renameBasicFiles(newThemeSummary.getName(), newSiteName);
             context.setThemeSummary(newThemeSummary);
             context.setThemesRootDirectory(themesRootDirectory);
-        }
-        catch (Exception e)
-        {
-            // Couldn't create template
-            // Log Error and call delete theme just in case
+        } catch (Exception e) {
             log.info("PSCreateThemeHelper: Couldn't create theme.");
             logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + themeCreationCategory,
                     "Couldn't create theme folder.");
-            
-            if (newThemeSummary != null && newThemeSummary.getName() != null)
-            {
+            if (newThemeSummary != null && newThemeSummary.getName() != null) {
                 deleteTheme(newThemeSummary.getName());
             }
-            
             throw new PSSiteImportException("Couldn't create new theme folder", e);
         }
         endTimer();
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.IPSSiteImportHelper#rollback(PSPageContent, PSSiteImportCtx)
-     */  
     @Override
-    public void rollback(PSPageContent pageContent, PSSiteImportCtx context)
-    {
-        PSThemeSummary newThemeSummary = context.getThemeSummary();
-        if (newThemeSummary != null)
-        {
+    public void rollback(PSPageContent pageContent, PSSiteImportCtx context) {
+        var newThemeSummary = context.getThemeSummary();
+        if (newThemeSummary != null) {
             deleteTheme(newThemeSummary.getName());
         }
     }
-    
+
     /**
-     * Helper method used to rename the 2 basic files from the new theme:
-     * theme.css, theme.png into the corresponding name created from site name.
+     * Renames the two basic files from the new theme: theme.css, theme.png into the corresponding name created from site name.
      *
-     * @author federicoromanelli
-     * @param newThemeName, the name of the new theme (with collision detected and avoided).
-     * Never <code> null </code>
-     * @param newSiteName, the name of the new theme (using the original site name).
-     * Never <code> null </code>
+     * @param newThemeName the name of the new theme (with collision detected and avoided), never null
+     * @param newSiteName the name of the new theme (using the original site name), never null
      */
-    protected void renameBasicFiles(String newThemeName, String newSiteName)
-    {
-        String newThemeRoot = themesRootDirectory + "/" + newThemeName;
-        File oldCSSfile = new File(newThemeRoot, "theme.css");
-        File newCSSfile = new File(newThemeRoot, newSiteName + ".css");
-        File oldImagefile = new File(newThemeRoot, "theme.png");
-        File newImagefile = new File(newThemeRoot, newSiteName + ".png");        
+    protected void renameBasicFiles(String newThemeName, String newSiteName) {
+        var newThemeRoot = themesRootDirectory + "/" + newThemeName;
+        var oldCSSfile = new File(newThemeRoot, "theme.css");
+        var newCSSfile = new File(newThemeRoot, newSiteName + ".css");
+        var oldImagefile = new File(newThemeRoot, "theme.png");
+        var newImagefile = new File(newThemeRoot, newSiteName + ".png");
 
         logger.appendLogMessage(PSLogEntryType.STATUS, helperCategory + " - " + fileRenamingCategory,
-              "Renaming theme files");
-        if(!oldCSSfile.renameTo(newCSSfile))
-        {
+                "Renaming theme files");
+        if (!oldCSSfile.renameTo(newCSSfile)) {
             logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + fileRenamingCategory,
                     "Couldn't rename file: " + oldCSSfile);
         }
-        
-        if(!oldImagefile.renameTo(newImagefile))
-        {
+        if (!oldImagefile.renameTo(newImagefile)) {
             logger.appendLogMessage(PSLogEntryType.ERROR, helperCategory + " - " + fileRenamingCategory,
-                    "Couldn't rename file: " + oldImagefile);            
+                    "Couldn't rename file: " + oldImagefile);
         }
     }
-    
+
     /**
-     * Helper method used to perform transformations on the site name to make it suitable for 
-     * theme name.
+     * Performs transformations on the site name to make it suitable for theme name.
      *
-     * @author federicoromanelli
-     * @param siteName, original site name to be transformed. Never <code> null </code>
-     * @return String - the site name with the transformations applied
-     */    
-    protected String processName (String siteName)
-    {
+     * @param siteName original site name to be transformed, never null
+     * @return the site name with the transformations applied
+     */
+    protected String processName(String siteName) {
         return siteName.replace(".", "-");
     }
 
     /**
-     * Deletes the theme calling the corresponding method in themes service
-     * 
-     * @author federicoromanelli
-     * @param newThemeName, the name of the new theme (with collision detected
-     *            and avoided). Never <code> null </code>
+     * Deletes the theme using the corresponding method in theme service.
+     *
+     * @param newThemeName the name of the new theme (with collision detected and avoided), never null
      */
-    protected void deleteTheme (String newThemeName)
-    {
-        try
-        {
+    protected void deleteTheme(String newThemeName) {
+        try {
             logger.appendLogMessage(PSLogEntryType.STATUS, helperCategory + " - " + themeDeletionCategory,
-                    "Delete new theme: " + newThemeName);            
+                    "Delete new theme: " + newThemeName);
             themeService.delete(newThemeName);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.info("PSCreateThemeHelper: Couldn't delete theme template. The theme might not have been created");
         }
     }
-    
-    private static final Logger log = LogManager.getLogger(PSThemeHelper.class);
-    
-    private IPSThemeService themeService;
-    private String themesRootDirectory;
-    private IPSSiteImportLogger logger;
-    
-    public static final String helperCategory = "Theme Creator";
-    
-    // Categories used for theme helper logger
-    public static final String themeCreationCategory = "Theme Creation";
-    public static final String themeDeletionCategory = "Theme Deletion";
-    public static final String fileRenamingCategory = "Theme Files Rename";
-
-    public String getThemesRootDirectory()
-    {
-        return themesRootDirectory;
-    }
-
-    @Value("${rxdeploydir}/web_resources/themes")
-    public void setThemesRootDirectory(String themesRootDirectory)
-    {
-        this.themesRootDirectory = themesRootDirectory;
-    }
-
-    @Autowired
-    public PSThemeHelper(IPSThemeService themeService)
-    {
-        this.themeService = themeService;
-    }
 
     @Override
-    public String getHelperMessage()
-    {
+    public String getHelperMessage() {
         return STATUS_MESSAGE;
     }
-
 }

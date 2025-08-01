@@ -47,7 +47,7 @@ public class PSOutputStreamCounter extends FilterOutputStream
    }
    
    // see IPSStreamCounter
-   public int getByteCount()
+   public long getByteCount()
    {
       return m_count;
    }
@@ -71,6 +71,6 @@ public class PSOutputStreamCounter extends FilterOutputStream
     * Count of bytes written so far, incremented each time a <code>write()</code>
     * method is called, initially zero.
     */
-   private int m_count = 0;
+   private long m_count = 0;
 
 }

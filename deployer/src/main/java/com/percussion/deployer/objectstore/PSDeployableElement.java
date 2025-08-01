@@ -169,37 +169,20 @@ public class PSDeployableElement extends PSDependency
     * represent a type supported by the class.
     */
    @Override
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element dep = tree.getNextElement(PSDependency.XML_NODE_NAME, 
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (dep == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
-      }
-      super.fromXml(dep);
-      
-      tree.setCurrent(sourceNode);
-      String description = tree.getElementData(XML_EL_DESC);
-      if (description == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_DESC);
-      }
-      
-      m_description = description;
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+        throw new IllegalArgumentException("sourceNode may not be null");
+    }
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, sourceNode.getNodeName()});
+    }
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var dep = tree.getNextElement(PSDependency.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    if (dep == null) {
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, PSDependency.XML_NODE_NAME);
+    }
+    super.fromXml(dep);
+    m_description = Optional.ofNullable(tree.getElementData(XML_EL_DESC)).orElseThrow(() -> new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_DESC));
    }
    
    // see IPSDeployComponent
@@ -263,4 +246,3 @@ public class PSDeployableElement extends PSDependency
    private static final String XML_EL_DESC = "Description";
 
 }
-

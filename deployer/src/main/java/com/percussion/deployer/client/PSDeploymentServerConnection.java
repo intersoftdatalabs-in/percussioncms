@@ -1143,12 +1143,11 @@ public class PSDeploymentServerConnection
       throws PSAuthenticationFailedException, PSAuthorizationException,
          PSServerException, PSDeployException
    {
-      Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
-      Element root = PSXmlDocumentBuilder.createRoot(reqDoc,
-         "PSXDeployConnectRequest");
+      var reqDoc = PSXmlDocumentBuilder.createXmlDocument();
+      var root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXDeployConnectRequest");
       root.setAttribute("userId", m_uid);
       root.setAttribute("password", m_password);
-      root.setAttribute("overrideLock", (overrideLock ? "yes" : "no"));
+      root.setAttribute("overrideLock", overrideLock ? "yes" : "no");
       root.setAttribute("enforceLicense", "no");
 
       Document respDoc;
@@ -1629,5 +1628,3 @@ public class PSDeploymentServerConnection
       this.operatingMode = operatingMode;
    }
 }
-
-

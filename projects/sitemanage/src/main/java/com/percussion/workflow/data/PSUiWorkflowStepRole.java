@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,120 +27,75 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * This class contains the structure of the step role information. The object is
- * composed of a role name, a role id and a list of
- * {@link PSUiWorkflowStepRoleTransition}.
- * 
- * 
- * @author leonardohildt
- * @author rafaelsalis
- * 
+ * Represents a workflow step role with its name, id, notification flag, and transitions.
+ * <p>
+ * Sunny Sal says: "Roles in a workflow are like supporting actors—without them, the hero can't shine!"
+ * </p>
  */
 @XmlRootElement(name = "WorkflowStepRoles")
-// Define the order in which the fields are written
-@XmlType (propOrder={"roleId", "roleName", "enableNotification", "roleTransitions"})
+@XmlType(propOrder = {"roleId", "roleName", "enableNotification", "roleTransitions"})
 @JsonRootName("WorkflowStepRoles")
-public class PSUiWorkflowStepRole extends PSAbstractDataObject
-{
-    private static final long serialVersionUID = -1L;
+public class PSUiWorkflowStepRole extends PSAbstractDataObject {
+    private static final long serialVersionUID = 1L;
 
     private String roleName;
-
     private Integer roleId;
-    
     private Boolean enableNotification = false;
+    private List<PSUiWorkflowStepRoleTransition> roleTransitions = new ArrayList<>();
 
-    private List<PSUiWorkflowStepRoleTransition> roleTransitions;
-
-    public PSUiWorkflowStepRole()
-    {
+    public PSUiWorkflowStepRole() {
         super();
     }
 
-    /**
-     * @param roleName
-     */
-    public PSUiWorkflowStepRole(String roleName, int roleId)
-    {
+    public PSUiWorkflowStepRole(String roleName, int roleId) {
         this.roleName = roleName;
         this.roleId = roleId;
     }
-    
-    /**
-     * @param roleName
-     */
-    public PSUiWorkflowStepRole(String roleName, int roleId, boolean isNotified)
-    {
+
+    public PSUiWorkflowStepRole(String roleName, int roleId, boolean isNotified) {
         this.roleName = roleName;
         this.roleId = roleId;
         this.enableNotification = isNotified;
     }
 
-    /**
-     * @return the name of the role
-     */
-    public String getRoleName()
-    {
+    public String getRoleName() {
         return roleName;
     }
 
-    /**
-     * @param role the name of the role to set
-     */
-    public void setRoleName(String roleName)
-    {
+    public void setRoleName(String roleName) {
         this.roleName = roleName;
     }
 
-    /**
-     * @return the id of the role
-     */
-    public Integer getRoleId()
-    {
+    public Integer getRoleId() {
         return roleId;
     }
 
-    /**
-     * @param id the id of the role to set
-     */
-    public void setRoleId(Integer roleId)
-    {
+    public void setRoleId(Integer roleId) {
         this.roleId = roleId;
     }
 
     /**
-     * @return the transitions of the role, may be empty but never <code>null</code>
+     * Gets the transitions of the role. May be empty but never {@code null}.
      */
-    public List<PSUiWorkflowStepRoleTransition> getRoleTransitions()
-    {
+    public List<PSUiWorkflowStepRoleTransition> getRoleTransitions() {
+        if (roleTransitions == null) {
+            roleTransitions = new ArrayList<>();
+        }
         return roleTransitions;
     }
 
     /**
-     * @param transitions the transitions of the role to set, may be empty but never <code>null</code>
+     * Sets the transitions of the role. May be empty but never {@code null}.
      */
-    public void setRoleTransitions(List<PSUiWorkflowStepRoleTransition> roleTransitions)
-    {
-        if (roleTransitions == null)
-        {
-            roleTransitions = new ArrayList<>();
-        }
-        this.roleTransitions = roleTransitions;
+    public void setRoleTransitions(List<PSUiWorkflowStepRoleTransition> roleTransitions) {
+        this.roleTransitions = (roleTransitions == null) ? new ArrayList<>() : roleTransitions;
     }
-    
-    /**
-     * @return the value for enable notifications
-     */
-    public Boolean isEnableNotification()
-    {
+
+    public Boolean isEnableNotification() {
         return enableNotification;
     }
 
-    /**
-     * @param enableNotification the  for enableNotification that indicates whether it is enabled or not
-     */
-    public void setEnableNotification(Boolean enableNotification)
-    {
+    public void setEnableNotification(Boolean enableNotification) {
         this.enableNotification = enableNotification;
     }
 }

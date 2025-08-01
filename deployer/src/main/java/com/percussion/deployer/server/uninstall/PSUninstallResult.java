@@ -14,114 +14,92 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.uninstall;
 
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Implementation of {@link IPSUninstallResult}, see interface for details.
  */
-public class PSUninstallResult implements IPSUninstallResult
-{
-   /**
-    * 
-    * @param pkgName
-    * @param resultType
-    */
-   public PSUninstallResult(String pkgName, PSUninstallResultType resultType)
-   {
-      if (StringUtils.isBlank(pkgName))
-      {
+public class PSUninstallResult implements IPSUninstallResult {
+
+   public PSUninstallResult(String pkgName, PSUninstallResultType resultType) {
+      if (StringUtils.isBlank(pkgName)) {
          throw new IllegalArgumentException("pkgName must not be empty");
       }
-      if (resultType == null)
-         throw new IllegalArgumentException("type must not be null");
-      setPackageName(pkgName);
-      setResultType(resultType);
+      if (resultType == null) {
+         throw new IllegalArgumentException("resultType must not be null");
+      }
+      this.packageName = pkgName;
+      this.resultType = resultType;
    }
 
-   public String getMessage()
-   {
-      return m_message;
+   @Override
+   public String getMessage() {
+      return message;
    }
 
-   public Exception getException()
-   {
-      return m_exception;
+   @Override
+   public Exception getException() {
+      return exception;
    }
 
-   public PSUninstallResultType getResultType()
-   {
-      return m_resultType;
+   @Override
+   public PSUninstallResultType getResultType() {
+      return resultType;
    }
 
-   public IPSGuid getObjectGuid()
-   {
-      return m_objectGuid;
+   @Override
+   public IPSGuid getObjectGuid() {
+      return objectGuid;
    }
 
-   public String getObjectName()
-   {
-      return m_objectName;
+   @Override
+   public String getObjectName() {
+      return objectName;
    }
 
-   public IPSGuid getPackageGuid()
-   {
-      return m_packageGuid;
+   @Override
+   public IPSGuid getPackageGuid() {
+      return packageGuid;
    }
 
-   public String getPackageName()
-   {
-      return m_packageName;
+   @Override
+   public String getPackageName() {
+      return packageName;
    }
 
-   public void setException(Exception exception)
-   {
-      m_exception = exception;
+   public void setException(Exception exception) {
+      this.exception = exception;
    }
 
-   public void setResultType(PSUninstallResultType errorType)
-   {
-      m_resultType = errorType;
+   public void setResultType(PSUninstallResultType resultType) {
+      this.resultType = resultType;
    }
 
-   public void setObjectGuid(IPSGuid objectGuid)
-   {
-      m_objectGuid = objectGuid;
+   public void setObjectGuid(IPSGuid objectGuid) {
+      this.objectGuid = objectGuid;
    }
 
-   public void setObjectName(String objectName)
-   {
-      m_objectName = objectName;
+   public void setObjectName(String objectName) {
+      this.objectName = objectName;
    }
 
-   public void setPackageGuid(IPSGuid packageGuid)
-   {
-      m_packageGuid = packageGuid;
+   public void setPackageGuid(IPSGuid packageGuid) {
+      this.packageGuid = packageGuid;
    }
 
-   public void setPackageName(String packageName)
-   {
-      m_packageName = packageName;
+   public void setMessage(String message) {
+      this.message = message;
    }
 
-   public void setMessage(String message)
-   {
-      m_message = message;
-   }
-
-   private IPSGuid m_packageGuid;
-
-   private IPSGuid m_objectGuid;
-
-   private String m_packageName;
-
-   private String m_objectName;
-
-   private Exception m_exception;
-
-   private PSUninstallResultType m_resultType;
-
-   private String m_message;
+   private IPSGuid packageGuid;
+   private IPSGuid objectGuid;
+   private String packageName;
+   private String objectName;
+   private Exception exception;
+   private PSUninstallResultType resultType;
+   private String message;
 }

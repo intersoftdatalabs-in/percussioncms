@@ -25,19 +25,14 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.ResourceProvider;
 import org.apache.cxf.jaxrs.spring.SpringResourceFactory;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.ws.rs.Path;
 import javax.ws.rs.client.ClientBuilder;
@@ -47,37 +42,28 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(loader = AnnotationConfigContextLoader.class)
-public class MainTest extends AbstractJUnit4SpringContextTests {
+public class MainTest {
 
-    public final static String ENDPOINT_HOST = "http://127.0.0.1";
-    public final static String ENDPOINT_PATH = "/rest";
+    public static final String ENDPOINT_HOST = "http://127.0.0.1";
+    public static final String ENDPOINT_PATH = "/rest";
 
-    public WebTarget target(String address)
-    {
-        
-        ClientBuilder builder = ClientBuilder.newBuilder();
-
-        String endpoint = MainTest.ENDPOINT_HOST + ":" + ContextConfiguration.port + ENDPOINT_PATH;
-        WebTarget target = builder.build()
-                 .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
+    public WebTarget target(String address) {
+        var builder = ClientBuilder.newBuilder();
+        var endpoint = ENDPOINT_HOST + ":" + ContextConfiguration.port + ENDPOINT_PATH;
+        return builder.build()
+                .register(com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider.class)
                 .target(endpoint).path(address);
-    
-
-        return target;  
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() throws Exception {
-
+        // No-op for now
     }
-
 
     @Test
-    public void testContextLoaded(){
+    public void testContextLoaded() {
         assertTrue(true);
     }
 
@@ -98,43 +84,39 @@ public class MainTest extends AbstractJUnit4SpringContextTests {
         private JacksonContextResolver contextResolver;
 
         @Bean
-        public JacksonJsonProvider getJacksonJsonProvider()
-        {
+        public JacksonJsonProvider getJacksonJsonProvider() {
             return new JacksonJsonProvider();
         }
 
         @Bean
-        public JacksonContextResolver getContextResolver()
-        {
+        public JacksonContextResolver getContextResolver() {
             return new JacksonContextResolver();
         }
 
         @Bean
         public Server getServer() {
-
-            LinkedList<ResourceProvider> resourceProviders = new LinkedList<>();
-            for (String beanName : ctx.getBeanDefinitionNames()) {
+            var resourceProviders = new LinkedList<ResourceProvider>();
+            for (var beanName : ctx.getBeanDefinitionNames()) {
                 if (ctx.findAnnotationOnBean(beanName, Path.class) != null) {
-                    SpringResourceFactory factory = new SpringResourceFactory(beanName);
+                    var factory = new SpringResourceFactory(beanName);
                     factory.setApplicationContext(ctx);
                     resourceProviders.add(factory);
                 }
             }
             Map<Object, Object> extensionMap = new HashMap<>();
-            extensionMap.put("json","application/json");
+            extensionMap.put("json", "application/json");
             extensionMap.put("xml", "application/xml");
 
-            final JAXRSServerFactoryBean factory = new JAXRSServerFactoryBean();
+            var factory = new JAXRSServerFactoryBean();
             port = PSTestNetUtils.findFreePort();
-            RestExceptionMapper exceptionMapper = new RestExceptionMapper();
-            String endpoint = MainTest.ENDPOINT_HOST + ":" + port + ENDPOINT_PATH;
+            var exceptionMapper = new RestExceptionMapper();
+            var endpoint = ENDPOINT_HOST + ":" + port + ENDPOINT_PATH;
             factory.setExtensionMappings(extensionMap);
             factory.setBus(ctx.getBean(SpringBus.class));
-            factory.setProviders(Arrays.asList(exceptionMapper,jacksonProvider,contextResolver));
+            factory.setProviders(Arrays.asList(exceptionMapper, jacksonProvider, contextResolver));
             factory.setResourceProviders(resourceProviders);
             factory.setAddress(endpoint);
             return factory.create();
         }
-
     }
 }

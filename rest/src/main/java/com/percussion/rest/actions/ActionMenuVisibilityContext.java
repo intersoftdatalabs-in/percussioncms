@@ -20,7 +20,12 @@ package com.percussion.rest.actions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a Visibility Context for an Action Menu.
+ */
 @XmlRootElement(name = "ActionMenuVisibilityContext")
 @Schema(description = "Represents a Visibility Context for an Action Menu")
 public class ActionMenuVisibilityContext {
@@ -30,38 +35,63 @@ public class ActionMenuVisibilityContext {
     private String values;
     private UIContext uiContext;
 
+    public ActionMenuVisibilityContext() {}
 
-    public ActionMenuVisibilityContext(){}
-
-    public UIContext getUiContext() {
-        return uiContext;
+    public Optional<UIContext> getUiContext() {
+        return Optional.ofNullable(uiContext);
     }
 
     public void setUiContext(UIContext uiContext) {
         this.uiContext = uiContext;
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getValue() {
-        return values;
+    public Optional<String> getValue() {
+        return Optional.ofNullable(values);
     }
 
     public void setValue(String values) {
         this.values = values;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ActionMenuVisibilityContext)) return false;
+        var that = (ActionMenuVisibilityContext) o;
+        return Objects.equals(name, that.name)
+                && Objects.equals(description, that.description)
+                && Objects.equals(values, that.values)
+                && Objects.equals(uiContext, that.uiContext);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, values, uiContext);
+    }
+
+    @Override
+    public String toString() {
+        return "ActionMenuVisibilityContext{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", values='" + values + '\'' +
+                ", uiContext=" + uiContext +
+                '}';
     }
 }

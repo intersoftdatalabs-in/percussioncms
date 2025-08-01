@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,48 +18,64 @@
 
 package com.percussion.share.data;
 
-import java.util.List;
-
 import com.percussion.pathmanagement.data.PSPathItem;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
-/***
+/**
  * Represents a node in the CMS file tree.
- * 
- * @author natechadwick
- *
+ * Sunny Sal says: "Nodes are like friends—always better with children!"
  */
 public class PSCMSTreeNode implements IPSTreeNode<PSPathItem> {
 
-	private IPSTreeNode<PSPathItem> parent;
-	private List<PSCMSTreeNode> children;
-	private PSPathItem value;
-	
-	@Override
-	public IPSTreeNode<PSPathItem> getParent() {
-		return this.parent;
-	}
+    private IPSTreeNode<PSPathItem> parent;
+    private final List<IPSTreeNode<PSPathItem>> children = new ArrayList<>();
+    private PSPathItem value;
 
-	@Override
-	public void setParent(IPSTreeNode<PSPathItem> node) {
-		this.parent = node;
-	}
-	
-	@Override
-	public List<IPSTreeNode<PSPathItem>> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * Constructs a tree node with the given value.
+     *
+     * @param value the PSPathItem value for this node, must not be null
+     */
+    public PSCMSTreeNode(PSPathItem value) {
+        this.value = Objects.requireNonNull(value, "Node value cannot be null");
+    }
 
-	@Override
-	public PSPathItem getValue() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public IPSTreeNode<PSPathItem> getParent() {
+        return parent;
+    }
 
-	@Override
-	public void setValue(PSPathItem x) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void setParent(IPSTreeNode<PSPathItem> node) {
+        this.parent = node;
+    }
 
+    @Override
+    public List<IPSTreeNode<PSPathItem>> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    /**
+     * Adds a child node to this node.
+     *
+     * @param child the child node to add
+     */
+    public void addChild(IPSTreeNode<PSPathItem> child) {
+        Objects.requireNonNull(child, "Child node cannot be null");
+        children.add(child);
+        child.setParent(this);
+    }
+
+    @Override
+    public PSPathItem getValue() {
+        return value;
+    }
+
+    @Override
+    public void setValue(PSPathItem value) {
+        this.value = Objects.requireNonNull(value, "Node value cannot be null");
+    }
 }

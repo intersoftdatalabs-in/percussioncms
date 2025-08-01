@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,46 +18,47 @@
 
 package com.percussion.widgetbuilder.dao;
 
-
 import com.percussion.services.widgetbuilder.IPSWidgetBuilderDefinitionDao;
 import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-@Category(IntegrationTest.class)
-public class TestPSWidgetBuilderDefinitionDao extends ServletTestCase
-{
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Integration tests for PSWidgetBuilderDefinitionDao.
+ */
+@Tag("IntegrationTest")
+public class TestPSWidgetBuilderDefinitionDao {
+
     private IPSWidgetBuilderDefinitionDao dao;
 
-    public void setDao(IPSWidgetBuilderDefinitionDao dao)
-    {
+    public void setDao(IPSWidgetBuilderDefinitionDao dao) {
         this.dao = dao;
     }
-    
-    
-    @Override
-    protected void setUp() throws Exception
-    {
+
+    @BeforeEach
+    public void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
     }
-    
+
     @Test
     public void testDao() throws IPSGenericDao.SaveException {
-        List<PSWidgetBuilderDefinition> previousDefinitions = dao.getAll();
-        
-        PSWidgetBuilderDefinition definition = new PSWidgetBuilderDefinition();
-        assertEquals("Instantiated id is not equal to -1", -1, definition.getWidgetBuilderDefinitionId());
-        
+        var previousDefinitions = dao.getAll();
+
+        var definition = new PSWidgetBuilderDefinition();
+        assertEquals(-1, definition.getWidgetBuilderDefinitionId(), "Instantiated id is not equal to -1");
+
         dao.save(definition);
-        
-        assertFalse("No Id assigned during persist", (-1 == definition.getWidgetBuilderDefinitionId()));
-        
+
+        assertNotEquals(-1, definition.getWidgetBuilderDefinitionId(), "No Id assigned during persist");
+
         definition.setDescription("a description");
         definition.setLabel("a label");
         definition.setPrefix("perc");
@@ -66,35 +68,34 @@ public class TestPSWidgetBuilderDefinitionDao extends ServletTestCase
         definition.setWidgetHtml("<p>here is some html with a <b>$field</b> in it</p>");
         definition.setResponsive(true);
         dao.save(definition);
-        
-        PSWidgetBuilderDefinition comparisonDefinition = dao.find(definition.getWidgetBuilderDefinitionId());
-        assertTrue(definition.getDescription().equals(comparisonDefinition.getDescription()));
-        assertTrue(definition.getLabel().equals(comparisonDefinition.getLabel()));
-        assertTrue(definition.getPrefix().equals(comparisonDefinition.getPrefix()));
-        assertTrue(definition.getPublisherUrl().equals(comparisonDefinition.getPublisherUrl()));
-        assertTrue(definition.getVersion().equals(comparisonDefinition.getVersion()));
+
+        var comparisonDefinition = dao.find(definition.getWidgetBuilderDefinitionId());
+        assertEquals(definition.getDescription(), comparisonDefinition.getDescription());
+        assertEquals(definition.getLabel(), comparisonDefinition.getLabel());
+        assertEquals(definition.getPrefix(), comparisonDefinition.getPrefix());
+        assertEquals(definition.getPublisherUrl(), comparisonDefinition.getPublisherUrl());
+        assertEquals(definition.getVersion(), comparisonDefinition.getVersion());
         assertEquals(definition.isResponsive(), comparisonDefinition.isResponsive());
         dao.delete(definition.getWidgetBuilderDefinitionId());
-        
-        assertTrue(null == dao.find(definition.getWidgetBuilderDefinitionId()));
-        
+
+        assertNull(dao.find(definition.getWidgetBuilderDefinitionId()));
+
         dao.save(definition);
-        PSWidgetBuilderDefinition definition2 = new PSWidgetBuilderDefinition();
+        var definition2 = new PSWidgetBuilderDefinition();
         definition2.setDescription("a description");
         definition2.setLabel("a label");
         definition2.setPrefix("perc");
         definition2.setPublisherUrl("http://www.percussion.com");
         definition2.setVersion("42");
         dao.save(definition2);
-        
-        List<PSWidgetBuilderDefinition> definitions = dao.getAll();
-        assertTrue(2 + previousDefinitions.size() == definitions.size());
-        
+
+        var definitions = dao.getAll();
+        assertEquals(2 + previousDefinitions.size(), definitions.size());
+
         dao.delete(definition.getWidgetBuilderDefinitionId());
         dao.delete(definition2.getWidgetBuilderDefinitionId());
-        
-        definitions = dao.getAll();
-        assertTrue(previousDefinitions.size() == definitions.size());
-    }
 
+        definitions = dao.getAll();
+        assertEquals(previousDefinitions.size(), definitions.size());
+    }
 }

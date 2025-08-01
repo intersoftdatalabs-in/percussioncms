@@ -64,11 +64,8 @@ public class Entry {
 
     /**
      * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the value, may be null
      */
     public String getValue() {
         return value;
@@ -76,11 +73,8 @@ public class Entry {
 
     /**
      * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the value to set, may be null
      */
     public void setValue(String value) {
         this.value = value;
@@ -88,11 +82,8 @@ public class Entry {
 
     /**
      * Gets the value of the pvalue property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the pvalue, may be null
      */
     public String getPvalue() {
         return pvalue;
@@ -100,14 +91,10 @@ public class Entry {
 
     /**
      * Sets the value of the pvalue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the pvalue to set, may be null
      */
     public void setPvalue(String value) {
         this.pvalue = value;
     }
-
 }

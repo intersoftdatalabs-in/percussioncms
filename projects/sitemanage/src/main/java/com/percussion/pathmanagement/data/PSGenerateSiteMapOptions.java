@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,35 +19,48 @@ package com.percussion.pathmanagement.data;
 
 import com.percussion.share.data.PSAbstractDataObject;
 
-import java.util.List;
-import java.util.Objects;
-
 /**
- * This class contains the permissions of a folder.
+ * Options for generating a sitemap for a folder.
  *
  * @author yubingchen
  */
-public class PSGenerateSiteMapOptions extends PSAbstractDataObject
-{
+public class PSGenerateSiteMapOptions extends PSAbstractDataObject {
     private String generateSitemapExcludeImage;
     private String generateSitemap;
 
+    /**
+     * Gets the generate sitemap flag.
+     *
+     * @return the generate sitemap flag
+     */
     public String getGenerateSitemap() {
         return generateSitemap;
     }
 
+    /**
+     * Sets the generate sitemap flag.
+     *
+     * @param generateSitemap the flag value
+     */
     public void setGenerateSitemap(String generateSitemap) {
         this.generateSitemap = generateSitemap;
     }
 
-
+    /**
+     * Gets the flag for excluding images from the sitemap.
+     *
+     * @return the exclude image flag
+     */
     public String getGenerateSitemapExcludeImage() {
         return generateSitemapExcludeImage;
     }
 
+    /**
+     * Sets the flag for excluding images from the sitemap.
+     *
+     * @param generateSitemapExcludeImage the flag value
+     */
     public void setGenerateSitemapExcludeImage(String generateSitemapExcludeImage) {
         this.generateSitemapExcludeImage = generateSitemapExcludeImage;
     }
-
-
 }

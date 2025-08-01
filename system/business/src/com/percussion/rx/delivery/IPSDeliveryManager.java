@@ -31,8 +31,8 @@ import java.util.Collection;
  * @author dougrand
  * 
  */
-public interface IPSDeliveryManager
-{
+// REFACTORED: CP-JAVA11
+public interface IPSDeliveryManager {
    /**
     * Initialize the delivery handler for the given job. This method will be
     * called once by the delivery manager the first time assembled content is to

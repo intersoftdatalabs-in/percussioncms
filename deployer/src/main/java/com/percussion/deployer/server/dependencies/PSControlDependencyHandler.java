@@ -44,7 +44,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a content editor control.
@@ -71,167 +73,43 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler
    // see base class
    @SuppressWarnings("unchecked")
    @Override
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      String depId = dep.getDependencyId();
-      String id = null;
-      boolean isSystem = dep.getDependencyType() == PSDependency.TYPE_SYSTEM;
-      if (isSystem)
-         id = SYS_CONTROL_PATH;
-      else
-      {
-         File ctrlFile = ms_ctrlMgr.getControlFile(depId);
-         if (ctrlFile != null)
-         {
-            id = PSCustomControlManager.CUSTOM_CONTROLS_DIR + '/'
-                  + ctrlFile.getName();
-         }
+      var deps = new HashSet<PSDependency>();
+      var meta = dep.getDependencyType() == PSDependency.TYPE_SYSTEM ? getSysControl(tok, dep.getDependencyId()) : getRxControl(tok, dep.getDependencyId());
 
-         if (id == null)
-         {
-            id = USER_CONTROL_PATH;
-         }
-      }
-         
-      Set deps = new HashSet();
-      PSDependencyHandler libHandler = getFileDepHandler();
-      
-      if (id != null)
-      {
-         PSDependency child = libHandler.getDependency(tok, id);
-         if (child != null)
-         {
-            if (child.getDependencyType() == PSDependency.TYPE_SHARED)
-            {
-               child.setIsAssociation(false);
-            }
+      Optional.ofNullable(meta).ifPresent(controlMeta -> {
+         controlMeta.getAssociatedFiles().stream()
+            .map(file -> getDepFromPath(tok, file.getFileLocation()))
+            .filter(java.util.Objects::nonNull)
+            .forEach(deps::add);
 
-            deps.add(child);
-         }
-      }
-           
-      // get the control meta
-      PSControlMeta meta;
-      if (isSystem)
-      {
-         meta = getSysControl(tok, depId);
-      }
-      else
-      {
-         meta = ms_ctrlMgr.getControl(depId);
-         if (meta == null)
-         {
-            meta = getRxControl(tok, depId);
-         }
-      }
-      
-      if (meta != null)
-      {
-         // add associated files
-         PSDependency fileDep = null;
-         Iterator files = meta.getAssociatedFiles().iterator();
-         while (files.hasNext())
-         {
-            PSFileDescriptor file = (PSFileDescriptor)files.next();
-            fileDep = getDepFromPath(tok, file.getFileLocation());
-            if (fileDep != null)
-            {
-               if (fileDep.getDependencyType() == PSDependency.TYPE_SHARED)
-               {
-                  fileDep.setIsAssociation(false);
-               }
-               
-               deps.add(fileDep);
-            }
-         }
-         
-         // check all params for app/file ref
-         Iterator params = meta.getParams().iterator();
-         while (params.hasNext())
-         {
-            PSControlParameter param = (PSControlParameter)params.next();
-            String defVal = param.getDefaultValue();
-            if (defVal.trim().length() != 0)
-            {
-               fileDep = getDepFromPath(tok, defVal);
-               if (fileDep != null)
-               {
-                  if (fileDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  {
-                     fileDep.setIsAssociation(false);
-                  }
-                  
-                  deps.add(fileDep);
-               }
-            }
-         }
-         
-         // now check for exits
-         Iterator ctlDeps = meta.getDependencies().iterator();         
-         while (ctlDeps.hasNext())
-         {
-            // have to qualify this cause of name collision!
-            com.percussion.design.objectstore.PSDependency ctlDep = 
-               (com.percussion.design.objectstore.PSDependency)ctlDeps.next();
-            IPSDependentObject depObj = ctlDep.getDependent();
-            if (depObj instanceof PSExtensionCall)
-            {
-               PSExtensionCall call = (PSExtensionCall)depObj;
-               PSDependencyHandler exitHandler = getDependencyHandler(
-                  PSExitDefDependencyHandler.DEPENDENCY_TYPE);
-               PSDependency exitDep = exitHandler.getDependency(tok, 
-                  call.getExtensionRef().getFQN());
-               if (exitDep != null)
-               {
-                  if (exitDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  {
-                     exitDep.setIsAssociation(false);
-                  }
-                  
-                  deps.add(exitDep);
-               }
-            }
-         }
-      }
-            
+         controlMeta.getParams().stream()
+            .map(PSControlParameter::getDefaultValue)
+            .filter(value -> !value.isBlank())
+            .map(value -> getDepFromPath(tok, value))
+            .filter(java.util.Objects::nonNull)
+            .forEach(deps::add);
+      });
+
       return deps.iterator();
     }
 
    // see base class
    @SuppressWarnings("unchecked")
    @Override
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
+      }
 
-      Map depMap = new HashMap();   
-      
-      // get the user and system control files, but don't take system dep if
-      // overridden
-      Iterator deps;
-      // add system controls first
-      deps = getControlDependencies(tok, true).iterator();
-      while (deps.hasNext())
-      {
-         PSDependency dep = (PSDependency)deps.next();
-         depMap.put(dep.getKey(), dep);
-      }
-      // add custom controls next, replacing system controls with same name
-      deps = getControlDependencies(tok, false).iterator();
-      while (deps.hasNext())
-      {
-         PSDependency dep = (PSDependency)deps.next();
-         depMap.put(dep.getKey(), dep);
-      }
-                 
+      var depMap = new HashMap<String, PSDependency>();
+      getControlDependencies(tok, true).forEach(dep -> depMap.put(dep.getKey(), dep));
+      getControlDependencies(tok, false).forEach(dep -> depMap.put(dep.getKey(), dep));
+
       return depMap.values().iterator();
    }
 
@@ -610,4 +488,3 @@ public class PSControlDependencyHandler extends PSAppObjectDependencyHandler
       ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);
    }
 }
-

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,93 +17,72 @@
  */
 package com.percussion.sitemanage.data;
 
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
-
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
-
 import org.apache.commons.lang.StringUtils;
-
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 
 /**
  * This request object stores the information required to publish a site.
  */
 @XmlRootElement(name = "SitePublishRequest")
-public class PSSitePublishRequest
-{
-   /**
-    * See {@link #getSiteName()}.
-    */
-   @NotBlank
-   @NotNull
-   String siteName;
+public class PSSitePublishRequest {
+    @NotBlank
+    @NotNull
+    private String siteName;
 
-   /**
-    * See {@link #getType()}.
-    */
-   @NotBlank
-   @NotNull
-   PubType type;
+    @NotBlank
+    @NotNull
+    private PubType type;
 
-   /**
-    * See {@link #getItems()}.
-    */
-   String[] items;
+    private String[] items;
 
-   /**
-    * @return the name of the site to be published, never blank.
-    */
-   public String getSiteName()
-   {
-      return siteName;
-   }
+    /**
+     * @return the name of the site to be published, never blank.
+     */
+    public String getSiteName() {
+        return siteName;
+    }
 
-   /**
-    * @param siteName the name of the site to be published. May not be blank.
-    */
-   public void setSiteName(String siteName)
-   {
-      if (StringUtils.isBlank(siteName))
-         throw new IllegalArgumentException("siteName may not be blank");
+    /**
+     * @param siteName the name of the site to be published. May not be blank.
+     */
+    public void setSiteName(String siteName) {
+        if (StringUtils.isBlank(siteName)) {
+            throw new IllegalArgumentException("siteName may not be blank");
+        }
+        this.siteName = siteName;
+    }
 
-      this.siteName = siteName;
-   }
+    /**
+     * @return the type of publishing to be performed. Never null.
+     */
+    public PubType getType() {
+        return type;
+    }
 
-   /**
-    * @return the type of publishing to be performed. Never <code>null</code>.
-    */
-   public PubType getType()
-   {
-      return type;
-   }
+    /**
+     * @param type the type of publishing to be performed, may not be null.
+     */
+    public void setType(PubType type) {
+        this.type = type;
+    }
 
-   /**
-    * @param type the type of publishing to be performed, may not be
-    *            <code>null</code>.
-    */
-   public void setType(PubType type)
-   {
-      this.type = type;
-   }
+    /**
+     * @return the ids of the items to be published during demand publishing,
+     *         {@link PubType#PUBLISH_NOW}. May be null.
+     */
+    public Optional<String[]> getItems() {
+        return Optional.ofNullable(items);
+    }
 
-   /**
-    * @return the id's of the items to be published during demand publishing,
-    *         {@link PubType#PUBLISH_NOW}. May be <code>null</code>.
-    */
-   public String[] getItems()
-   {
-      return items;
-   }
-
-   /**
-    * @param items the id's of the items to be published during demand
-    *            publishing, {@link PubType#PUBLISH_NOW}. May be
-    *            <code>null</code>.
-    */
-   public void setItems(String[] items)
-   {
-      this.items = items;
-   }
-
+    /**
+     * @param items the ids of the items to be published during demand
+     *            publishing, {@link PubType#PUBLISH_NOW}. May be null.
+     */
+    public void setItems(String[] items) {
+        this.items = items;
+    }
 }

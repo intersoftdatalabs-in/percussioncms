@@ -43,61 +43,47 @@ import javax.ws.rs.core.MediaType;
 @Path("/jobstatus")
 @Component("asyncJobStatusRestService")
 @Lazy
-public class PSAsyncJobStatusRestService implements IPSAsyncJobStatusRestService
-{
-    private IPSAsyncJobService asyncJobService;
-    
-    
-    public PSAsyncJobStatusRestService()
-    {
-       
+public class PSAsyncJobStatusRestService implements IPSAsyncJobStatusRestService {
+
+    private final IPSAsyncJobService asyncJobService;
+
+    public static final Logger log = LogManager.getLogger(PSAsyncJobStatusRestService.class);
+
+    public PSAsyncJobStatusRestService() {
+        this.asyncJobService = null;
     }
-    
+
     @Autowired
-    public PSAsyncJobStatusRestService(IPSAsyncJobService asyncJobService)
-    {
+    public PSAsyncJobStatusRestService(IPSAsyncJobService asyncJobService) {
         this.asyncJobService = asyncJobService;
     }
-    
+
     @Override
     @GET
     @Path("/{jobId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSAsyncJobStatus getStatus(@PathParam("jobId") Long jobId)
-    {
-        PSAsyncJobStatus jobStatus = asyncJobService.getJobStatus(jobId);
-        if (jobStatus == null)
-        {
-            return new PSAsyncJobStatus();
-        }
-        return jobStatus;
+    public PSAsyncJobStatus getStatus(@PathParam("jobId") Long jobId) {
+        var jobStatus = asyncJobService.getJobStatus(jobId);
+        return jobStatus != null ? jobStatus : new PSAsyncJobStatus();
     }
-    
+
     /**
-     * Dummy method used to create an async job, used for unit testing purposes only 
-     * @author federicoromanelli
-     * 
+     * Dummy method used to create an async job, used for unit testing purposes only.
+     *
      * @return Long - the id of the job created
      */
     @GET
     @Path("/startTestJob")
     @Produces(MediaType.TEXT_PLAIN)
-    public Long startTestJob()
-    {
+    public Long startTestJob() {
         try {
-            long jobId = asyncJobService.startJob("asyncJobTest", 1);
-            log.info("Created dummy async job with id: " + jobId);
+            var jobId = asyncJobService.startJob("asyncJobTest", 1);
+            log.info("Created dummy async job with id: {}", jobId);
             return jobId;
         } catch (IPSFolderService.PSWorkflowNotFoundException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-           throw new WebApplicationException(e);
+            throw new WebApplicationException(e);
         }
     }
-    
-    /**
-     * Logger for this service.
-     */
-    public static final Logger log = LogManager.getLogger(PSAsyncJobStatusRestService.class);
-
 }

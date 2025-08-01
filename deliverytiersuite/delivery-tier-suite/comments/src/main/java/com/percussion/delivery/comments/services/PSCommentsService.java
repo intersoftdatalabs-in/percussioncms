@@ -35,6 +35,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -45,6 +47,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author erikserating
@@ -71,14 +74,11 @@ public class PSCommentsService implements IPSCommentsService
 	/**
      * Map to get the PSComment fields given a SORTBY value.
      */
-    public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = new HashMap<PSCommentSort.SORTBY, String>()
-    {
-        {
-            put(SORTBY.CREATEDDATE, "createdDate");
-            put(SORTBY.EMAIL, "email");
-            put(SORTBY.USERNAME, "username");
-        }
-    };
+    public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = Map.of(
+        SORTBY.CREATEDDATE, "createdDate",
+        SORTBY.EMAIL, "email",
+        SORTBY.USERNAME, "username"
+    );
 
     /**
      * The amount of minutes during the ones a comment recently made will remain
@@ -98,8 +98,7 @@ public class PSCommentsService implements IPSCommentsService
     public IPSComment addComment(IPSComment comment)
     {
         String siteName = comment.getSite();
-        HashSet<String> siteSet = new HashSet<>(1);
-        siteSet.add(siteName);
+        var siteSet = Set.of(siteName);
         this.fireDataChangeRequestedEvent(siteSet);
         
         if (StringUtils.isBlank(comment.getPagePath()) || StringUtils.isBlank(comment.getSite()))

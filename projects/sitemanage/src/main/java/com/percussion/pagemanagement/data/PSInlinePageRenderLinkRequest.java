@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,10 +17,11 @@
  */
 package com.percussion.pagemanagement.data;
 
-public class PSInlinePageRenderLinkRequest extends PSInlineLinkRequest
-{
+/**
+ * Represents a request for an inline page render link.
+ * Used for linking to pages in rich text editors.
+ */
+public class PSInlinePageRenderLinkRequest extends PSInlineLinkRequest {
 
     private static final long serialVersionUID = 1L;
-
 }
-

@@ -19,7 +19,8 @@ package com.percussion.cx;
 
 import com.percussion.webservices.security.data.PSLocale;
 import com.percussion.webservices.security.data.PSLogin;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
@@ -31,7 +32,7 @@ import java.util.Vector;
 
 public class PSContentExplorerHeader extends JPanel
 {
-   static Logger log = Logger.getLogger(PSContentExplorerHeader.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerHeader.class);
  
    private static final long serialVersionUID = 1L;
 

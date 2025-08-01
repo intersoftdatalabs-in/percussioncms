@@ -32,50 +32,41 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * @author LucasPiccoli
- * 
+ * Helper used to extract and update template metadata.
+ * Sunny Sal says: "Templates need love too—keep them fresh!"
  */
 @Component("templateExtractorHelper")
 @Lazy
-public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper
-{
+public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper {
 
-    private final String STATUS_MESSAGE = "changing template information";
+    private static final String STATUS_MESSAGE = "changing template information";
 
     @Autowired
-    public PSTemplateExtractorHelper(IPSTemplateService templateService)
-    {
+    public PSTemplateExtractorHelper(IPSTemplateService templateService) {
         super(templateService);
     }
 
     @Override
-    public String getHelperMessage()
-    {
+    public String getHelperMessage() {
         return STATUS_MESSAGE;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#getTargetItem(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
     @Override
     protected IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws PSDataServiceException {
         // Load site's home page template
         return templateService.load(context.getTemplateId());
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#addHtmlWidgetToTemplate(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
     @Override
     protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException {
         // Load site's home page template
-        PSTemplate template = templateService.load(context.getTemplateId());
-        
+        var template = templateService.load(context.getTemplateId());
+
         // Set Theme
         template.setTheme(context.getThemeSummary().getName());
-        
+
         // Create Raw HTML widget and add the widget to the template
-        PSWidgetItem rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
+        var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
         template.getRegionTree().setRegionWidgets(REGION_CONTENT, asList(rawHtmlWidget));
 
         context.getLogger().appendLogMessage(PSLogEntryType.STATUS, ADD_HTML_WIDGET,
@@ -87,12 +78,9 @@ public class PSTemplateExtractorHelper extends PSGenericMetadataExtractorHelper
                 "Metadata was successfully saved to the template.");
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSGenericMetadataExtractorHelper#saveTargetItem(com.percussion.pagemanagement.data.IPSHtmlMetadata)
-     */
     @Override
     protected void saveTargetItem(IPSHtmlMetadata targetItem) throws PSDataServiceException {
         // targetItem is a PSTemplate object here
-        templateService.save((PSTemplate) targetItem);       
+        templateService.save((PSTemplate) targetItem);
     }
 }

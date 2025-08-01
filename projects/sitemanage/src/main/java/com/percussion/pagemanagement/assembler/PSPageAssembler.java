@@ -41,13 +41,11 @@ import java.io.File;
  * @author adamgent
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSPageAssembler extends PSVelocityAssembler
 {
-
     private PSPageAssemblyContextFactory pageAssemblyContextFactory;
     private PSAssemblyItemBridge assemblyItemBridge;
-
-    
 
     @Override
     public void init(IPSExtensionDef def, File file) throws PSExtensionException
@@ -61,15 +59,17 @@ public class PSPageAssembler extends PSVelocityAssembler
      * @param assemblyItem the item used to retrieve the template.
      * @return the template source, not blank.
      */
+    @Override
     protected String getTemplateSource(IPSAssemblyItem assemblyItem)
     {
-        IPSAssemblyTemplate template = assemblyItem.getTemplate();
+        final var template = assemblyItem.getTemplate();
         return template.getTemplate();
     }
-    
+
     /**
      * This calls {@link PSPageAssemblyContextFactory#createContext(IPSAssemblyItem, TemplateAndPage, boolean) PSPageAssemblyContextFactory.createContext(IPSAssemblyItem, TemplateAndPage, true)}
      */
+    @Override
     protected PSPageAssemblyContext createContext(IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage) throws Exception
     {
         return getPageAssemblyContextFactory().createContext(assemblyItem, templateAndPage, true);
@@ -78,27 +78,27 @@ public class PSPageAssembler extends PSVelocityAssembler
     @Override
     protected IPSAssemblyResult doAssembleSingle(IPSAssemblyItem assemblyItem) throws Exception
     {
-        StopWatch sw = new StopWatch("#doAssemblySingle");
+        final var sw = new StopWatch("#doAssemblySingle");
         sw.start("templateAndPage");
-        TemplateAndPage tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
+        final var tp = assemblyItemBridge.getTemplateAndPage(assemblyItem);
         sw.stop();
         sw.start("createContext");
-        PSPageAssemblyContext context = createContext(assemblyItem, tp);
+        final var context = createContext(assemblyItem, tp);
         sw.stop();
-        
-        PSJexlEvaluator eval =  PSJexlUtils.getBindings(assemblyItem);
+
+        final var eval = PSJexlUtils.getBindings(assemblyItem);
         eval.bind("$perc", context);
-        String templateSource = getTemplateSource(assemblyItem); 
+        final var templateSource = getTemplateSource(assemblyItem);
         eval.bind("$sys.template", templateSource);
-        
+
         assemblyItem.setBindings(eval.getVars());
-        
+
         sw.start("assemble");
-        IPSAssemblyResult result = super.doAssembleSingle(assemblyItem);
+        final var result = super.doAssembleSingle(assemblyItem);
         sw.stop();
-        
-        log.debug("{}",sw.prettyPrint());
-        
+
+        log.debug("{}", sw.prettyPrint());
+
         return result;
     }
 
@@ -111,7 +111,6 @@ public class PSPageAssembler extends PSVelocityAssembler
     {
         this.pageAssemblyContextFactory = pageAssemblyContextFactory;
     }
-    
 
     public PSAssemblyItemBridge getAssemblyItemBridge()
     {
@@ -126,8 +125,5 @@ public class PSPageAssembler extends PSVelocityAssembler
     /**
      * The log instance to use for this class, never <code>null</code>.
      */
-
     private static final Logger log = LogManager.getLogger(PSPageAssembler.class);
-    
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,46 +17,37 @@
  */
 package com.percussion.maintenance.web.service;
 
-import static org.junit.Assert.assertFalse;
-
 import com.percussion.share.test.PSRestTestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * @author JaySeletz
- *
+ * Tests for PSMaintenanceManagerRestClient.
+ * Sunny Sal says: "Testing maintenance, Java 11 style!"
  */
-public class PSMaintenanceManagerRestServiceTest extends PSRestTestCase<PSMaintenanceManagerRestClient>
-{
-    
+public class PSMaintenanceManagerRestServiceTest extends PSRestTestCase<PSMaintenanceManagerRestClient> {
+
     @Test
-    public void test()
-    {
+    public void test() {
         assertFalse(restClient.isWorkInProgress());
         assertFalse(restClient.hasFailures(false));
         assertFalse(restClient.hasFailures(true));
     }
-    
-    @Before
-    public void setupClient() throws Exception 
-    {
+
+    @BeforeEach
+    public void setupClient() throws Exception {
         restClient = getRestClient(baseUrl);
         setupClient(restClient, "Admin", 10);
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.share.test.PSRestTestCase#getRestClient(java.lang.String)
-     */
     @Override
-    protected PSMaintenanceManagerRestClient getRestClient(String baseUrl)
-    {
+    protected PSMaintenanceManagerRestClient getRestClient(String baseUrl) {
         return new PSMaintenanceManagerRestClient(baseUrl);
     }
 
-    public PSMaintenanceManagerRestClient getRestClient()
-    {
+    public PSMaintenanceManagerRestClient getRestClient() {
         return restClient;
     }
 }

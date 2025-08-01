@@ -17,6 +17,7 @@
 package com.percussion.sitemanage.importer.helpers;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.getWebApplicationContext;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.data.PSPage;
 import com.percussion.pagemanagement.data.PSTemplate;
@@ -38,129 +39,89 @@ import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
+import org.junit.jupiter.api.*;
 
-import org.apache.cactus.ServletTestCase;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+@IntegrationTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+class PSSiteCreationHelperTest {
 
-/**
- * @author LucasPiccoli
- * 
- */
+    private static final String TEST_SITE_NAME = "TestImportedSite";
+    private static final String TEST_SITE_URL = "http://www.test.com";
+    private static final String TEST_PAGE_TITLE = "TestTitle";
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
-public class PSSiteCreationHelperTest extends ServletTestCase
-{
+    private PSPageContent pageContent;
+    private PSSiteImportCtx importContext;
+    private PSSiteCreationHelper siteCreationHelper;
+    private IPSiteDao siteDao;
+    private IPSSecurityWs securityWs;
+    private IPSPageService pageService;
+    private IPSTemplateService templateService;
 
-    @Override
-    protected void setUp() throws Exception
-    {
+    @BeforeEach
+    void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
-        super.setUp();
-
-        // Login is needed to create folder
         securityWs.login("Admin", "demo", "Default", null);
-
         siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
-
         initData();
     }
 
-    private void initData()
-    {
-        // create initial content
+    private void initData() {
         pageContent = new PSPageContent();
         pageContent.setTitle(TEST_PAGE_TITLE);
         importContext = new PSSiteImportCtx();
         importContext.setLogger(new PSSiteImportLogger(PSLogObjectType.SITE));
-        IPSSiteImportSummaryService summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
+        var summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
         importContext.setSummaryService(summaryService);
-        
-        PSSite site = new PSSite();
+        var site = new PSSite();
         site.setBaseUrl(TEST_SITE_URL);
         site.setName(TEST_SITE_NAME);
         importContext.setSite(site);
     }
 
     @Test
-    public void test010CreateSite() throws PSDataServiceException, PSSiteImportException {
+    @Order(10)
+    void testCreateSite() throws PSDataServiceException, PSSiteImportException {
         assertNotNull(siteCreationHelper);
         siteCreationHelper.process(pageContent, importContext);
-        
-        //If site was created
-        PSSiteSummary siteSummary = siteDao.findSummary(importContext.getSite().getName());
+
+        var siteSummary = siteDao.findSummary(importContext.getSite().getName());
         assertNotNull(siteSummary);
 
-        //If landing page was created
-        PSPage homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
+        var homePage = pageService.findPage(PSSiteContentDao.HOME_PAGE_NAME, importContext.getSite().getFolderPath());
         assertNotNull(homePage);
         assertEquals(TEST_PAGE_TITLE, homePage.getTitle());
-        
-        //If template was created and associated with landing page
-        PSTemplate template = templateService.load(homePage.getTemplateId());
-        assertNotNull(template);
-        assertEquals("Home",template.getName());
 
+        var template = templateService.load(homePage.getTemplateId());
+        assertNotNull(template);
+        assertEquals("Home", template.getName());
     }
 
     @Test
-    public void test020Rollback()
-    {
+    @Order(20)
+    void testRollback() {
         siteCreationHelper.rollback(pageContent, importContext);
-
-        //If site was successfully deleted
-        try
-        {
-            PSSiteSummary siteSummary = siteDao.findSummary(importContext.getSite().getName());
-            assertNull(siteSummary);            
-        }
-        catch(LoadException ex)
-        {
-            //Dao failed finding item for site id. Delete was successful.
+        try {
+            var siteSummary = siteDao.findSummary(importContext.getSite().getName());
+            assertNull(siteSummary);
+        } catch (LoadException ex) {
+            // Expected: site not found after rollback
         }
     }
 
-    public void setSiteDao(IPSiteDao siteDao)
-    {
+    // Dependency injection setters for test context
+    public void setSiteDao(IPSiteDao siteDao) {
         this.siteDao = siteDao;
     }
 
-    public void setSecurityWs(IPSSecurityWs securityWs)
-    {
+    public void setSecurityWs(IPSSecurityWs securityWs) {
         this.securityWs = securityWs;
     }
-    
-    public void setPageService(IPSPageService pageService)
-    {
+
+    public void setPageService(IPSPageService pageService) {
         this.pageService = pageService;
     }
-    
-    public void setTemplateService(IPSTemplateService templateService)
-    {
+
+    public void setTemplateService(IPSTemplateService templateService) {
         this.templateService = templateService;
     }
-
-    private final String TEST_SITE_NAME = "TestImportedSite";
-
-    private final String TEST_SITE_URL = "http://www.test.com";
-
-    private final String TEST_PAGE_TITLE = "TestTitle";
-
-    private PSPageContent pageContent;
-
-    private PSSiteImportCtx importContext;
-    
-    private PSSiteCreationHelper siteCreationHelper;
-
-    private IPSiteDao siteDao;
-    
-    private IPSSecurityWs securityWs;
-
-    private IPSPageService pageService;
-    
-    private IPSTemplateService templateService;
-
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,67 +17,69 @@
  */
 package com.percussion.share.data;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class PSCollectionUtils
-{
-    public static interface ToMap<KEY, VALUE, OBJECT> {
+/**
+ * Utility methods for collection mapping and transformation.
+ * Sunny Sal says: "Collections are like samosas—best when shared and mapped!"
+ */
+public class PSCollectionUtils {
+
+    public interface ToMap<KEY, VALUE, OBJECT> {
         KEY getKey(OBJECT value);
         VALUE getValue(OBJECT object);
     }
-    
-    public static abstract class Mapper<KEY,VALUE,OBJECT> implements ToMap<KEY,VALUE,OBJECT>{
-        public Map<KEY,VALUE> toMap(Iterator<OBJECT> objects) {
-            return PSCollectionUtils.toMap(objects, this);
-        }
-        public Map<KEY,VALUE> toMap(Collection<OBJECT> objects) {
-            Iterator<OBJECT> obs;
-            if ( objects == null ) {
-                obs = null;
-            }
-            else {
-                obs = objects.iterator();
-            }
-            return PSCollectionUtils.toMap(obs, this);
-        }
-    }
-    
-    public static abstract class MapperValueAdapter<KEY,VALUE> extends Mapper<KEY,VALUE,VALUE> {
-        @Override
-        public Map<KEY,VALUE> toMap(Iterator<VALUE> objects) 
-        {
-            return PSCollectionUtils.toMap(objects, this);
-        }
-        
-        public VALUE getValue(VALUE object)
-        {
-            return object;
-        }
-    }
-    
-    public static abstract class ToMapKeyAdapter<KEY, VALUE> implements ToMap<KEY, VALUE, VALUE> {
 
-        public VALUE getValue(VALUE object)
-        {
+    public abstract static class Mapper<KEY, VALUE, OBJECT> implements ToMap<KEY, VALUE, OBJECT> {
+        public Map<KEY, VALUE> toMap(Iterator<OBJECT> objects) {
+            return PSCollectionUtils.toMap(objects, this);
+        }
+
+        public Map<KEY, VALUE> toMap(Collection<OBJECT> objects) {
+            return PSCollectionUtils.toMap(
+                objects == null ? null : objects.iterator(), this
+            );
+        }
+    }
+
+    public abstract static class MapperValueAdapter<KEY, VALUE>
+            extends Mapper<KEY, VALUE, VALUE> {
+        @Override
+        public Map<KEY, VALUE> toMap(Iterator<VALUE> objects) {
+            return PSCollectionUtils.toMap(objects, this);
+        }
+
+        @Override
+        public VALUE getValue(VALUE object) {
             return object;
         }
-        
     }
-    
-    public static <KEY,VALUE, OBJECT> Map<KEY,VALUE> toMap(Iterator<OBJECT> objects, ToMap<KEY,VALUE, OBJECT> toMap) {
-        Map<KEY, VALUE> map = new HashMap<>();
+
+    public abstract static class ToMapKeyAdapter<KEY, VALUE>
+            implements ToMap<KEY, VALUE, VALUE> {
+        @Override
+        public VALUE getValue(VALUE object) {
+            return object;
+        }
+    }
+
+    /**
+     * Converts an iterator of objects to a map using the provided mapping function.
+     *
+     * @param objects iterator of objects
+     * @param toMap   mapping function
+     * @param <KEY>   map key type
+     * @param <VALUE> map value type
+     * @param <OBJECT> object type
+     * @return map of keys to values
+     */
+    public static <KEY, VALUE, OBJECT> Map<KEY, VALUE> toMap(
+            Iterator<OBJECT> objects, ToMap<KEY, VALUE, OBJECT> toMap) {
+        var map = new HashMap<KEY, VALUE>();
         if (objects != null) {
-            while(objects.hasNext()) {
-                OBJECT o = objects.next();
-                KEY key = toMap.getKey(o);
-                VALUE value = toMap.getValue(o);
-                map.put(key, value);
-            }
+            objects.forEachRemaining(o -> map.put(toMap.getKey(o), toMap.getValue(o)));
         }
         return map;
     }
-
 }

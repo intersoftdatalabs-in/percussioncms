@@ -20,34 +20,31 @@ package com.percussion.itemmanagement.data;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * POJO to maintain an ID/page path relationship
- * for pages that link to
- *
- * @author chriswright
+ * POJO to maintain an ID/page path relationship for pages that link to an item.
+ * Sunny Sal says: "Relationships matter, even for pages!"
  */
-@XmlRootElement(name="PageLinkedToItem")
+@XmlRootElement(name = "PageLinkedToItem")
 public class PSPageLinkedToItem {
 
     private String id;
     private String pagePath;
+    private String relationshipId;
+
+    public PSPageLinkedToItem() {
+        // No-op
+    }
+
+    public PSPageLinkedToItem(String id, String pagePath, String relationshipId) {
+        this.id = id;
+        this.pagePath = pagePath;
+        this.relationshipId = relationshipId;
+    }
 
     public String getRelationshipId() {
         return relationshipId;
     }
 
     public void setRelationshipId(String relationshipId) {
-        this.relationshipId = relationshipId;
-    }
-
-    private String relationshipId;
-
-    public PSPageLinkedToItem() {
-        super();
-    }
-
-    public PSPageLinkedToItem(String id, String pagePath,String relationshipId) {
-        this.id = id;
-        this.pagePath = pagePath;
         this.relationshipId = relationshipId;
     }
 

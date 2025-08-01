@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.services.aaclient;
 
 import com.percussion.cms.PSCmsException;
@@ -67,108 +68,109 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * 
+ * Handles execution of various actions for Active Assembly and Content Explorer widgets.
+ * This class processes action requests from the client and delegates to appropriate
+ * internal methods based on the action type.
+ *
+ * @author Percussion Software
  */
-public class PSActionExecutor implements IPSWidgetHandler
-{
-   private String m_actionName = null;
+public class PSActionExecutor implements IPSWidgetHandler {
 
-   JSONObject m_jsObjId = null;
+   private String actionName;
+   private JSONObject jsObjId;
 
-   public void handleRequest(HttpServletRequest request,
-      HttpServletResponse response) throws Exception
-   {
-      String objectId = request.getParameter(PSWidgetUtils.ATTR_OBJECTID);
-      String action = request.getParameter(PSWidgetUtils.ATTR_ACTION);
-      if (!StringUtils.isBlank(objectId))
-      {
-         m_jsObjId = (JSONObject) JSONValue.parse(objectId);
+   @Override
+   public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var objectId = request.getParameter(PSWidgetUtils.ATTR_OBJECTID);
+      var action = Optional.ofNullable(request.getParameter(PSWidgetUtils.ATTR_ACTION))
+                          .orElse("")
+                          .toLowerCase();
+
+      if (!StringUtils.isBlank(objectId)) {
+         jsObjId = (JSONObject) JSONValue.parse(objectId);
       }
-      if (action == null)
-         action = "";
-      m_actionName = action.toLowerCase();
-      if (action.startsWith("aa_"))
-      {
-         try
-         {
+
+      actionName = action;
+
+      try {
+         if (action.startsWith("aa_")) {
             executeAssemblyAction(request, response);
+         } else if (action.startsWith("ce_")) {
+            executeCeAction(request, response);
+         } else {
+            throw new Exception("Unhandled action '" + action + "'");
          }
-         catch (Throwable e)
-         {
-            throw new Exception(e);
-         }
+      } catch (Exception e) {
+         throw new Exception("Error executing action: " + action, e);
       }
-      else if (action.startsWith("ce_"))
-      {
-         executeCeAction(request, response);
-      }
-      else
-      {
-         throw new Exception("Unhandled action '" + action + "'");
-      }
-
    }
 
    /**
-    * @param request
-    * @param response
+    * Executes Content Explorer related actions.
+    *
+    * @param request the HTTP request
+    * @param response the HTTP response
+    * @throws Exception if an error occurs during action execution
     */
-   private void executeCeAction(HttpServletRequest request,
-      HttpServletResponse response) throws Exception
-   {
-      if (m_actionName.equals("ce_setfield"))
-      {
-         String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-         String fieldName = request.getParameter("fieldname");
-         String fieldValue = request.getParameter("fieldvalue");
-         fieldValue = URLDecoder.decode(fieldValue, "UTF-8");
-         int cid = Integer.parseInt(cidstr);
-         PSLegacyGuid id = new PSLegacyGuid(cid, -1);
-         String resp = "";
-         resp = setFieldValue(id, fieldName, fieldValue);
-         PSAaClientServlet.pushResponse(response, resp, "text/html", 200);
+   private void executeCeAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      switch (actionName) {
+         case "ce_setfield" -> executeSetField(request, response);
+         case "ce_checkout" -> executeCheckout(request, response);
+         case "ce_checkin" -> executeCheckin(request, response);
+         case "ce_checkoutstatus" -> executeCheckoutStatus(request, response);
+         default -> throw new Exception("Unhandled CE action: " + actionName);
       }
-      else if (m_actionName.equals("ce_checkout"))
-      {
-         String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-         int cid = Integer.parseInt(cidstr);
-         PSLegacyGuid id = new PSLegacyGuid(cid, -1);
-         checkOutOrInItem(id, false);
-         PSComponentSummary summary = PSWidgetUtils.getItemSummary(Integer
-            .parseInt(cidstr));
+   }
 
-         PSAaClientServlet.pushResponse(response, "success:"
-            + summary.getTipLocator().getRevision(), "text/html", 200);
-      }
-      else if (m_actionName.equals("ce_checkin"))
-      {
-         String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-         int cid = Integer.parseInt(cidstr);
-         PSLegacyGuid id = new PSLegacyGuid(cid, -1);
-         checkOutOrInItem(id, true);
-         PSComponentSummary summary = PSWidgetUtils.getItemSummary(Integer
-            .parseInt(cidstr));
+   private void executeSetField(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+      var fieldName = request.getParameter("fieldname");
+      var fieldValue = URLDecoder.decode(
+         Optional.ofNullable(request.getParameter("fieldvalue")).orElse(""),
+         "UTF-8");
 
-         PSAaClientServlet.pushResponse(response, "success:"
-            + summary.getTipLocator().getRevision(), "text/html", 200);
-      }
-      else if (m_actionName.equals("ce_checkoutstatus"))
-      {
-         String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-         PSComponentSummary summary = PSWidgetUtils.getItemSummary(Integer
-            .parseInt(cidstr));
-         if (StringUtils.isBlank(summary.getCheckoutUserName()))
-         {
-            PSAaClientServlet.pushResponse(response, "checkedin", "text/html",
-               200);
-         }
-         else
-         {
-            PSAaClientServlet.pushResponse(response, "checkedout", "text/html",
-               200);
-         }
+      var cid = Integer.parseInt(cidStr);
+      var id = new PSLegacyGuid(cid, -1);
+      var resp = setFieldValue(id, fieldName, fieldValue);
+      PSAaClientServlet.pushResponse(response, resp, "text/html", 200);
+   }
+
+   private void executeCheckout(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+      var cid = Integer.parseInt(cidStr);
+      var id = new PSLegacyGuid(cid, -1);
+
+      checkOutOrInItem(id, false);
+      var summary = PSWidgetUtils.getItemSummary(cid);
+
+      PSAaClientServlet.pushResponse(response,
+         "success:" + summary.getTipLocator().getRevision(),
+         "text/html", 200);
+   }
+
+   private void executeCheckin(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+      var cid = Integer.parseInt(cidStr);
+      var id = new PSLegacyGuid(cid, -1);
+
+      checkOutOrInItem(id, true);
+      var summary = PSWidgetUtils.getItemSummary(cid);
+
+      PSAaClientServlet.pushResponse(response,
+         "success:" + summary.getTipLocator().getRevision(),
+         "text/html", 200);
+   }
+
+   private void executeCheckoutStatus(HttpServletRequest request, HttpServletResponse response) throws Exception {
+      var cidStr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+      var summary = PSWidgetUtils.getItemSummary(Integer.parseInt(cidStr));
+      if (StringUtils.isBlank(summary.getCheckoutUserName())) {
+         PSAaClientServlet.pushResponse(response, "checkedin", "text/html", 200);
+      } else {
+         PSAaClientServlet.pushResponse(response, "checkedout", "text/html", 200);
       }
    }
 
@@ -185,7 +187,7 @@ public class PSActionExecutor implements IPSWidgetHandler
       PSRequest req = (PSRequest) PSRequestInfo
          .getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
       IPSRequestContext request = new PSRequestContext(req);
-      String tmp = (String) m_jsObjId.get(IPSHtmlParameters.SYS_RELATIONSHIPID);
+      String tmp = (String) jsObjId.get(IPSHtmlParameters.SYS_RELATIONSHIPID);
       int rid = -1;
       try
       {
@@ -196,52 +198,52 @@ public class PSActionExecutor implements IPSWidgetHandler
          // ignore all action may not need it
       }
 
-      if (m_actionName.equals("aa_moveup"))
+      if (actionName.equals("aa_moveup"))
       {
          ModifyRelatedContentUtils.moveUp(rid, request);
          PSAaClientServlet.pushResponse(response, "success", "text/plain", 200);
       }
-      else if (m_actionName.equals("aa_movedown"))
+      else if (actionName.equals("aa_movedown"))
       {
           ModifyRelatedContentUtils.moveDown(rid, request);
          PSAaClientServlet.pushResponse(response, "success", "text/plain", 200);
       }
-      else if (m_actionName.equals("aa_remove"))
+      else if (actionName.equals("aa_remove"))
       {
           ModifyRelatedContentUtils.deleteSlotItem(rid, request);
          PSAaClientServlet.pushResponse(response, "success", "text/plain", 200);
       }
-      else if (m_actionName.equals("aa_add"))
+      else if (actionName.equals("aa_add"))
       {
           ModifyRelatedContentUtils.insertSlotItems(request);
       }
-      else if (m_actionName.equals("aa_movetoslot"))
+      else if (actionName.equals("aa_movetoslot"))
       {
-         String newSlotId = (String) m_jsObjId.get("newSlot");
-         String newVarId = (String) m_jsObjId.get("newTemplate");
+         String newSlotId = (String) jsObjId.get("newSlot");
+         String newVarId = (String) jsObjId.get("newTemplate");
          if (newVarId == null)
             newVarId = "-1";
-         String index = m_jsObjId.get("index").toString();
+         String index = jsObjId.get("index").toString();
           ModifyRelatedContentUtils.moveToSlot(rid, Integer.parseInt(newSlotId),
             Integer.parseInt(index), Integer.parseInt(newVarId), request);
          PSAaClientServlet.pushResponse(response, "success", "text/plain", 200);
       }
-      else if (m_actionName.equals("aa_reorder"))
+      else if (actionName.equals("aa_reorder"))
       {
-         String index = m_jsObjId.get("index").toString();
+         String index = jsObjId.get("index").toString();
           ModifyRelatedContentUtils.reorder(rid, Integer.parseInt(index), request);
          PSAaClientServlet.pushResponse(response, "success", "text/plain", 200);
       }
-      else if (m_actionName.equals("aa_changetemplate"))
+      else if (actionName.equals("aa_changetemplate"))
       {
          PSAaClientServlet.pushResponse(response, "failure", "text/plain", 500);
       }
-      else if (m_actionName.equals("aa_getsnippettemplates"))
+      else if (actionName.equals("aa_getsnippettemplates"))
       {
          PSAaClientServlet.pushResponse(response, getSnippetTemplates(),
             "text/html", 200);
       }
-      else if (m_actionName.equals("aa_getslotitems"))
+      else if (actionName.equals("aa_getslotitems"))
       {
          Map<String, String[]> params = getAssemblyParams(null);
          IPSAssemblyService aService = PSAssemblyServiceLocator
@@ -307,7 +309,7 @@ public class PSActionExecutor implements IPSWidgetHandler
    private Map<String, String[]> getAssemblyParams(PSComponentSummary summary)
    {
       Map<String, String[]> params = new HashMap<>();
-      Object temp = m_jsObjId.get(IPSHtmlParameters.SYS_CONTENTID);
+      Object temp = jsObjId.get(IPSHtmlParameters.SYS_CONTENTID);
       if (temp == null && summary != null)
          temp = summary.getContentId();
       params.put(IPSHtmlParameters.SYS_CONTENTID, new String[]
@@ -315,7 +317,7 @@ public class PSActionExecutor implements IPSWidgetHandler
          temp.toString()
       });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_REVISION);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_REVISION);
       if (temp == null && summary != null)
          temp = summary.getCurrentLocator().getRevision();
       params.put(IPSHtmlParameters.SYS_REVISION, new String[]
@@ -323,35 +325,35 @@ public class PSActionExecutor implements IPSWidgetHandler
          temp.toString()
       });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_VARIANTID);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_VARIANTID);
       if (temp != null)
          params.put(IPSHtmlParameters.SYS_VARIANTID, new String[]
          {
             temp.toString()
          });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_SLOTID);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_SLOTID);
       if (temp != null)
          params.put(IPSHtmlParameters.SYS_SLOTID, new String[]
          {
             temp.toString()
          });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_SITEID);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_SITEID);
       if (temp != null)
          params.put(IPSHtmlParameters.SYS_SITEID, new String[]
          {
             temp.toString()
          });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_FOLDERID);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_FOLDERID);
       if (temp != null)
          params.put(IPSHtmlParameters.SYS_FOLDERID, new String[]
          {
             temp.toString()
          });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_AUTHTYPE);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_AUTHTYPE);
       if (temp == null)
          temp = "0";
       params.put(IPSHtmlParameters.SYS_AUTHTYPE, new String[]
@@ -359,7 +361,7 @@ public class PSActionExecutor implements IPSWidgetHandler
          temp.toString()
       });
 
-      temp = m_jsObjId.get(IPSHtmlParameters.SYS_CONTEXT);
+      temp = jsObjId.get(IPSHtmlParameters.SYS_CONTEXT);
       if (temp == null)
          temp = "0";
       params.put(IPSHtmlParameters.SYS_CONTEXT, new String[]
@@ -568,14 +570,14 @@ public class PSActionExecutor implements IPSWidgetHandler
    public String getSnippetTemplates() throws Exception
    {
       String cid = null, rid = null, sid = null;
-      Object obj = m_jsObjId.get(IPSHtmlParameters.SYS_CONTENTID);
+      Object obj = jsObjId.get(IPSHtmlParameters.SYS_CONTENTID);
       if (obj != null)
          cid = obj.toString();
-      obj = m_jsObjId.get(IPSHtmlParameters.SYS_RELATIONSHIPID);
+      obj = jsObjId.get(IPSHtmlParameters.SYS_RELATIONSHIPID);
       if (obj != null)
          rid = obj.toString();
 
-      obj = m_jsObjId.get(IPSHtmlParameters.SYS_SLOTID);
+      obj = jsObjId.get(IPSHtmlParameters.SYS_SLOTID);
       if (obj != null)
          sid = obj.toString();
 

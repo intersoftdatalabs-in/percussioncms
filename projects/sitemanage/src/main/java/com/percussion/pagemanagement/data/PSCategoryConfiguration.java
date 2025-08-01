@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,35 +22,45 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name="CategoryConfig")
-public class PSCategoryConfiguration
-{
+/**
+ * Represents the configuration for categories in the CMS.
+ * Contains a tree structure with a URL.
+ */
+@XmlRootElement(name = "CategoryConfig")
+public class PSCategoryConfiguration {
+
     private Tree tree;
-    
-    @XmlElement(name="tree")
-    public Tree getTree()
-    {
+
+    /**
+     * Gets the category tree.
+     * @return the tree, may be {@code null}.
+     */
+    @XmlElement(name = "tree")
+    public Tree getTree() {
         return tree;
     }
-    public void setTree(Tree tree)
-    {
+
+    public void setTree(Tree tree) {
         this.tree = tree;
     }
 
-    public static class Tree 
-    {
+    /**
+     * Represents a tree node in the category configuration.
+     */
+    public static class Tree {
         private String url;
 
-        @XmlAttribute(name="url")
-        public String getUrl()
-        {
+        /**
+         * Gets the URL for this tree node.
+         * @return the URL, may be {@code null}.
+         */
+        @XmlAttribute(name = "url")
+        public String getUrl() {
             return url;
         }
-        public void setUrl(String url)
-        {
+
+        public void setUrl(String url) {
             this.url = url;
         }
-        
     }
-
 }

@@ -42,15 +42,15 @@ public class PSStagingItemFilterRule extends PSPublicAssetItemFilterRule impleme
     @Override
     public List<IPSFilterItem> filter(List<IPSFilterItem> items, Map<String, String> params)
     {
-        boolean isPublish = !"unpublish".equals(params.get(IPSHtmlParameters.SYS_PUBLISH));
-        PSPubServer pubServer = findPubServer(params.get(IPSHtmlParameters.SYS_EDITIONID));
-        String ignoreAssets = pubServer==null?"false":pubServer.getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY).getValue();
-        boolean ignoreUnModAssets = StringUtils.equals(ignoreAssets, "true");
-        Long serverId = pubServer==null?null:pubServer.getServerId();
-        WorkflowItemWorker worker = getWorker(params);
-        List<IPSFilterItem> rvalue = new ArrayList<>();
-        IPSContentChangeService contentChangeService = PSContentChangeServiceLocator.getContentChangeService();
-        List<Integer> changedIds;
+        var isPublish = !"unpublish".equals(params.get(IPSHtmlParameters.SYS_PUBLISH));
+        var pubServer = findPubServer(params.get(IPSHtmlParameters.SYS_EDITIONID));
+        var ignoreAssets = pubServer == null ? "false" : pubServer.getProperty(PUBLISH_IGNORE_UNMODIFIED_ASSETS_PROPERTY).getValue();
+        var ignoreUnModAssets = StringUtils.equals(ignoreAssets, "true");
+        var serverId = pubServer == null ? null : pubServer.getServerId();
+        var worker = getWorker(params);
+        var rvalue = new ArrayList<IPSFilterItem>();
+        var contentChangeService = PSContentChangeServiceLocator.getContentChangeService();
+        List<Integer> changedIds = null;
         Set<Integer> changedIdsSet = null;
         if (ignoreUnModAssets) {
             if (contentChangeService != null) {
@@ -58,13 +58,12 @@ public class PSStagingItemFilterRule extends PSPublicAssetItemFilterRule impleme
                 changedIdsSet = new HashSet<>(changedIds);
             }
         }
-        for(IPSFilterItem item : items) {
-            WorkflowItem wfItem = worker.getWorkflowItem(item.getItemId(), true);
-            IPSFilterItem r = process(worker, item, wfItem, isPublish, ignoreUnModAssets, serverId, changedIdsSet);
+        for (var item : items) {
+            var wfItem = worker.getWorkflowItem(item.getItemId(), true);
+            var r = process(worker, item, wfItem, isPublish, ignoreUnModAssets, serverId, changedIdsSet);
             if (r != null)
                 rvalue.add(r);
         }
         return rvalue;
     }
 }
-

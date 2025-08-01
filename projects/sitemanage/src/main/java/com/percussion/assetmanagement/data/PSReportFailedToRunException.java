@@ -15,24 +15,28 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
+/**
+ * Exception thrown when a report fails to run.
+ */
 public class PSReportFailedToRunException extends Exception {
 
-	public PSReportFailedToRunException() {
-		super();
-	}
+    public PSReportFailedToRunException() {
+        super();
+    }
 
-	public PSReportFailedToRunException(String message) {
-		super(message);
-	}
+    public PSReportFailedToRunException(String message) {
+        super(message);
+    }
 
-	public PSReportFailedToRunException(Throwable cause) {
-		super(cause);
-	}
+    public PSReportFailedToRunException(Throwable cause) {
+        super(cause);
+    }
 
-	public PSReportFailedToRunException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+    public PSReportFailedToRunException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

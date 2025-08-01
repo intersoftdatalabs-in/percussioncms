@@ -67,8 +67,7 @@ public class PSValidationResults  implements IPSDeployComponent
     * @return A list of <code>PSValidationResult</code> objects. It will never
     * be <code>null</code>, but may be empty.
     */
-   public Iterator<PSValidationResult> getResults()
-   {
+   public Iterator<PSValidationResult> getResults() {
       return m_validateResults.iterator();
    }
 
@@ -122,14 +121,8 @@ public class PSValidationResults  implements IPSDeployComponent
     * @return <code>true</code> if any result object is an error;
     * <code>false</code> otherwise.
     */
-   public boolean hasErrors()
-   {
-      for (PSValidationResult vResult : m_validateResults)
-      {
-         if ( vResult.isError() )
-            return true;
-      }
-      return false;
+   public boolean hasErrors() {
+      return m_validateResults.stream().anyMatch(PSValidationResult::isError);
    }
 
    /**
@@ -171,28 +164,15 @@ public class PSValidationResults  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
-
-      // Add the PSXValidationResult elements
-      for (PSValidationResult vr : m_validateResults)
-      {
-         Element vrEl = vr.toXml(doc);
-         root.appendChild(vrEl);
       }
 
-      // Add the (PSXDeployableObject | PSXDeployableElement) elements
-      Iterator depList = m_absentAncestors.iterator();
-      while (depList.hasNext())
-      {
-         PSDependency dep = (PSDependency) depList.next();
-         Element depEl = dep.toXml(doc);
-         root.appendChild(depEl);
-      }
+      var root = doc.createElement(XML_NODE_NAME);
+
+      m_validateResults.forEach(vr -> root.appendChild(vr.toXml(doc)));
+      m_absentAncestors.forEach(dep -> root.appendChild(dep.toXml(doc)));
 
       return root;
    }
@@ -206,89 +186,38 @@ public class PSValidationResults  implements IPSDeployComponent
     * @throws PSUnknownNodeTypeException if <code>sourceNode</code> is
     * malformed XML.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element childEl = tree.getNextElement(FIRST_FLAGS);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
+
+      var tree = new PSXmlTreeWalker(sourceNode);
+      var childEl = tree.getNextElement(FIRST_FLAGS);
 
       m_validateResults.clear();
-      childEl = getValidateResults(childEl, tree);
-
-      m_absentAncestors.clear();
-      getAbsentAncestors(childEl, tree);
-   }
-
-   /**
-    * Get a list of <code>PSValiationResult</code> object from the given
-    * parameters if the XML contains any <code>PSValiationResult</code>.
-    *
-    * @param childEl The current element in the <code>tree</code>, which will
-    * be retrieved from. It may not <code>null</code>.
-    * @param tree The XML tree, assuming it is not <code>null</code>. The Tree
-    * will be left on a <code>null</code> element, or the next element that is
-    * not a validastion result.
-    *
-    * @return The current element in the <code>tree</code>, after the
-    * retrieving operation..
-    *
-    * @throws PSUnknownNodeTypeException if the XML is malformed.
-    */
-   private Element getValidateResults(Element childEl, PSXmlTreeWalker tree)
-      throws PSUnknownNodeTypeException
-   {
-      while ( childEl != null &&
-              childEl.getNodeName().equals(PSValidationResult.XML_NODE_NAME) )
-      {
+      while (childEl != null && PSValidationResult.XML_NODE_NAME.equals(childEl.getNodeName())) {
          m_validateResults.add(new PSValidationResult(childEl));
          childEl = tree.getNextElement(NEXT_FLAGS);
       }
-      return childEl;
-   }
 
-   /**
-    * Get a list of dependency objects from the given parameters if the XML
-    * contains any of them.
-    *
-    * @param childEl The current element in the <code>tree</code>, which will
-    * be retrieved from. It may be <code>null</code>.
-    * @param tree The XML tree, assume not <code>null</code>. The Tree will be
-    * left on a <code>null</code> element, or the next element that is not a
-    * dependency element.
-    *
-    * @throws PSUnknownNodeTypeException if the XML is malformed.
-    */
-   private void getAbsentAncestors(Element childEl, PSXmlTreeWalker tree)
-      throws PSUnknownNodeTypeException
-   {
-      while ( childEl != null &&
-         ((childEl.getNodeName().equals(PSDeployableElement.XML_NODE_NAME)) ||
-         (childEl.getNodeName().equals(PSDeployableObject.XML_NODE_NAME)) ||
-         (childEl.getNodeName().equals(PSUserDependency.XML_NODE_NAME)) ) )
-      {
-         if ( childEl.getNodeName().equals(PSDeployableElement.XML_NODE_NAME) )
-         {
-            m_absentAncestors.add(new PSDeployableElement(childEl));
+      m_absentAncestors.clear();
+      while (childEl != null && (
+         PSDeployableElement.XML_NODE_NAME.equals(childEl.getNodeName()) ||
+         PSDeployableObject.XML_NODE_NAME.equals(childEl.getNodeName()) ||
+         PSUserDependency.XML_NODE_NAME.equals(childEl.getNodeName())
+      )) {
+         switch (childEl.getNodeName()) {
+            case PSDeployableElement.XML_NODE_NAME -> m_absentAncestors.add(new PSDeployableElement(childEl));
+            case PSDeployableObject.XML_NODE_NAME -> m_absentAncestors.add(new PSDeployableObject(childEl));
+            case PSUserDependency.XML_NODE_NAME -> m_absentAncestors.add(new PSUserDependency(childEl));
          }
-         else if (
-            childEl.getNodeName().equals(PSDeployableObject.XML_NODE_NAME) )
-         {
-            m_absentAncestors.add(new PSDeployableObject(childEl));
-         }
-         else
-         {
-            m_absentAncestors.add(new PSUserDependency(childEl));
-         }
-
          childEl = tree.getNextElement(NEXT_FLAGS);
       }
    }

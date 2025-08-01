@@ -15,44 +15,39 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
-
-
 /**
- * Encapsulates app enable policy
+ * Encapsulates app enable policy.
  */
-public class PSAppEnabledPolicySetting  extends PSAppPolicySetting
-{
+public class PSAppEnabledPolicySetting extends PSAppPolicySetting {
    /**
-    * Default constructor. Default to disable the log policy,
-    * {@link #isAppEnabled()} return <code>false</code>.
+    * Default constructor. Defaults to disabling the log policy,
+    * {@link #isAppEnabled()} returns <code>false</code>.
     */
-   public PSAppEnabledPolicySetting()
-   {
+   public PSAppEnabledPolicySetting() {
+      // Default constructor
    }
 
    /**
-    * Create this object from its XML representation
+    * Create this object from its XML representation.
     *
-    * @param source The source element.  See {@link #toXml(Document)} for
-    * the expected format.  May not be <code>null</code>.
+    * @param source The source element. See {@link #toXml(Document)} for
+    * the expected format. May not be <code>null</code>.
     *
     * @throws IllegalArgumentException If <code>source</code> is
     * <code>null</code>.
-    * @throws PSUnknownNodeTypeException <code>source</code> is malformed.
+    * @throws PSUnknownNodeTypeException If <code>source</code> is malformed.
     */
-   public PSAppEnabledPolicySetting(Element source)
-      throws PSUnknownNodeTypeException
-   {
-      if (source == null)
+   public PSAppEnabledPolicySetting(Element source) throws PSUnknownNodeTypeException {
+      if (source == null) {
          throw new IllegalArgumentException("source may not be null");
-
+      }
       fromXml(source);
    }
 
@@ -62,42 +57,30 @@ public class PSAppEnabledPolicySetting  extends PSAppPolicySetting
     * @return <code>true</code> if the app policy is enabled;
     * <code>false</code> otherwise.
     */
-   public boolean isAppEnabled()
-   {
-      return true; // no specific setting for this class yet, hard code for now
+   public boolean isAppEnabled() {
+      return true; // No specific setting for this class yet, hardcoded for now
    }
 
    /**
     * Sets to enable or disable the app policy.
     *
-    * @param    enabled <code>true</code> if set to enable the app policy;
+    * @param isEnabled <code>true</code> if set to enable the app policy;
     * <code>false</code> otherwise.
     */
-   public void setAppEnabled(boolean isEnabled)
-   {
-      // no specific setting for this class yet, no op for now
+   public void setAppEnabled(boolean isEnabled) {
+      // No specific setting for this class yet, no-op for now
    }
 
    /**
-    * Serializes this object's state to its XML representation.  Format is:
-    *
-    * <pre><code>
-    *    &lt;!ELEMENT PSXAppEnabledPolicySetting EMPTY)>
-    *    &lt;!ATTLIST PSXAppEnabledPolicySetting
-    *       useSetting (Yes | No) #REQUIRED
-    *    >
-    * </code>/<pre>
-    *
-    * See {@link IPSDeployComponent#toXml(Document)} for more info.
+    * Serializes this object's state to its XML representation.
     */
-   public Element toXml(Document doc)
-   {
+   @Override
+   public Element toXml(Document doc) {
       return toXml(doc, XML_NODE_NAME);
    }
 
-   // See IPSDeployComponent interface
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
+   @Override
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
       fromXml(sourceNode, XML_NODE_NAME);
    }
 
@@ -105,5 +88,4 @@ public class PSAppEnabledPolicySetting  extends PSAppPolicySetting
     * Root node name of this object's XML representation.
     */
    public static final String XML_NODE_NAME = "PSXAppEnabledPolicySetting";
-
 }

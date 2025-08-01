@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,68 +17,51 @@
  */
 package com.percussion.share.dao;
 
-import static org.junit.Assert.*;
-
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.percussion.services.contentmgr.IPSContentMgr;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Scenario description: Test behavior
- * @author adamgent, Oct 6, 2009
+ * Scenario description: Test behavior for PSJcrNodeFinder.
+ * Sunny Sal: "JCR node finder, Java 11, and query ka hero!"
  */
-@RunWith(JMock.class)
-public class PSJcrNodeFinderTest
-{
+public class PSJcrNodeFinderTest {
 
-    Mockery context = new JUnit4Mockery();
+    private PSJcrNodeFinder nodeFinder;
+    private IPSContentMgr cm;
 
-    PSJcrNodeFinder nodeFinder;
-
-    IPSContentMgr cm;
-
-    @Before
-    public void setUp() throws Exception
-    {
-        
-        cm = context.mock(IPSContentMgr.class);
+    @BeforeEach
+    void setUp() {
+        cm = Mockito.mock(IPSContentMgr.class);
         nodeFinder = new PSJcrNodeFinder(cm, "ct", "sys_title");
-
     }
 
     @Test
-    public void shouldGetQuery()
-    {
-        String actual = nodeFinder.getQuery("//folderpath", "my-id");
-        String expected = "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where jcr:path like '//folderpath/%' and rx:sys_title = 'my-id'";
-        assertEquals("Jcr query: ", expected, actual);
-    }   
-    
+    void shouldGetQuery() {
+        var actual = nodeFinder.getQuery("//folderpath", "my-id");
+        var expected = "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where jcr:path like '//folderpath/%' and rx:sys_title = 'my-id'";
+        assertEquals(expected, actual, "Jcr query: ");
+    }
+
     @Test
-    public void getQuery()
-    {
-        Map<String, String> whereFields = new TreeMap<String, String>();
+    void getQuery() {
+        Map<String, String> whereFields = new TreeMap<>();
         whereFields.put("field1", "value1");
         whereFields.put("field2", "value2");
-        String actual = nodeFinder.getQuery("//folderpath", whereFields);
-        String expected = "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where jcr:path like '//folderpath/%'" +
-        		" and rx:field1 = 'value1' and rx:field2 = 'value2'";
-        assertEquals("Jcr query: ", expected, actual);
-        
+        var actual = nodeFinder.getQuery("//folderpath", whereFields);
+        var expected = "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where jcr:path like '//folderpath/%'" +
+                " and rx:field1 = 'value1' and rx:field2 = 'value2'";
+        assertEquals(expected, actual, "Jcr query: ");
+
         actual = nodeFinder.getQuery(null, whereFields);
         expected = "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where rx:field1 = 'value1'" +
                 " and rx:field2 = 'value2'";
-        assertEquals("Jcr query: ", expected, actual);
-    }   
+        assertEquals(expected, actual, "Jcr query: ");
+    }
 }
-

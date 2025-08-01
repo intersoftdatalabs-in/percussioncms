@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -37,15 +38,14 @@ import java.util.List;
  * A CM1 independent implementation of the recent service.
  * This class controls the number of entries stored, but does not
  * clean up or validate the values that are stored in the table.
- * 
- * @author stephenbolton
  *
+ * @author stephenbolton
  */
 @Transactional(propagation = Propagation.REQUIRED)
 @Component("recentServiceBase")
 @Lazy
-public class PSRecentServiceBase implements IPSRecentServiceBase
-{
+public class PSRecentServiceBase implements IPSRecentServiceBase {
+
     @Autowired
     private IPSRecentDao recentDao;
 
@@ -53,100 +53,85 @@ public class PSRecentServiceBase implements IPSRecentServiceBase
         this.recentDao = recentDao;
     }
 
-    /** (non-Javadoc)
-     * @see com.percussion.recent.service.IPSRecentServiceBase#findRecent(java.lang.String, java.lang.String, com.percussion.recent.data.PSRecent.RecentType)
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public List<String> findRecent(String user, String siteName, RecentType type)
-    {
-        List<PSRecent> returnRecents = recentDao.find(user, siteName, type);
-        
-        List<String> returnValues = new ArrayList<>();
-
-        if (returnRecents != null)
-        {
-            for (PSRecent recent : returnRecents)
-            {
+    public List<String> findRecent(String user, String siteName, RecentType type) {
+        var returnRecents = recentDao.find(user, siteName, type);
+        var returnValues = new ArrayList<String>();
+        if (returnRecents != null) {
+            for (var recent : returnRecents) {
                 returnValues.add(recent.getValue());
             }
         }
         return returnValues;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.recent.service.IPSRecentServiceBase#addRecent(java.lang.String, java.lang.String, com.percussion.recent.data.PSRecent.RecentType, java.lang.String)
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public void addRecent(String user, String siteName, RecentType type, String value)
-    {
-        List<PSRecent> existingRecents = recentDao.find(user, siteName, type);
+    public void addRecent(String user, String siteName, RecentType type, String value) {
+        var existingRecents = recentDao.find(user, siteName, type);
 
-        // If the most recent is the same as value do not have to update
-        // anything.
-        if (existingRecents.size() > 0 && existingRecents.get(0).getValue().equals(value)) {
+        // If the most recent is the same as value do not have to update anything.
+        if (!existingRecents.isEmpty() && existingRecents.get(0).getValue().equals(value)) {
             return;
         }
 
         existingRecents = deleteExtraRecents(type, existingRecents, value, true);
 
-        // Add new item with index 0;
-        PSRecent newRecent = new PSRecent(user, siteName, type, 0, value);
-        List<PSRecent> updatedRecents = new ArrayList<>();
+        // Add new item with index 0.
+        var newRecent = new PSRecent(user, siteName, type, 0, value);
+        var updatedRecents = new ArrayList<PSRecent>();
         updatedRecents.add(newRecent);
 
-        // update index of existing values
-        for (int i = 0; i < existingRecents.size(); i++)
-        {
-            PSRecent existing = existingRecents.get(i);
+        // Update index of existing values.
+        for (int i = 0; i < existingRecents.size(); i++) {
+            var existing = existingRecents.get(i);
             existing.setOrder(i + 1);
             updatedRecents.add(existing);
         }
         recentDao.saveAll(updatedRecents);
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.recent.service.IPSRecentServiceBase#deleteRecent(java.lang.String, java.lang.String, com.percussion.recent.data.PSRecent.RecentType)
+    /**
+     * {@inheritDoc}
      */
     @Override
-    public void deleteRecent(String user, String siteName, RecentType type)
-    {
-        List<PSRecent> existingRecents = recentDao.find(user, siteName, type);
-
+    public void deleteRecent(String user, String siteName, RecentType type) {
+        var existingRecents = recentDao.find(user, siteName, type);
         if (CollectionUtils.isNotEmpty(existingRecents)) {
             recentDao.deleteAll(existingRecents);
         }
     }
 
     /**
-     * This method will remove any extra items found in the list of recent items returned so we maintain 
-     * the correct number.  It will clean up if we change the maximum values for the recent type.
-     * 
-     * @param type the type we are working with, to get maximum size
-     * @param recents List of recents
+     * Removes extra items from the list of recent items to maintain the correct number.
+     * Cleans up if the maximum values for the recent type change.
+     *
+     * @param type the type to get maximum size
+     * @param recents list of recents
      * @param value current value to check if it is already in list
-     * @param forAdd Are we adding an item to the list, therefore we need one less item.
+     * @param forAdd true if adding an item to the list, so need one less item
      * @return cleaned up list of recent items
      */
-    private List<PSRecent> deleteExtraRecents(RecentType type, List<PSRecent> recents, String value, boolean forAdd)
-    {
-        int numOfElementsToKeep = forAdd ? type.MaxSize() - 1 : type.MaxSize();
-        List<PSRecent> toDelete = new ArrayList<>();
-        // remove other entries of
-        Iterator<PSRecent> it = recents.iterator();
-        if (value != null)
-        {
-            while (it.hasNext())
-            {
-                PSRecent del = it.next();
-                if (del.getValue().equals(value))
-                {
+    private List<PSRecent> deleteExtraRecents(RecentType type, List<PSRecent> recents, String value, boolean forAdd) {
+        int numOfElementsToKeep = forAdd ? type.maxSize() - 1 : type.maxSize();
+        var toDelete = new ArrayList<PSRecent>();
+        // Remove other entries of value
+        var it = recents.iterator();
+        if (value != null) {
+            while (it.hasNext()) {
+                var del = it.next();
+                if (del.getValue().equals(value)) {
                     toDelete.add(del);
                     it.remove();
                 }
             }
         }
-        if (recents.size() > numOfElementsToKeep)
-        {
+        if (recents.size() > numOfElementsToKeep) {
             toDelete.addAll(recents.subList(numOfElementsToKeep, recents.size()));
             recents = recents.subList(0, numOfElementsToKeep);
         }
@@ -156,13 +141,14 @@ public class PSRecentServiceBase implements IPSRecentServiceBase
         return recents;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete)
-    {
-        List<PSRecent> existingRecents = recentDao.find(user, siteName, type);
-        Iterator<PSRecent> iterator = existingRecents.iterator();
-        while (iterator.hasNext())
-        {
+    public void deleteRecent(String user, String siteName, RecentType type, List<String> toDelete) {
+        var existingRecents = recentDao.find(user, siteName, type);
+        var iterator = existingRecents.iterator();
+        while (iterator.hasNext()) {
             if (!toDelete.contains(iterator.next().getValue())) {
                 iterator.remove();
             }
@@ -170,10 +156,13 @@ public class PSRecentServiceBase implements IPSRecentServiceBase
         recentDao.deleteAll(existingRecents);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void renameSiteRecent(String oldSiteName, String newSiteName) {
-        List<PSRecent> siteRecents = recentDao.find(null, oldSiteName, null);
-        for (PSRecent recent : siteRecents) {
+        var siteRecents = recentDao.find(null, oldSiteName, null);
+        for (var recent : siteRecents) {
             if (recent.getSiteName().equals(oldSiteName)) {
                 recent.setSiteName(newSiteName);
                 if (recent.getValue().contains(oldSiteName)) {

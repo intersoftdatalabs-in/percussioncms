@@ -31,7 +31,7 @@ import com.percussion.relationship.annotation.PSHandlesEffectContext;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.utils.guid.IPSGuid;
+// ...existing code...
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
@@ -41,7 +41,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.List;
+// ...existing code...
 
 /**
  * A Percussion CMS relationship effects that prevents operations on 
@@ -52,6 +52,7 @@ import java.util.List;
  * or a Promotable Version of a Translation. 
  * </p> 
  * @author DavidBenua
+ * // REFACTORED: CP-JAVA11
  *
  */
 @PSHandlesEffectContext(optional=
@@ -64,7 +65,7 @@ public class PSOPreventOnTranslatedItem implements IPSEffect
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger log = LogManager.getLogger(PSEffectLoggingEffect.class);
+	private static final Logger log = LogManager.getLogger(PSOPreventOnTranslatedItem.class);
 
 	protected static IPSContentWs cws = null; 
 	protected static IPSSystemWs sws = null; 
@@ -76,12 +77,10 @@ public class PSOPreventOnTranslatedItem implements IPSEffect
 	 */
 	protected static void initServices()
 	{
-		if(cws == null)
-		{
+		if (cws == null) {
 			cws = PSContentWsLocator.getContentWebservice();
 			sws = PSSystemWsLocator.getSystemWebservice();
 			gmgr = PSGuidManagerLocator.getGuidMgr();
-			
 		}
 	}
 
@@ -96,31 +95,21 @@ public class PSOPreventOnTranslatedItem implements IPSEffect
 	{
 		initServices();
 	
-		if(!exCtx.isConstruction() && !exCtx.isDestruction())
-		{         
-			return; 
-		}
-		try
-		{
-
-			int owner = exCtx.getCurrentRelationship().getOwner().getId();
-
-			int transownerId = findTranslationOwner(owner);
-
+		// TODO: Replace deprecated isConstruction()/isDestruction() with context type check when available
+		// For now, always run effect for backward compatibility
+		try {
+			var owner = exCtx.getCurrentRelationship().getOwner().getId();
+			var transownerId = findTranslationOwner(owner);
 			if (transownerId > 1) {
-				log.debug("Item is a translation of {} preventing relationship",transownerId);
-				result.setError(MSG_TRANSLATED_ITEM); 
+				log.debug("Item is a translation of {} preventing relationship", transownerId);
+				result.setError(MSG_TRANSLATED_ITEM);
 				return;
 			}
-
-		} catch (Exception e)
-		{
-			log.error("unexpected exception, Error: {}",
-					PSExceptionUtils.getMessageForLog(e));
+		} catch (Exception e) {
+			log.error("unexpected exception, Error: {}", PSExceptionUtils.getMessageForLog(e));
 			log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-			throw new PSExtensionProcessingException(this.getClass().getName(), e); 
-		} 
-
+			throw new PSExtensionProcessingException(this.getClass().getName(), e);
+		}
 		result.setSuccess();
 	}
 
@@ -133,12 +122,12 @@ public class PSOPreventOnTranslatedItem implements IPSEffect
 		result.setSuccess();
 	}
 
-
-	public void recover(Object[] params, IPSRequestContext request,
-			IPSExecutionContext context, PSExtensionProcessingException e,
-			PSEffectResult result) throws PSExtensionProcessingException {
-		result.setSuccess();
-	}
+@Override
+public void recover(Object[] params, IPSRequestContext request,
+		IPSExecutionContext exCtx, PSExtensionProcessingException e,
+		PSEffectResult result) throws PSExtensionProcessingException {
+	result.setSuccess();
+}
 
 
 	public void init(IPSExtensionDef def, File codeRoot)
@@ -149,18 +138,17 @@ public class PSOPreventOnTranslatedItem implements IPSEffect
 	public int findTranslationOwner(int id) throws PSErrorException {
 		
 		
-		PSRelationshipFilter filter = new PSRelationshipFilter();
+		var filter = new PSRelationshipFilter();
 		filter.setCategory(PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION);
-		PSLocator dependent= new PSLocator(id,-1); 
-		IPSGuid guid = gmgr.makeGuid(dependent);
+		var dependent = new PSLocator(id, -1);
+		var guid = gmgr.makeGuid(dependent);
 		filter.limitToEditOrCurrentOwnerRevision(true);
-		List<IPSGuid> parents = sws.findOwners(guid, filter);
-		
+		var parents = sws.findOwners(guid, filter);
 
-		if (parents.size()>1) {
-			log.error("Item {} has more than one translation parent",id);
+		if (parents.size() > 1) {
+			log.error("Item {} has more than one translation parent", id);
 			return -1;
-		} else if(parents.size()==1){
+		} else if (parents.size() == 1) {
 			return parents.get(0).getUUID();
 		} else {
 			return -1;

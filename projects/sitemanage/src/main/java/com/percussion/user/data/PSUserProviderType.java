@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,20 +18,13 @@
 package com.percussion.user.data;
 
 /**
- * 
- * Indicates where the user name came from
- * and where the authentication is done.
- * 
+ * Indicates where the user name came from and where the authentication is done.
  * @author adamgent
  * @see PSUser
  */
 public enum PSUserProviderType {
-    /**
-     * A user created from with in the system (back-end table).
-     */
+    /** A user created from within the system (back-end table). */
     INTERNAL,
-    /**
-     * A user from a directory service such as LDAP or Active Directory.
-     */
+    /** A user from a directory service such as LDAP or Active Directory. */
     DIRECTORY
 }

@@ -67,7 +67,7 @@ public class PSAddThumbnailURL implements
     * java.lang.Object[],
     *      java.util.List, com.percussion.server.IPSRequestContext)
     */
-   public List processRows(Object[] params, List rows, IPSRequestContext request)
+   public List<Object> processRows(Object[] params, List<Object> rows, IPSRequestContext request)
       throws PSExtensionProcessingException
    {
       // Set the name of the thumbnail column to use
@@ -78,7 +78,7 @@ public class PSAddThumbnailURL implements
       else
          m_thumbnail = THUMBNAIL;
 
-      Iterator it = rows.iterator();
+      Iterator<Object> it = rows.iterator();
       String contentTypeId = null;
       String contentId = null;
       String variant = null;
@@ -127,7 +127,7 @@ public class PSAddThumbnailURL implements
    {
       if(!m_variantUrls.containsKey(contenttype))
          loadVariantsByContentType(contenttype);
-      Map variantUrls = (Map)m_variantUrls.get(contenttype);
+      Map<String, String> variantUrls = m_variantUrls.get(contenttype);
       return variantUrls == null ? null : (String)variantUrls.get(variant);
    }
 
@@ -188,7 +188,7 @@ public class PSAddThumbnailURL implements
       {
          Document doc = iReq.getResultDoc();
          NodeList items = doc.getElementsByTagName("item");
-         Map variantMap = new HashMap();
+         Map<String, String> variantMap = new HashMap<String, String>();
          int len = items.getLength();
          for(int i = 0; i < len; i++)
          {
@@ -259,7 +259,7 @@ public class PSAddThumbnailURL implements
       String revision)
    {
       StringBuilder sb = new StringBuilder();
-      Map paramMap = new HashMap();
+      Map<String, Object> paramMap = new HashMap<String, Object>();
       paramMap.put(CONTENT_ID, contentid);
       paramMap.put(CONTENT_TYPE_ID, contenttype);
       paramMap.put(VARIANT, variant);
@@ -270,7 +270,7 @@ public class PSAddThumbnailURL implements
       sb.append(assemblyUrl);
       sb.append("?");
 
-      Iterator it = paramMap.keySet().iterator();
+      Iterator<String> it = paramMap.keySet().iterator();
       boolean needsAmp = false;
       while(it.hasNext())
       {
@@ -292,7 +292,7 @@ public class PSAddThumbnailURL implements
     * The cache of variant urls, loaded by
     * {@link #loadVariantsByContentType(String)}, never <code>null</code>.
     */
-   private Map m_variantUrls = new HashMap();
+   private Map<String, Map<String, String>> m_variantUrls = new HashMap<String, Map<String, String>>();
 
    /**
     * The current request context as set by

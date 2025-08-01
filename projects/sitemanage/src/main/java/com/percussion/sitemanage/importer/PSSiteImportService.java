@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -46,232 +47,160 @@ import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.get
 @Component("siteImportService")
 @Lazy
 @Transactional
-public class PSSiteImportService implements IPSSiteImportService
-{
-    private static final Logger log = LogManager.getLogger(PSSiteImportService.class);
-    
-    private List<PSImportHelper> mandatoryHelpers;
+public class PSSiteImportService implements IPSSiteImportService {
 
+    private static final Logger log = LogManager.getLogger(PSSiteImportService.class);
+
+    private List<PSImportHelper> mandatoryHelpers;
     private List<PSImportHelper> optionalHelpers;
-    
     private List<PSImportHelper> executedHelpers;
-    
     private IPSImportLogDao logDao;
-    
     private IPSPageDao pageDao;
-    
     private IPSPageCatalogService pageCatalogService;
-    
     private IPSSiteImportSummaryService siteImportSummaryService;
-    
+
     @Override
-    public PSSiteImportCtx importSiteFromUrl(PSSite site, String userAgent) throws PSSiteImportException
-    {
-        PSSiteImportCtx siteImportCtx = new PSSiteImportCtx();
-        
-        try
-        {
+    public PSSiteImportCtx importSiteFromUrl(PSSite site, String userAgent) throws PSSiteImportException {
+        var siteImportCtx = new PSSiteImportCtx();
+        try {
             siteImportCtx.setSite(site);
             siteImportCtx.setLogger(new PSSiteImportLogger(PSLogObjectType.TEMPLATE));
             siteImportCtx.setSiteUrl(PSSiteImporter.getRedirectedUrl(site.getBaseUrl(), siteImportCtx.getLogger(), userAgent));
             siteImportCtx.setUserAgent(userAgent);
             siteImportCtx.setSummaryService(siteImportSummaryService);
-            
-            // Import page content from URL
-            PSPageContent importedPageContent = PSSiteImporter.getPageContentFromSite(siteImportCtx);
 
-            // List to keep the executed helpers in case and rollback is needed.
+            var importedPageContent = PSSiteImporter.getPageContentFromSite(siteImportCtx);
+
             executedHelpers = new ArrayList<>();
-            
-            // Run Helpers.
             runHelpers(siteImportCtx, importedPageContent);
-            
+
             return siteImportCtx;
-        }
-        catch (IOException | PSDataServiceException e)
-        {
+        } catch (IOException | PSDataServiceException e) {
             throw new PSSiteImportException("The URL is invalid or unreachable.", e);
-        }
-        finally
-        {
-            // if a site has been saved, use the IPSImportLogDao to persist the log w/template id
-            PSSiteImportLogger logger = (PSSiteImportLogger) siteImportCtx.getLogger();
-            String templateId = siteImportCtx.getTemplateId();
-            if (logger != null && templateId != null)
-            {
-                saveImportLog(templateId, logger, siteImportCtx.getSite().getSiteId().toString(), siteImportCtx.getSite().getFolderPath() + "/" + siteImportCtx.getPageName());
+        } finally {
+            var logger = (PSSiteImportLogger) siteImportCtx.getLogger();
+            var templateId = siteImportCtx.getTemplateId();
+            if (logger != null && templateId != null) {
+                saveImportLog(templateId, logger, siteImportCtx.getSite().getSiteId().toString(),
+                        siteImportCtx.getSite().getFolderPath() + "/" + siteImportCtx.getPageName());
             }
         }
     }
 
     @Override
     public PSSiteImportCtx importCatalogedPage(PSSite site, String pageId, String userAgent, PSSiteImportCtx context)
-            throws PSSiteImportException
-    {   
+            throws PSSiteImportException {
         context.setSite(site);
         context.setCatalogedPageId(pageId);
         context.setUserAgent(userAgent);
-        IPSSiteImportLogger logger = new PSSiteImportLogger(PSLogObjectType.PAGE);
+        var logger = new PSSiteImportLogger(PSLogObjectType.PAGE);
         logger.logErrors();
         logger.setWaitCount(1);
         context.setLogger(logger);
-        IPSSiteImportSummaryService summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
+        var summaryService = (IPSSiteImportSummaryService) getWebApplicationContext().getBean("siteImportSummaryService");
         context.setSummaryService(summaryService);
         String pagePath = null;
-        
-        try
-        {
-            PSPage page = pageDao.find(context.getCatalogedPageId());
+
+        try {
+            var page = pageDao.find(context.getCatalogedPageId());
             if (page == null)
                 throw new PSSiteImportException("Failed to import page id:" + pageId + ". It does not exist.");
-            
-            if (pageCatalogService.doesImportedPageExist(page))
-            {
+
+            if (pageCatalogService.doesImportedPageExist(page)) {
                 throw new PSSiteImportException("Skip import page (id=" + pageId + ", name=" + page.getName() + ", folder=" + page.getFolderPath() + "). The page already exists under the site.");
             }
-            
-            pagePath = pageCatalogService.convertToImportedFolderPath(page.getFolderPath() + "/" + page.getName());            
+
+            pagePath = pageCatalogService.convertToImportedFolderPath(page.getFolderPath() + "/" + page.getName());
             context.getLogger().appendLogMessage(PSLogEntryType.STATUS, "Import Page", "Starting import for page: " + pagePath);
-            
+
             context.setSiteUrl(PSSiteImporter.getRedirectedUrl(page.getDescription(), context.getLogger(), context.getUserAgent()));
             context.setTemplateId(page.getTemplateId());
-            
-            // Import page content from URL
-            PSPageContent importedPageContent = PSSiteImporter.getPageContentFromSite(context);
-            
-            // List to keep the executed helpers in case and rollback is needed.
+
+            var importedPageContent = PSSiteImporter.getPageContentFromSite(context);
+
             executedHelpers = new ArrayList<>();
-            
-            // Run Helpers.
             runHelpers(context, importedPageContent);
 
             return context;
-        }
-        catch (PSDataServiceException e)
-        {
+        } catch (PSDataServiceException e) {
             throw new PSSiteImportException("The page doesn't exist in the system.");
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             throw new PSSiteImportException("The URL is invalid or unreachable.", e);
-        }
-        finally
-        {
-            // if a site has been saved, use the IPSImportLogDao to persist the log w/page id
-            if (logger != null && pageId != null)
-            {
+        } finally {
+            if (logger != null && pageId != null) {
                 saveImportLog(pageId, logger, context.getSite().getSiteId().toString(), pagePath);
             }
         }
     }
 
-    /**
-     * @return the mandatoryHelpers
-     */
-    public List<PSImportHelper> getMandatoryHelpers()
-    {
+    public List<PSImportHelper> getMandatoryHelpers() {
         return mandatoryHelpers;
     }
 
-    /**
-     * @param mandatoryHelpers the mandatoryHelpers to set
-     */
-    public void setMandatoryHelpers(List<PSImportHelper> mandatoryHelpers)
-    {
+    public void setMandatoryHelpers(List<PSImportHelper> mandatoryHelpers) {
         this.mandatoryHelpers = mandatoryHelpers;
     }
 
-    /**
-     * @return the optionalHelpers
-     */
-    public List<PSImportHelper> getOptionalHelpers()
-    {
+    public List<PSImportHelper> getOptionalHelpers() {
         return optionalHelpers;
     }
 
-    /**
-     * @param optionalHelpers the optionalHelpers to set
-     */
-    public void setOptionalHelpers(List<PSImportHelper> optionalHelpers)
-    {
+    public void setOptionalHelpers(List<PSImportHelper> optionalHelpers) {
         this.optionalHelpers = optionalHelpers;
     }
-    
-    public void setPageDao(IPSPageDao pageDao)
-    {
+
+    public void setPageDao(IPSPageDao pageDao) {
         this.pageDao = pageDao;
     }
 
-    public void setLogDao(IPSImportLogDao logDao)
-    {
+    public void setLogDao(IPSImportLogDao logDao) {
         this.logDao = logDao;
     }
-    
-    public void setPageCatalogService(IPSPageCatalogService pageCatalogService) 
-    {
+
+    public void setPageCatalogService(IPSPageCatalogService pageCatalogService) {
         this.pageCatalogService = pageCatalogService;
     }
 
     /**
-     * 
-     * @param siteImportCtx
-     * @param importedPageContent
+     * Runs all helpers, rolling back if any mandatory helper fails.
      */
-    private void runHelpers(PSSiteImportCtx siteImportCtx, PSPageContent importedPageContent) throws PSDataServiceException, PSSiteImportException {
-        // Run helpers
-        for (PSImportHelper mandatoryHelper : mandatoryHelpers)
-        {
-            try
-            {
+    private void runHelpers(PSSiteImportCtx siteImportCtx, PSPageContent importedPageContent)
+            throws PSDataServiceException, PSSiteImportException {
+        for (var mandatoryHelper : mandatoryHelpers) {
+            try {
                 executedHelpers.add(mandatoryHelper);
                 mandatoryHelper.process(importedPageContent, siteImportCtx);
-            }
-            catch (PSSiteImportException | PSTemplateImportException | IPSPageService.PSPageException e)
-            {
-                for (int i = executedHelpers.size() - 1; i < 0; i--)
-                {
+            } catch (PSSiteImportException | PSTemplateImportException | IPSPageService.PSPageException e) {
+                // Rollback in reverse order for executed helpers
+                for (int i = executedHelpers.size() - 1; i >= 0; i--) {
                     executedHelpers.get(i).rollback(importedPageContent, siteImportCtx);
                 }
-
                 throw new PSSiteImportException(
                         "An unexpected error occurred while processing the imported page. Please check the import log for more information.", e);
             }
         }
-
-        for (PSImportHelper optionalHelper : optionalHelpers)
-        {
+        for (var optionalHelper : optionalHelpers) {
             optionalHelper.process(importedPageContent, siteImportCtx);
         }
     }
 
     /**
-     * Saves the log in another thread, waits for any other threads to complete work before 
-     * 
-     * @param objectId The object id to use
-     * @param logger the logger to use, assumed not <code>null</code>.
-     * @param desc The description of the object being imported, assumed not <code>null<code/> or empty.
+     * Saves the log in another thread, waits for any other threads to complete work before saving.
      */
-    private void saveImportLog(String objectId, IPSSiteImportLogger logger, String siteId, String desc)
-    {
-        try
-        {
-            PSDeferredLogWriter writer = new PSDeferredLogWriter(siteId, desc, logger, objectId, logDao);
+    private void saveImportLog(String objectId, IPSSiteImportLogger logger, String siteId, String desc) {
+        try {
+            var writer = new PSDeferredLogWriter(siteId, desc, logger, objectId, logDao);
             writer.saveWhenReady();
+        } catch (Exception e) {
+            log.error("Failed to save import log for ID {} and type {}: {}", objectId, logger.getType().name(), e.getLocalizedMessage(), e);
         }
-        catch (Exception e)
-        {
-            log.error("Failed to save import log for ID " + objectId + " and type " + logger.getType().name() + ": " + e.getLocalizedMessage(), e);
-        }        
     }
 
-    public IPSSiteImportSummaryService getSiteImportSummaryService()
-    {
+    public IPSSiteImportSummaryService getSiteImportSummaryService() {
         return siteImportSummaryService;
     }
 
-    public void setSiteImportSummaryService(IPSSiteImportSummaryService siteImportSummaryService)
-    {
+    public void setSiteImportSummaryService(IPSSiteImportSummaryService siteImportSummaryService) {
         this.siteImportSummaryService = siteImportSummaryService;
     }
-
 }

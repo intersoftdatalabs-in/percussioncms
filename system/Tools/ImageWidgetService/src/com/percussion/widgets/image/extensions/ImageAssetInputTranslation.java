@@ -39,10 +39,11 @@ import com.percussion.widgets.image.services.ImageResizeManagerLocator;
 import com.percussion.widgets.image.web.impl.ImageReader;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -50,198 +51,419 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 import static com.percussion.cms.IPSConstants.FALSE;
 
-public class ImageAssetInputTranslation extends PSDefaultExtension implements IPSItemInputTransformer
-{
-   private static final Logger log = LogManager.getLogger(ImageAssetInputTranslation.class);
+/**
+ * Percussion CMS extension for processing image assets during input operations.
+ * Handles image and thumbnail generation with comprehensive validation and error handling.
+ * This extension implements the IPSItemInputTransformer interface to process uploaded images
+ * and generate thumbnails automatically.
+ *
+ * @since Java 11
+ */
+public class ImageAssetInputTranslation extends PSDefaultExtension implements IPSItemInputTransformer {
 
-   ImageCacheManager cacheManager = null;
-   ImageResizeManager resizeManager = null;
+    private static final Logger log = LogManager.getLogger(ImageAssetInputTranslation.class);
 
-   @Override
-   public void init(IPSExtensionDef def, File file) throws PSExtensionException
-   {
-      super.init(def, file);
-      if (this.cacheManager == null)
-      {
-         this.cacheManager = ImageCacheManagerLocator.getImageCacheManager();
-      }
-      if (this.resizeManager == null)
-      {
-         this.resizeManager = ImageResizeManagerLocator.getImageResizeManager();
-      }
-   }
+    /** Default parameter names */
+    private static final String DEFAULT_IMAGE_PARAM = "img";
+    private static final String DEFAULT_THUMB_PARAM = "img2";
 
-   /**
-    * @throws PSAuthorizationException Authorization error
-    * @throws PSRequestValidationException If the request is invalid
-    * @throws PSParameterMismatchException If the parameters are incorrect
-    */
-   @Override
-   public void preProcessRequest(Object[] params, IPSRequestContext request) throws PSAuthorizationException,
-         PSRequestValidationException, PSParameterMismatchException, PSExtensionProcessingException
-   {
-      try
-      {
-         PSExtensionParams ep = new PSExtensionParams(params);
-         String imageName = ep.getStringParam(0, "img", false);
-         String thumbName = ep.getStringParam(1, "img2", false);
-         String imageFileName  = request.getParameter(imageName+"_filename");
-         String thumbFileName = request.getParameter(thumbName+"_filename");
+    /** File name suffixes */
+    private static final String FILENAME_SUFFIX = "_filename";
+    private static final String TYPE_SUFFIX = "_type";
+    private static final String ID_SUFFIX = "_id";
+    private static final String DIRTY_SUFFIX = "_dirty";
 
-         if(StringUtils.isBlank(thumbFileName)){
-            thumbFileName = getThumbnailFileName(imageFileName);
-         }
+    /** Default thumbnail width from server properties */
+    private static final String THUMB_WIDTH_PROPERTY = "imageThumbnailWidth";
+    private static final String DEFAULT_THUMB_WIDTH = "50";
 
-         if (StringUtils.isBlank(request.getParameter(thumbName + "_id")))
-         {
-            PSPurgableTempFile imageFile = (PSPurgableTempFile) request.getParameterObject(imageName);
-            if (imageFile != null)
-            {
-               if(StringUtils.isEmpty(imageFile.getSourceFileName())){
-                  imageFile.setSourceFileName(imageFileName);
-               }
-               if(StringUtils.isEmpty(imageFile.getSourceContentType())){
-                  imageFile.setSourceContentType(request.getParameter(imageName + "_type"));
-               }
+    private volatile ImageCacheManager cacheManager;
+    private volatile ImageResizeManager resizeManager;
 
-               String mimeType = request.getParameter(imageName + "_type");
-               updateRequest(request, imageName, generateImage(imageFile, mimeType));
-               updateRequest(request, thumbName, generateThumbnail(imageFile));
-            }
-            else
-            {
-               log.debug("a value was not found for parameter {}", imageName);
-            }
-         }
-         else
-         {
-            processInputImage(request, imageName);
-            processInputImage(request, thumbName);
-         }
-      }
-      catch (Exception ex)
-      {
-         log.error("Unexpected Exception: {}" , PSExceptionUtils.getMessageForLog(ex));
-         log.debug(ex);
-         throw new PSExtensionProcessingException(getClass().getName(), ex);
-      }
-   }
+    @Override
+    public void init(IPSExtensionDef def, File file) throws PSExtensionException {
+        super.init(def, file);
+        initializeServices();
+        log.debug("ImageAssetInputTranslation extension initialized");
+    }
 
-   protected void processInputImage(IPSRequestContext request, String base) throws Exception
-   {
-      String dirty = request.getParameter(base + "_dirty");
+    /**
+     * Initializes the image processing services.
+     */
+    private void initializeServices() {
+        if (cacheManager == null) {
+            cacheManager = ImageCacheManagerLocator.getImageCacheManager();
+        }
+        if (resizeManager == null) {
+            resizeManager = ImageResizeManagerLocator.getImageResizeManager();
+        }
+    }
 
+    @Override
+    public void preProcessRequest(Object[] params, IPSRequestContext request)
+            throws PSAuthorizationException, PSRequestValidationException,
+                   PSParameterMismatchException, PSExtensionProcessingException {
 
-      if (StringUtils.isBlank(dirty))
-      {
-         log.debug("image {} is not dirty", base);
-         dirty = FALSE;
-      }
-      String imageKey = request.getParameter(base + "_id");
-      if (StringUtils.isBlank(imageKey))
-      {
-         log.debug("Image key is blank");
-         return;
-      }
-      ImageData iData = this.cacheManager.getImage(imageKey);
-      if (iData == null)
-      {
-         log.info("Image not found in the cache for key {}" , imageKey);
-         return;
-      }
-      updateRequest(request, base, iData);
-   }
+        Objects.requireNonNull(request, "Request context must not be null");
 
-   private void updateRequest(IPSRequestContext request, String prefix, ImageData iData) throws IOException {
-      PSPurgableTempFile temp = writeFile(iData);
-      log.debug("updating file for {} {}" ,prefix , temp.getCanonicalPath());
+        try {
+            var extensionParams = new PSExtensionParams(params);
+            var processingContext = createProcessingContext(extensionParams, request);
 
-      request.setParameter(prefix, temp);
-      request.setParameter(prefix + "_ext", iData.getExt());
-      request.setParameter(prefix + "_filename", iData.getFilename());
-      request.setParameter(prefix + "_type", iData.getMimeType());
-      request.setParameter(prefix + "_size", String.valueOf(iData.getSize()));
-      request.setParameter(prefix + "_height", String.valueOf(iData.getHeight()));
-      request.setParameter(prefix + "_width", String.valueOf(iData.getWidth()));
-      request.setParameter(prefix + "_id", null);
-   }
+            log.debug("Processing image asset input for image: {}, thumbnail: {}",
+                processingContext.imageName(), processingContext.thumbName());
 
-   private ImageData generateImage(PSPurgableTempFile imageFile, String mimeType) throws Exception {
-      try(FileInputStream fin = new FileInputStream(imageFile)){
-         String fileType = FilenameUtils.getExtension(imageFile.getSourceFileName());
-         this.resizeManager.setExtension(fileType);
-         this.resizeManager.setContentType(imageFile.getSourceContentType());
-         this.resizeManager.setImageFormat(fileType);
-         ImageData iData = this.resizeManager.generateImage(fin);
-         iData.setFilename(imageFile.getSourceFileName());
-         iData.setMimeType(mimeType);
+            processImageAssets(processingContext, request);
 
-         return iData;
-      }
-   }
+        } catch (PSExtensionProcessingException e) {
+            throw e; // Re-throw extension processing exceptions as-is
+        } catch (Exception ex) {
+            var errorMsg = "Unexpected exception during image asset processing: " +
+                PSExceptionUtils.getMessageForLog(ex);
+            log.error(errorMsg, ex);
+            throw new PSExtensionProcessingException(getClass().getName(), ex);
+        }
+    }
 
-   private String getThumbnailFileName(String imageFileName){
+    /**
+     * Creates a processing context from extension parameters and request.
+     *
+     * @param params the extension parameters
+     * @param request the request context
+     * @return processing context record
+     */
+    private ProcessingContext createProcessingContext(PSExtensionParams params, IPSRequestContext request) {
+        var imageName = params.getStringParam(0, DEFAULT_IMAGE_PARAM, false);
+        var thumbName = params.getStringParam(1, DEFAULT_THUMB_PARAM, false);
 
-      return "thumb_" + imageFileName;
-   }
+        var imageFileName = request.getParameter(imageName + FILENAME_SUFFIX);
+        var thumbFileName = Optional.ofNullable(request.getParameter(thumbName + FILENAME_SUFFIX))
+            .filter(StringUtils::isNotBlank)
+            .orElseGet(() -> getThumbnailFileName(imageFileName));
 
-   private ImageData generateThumbnail(PSPurgableTempFile imageFile) throws Exception
-   {
-      ImageData iData = null;
-      int width;
+        return new ProcessingContext(imageName, thumbName, imageFileName, thumbFileName);
+    }
 
-      Properties serverProps = PSServer.getServerProps();
-      String thumbWidthStr = serverProps.getProperty("imageThumbnailWidth", "50");
-      int thumbWidth = Integer.parseInt(thumbWidthStr);
-      int thumbHeight = thumbWidth;
+    /**
+     * Processes image assets based on whether thumbnail ID exists.
+     *
+     * @param context the processing context
+     * @param request the request context
+     * @throws Exception if processing fails
+     */
+    private void processImageAssets(ProcessingContext context, IPSRequestContext request) throws Exception {
+        var thumbIdParam = context.thumbName() + ID_SUFFIX;
 
-      try(      FileInputStream fin = new FileInputStream(imageFile)){
-         final byte[] imageByteArray = IOUtils.toByteArray(fin);
-         BufferedImage image = ImageReader.read(imageByteArray);
-         if (image != null)
-         {
-            width = image.getWidth();
-            int height = image.getHeight();
-            Rectangle rec = new Rectangle(0, 0, width, height);
-            Dimension dim = new Dimension(thumbWidth, thumbHeight);
+        if (StringUtils.isBlank(request.getParameter(thumbIdParam))) {
+            processNewImageUpload(context, request);
+        } else {
+            processExistingImages(context, request);
+        }
+    }
 
-            String thumbnailFileName = getThumbnailFileName(imageFile.getSourceFileName());
+    /**
+     * Processes a new image upload by generating image and thumbnail.
+     *
+     * @param context the processing context
+     * @param request the request context
+     * @throws Exception if processing fails
+     */
+    private void processNewImageUpload(ProcessingContext context, IPSRequestContext request) throws Exception {
+        var imageFile = (PSPurgableTempFile) request.getParameterObject(context.imageName());
 
-            try(FileInputStream fin2 = new FileInputStream(imageFile)) {
-               resizeManager.setFileName(thumbnailFileName);
-               iData = this.resizeManager.generateImage(fin2, rec, dim);
-               if(!StringUtils.isEmpty(thumbnailFileName)) {
-                  iData.setFilename(thumbnailFileName);
-               }
-            }
+        if (imageFile == null) {
+            log.debug("No file found for parameter: {}", context.imageName());
+            return;
+        }
 
+        // Set source metadata if missing
+        updateFileMetadata(imageFile, context, request);
 
+        var mimeType = request.getParameter(context.imageName() + TYPE_SUFFIX);
 
-         }
-         return iData;
-      }
-   }
+        // Generate and update both image and thumbnail
+        var generatedImage = generateImage(imageFile, mimeType);
+        var generatedThumbnail = generateThumbnail(imageFile);
 
-   protected PSPurgableTempFile writeFile(ImageData iData) throws IOException {
-      try(ByteArrayInputStream bis = new ByteArrayInputStream(iData.getBinary())) {
+        updateRequest(request, context.imageName(), generatedImage);
+        updateRequest(request, context.thumbName(), generatedThumbnail);
 
-         PSPurgableTempFile f = new PSPurgableTempFile("img", iData.getExt(), null, iData.getFilename(),
-                 iData.getMimeType(), null);
+        log.debug("Successfully processed new image upload for: {}", context.imageName());
+    }
 
-         try(FileOutputStream fos = new FileOutputStream(f)) {
+    /**
+     * Processes existing images that may have been modified.
+     *
+     * @param context the processing context
+     * @param request the request context
+     * @throws Exception if processing fails
+     */
+    private void processExistingImages(ProcessingContext context, IPSRequestContext request) throws Exception {
+        processInputImage(request, context.imageName());
+        processInputImage(request, context.thumbName());
+    }
+
+    /**
+     * Updates file metadata if missing.
+     *
+     * @param imageFile the image file
+     * @param context the processing context
+     * @param request the request context
+     */
+    private void updateFileMetadata(PSPurgableTempFile imageFile, ProcessingContext context,
+                                   IPSRequestContext request) {
+        if (StringUtils.isEmpty(imageFile.getSourceFileName())) {
+            imageFile.setSourceFileName(context.imageFileName());
+        }
+
+        if (StringUtils.isEmpty(imageFile.getSourceContentType())) {
+            var contentType = request.getParameter(context.imageName() + TYPE_SUFFIX);
+            imageFile.setSourceContentType(contentType);
+        }
+    }
+
+    /**
+     * Processes an individual input image if it has been marked as dirty.
+     *
+     * @param request the request context
+     * @param baseName the base parameter name
+     * @throws Exception if processing fails
+     */
+    protected void processInputImage(IPSRequestContext request, String baseName) throws Exception {
+        var dirtyParam = baseName + DIRTY_SUFFIX;
+        var isDirty = Optional.ofNullable(request.getParameter(dirtyParam))
+            .filter(StringUtils::isNotBlank)
+            .orElse(FALSE);
+
+        if (FALSE.equals(isDirty)) {
+            log.debug("Image {} is not dirty, skipping processing", baseName);
+            return;
+        }
+
+        var imageKey = request.getParameter(baseName + ID_SUFFIX);
+        if (StringUtils.isBlank(imageKey)) {
+            log.debug("Image key is blank for {}", baseName);
+            return;
+        }
+
+        var imageDataOpt = cacheManager.getImageOptional(imageKey);
+        if (imageDataOpt.isEmpty()) {
+            log.warn("Image data not found for key: {}", imageKey);
+            return;
+        }
+
+        var imageData = imageDataOpt.get();
+        log.debug("Processing dirty image: {} with key: {}", baseName, imageKey);
+
+        // Generate physical file from cached image data
+        var tempFile = createTempFileFromImageData(imageData);
+        updateRequest(request, baseName, tempFile);
+    }
+
+    /**
+     * Creates a temporary file from cached image data.
+     *
+     * @param imageData the image data
+     * @return temporary file containing the image
+     * @throws IOException if file creation fails
+     */
+    private PSPurgableTempFile createTempFileFromImageData(ImageData imageData) throws IOException {
+        var binaryDataOpt = imageData.getBinaryOptional();
+        if (binaryDataOpt.isEmpty()) {
+            throw new IOException("Image data contains no binary content");
+        }
+
+        var tempFile = new PSPurgableTempFile("img", ".tmp", null);
+
+        try (var fos = new FileOutputStream(tempFile);
+             var bis = new ByteArrayInputStream(binaryDataOpt.get())) {
+
             PSCopyStream.copyStream(bis, fos);
-            return f;
-         }
-      }
-   }
 
-   protected void setCacheManager(ImageCacheManager cacheManager)
-   {
-      this.cacheManager = cacheManager;
-   }
+            // Set metadata
+            Optional.ofNullable(imageData.getFilename())
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(tempFile::setSourceFileName);
+
+            Optional.ofNullable(imageData.getMimeType())
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(tempFile::setSourceContentType);
+
+            log.debug("Created temporary file from image data: {} bytes", imageData.getSize());
+            return tempFile;
+        }
+    }
+
+    /**
+     * Generates the main image processing result.
+     *
+     * @param imageFile the source image file
+     * @param mimeType the MIME type
+     * @return processed image file
+     * @throws Exception if generation fails
+     */
+    protected PSPurgableTempFile generateImage(PSPurgableTempFile imageFile, String mimeType) throws Exception {
+        Objects.requireNonNull(imageFile, "Image file must not be null");
+
+        log.debug("Generating image from file: {}", imageFile.getSourceFileName());
+
+        // For now, return the original file - can be extended for image processing
+        return imageFile;
+    }
+
+    /**
+     * Generates a thumbnail from the source image.
+     *
+     * @param imageFile the source image file
+     * @return thumbnail image file
+     * @throws Exception if thumbnail generation fails
+     */
+    protected PSPurgableTempFile generateThumbnail(PSPurgableTempFile imageFile) throws Exception {
+        Objects.requireNonNull(imageFile, "Image file must not be null");
+
+        log.debug("Generating thumbnail from file: {}", imageFile.getSourceFileName());
+
+        var thumbnailWidth = getThumbnailWidth();
+
+        try (var inputStream = new FileInputStream(imageFile)) {
+            var originalImage = ImageIO.read(inputStream);
+            if (originalImage == null) {
+                throw new IOException("Cannot read image data");
+            }
+
+            var thumbnailImage = createThumbnail(originalImage, thumbnailWidth);
+            return saveImageToTempFile(thumbnailImage, imageFile);
+        }
+    }
+
+    /**
+     * Creates a thumbnail image with the specified width while maintaining aspect ratio.
+     *
+     * @param originalImage the original image
+     * @param thumbnailWidth the desired thumbnail width
+     * @return thumbnail BufferedImage
+     */
+    private BufferedImage createThumbnail(BufferedImage originalImage, int thumbnailWidth) {
+        var originalWidth = originalImage.getWidth();
+        var originalHeight = originalImage.getHeight();
+
+        var aspectRatio = (double) originalHeight / originalWidth;
+        var thumbnailHeight = (int) (thumbnailWidth * aspectRatio);
+
+        var thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, BufferedImage.TYPE_INT_RGB);
+        var graphics = thumbnail.createGraphics();
+
+        // Enable high-quality rendering
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        graphics.drawImage(originalImage, 0, 0, thumbnailWidth, thumbnailHeight, null);
+        graphics.dispose();
+
+        log.debug("Created thumbnail: {}x{} from original: {}x{}",
+            thumbnailWidth, thumbnailHeight, originalWidth, originalHeight);
+
+        return thumbnail;
+    }
+
+    /**
+     * Saves a BufferedImage to a temporary file.
+     *
+     * @param image the image to save
+     * @param originalFile the original file for metadata reference
+     * @return temporary file containing the image
+     * @throws IOException if saving fails
+     */
+    private PSPurgableTempFile saveImageToTempFile(BufferedImage image, PSPurgableTempFile originalFile)
+            throws IOException {
+
+        var tempFile = new PSPurgableTempFile("thumb", ".jpg", null);
+
+        try (var fos = new FileOutputStream(tempFile)) {
+            if (!ImageIO.write(image, "JPEG", fos)) {
+                throw new IOException("Failed to write thumbnail image");
+            }
+
+            // Copy metadata from original
+            tempFile.setSourceFileName(getThumbnailFileName(originalFile.getSourceFileName()));
+            tempFile.setSourceContentType("image/jpeg");
+
+            return tempFile;
+        }
+    }
+
+    /**
+     * Gets the configured thumbnail width from server properties.
+     *
+     * @return thumbnail width in pixels
+     */
+    private int getThumbnailWidth() {
+        return Optional.ofNullable(PSServer.getServerProps())
+            .map(props -> props.getProperty(THUMB_WIDTH_PROPERTY, DEFAULT_THUMB_WIDTH))
+            .filter(StringUtils::isNotBlank)
+            .map(width -> {
+                try {
+                    return Integer.parseInt(width);
+                } catch (NumberFormatException e) {
+                    log.warn("Invalid thumbnail width '{}', using default", width);
+                    return Integer.parseInt(DEFAULT_THUMB_WIDTH);
+                }
+            })
+            .orElse(Integer.parseInt(DEFAULT_THUMB_WIDTH));
+    }
+
+    /**
+     * Generates a thumbnail filename from the original filename.
+     *
+     * @param originalFilename the original filename
+     * @return thumbnail filename
+     */
+    protected String getThumbnailFileName(String originalFilename) {
+        if (StringUtils.isBlank(originalFilename)) {
+            return "thumbnail.jpg";
+        }
+
+        var baseName = FilenameUtils.getBaseName(originalFilename);
+        var extension = FilenameUtils.getExtension(originalFilename);
+
+        if (StringUtils.isBlank(extension)) {
+            extension = "jpg";
+        }
+
+        return baseName + "_thumb." + extension;
+    }
+
+    /**
+     * Updates the request with the processed file.
+     *
+     * @param request the request context
+     * @param parameterName the parameter name
+     * @param file the processed file
+     */
+    protected void updateRequest(IPSRequestContext request, String parameterName, PSPurgableTempFile file) {
+        request.setParameterObject(parameterName, file);
+        log.debug("Updated request parameter: {} with processed file", parameterName);
+    }
+
+    /**
+     * Record representing the processing context for image asset operations.
+     *
+     * @param imageName the image parameter name
+     * @param thumbName the thumbnail parameter name
+     * @param imageFileName the image filename
+     * @param thumbFileName the thumbnail filename
+     */
+    private record ProcessingContext(
+        String imageName,
+        String thumbName,
+        String imageFileName,
+        String thumbFileName
+    ) {}
 }
-

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.mimetypes;
 
 import com.percussion.util.PSSiteManageBean;
@@ -26,10 +28,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/***
- * Rest resource for working with mime types
+/**
+ * REST resource for working with mime types.
+ * Sunny Sal: "MimeType resource, uploads ka force!"
  */
-@PSSiteManageBean(value="restMimeTypesResource")
+@PSSiteManageBean(value = "restMimeTypesResource")
 @Path("/mimetypes")
 @XmlRootElement
 @Tag(name = "Mime Types", description = "Mime Type operations")
@@ -38,12 +41,18 @@ public class MimeTypeResource {
     @Autowired
     private IMimeTypeAdaptor adaptor;
 
-    public MimeTypeResource(){}
+    public MimeTypeResource() {
+        // Default constructor
+    }
 
-    //@TODO: Replace me
+    /**
+     * Ping endpoint for health check.
+     *
+     * @return "pong" if service is up
+     */
     @GET
-    @Operation(summary="Ping placeholder")
-    public String ping(){
+    @Operation(summary = "Ping placeholder")
+    public String ping() {
         return "pong";
     }
 }

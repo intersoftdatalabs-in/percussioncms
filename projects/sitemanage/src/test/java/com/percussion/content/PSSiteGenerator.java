@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -32,14 +33,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
-{
-    private PSSiteSectionRestClient sectionClient;
+public class PSSiteGenerator extends PSGenerator<PSSiteRestClient> {
 
-    private PSTemplateGenerator templateGen;
+    private final PSSiteSectionRestClient sectionClient;
+    private final PSTemplateGenerator templateGen;
 
-    public PSSiteGenerator(String baseUrl, String uid, String pw)
-    {
+    public PSSiteGenerator(String baseUrl, String uid, String pw) {
         super(PSSiteRestClient.class, baseUrl, uid, pw);
         sectionClient = new PSSiteSectionRestClient(baseUrl);
         sectionClient.login(uid, pw);
@@ -48,66 +47,58 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
 
     /**
      * Create a new section in the system, according with the information supplied.
-     * 
-     * @param def Used to create the section.
+     *
+     * @param def  Used to create the section.
      * @param path The path of the parent section. Of the form
-     *            /Sites/sitename/section1/...
+     *             /Sites/sitename/section1/...
      * @return The object that represents the generated section.
      */
-    public PSSiteSection createSection(SectionDef def, String parentPath)
-    {
-        PSSectionTypeEnum sectionType = PSSectionTypeEnum.section;
-        if (def.getSectionType() != null)
-        {
+    public PSSiteSection createSection(SectionDef def, String parentPath) {
+        var sectionType = PSSectionTypeEnum.section;
+        if (def.getSectionType() != null) {
             sectionType = PSSectionTypeEnum.valueOf(def.getSectionType());
         }
 
-        if (sectionType == PSSectionTypeEnum.externallink)
-        {
+        if (sectionType == PSSectionTypeEnum.externallink) {
             return createExternalLinkSection(def, parentPath);
         }
 
-        if (sectionType == PSSectionTypeEnum.sectionlink)
-        {
+        if (sectionType == PSSectionTypeEnum.sectionlink) {
             return createSectionLink(def, parentPath);
-        }
-        else
-        {
+        } else {
             return createSiteSection(def, parentPath);
         }
     }
 
     /**
      * Create a new site in the system, according with the information supplied.
-     * 
+     *
      * @param def Used to create the site.
      * @return The object that represents the generated site.
      */
-    public PSSite createSite(SiteDef def)
-    {
+    public PSSite createSite(SiteDef def) {
         log.info("Creating site " + def.getName() + " ...");
-        PSSite site = new PSSite();
+        var site = new PSSite();
         site.setName(def.getName());
-        site.setLabel("dummySiteLabel"); // don't know what this is used for,
-                                         // but it is required
+        site.setLabel("dummySiteLabel"); // don't know what this is used for, but it is required
 
-        String hp = def.getHomePageTitle();
+        var hp = def.getHomePageTitle();
         if (hp == null || hp.trim().isEmpty())
             hp = "Home Page for Site " + site.getName();
         site.setHomePageTitle(hp);
 
-        String nt = def.getNavTitle();
+        var nt = def.getNavTitle();
         if (nt == null || nt.trim().isEmpty())
             nt = "Home";
         site.setNavigationTitle(nt);
 
         site.setBaseTemplateName(def.getTemplateDef().getBaseTemplateName());
 
-        String tName = def.getTemplateDef().getName();
+        var tName = def.getTemplateDef().getName();
         if (tName == null || tName.trim().isEmpty())
             tName = def.getName() + "Template";
         site.setTemplateName(tName);
-        PSSite result = getRestClient().save(site);
+        var result = getRestClient().save(site);
         log.info("Created site " + result.getId());
         return result;
     }
@@ -115,56 +106,50 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
     /**
      * Helper method to create a section in the site. Also this method will
      * create a blog section, if it is required in the request.
-     * 
-     * @param def Used to create the section.
+     *
+     * @param def  Used to create the section.
      * @param path The path of the parent section. Of the form
-     *            /Sites/sitename/section1/...
+     *             /Sites/sitename/section1/...
      * @return The object that represents the section.
      */
-    private PSSiteSection createSiteSection(SectionDef def, String parentPath)
-    {
-        PSCreateSiteSection section = new PSCreateSiteSection();
-        String sectionPath = "/" + parentPath;
+    private PSSiteSection createSiteSection(SectionDef def, String parentPath) {
+        var section = new PSCreateSiteSection();
+        var sectionPath = "/" + parentPath;
         section.setFolderPath(sectionPath);
         final String NAME = "index.html";
         section.setPageUrlIdentifier(def.getName());
-        String linkTitle = def.getLinkTitle();
+        var linkTitle = def.getLinkTitle();
         if (linkTitle == null || linkTitle.trim().isEmpty())
             linkTitle = def.getName();
         log.info("Creating section " + parentPath + "/" + linkTitle);
         section.setPageTitle(linkTitle);
         section.setPageLinkTitle(linkTitle);
         section.setCopyTemplates(def.isCopyTemplates());
-        PSTemplateSummary tsum = templateGen.findTemplateByName(def.getTemplateName());
+        var tsum = templateGen.findTemplateByName(def.getTemplateName());
         if (tsum == null)
             throw new RuntimeException("templateName for SectionDef not found: " + def.getTemplateName());
         section.setTemplateId(tsum.getId());
         section.setPageName(NAME);
         section.setPageUrlIdentifier(linkTitle);
         // Check if the section type is not null
-        if (def.getSectionType() != null)
-        {
-            PSSectionTypeEnum sectionType = PSSectionTypeEnum.valueOf(def.getSectionType());
+        if (def.getSectionType() != null) {
+            var sectionType = PSSectionTypeEnum.valueOf(def.getSectionType());
             section.setSectionType(sectionType);
 
             // Process the blog type section
-            if (sectionType == PSSectionTypeEnum.blog)
-            {
-                if (def.getBlogPostTemplate() != null)
-                {
-                    PSTemplateSummary tsum2 = templateGen.findTemplateByName(def.getBlogPostTemplate());
+            if (sectionType == PSSectionTypeEnum.blog) {
+                if (def.getBlogPostTemplate() != null) {
+                    var tsum2 = templateGen.findTemplateByName(def.getBlogPostTemplate());
                     if (tsum2 == null)
                         throw new RuntimeException("templateBlogName for SectionDef not found: "
                                 + def.getBlogPostTemplate());
                     section.setBlogPostTemplateId(tsum2.getId());
-                }
-                else
-                {
+                } else {
                     throw new RuntimeException("templateBlogName for Blog SectionDef cannot be null");
                 }
             }
         }
-        PSSiteSection result = sectionClient.create(section);
+        var result = sectionClient.create(section);
         log.info("Created section " + result.getId());
         return result;
     }
@@ -173,18 +158,17 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
      * Helper method to create an external link section. Given the information
      * supplied, it will create an object to send in the request in order to
      * create the section.
-     * 
-     * @param def Used to create the section.
+     *
+     * @param def  Used to create the section.
      * @param path The path of the parent section. Of the form
-     *            /Sites/sitename/section1/...
+     *             /Sites/sitename/section1/...
      * @return The object that represents the generated external link section.
      */
-    private PSSiteSection createExternalLinkSection(SectionDef def, String parentPath)
-    {
-        PSCreateExternalLinkSection externalLinkSection = new PSCreateExternalLinkSection();
-        String sectionPath = "/" + parentPath;
+    private PSSiteSection createExternalLinkSection(SectionDef def, String parentPath) {
+        var externalLinkSection = new PSCreateExternalLinkSection();
+        var sectionPath = "/" + parentPath;
         externalLinkSection.setFolderPath(sectionPath);
-        String linkTitle = def.getLinkTitle();
+        var linkTitle = def.getLinkTitle();
         if (linkTitle == null || linkTitle.trim().isEmpty())
             linkTitle = def.getName();
         log.info("Creating section " + parentPath + "/" + linkTitle);
@@ -192,7 +176,7 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
         externalLinkSection.setExternalUrl(def.getExternalUrl());
         externalLinkSection.setSectionType(PSSectionTypeEnum.externallink);
 
-        PSSiteSection result = sectionClient.createExternalLinkSection(externalLinkSection);
+        var result = sectionClient.createExternalLinkSection(externalLinkSection);
         log.info("Created external link section " + result.getId());
         return result;
     }
@@ -202,38 +186,32 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
      * it will determine which is the parent section folder, in order to get the
      * Id appropriately. If the target section is not found, an exception is
      * thrown.
-     * 
-     * @param def Used to create the section.
+     *
+     * @param def  Used to create the section.
      * @param path The path of the parent section. Of the form
-     *            /Sites/sitename/section1/...
+     *             /Sites/sitename/section1/...
      * @return The object that represents the generated section link.
      */
-    private PSSiteSection createSectionLink(SectionDef def, String parentPath)
-    {
-        String targetSection = def.getTargetSection();
-        String[] splittedParentPath = parentPath.split("/");
-        String siteName = splittedParentPath[2];
+    private PSSiteSection createSectionLink(SectionDef def, String parentPath) {
+        var targetSection = def.getTargetSection();
+        var splittedParentPath = parentPath.split("/");
+        var siteName = splittedParentPath[2];
 
         // Load the tree for the given site
-        PSSectionNode sectionNode = sectionClient.loadTree(siteName);
+        var sectionNode = sectionClient.loadTree(siteName);
 
-        if (sectionNode != null)
-        {
-            String parentId = StringUtils.EMPTY;
+        if (sectionNode != null) {
+            var parentId = StringUtils.EMPTY;
 
             // Check if the target section is the home
-            if (parentPath.endsWith(targetSection))
-            {
+            if (parentPath.endsWith(targetSection)) {
                 parentId = sectionNode.getId();
             }
 
-            if (StringUtils.isBlank(parentId))
-            {
+            if (StringUtils.isBlank(parentId)) {
                 List<PSSectionNode> childNodes = sectionNode.getChildNodes();
-                for (PSSectionNode childNode : childNodes)
-                {
-                    if (childNode.getFolderPath().endsWith(targetSection))
-                    {
+                for (var childNode : childNodes) {
+                    if (childNode.getFolderPath().endsWith(targetSection)) {
                         parentId = childNode.getId();
                         break;
                     }
@@ -241,15 +219,12 @@ public class PSSiteGenerator extends PSGenerator<PSSiteRestClient>
             }
 
             // Call the service to create the section link
-            PSSiteSection result = sectionClient.createSectionLink(parentId, parentId);
+            var result = sectionClient.createSectionLink(parentId, parentId);
             log.info("Created section link " + result.getId());
             return result;
-        }
-        else
-        {
+        } else {
             throw new RuntimeException(
                     "Error when creating a section link, the target section was not found in the system.");
         }
     }
-
 }

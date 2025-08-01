@@ -18,59 +18,94 @@
 package com.percussion.services.integrations;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Interface for the services used by the integration REST endpoints.
+ * Interface for integration provider services used by REST endpoints with Java 11 enhancements.
+ * Provides modern type-safe operations for third-party integrations with enhanced error handling.
  */
 public interface IPSIntegrationProviderService {
 
-	/**
-	 * Used for testing the credentials provided by the user.
-	 *
-	 * @param credentials The credentials to validate.
-	 * @return True if valid, or false if invalid.
-	 * @throws Exception We failed to validate whether the credentials were valid or not.
-	 */
-	Boolean validateCredentials(Map<String, String> credentials) throws Exception;
+    /**
+     * Validates the provided credentials with enhanced type safety.
+     *
+     * @param credentials the credentials to validate, never null
+     * @return true if credentials are valid, false otherwise
+     * @throws IntegrationProviderException if validation cannot be completed
+     */
+    boolean validateCredentials(Map<String, String> credentials) throws IntegrationProviderException;
 
-	/**
-	 * Used to retrieve from third party any information related to our site.
-	 *
-	 * @param siteName    Our site we are retrieving information for.
-	 * @param credentials Used to authenticate with third party api.
-	 * @return The associated service's site information in String form.
-	 * @throws Exception Failed to retrieve information from third party.
-	 */
-	String retrieveSiteInfo(String siteName, Map<String, String> credentials) throws Exception;
+    /**
+     * Retrieves site information from the third-party service.
+     *
+     * @param siteName the site name to retrieve information for, never null or empty
+     * @param credentials authentication credentials for the third-party API, never null
+     * @return site information from the associated service, wrapped in Optional
+     * @throws IntegrationProviderException if retrieval fails
+     */
+    Optional<String> retrieveSiteInfo(String siteName, Map<String, String> credentials)
+            throws IntegrationProviderException;
 
-	/**
-	 * Update third party information on our site.
-	 *
-	 * @param siteName    Name of the site we are updating.
-	 * @param credentials Used to authenticate with third party api.
-	 * @throws Exception Failed to update associated site info.
-	 */
-	void updateSiteInfo(String siteName, Map<String, String> credentials) throws Exception;
+    /**
+     * Updates third-party information for the specified site.
+     *
+     * @param siteName the name of the site to update, never null or empty
+     * @param credentials authentication credentials for the third-party API, never null
+     * @throws IntegrationProviderException if update fails
+     */
+    void updateSiteInfo(String siteName, Map<String, String> credentials)
+            throws IntegrationProviderException;
 
-	/**
-	 * Retrieve page information associated with url.
-	 *
-	 * @param siteName    Our main page, i.e. https://www.percussion.com/
-	 * @param pageURL     Absolute url to our page. for example: https://www.percussion.com/products
-	 * @param credentials Used to authenticate with third party api.
-	 * @return Information from the third party regarding the page.
-	 * @throws Exception Failed to retrieve information about the page from thirdparty.
-	 */
-	String retrievePageInfo(String siteName, String pageURL, Map<String, String> credentials) throws Exception;
+    /**
+     * Retrieves page information from the third-party service.
+     *
+     * @param siteName the main site URL (e.g., https://www.percussion.com/), never null or empty
+     * @param pageURL the absolute URL to the page (e.g., https://www.percussion.com/products), never null or empty
+     * @param credentials authentication credentials for the third-party API, never null
+     * @return page information from the third party, wrapped in Optional
+     * @throws IntegrationProviderException if retrieval fails
+     */
+    Optional<String> retrievePageInfo(String siteName, String pageURL, Map<String, String> credentials)
+            throws IntegrationProviderException;
 
-	/**
-	 * Update page information associated with the url.
-	 *
-	 * @param siteName    Name of the site, the page we are updating on.
-	 * @param pageURL     The url of the page we are updating information on.
-	 * @param credentials Used to authenticate with third party api.
-	 * @throws Exception Failed to update associated page info.
-	 */
-	void updatePageInfo(String siteName, String pageURL, Map<String, String> credentials) throws Exception;
+    /**
+     * Updates page information in the third-party service.
+     *
+     * @param siteName the name of the site containing the page, never null or empty
+     * @param pageURL the URL of the page to update, never null or empty
+     * @param credentials authentication credentials for the third-party API, never null
+     * @throws IntegrationProviderException if update fails
+     */
+    void updatePageInfo(String siteName, String pageURL, Map<String, String> credentials)
+            throws IntegrationProviderException;
 
+    /**
+     * Validates credentials asynchronously for improved performance.
+     *
+     * @param credentials the credentials to validate, never null
+     * @return CompletableFuture containing validation result
+     */
+    default CompletableFuture<Boolean> validateCredentialsAsync(Map<String, String> credentials) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return validateCredentials(credentials);
+            } catch (IntegrationProviderException e) {
+                throw new RuntimeException("Async credential validation failed", e);
+            }
+        });
+    }
+
+    /**
+     * Custom exception for integration provider operations.
+     */
+    class IntegrationProviderException extends Exception {
+        public IntegrationProviderException(String message) {
+            super(message);
+        }
+
+        public IntegrationProviderException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

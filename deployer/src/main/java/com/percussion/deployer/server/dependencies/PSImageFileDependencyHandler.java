@@ -44,8 +44,7 @@ public class PSImageFileDependencyHandler extends PSFileDependencyHandler
 
    // see base class
    @Override
-   public String getType()
-   {
+   public String getType() {
       return DEPENDENCY_TYPE;
    }
 
@@ -54,4 +53,3 @@ public class PSImageFileDependencyHandler extends PSFileDependencyHandler
     */
    final static String DEPENDENCY_TYPE = "ImageFile";
 }
-

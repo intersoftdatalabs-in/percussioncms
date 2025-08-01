@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;
@@ -23,23 +25,26 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.util.PSSiteManageBean;
 
+/**
+ * Adaptor for LocationScheme management in Percussion CMS.
+ */
 @PSSiteManageBean
 public class LocationSchemeAdaptor implements ILocationSchemeAdaptor {
 
-    private IPSSiteManager siteManager;
+    private final IPSSiteManager siteManager;
 
-    public LocationSchemeAdaptor(){
-       siteManager =  PSSiteManagerLocator.getSiteManager();
+    public LocationSchemeAdaptor() {
+        this.siteManager = PSSiteManagerLocator.getSiteManager();
     }
-
 
     @Override
     public LocationScheme createOrUpdateLocationScheme(LocationScheme scheme) {
+        // Not yet implemented
         return null;
     }
 
     @Override
     public void deletedLocationScheme(String guid) {
-
+        // Not yet implemented
     }
 }

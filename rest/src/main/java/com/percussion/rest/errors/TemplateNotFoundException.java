@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
+/**
+ * Exception thrown when a template is not found.
+ * Sunny Sal: "Template missing? Koi na, agla try karo!"
+ */
 public class TemplateNotFoundException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -613886841430682824L;
+    private static final long serialVersionUID = -613886841430682824L;
 
-	public TemplateNotFoundException()
-    {
+    /**
+     * Constructs a TemplateNotFoundException with NOT_FOUND status.
+     */
+    public TemplateNotFoundException() {
         super(RestErrorCode.TEMPLATE_NOT_FOUND, null, null, Response.Status.NOT_FOUND);
     }
-    
-    public TemplateNotFoundException(String detailMessage){
-    	super(RestErrorCode.TEMPLATE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
+
+    /**
+     * Constructs a TemplateNotFoundException with a detail message.
+     *
+     * @param detailMessage the detail message
+     */
+    public TemplateNotFoundException(String detailMessage) {
+        super(RestErrorCode.TEMPLATE_NOT_FOUND, detailMessage, null, Response.Status.NOT_FOUND);
     }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,26 +27,32 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Represents the status of an integrity check operation.
+ * Immutable except for JPA/Hibernate setters.
+ */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSIntegrityStatus")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSIntegrityStatus")
 @Table(name = "PSX_INTEGRITYSTATUS")
 @XmlRootElement(name = "integritystatus")
-public class PSIntegrityStatus extends PSAbstractDataObject
-{
+public class PSIntegrityStatus extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
-    public static enum Status {
-        RUNNING, SUCCESS, FAILED, CANCELLED;
+
+    public enum Status {
+        RUNNING, SUCCESS, FAILED, CANCELLED
     }
+
     @Id
-    @NotBlank    
+    @NotBlank
     @Column(name = "TOKEN")
     private String token;
-    
+
     @Basic
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
@@ -59,78 +66,74 @@ public class PSIntegrityStatus extends PSAbstractDataObject
     @Column(name = "END_TIME")
     private Date endTime;
 
-    @OneToMany(targetEntity = PSIntegrityTask.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            targetEntity = PSIntegrityTask.class,
+            fetch = FetchType.EAGER,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     @JoinColumn(name = "TOKEN", nullable = false, insertable = false, updatable = false)
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE, region = "PSIntegrityTask")
-    @Fetch(FetchMode. SUBSELECT)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<PSIntegrityTask> tasks = new HashSet<>();
-    
+
     @Transient
     private long elapsedTime;
 
-    public String getToken()
-    {
+    public String getToken() {
         return token;
     }
 
-    public void setToken(String token)
-    {
+    public void setToken(String token) {
         this.token = token;
     }
 
-    public Status getStatus()
-    {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(Status status)
-    {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    public Date getStartTime()
-    {
-        return startTime;
+    public Optional<Date> getStartTime() {
+        return Optional.ofNullable(startTime);
     }
 
-    public void setStartTime(Date startTime)
-    {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime()
-    {
-        return endTime;
+    public Optional<Date> getEndTime() {
+        return Optional.ofNullable(endTime);
     }
 
-    public void setEndTime(Date endTime)
-    {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
+    /**
+     * Returns the elapsed time in milliseconds.
+     * If the end time is not set, returns the time since start.
+     * Returns -1 if start time is not set.
+     */
     @Transient
-    public long getElapsedTime()
-    {
-        long elapsed = -1;
-        if(endTime == null && startTime != null){
-            elapsed = new Date().getTime() - startTime.getTime();
+    public long getElapsedTime() {
+        if (startTime == null) {
+            return -1;
         }
-        else if(endTime != null && startTime != null){
-            elapsed = endTime.getTime() - startTime.getTime();
-        }
-        return elapsed;
+        var end = endTime != null ? endTime : new Date();
+        return end.getTime() - startTime.getTime();
     }
 
-    public Set<PSIntegrityTask> getTasks()
-    {
-        return tasks;
+    /**
+     * Returns an unmodifiable view of the tasks set.
+     */
+    public Set<PSIntegrityTask> getTasks() {
+        return Collections.unmodifiableSet(tasks);
     }
 
-    public void setTasks(Set<PSIntegrityTask> tasks)
-    {
-        this.tasks = tasks;
+    public void setTasks(Set<PSIntegrityTask> tasks) {
+        this.tasks = tasks == null ? new HashSet<>() : new HashSet<>(tasks);
     }
-    
-
-    
 }

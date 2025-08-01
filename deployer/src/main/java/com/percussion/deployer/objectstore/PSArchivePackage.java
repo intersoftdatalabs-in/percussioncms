@@ -182,17 +182,13 @@ public class PSArchivePackage  implements IPSDeployComponent
     *
     * See {@link IPSDeployComponent#toXml(Document)} for more info.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc should not be null");
-
-      Element root = doc.createElement(XML_NODE_NAME);
+   public Element toXml(Document doc) {
+      if (doc == null) throw new IllegalArgumentException("doc should not be null");
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_NAME, m_name);
       root.setAttribute(XML_ATTR_TYPE, m_type);
       root.setAttribute(XML_ATTR_STATUS, Integer.toString(m_status));
       root.setAttribute(XML_ATTR_LOGID, Integer.toString(m_logId));
-
       return root;
    }
 
@@ -202,42 +198,16 @@ public class PSArchivePackage  implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) throw new IllegalArgumentException("sourceNode should not be null");
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         var args = new Object[]{XML_NODE_NAME, sourceNode.getNodeName()};
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_NAME);
-      m_type = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_TYPE);
-      String sStatus = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_STATUS);
-      String slogId = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_LOGID);
-            
-      String intString = sStatus;       // for exception argument
-      String intAttr = XML_ATTR_STATUS; // for exception argument
-      try
-      {
-         m_status = Integer.parseInt(sStatus);
-         
-         intString = slogId;
-         intAttr = XML_ATTR_LOGID;
-         m_logId = Integer.parseInt(slogId);
-      }
-      catch (NumberFormatException ne)
-      {
-         Object[] args = { XML_NODE_NAME, intAttr, intString };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      }
+      m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_NAME);
+      m_type = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_TYPE);
+      m_status = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_STATUS));
+      m_logId = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_LOGID));
    }
 
    // see IPSDeployComponent interface

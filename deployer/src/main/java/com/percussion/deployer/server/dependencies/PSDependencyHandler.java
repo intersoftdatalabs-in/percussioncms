@@ -1628,25 +1628,16 @@ try {
    
    /**
     * Gets all types that support id type mapping.
-    * 
-    * @return An iterator over zero or more types as <code>String</code> 
-    * objects, never <code>null</code>, may be empty.
+    *
+    * @return A list of types as <code>String</code>, never <code>null</code>, may be empty.
     */
-   private List<String> getIdTypes()
-   {
-      if (m_idTypes == null)
-      {
-         List<String> types = new ArrayList<>();
-         Iterator<PSDependencyDef> defs = m_map.getDefs();
-         while (defs.hasNext())
-         {
-            PSDependencyDef def = defs.next();
-            if (def.supportsIdTypes())
-               types.add(def.getObjectType());
-         }
-         m_idTypes = types;
+   private List<String> getIdTypes() {
+      if (m_idTypes == null) {
+         m_idTypes = m_map.getDefs().stream()
+            .filter(PSDependencyDef::supportsIdTypes)
+            .map(PSDependencyDef::getObjectType)
+            .toList();
       }
-      
       return m_idTypes;
    }
    

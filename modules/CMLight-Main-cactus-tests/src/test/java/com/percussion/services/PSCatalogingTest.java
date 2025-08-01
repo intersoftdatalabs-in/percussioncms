@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,160 +28,97 @@ import com.percussion.services.filter.IPSFilterService;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-
-import java.util.List;
-
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test cataloging interface on the services
- * 
- * @author dougrand
+ * Test cataloging interface on the services.
+ * <p>
+ * Sunny Sal says: "Cataloging is like organizing your sock drawer, but for services. Let's keep it neat and Java 11 chic!"
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
-public class PSCatalogingTest extends ServletTestCase
-{
-   /**
-    * Get assembly service  
-    */
-   static IPSAssemblyService asm = PSAssemblyServiceLocator
-         .getAssemblyService();
-   /**
-    * Get filter service
-    */
-   static IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-   /**
-    * Get publisher service 
-    */
-   static IPSPublisherService pub = PSPublisherServiceLocator.getPublisherService();
+@Tag("IntegrationTest")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+public class PSCatalogingTest {
+    /**
+     * Assembly service instance.
+     */
+    static IPSAssemblyService asm = PSAssemblyServiceLocator.getAssemblyService();
+    /**
+     * Filter service instance.
+     */
+    static IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
+    /**
+     * Publisher service instance.
+     */
+    static IPSPublisherService pub = PSPublisherServiceLocator.getPublisherService();
 
-   /**
-    * @throws Exception
-    */
-   
-   @Test
-   public void test010FilterCataloging() throws Exception
-   {
-      testCataloging(fsvc);
-   }
-   
-   /**
-    * 
-    */
-   
-   @Test
-   public void test020AsmTypes()
-   {
-      checkTypes(asm.getTypes(), 2);
-   }
-   
-   /**
-    * 
-    */
-   
-   @Test
-   public void test030FilterTypes()
-   {
-      checkTypes(fsvc.getTypes(), 1);
-   }
-   
-   /**
-    * 
-    */
-   
-   @Test
-   public void test040PublisherTypes()
-   {
-      checkTypes(pub.getTypes(), 1);
-   }
+    @Test
+    void test010FilterCataloging() throws Exception {
+        testCataloging(fsvc);
+    }
 
-   /**
-    * @param types
-    * @param expectedCount
-    */
-   private void checkTypes(PSTypeEnum types[], int expectedCount)
-   {
-      assertNotNull(types);
-      assertEquals(expectedCount, types.length);
-   }
+    @Test
+    void test020AsmTypes() {
+        checkTypes(asm.getTypes(), 2);
+    }
 
-   /**
-    * @throws Exception
-    */
-   
-   @Test
-   public void test050AsmCataloging() throws Exception
-   {
-      testCataloging(asm);
-   }
-   
-   
+    @Test
+    void test030FilterTypes() {
+        checkTypes(fsvc.getTypes(), 1);
+    }
 
+    @Test
+    void test040PublisherTypes() {
+        checkTypes(pub.getTypes(), 1);
+    }
 
-   
-   /**
-    * @throws Exception
-    */
-   
-   @Test
-   public void test060PublisherCataloging() throws Exception
-   {
-      testCataloging(pub);
-   }
-  
-   
-   
-   /**
-    * @param cat
-    * @throws PSCatalogException
-    */
-   private void testCataloging(IPSCataloger cat) throws PSCatalogException, PSNotFoundException {
-      for(PSTypeEnum type : cat.getTypes())
-      {
-         testCataloging(cat, type);
-      }
-   }
+    private void checkTypes(PSTypeEnum[] types, int expectedCount) {
+        assertNotNull(types);
+        assertEquals(expectedCount, types.length);
+    }
 
-   /**
-    * @param cat
-    * @param type
-    * @throws PSCatalogException
-    */
-   private void testCataloging(IPSCataloger cat, PSTypeEnum type)
-           throws PSCatalogException, PSNotFoundException {
-      List<IPSCatalogSummary> sums = cat.getSummaries(type);
+    @Test
+    void test050AsmCataloging() throws Exception {
+        testCataloging(asm);
+    }
 
-      assertNotNull(sums);
-      assertTrue(sums.size() > 0);
-      int limit = 4;
+    @Test
+    void test060PublisherCataloging() throws Exception {
+        testCataloging(pub);
+    }
 
-      // Serialize each, then restore each
-      for (IPSCatalogSummary s : sums)
-      {
-         // Keep the time and the number of objects reasonable
-         if (limit-- < 0) break; 
-         String value = cat.saveByType(s.getGUID());
+    private void testCataloging(IPSCataloger cat) throws PSCatalogException, PSNotFoundException {
+        for (var type : cat.getTypes()) {
+            testCataloging(cat, type);
+        }
+    }
 
-         // Restore
-         try
-         {
-            cat.loadByType(type, value);
-         }
-         catch(PSCatalogException ce)
-         {
-            throw ce;
-         }
-         catch(RuntimeException e)
-         {
-            throw e;
-         }
-      }
-   }
+    private void testCataloging(IPSCataloger cat, PSTypeEnum type)
+            throws PSCatalogException, PSNotFoundException {
+        var sums = cat.getSummaries(type);
 
+        assertNotNull(sums);
+        assertTrue(sums.size() > 0);
+        int limit = 4;
+
+        // Serialize each, then restore each
+        for (var s : sums) {
+            if (limit-- < 0) break;
+            var value = cat.saveByType(s.getGUID());
+
+            // Restore
+            try {
+                cat.loadByType(type, value);
+            } catch (PSCatalogException ce) {
+                throw ce;
+            } catch (RuntimeException e) {
+                throw e;
+            }
+        }
+    }
 }

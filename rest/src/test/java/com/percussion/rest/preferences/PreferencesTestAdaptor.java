@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Lazy
 public class PreferencesTestAdaptor implements IPreferenceAdaptor {
+
     @Override
     public UserPreferenceList getAllUserPreferences() {
         return null;
@@ -45,6 +46,6 @@ public class PreferencesTestAdaptor implements IPreferenceAdaptor {
 
     @Override
     public void deletePreference(UserPreference pref) {
-
+        // No-op for test adaptor
     }
 }

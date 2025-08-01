@@ -20,32 +20,30 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.error.PSMissingBeanConfigurationException;
 
 /**
- * Provides a Locator for accessing the Proxy Service. 
- * 
- * @author federicoromanelli
+ * Provides a Locator for accessing the Proxy Service.
  *
+ * <p>Thread-safe singleton using double-checked locking.</p>
+ *
+ * @author federicoromanelli
  */
-public class PSProxyConfigServiceLocator extends PSBaseServiceLocator
-{
-    private static volatile IPSProxyConfigService pcs=null;
-   /**
-   * Lookup the license service
-   * @return the service, never <code>null</code>.
-   * @throws PSMissingBeanConfigurationException if bean fails to initialize
-   */
-  public static IPSProxyConfigService getProxyConfigService() throws PSMissingBeanConfigurationException
-  {
-      if (pcs==null)
-      {
-          synchronized (PSProxyConfigServiceLocator.class)
-          {
-              if (pcs==null)
-              {
-                  pcs = (IPSProxyConfigService) getBean("sys_proxyConfigService");
-              }
-          }
-      }
-     return pcs;
-  }
-   
+public class PSProxyConfigServiceLocator extends PSBaseServiceLocator {
+    private static volatile IPSProxyConfigService pcs = null;
+
+    /**
+     * Looks up the proxy configuration service.
+     *
+     * @return the service, never {@code null}
+     * @throws PSMissingBeanConfigurationException if bean fails to initialize
+     */
+    public static IPSProxyConfigService getProxyConfigService() throws PSMissingBeanConfigurationException {
+        if (pcs == null) {
+            synchronized (PSProxyConfigServiceLocator.class) {
+                if (pcs == null) {
+                    var bean = getBean("sys_proxyConfigService");
+                    pcs = (IPSProxyConfigService) bean;
+                }
+            }
+        }
+        return pcs;
+    }
 }

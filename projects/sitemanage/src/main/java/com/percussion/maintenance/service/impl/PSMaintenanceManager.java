@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,81 +28,70 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Default implementation of {@link IPSMaintenanceManager}.
+ * <p>
+ * Sunny Sal says: "Maintenance mode: because even servers need a break!"
+ */
+public class PSMaintenanceManager implements IPSMaintenanceManager {
 
-public class PSMaintenanceManager implements IPSMaintenanceManager
-{
-
-    private ConcurrentMap<String, IPSMaintenanceProcess> workingProcesses = new ConcurrentHashMap<>();
-    private AtomicBoolean hasErrors = new AtomicBoolean(false);
+    private final ConcurrentMap<String, IPSMaintenanceProcess> workingProcesses = new ConcurrentHashMap<>();
+    private final AtomicBoolean hasErrors = new AtomicBoolean(false);
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
-    
-    @Override
-    public void startingWork(IPSMaintenanceProcess process)
-    {
-        Validate.notNull(process);
-        Validate.notEmpty(process.getProcessId());
 
-        IPSMaintenanceProcess curProc = workingProcesses.putIfAbsent(process.getProcessId(), process);
-        if (curProc != null)
-        {
-            throw new IllegalStateException("A process with that ID is already running: " + process.getProcessId());            
+    @Override
+    public void startingWork(IPSMaintenanceProcess process) {
+        Validate.notNull(process, "Process must not be null");
+        Validate.notEmpty(process.getProcessId(), "Process ID must not be empty");
+
+        var curProc = workingProcesses.putIfAbsent(process.getProcessId(), process);
+        if (curProc != null) {
+            throw new IllegalStateException("A process with that ID is already running: " + process.getProcessId());
         }
-        
-        log.info("Process starting work: {}" , process.getProcessId());
+
+        log.info("Process starting work: {}", process.getProcessId());
     }
 
     @Override
-    public boolean isWorkInProgress()
-    {
+    public boolean isWorkInProgress() {
         return !workingProcesses.isEmpty();
     }
 
     @Override
-    public void workCompleted(IPSMaintenanceProcess process)
-    {
+    public void workCompleted(IPSMaintenanceProcess process) {
         removeRunningProcess(process);
-        log.info("Process completed work: {}" , process.getProcessId());
+        log.info("Process completed work: {}", process.getProcessId());
     }
 
     @Override
-    public boolean hasFailures()
-    {
+    public boolean hasFailures() {
         return hasErrors.get();
     }
 
-
     @Override
-    public void workFailed(IPSMaintenanceProcess process)
-    {
+    public void workFailed(IPSMaintenanceProcess process) {
         hasErrors.set(true);
         removeRunningProcess(process);
         log.error("==============================================================================");
-        log.error("Process completed work with failures: {}. Putting server in maintenance mode. Users will not be able to login until this startup issue is resolved." , process.getProcessId());
+        log.error("Process completed work with failures: {}. Putting server in maintenance mode. Users will not be able to login until this startup issue is resolved.", process.getProcessId());
         log.error("==============================================================================");
     }
-    
-    
 
     @Override
-    public boolean clearFailures()
-    {
+    public boolean clearFailures() {
         return hasErrors.getAndSet(false);
     }
 
     /**
-     * Removes the supplied process from the running process map
-     * 
-     * @param process
-     * 
-     * @throws IllegalStateException if the process is not found in the map
+     * Removes the supplied process from the running process map.
+     *
+     * @param process The process to remove.
+     * @throws IllegalStateException if the process is not found in the map.
      */
-    private void removeRunningProcess(IPSMaintenanceProcess process)
-    {
-        IPSMaintenanceProcess proc = workingProcesses.remove(process.getProcessId());
-        if (proc == null)
-        {
+    private void removeRunningProcess(IPSMaintenanceProcess process) {
+        var proc = workingProcesses.remove(process.getProcessId());
+        if (proc == null) {
             throw new IllegalStateException("No process found running with id: " + process.getProcessId());
         }
     }
-
 }

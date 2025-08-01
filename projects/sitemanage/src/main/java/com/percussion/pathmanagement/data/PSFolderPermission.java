@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,95 +23,65 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * This class contains the permissions of a folder.
+ * Represents the permissions of a folder.
  *
  * @author yubingchen
  */
-public class PSFolderPermission extends PSAbstractDataObject
-{
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSFolderPermission)) return false;
-        PSFolderPermission that = (PSFolderPermission) o;
-        return getAccessLevel() == that.getAccessLevel() && Objects.equals(getAdminPrincipals(), that.getAdminPrincipals()) && Objects.equals(getWritePrincipals(), that.getWritePrincipals()) && Objects.equals(getReadPrincipals(), that.getReadPrincipals()) && Objects.equals(getViewPrincipals(), that.getViewPrincipals());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getAccessLevel(), getAdminPrincipals(), getWritePrincipals(), getReadPrincipals(), getViewPrincipals());
-    }
+public class PSFolderPermission extends PSAbstractDataObject {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * A list of available access level. 
-     *
-     * @author yubingchen
+     * Access levels for folder permissions.
      */
-    public enum Access
-    {
+    public enum Access {
         /**
-         * The ADMIN is the least restrictive access level. This also have READ and WRITE
+         * ADMIN is the least restrictive access level. Includes READ and WRITE.
          */
         ADMIN,
-        
         /**
-         * This is more restrictive than ADMIN, but less restrictive than READ. 
-         * It also have READ permission. 
+         * WRITE is more restrictive than ADMIN, but less than READ. Includes READ.
          */
         WRITE,
-        
         /**
-         * This is the most restrictive access level.
+         * READ is more restrictive than WRITE.
          */
         READ,
-
         /**
-         * This is the most restrictive access level.
+         * VIEW is the most restrictive access level.
          */
         VIEW
     }
-    
+
     /**
-     * A list of principal types. 
-     *
-     * @author yubingchen
+     * Principal types for folder permissions.
      */
-    public enum PrincipalType
-    {
+    public enum PrincipalType {
         USER,
         ROLE
     }
-    
+
     /**
-     * A user or role that has ADMIN, READ or WRITE permission.
-     *
-     * @author yubingchen
+     * Represents a user or role that has ADMIN, READ, WRITE, or VIEW permission.
      */
-    public static class Principal extends PSAbstractDataObject
-    {
+    public static class Principal extends PSAbstractDataObject {
         private static final long serialVersionUID = 1L;
         private PrincipalType type;
         private String name;
-        
-        public String getName()
-        {
-            return name;        
+
+        public String getName() {
+            return name;
         }
-        
-        public void setName(String name)
-        {
+
+        public void setName(String name) {
             this.name = name;
         }
-        
-        public PrincipalType getType()
-        {
+
+        public PrincipalType getType() {
             return type;
         }
-        
-        public void setType(PrincipalType type)
-        {
+
+        public void setType(PrincipalType type) {
             this.type = type;
         }
 
@@ -119,117 +90,126 @@ public class PSFolderPermission extends PSAbstractDataObject
             if (this == o) return true;
             if (!(o instanceof Principal)) return false;
             Principal principal = (Principal) o;
-            return getType() == principal.getType() && Objects.equals(getName(), principal.getName());
+            return type == principal.type && Objects.equals(name, principal.name);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(getType(), getName());
+            return Objects.hash(type, name);
         }
     }
-    
+
     private Access accessLevel = Access.ADMIN;
-    
     private List<Principal> adminPrincipals;
     private List<Principal> writePrincipals;
     private List<Principal> readPrincipals;
+    private List<Principal> viewPrincipals;
 
+    /**
+     * Gets the access level applied to unspecified principals.
+     * Defaults to {@link Access#ADMIN} if not set.
+     *
+     * @return the access level, never null
+     */
+    public Access getAccessLevel() {
+        return accessLevel;
+    }
+
+    /**
+     * Sets the access level applied to unspecified principals.
+     *
+     * @param access the new access level
+     */
+    public void setAccessLevel(Access access) {
+        this.accessLevel = access;
+    }
+
+    /**
+     * Gets the list of principals with ADMIN access.
+     *
+     * @return the list, may be null or empty
+     */
+    public List<Principal> getAdminPrincipals() {
+        return adminPrincipals;
+    }
+
+    /**
+     * Sets the list of principals with ADMIN access.
+     *
+     * @param principals the new list, may be null or empty
+     */
+    public void setAdminPrincipals(List<Principal> principals) {
+        this.adminPrincipals = principals;
+    }
+
+    /**
+     * Gets the list of principals with WRITE access.
+     *
+     * @return the list, may be null or empty
+     */
+    public List<Principal> getWritePrincipals() {
+        return writePrincipals;
+    }
+
+    /**
+     * Sets the list of principals with WRITE access.
+     *
+     * @param principals the new list, may be null or empty
+     */
+    public void setWritePrincipals(List<Principal> principals) {
+        this.writePrincipals = principals;
+    }
+
+    /**
+     * Gets the list of principals with READ access.
+     *
+     * @return the list, may be null or empty
+     */
+    public List<Principal> getReadPrincipals() {
+        return readPrincipals;
+    }
+
+    /**
+     * Sets the list of principals with READ access.
+     *
+     * @param principals the new list, may be null or empty
+     */
+    public void setReadPrincipals(List<Principal> principals) {
+        this.readPrincipals = principals;
+    }
+
+    /**
+     * Gets the list of principals with VIEW access.
+     *
+     * @return the list, may be null or empty
+     */
     public List<Principal> getViewPrincipals() {
         return viewPrincipals;
     }
 
+    /**
+     * Sets the list of principals with VIEW access.
+     *
+     * @param viewPrincipals the new list, may be null or empty
+     */
     public void setViewPrincipals(List<Principal> viewPrincipals) {
         this.viewPrincipals = viewPrincipals;
     }
 
-    private List<Principal> viewPrincipals;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PSFolderPermission)) return false;
+        PSFolderPermission that = (PSFolderPermission) o;
+        return accessLevel == that.accessLevel &&
+                Objects.equals(adminPrincipals, that.adminPrincipals) &&
+                Objects.equals(writePrincipals, that.writePrincipals) &&
+                Objects.equals(readPrincipals, that.readPrincipals) &&
+                Objects.equals(viewPrincipals, that.viewPrincipals);
+    }
 
-    /**
-     * Gets the access level that is applied to unspecified principals.
-     * It returns {@link Access#ADMIN} if it has not been set by 
-     * {@link #setAccessLevel(Access)}.
-     * 
-     * @return the access level, never <code>null</code>.
-     */
-    public Access getAccessLevel()
-    {
-        return accessLevel;
+    @Override
+    public int hashCode() {
+        return Objects.hash(accessLevel, adminPrincipals, writePrincipals, readPrincipals, viewPrincipals);
     }
-    
-    /**
-     * Sets the access level, that is applied to unspecified principals.
-     * 
-     * @param access the new access level
-     */
-    public void setAccessLevel(Access access)
-    {
-        accessLevel = access;
-    }
-    
-    /**
-     * Gets a list of principals that have ADMIN access. 
-     * 
-     * @return the list of principals, may be <code>null</code> or empty if
-     * the list of principals that have ADMIN access is unknown.
-     */
-    public List<Principal> getAdminPrincipals()
-    {
-        return adminPrincipals;
-    }
-    
-    /**
-     * Sets a list of principals that have ADMIN access.
-     * 
-     * @param principals the new list of principals, it may be <code>null</code> or
-     * empty.
-     */
-    public void setAdminPrincipals(List<Principal> principals)
-    {
-        adminPrincipals = principals;
-    }
-    
-    /**
-     * Gets a list of principals that have WRITE access.
-     * 
-     * @return the list of principals, it may be <code>null</code> or empty if
-     * the list of subjects is unknown.
-     */
-    public List<Principal> getWritePrincipals()
-    {
-        return writePrincipals;
-    }
-    
-    /**
-     * Sets a list of principals that have WRITE access.
-     * 
-     * @param principals the new list of principals, it may be <code>null</code> or
-     * empty.
-     */
-    public void setWritePrincipals(List<Principal> principals)
-    {
-        writePrincipals = principals;
-    }
-    
-    /**
-     * Gets a list of principals that have READ access.
-     * 
-     * @return the list of principals, it may be <code>null</code> or empty if
-     * the list of subjects is unknown.
-     */
-    public List<Principal> getReadPrincipals()
-    {
-        return readPrincipals;
-    }
-    
-    /**
-     * Sets a list of principals that have READ access.
-     * 
-     * @param principals the new list of principals, it may be <code>null</code> or
-     * empty.
-     */
-    public void setReadPrincipals(List<Principal> principals)
-    {
-        readPrincipals = principals;
-    }
-    
 }

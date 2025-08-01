@@ -23,8 +23,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * This is used to purge log entries older than a specified date for
- * scheduled tasks.
+ * Used to purge log entries older than a specified date for scheduled tasks.
  *
  * @author Yu-Bing Chen
  */
@@ -33,7 +32,7 @@ public class PSPurgeScheduledTaskLog extends PSPurgeExpiredLog
    /**
     * This simply calls {@link IPSSchedulingService#deleteTaskLogsByDate(Date)}
     * 
-    * @param beforeDate the job job expiration date, assumed not 
+    * @param beforeDate the job expiration date, assumed not
     *    <code>null</code>.
     * @param parameters the parameters of the extension, never <code>null</code>.
     */

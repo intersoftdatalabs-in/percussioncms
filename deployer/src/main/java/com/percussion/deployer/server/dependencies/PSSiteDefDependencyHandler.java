@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -357,27 +358,21 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler
     
    // see base class
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-   {
-      if (tok == null) 
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      
-      init(); 
-      Set<String> siteNames = m_namedSites.keySet();
-      Iterator<String> it = siteNames.iterator();
-      
-      List<PSDependency> deps = new ArrayList<>();
-      while (it.hasNext())
-      {
-         String sName = it.next();
-         IPSSite s = m_namedSites.get(sName);
-         PSDependency dep = createDeployableElement(m_def, 
-               String.valueOf(s.getGUID().longValue()), sName);
-         if (dep.getDependencyId().equals(IPSDeployConstants.PREVIEW_SITE_ID))
-            dep.setDependencyType(PSDependency.TYPE_SYSTEM);
-         deps.add(dep);
       }
-      return deps.iterator();
+
+      init();
+      return m_namedSites.values().stream()
+         .map(site -> {
+            var dep = createDeployableElement(m_def, String.valueOf(site.getGUID().longValue()), site.getName());
+            if (dep.getDependencyId().equals(IPSDeployConstants.PREVIEW_SITE_ID)) {
+               dep.setDependencyType(PSDependency.TYPE_SYSTEM);
+            }
+            return dep;
+         })
+         .iterator();
    }
 
    // see base class
@@ -485,31 +480,17 @@ public class PSSiteDefDependencyHandler extends PSDataObjectDependencyHandler
    
    // see base class
    @Override
-   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok,
-         PSDependency dep) throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependencyFile> files = new ArrayList<>();
-      IPSSite site = findSiteByDependencyID(dep.getDependencyId());
-      if (site == null)
-      {
-         Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(),
-               dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
-               args);
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
-      
-      files.add(getDepFileFromSite(site));
-      
-      return files.iterator();
+
+      var site = findSiteByDependencyID(dep.getDependencyId());
+      if (site == null) {
+         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
+      }
+
+      return List.of(getDepFileFromSite(site)).iterator();
    }
 
    /**

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.Guid;
@@ -24,8 +26,12 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+/**
+ * Test adaptor for ItemFilter API bridge.
+ */
 @Component
 public class TestItemFilterAdaptor implements IItemFilterAdaptor {
+
     @Override
     public List<ItemFilter> getItemFilters() {
         return null;
@@ -38,7 +44,7 @@ public class TestItemFilterAdaptor implements IItemFilterAdaptor {
 
     @Override
     public void deleteItemFilter(Guid itemFilterId) {
-
+        // No-op for test adaptor
     }
 
     @Override

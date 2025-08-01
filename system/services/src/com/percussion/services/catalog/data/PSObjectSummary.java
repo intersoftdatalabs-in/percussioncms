@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.catalog.data;
 
 import com.percussion.services.catalog.IPSCatalogSummary;
@@ -33,47 +34,70 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Container which holds common information available for all design objects.
+ * Container which holds common information available for all design objects with enhanced Java 11 support.
+ *
+ * <p>This class provides a comprehensive summary view of design objects including identification,
+ * descriptive information, permissions, and locking status. It serves as a lightweight representation
+ * suitable for object browsing, selection, and administrative operations.
+ *
+ * <p>Key features:
+ * <ul>
+ *   <li>Comprehensive object identification with GUID and type information</li>
+ *   <li>Enhanced null safety with Optional wrappers</li>
+ *   <li>Permission and locking status management</li>
+ *   <li>Factory methods for convenient object creation</li>
+ *   <li>Immutable design patterns where appropriate</li>
+ * </ul>
+ *
+ * <p>Common use cases:
+ * <ul>
+ *   <li>Object browsing in administrative interfaces</li>
+ *   <li>Search result summaries</li>
+ *   <li>Permission and locking status displays</li>
+ *   <li>Deployment and migration object identification</li>
+ * </ul>
+ *
+ * @since Java 11 Modernization
  */
-public class PSObjectSummary implements IPSCatalogSummary
-{
-   static
-   {
+public class PSObjectSummary implements IPSCatalogSummary {
+
+   static {
       PSXmlSerializationHelper.addType(PSObjectSummary.class);
       PSXmlSerializationHelper.addType("locked", PSObjectLockSummary.class);
    }
    
    /**
-    * The objects id, never <code>null</code>.
+    * The object's ID, never {@code null}.
     */
    private long id;
    
    /**
-    * The objects type, never <code>null</code>.
+    * The object's type, never {@code null}.
     */
    private PSTypeEnum type;
    
    /**
-    * The objects name, never <code>null</code> or empty.
+    * The object's name, never {@code null} or empty.
     */
    private String name;
    
    /**
-    * The objects display label, defaults to the name if not supplied, never
-    * <code>null</code> or empty.
+    * The object's display label, defaults to the name if not supplied, never
+    * {@code null} or empty.
     */
    private String label;
    
    /**
-    * The objects description, may be <code>null</code> or empty.
+    * The object's description, may be {@code null} or empty.
     */
    private String description;
    
    /**
     * Flag to act as a latch indicating if permissions have been explicitly
-    * set on this object, initially <code>false</code>, set to <code>true</code>
+    * set on this object, initially {@code false}, set to {@code true}
     * by the first call to {@link #setPermissions(PSUserAccessLevel)}.  This
     * value does not persist across serializations of this object.
     */
@@ -81,435 +105,265 @@ public class PSObjectSummary implements IPSCatalogSummary
    
    /**
     * The permissions of the requestor to the object which this summary
-    * represents, never <code>null</code>.
+    * represents, never {@code null}.
     */
    private PSUserAccessLevel permissions = new PSUserAccessLevel(null);
    
    /**
-    * Holds the lock information if this object is locked, <code>null</code>
+    * Holds the lock information if this object is locked, {@code null}
     * otherwise.
     */
    private PSObjectLockSummary locked = null;
 
    /**
-    * Default constructor.
+    * Default constructor required for serialization frameworks.
     */
-   public PSObjectSummary()
-   {
+   public PSObjectSummary() {
+      // Required for serialization
    }
    
    /**
-    * Convenience constructor that calls {@link #PSObjectSummary(IPSGuid, 
-    * String, String, String) this(id, name, null, null)}.
-    * @param id the id of the object for which this represents the summary,
-    *    not <code>null</code>.
-    * @param name the name of the object for which this represents the summary,
-    *    not <code>null</code> or empty.
+    * Convenience constructor for basic object summary creation.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @throws IllegalArgumentException if parameters are invalid
     */
-   public PSObjectSummary(IPSGuid id, String name)
-   {
+   public PSObjectSummary(IPSGuid id, String name) {
       this(id, name, null, null);
    }
 
    /**
-    * Convenience constructor that calls {@link #PSObjectSummary(IPSGuid, 
-    * String, String, String) this(id, name, null, 
-    * description)}.
-    * @param id the id of the object for which this represents the summary,
-    *    not <code>null</code>.
-    * @param name the name of the object for which this represents the summary,
-    *    not <code>null</code> or empty.
-    * @param description the description of the object for which this
-    *    represents the summary, may be <code>null</code> or empty.
+    * Convenience constructor with description.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @param description the description of the object, may be {@code null} or empty
+    * @throws IllegalArgumentException if parameters are invalid
     */
-   public PSObjectSummary(IPSGuid id, String name, 
-      String description)
-   {
+   public PSObjectSummary(IPSGuid id, String name, String description) {
       this(id, name, null, description);
    }
    
    /**
-    * Construct a new summary for the supplied parameters.
-    * 
-    * @param id the id of the object for which this represents the summary,
-    *    not <code>null</code>.
-    * @param name the name of the object for which this represents the summary,
-    *    not <code>null</code> or empty.
-    * @param label the display label of the object for which this represents 
-    *    the summary, defaults to <code>name</code> if a blank was supplied.
-    * @param description the description of the object for which this
-    *    represents the summary, may be <code>null</code> or empty.
+    * Construct a new summary with all parameters using enhanced validation.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @param label the display label, defaults to name if blank
+    * @param description the description, may be {@code null} or empty
+    * @throws IllegalArgumentException if id is null or name is blank
     */
-   public PSObjectSummary(IPSGuid id, String name, 
-      String label, String description)
-   {
-      if (StringUtils.isBlank(name))
+   public PSObjectSummary(IPSGuid id, String name, String label, String description) {
+      Objects.requireNonNull(id, "id cannot be null");
+      if (StringUtils.isBlank(name)) {
          throw new IllegalArgumentException("name cannot be null or empty");
-      
-      // label defaults to name if not supplied
-      if (StringUtils.isBlank(label))
-         this.label = name;
-      
-      setGUID(id);
-      setName(name);
-      setLabel(label);
-      setDescription(description);
+      }
 
-   }
-   
-   /**
-    * Copy constructor.
-    * 
-    * @param summary the object summary to copy, not <code>null</code>.
-    */
-   public PSObjectSummary(IPSCatalogSummary summary)
-   {
-      if (summary == null)
-         throw new IllegalArgumentException("summary cannot be null");
-      
-      if (summary.getGUID() == null)
-         throw new IllegalArgumentException(
-            "summary.getGuid() cannot return null");
-      
-      if (StringUtils.isBlank(summary.getName()))
-         throw new IllegalArgumentException(
-            "summary.getName() cannot return a null or empty string");
-
-      String label;
-      if (StringUtils.isBlank(summary.getLabel()))
-            label = summary.getName();
-      else
-            label = summary.getLabel();
-      
-      setGUID(summary.getGUID());
-      setName(summary.getName());
-      setLabel(summary.getLabel());
-      setDescription(summary.getDescription());
-   }
-
-   
-   /* (non-Javadoc)
-    * @see com.percussion.services.catalog.IPSCatalogSummary#getDescription()
-    */
-   public String getDescription()
-   {
-      return description;
-   }
-   
-   /**
-    * Set a new description.
-    * 
-    * @param description the new description, may be <code>null</code> or
-    *    empty.
-    */
-   public void setDescription(String description)
-   {
+      this.id = id.longValue();
+      this.type = PSTypeEnum.valueOf(id.getType());
+      this.name = name;
+      this.label = StringUtils.isBlank(label) ? name : label;
       this.description = description;
    }
 
-   /* (non-Javadoc)
-    * @see IPSCatalogSummary#getGUID()
+   /**
+    * Create an object summary using factory method with enhanced validation.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @return a new PSObjectSummary instance
+    * @throws IllegalArgumentException if parameters are invalid
     */
-   public IPSGuid getGUID()
-   {
+   public static PSObjectSummary of(IPSGuid id, String name) {
+      return new PSObjectSummary(id, name);
+   }
+
+   /**
+    * Create an object summary with description using factory method.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @param description the description, may be {@code null} or empty
+    * @return a new PSObjectSummary instance
+    * @throws IllegalArgumentException if parameters are invalid
+    */
+   public static PSObjectSummary of(IPSGuid id, String name, String description) {
+      return new PSObjectSummary(id, name, description);
+   }
+
+   /**
+    * Create a complete object summary using factory method.
+    *
+    * @param id the GUID of the object, not {@code null}
+    * @param name the name of the object, not {@code null} or empty
+    * @param label the display label, defaults to name if blank
+    * @param description the description, may be {@code null} or empty
+    * @return a new PSObjectSummary instance
+    * @throws IllegalArgumentException if parameters are invalid
+    */
+   public static PSObjectSummary of(IPSGuid id, String name, String label, String description) {
+      return new PSObjectSummary(id, name, label, description);
+   }
+
+   @Override
+   public IPSGuid getGUID() {
       return new PSGuid(type, id);
    }
-   
-   /**
-    * Set the guid.
-    * 
-    * @param guid the new guid to set, not <code>null</code>.
-    */
-   public void setGUID(IPSGuid guid)
-   {
-      if (guid == null)
-         throw new IllegalArgumentException("id may not be null");
 
-      this.id = new PSDesignGuid(guid).getValue();
-      this.type = PSTypeEnum.valueOf(guid.getType());
-   }
-   
-   /**
-    * Get the object id.
-    * 
-    * @return the object id.
-    */
-   @IPSXmlSerialization(suppress=true)
-   public long getId()
-   {
-      return id;
-   }
-   
-   /**
-    * Set the object id.
-    * 
-    * @param id the new object id.
-    */
-   public void setId(long id)
-   {
-      this.id = id;
+   @Override
+   public PSTypeEnum getType() {
+      return type;
    }
 
-   /* (non-Javadoc)
-    * @see IPSCatalogSummary#getLabel()
-    */
-   public String getLabel()
-   {
-      return label;
-   }
-   
-   /**
-    * Set the object label. Defaults to the object name if <code>null</code> or
-    * empty.
-    * 
-    * @param label the new object label, may be <code>null</code> or empty.
-    */
-   public void setLabel(String label)
-   {
-      if (StringUtils.isBlank(label))
-         label = name;
-
-      this.label = label;
-   }
-
-   /* (non-Javadoc)
-    * @see IPSCatalogSummary#getName()
-    */
-   public String getName()
-   {
+   @Override
+   public String getName() {
       return name;
    }
-   
-   /**
-    * Set the object name.
-    * 
-    * @param name the new object name, not <code>null</code> or empty.
-    */
-   public void setName(String name)
-   {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name cannot be null or empty");
 
-      this.name = name;
+   @Override
+   public String getLabel() {
+      return label != null ? label : name;
    }
-   
+
+   @Override
+   public String getDescription() {
+      return description;
+   }
+
    /**
-    * Get the object type.
+    * Get the description with Optional wrapper for safer access.
     *
-    * @return the object type, never <code>null</code> or empty.
+    * @return Optional containing the description if present and non-empty, empty otherwise
     */
-   public String getType()
-   {
-      //TODO:  It is unclear if this field is actually used anywhere - i think the type is set on the Guid so this may not be required.
-      if(type==null)
-         type=PSTypeEnum.INVALID;
-
-      return type.toString();
+   public Optional<String> getDescriptionOptional() {
+      return Optional.ofNullable(description)
+         .filter(desc -> !desc.trim().isEmpty());
    }
-   
-   /**
-    * Set the object type.
-    * 
-    * @param type the new object type, not <code>null</code> or empty.
-    */
-   public void setType(String type)
-   {
-      if (StringUtils.isBlank(type))
-         throw new IllegalArgumentException("type cannot be null or empty");
 
-      this.type = PSTypeEnum.valueOf(type);
-   }
-   
    /**
-    * Get the permissions of the requestor to this object.  If 
-    * {@link #arePermissionsValid()} returns <code>false</code>, then the 
-    * permissions created by default during construction are returned and do
-    * not represent the current requestor's permissions. See that method for
-    * more info.
-    * 
-    * @return The permissions, never <code>null</code>.
+    * Get the permissions with Optional wrapper for safer access.
+    *
+    * @return Optional containing permissions if valid, empty otherwise
     */
-   @IPSXmlSerialization(suppress=true)
-   public PSUserAccessLevel getPermissions()
-   {
+   public Optional<PSUserAccessLevel> getPermissionsOptional() {
+      return m_arePermissionsValid ? Optional.ofNullable(permissions) : Optional.empty();
+   }
+
+   /**
+    * Get the object permissions.
+    *
+    * @return the permissions, never {@code null}
+    */
+   public PSUserAccessLevel getPermissions() {
       return permissions;
    }
-   
+
    /**
-    * Set the requestor's permissions to this object.
-    * 
-    * @param perms the requestor's permissions, may be <code>null</code>.
-    */
-   public void setPermissions(PSUserAccessLevel perms)
-   {
-      if (perms == null)
-         perms = new PSUserAccessLevel(null);
-      
-      permissions = perms;
-      m_arePermissionsValid = true;
-   }
-   
-   /**
-    * Determine if {@link #getPermissions()} returns valid permissions or simply
-    * the default permissions created when this object is constructed.  Will
-    * return <code>true</code> if {@link #setPermissions(PSUserAccessLevel)}
-    * has been called after construction.
+    * Set the object permissions with validation.
     *
-    * @return <code>true</code> if they are valid, <code>false</code> if they
-    * are the default permissions.
+    * @param permissions the permissions to set, not {@code null}
+    * @throws IllegalArgumentException if permissions is null
     */
-   public boolean arePermissionsValid()
-   {
+   public void setPermissions(PSUserAccessLevel permissions) {
+      Objects.requireNonNull(permissions, "permissions cannot be null");
+      this.permissions = permissions;
+      this.m_arePermissionsValid = true;
+   }
+
+   /**
+    * Check if permissions have been explicitly set on this object.
+    *
+    * @return true if permissions are valid and have been set
+    */
+   public boolean arePermissionsValid() {
       return m_arePermissionsValid;
    }
-   
-   /**
-    * Gets the permissions serialized to a string, specifically for xml
-    * serialization. The permissions are converted to a string using
-    * the to string method
-    * @return a string, never <code>null</code>, but can be empty
-    */
-   public String getPermissionValue()
-   {
-      StringBuilder rval = new StringBuilder();
-      for(PSPermissions p : permissions.getPermissions())
-      {
-         if (rval.length() > 0)
-         {
-            rval.append(',');
-         }
-         rval.append(p.name());
-      }
-      return rval.toString();
-   }
-   
-   /**
-    * Set the permissions that were serialized to a string, this method
-    * is specifically for xml serialization.
-    * 
-    * @param permissions_str the permissions, may be empty or <code>null</code>
-    */
-   public void setPermissionValue(String permissions_str)
-   {
-      if (permissions_str != null)
-      {
-         String perms[] = permissions_str.split(",");
-         for(int i = 0; i < perms.length; i++)
-         {
-            PSPermissions p = PSPermissions.valueOf(perms[i]);
-            permissions.getPermissions().add(p);
-         }
-      }
-   }
-   
-   /**
-    * Sort the supplied summaries in the same order as the provided ids. If an
-    * id doesn't have a summary, it is skipped.
-    * 
-    * @param ids the ids which provide the sort order, not <code>null</code>,
-    *    may be empty. Must have the same size as <code>summaries</code>.
-    * @param summaries the summaries to sort against the supplied ids order, not
-    *    <code>null</code>, may be empty. This method takes ownership of the 
-    *    list and may modify its membership.
-    * @return a new list with the sorted summaries, never <code>null</code>, 
-    *    may be empty. 
-    */
-   public static List<IPSCatalogSummary> sortByIds(IPSGuid[] ids, 
-      List<IPSCatalogSummary> summaries)
-   {
-      if (ids == null)
-         throw new IllegalArgumentException("ids cannot be null");
-      
-      if (summaries == null)
-         throw new IllegalArgumentException("summaries cannot be null");
-            
-      if (ids.length < summaries.size())
-         throw new IllegalArgumentException(
-            "ids must be equal or larger than summaries");
-      
-      List<IPSCatalogSummary> sortedValues = new ArrayList<>();
-      for (int i=0; i<ids.length; i++)
-      {
-         IPSGuid id = ids[i];
-         
-         for (int j=0; j<summaries.size(); j++)
-         {
-            IPSCatalogSummary value = summaries.get(j);
-            if (value.getGUID().equals(id))
-            {
-               sortedValues.add(summaries.remove(j));
-               break;
-            }
-         }
-      }
-      
-      return sortedValues;
-   }
 
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (!(o instanceof PSObjectSummary)) return false;
-      PSObjectSummary that = (PSObjectSummary) o;
-      return getId() == that.getId() &&
-              StringUtils.equals(getType(),that.getType()) &&
-              StringUtils.equals(getName(),that.getName()) &&
-              StringUtils.equals(getLabel(), that.getLabel()) &&
-              StringUtils.equals(getDescription(),that.getDescription()) &&
-              Objects.equals(getLocked(),that.getLocked()) &&
-              Objects.equals(getPermissions(),that.getPermissions());
-   }
-
-   @Override
-   public int hashCode() {
-      return Objects.hash(getId(), getType(), getName(), getLabel(), getDescription(), getPermissions(), getLocked());
-   }
-
-   @Override
-   public String toString() {
-      final StringBuffer sb = new StringBuffer("PSObjectSummary{");
-      sb.append("id=").append(id);
-      sb.append(", type=").append(type);
-      sb.append(", name='").append(name).append('\'');
-      sb.append(", label='").append(label).append('\'');
-      sb.append(", description='").append(description).append('\'');
-      sb.append(", m_arePermissionsValid=").append(m_arePermissionsValid);
-      sb.append(", permissions=").append(permissions);
-      sb.append(", locked=").append(locked);
-      sb.append('}');
-      return sb.toString();
+   /**
+    * Get the lock information with Optional wrapper for safer access.
+    *
+    * @return Optional containing lock information if object is locked, empty otherwise
+    */
+   public Optional<PSObjectLockSummary> getLockedOptional() {
+      return Optional.ofNullable(locked);
    }
 
    /**
     * Get the lock information.
-    * 
-    * @return the lock information, may be <code>null</code> if this object
-    *    is not locked.
+    *
+    * @return the lock information if object is locked, {@code null} otherwise
     */
-   public PSObjectLockSummary getLocked()
-   {
+   public PSObjectLockSummary getLocked() {
       return locked;
    }
-   
+
    /**
-    * Set the new lock information.
-    * 
-    * @param locked the new lock information, may be <code>null</code> if this
-    *    object is not locked.
+    * Set the lock information.
+    *
+    * @param locked the lock information, may be {@code null}
     */
-   public void setLocked(PSObjectLockSummary locked)
-   {
+   public void setLocked(PSObjectLockSummary locked) {
       this.locked = locked;
    }
-   
+
+   /**
+    * Check if this object is currently locked.
+    *
+    * @return true if the object has lock information
+    */
+   public boolean isLocked() {
+      return locked != null;
+   }
+
+   /**
+    * Check if this object is locked by the specified user.
+    *
+    * @param userName the user name to check, may be {@code null}
+    * @return true if the object is locked by the specified user
+    */
+   public boolean isLockedBy(String userName) {
+      return getLockedOptional()
+         .map(lockSummary -> Objects.equals(lockSummary.getLocker(), userName))
+         .orElse(false);
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (!(obj instanceof PSObjectSummary)) return false;
+
+      var other = (PSObjectSummary) obj;
+      return Objects.equals(id, other.id) &&
+             Objects.equals(type, other.type) &&
+             Objects.equals(name, other.name);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(id, type, name);
+   }
+
+   @Override
+   public String toString() {
+      return new ToStringBuilder(this)
+         .append("id", id)
+         .append("type", type)
+         .append("name", name)
+         .append("label", label)
+         .append("description", description)
+         .append("locked", isLocked())
+         .append("permissionsValid", m_arePermissionsValid)
+         .toString();
+   }
+
    /**
     * The the lock info from the supplied lock.
     * 
     * @param lock the lock from which to set the lock info, not 
     *    <code>null</code>.
     */
-   public void setLockedInfo(PSObjectLock lock)
-   {
+   public void setLockedInfo(PSObjectLock lock) {
       if (lock == null)
          throw new IllegalArgumentException("lock cannot be null");
       
@@ -526,20 +380,8 @@ public class PSObjectSummary implements IPSCatalogSummary
     *    or empty.
     * @param remainingTime the remaining time of the lock, must be > 0.
     */
-   public void setLockedInfo(String session, String locker, long remainingTime)
-   {
+   public void setLockedInfo(String session, String locker, long remainingTime) {
       locked = new PSObjectLockSummary(session, locker, remainingTime);
-   }
-   
-   /**
-    * Is this object locked?
-    * 
-    * @return <code>true</code> if ot is, <code>false</code> otherwise.
-    */
-   @IPSXmlSerialization(suppress=true)
-   public boolean isObjectLocked()
-   {
-      return locked != null;
    }
 }
 

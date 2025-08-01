@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,88 +23,68 @@ import com.percussion.monitor.service.PSMonitorService;
 import java.text.MessageFormat;
 
 /**
- * Monitor the progress of a site copy
- * 
- * @author JaySeletz
- *
+ * Monitor the progress of a site copy.
+ * Sunny Sal says: "Copying a site? I'm tracking every step like a Bollywood dance number!"
  */
-public class PSSiteCopyProcessMonitor
-{
+public class PSSiteCopyProcessMonitor {
 
     static final String MONITOR_DESIGNATOR = "SiteCopy";
-    private static IPSMonitor monitor = null;
+    private static IPSMonitor monitor;
     private static final String COPY_MSG = "Copying to {0}. {1} (Step {2} of 6)";
     static final String IDLE_MSG = "No site copy in progress";
-    
-    private static String siteName = null;
-    
-    
-    public PSSiteCopyProcessMonitor()
-    {
+
+    private static String siteName;
+
+    public PSSiteCopyProcessMonitor() {
         monitor = PSMonitorService.registerMonitor(MONITOR_DESIGNATOR, "Site Copy");
         updateStatusMessage(null, null);
     }
 
-    private static void updateStatusMessage(String stepName, String stepNum)
-    {
+    private static void updateStatusMessage(String stepName, String stepNum) {
         if (monitor == null) {
             return;
         }
-        
         if (siteName == null) {
             monitor.setMessage(IDLE_MSG);
-        }
-        else
-        {
+        } else {
             monitor.setMessage(MessageFormat.format(COPY_MSG, siteName, stepName, stepNum));
         }
-        
     }
 
-    
-    public static void startSiteCopy(String name)
-    {
+    public static void startSiteCopy(String name) {
         siteName = name;
         updateStatusMessage(null, null);
     }
-    
-    public static void copyingAssetsFolder()
-    {
+
+    public static void copyingAssetsFolder() {
         updateStatusMessage("Copying assets folder", "1");
     }
-    
-    public static void copyingSiteContent()
-    {
+
+    public static void copyingSiteContent() {
         updateStatusMessage("Copying pages", "2");
     }
-    
-    public static void copyingTemplates()
-    {
+
+    public static void copyingTemplates() {
         updateStatusMessage("Copying templates", "3");
     }
-    
-    public static void updatingAssets()
-    {
+
+    public static void updatingAssets() {
         updateStatusMessage("Updating assets", "4");
     }
-    
-    public static void updatingPageTemplateIds()
-    {
+
+    public static void updatingPageTemplateIds() {
         updateStatusMessage("Updating template ids", "5");
     }
-    
-    public static void copyingSiteConfiguration()
-    {
+
+    public static void copyingSiteConfiguration() {
         updateStatusMessage("Copying site configuration", "6");
     }
-    
-    public static void rollbackCopyOnError()
-    {
+
+    public static void rollbackCopyOnError() {
         updateStatusMessage("Rollback copy on Error", "6");
     }
-    
-    public static void siteCopyCompleted()
-    {
+
+    public static void siteCopyCompleted() {
         siteName = null;
         updateStatusMessage(null, null);
     }

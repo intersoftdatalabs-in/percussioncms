@@ -14,26 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.config.impl.spring;
 
 import com.percussion.rx.config.IPSBeanProperties;
-
 import java.io.File;
 
 /**
- * This interface exposed some methods for internal use, such as unit test.
+ * This interface exposes some methods for internal use, such as unit tests.
  *
  * @author YuBingChen
  */
-public interface IPSBeanPropertiesInternal extends IPSBeanProperties
-{
-   /**
-    * Gets the properties file. This is not exposed through the interface, but
-    * can be called directly, e.g., from unit test.
-    * 
-    * @return the properties file, never <code>null</code>.
-    */
-   File getPropertiesFile();
-   
-
+public interface IPSBeanPropertiesInternal extends IPSBeanProperties {
+    /**
+     * Gets the properties file. This is not exposed through the interface, but
+     * can be called directly, e.g., from unit tests.
+     *
+     * @return the properties file, never {@code null}.
+     */
+    File getPropertiesFile();
 }

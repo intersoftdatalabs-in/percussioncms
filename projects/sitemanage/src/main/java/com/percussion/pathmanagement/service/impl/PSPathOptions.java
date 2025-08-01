@@ -20,55 +20,53 @@ import com.percussion.pathmanagement.data.PSPathItem;
 
 /**
  * Holds current options for path retrieval.
- * 
- * @author JaySeletz
- *
+ * Thread-local options for path loading behavior.
  */
-public class PSPathOptions
-{
-    
+public class PSPathOptions {
+
     /**
-     * Track if current operation loading children should check what types of children they have
+     * Track if current operation loading children should check what types of children they have.
      */
-    private static ThreadLocal<Boolean> checkChildTypes = new ThreadLocal<>();
-    
+    private static final ThreadLocal<Boolean> checkChildTypes = new ThreadLocal<>();
+
     /**
-     * Track if current operation loading children should be restricted to folder children
+     * Track if current operation loading children should be restricted to folder children.
      */
-    private static ThreadLocal<Boolean> folderChildrenOnly = new ThreadLocal<>();
-    
+    private static final ThreadLocal<Boolean> folderChildrenOnly = new ThreadLocal<>();
+
     /**
      * Get Thread local setting for checking child types (section, folder, item) when loading path items.
-     * See {@link PSPathItem#hasFolderChildren()}, {@link PSPathItem#hasItemChildren()}, and 
-     * {@link PSPathItem#hasSectionChildren()}, which will be <code>false</code> if not checked.
-     * 
-     * @return <code>true</code> to check them, <code>false</code> to skip checking.  Defaults to <code>false</code>
-     * if not set.
+     * See {@link PSPathItem#hasFolderChildren()}, {@link PSPathItem#hasItemChildren()}, and
+     * {@link PSPathItem#hasSectionChildren()}, which will be {@code false} if not checked.
+     *
+     * @return {@code true} to check them, {@code false} to skip checking. Defaults to {@code false} if not set.
      */
-    public static boolean shouldCheckChildTypes()
-    {
-        Boolean check = checkChildTypes.get();
-        return check == null ? false : checkChildTypes.get();
+    public static boolean shouldCheckChildTypes() {
+        return Boolean.TRUE.equals(checkChildTypes.get());
     }
 
     /**
      * Set if child types should be checked when loading path items.
-     * 
-     * @param shouldSkip <code>true</code> to check, <code>false</code> to skip checking. 
+     *
+     * @param shouldCheck {@code true} to check, {@code false} to skip checking.
      */
-    public static void setShouldCheckChildTypes(boolean shouldSkip)
-    {
-        checkChildTypes.set(shouldSkip);
+    public static void setShouldCheckChildTypes(boolean shouldCheck) {
+        checkChildTypes.set(shouldCheck);
     }
-    
-    public static boolean folderChildrenOnly()
-    {
-        Boolean result = folderChildrenOnly.get();
-        return result == null ? false : result;
+
+    /**
+     * @return {@code true} if only folder children should be loaded, {@code false} otherwise.
+     */
+    public static boolean folderChildrenOnly() {
+        return Boolean.TRUE.equals(folderChildrenOnly.get());
     }
-    
-    public static void setFolderChildrenOnly(boolean foldersOnly)
-    {
+
+    /**
+     * Set if only folder children should be loaded.
+     *
+     * @param foldersOnly {@code true} to restrict to folders, {@code false} otherwise.
+     */
+    public static void setFolderChildrenOnly(boolean foldersOnly) {
         folderChildrenOnly.set(foldersOnly);
     }
 }

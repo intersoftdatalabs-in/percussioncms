@@ -34,7 +34,6 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.contentmgr.PSContentMgrLocator;
@@ -111,7 +110,6 @@ import java.util.Set;
  * {@link #expandByVariant(IPSRequestContext, List)}, which needs to get all
  * node definitions. This is not cached at this time, it is not a major cost.
  */
-@SuppressWarnings("unchecked")
 public class PSAddVariantSiteFolder extends PSDefaultExtension
       implements
          IPSSearchResultsProcessor
@@ -128,7 +126,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     *      #processRows(java.lang.Object[],java.util.List,
     *      com.percussion.server.IPSRequestContext)
     */
-  public List processRows(@SuppressWarnings("unused") Object[] params, List rows, 
+  public List<Object> processRows(@SuppressWarnings("unused") Object[] params, List<Object> rows,
         IPSRequestContext request) throws PSExtensionProcessingException
    {
       rows = expandByVariant(request, rows);
@@ -164,7 +162,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if it fails to build
     *            variant-allowed sites map for any reason.
     */
-   private List filterRows(IPSRequestContext request, List rows)
+   private List<Object> filterRows(IPSRequestContext request, List<Object> rows)
          throws PSExtensionProcessingException
    {
       IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
@@ -176,7 +174,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
 
          String parentFolderPath = request.getParameter(
                IPSHtmlParameters.SYS_PARENTFOLDERPATH, "");
-         Map siteMap = null;
+      Map<String, Set<SiteFolder>> siteMap = null;
          if (parentFolderPath != null && parentFolderPath.length() > 0)
          {
             parentFolderPath = ensurePathEndsWithSlash(parentFolderPath);
@@ -202,7 +200,11 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
                String siteid = row.getColumnValue(IPSHtmlParameters.SYS_SITEID);
                if (siteid != null && siteid.length() > 0)
                {
-                  SiteFolder sf = (SiteFolder) siteMap.get(siteid);
+                  SiteFolder sf = null;
+                  Set<SiteFolder> sfSet = siteMap.get(siteid);
+                  if (sfSet != null && !sfSet.isEmpty()) {
+                      sf = sfSet.iterator().next();
+                  }
                   if (sf != null)
                   {
                      String sfPath = sf.getSiteFolderRoot();
@@ -250,7 +252,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
                   rows.remove(row);
                   continue;
                }
-               IPSGuid siteguid = gmgr.makeGuid(siteid, PSTypeEnum.SITE);
+               IPSGuid siteguid = gmgr.makeGuid(new PSLocator(siteid));
                try
                {
                   IPSSite site = smgr.loadSite(siteguid);
@@ -307,18 +309,11 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @return site folder map as explained above. Never <code>null</code>,
     *         may be empty.
     */
-   private Map buildSiteFolderMapBySiteId(Map siteMap)
-   {
-      Map siteFolderMapById = new HashMap();
-      Iterator iter = siteMap.values().iterator();
-      while (iter.hasNext())
-      {
-         Set sfSet = (Set) iter.next();
-         Iterator iterSf = sfSet.iterator();
-         while (iterSf.hasNext())
-         {
-            SiteFolder sf = (SiteFolder) iterSf.next();
-            siteFolderMapById.put(sf.getSiteId(), sf);
+   private Map<String, Set<SiteFolder>> buildSiteFolderMapBySiteId(Map<String, Set<SiteFolder>> siteMap) {
+      Map<String, Set<SiteFolder>> siteFolderMapById = new HashMap<>();
+      for (Set<SiteFolder> sfSet : siteMap.values()) {
+         for (SiteFolder sf : sfSet) {
+            siteFolderMapById.computeIfAbsent(sf.getSiteId(), k -> new HashSet<>()).add(sf);
          }
       }
       return siteFolderMapById;
@@ -338,14 +333,14 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if it fails to build required
     *            contentid-sitemap by making internal request.
     */
-   private List expandBySiteFolders(IPSRequestContext request, List rows)
+   private List<Object> expandBySiteFolders(IPSRequestContext request, List<Object> rows)
          throws PSExtensionProcessingException
    {
       int size = rows.size();
       if (size == 0)
          return rows;
 
-      Set contentIdSet = new HashSet();
+      Set<String> contentIdSet = new HashSet<String>();
       Map<String,Integer> folderIdMap = new HashMap<>();
       boolean hasFolderId = false;
       for (int i = 0; i < size; i++)
@@ -366,8 +361,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
          return rows;
       }
 
-      Map cidFolderMap = getParentFolderPaths(request, (String[]) contentIdSet
-            .toArray(new String[0]));
+      Map<String, String[]> cidFolderMap = getParentFolderPaths(request, contentIdSet.toArray(new String[0]));
 
       for (int i = size - 1; i >= 0; i--)
       {
@@ -382,7 +376,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
             continue;
          }
 
-         String[] paths = (String[]) cidFolderMap.get(contentid);
+         String[] paths = cidFolderMap.get(contentid);
 
          if (paths == null || paths.length == 0)
          {
@@ -430,14 +424,14 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if it fails to build required
     *            contentid-sitemap by making internal request.
     */
-   private List expandBySites(IPSRequestContext request, List rows)
+   private List<Object> expandBySites(IPSRequestContext request, List<Object> rows)
          throws PSExtensionProcessingException
    {
       int size = rows.size();
       if (size == 0)
          return rows;
 
-      Map siteMap = null;
+      Map<String, Set<SiteFolder>> siteMap = null;
       Map<String, Set<PSSiteRef>> contentIdSiteMap = null;
 
       for (int i = size - 1; i >= 0; i--)
@@ -463,30 +457,22 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
             String path = row
                   .getColumnDisplayValue(IPSHtmlParameters.SYS_FOLDERID);
             path = ensurePathEndsWithSlash(path);
-            Set sfSet = getSiteFolderSetForPath(siteMap, path);
-            if (sfSet == null || sfSet.isEmpty())
-            {
-               row.setColumnValue(IPSHtmlParameters.SYS_SITEID, "");
-               row.setColumnDisplayValue(IPSHtmlParameters.SYS_SITEID, "");
-               continue;
+            Set<SiteFolder> sfSet = getSiteFolderSetForPath(siteMap, path);
+            if (sfSet == null || sfSet.isEmpty()) {
+                row.setColumnValue(IPSHtmlParameters.SYS_SITEID, "");
+                row.setColumnDisplayValue(IPSHtmlParameters.SYS_SITEID, "");
+                continue;
             }
-            Iterator sfIter = sfSet.iterator();
             boolean cloneRow = false;
-            while (sfIter.hasNext())
-            {
-               SiteFolder sf = (SiteFolder) sfIter.next();
-               if (!cloneRow)
-               {
-                  cloneRow = true;
-               }
-               else
-               {
-                  row = row.cloneRow();
-                  rows.add(row);
-               }
-               row.setColumnValue(IPSHtmlParameters.SYS_SITEID, sf.getSiteId());
-               row.setColumnDisplayValue(IPSHtmlParameters.SYS_SITEID, sf
-                     .getSiteName());
+            for (SiteFolder sf : sfSet) {
+                if (!cloneRow) {
+                    cloneRow = true;
+                } else {
+                    row = row.cloneRow();
+                    rows.add(row);
+                }
+                row.setColumnValue(IPSHtmlParameters.SYS_SITEID, sf.getSiteId());
+                row.setColumnDisplayValue(IPSHtmlParameters.SYS_SITEID, sf.getSiteName());
             }
          }
          else
@@ -550,17 +536,12 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @return set of site folders ({@link SiteFolder} objects) that the folder
     *         with given path is part of, may be <code>null</code> or empty.
     */
-   private Set getSiteFolderSetForPath(Map siteMap, String path)
-   {
-      if (siteMap == null || siteMap.isEmpty() || path == null
-            || path.length() == 0)
+   private Set<SiteFolder> getSiteFolderSetForPath(Map<String, Set<SiteFolder>> siteMap, String path) {
+      if (siteMap == null || siteMap.isEmpty() || path == null || path.length() == 0)
          return null;
-      Iterator iter = siteMap.keySet().iterator();
-      while (iter.hasNext())
-      {
-         String key = (String) iter.next();
+      for (String key : siteMap.keySet()) {
          if (path.startsWith(key))
-            return (Set) siteMap.get(key);
+            return siteMap.get(key);
       }
       return null;
    }
@@ -579,12 +560,12 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if it fails to build required
     *            contenttype-allowed variant map by making internal request.
     */
-   private List expandByVariant(IPSRequestContext request, List rows)
+   private List<Object> expandByVariant(IPSRequestContext request, List<Object> rows)
          throws PSExtensionProcessingException
    {
       PSStopwatchStack sws = PSStopwatchStack.getStack();
       sws.start(getClass().getCanonicalName() + "#expandByVariant");
-      Map varMap = null;
+      Map<String, Map<String, String>> varMap = null;
       List<IPSNodeDefinition> nodedefs = null;
       IPSContentMgr cmgr = PSContentMgrLocator.getContentMgr();
 
@@ -665,14 +646,14 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
 
          // add first variant to this map, then create copies to add
          // to end of list for remaining variants
-         Map variantMap = (Map) varMap.get(ctId);
+         Map<String, String> variantMap = varMap.get(ctId);
          if (variantMap == null || variantMap.isEmpty())
          {
             rows.remove(row);
             continue;
          }
 
-         Iterator vars = variantMap.keySet().iterator();
+         Iterator<String> vars = variantMap.keySet().iterator();
          boolean cloneRow = false;
          while (vars.hasNext())
          {
@@ -709,7 +690,7 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if any errors occur during internal
     *            request to get the allowed content type varaints for the alot.
     */
-    private Map getVariantMap(String slotId)
+    private Map<String, Map<String, String>> getVariantMap(String slotId)
          throws PSExtensionProcessingException
    {
       try
@@ -839,10 +820,9 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
       Set<IPSGuid> set = new HashSet<>();
       for (PSPair<IPSGuid, IPSGuid> pair : coll)
          set.add(pair.getSecond());
-      Iterator iter = templates.iterator();
-      while (iter.hasNext())
-      {
-         IPSAssemblyTemplate template = (IPSAssemblyTemplate) iter.next();
+      Iterator<IPSAssemblyTemplate> iter = templates.iterator();
+      while (iter.hasNext()) {
+         IPSAssemblyTemplate template = iter.next();
          if (!set.contains(template.getGUID()))
             iter.remove();
       }
@@ -868,35 +848,29 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
      Map<String, Set<PSSiteRef>> cidSiteMap = 
         new HashMap<>();
 
-     Map cidFolderMap = getParentFolderPaths(request, cids);
-     Map siteMap = getSiteMap();
-     Iterator iter = cidFolderMap.keySet().iterator();
+     Map<String, String[]> cidFolderMap = getParentFolderPaths(request, cids);
+     Map<String, Set<SiteFolder>> siteMap = getSiteMap();
+     Iterator<String> iter = cidFolderMap.keySet().iterator();
      while (iter.hasNext())
       {
          String cid = (String) iter.next();
          String[] paths = (String[]) cidFolderMap.get(cid);
-         Set siteFolderSet = new HashSet<PSSiteRef>();
+         Set<PSSiteRef> siteFolderSet = new HashSet<>();
          cidSiteMap.put(cid, siteFolderSet);
          for (int i = 0; i < paths.length; i++)
          {
             String path = paths[i].replace('\\', '/');
             path = ensurePathEndsWithSlash(path);
-            Set sfSet = getSiteFolderSetForPath(siteMap, path);
-            if (sfSet != null)
-            {
-               Iterator sites = sfSet.iterator();
-               while (sites.hasNext())
-               {
-                  SiteFolder siteFolder = (SiteFolder) sites.next();
+            Set<SiteFolder> sfSet = getSiteFolderSetForPath(siteMap, path);
+            if (sfSet != null) {
+               for (SiteFolder siteFolder : sfSet) {
                   String siteFolderRoot = siteFolder.getSiteFolderRoot();
                   if (siteFolderRoot == null || siteFolderRoot.length() == 0)
                      continue;
                   siteFolderRoot = siteFolderRoot.replace('\\', '/');
                   siteFolderRoot = ensurePathEndsWithSlash(siteFolderRoot);
-                  if (path.startsWith(siteFolderRoot))
-                  {
-                     PSSiteRef siteRef = new PSSiteRef(siteFolder.getSiteId(),
-                           siteFolder.getSiteName());
+                  if (path.startsWith(siteFolderRoot)) {
+                     PSSiteRef siteRef = new PSSiteRef(siteFolder.getSiteId(), siteFolder.getSiteName());
                      siteFolderSet.add(siteRef);
                   }
                }
@@ -924,10 +898,9 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
          if (StringUtils.isBlank(froot))
             continue;
          froot = ensurePathEndsWithSlash(froot);
-         Set siteSet = siteMap.get(froot);
-         if (siteSet == null)
-         {
-            siteSet = new HashSet<SiteFolder>();
+         Set<SiteFolder> siteSet = siteMap.get(froot);
+         if (siteSet == null) {
+            siteSet = new HashSet<>();
             siteMap.put(froot, siteSet);
          }
          String id = Integer.toString(site.getGUID().getUUID());
@@ -954,10 +927,10 @@ public class PSAddVariantSiteFolder extends PSDefaultExtension
     * @throws PSExtensionProcessingException if the parent folder paths could
     *            not be obtained from server for any reason.
     */
-   private Map getParentFolderPaths(IPSRequestContext request, String[] cids)
+   private Map<String, String[]> getParentFolderPaths(IPSRequestContext request, String[] cids)
          throws PSExtensionProcessingException
    {
-      Map map = new HashMap();
+      Map<String, String[]> map = new HashMap<>();
 
       PSRelationshipProcessor proxy;
       try

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,10 +25,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for {@link PSPublishServerInfo} objects.
+ */
 @XmlRootElement(name = "serverInfo")
-@ArraySchema(schema=@Schema(implementation = PSPublishServerInfo.class))
+@ArraySchema(schema = @Schema(implementation = PSPublishServerInfo.class))
 public class PSPublishServerInfoList extends ArrayList<PSPublishServerInfo> {
+    /**
+     * Constructs a new list from the given collection.
+     * @param c the collection of server info objects
+     */
     public PSPublishServerInfoList(Collection<? extends PSPublishServerInfo> c) {
         super(c);
     }

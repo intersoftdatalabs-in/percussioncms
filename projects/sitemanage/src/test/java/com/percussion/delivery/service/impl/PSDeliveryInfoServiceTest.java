@@ -16,72 +16,66 @@
  */
 package com.percussion.delivery.service.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PSDeliveryInfoServiceTest
 {
-    @Ignore
+    @Disabled
     @Test
     public void testAvailableServices() throws Exception
     {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
-        
+        var tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
+
         PSDeliveryInfo server;
         IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
-        
+
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
         assertTrue(server != null);
 
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
         assertTrue(server != null);
-        
+
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
         assertTrue(server != null);
     }
-    
-    @Ignore
+
+    @Disabled
     @Test
     public void testAvailableServicesServersInfo() throws Exception
     {
-        File tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
-        
+        var tempConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream("DeliveryServerConfigTest_AvailableServices.xml"));
+
         PSDeliveryInfo server;
         IPSDeliveryInfoService deliveryService = new PSDeliveryInfoService(tempConfigFile);
-        
+
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_COMMENTS);
-        
-        assertEquals(server.getUsername(), "admin2");
+
+        assertEquals("admin2", server.getUsername());
 
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_INDEXER);
-        
-        assertEquals(server.getUsername(), "admin2");
-        
+
+        assertEquals("admin2", server.getUsername());
+
         server = deliveryService.findByService(PSDeliveryInfo.SERVICE_FORMS);
-        assertEquals(server.getUsername(), "admin1");
+        assertEquals("admin1", server.getUsername());
     }
-    
+
     private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
     {
-        // Copy mixed passwords to temp directory
-        File tempConfigFile = File.createTempFile("deliveryServers", ".xml");
-        OutputStream out = new FileOutputStream(tempConfigFile);
-        InputStream in = baseConfigFile;
-        
-        IOUtils.copy(in, out);
-        
+        var tempConfigFile = File.createTempFile("deliveryServers", ".xml");
+        try (var out = new FileOutputStream(tempConfigFile)) {
+            IOUtils.copy(baseConfigFile, out);
+        }
         return tempConfigFile;
     }
 }

@@ -15,10 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.publishingserver;
 
+/**
+ * Represents a Publishing Server in Percussion CMS.
+ * Sunny Sal: "Publishing server ka hero, deployment ka zero!"
+ */
 public class PublishingServer {
 
-    public PublishingServer(){}
-
+    public PublishingServer() {
+        // Default constructor
+    }
 }

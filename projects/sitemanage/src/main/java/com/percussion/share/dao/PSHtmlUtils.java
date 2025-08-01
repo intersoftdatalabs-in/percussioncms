@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
 import com.percussion.share.service.exception.PSExtractHTMLException;
@@ -50,8 +51,7 @@ import static org.apache.commons.lang.Validate.notNull;
  * 
  * @author yubingchen
  */
-public class PSHtmlUtils
-{
+public class PSHtmlUtils {
     /**
      * The logger for this class.
      */
@@ -125,46 +125,34 @@ public class PSHtmlUtils
      * @return the HTML fragment without the specified HTML element. It may be empty
      * if the specified HTML fragment is <code>null</code> or empty. It can never be <code>null</code>.
      */
-    public static String stripElement(String source, String tagName, String attrName, String attrValue)
-    {
+    public static String stripElement(String source, String tagName, String attrName, String attrValue) {
         notNull(tagName);
         notEmpty(tagName);
-        
+
         if (StringUtils.isBlank(source))
             return source;
-        
-        Source src = new Source(source);
-        OutputDocument outDoc = new OutputDocument(src);
+
+        var src = new Source(source);
+        var outDoc = new OutputDocument(src);
 
         tagName = tagName.toLowerCase();
-        List<StartTag> tags = src.getAllStartTags(tagName);
-        for (Tag tag : tags)
-        {
-        	boolean attrMatch = true;
-        	
-        	if (!StringUtils.isBlank(attrName)) {
-            	Attribute attr;
-        		attr = tag.parseAttributes().get(attrName);
-        		
-        		if (attr != null) {
-        			
-        			String value;
-        			value = attr.getValue();
-        			if (value == null && !StringUtils.isBlank(attrValue)) { //if it is attribute like "checked" or "selected"
-        				attrMatch = false;
-        			} else if (!value.equals(attrValue)) attrMatch = false;
-        			
-        		} else attrMatch = false; //no such attribute in the element
-        	}
-        	
-        	
-        	if (attrMatch)
-            {
-                Element elem = tag.getElement();
+        var tags = src.getAllStartTags(tagName);
+        for (var tag : tags) {
+            boolean attrMatch = true;
+            if (!StringUtils.isBlank(attrName)) {
+                var attr = tag.parseAttributes().get(attrName);
+                if (attr != null) {
+                    var value = attr.getValue();
+                    if (value == null && !StringUtils.isBlank(attrValue)) {
+                        attrMatch = false;
+                    } else if (!value.equals(attrValue)) attrMatch = false;
+                } else attrMatch = false;
+            }
+            if (attrMatch) {
+                var elem = tag.getElement();
                 outDoc.remove(elem);
             }
         }
-        
         return outDoc.toString();
     }
 
@@ -178,40 +166,30 @@ public class PSHtmlUtils
      * 
      * @return <code>true</code> if the HTML fragment contains the specified HTML element. Otherwise returns <code>false</code>.
      */
-    public static boolean checkElementExists(String source, String tagName, String attrName, String attrValue)
-    {
+    public static boolean checkElementExists(String source, String tagName, String attrName, String attrValue) {
         notNull(tagName);
         notEmpty(tagName);
-        
+
         boolean attrMatch = false;
         if (StringUtils.isBlank(source))
             return attrMatch;
-        
-        Source src = new Source(source);
+
+        var src = new Source(source);
         tagName = tagName.toLowerCase();
-        List<StartTag> tags = src.getAllStartTags(tagName);
-        for (Tag tag : tags)
-        {
-        	attrMatch = true;
-        	
-        	if (!StringUtils.isBlank(attrName)) {
-            	Attribute attr;
-        		attr = tag.parseAttributes().get(attrName);
-        		
-        		if (attr != null) {
-        			
-        			String value;
-        			value = attr.getValue();
-        			if (value == null && !StringUtils.isBlank(attrValue)) { //if it is attribute like "checked" or "selected"
-        				attrMatch = false;
-        			} else if (!value.equals(attrValue)) attrMatch = false;
-        			
-        		} else attrMatch = false; //no such attribute in the element
-        	}
-        	
-        	if (attrMatch) break;
+        var tags = src.getAllStartTags(tagName);
+        for (var tag : tags) {
+            attrMatch = true;
+            if (!StringUtils.isBlank(attrName)) {
+                var attr = tag.parseAttributes().get(attrName);
+                if (attr != null) {
+                    var value = attr.getValue();
+                    if (value == null && !StringUtils.isBlank(attrValue)) {
+                        attrMatch = false;
+                    } else if (!value.equals(attrValue)) attrMatch = false;
+                } else attrMatch = false;
+            }
+            if (attrMatch) break;
         }
-        
         return attrMatch;
     }
     
@@ -263,21 +241,17 @@ public class PSHtmlUtils
      */
     private static String extractHtmlOnly(String cssSelector, Document sourceDoc, String filename, boolean outerHTML)
     {
-        try
-        {
-            DOMNodeSelector selector = new DOMNodeSelector(sourceDoc);
-            Set<Node> nodes = selector.querySelectorAll(cssSelector);
+        try {
+            var selector = new DOMNodeSelector(sourceDoc);
+            var nodes = selector.querySelectorAll(cssSelector);
             return convertNodesToString(nodes, outerHTML);
-        }
-        catch (NodeSelectorException e)
-        {
+        } catch (NodeSelectorException e) {
             String msg;
             if (StringUtils.isBlank(filename))
                 msg = "Failed to extract HTML with CSS Selector, \"" + cssSelector + "\".";
             else
                 msg = "Failed to extract HTML with CSS Selector \"" + cssSelector + "\" from file '" + filename + "'.";
-            PSExtractHTMLException ex = new PSExtractHTMLException(msg, e);
-            throw ex;
+            throw new PSExtractHTMLException(msg, e);
         }
     }
 
@@ -291,15 +265,13 @@ public class PSHtmlUtils
      */
     private static String convertNodesToString(Set<Node> nodes, boolean outerHTML)
     {
-        StringBuilder buffer = new StringBuilder();
-        for (Node node : nodes)
-        {
-            String s = convertNodeToString(node, outerHTML);
+        var buffer = new StringBuilder();
+        for (var node : nodes) {
+            var s = convertNodeToString(node, outerHTML);
             if (buffer.length() > 0)
                 buffer.append('\n');
             buffer.append(s);
         }
-        
         return buffer.toString();
     }
     
@@ -315,14 +287,13 @@ public class PSHtmlUtils
     {
         if (outerHTML)
             return PSXmlDocumentBuilder.toString(node, XML_TO_STRING_FLAGS);
-        
-        StringBuilder buffer = new StringBuilder();
-        NodeList nodes = node.getChildNodes();
+
+        var buffer = new StringBuilder();
+        var nodes = node.getChildNodes();
         int len = nodes.getLength();
-        for (int i=0; i < len; i++)
-        {
-            Node n = nodes.item(i);
-            String s = PSXmlDocumentBuilder.toString(n, XML_TO_STRING_FLAGS);
+        for (int i = 0; i < len; i++) {
+            var n = nodes.item(i);
+            var s = PSXmlDocumentBuilder.toString(n, XML_TO_STRING_FLAGS);
             if (buffer.length() > 0)
                 buffer.append('\n');
             buffer.append(s);

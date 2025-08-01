@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.service;
 
 import com.percussion.error.PSExceptionUtils;
@@ -29,78 +30,85 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfNull;
 import static java.text.MessageFormat.format;
 import static org.apache.commons.lang.Validate.notNull;
 
-public abstract class PSAbstractDataService <FULL, SUM, PK extends Serializable> implements IPSDataService<FULL, SUM, PK>
-{
+/**
+ * Abstract base for data services, providing CRUD and validation logic.
+ *
+ * @param <FULL> Full object type
+ * @param <SUM> Summary object type
+ * @param <PK> Primary key type
+ */
+public abstract class PSAbstractDataService<FULL, SUM, PK extends Serializable>
+    implements IPSDataService<FULL, SUM, PK> {
 
-    protected IPSGenericDao<FULL, PK>  dao;
-    
-    
+    protected final IPSGenericDao<FULL, PK> dao;
+
     /**
-     * @param dao never <code>null</code>.
+     * @param dao never {@code null}
      */
-    public PSAbstractDataService(IPSGenericDao<FULL, PK> dao)
-    {
+    public PSAbstractDataService(IPSGenericDao<FULL, PK> dao) {
         super();
-        notNull(dao);
+        notNull(dao, "DAO must not be null");
         this.dao = dao;
     }
 
+    @Override
     public PSValidationErrors validate(FULL obj) throws PSValidationException {
         return PSBeanValidationUtils.getValidationErrorsOrFailIfInvalid(obj);
     }
-    
-    public void delete(PK id) throws PSDataServiceException
-    {
+
+    @Override
+    public void delete(PK id) throws PSDataServiceException {
         validateIdParameter("delete", id);
         try {
             getDao().delete(id);
         } catch (DeleteException e) {
-            String error = format("Error deleting object: {}", id);
-            log.error("Error: {}",  e.getMessage());
+            var error = format("Error deleting object: {0}", id);
+            log.error("Error: {}", e.getMessage());
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            throw new DataServiceDeleteException(error,e);
+            throw new DataServiceDeleteException(error, e);
         }
     }
 
-    public FULL load(PK id) throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
+    @Override
+    public FULL load(PK id)
+            throws DataServiceLoadException, DataServiceNotFoundException, PSValidationException {
         validateIdParameter("load", id);
-        
         try {
-            FULL item = getDao().find(id);
-            if (item == null) 
-                throw new DataServiceNotFoundException("Item not found:" + id.toString());
+            var item = Optional.ofNullable(getDao().find(id))
+                    .orElseThrow(() -> new DataServiceNotFoundException("Item not found: " + id));
             return item;
         } catch (PSDataServiceException e) {
             throw new DataServiceLoadException(e);
         }
     }
 
+    @Override
     public FULL save(FULL object) throws PSDataServiceException {
         try {
             validate(object);
             return getDao().save(object);
         } catch (SaveException | LoadException | DeleteException e) {
-            String error = format("Error saving object: {}", object);
-            throw new DataServiceSaveException(error,e);
+            var error = format("Error saving object: {0}", object);
+            throw new DataServiceSaveException(error, e);
         }
     }
-    
+
     protected final IPSGenericDao<FULL, PK> getDao() {
         return dao;
     }
-    
-    protected void validateIdParameter(String action, PK id) throws PSValidationException {
 
+    protected void validateIdParameter(String action, PK id) throws PSValidationException {
         rejectIfNull(action, "id", id);
     }
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * Logger instance for this class, never {@code null}.
      */
     private static final Logger log = LogManager.getLogger(PSAbstractDataService.class);
 }

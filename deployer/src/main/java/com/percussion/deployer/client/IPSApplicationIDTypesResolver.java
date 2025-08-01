@@ -37,6 +37,6 @@ public interface IPSApplicationIDTypesResolver
     *           <code>PSApplicationIDTypeMapping</code>, each representing an
     *           undefined ID type
     */
-   public void defineIdTypes(Iterator undefinedMappings);
+   void defineIdTypes(Iterator<PSApplicationIDTypeMapping> undefinedMappings);
 
 }

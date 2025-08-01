@@ -23,68 +23,60 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSLocaleConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSLocaleConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSLocale source = new PSLocale("de-ch", "Swiss German", 
-         "German language used in Switzerland", PSLocale.STATUS_ACTIVE);
-      
-      PSLocale target = (PSLocale) roundTripConversion(PSLocale.class, 
-         com.percussion.webservices.content.PSLocale.class, source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-      
-      List<PSLocale> srcList = new ArrayList<PSLocale>(2);
-      srcList.add(source);
-      srcList.add(new PSLocale("fr-ca", "Canadian French", 
-         "French language used in Canada", PSLocale.STATUS_INACTIVE));
-      List tgtList = roundTripListConversion(
-         com.percussion.webservices.content.PSLocale[].class, srcList);
-      assertEquals(srcList, tgtList);
-      
-      // test com.percussion.webservices.security.data.PSLocale
-      target = (PSLocale) roundTripConversion(PSLocale.class, 
-         com.percussion.webservices.security.data.PSLocale.class, source);
-      assertTrue(source.equals(target));
-      
-      // test com.percussion.webservices.security.data.PSLocale[]
-      tgtList = roundTripListConversion(
-         com.percussion.webservices.security.data.PSLocale[].class, srcList);
-      assertEquals(srcList, tgtList);
-   }
-   
-   /**
-    * Test a list of server object convert to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      List<PSLocale> srcList = new ArrayList<PSLocale>();
-      srcList.add(new PSLocale("en-us", "English US", 
-            "English language used in United States", PSLocale.STATUS_ACTIVE));
-      srcList.add(new PSLocale("de-ch", "Swiss German", 
-            "German language used in Switzerland", PSLocale.STATUS_ACTIVE));
-      
-      List<PSLocale> srcList2 = roundTripListConversion(
-            com.percussion.webservices.content.PSLocale[].class, srcList);
-      assertTrue(srcList.equals(srcList2));
-      
-      // test com.percussion.webservices.security.data.PSLocale[]
-      srcList2 = roundTripListConversion(
-            com.percussion.webservices.security.data.PSLocale[].class, srcList);
-      assertTrue(srcList.equals(srcList2));
-   }
-}
+public class PSLocaleConverterTest extends PSConverterTestBase {
 
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        var source = new PSLocale("de-ch", "Swiss German",
+                "German language used in Switzerland", PSLocale.STATUS_ACTIVE);
+
+        var target = (PSLocale) roundTripConversion(PSLocale.class,
+                com.percussion.webservices.content.PSLocale.class, source);
+
+        assertEquals(source, target);
+
+        var srcList = new ArrayList<PSLocale>(2);
+        srcList.add(source);
+        srcList.add(new PSLocale("fr-ca", "Canadian French",
+                "French language used in Canada", PSLocale.STATUS_INACTIVE));
+        var tgtList = roundTripListConversion(
+                com.percussion.webservices.content.PSLocale[].class, srcList);
+        assertEquals(srcList, tgtList);
+
+        target = (PSLocale) roundTripConversion(PSLocale.class,
+                com.percussion.webservices.security.data.PSLocale.class, source);
+        assertEquals(source, target);
+
+        tgtList = roundTripListConversion(
+                com.percussion.webservices.security.data.PSLocale[].class, srcList);
+        assertEquals(srcList, tgtList);
+    }
+
+    /**
+     * Test a list of server object convert to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var srcList = new ArrayList<PSLocale>();
+        srcList.add(new PSLocale("en-us", "English US",
+                "English language used in United States", PSLocale.STATUS_ACTIVE));
+        srcList.add(new PSLocale("de-ch", "Swiss German",
+                "German language used in Switzerland", PSLocale.STATUS_ACTIVE));
+
+        var srcList2 = roundTripListConversion(
+                com.percussion.webservices.content.PSLocale[].class, srcList);
+        assertEquals(srcList, srcList2);
+
+        srcList2 = roundTripListConversion(
+                com.percussion.webservices.security.data.PSLocale[].class, srcList);
+        assertEquals(srcList, srcList2);
+    }
+}

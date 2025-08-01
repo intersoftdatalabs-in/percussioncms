@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,16 +27,16 @@ import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;
 
 /**
- * Metadata fields to be saved to template
- * 
+ * Metadata fields to be saved to template or page.
+ * Provides HTML metadata for head, body, and protected regions.
  * @author Luis
  * @author adamgent
  */
-@XmlRootElement(name="HtmlMetadata")
-public class PSHtmlMetadata  extends PSAbstractDataObject implements IPSHtmlMetadata {
-    
+@XmlRootElement(name = "HtmlMetadata")
+public class PSHtmlMetadata extends PSAbstractDataObject implements IPSHtmlMetadata {
 
     private static final long serialVersionUID = 1L;
+
     @NotNull
     @NotEmpty
     private String id;
@@ -46,129 +47,86 @@ public class PSHtmlMetadata  extends PSAbstractDataObject implements IPSHtmlMeta
     private String protectedRegionText = "";
     private PSMetadataDocType docType;
     private String description;
-    
-    
+
     /**
-     * Id of the page or template.
-     * @return never <code>null</code> or empty.
+     * Gets the ID of the page or template.
+     * @return never {@code null} or empty.
      */
     @XmlElement
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getAdditionalHeadContent()
-    {
+    @Override
+    public String getAdditionalHeadContent() {
         return additionalHeadContent;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setAdditionalHeadContent(String additionalHeadContent)
-    {
+    @Override
+    public void setAdditionalHeadContent(String additionalHeadContent) {
         this.additionalHeadContent = additionalHeadContent;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getAfterBodyStartContent()
-    {
+
+    @Override
+    public String getAfterBodyStartContent() {
         return afterBodyStartContent;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setAfterBodyStartContent(String afterBodyStartContent)
-    {
+
+    @Override
+    public void setAfterBodyStartContent(String afterBodyStartContent) {
         this.afterBodyStartContent = afterBodyStartContent;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getBeforeBodyCloseContent()
-    {
+
+    @Override
+    public String getBeforeBodyCloseContent() {
         return beforeBodyCloseContent;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setBeforeBodyCloseContent(String beforeBodyCloseContent)
-    {
+
+    @Override
+    public void setBeforeBodyCloseContent(String beforeBodyCloseContent) {
         this.beforeBodyCloseContent = beforeBodyCloseContent;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getProtectedRegion()
-    {
+    @Override
+    public String getProtectedRegion() {
         return protectedRegion;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void setProtectedRegion(String protectedRegion)
-    {
+
+    @Override
+    public void setProtectedRegion(String protectedRegion) {
         this.protectedRegion = protectedRegion;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    
-    public String getProtectedRegionText()
-    {
+
+    @Override
+    public String getProtectedRegionText() {
         return protectedRegionText;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    
-    public void setProtectedRegionText(String protectedRegionText)
-    {
+
+    @Override
+    public void setProtectedRegionText(String protectedRegionText) {
         this.protectedRegionText = protectedRegionText;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public PSMetadataDocType getDocType()
-    {
+    @Override
+    public PSMetadataDocType getDocType() {
         return docType;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void setDocType(PSMetadataDocType docType)
-    {
+    @Override
+    public void setDocType(PSMetadataDocType docType) {
         this.docType = docType;
     }
 
     @Override
-    public void setDescription(String description)
-    {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public String getDescription()
-    {
+    public String getDescription() {
         return description;
     }
 }

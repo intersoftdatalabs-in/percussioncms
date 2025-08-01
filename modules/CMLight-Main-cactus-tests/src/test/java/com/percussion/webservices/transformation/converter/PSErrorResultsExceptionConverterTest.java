@@ -27,53 +27,45 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.faults.PSErrorResultsFault;
-import org.junit.Test;
 import org.junit.experimental.categories.Category;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSErrorResultsExceptionConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSErrorResultsExceptionConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   @Test
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      IPSGuidManager manager = PSGuidManagerLocator.getGuidMgr();
-      
-      IPSGuid guid_1 = manager.createGuid(PSTypeEnum.SLOT);
-      IPSGuid guid_2 = manager.createGuid(PSTypeEnum.SLOT);
-      IPSGuid guid_3 = manager.createGuid(PSTypeEnum.SLOT);
-      
-      PSTemplateSlot slot = new PSTemplateSlot();
-      slot.setGUID(guid_1);
-      slot.setName("eiger");
-      slot.setLabel("eigerLabel");
-      
-      PSErrorException error = new PSErrorException(
-         IPSWebserviceErrors.OBJECT_NOT_FOUND, "message", "stack");
-      PSLockErrorException lockError = new PSLockErrorException(
-         IPSWebserviceErrors.OBJECT_NOT_FOUND, "message", "stack");
-      lockError.setLocker("locker");
-      lockError.setRemainingTime(1000);
-      
-      PSErrorResultsException source = new PSErrorResultsException();
-      source.addResult(guid_1, slot);
-      source.addError(guid_2, error);
-      source.addError(guid_3, lockError);
-      
-      PSErrorResultsException target = 
-         (PSErrorResultsException) roundTripConversion(
-            PSErrorResultsException.class, 
-            PSErrorResultsFault.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
-}
+public class PSErrorResultsExceptionConverterTest extends PSConverterTestBase {
 
+    public void testConversion() throws Exception {
+        var manager = PSGuidManagerLocator.getGuidMgr();
+
+        var guid1 = manager.createGuid(PSTypeEnum.SLOT);
+        var guid2 = manager.createGuid(PSTypeEnum.SLOT);
+        var guid3 = manager.createGuid(PSTypeEnum.SLOT);
+
+        var slot = new PSTemplateSlot();
+        slot.setGUID(guid1);
+        slot.setName("eiger");
+        slot.setLabel("eigerLabel");
+
+        var error = new PSErrorException(
+                IPSWebserviceErrors.OBJECT_NOT_FOUND, "message", "stack");
+        var lockError = new PSLockErrorException(
+                IPSWebserviceErrors.OBJECT_NOT_FOUND, "message", "stack");
+        lockError.setLocker("locker");
+        lockError.setRemainingTime(1000);
+
+        var source = new PSErrorResultsException();
+        source.addResult(guid1, slot);
+        source.addError(guid2, error);
+        source.addError(guid3, lockError);
+
+        var target = (PSErrorResultsException) roundTripConversion(
+                PSErrorResultsException.class,
+                PSErrorResultsFault.class,
+                source);
+
+        assertEquals(source, target);
+    }
+}

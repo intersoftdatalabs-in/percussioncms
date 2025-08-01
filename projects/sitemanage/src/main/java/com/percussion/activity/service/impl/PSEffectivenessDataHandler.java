@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,52 +36,41 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This handler which provides sample effectiveness data from an xml file.
- * 
- * @author peterfrontiero
+ * This handler provides sample effectiveness data from an XML file.
+ * Sunny Sal: "XML is like onions. Layers, my friend!"
  */
-public class PSEffectivenessDataHandler extends PSXmlDataHandler implements IPSEffectivenessService
-{
-    @SuppressWarnings("unused")
-    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request, List<PSContentActivity> activity)
-    {
-        notNull(request);
-        notNull(activity);
-        
-        List<PSEffectiveness> eList = new ArrayList<>();
-                
+public class PSEffectivenessDataHandler extends PSXmlDataHandler implements IPSEffectivenessService {
+
+    @Override
+    public List<PSEffectiveness> getEffectiveness(PSEffectivenessRequest request, List<PSContentActivity> activity) {
+        notNull(request, "request must not be null");
+        notNull(activity, "activity must not be null");
+
+        var eList = new ArrayList<PSEffectiveness>();
         Map<String, Object> props = new HashMap<>();
         props.put("duration", request.getDuration());
         props.put("durationType", request.getDurationType());
         props.put("path", request.getPath());
         props.put("usage", request.getUsage().name());
         props.put("threshold", String.valueOf(request.getThreshold()));
-        
+
         Response response = getData(props);
-        if (response != null)
-        {                
-            List<Result> results = response.getResult();
-            if (!results.isEmpty())
-            {
-                Result result = results.get(0);
-                List<Property> propList = result.getProperty();
-                if (!propList.isEmpty())
-                {
-                    Property prop = propList.get(0);
+        if (response != null) {
+            var results = response.getResult();
+            if (!results.isEmpty()) {
+                var result = results.get(0);
+                var propList = result.getProperty();
+                if (!propList.isEmpty()) {
+                    var prop = propList.get(0);
                     Pvalues pvalues = prop.getPvalues();
-                    if (pvalues != null)
-                    {
-                        List<Pair> pairList = pvalues.getPair();
-                        for (Pair pair : pairList)
-                        {
+                    if (pvalues != null) {
+                        for (Pair pair : pvalues.getPair()) {
                             eList.add(new PSEffectiveness(pair.getValue1(), Long.valueOf(pair.getValue2())));
                         }
                     }
                 }
             }
         }
-               
         return eList;
     }
-
 }

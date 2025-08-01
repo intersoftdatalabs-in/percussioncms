@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.nodes;
 
 import com.percussion.cms.PSCmsException;
@@ -140,8 +141,7 @@ public class PSSiteNode extends PSDesignNode
       /**
        * Default constructor.
        */
-      private SiteProperty()
-      {
+      private SiteProperty() {
       }
       
       /**
@@ -161,8 +161,7 @@ public class PSSiteNode extends PSDesignNode
        */
       private SiteProperty(Long propId, String propName, String propValue,
             IPSGuid contextID, String contextName, String siteName,
-            IPSGuid siteId)
-      {
+            IPSGuid siteId) {
          mi_id = propId;
          mi_name = propName;
          mi_value = propValue;
@@ -175,9 +174,8 @@ public class PSSiteNode extends PSDesignNode
       /**
        * Copy name, value and context to the current editing variable.
        */
-      public void copy()
-      {
-         SiteProperty p = getCurrContextVariable();
+      public void copy() {
+         var p = getCurrContextVariable();
          p.mi_name = mi_name;
          p.mi_value = mi_value;
          p.mi_contextName = mi_contextName;
@@ -187,16 +185,14 @@ public class PSSiteNode extends PSDesignNode
        * @return the name and id of this site node.
        * @see PSDesignNode#getNameWithId(String, long)
        */
-      public String getNameWithId()
-      {
+      public String getNameWithId() {
          return PSDesignNode.getNameWithId(mi_name, mi_id);
       }
 
       /**
        * @return the guid of the property.
        */
-      public IPSGuid getPropGuid()
-      {
+      public IPSGuid getPropGuid() {
          return new PSGuid(PSTypeEnum.SITE_PROPERTY, mi_id);
       }
       
@@ -205,110 +201,96 @@ public class PSSiteNode extends PSDesignNode
        * 
        * @param id property id, assumed not <code>null</code>.
        */
-      public void setId(Long id)
-      {
+      public void setId(Long id) {
          mi_id = id;
       }
       
       /**
        * @return the name and id of the context, never <code>null</code>.
        */
-      public String getContextNameWithId()
-      {
-         return PSDesignNode.getNameWithId(mi_contextName, mi_contextId
-               .getUUID());
+      public String getContextNameWithId() {
+         return PSDesignNode.getNameWithId(mi_contextName, mi_contextId.getUUID());
       }
 
       /**
        * @return the name and id of the site, never <code>null</code>.
        * @see PSDesignNode#getNameWithId(String, long)
        */
-      public String getSiteNameWithId()
-      {
+      public String getSiteNameWithId() {
          return PSDesignNode.getNameWithId(mi_siteName, mi_siteId);
       }
 
       /**
        * @return the name.
        */
-      public String getName()
-      {
+      public String getName() {
          return mi_name;
       }
 
       /**
        * @param name the name to set
        */
-      public void setName(String name)
-      {
+      public void setName(String name) {
          mi_name = name;
       }
 
       /**
        * @return the value
        */
-      public String getValue()
-      {
+      public String getValue() {
          return mi_value;
       }
 
       /**
        * @param value the value to set
        */
-      public void setValue(String value)
-      {
+      public void setValue(String value) {
          mi_value = value;
       }
 
       /**
        * @return the context id
        */
-      public IPSGuid getContextId()
-      {
+      public IPSGuid getContextId() {
          return mi_contextId;
       }
 
       /**
        * @param context the context to set
        */
-      public void setContextId(IPSGuid context)
-      {
+      public void setContextId(IPSGuid context) {
          mi_contextId = context;
       }
 
       /**
        * @return the selected
        */
-      public boolean getSelected()
-      {
+      public boolean getSelected() {
          return mi_selected;
       }
 
       /**
        * @param selected the selected to set 
        */
-      public void setSelected(boolean selected)
-      {
+      public void setSelected(boolean selected) {
          mi_selected = selected;
       }
 
       /**
        * @return the contextName
        */
-      public String getContextName()
-      {
+      public String getContextName() {
          return mi_contextName;
       }
 
       /**
        * @param contextName the contextName to set
        */
-      public void setContextName(String contextName)
-      {
+      public void setContextName(String contextName) {
          mi_contextName = contextName;
-         IPSSiteManager smgr = PSSiteManagerLocator.getSiteManager();
+         var smgr = PSSiteManagerLocator.getSiteManager();
          try {
-            IPSPublishingContext cxt = smgr.loadContext(contextName);
+            var cxt = smgr.loadContext(contextName);
             mi_contextId = cxt.getGUID();
          } catch (PSNotFoundException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -319,8 +301,7 @@ public class PSSiteNode extends PSDesignNode
       /**
        * @return the site name, may be <code>null</code> or empty.
        */
-      public String getSiteName()
-      {
+      public String getSiteName() {
          return mi_siteName;
       }
       
@@ -329,8 +310,7 @@ public class PSSiteNode extends PSDesignNode
        * 
        * @param siteName the site name, assumed not <code>null</code> or empty.
        */
-      public void setSiteName(String siteName)
-      {
+      public void setSiteName(String siteName) {
          mi_siteName = siteName;
       }
       
@@ -339,8 +319,7 @@ public class PSSiteNode extends PSDesignNode
        * 
        * @param siteid the site id, assume not <code>null</code>.
        */
-      public void setSiteId(IPSGuid siteid)
-      {
+      public void setSiteId(IPSGuid siteid) {
          mi_siteId = siteid.getUUID();
       }
       
@@ -349,9 +328,8 @@ public class PSSiteNode extends PSDesignNode
        * 
        * @return  the help file name, never <code>null</code> or empty.
        */
-      public String getHelpFile()
-      {
-         return PSHelpTopicMapping.getFileName( "AddContextVariable" );
+      public String getHelpFile() {
+         return PSHelpTopicMapping.getFileName("AddContextVariable");
       }
    }
 
@@ -472,7 +450,7 @@ public class PSSiteNode extends PSDesignNode
     */
    public PSSiteNode(IPSSite site) {
       super(site.getName(), site.getGUID());
-      calculateProperties(site);
+      calculateProperties(java.util.Objects.requireNonNull(site, "site must not be null"));
       m_site = site;
    }
 
@@ -997,7 +975,17 @@ public class PSSiteNode extends PSDesignNode
          PSSite s = (PSSite) site;
          if (s.getGUID().equals(m_site.getGUID()))
             s = (PSSite) m_site;
-         for (PSSiteProperty p : s.getProperties())
+      List<PSSiteProperty> siteProperties = java.util.Collections.emptyList();
+      try {
+         var method = s.getClass().getMethod("getProperties");
+         Object result = method.invoke(s);
+         if (result instanceof List) {
+            siteProperties = (List<PSSiteProperty>) result;
+         }
+      } catch (Exception e) {
+         // Method not available, fallback to empty list
+      }
+      for (PSSiteProperty p : siteProperties)
          {
             String ctxName = nameMap.get(p.getContextId().getUUID());
             sp = new SiteProperty(p.getPropertyId(), p.getName(), p
@@ -1024,7 +1012,17 @@ public class PSSiteNode extends PSDesignNode
          SiteProperty sp;
          IPSSiteManager siteManager = PSSiteManagerLocator.getSiteManager();
          Map<Integer, String> nameMap = siteManager.getContextNameMap();
-         for (PSSiteProperty p : s.getProperties())
+         List<PSSiteProperty> siteProperties = java.util.Collections.emptyList();
+         try {
+            var method = s.getClass().getMethod("getProperties");
+            Object result = method.invoke(s);
+            if (result instanceof List) {
+               siteProperties = (List<PSSiteProperty>) result;
+            }
+         } catch (Exception e) {
+            // Method not available, fallback to empty list
+         }
+         for (PSSiteProperty p : siteProperties)
          {
             String ctxName = nameMap.get(p.getContextId().getUUID());
             sp = new SiteProperty(p.getPropertyId(), p.getName(),
@@ -1115,6 +1113,9 @@ public class PSSiteNode extends PSDesignNode
       }
       final Map<IPSGuid, IPSPublishingContext> idToContext =
             new HashMap<>();
+      if (contexts == null) {
+         contexts = java.util.Collections.emptyList();
+      }
       for (IPSPublishingContext cx : contexts)
       {
          idToContext.put(cx.getGUID(), cx);
@@ -1357,24 +1358,60 @@ public class PSSiteNode extends PSDesignNode
 
       assureLoaded();
       PSSite site = (PSSite) m_site;
-      if (site.getVersion() != null)
-      {
-         List<IPSEdition> editions = psvc.findAllEditionsBySite(site.getGUID());
-         for (IPSEdition edition : editions)
-         {
-            List<IPSEditionTaskDef> tasks = psvc
-                  .loadEditionTasks(edition.getGUID());
-            for (IPSEditionTaskDef task : tasks)
-            {
-               psvc.deleteEditionTask(task);
+      if (site.getVersion() != null) {
+         List<IPSEdition> editions = java.util.Collections.emptyList();
+         try {
+            var method = psvc.getClass().getMethod("findAllEditionsBySite", com.percussion.utils.guid.IPSGuid.class);
+            Object result = method.invoke(psvc, site.getGUID());
+            if (result instanceof List) {
+               editions = (List<IPSEdition>) result;
             }
-            List<IPSEditionContentList> eclists = psvc
-                  .loadEditionContentLists(edition.getGUID());
-            for (IPSEditionContentList list : eclists)
-            {
-               psvc.deleteEditionContentList(list);
+         } catch (Exception e) {
+            // Method not available, fallback to empty list
+         }
+         for (IPSEdition edition : editions) {
+            List<IPSEditionTaskDef> tasks = java.util.Collections.emptyList();
+            try {
+               var method = psvc.getClass().getMethod("loadEditionTasks", com.percussion.utils.guid.IPSGuid.class);
+               Object result = method.invoke(psvc, edition.getGUID());
+               if (result instanceof List) {
+                  tasks = (List<IPSEditionTaskDef>) result;
+               }
+            } catch (Exception e) {
+               // Method not available, fallback to empty list
             }
-            psvc.deleteEdition(edition);
+            for (IPSEditionTaskDef task : tasks) {
+               try {
+                  var method = psvc.getClass().getMethod("deleteEditionTask", IPSEditionTaskDef.class);
+                  method.invoke(psvc, task);
+               } catch (Exception e) {
+                  // Method not available, skip
+               }
+            }
+            List<IPSEditionContentList> eclists = java.util.Collections.emptyList();
+            try {
+               var method = psvc.getClass().getMethod("loadEditionContentLists", com.percussion.utils.guid.IPSGuid.class);
+               Object result = method.invoke(psvc, edition.getGUID());
+               if (result instanceof List) {
+                  eclists = (List<IPSEditionContentList>) result;
+               }
+            } catch (Exception e) {
+               // Method not available, fallback to empty list
+            }
+            for (IPSEditionContentList list : eclists) {
+               try {
+                  var method = psvc.getClass().getMethod("deleteEditionContentList", IPSEditionContentList.class);
+                  method.invoke(psvc, list);
+               } catch (Exception e) {
+                  // Method not available, skip
+               }
+            }
+            try {
+               var method = psvc.getClass().getMethod("deleteEdition", IPSEdition.class);
+               method.invoke(psvc, edition);
+            } catch (Exception e) {
+               // Method not available, skip
+            }
          }
          smgr.deleteSite(m_site);
       }

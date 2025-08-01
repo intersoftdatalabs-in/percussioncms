@@ -62,10 +62,10 @@ import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
+// REFACTORED: CP-JAVA11
 @Component("renderAssemblyBridge")
-public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge
-{
-    
+public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge {
+
     /**
      * The id mapper, Initialized by constructor, never <code>null</code> after
      * that.
@@ -84,24 +84,27 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge
     private final IPSContentDesignWs contentDesignWs;
 
     private final IPSSiteManager siteManager;
-    
+
     private final IPSContentWs contentWs;
 
     private final IPSCmsObjectMgr cmsMgr;
-    
+
     /**
      * The name of the system dispatch template for pages. Initialized in spring
      * configuration, never <code>null</code> after that.
      */
     @Value("${assemblyBridge.dispatchTemplate:perc.base.plain}")
     private String dispatchTemplate;
-    
-    
+
+
     @Autowired
-    public PSRenderAssemblyBridge(IPSAssemblyService assemblyService, IPSContentDesignWs contentDesignWs,
-            IPSContentWs contentWs, IPSIdMapper idMapper, IPSSiteManager siteManager, IPSCmsObjectMgr cmsMgr)
-    {
-        super();
+    public PSRenderAssemblyBridge(
+            IPSAssemblyService assemblyService,
+            IPSContentDesignWs contentDesignWs,
+            IPSContentWs contentWs,
+            IPSIdMapper idMapper,
+            IPSSiteManager siteManager,
+            IPSCmsObjectMgr cmsMgr) {
         this.assemblyService = assemblyService;
         this.contentDesignWs = contentDesignWs;
         this.contentWs = contentWs;
@@ -110,108 +113,89 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge
         this.cmsMgr = cmsMgr;
     }
 
-    public String renderPage(String id, boolean editMode, boolean scriptsOff, EditType editType) throws PSPageException, PSValidationException {
+    @Override
+    public String renderPage(String id, boolean editMode, boolean scriptsOff, EditType editType)
+            throws PSPageException, PSValidationException {
         return render(id, editMode, scriptsOff, editType);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String renderPage(String id, boolean editMode, boolean scriptsOff) throws PSPageException, PSValidationException {
+
+    @Override
+    public String renderPage(String id, boolean editMode, boolean scriptsOff)
+            throws PSPageException, PSValidationException {
         return render(id, editMode, scriptsOff, EditType.PAGE);
     }
-    
-    public String renderTemplate(String id, boolean scriptsOff) throws PSPageException, PSValidationException {
+
+    @Override
+    public String renderTemplate(String id, boolean scriptsOff)
+            throws PSPageException, PSValidationException {
         return render(id, true, scriptsOff, EditType.TEMPLATE);
     }
-    
-    protected String render(String id, boolean editMode, boolean scriptsOff, EditType editType) throws PSPageException, PSValidationException {
+
+    protected String render(String id, boolean editMode, boolean scriptsOff, EditType editType)
+            throws PSPageException, PSValidationException {
         notEmpty(id, "id may not be blank");
-
         validateExistingItem(id);
-
-        try
-        {
-            IPSAssemblyItem work = getWorkItemForPreview(id, editMode, scriptsOff, editType);
+        try {
+            var work = getWorkItemForPreview(id, editMode, scriptsOff, editType);
             return assemble(work);
-        }
-        catch (Exception e)
-        {
-            String errorMsg = "Failed to preview page: " + id;
-            log.error("{} Error: {}",
-                    errorMsg,
-                    PSExceptionUtils.getMessageForLog(e));
-
+        } catch (Exception e) {
+            var errorMsg = "Failed to preview page: " + id;
+            log.error("{} Error: {}", errorMsg, PSExceptionUtils.getMessageForLog(e));
             throw new PSPageException(errorMsg, e);
         }
     }
-    
+
+    @Override
     public String renderPage(PSPage page, boolean editMode, boolean scriptsOff) throws PSPageException {
-        notNull(page);
-        notEmpty(page.getId());
-        IPSAssemblyItem ai = getWorkItemForPreview(page.getId(), null, page, true, scriptsOff, EditType.PAGE);
+        notNull(page, "page");
+        notEmpty(page.getId(), "page id");
+        var ai = getWorkItemForPreview(page.getId(), null, page, true, scriptsOff, EditType.PAGE);
         return render(ai, page);
     }
 
+    @Override
     public String renderTemplate(PSTemplate template, boolean scriptsOff) throws PSPageException {
-        notNull(template);
-        notEmpty(template.getId());
-        IPSAssemblyItem ai = getWorkItemForPreview(template.getId(), template, null, true, scriptsOff, EditType.TEMPLATE);
+        notNull(template, "template");
+        notEmpty(template.getId(), "template id");
+        var ai = getWorkItemForPreview(template.getId(), template, null, true, scriptsOff, EditType.TEMPLATE);
         return render(ai, template);
     }
 
+    @Override
     public String renderTemplateWithPage(PSTemplate template, PSPage page, boolean scriptsOff) throws PSPageException {
-        notNull(template);
-        notEmpty(template.getId());
-        IPSAssemblyItem ai = getWorkItemForPreview(page.getId(), template, page, true, scriptsOff, EditType.TEMPLATE);
+        notNull(template, "template");
+        notEmpty(template.getId(), "template id");
+        var ai = getWorkItemForPreview(page.getId(), template, page, true, scriptsOff, EditType.TEMPLATE);
         return render(ai, template);
     }
-    
+
     private String render(IPSAssemblyItem work, PSAbstractPersistantObject object) throws PSPageException {
         notNull(work, "work");
         notNull(object, "object");
         isTrue(isNotBlank(object.getId()), "id may not be blank");
-
-        try
-        {
+        try {
             return assemble(work);
-        }
-        catch (Exception e)
-        {
-            if(log.isDebugEnabled()) {
-                String errorMsg = "Failed to preview: " + object;
+        } catch (Exception e) {
+            if (log.isDebugEnabled()) {
+                var errorMsg = "Failed to preview: " + object;
                 log.error("{} Error: {}", errorMsg, PSExceptionUtils.getMessageForLog(e));
             }
             throw new PSPageException("Failed to preview:", e);
         }
     }
 
-    private String assemble(IPSAssemblyItem work) throws RepositoryException,
-            PSTemplateNotImplementedException, PSAssemblyException, PSFilterException, IOException
-    {
-        List<IPSAssemblyResult> results = assemblyService.assemble(Collections.singletonList(work));
-        IPSAssemblyResult result = results.get(0);
-        String charSet = result.getTemplate().getCharset();
+    private String assemble(IPSAssemblyItem work)
+            throws RepositoryException, PSTemplateNotImplementedException, PSAssemblyException, PSFilterException, IOException {
+        var results = assemblyService.assemble(Collections.singletonList(work));
+        var result = results.get(0);
+        var charSet = result.getTemplate().getCharset();
         return IOUtils.toString(result.getResultStream(), charSet);
     }
 
-    /**
-     * Calls
-     * then adds the supplied template and page to the result if they are not
-     * <code>null</code>.
-     * 
-     * @param id For a template or page. Not blank.
-     * @param template May be <code>null</code>. 
-     * @param page May be <code>null</code>. 
-     * @param editMode See
-     * {@link IPSRenderAssemblyBridge#renderPage(String, boolean, boolean)}.
-     * @param scriptsOff See  {@link IPSRenderAssemblyBridge#renderPage(String, boolean, boolean)}. 
-     * @param editType the edited item type, assumed not <code>null</code>.
-     * 
-     * @return Never <code>null</code>.
-     */
-    private IPSAssemblyItem getWorkItemForPreview(String id, PSTemplate template, PSPage page, boolean editMode, boolean scriptsOff, EditType editType) throws PSPageException {
-        IPSAssemblyItem item = getWorkItemForPreview(id, editMode, scriptsOff, editType);
+    private IPSAssemblyItem getWorkItemForPreview(
+            String id, PSTemplate template, PSPage page, boolean editMode, boolean scriptsOff, EditType editType)
+            throws PSPageException {
+        var item = getWorkItemForPreview(id, editMode, scriptsOff, editType);
         if (template != null) {
             PSAssemblyItemBridge.setTemplate(item, template);
         }
@@ -220,120 +204,87 @@ public class PSRenderAssemblyBridge implements IPSRenderAssemblyBridge
         }
         return item;
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public IPSAssemblyItem getWorkItemForPreview(String id, boolean editMode, boolean scriptsOff, EditType editType) throws PSPageException {
-        notEmpty(id);
-        
-        PSLegacyGuid guid = (PSLegacyGuid) idMapper.getGuid(id);
-        guid = (PSLegacyGuid) contentDesignWs.getItemGuid(guid);
-        
-        IPSAssemblyItem work = assemblyService.createAssemblyItem();
-        work.setId(guid);
 
-        work.setParameterValue(IPSHtmlParameters.SYS_CONTENTID, guid.getContentId() + "");
-        work.setParameterValue(IPSHtmlParameters.SYS_REVISION, guid.getRevision() + "");
+    @Override
+    public IPSAssemblyItem getWorkItemForPreview(String id, boolean editMode, boolean scriptsOff, EditType editType)
+            throws PSPageException {
+        notEmpty(id, "id");
+        var guid = (PSLegacyGuid) idMapper.getGuid(id);
+        guid = (PSLegacyGuid) contentDesignWs.getItemGuid(guid);
+        var work = assemblyService.createAssemblyItem();
+        work.setId(guid);
+        work.setParameterValue(IPSHtmlParameters.SYS_CONTENTID, String.valueOf(guid.getContentId()));
+        work.setParameterValue(IPSHtmlParameters.SYS_REVISION, String.valueOf(guid.getRevision()));
         work.setParameterValue(IPSHtmlParameters.SYS_ITEMFILTER, "preview");
         work.setParameterValue(IPSHtmlParameters.SYS_TEMPLATE, String.valueOf(getDispatchTemplateId().getUUID()));
         work.setParameterValue(IPSHtmlParameters.SYS_CONTEXT, "0");
         if (editMode) {
             work.setParameterValue(PSPageAssemblyContextFactory.ASSEMBLY_PARAM_EDITMODE, "true");
         }
-        if(scriptsOff) {
+        if (scriptsOff) {
             work.setParameterValue(PSPageAssemblyContextFactory.ASSEMBLY_PARAM_SCRIPTSOFF, "true");
         }
         work.setParameterValue(PSPageAssemblyContextFactory.ASSEMBLY_PARAM_EDITTYPE, editType.name());
-        
+
         // get folder ID
-        List<PSItemSummary> summs = contentWs.findFolderParents(guid, false);
-        if (!summs.isEmpty())
-        {
-            int folderId = summs.get(0).getGUID().getUUID();
-            work.setParameterValue(IPSHtmlParameters.SYS_FOLDERID, folderId + "");
+        var summs = contentWs.findFolderParents(guid, false);
+        if (!summs.isEmpty()) {
+            var folderId = summs.get(0).getGUID().getUUID();
+            work.setParameterValue(IPSHtmlParameters.SYS_FOLDERID, String.valueOf(folderId));
         }
 
         // get site ID
-        try
-        {
-            List<IPSSite> sites = siteManager.getItemSites(guid);
-            if (!sites.isEmpty())
-            {
-                if (sites.size() > 1) 
-                {
-                    log.warn("Page or Template is associated with multiple sites: {} " , sites);
+        try {
+            var sites = siteManager.getItemSites(guid);
+            if (!sites.isEmpty()) {
+                if (sites.size() > 1) {
+                    log.warn("Page or Template is associated with multiple sites: {}", sites);
                 }
-                int siteId = sites.get(0).getGUID().getUUID();
-                work.setParameterValue(IPSHtmlParameters.SYS_SITEID, siteId + "");
+                var siteId = sites.get(0).getGUID().getUUID();
+                work.setParameterValue(IPSHtmlParameters.SYS_SITEID, String.valueOf(siteId));
+            } else {
+                throw new PSRenderAssemblyBridgeException("Page or Template with id: "
+                        + guid + "  is not in any site folder paths.");
             }
-            else
-            {
-                throw new PSRenderAssemblyBridgeException("Page or Template with id: " 
-                        + guid 
-                        + "  is not in any site folder paths."); 
-            }
+        } catch (Exception e) {
+            throw new PSRenderAssemblyBridgeException("Failed to get site for page: " + id, e);
         }
-        catch (Exception e)
-        {
-            throw new PSRenderAssemblyBridgeException("Failed to get site for page: " 
-                    + id.toString(), e);
-        }
-
         return work;
     }
 
     /**
-     * Validates the existence of the specified item. Throws validation exception if it does not
-     * exist.
-     * 
+     * Validates the existence of the specified item. Throws validation exception if it does not exist.
+     *
      * @param id the ID of the item in question, assumed not <code>null</code>.
      */
     private void validateExistingItem(String id) throws PSValidationException {
-        PSLegacyGuid guid = (PSLegacyGuid) idMapper.getGuid(id);
-        PSComponentSummary summary = cmsMgr.loadComponentSummary(guid.getContentId());
-        if (summary == null)
-        {
-            PSValidationErrorsBuilder builder = validateParameters("render");
-            String msg = "Cannot render item (id=" + guid.getContentId() + ") because the item does not exist.";
+        var guid = (PSLegacyGuid) idMapper.getGuid(id);
+        var summary = cmsMgr.loadComponentSummary(guid.getContentId());
+        if (summary == null) {
+            var builder = validateParameters("render");
+            var msg = "Cannot render item (id=" + guid.getContentId() + ") because the item does not exist.";
             builder.reject("page.does.not.exist", msg).throwIfInvalid();
         }
-        
     }
+
     public IPSGuid getDispatchTemplateId() throws PSPageException {
-        try
-        {
-            IPSAssemblyTemplate template = assemblyService.findTemplateByName(getDispatchTemplate());
+        try {
+            var template = assemblyService.findTemplateByName(getDispatchTemplate());
             return template.getGUID();
-        }
-        catch (Exception e)
-        {
-            String error = "Failed to find dispatcher template: " + getDispatchTemplate();
-            log.error("{} Error: {}",
-                    error,
-                    PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            var error = "Failed to find dispatcher template: " + getDispatchTemplate();
+            log.error("{} Error: {}", error, PSExceptionUtils.getMessageForLog(e));
             throw new PSPageException(error, e);
         }
     }
 
-    public String getDispatchTemplate()
-    {
+    public String getDispatchTemplate() {
         return dispatchTemplate;
     }
 
-    public void setDispatchTemplate(String dispatchTemplate)
-    {
+    public void setDispatchTemplate(String dispatchTemplate) {
         this.dispatchTemplate = dispatchTemplate;
     }
 
-    
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-
     private static final Logger log = LogManager.getLogger(PSRenderAssemblyBridge.class);
-
-
-
 }

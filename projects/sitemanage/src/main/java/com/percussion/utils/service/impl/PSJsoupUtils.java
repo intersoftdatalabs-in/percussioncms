@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,63 +20,70 @@ package com.percussion.utils.service.impl;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class PSJsoupUtils
-{
-    public static Element closestParentByClass(Element document, String cuurentElemSelector, String parentClass)
-    {
-        Validate.notNull(document);
-        Validate.notNull(cuurentElemSelector);
-        Validate.notNull(parentClass);
-        Elements elems = document.select(cuurentElemSelector);
-        if(elems.size()!=1)
+/**
+ * Utility class for Jsoup DOM operations.
+ *
+ * <p>Sunny Sal says: "DOM traversals are like Mumbai traffic—plan your route, or you'll get lost in the hierarchy!"</p>
+ */
+public class PSJsoupUtils {
+
+    /**
+     * Finds the closest parent element by class.
+     *
+     * @param document the root element, not null
+     * @param currentElemSelector selector for the current element, not null
+     * @param parentClass the parent class to match, not null
+     * @return the parent element if found, or null
+     */
+    public static Element closestParentByClass(Element document, String currentElemSelector, String parentClass) {
+        Objects.requireNonNull(document, "document must not be null");
+        Objects.requireNonNull(currentElemSelector, "currentElemSelector must not be null");
+        Objects.requireNonNull(parentClass, "parentClass must not be null");
+        var elems = document.select(currentElemSelector);
+        if (elems.size() != 1) {
             return null;
-        Element elem = elems.get(0);
+        }
+        var elem = elems.get(0);
         Element parent = null;
-        Elements parents = elem.parents();
-        for (Element pelem : parents)
-        {
-            if(getClassNames(pelem).contains((parentClass)))
-            {
+        for (var pelem : elem.parents()) {
+            if (getClassNames(pelem).contains(parentClass)) {
                 parent = pelem;
                 break;
             }
         }
         return parent;
     }
-    
-    public static String generateAttributeSelector(String attrName, String attrValue)
-    {
-        Validate.notNull(attrName);
-        String selector = "[" + attrName + "]"; 
-        if(StringUtils.isNotBlank(attrValue))
-        {
-            selector = "[" + attrName + "=" + attrValue + "]";
-        }
-        return selector;
-    }
-    
+
     /**
-     * Helper method to get the classnames for a given Jsoup element.
-     * Jsoup element's classNames method returns a set of class names, but looks like
-     * there is a bug in Jsoup classNames method where it doesn't split the class name string
-     * properly if it has a non-breaking space. Here is a workaround method to get the
-     * class names of a given element.
-     * @param elem assumed not <code>null</code>
-     * @return Set of class names never <code>null</code> may be empty.
+     * Generates a CSS attribute selector.
+     *
+     * @param attrName attribute name, not null
+     * @param attrValue attribute value, may be blank
+     * @return the selector string
      */
-    private static Set<String> getClassNames(Element elem)
-    {
-        String classNames = elem.attr("class");
-        classNames = classNames.replaceAll("\u00A0", " ");
-        String[] names = classNames.split("\\s+");
-        Set<String> result = new LinkedHashSet<>(Arrays.asList(names));
-        return result;        
+    public static String generateAttributeSelector(String attrName, String attrValue) {
+        Objects.requireNonNull(attrName, "attrName must not be null");
+        if (attrValue != null && !attrValue.isBlank()) {
+            return "[" + attrName + "=" + attrValue + "]";
+        }
+        return "[" + attrName + "]";
+    }
+
+    /**
+     * Helper method to get the class names for a given Jsoup element.
+     * Handles non-breaking spaces in class attributes.
+     *
+     * @param elem not null
+     * @return set of class names, never null
+     */
+    private static Set<String> getClassNames(Element elem) {
+        var classNames = elem.attr("class").replace('\u00A0', ' ');
+        var names = classNames.split("\\s+");
+        return new LinkedHashSet<>(Arrays.asList(names));
     }
 }

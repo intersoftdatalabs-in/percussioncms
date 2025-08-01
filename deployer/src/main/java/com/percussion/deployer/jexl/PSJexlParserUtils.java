@@ -42,27 +42,12 @@ public class PSJexlParserUtils
     * @return the parsed expression as a simple node
     * @throws Exception any parser exception
     */
-   public static PSJexlSimpleNode createScriptNode(String scriptText)
-         throws Exception
-   {
-      SimpleNode script;
-      try
-      {
-         script = ms_parser.parse(null, scriptText, null, false, false);
-      }
-      catch (TokenMgrError tme)
-      {
-         throw new ParseException(tme.getMessage());
-      }
-
-      if (script instanceof ASTJexlScript)
-      {
+   public static PSJexlSimpleNode createScriptNode(String scriptText) throws Exception {
+      var script = parseScript(scriptText);
+      if (script instanceof ASTJexlScript) {
          return new PSJexlSimpleNode(script, scriptText);
-      }
-      else
-      {
-         throw new IllegalStateException("Parsed script is not "
-               + "a Jexl Script");
+      } else {
+         throw new IllegalStateException("Parsed script is not a JEXL Script");
       }
    }
 
@@ -73,24 +58,21 @@ public class PSJexlParserUtils
     */
 
    public static PSJexlSimpleNode createNewExpression(final String expression, boolean isBoolean) throws ParseException {
-      String expr = expression.trim();
-      if (!expr.endsWith(";") && !expr.endsWith("}"))
+      var expr = expression.trim();
+      if (!expr.endsWith(";") && !expr.endsWith("}")) {
          expr += ";";
-
-      // Parse the Expression
-      SimpleNode tree;
-      try
-      {
-         tree = ms_parser.parse(null, expression, null, false, isBoolean);
       }
-      catch (TokenMgrError tme)
-      {
+
+      var tree = parseScript(expr, isBoolean);
+      var node = (SimpleNode) tree.jjtGetChild(0);
+      return new PSJexlSimpleNode(node, expression);
+   }
+
+   private static SimpleNode parseScript(String scriptText, boolean isBoolean) throws ParseException {
+      try {
+         return ms_parser.parse(null, scriptText, null, false, isBoolean);
+      } catch (TokenMgrError tme) {
          throw new ParseException(tme.getMessage());
       }
-
-      SimpleNode node = (SimpleNode) tree.jjtGetChild(0);
-
-      return new PSJexlSimpleNode(node, expression);
-
    }
 }

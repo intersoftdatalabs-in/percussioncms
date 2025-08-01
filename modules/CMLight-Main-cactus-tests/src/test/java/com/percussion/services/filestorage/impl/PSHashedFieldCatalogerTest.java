@@ -32,6 +32,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+// REFACTORED: CP-JAVA11
 @Category(IntegrationTest.class)
 public class PSHashedFieldCatalogerTest extends ServletTestCase
 {
@@ -41,63 +42,58 @@ public class PSHashedFieldCatalogerTest extends ServletTestCase
    @Test
    public void testGetHashedFileFields()
    {
-      IPSFileStorageService src = PSFileStorageServiceLocator.getFileStorageService();
-      IPSHashedFieldCataloger cataloger = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
-      
-      
-      Set<PSHashedColumn> hashedColumns = cataloger.getServerHashedColumns();
+      var src = PSFileStorageServiceLocator.getFileStorageService();
+      var cataloger = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
+
+      var hashedColumns = cataloger.getServerHashedColumns();
       System.out.println(hashedColumns);
-      Set<PSHashedColumn> testSet = new HashSet<PSHashedColumn>();
+      var testSet = new HashSet<PSHashedColumn>();
       testSet.add(new PSHashedColumn("img1_hash","RXS_CT_SHAREDIMAGE","IMG1_HASH"));
       testSet.add(new PSHashedColumn("img2_hash","RXS_CT_SHAREDIMAGE","IMG2_HASH"));
       testSet.add(new PSHashedColumn("activeimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","ACTIVEIMG_HASH"));
       testSet.add(new PSHashedColumn("inactiveimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","INACTIVEIMG_HASH"));
       testSet.add(new PSHashedColumn("rolloverimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","ROLLOVERIMG_HASH"));
       testSet.add(new PSHashedColumn("item_file_attachement_hash","RXS_CT_SHAREDBINARY","ITEM_FILE_ATTACHMENT_HASH"));
-      
+
       src.getText("111");
-      
-      assertTrue(CollectionUtils.isEqualCollection(testSet, hashedColumns));
+
+      assertTrue(org.apache.commons.collections.CollectionUtils.isEqualCollection(testSet, hashedColumns));
    }
 
    @Test
    public void testStoreHashedFileFields()
    {
-      Set<PSHashedColumn> testSet = new HashSet<PSHashedColumn>();
+      var testSet = new HashSet<PSHashedColumn>();
       testSet.add(new PSHashedColumn("img1_hash","RXS_CT_SHAREDIMAGE","IMG1_HASH"));
       testSet.add(new PSHashedColumn("img2_hash","RXS_CT_SHAREDIMAGE","IMG2_HASH"));
       testSet.add(new PSHashedColumn("activeimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","ACTIVEIMG_HASH"));
       testSet.add(new PSHashedColumn("inactiveimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","INACTIVEIMG_HASH"));
       testSet.add(new PSHashedColumn("rolloverimg_hash","RXS_CT_NAVIGATIONIMAGETRIPLE","ROLLOVERIMG_HASH"));
       testSet.add(new PSHashedColumn("item_file_attachement_hash","RXS_CT_SHAREDBINARY","ITEM_FILE_ATTACHMENT_HASH"));
-      
-      IPSHashedFieldCataloger service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
-   
+
+      var service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
+
       service.storeColumns(testSet);
-      Set<PSHashedColumn> storedColumns = service.getStoredColumns();
-      
-      assertTrue(CollectionUtils.isEqualCollection(testSet,storedColumns));
-      
+      var storedColumns = service.getStoredColumns();
+
+      assertTrue(org.apache.commons.collections.CollectionUtils.isEqualCollection(testSet,storedColumns));
    }
+
    @Test
    public void testValidateFields()
    {
-      IPSHashedFieldCataloger service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
-      Set<PSHashedColumn> storedColumns = service.validateColumns();
+      var service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
+      var storedColumns = service.validateColumns();
       System.out.println("Stored columns size "+storedColumns.size());
-      for(PSHashedColumn column : storedColumns) {
+      for(var column : storedColumns) {
          System.out.println("Column "+column);
          assertTrue(column.isColumnExists());
       }
    }
 
-   
-  
-   
-
    public void validateNewField()
    {
-
+      // Placeholder for future test
    }
    
 

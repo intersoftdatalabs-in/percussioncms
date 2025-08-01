@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.pagemanagement.dao.IPSResourceDefinitionGroupDao;
@@ -37,14 +38,12 @@ import java.util.List;
 
 @Component("resourceDefinitionService")
 @Lazy
-public class PSResourceDefinitionService implements IPSResourceDefinitionService
-{
+public class PSResourceDefinitionService implements IPSResourceDefinitionService {
     private IPSResourceDefinitionGroupDao dao;
     private IPSThemeService themeService;
 
     @Autowired
-    public PSResourceDefinitionService(IPSResourceDefinitionGroupDao dao, IPSThemeService themeService)
-    {
+    public PSResourceDefinitionService(IPSResourceDefinitionGroupDao dao, IPSThemeService themeService) {
         super();
         this.dao = dao;
         this.themeService = themeService;
@@ -61,19 +60,18 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     public void delete(String id) throws PSDataServiceException {
         dao.delete(id);
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public PSResourceDefinitionGroup find(String id) throws DataServiceLoadException,
-            PSResourceDefinitionGroupNotFoundException
-    {
+            PSResourceDefinitionGroupNotFoundException {
         PSResourceDefinitionGroup rdg;
         try {
-           rdg = dao.find(id);
+            rdg = dao.find(id);
         } catch (PSDataServiceException e) {
-            throw new DataServiceLoadException(e.getMessage(),e);
+            throw new DataServiceLoadException(e.getMessage(), e);
         }
         if (rdg == null)
             throw new PSResourceDefinitionGroupNotFoundException("No resource group found for id: " + id);
@@ -86,8 +84,8 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     public List<PSResourceDefinitionGroup> findAll() throws PSDataServiceException {
         return dao.findAll();
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -95,7 +93,7 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     public List<PSResourceDefinition> findAllResources() throws PSDataServiceException {
         return dao.findAllResources();
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -104,7 +102,7 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
         PSResourceDefinition rd = findThemeCSSResource(uniqueId);
         if (rd != null) return rd;
         rd = dao.findResource(uniqueId);
-        if(rd == null)
+        if (rd == null)
             throw new PSResourceDefinitionNotFoundException("No resource found for uniqueId: " + uniqueId);
         return rd;
     }
@@ -116,15 +114,14 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     /**
      * {@inheritDoc}
      */
-    public PSAssetResource findDefaultAssetResourceForType(String contentType) throws PSDataServiceException
-    {
+    public PSAssetResource findDefaultAssetResourceForType(String contentType) throws PSDataServiceException {
         PSAssetResource resource = dao.findAssetResourceForType(contentType);
-        if (resource == null) 
+        if (resource == null)
             throw new PSResourceDefinitionNotFoundException("Not primary asset for content type: " + contentType);
         return resource;
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -132,8 +129,8 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     public List<PSAssetResource> findAssetResourcesForType(String contentType) throws PSDataServiceException {
         return dao.findAssetResourcesForType(contentType);
     }
-    
-    
+
+
     /**
      * {@inheritDoc}
      */
@@ -145,6 +142,7 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
     /**
      * Checks to see if this resource is a theme resource. If it
      * is a resource definition is returned.
+     *
      * @param uniqueId valid unique id, never <code>null</code> or empty.
      * @return maybe <code>null</code> if no theme is found for the given unique id..
      */
@@ -165,7 +163,5 @@ public class PSResourceDefinitionService implements IPSResourceDefinitionService
         }
         return null;
     }
-    
-    
 
 }

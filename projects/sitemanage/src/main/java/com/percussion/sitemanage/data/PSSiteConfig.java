@@ -15,31 +15,33 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.data;
 
-public class PSSiteConfig
-{
-    private PSSiteInfo siteInfo;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Site configuration data.
+ */
+public class PSSiteConfig {
+
+    private PSSiteInfo siteInfo;
     private PSPublisherInfo publisherInfo;
 
-    public PSSiteInfo getSiteInfo()
-    {
-        return siteInfo;
+    public Optional<PSSiteInfo> getSiteInfo() {
+        return Optional.ofNullable(siteInfo);
     }
 
-    public void setSiteInfo(PSSiteInfo siteInfo)
-    {
-        this.siteInfo = siteInfo;
+    public void setSiteInfo(PSSiteInfo siteInfo) {
+        this.siteInfo = Objects.requireNonNull(siteInfo, "siteInfo must not be null");
     }
 
-    public PSPublisherInfo getPublisherInfo()
-    {
-        return publisherInfo;
+    public Optional<PSPublisherInfo> getPublisherInfo() {
+        return Optional.ofNullable(publisherInfo);
     }
 
-    public void setPublisherInfo(PSPublisherInfo publisherInfo)
-    {
-        this.publisherInfo = publisherInfo;
+    public void setPublisherInfo(PSPublisherInfo publisherInfo) {
+        this.publisherInfo = Objects.requireNonNull(publisherInfo, "publisherInfo must not be null");
     }
 }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -83,7 +84,7 @@ public class PSRenderService implements IPSRenderService
 
             validateRegionId(regionId);
             validatePage(page);
-            String result = renderAssemblyBridge.renderPage(page, true, false);
+            var result = renderAssemblyBridge.renderPage(page, true, false);
 
             return createRenderResult(result, regionId);
 
@@ -118,7 +119,7 @@ public class PSRenderService implements IPSRenderService
         try {
             validateRegionId(regionId);
             validateTemplate(template);
-            String result = renderAssemblyBridge.renderTemplate(template, false);
+            var result = renderAssemblyBridge.renderTemplate(template, false);
             return createRenderResult(result, regionId);
         } catch (IPSPageService.PSPageException | PSValidationException | IPSDataService.DataServiceSaveException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -137,13 +138,13 @@ public class PSRenderService implements IPSRenderService
                 validateRegionId(regionId);
                 validateTemplate(template);
                 PSParameterValidationUtils.rejectIfBlank("renderRegionWithPage", "pageId", pageId);
-                PSPage page = pageService.find(pageId);
-                String result = renderAssemblyBridge.renderTemplateWithPage(template, page, false);
+                var page = pageService.find(pageId);
+                var result = renderAssemblyBridge.renderTemplateWithPage(template, page, false);
                 return createRenderResult(result, regionId);
             }
             catch (IPSRenderAssemblyBridge.PSRenderAssemblyBridgeException  e){
                 try {
-                    String result = renderAssemblyBridge.renderTemplate(template, false);
+                    var result = renderAssemblyBridge.renderTemplate(template, false);
                     return createRenderResult(result, regionId);
                 } catch (IPSPageService.PSPageException psPageException) {
                     log.error(PSExceptionUtils.getMessageForLog(e));
@@ -159,16 +160,16 @@ public class PSRenderService implements IPSRenderService
 
     private PSRenderResult createRenderResult(String result, String regionId)
     {
-        String regionResult = getRegion(result, regionId);
-        PSRenderResult renderResult = new PSRenderResult();
+        var regionResult = getRegion(result, regionId);
+        var renderResult = new PSRenderResult();
         renderResult.setRegionId(regionId);
         renderResult.setResult(regionResult);
         return renderResult;
     }
 
     private String getRegion(String result, String regionId) {
-        PSParsedRegionTree<PSRegion, PSRegionCode> tree = PSTemplateRegionParser.parse(null, result);
-        PSRegion region = tree.getRegions().get(regionId);
+        var tree = PSTemplateRegionParser.parse(null, result);
+        var region = tree.getRegions().get(regionId);
         if (region == null) {
             log.error("Missing regionId: {} from render result:\n {}", regionId, result);
             throw new PSRenderServiceException("RegionId: " + regionId + " was not found in result: " + result);
@@ -225,7 +226,7 @@ public class PSRenderService implements IPSRenderService
         }
         catch (IPSPageService.PSPageException | PSValidationException e){
             try {
-                PSPage page = pageService.find(id);
+                var page = pageService.find(id);
                 page.getTemplateId();
                 return renderAssemblyBridge.renderTemplate(page.getTemplateId(), false);
             } catch (IPSDataService.DataServiceLoadException | IPSPageService.PSPageException | PSValidationException | IPSDataService.DataServiceNotFoundException dataServiceLoadException) {

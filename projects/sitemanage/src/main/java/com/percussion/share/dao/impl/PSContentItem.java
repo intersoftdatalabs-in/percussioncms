@@ -16,7 +16,7 @@
  */
 package com.percussion.share.dao.impl;
 
-import static org.apache.commons.lang.Validate.*;
+import static org.apache.commons.lang.Validate.notNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,42 +25,35 @@ import com.percussion.share.data.IPSContentItem;
 import com.percussion.share.data.PSDataItemSummary;
 
 /**
- * A Generic Low level representation of an item in the system backed
+ * A generic low-level representation of an item in the system backed
  * by a Rhythmyx content item.
- * @author adamgent
- *
  */
-public class PSContentItem extends PSDataItemSummary implements IPSContentItem
-{
+public class PSContentItem extends PSDataItemSummary implements IPSContentItem {
 
     /**
-     * never <code>null</code>.
+     * Never null.
      */
     private Map<String, Object> fields = new HashMap<>();
-    
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public Map<String, Object> getFields()
-    {
+    @Override
+    public Map<String, Object> getFields() {
         return fields;
     }
 
     /**
-     * @{inheritDoc}
+     * {@inheritDoc}
      */
-    public void setFields(Map<String, Object> fields)
-    {
+    @Override
+    public void setFields(Map<String, Object> fields) {
         notNull(fields, "fields");
         this.fields = fields;
     }
-    
-    
 
     /**
-     * Well not really safe to serialize
+     * Not safe to serialize.
      */
     private static final long serialVersionUID = -3451673795623212592L;
-
 }

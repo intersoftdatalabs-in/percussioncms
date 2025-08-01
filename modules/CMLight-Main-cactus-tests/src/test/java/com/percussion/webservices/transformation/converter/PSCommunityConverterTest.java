@@ -26,31 +26,33 @@ import org.junit.experimental.categories.Category;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSCommunityConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSCommunityConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSCommunity source = new PSCommunity();
-      source.setGUID(new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001));
-      source.setName("Name");
-      source.setDescription("Description");
-      Collection<IPSGuid> roles = new ArrayList<IPSGuid>();
-      roles.add(new PSGuid(PSTypeEnum.ROLE, 1));
-      source.setRoleAssociations(roles);
-      
-      PSCommunity target = (PSCommunity) roundTripConversion(PSCommunity.class, 
-         com.percussion.webservices.security.data.PSCommunity.class, source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
-}
+public class PSCommunityConverterTest extends PSConverterTestBase {
 
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // create the source object
+        var source = new PSCommunity();
+        source.setGUID(new PSGuid(PSTypeEnum.COMMUNITY_DEF, 1001));
+        source.setName("Name");
+        source.setDescription("Description");
+        Collection<IPSGuid> roles = new ArrayList<>();
+        roles.add(new PSGuid(PSTypeEnum.ROLE, 1));
+        source.setRoleAssociations(roles);
+
+        var target = (PSCommunity) roundTripConversion(
+                PSCommunity.class,
+                com.percussion.webservices.security.data.PSCommunity.class,
+                source);
+
+        // verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
+}

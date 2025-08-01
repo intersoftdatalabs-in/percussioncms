@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer;
 
 import com.percussion.foldermanagement.service.IPSFolderService;
@@ -30,48 +31,54 @@ import com.percussion.sitemanage.importer.helpers.PSHelperTestUtils;
 import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
+import org.junit.jupiter.api.*;
 
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author LucasPiccoli
- * 
- *         Tests if current existing import jobs (importSite and importTemplate)
- *         are running successfully. They are considered successful when all
- *         their helpers are executed without errors and content gets created.
+ * Tests for import jobs (importSite and importTemplate) to ensure they run successfully.
+ * They are considered successful when all helpers execute without errors and content is created.
+ * @author LucasPiccoli, Sunny Sal (refactored)
  */
-@Category(IntegrationTest.class)
-public class PSImportFromUrlJobTest extends PSSiteImportTestBase
-{
-    @Override
-    protected void setUp() throws Exception
-    {
-        super.setUp();
+@Tag("IntegrationTest")
+class PSImportFromUrlJobTest extends PSSiteImportTestBase {
 
+    private PSSiteDataServletTestCaseFixture fixture;
+    private PSSiteCreationHelper siteCreationHelper;
+    private PSSite importedSite;
+    private IPSSecurityWs securityWs;
+    private IPSiteDao siteDao;
+    private IPSPageService pageService;
+    private IPSAsyncJobFactory jobFactory;
+    private IPSAsyncJobService asyncJobService;
+    private final String EXTERNAL_TEST_URL = "http://www.google.com";
+    private final String TEST_SITE_NAME = "TestImportSite";
+    private final String SITE_IMPORT_JOB = "siteImportJob";
+    private final String TEMPLATE_IMPORT_JOB = "templateImportJob";
+    private boolean siteCreated = false;
+    private boolean fixtureCreated = false;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        super.setUp();
         // Inject dependencies
         setSecurityWs((IPSSecurityWs) getBean("sys_securityWs"));
         setSiteDao((IPSiteDao) getBean("siteDao"));
         setPageService((IPSPageService) getBean("pageService"));
         setAsyncJobService((IPSAsyncJobService) getBean("asyncJobService"));
-        setJobFactory((IPSAsyncJobFactory)getBean("asyncJobFactory"));
-
-        // Login is needed to create folder for the new site.
+        setJobFactory((IPSAsyncJobFactory) getBean("asyncJobFactory"));
         securityWs.login("Admin", "demo", "Default", null);
-
         initData();
     }
 
     /**
-     * Placeholder test to keep junit happy, all other tests ignored as tech debt
+     * Placeholder test to keep JUnit happy, all other tests ignored as tech debt.
      */
     @Test
-    public void testNothing()
-    {
-        
+    void testNothing() {
+        // No-op
     }
-    
+
     /**
      * Tests if the jobs can gather the helpers they need from the context.
      */
@@ -169,90 +176,64 @@ public class PSImportFromUrlJobTest extends PSSiteImportTestBase
         assertNotNull(importContext.getPageName());
     }
 
-    @Override
-    protected void tearDown() throws Exception
-    {
+    @AfterEach
+    void tearDown() throws Exception {
         super.tearDown();
-        
-        if (siteCreated)
-        {
+        if (siteCreated) {
             deleteSite();
             siteCreated = false;
         }
-        if (fixtureCreated)
-        {
+        if (fixtureCreated) {
             fixture.tearDown();
             fixtureCreated = false;
         }
     }
 
-    private void initData() throws Exception
-    {
+    private void initData() throws Exception {
         createHelpers();
     }
 
-    private void deleteSite()
-    {
-        if (importedSite != null)
-        {
-            PSSiteImportCtx importCtx = new PSSiteImportCtx();
+    private void deleteSite() {
+        if (importedSite != null) {
+            var importCtx = new PSSiteImportCtx();
             importCtx.setSite(importedSite);
             siteCreationHelper.rollback(null, importCtx);
             importedSite = null;
         }
     }
-    
-    /**
-     * Polls job with jobId for status until it its completed or aborted. If the
-     * job ran successfully, return its result, which in this case is a
-     * PSSiteImportCtx.
-     * 
-     * @param jobId the Id of the job to poll for status.
-     * @return Site import context with information of created elements during
-     *         import.
-     * @throws InterruptedException 
-     */
-    private PSSiteImportCtx getImportedContext(long jobId)
-    {
 
+    /**
+     * Polls job with jobId for status until it is completed or aborted.
+     * If the job ran successfully, returns its result (PSSiteImportCtx).
+     */
+    private PSSiteImportCtx getImportedContext(long jobId) {
         PSAsyncJobStatus jobStatus = null;
-        try
-        {
-            do
-            {
+        try {
+            do {
                 Thread.sleep(500);
                 jobStatus = asyncJobService.getJobStatus(jobId);
                 assertNotNull(jobStatus);
-            }
-            while (!jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)
+            } while (!jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)
                     && !jobStatus.getStatus().equals(IPSAsyncJob.COMPLETE_STATUS));
 
-            if (jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS))
-            {
+            if (jobStatus.getStatus().equals(IPSAsyncJob.ABORT_STATUS)) {
                 return null;
-            }
-            else
-            {
+            } else {
                 return (PSSiteImportCtx) asyncJobService.getJobResult(jobId);
             }
-        }
-        catch (Exception e)
-        {
-            if (jobStatus.getStatus() != IPSAsyncJob.ABORT_STATUS)
-            {
+        } catch (Exception e) {
+            if (jobStatus != null && jobStatus.getStatus() != IPSAsyncJob.ABORT_STATUS) {
                 asyncJobService.cancelJob(jobId);
             }
             return null;
         }
     }
 
-    private void createHelpers()
-    {
+    private void createHelpers() {
         siteCreationHelper = new PSSiteCreationHelper(siteDao, pageService);
     }
 
-    private void createFixture() throws Exception
-    {
+    private void createFixture() throws Exception {
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp();
         fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
@@ -330,33 +311,4 @@ public class PSImportFromUrlJobTest extends PSSiteImportTestBase
     {
         this.jobFactory = jobFactory;
     }
-
-    private PSSiteDataServletTestCaseFixture fixture;
-
-    private PSSiteCreationHelper siteCreationHelper;
-
-    private PSSite importedSite;
-
-    private IPSSecurityWs securityWs;
-
-    private IPSiteDao siteDao;
-
-    private IPSPageService pageService;
-
-    private IPSAsyncJobFactory jobFactory;
-
-    private IPSAsyncJobService asyncJobService;
-
-    private final String EXTERNAL_TEST_URL = "http://www.google.com";
-    
-    private final String TEST_SITE_NAME = "TestImportSite";
-
-    private final String SITE_IMPORT_JOB = "siteImportJob";
-
-    private final String TEMPLATE_IMPORT_JOB = "templateImportJob";
-
-    private boolean siteCreated = false;
-
-    private boolean fixtureCreated = false;
-    
 }

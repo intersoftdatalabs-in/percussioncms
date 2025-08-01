@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -51,15 +52,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
 import static org.apache.commons.lang.Validate.notNull;
-
 
 @Component("siteImporter")
 @Lazy
 public class PSSiteImporter
 {
+
     public static final String REDIRECTED_FROM_URL = "Redirect the original URL from  '{originalUrl}' to '{newUrl}'";
 
     private static final Logger log = LogManager.getLogger(PSSiteImporter.class);
@@ -90,10 +92,10 @@ public class PSSiteImporter
         try {
             properties = overrideConnectionProperties();
             
-            Connection con = buildJsoupConnection(siteImportCtx.getSiteUrl(), true, true, siteImportCtx.getUserAgent());
-            Document doc = con.get();
-            
-            PSPageContent pageContent = createPageContent(doc, siteImportCtx.getLogger());
+            var con = buildJsoupConnection(siteImportCtx.getSiteUrl(), true, true, siteImportCtx.getUserAgent());
+            var doc = con.get();
+
+            var pageContent = createPageContent(doc, siteImportCtx.getLogger());
             pageContent.setPath(siteImportCtx.getSiteUrl());
             return pageContent;
         }
@@ -106,40 +108,33 @@ public class PSSiteImporter
     }
 
     /**
-     * Given a JSoup document creates extracts the content appropriately and
-     * creates PSPageContent object and returns it.
-     * 
-     * @param doc assumed not <code>null</code>
-     * @param logger {@link IPSSiteImportLogger} to use, assumed
-     *            not <code>null</code>.
-     * @return PSPageContent object with all fields filled in from the supplied
-     *         document.
+     * Given a JSoup document, extracts the content and creates a PSPageContent object.
      */
     public static PSPageContent createPageContent(Document doc, IPSSiteImportLogger logger)
     {
-        PSPageContent pageContent = new PSPageContent();
-        Element docHead = doc.head();
-        Elements titleElems = docHead.select("title");
-        String title = "";
+        var pageContent = new PSPageContent();
+        var docHead = doc.head();
+        var titleElems = docHead.select("title");
+        var title = "";
         if (!titleElems.isEmpty())
         {
             title = titleElems.get(0).text();
         }
 
-        // Extracts all the style script and link elements to
-        Elements addHeadElems = new Elements();
+        // Extract all style, script, and link elements
+        var addHeadElems = new Elements();
         addHeadElems.addAll(docHead.select("style"));
         addHeadElems.addAll(docHead.select("link"));
         addHeadElems.addAll(docHead.select("script"));
 
-        StringBuilder additionalHeadContent = new StringBuilder();
-        for (Element element : addHeadElems)
+        var additionalHeadContent = new StringBuilder();
+        for (var element : addHeadElems)
         {
             additionalHeadContent.append(element.outerHtml());
         }
         
-        String bodyContent = getBodyContent(doc, logger);
-        
+        var bodyContent = getBodyContent(doc, logger);
+
         pageContent.setTitle(title);
         pageContent.setHeadContent(additionalHeadContent.toString());
         pageContent.setBodyContent(bodyContent);
@@ -148,19 +143,12 @@ public class PSSiteImporter
     }
 
     /**
-     * Retrieves the body content of the document. If the document has no body
-     * content, it tryies to build one using content that is outside header
-     * element, but inside html element.
-     * 
-     * @param doc {@link Document} to get the body from, assumed not
-     *            <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} to use, assumed
-     *            not <code>null</code>.
-     * @return {@link String}, never <code>null</code> but may be empty.
+     * Retrieves the body content of the document. If the document has no body,
+     * tries to build one using content outside header but inside html element.
      */
     private static String getBodyContent(Document doc, IPSSiteImportLogger logger)
     {
-        Element body = doc.body();
+        var body = doc.body();
 
         if (body != null)
         {
@@ -176,20 +164,16 @@ public class PSSiteImporter
     /**
      * Builds the body element and puts inside it the tags that are inside the
      * html element, and outside the header.
-     * 
-     * @param doc {@link Document} to get the body from, assumed not
-     *            <code>null</code>.
-     * @return {@link Element}, never <code>null</code>.
      */
     private static Element buildBodyFromDocument(Document doc)
     {
         addBodyToDocument(doc);
 
-        Element body = doc.body();
-        Element html = doc.getElementsByTag(HTML).get(0);
+        var body = doc.body();
+        var html = doc.getElementsByTag(HTML).get(0);
 
-        Elements htmlChildren = html.children();
-        for (Element element : htmlChildren)
+        var htmlChildren = html.children();
+        for (var element : htmlChildren)
         {
             if (equalsIgnoreCase(element.nodeName(), HEAD) || equalsIgnoreCase(element.nodeName(), BODY))
             {
@@ -202,9 +186,6 @@ public class PSSiteImporter
 
     /**
      * Adds the body element to the document, as a child of the html element.
-     * 
-     * @param doc {@link Document} to add the element to, assumed not
-     *            <code>null</code>.
      */
     private static void addBodyToDocument(Document doc)
     {
@@ -214,27 +195,13 @@ public class PSSiteImporter
         // check just in case the document could not be normalised
         if (doc.body() == null)
         {
-            Element html = doc.getElementsByTag(HTML).get(0);
+            var html = doc.getElementsByTag(HTML).get(0);
             html.appendElement("body");
         }
     }
 
     /**
-     * Gets the redirected url for the given site url. It finds out if the given
-     * site url gets redirected, in which case it will follow those redirections
-     * and return the correct url (the final one). If the url is not redirected,
-     * the same site url is returned.
-     * 
-     * @param siteUrl {@link String} with the site url, must not be
-     *            <code>null</code>.
-     * @param logger {@link IPSSiteImportLogger} with the logger to use. Must
-     *            not be <code>null</code>.
-     * * @param userAgent {@link String} with the user agent to set. Must
-     *            not be <code>null</code>.
-     * @return {@link String} with the final url, never <code>null</code> nor
-     *         empty.
-     * @throws IOException if an error occurs when trying to reach the url for
-     *             the site.
+     * Gets the redirected url for the given site url. Follows redirections and returns the final url.
      */
     public static String getRedirectedUrl(String siteUrl, IPSSiteImportLogger logger, String userAgent) throws IOException
     {
@@ -247,23 +214,20 @@ public class PSSiteImporter
         try {
             properties = overrideConnectionProperties();
             
-            // make the first request but don't follow redirects
-            Connection conn = buildJsoupConnection(siteUrl, true, false, userAgent);
+            var conn = buildJsoupConnection(siteUrl, true, false, userAgent);
             conn.get();
-            Response response = conn.response();
-            
+            var response = conn.response();
+
             if (response.statusCode() != IPSHttpErrors.HTTP_MOVED_TEMPORARILY
                     && response.statusCode() != IPSHttpErrors.HTTP_MOVED_PERMANENTLY)
             {
                 return siteUrl;
             }
     
-            // we need to find the final url and replace the old one
-            Connection redirectedConn = buildJsoupConnection(siteUrl, true, true, userAgent);
+            var redirectedConn = buildJsoupConnection(siteUrl, true, true, userAgent);
             redirectedConn.get();
-            URL newUrl = redirectedConn.response().url();
-            
-            // log the redirection
+            var newUrl = redirectedConn.response().url();
+
             logger.appendLogMessage(PSLogEntryType.STATUS, SITE_IMPORTER,
                     REDIRECTED_FROM_URL.replace("{originalUrl}", siteUrl).replace("{newUrl}", newUrl.toString()));
             
@@ -278,21 +242,12 @@ public class PSSiteImporter
     }
 
     /**
-     * Generates a {@link Connection} using the given parameters.
-     * 
-     * @param url {@link String} with the url to use in the connection.
-     * @param ignoreContentType if <code>true</code>, the connection will ignore
-     *            content types.
-     * @param followRedirects if <code>true</code>, the connection will follow
-     *            all redirections.
-     * @param userAgent {@link String} the user agent to set in the request,
-     *            never<code>null</code> or empty.
-     * @return a {@link Connection} object, never <code>null</code>.
+     * Generates a JSoup Connection using the given parameters.
      */
     public static Connection buildJsoupConnection(String url, boolean ignoreContentType, boolean followRedirects,
-            String userAgent)
+                                                  String userAgent)
     {
-        Connection conn = Jsoup.connect(url);
+        var conn = Jsoup.connect(url);
         conn.ignoreContentType(ignoreContentType);
         conn.followRedirects(followRedirects);
         conn.userAgent(userAgent);
@@ -305,8 +260,6 @@ public class PSSiteImporter
     
     /**
      * Get the timeout to use for importing pages, files, and assets.
-     * 
-     * @return The timeout in milliseconds, or -1 if no timeout is set.
      */
     public static int getImportTimeout()
     {
@@ -325,14 +278,7 @@ public class PSSiteImporter
     }
 
     /**
-     * Saves the log and any error log entries
-     * 
-     * @param objectId The object id to use, not empty
-     * @param logger the logger to use, not <code>null</code>.
-     * @param logDao log dao, not <code>null</code>.
-     * @param siteId The id of the site being imported into, if <code>null</code> empty, no additional error logging
-     * is performed.
-     * @param desc The description of the object being imported, not <code>null<code/> or empty.
+     * Saves the log and any error log entries.
      */
     public static void saveImportLog(String objectId, IPSSiteImportLogger logger, IPSImportLogDao logDao, String siteId, String desc) throws IPSGenericDao.SaveException {
         Validate.notEmpty(objectId);
@@ -340,15 +286,15 @@ public class PSSiteImporter
         Validate.notNull(logDao);
         Validate.notNull(desc);
         
-        PSImportLogEntry entry = new PSImportLogEntry(objectId, logger.getType().name(), new Date(), logger.getLog());
+        var entry = new PSImportLogEntry(objectId, logger.getType().name(), new Date(), logger.getLog());
         logDao.save(entry);
         
         if (!StringUtils.isBlank(siteId))
         {
-            List<PSImportLogEntry> errors = logger.getErrors(PSLogObjectType.SITE_ERROR, siteId, desc);
+            var errors = logger.getErrors(PSLogObjectType.SITE_ERROR, siteId, desc);
             if (errors != null)
             {
-                for (PSImportLogEntry errorLogEntry : errors)
+                for (var errorLogEntry : errors)
                 {
                     logDao.save(errorLogEntry);
                 }
@@ -357,36 +303,36 @@ public class PSSiteImporter
     }
     
     /**
-     * Hold the current URL connection properties.
-     * This is used to restore values after they have been overridden.
-     *
+     * Holds the current URL connection properties for restoration.
      */
     public static class URLConnectionProperties
     {
         private SSLSocketFactory defaultSSLSocketFactory = null;
         private HostnameVerifier defaultHostnameVerifier = null;
-        
+
         public SSLSocketFactory getDefaultSSLSocketFactory()
         {
             return defaultSSLSocketFactory;
         }
+
         public void setDefaultSSLSocketFactory(SSLSocketFactory defaultSSLSocketFactory)
         {
             this.defaultSSLSocketFactory = defaultSSLSocketFactory;
         }
+
         public HostnameVerifier getDefaultHostnameVerifier()
         {
             return defaultHostnameVerifier;
         }
+
         public void setDefaultHostnameVerifier(HostnameVerifier defaultHostnameVerifier)
         {
             this.defaultHostnameVerifier = defaultHostnameVerifier;
         }
     }
-    
+
     /**
      * Override connection properties and install an all-trusting certificate manager.
-     * @return The URL connection properties from before, to be used in restoration.
      */
     public static URLConnectionProperties overrideConnectionProperties()
     {
@@ -400,27 +346,21 @@ public class PSSiteImporter
             }
         };
 
-        // Install the all-trusting trust manager
         try {
-            SSLContext sc = SSLContext.getInstance("TLS");
+            var sc = SSLContext.getInstance("TLS");
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             
-            URLConnectionProperties connectionData = new URLConnectionProperties();
+            var connectionData = new URLConnectionProperties();
             connectionData.setDefaultSSLSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory());
             connectionData.setDefaultHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
             
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier( 
-                new HostnameVerifier() {
-                    public boolean verify(String urlHostName, SSLSession session) {
-                        return true;
-                    }
-                });
-            
+            HttpsURLConnection.setDefaultHostnameVerifier(
+                    (String urlHostName, SSLSession session) -> true);
+
             return connectionData;
         }
         catch (Exception e) {
-            // We can not recover from this exception
             log.error("Error setting override certificates", e);
             return null;
         }
@@ -428,7 +368,6 @@ public class PSSiteImporter
     
     /**
      * Restore connection properties to their values from before the override.
-     * @param properties Properties to restore.
      */
     public static void restoreConnectionProperties(URLConnectionProperties properties)
     {

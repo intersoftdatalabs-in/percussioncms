@@ -14,533 +14,295 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-import static org.apache.commons.lang.Validate.notNull;
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
-import javax.xml.bind.annotation.XmlRootElement;
+import static java.util.Objects.requireNonNull;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
+import org.apache.commons.lang3.StringUtils;
 
-import org.apache.commons.lang.StringUtils;
+import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serial;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 /**
- * Encapsulates search engine optimization statistics for a Page.  This includes the issues which have been detected
- * for the Page as well as an indication of the overall severity.
+ * Encapsulates search engine optimization statistics for a Page.
+ * Includes detected issues and overall severity.
+ * @author Sunny Sal
  */
 @XmlRootElement(name = "SEOStatistics")
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class PSSEOStatistics
-{
+public class PSSEOStatistics {
 
-    /**
-     *  Safe to serialize
-     */
+    @Serial
     private static final long serialVersionUID = 3197862964060713693L;
 
-    /**
-     * See {@link #getPageSummary()}.
-     */
     @NotNull
     private PSPageSummary pageSummary;
-    
-    /**
-     * See {@link #getPath()}.
-     */
+
     @NotNull
     @NotBlank
     private String path;
 
-    /**
-     * See {@link #getIssues()}.
-     */
     @NotNull
-    private Set<SEO_ISSUE> issues = new HashSet<>();
-    
-    /**
-     * See {@link #getSeverity()}.
-     */
+    private Set<SEO_ISSUE> issues = EnumSet.noneOf(SEO_ISSUE.class);
+
     private int severity;
-    
-    /**
-     * See {@link #getKeyword()}.
-     */
     private String keyword;
-        
-    /**
-     * See {@link #isKeywordPresent()}.
-     */
     private boolean keywordPresent;
-    
     private String summary;
-    
-    /**
-     * For serialization.
-     */
-    public PSSEOStatistics()
-    {        
+
+    // Static sets for issue grouping
+    private static final Set<SEO_ISSUE> TITLE_ISSUES = Collections.unmodifiableSet(EnumSet.of(
+            SEO_ISSUE.DEFAULT_TITLE, SEO_ISSUE.TITLE_TOO_LONG));
+    private static final Set<SEO_ISSUE> DESCRIPTION_ISSUES = Collections.unmodifiableSet(EnumSet.of(
+            SEO_ISSUE.MISSING_DESCRIPTION, SEO_ISSUE.DESCRIPTION_TOO_LONG));
+    private static final Set<SEO_ISSUE> KEYWORD_ISSUES = Collections.unmodifiableSet(EnumSet.of(
+            SEO_ISSUE.MISSING_KEYWORD_TITLE, SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION, SEO_ISSUE.MISSING_KEYWORD_LINK));
+    private static final Set<Set<SEO_ISSUE>> SINGLE_WEIGHT_ISSUES = Collections.unmodifiableSet(
+            Set.of(DESCRIPTION_ISSUES));
+    private static double totalIssueCount = -1;
+
+    public PSSEOStatistics() {
+        // Default constructor for serialization
     }
-    
+
     /**
      * Constructs a statistics object from a page summary.
-     * 
-     * @param pageSummary the summary for which seo statistics will be generated, may not be <code>null</code>.
-     * @param path the finder path of the page, may not be blank.
+     *
+     * @param pageSummary the summary for which SEO statistics will be generated, not null.
+     * @param path the finder path of the page, not blank.
      * @param keyword the keyword to use in analysis.
      */
-    public PSSEOStatistics(PSPageSummary pageSummary, String path, String keyword)
-    {
-        notNull(pageSummary);
-        notEmpty(path);
-        
+    public PSSEOStatistics(PSPageSummary pageSummary, String path, String keyword) {
+        requireNonNull(pageSummary, "pageSummary must not be null");
+        if (StringUtils.isBlank(path)) {
+            throw new IllegalArgumentException("path must not be blank");
+        }
         setPageSummary(pageSummary);
         setPath(path);
         setKeyword(keyword);
-        analyze();        
+        analyze();
     }
-    
-    /**
-     * The path represents the finder path of the Page.
-     * 
-     * @return the path
-     */
-    public String getPath()
-    {
+
+    public String getPath() {
         return path;
     }
 
-    /**
-     * @param path the finder path to set for the Page.
-     */
-    public void setPath(String path)
-    {
+    public void setPath(String path) {
         this.path = path;
     }
 
-    /**
-     * Get the seo issues discovered for the Page.
-     * 
-     * @return the issues, never <code>null</code>.
-     */
-    public Set<SEO_ISSUE> getIssues()
-    {
+    public Set<SEO_ISSUE> getIssues() {
         return issues;
     }
 
-    /**
-     * @param issues the seo issues to set for the Page.
-     */
-    public void setIssues(Set<SEO_ISSUE> issues)
-    {
-        this.issues = issues;
+    public void setIssues(Set<SEO_ISSUE> issues) {
+        this.issues = (issues == null) ? EnumSet.noneOf(SEO_ISSUE.class) : EnumSet.copyOf(issues);
     }
 
-    /**
-     * Percentage of seo issues discovered for the Page based on the issues defined by {@link SEO_ISSUE}.
-     * 
-     * @return the severity
-     */
-    public int getSeverity()
-    {
+    public int getSeverity() {
         return severity;
     }
 
-    /**
-     * @param severity the percentage of seo issues to set for the Page.
-     */
-    public void setSeverity(int severity)
-    {
+    public void setSeverity(int severity) {
         this.severity = severity;
     }
 
-    /**
-     * @return the summary of the Page
-     */
-    public PSPageSummary getPageSummary()
-    {
+    public PSPageSummary getPageSummary() {
         return pageSummary;
     }
 
-    /**
-     * @param pageSummary the summary of the Page.
-     */
-    public void setPageSummary(PSPageSummary pageSummary)
-    {
+    public void setPageSummary(PSPageSummary pageSummary) {
         this.pageSummary = pageSummary;
     }
-    
-    /**
-     * @return the keyword to use in analysis.
-     */
-    public String getKeyword()
-    {
+
+    public String getKeyword() {
         return keyword;
     }
 
-    /**
-     * @param keyword the keyword to use in analysis.
-     */
-    public void setKeyword(String keyword)
-    {
+    public void setKeyword(String keyword) {
         this.keyword = keyword;
     }
 
-    /**
-     * @return <code>true</code> if the keyword is present in the page summary (description, link, title),
-     * <code>false</code> otherwise.
-     */
-    public boolean isKeywordPresent()
-    {
+    public boolean isKeywordPresent() {
         return keywordPresent;
     }
 
-    /**
-     * @param keywordPresent <code>true</code> if the keyword is present in the page summary (description, link, title),
-     * <code>false</code> otherwise.
-     */
-    public void setKeywordPresent(boolean keywordPresent)
-    {
+    public void setKeywordPresent(boolean keywordPresent) {
         this.keywordPresent = keywordPresent;
     }
-    
-    /**
-     * @return the summary
-     */
-    public String getSummary()
-    {
+
+    public String getSummary() {
         return summary;
     }
 
-    /**
-     * @param summary the summary to set
-     */
-    public void setSummary(String summary)
-    {
+    public void setSummary(String summary) {
         this.summary = summary;
     }
-    
+
     /**
-     * @return the seo severity level {@link SEO_SEVERITY} of the Page, never <code>null</code>.
+     * Returns the SEO severity level of the page.
+     * @return never null.
      */
-    public SEO_SEVERITY getSeverityLevel()
-    {
-        if (severity == 100)
-        {
+    public SEO_SEVERITY getSeverityLevel() {
+        if (severity == 100) {
             return SEO_SEVERITY.SEVERE;
-        }
-        else if (severity >= 75)
-        {
+        } else if (severity >= 75) {
             return SEO_SEVERITY.HIGH;
-        }
-        else if (severity >= 50)
-        {
+        } else if (severity >= 50) {
             return SEO_SEVERITY.MEDIUM;
-        }
-        else if (severity >= 25)
-        {
+        } else if (severity >= 25) {
             return SEO_SEVERITY.MODERATE;
-        }
-        else
-        {
+        } else {
             return SEO_SEVERITY.ALL;
         }
     }
-    
+
     /**
-     * Performs an analysis of the encapsulated Page to determine its seo rating.  Issues are stored and a severity is
-     * computed based on the number of issues found versus the total number of possible issues.
+     * Performs an analysis of the encapsulated Page to determine its SEO rating.
+     * Issues are stored and severity is computed based on the number of issues found.
      */
-    private void analyze()
-    {
-        if (pageSummary != null)
-        {
+    private void analyze() {
+        if (pageSummary != null) {
             analyzeKeyword();
-            
-            String sDescr = pageSummary.getDescription();
-            String sTitle = pageSummary.getTitle(); 
-                             
-            if (sTitle.equalsIgnoreCase(pageSummary.getLinkTitle()))
-            {
+            var sDescr = pageSummary.getDescription();
+            var sTitle = pageSummary.getTitle();
+
+            if (sTitle.equalsIgnoreCase(pageSummary.getLinkTitle())) {
                 issues.add(SEO_ISSUE.DEFAULT_TITLE);
             }
-
-            if (sTitle.length() > 70)
-            {
+            if (sTitle.length() > 70) {
                 issues.add(SEO_ISSUE.TITLE_TOO_LONG);
             }
-
-            
-            if (StringUtils.isBlank(sDescr))
-            {
+            if (StringUtils.isBlank(sDescr)) {
                 issues.add(SEO_ISSUE.MISSING_DESCRIPTION);
-            }
-            else
-            {
-                if (sDescr.length() > 150)
-                {
-                    issues.add(SEO_ISSUE.DESCRIPTION_TOO_LONG);
-                }
+            } else if (sDescr.length() > 150) {
+                issues.add(SEO_ISSUE.DESCRIPTION_TOO_LONG);
             }
         }
-                
         double issuesLength = issues.size();
         double total = getTotalIssueCount();
-        if (keywordPresent)
-        {
-            // subtract one possible keyword issue
+        if (keywordPresent) {
             total--;
-        }
-        else
-        {
-            // subtract all possible keyword issues
-            total -= ms_keywordIssues.size();
+        } else {
+            total -= KEYWORD_ISSUES.size();
         }
         severity = (int) Math.round((issuesLength / total) * 100);
     }
-    
+
     /**
-     * Calculates the number of possible issues for a Page if it has not been set.  Used in {@link #analyze()} to
-     * compute the severity level.
-     *  
+     * Calculates the number of possible issues for a Page.
+     * Used in {@link #analyze()} to compute the severity level.
      * @return the total number of issues which could be encountered for the Page.
      */
-    private double getTotalIssueCount()
-    {
-        if (ms_totalIssueCount == -1)
-        {
-            int singleWeightIssueCount = 0;
-            Iterator<Set<SEO_ISSUE>> iter = ms_singleWeightIssues.iterator();
-            while (iter.hasNext())
-            {
-                singleWeightIssueCount += iter.next().size();
-            }
-            ms_totalIssueCount = SEO_ISSUE.values().length - singleWeightIssueCount + ms_singleWeightIssues.size();
+    private double getTotalIssueCount() {
+        if (totalIssueCount == -1) {
+            int singleWeightIssueCount = SINGLE_WEIGHT_ISSUES.stream()
+                    .mapToInt(Set::size).sum();
+            totalIssueCount = SEO_ISSUE.values().length - singleWeightIssueCount + SINGLE_WEIGHT_ISSUES.size();
         }
-                
-        return ms_totalIssueCount;
+        return totalIssueCount;
     }
-    
+
     /**
-     * Analyzes the page summary for the correct usage of the keyword.  Currently checks the page description, link,
-     * and title to ensure that if the keyword exists in one of the fields, it exists in all fields, otherwise, an
-     * issue is added for each field from which the keyword is missing.  For page links, the keyword is searched exact
-     * as well as with spaces replaced with underscores, and dashes.
+     * Analyzes the page summary for correct usage of the keyword.
+     * Checks description, link, and title for keyword presence.
      */
-    private void analyzeKeyword()
-    {
-        if (pageSummary == null)
-        {
+    private void analyzeKeyword() {
+        if (pageSummary == null) {
             return;
         }
-        
-        if (StringUtils.isNotBlank(keyword))
-        {
-            String sDescr = pageSummary.getDescription();
-            String sLink = pageSummary.getLinkTitle();
-            String sTitle = pageSummary.getTitle(); 
-            
+        if (StringUtils.isNotBlank(keyword)) {
+            var sDescr = pageSummary.getDescription();
+            var sLink = pageSummary.getLinkTitle();
+            var sTitle = pageSummary.getTitle();
+
             boolean inDescr = containsKeyword(sDescr);
-            boolean inLink = containsKeyword(sLink) || containsKeyword(sLink, keyword.replaceAll(" ", "_"), '_') ||
-                    containsKeyword(sLink, keyword.replaceAll(" ", "-"), '-');
+            boolean inLink = containsKeyword(sLink)
+                    || containsKeyword(sLink, keyword.replace(" ", "_"), '_')
+                    || containsKeyword(sLink, keyword.replace(" ", "-"), '-');
             boolean inTitle = containsKeyword(sTitle);
-            
-            if (inDescr || inLink || inTitle)
-            {
+
+            if (inDescr || inLink || inTitle) {
                 keywordPresent = true;
-                
-                if (inDescr)
-                {
-                    if (!inLink)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_LINK);
-                    }
-                    
-                    if (!inTitle)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_TITLE);
-                    }
+                if (inDescr && !inLink) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_LINK);
                 }
-                
-                if (inLink)
-                {
-                    if (!inDescr)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION);
-                    }
-                    
-                    if (!inTitle)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_TITLE);
-                    }
+                if (inDescr && !inTitle) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_TITLE);
                 }
-                
-                if (inTitle)
-                {
-                    if (!inDescr)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION);
-                    }
-                    
-                    if (!inLink)
-                    {
-                        issues.add(SEO_ISSUE.MISSING_KEYWORD_LINK);
-                    }
+                if (inLink && !inDescr) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION);
                 }
-            }
-            else
-            {
+                if (inLink && !inTitle) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_TITLE);
+                }
+                if (inTitle && !inDescr) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION);
+                }
+                if (inTitle && !inLink) {
+                    issues.add(SEO_ISSUE.MISSING_KEYWORD_LINK);
+                }
+            } else {
                 keywordPresent = false;
             }
         }
     }
-    
+
     /**
-     * Convenience method that calls {@link #containsKeyword(String, String, char)} as
-     * <code>containsKeyword(str, keyword, ' ')</code>.  
+     * Convenience method that calls {@link #containsKeyword(String, String, char)}
+     * as containsKeyword(str, keyword, ' ').
      */
-    private boolean containsKeyword(String str)
-    {
+    private boolean containsKeyword(String str) {
         return containsKeyword(str, keyword, ' ');
     }
-    
+
     /**
-     * Determines if the specified string contains the keyword.  This is a whole word comparison, case-insensitive.
-     * 
-     * @param str the string to check.
-     * @param key the keyword, assumed not blank.
-     * @param separator the pad character used to separate the keyword from other words in the string.
-     * 
-     * @return <code>true</code> if the string contains the keyword, <code>false</code> otherwise.
+     * Determines if the specified string contains the keyword.
+     * Whole word comparison, case-insensitive.
      */
-    private boolean containsKeyword(String str, String key, char separator)
-    {
-        if (StringUtils.isBlank(str))
-        {
+    private boolean containsKeyword(String str, String key, char separator) {
+        if (StringUtils.isBlank(str)) {
             return false;
         }
-        
-        String lowerStr = str.toLowerCase();
-        String lowerKey = key.toLowerCase();
-        return (lowerStr.equals(lowerKey) || lowerStr.startsWith(lowerKey + separator)
-                || lowerStr.endsWith(separator + lowerKey) || lowerStr.indexOf(separator + lowerKey + separator) != -1);
+        var lowerStr = str.toLowerCase();
+        var lowerKey = key.toLowerCase();
+        return lowerStr.equals(lowerKey)
+                || lowerStr.startsWith(lowerKey + String.valueOf(separator))
+                || lowerStr.endsWith(separator + lowerKey)
+                || lowerStr.contains(separator + lowerKey + separator);
     }
-    
+
     /**
-     * Defines the possible seo issues which could be discovered for a Page.
+     * Defines the possible SEO issues which could be discovered for a Page.
      */
-    public static enum SEO_ISSUE
-    {
-        /**
-         * Unmodified browser title.
-         */
+    public enum SEO_ISSUE {
         DEFAULT_TITLE,
-        
-        /**
-         * Missing meta tag description.
-         */
         MISSING_DESCRIPTION,
-        
-        /**
-         * Browser title is too long.
-         */
         TITLE_TOO_LONG,
-        
-        /**
-         * Description is too long.
-         */
         DESCRIPTION_TOO_LONG,
-        
-        /**
-         * Missing keyword in meta tag description.
-         */
         MISSING_KEYWORD_DESCRIPTION,
-        
-        /**
-         * Missing keyword in page title.
-         */
         MISSING_KEYWORD_TITLE,
-        
-        /**
-         * Missing keyword in page link text.
-         */
-        MISSING_KEYWORD_LINK;
+        MISSING_KEYWORD_LINK
     }
-    
+
     /**
-     * Defines the levels of severity of seo non-compliance.
+     * Defines the levels of severity of SEO non-compliance.
      */
-    public static enum SEO_SEVERITY
-    {
-        /**
-         * Indicates a severity >= 0%.
-         */
+    public enum SEO_SEVERITY {
         ALL,
-        
-        /**
-         * Indicates a severity >= 25%.
-         */
         MODERATE,
-        
-        /**
-         * Indicates a severity >= 50%.
-         */
         MEDIUM,
-        
-        /**
-         * Indicates a severity >= 75%.
-         */
         HIGH,
-        
-        /**
-         * Indicates a severity == 100%.
-         */
-        SEVERE;
+        SEVERE
     }
-   
-    /**
-     * The set of issues related to the page title which only count as one issue for the Page.
-     */
-    private static Set<SEO_ISSUE> ms_titleIssues = new HashSet<>();
-    
-    /**
-     * The set of issues related to the page description which only count as one issue for the Page.
-     */
-    private static Set<SEO_ISSUE> ms_descriptionIssues = new HashSet<>();
-    
-    /**
-     * The set of issues related to keywords.
-     */
-    private static Set<SEO_ISSUE> ms_keywordIssues = new HashSet<>();
-    
-    /**
-     * The set of sets of issues which are to be counted as a single issue for the Page.
-     */
-    private static Set<Set<SEO_ISSUE>> ms_singleWeightIssues = new HashSet<>();
-    
-    /**
-     * See {@link #getTotalIssueCount()}.
-     */
-    private static double ms_totalIssueCount = -1;
-    
-    static
-    {
-        ms_titleIssues.add(SEO_ISSUE.DEFAULT_TITLE);
-        ms_titleIssues.add(SEO_ISSUE.TITLE_TOO_LONG);
-        ms_descriptionIssues.add(SEO_ISSUE.MISSING_DESCRIPTION);
-        ms_descriptionIssues.add(SEO_ISSUE.DESCRIPTION_TOO_LONG);
-        ms_keywordIssues.add(SEO_ISSUE.MISSING_KEYWORD_TITLE);
-        ms_keywordIssues.add(SEO_ISSUE.MISSING_KEYWORD_DESCRIPTION);
-        ms_keywordIssues.add(SEO_ISSUE.MISSING_KEYWORD_LINK);
-        
-        //ms_singleWeightIssues.add(ms_titleIssues);
-        ms_singleWeightIssues.add(ms_descriptionIssues);
-    }
-  
 }

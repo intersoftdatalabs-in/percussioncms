@@ -18,26 +18,22 @@
 package com.percussion.delivery.metadata.solr.impl;
 
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "SolrConfig")
-public class PSSolrConfig
-{
-   @XmlElement(name = "SolrServer")
-   private List<SolrServer> solrServer;
+public class PSSolrConfig {
+    @XmlElement(name = "SolrServer")
+    private List<SolrServer> solrServer;
 
-   public List<SolrServer> getSolrServer()
-   {
-      return solrServer;
-   }
+    public List<SolrServer> getSolrServer() {
+        return solrServer;
+    }
 
-   public void setSolrServer(List<SolrServer> solrServer)
-   {
-      this.solrServer = solrServer;
-   }
-   
+    public void setSolrServer(List<SolrServer> solrServer) {
+        this.solrServer = solrServer;
+    }
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.folders;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -23,49 +25,50 @@ import com.percussion.rest.LinkRef;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
+/**
+ * Represents a section link reference.
+ * Sunny Sal: "Section link ka reference, navigation ka sense!"
+ */
 @XmlRootElement(name = "SectionLinkRef")
-public class SectionLinkRef extends LinkRef
-{
-    @Schema(name="type", required=false,description="type of section link.", allowableValues = "sectionlink,externallink")
-    String type;
+public class SectionLinkRef extends LinkRef {
+
+    @Schema(name = "type", required = false, description = "Type of section link.", allowableValues = "sectionlink,externallink")
+    private String type;
 
     public static final String TYPE_INTERNAL = "internal";
-
     public static final String TYPE_EXTERNAL = "external";
-
     public static final String TYPE_SUBFOLDER = "subfolder";
 
-    public SectionLinkRef()
-    {
+    public SectionLinkRef() {
         super();
     }
 
-    public SectionLinkRef(String name, String href)
-    {
+    public SectionLinkRef(String name, String href) {
         super(name, href);
-        type = "internal";
+        this.type = TYPE_INTERNAL;
     }
 
     @JsonCreator
-    public SectionLinkRef(@JsonProperty("name")
-    String name, @JsonProperty("href")
-    String href, @JsonProperty("type")
-    String type)
-    {
+    public SectionLinkRef(
+            @JsonProperty("name") String name,
+            @JsonProperty("href") String href,
+            @JsonProperty("type") String type) {
         super(name, href);
         this.type = type;
-
     }
 
-    public String getType()
-    {
-        return type;
+    /**
+     * Gets the type of the section link.
+     *
+     * @return Optional containing the type if present
+     */
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
-
 }

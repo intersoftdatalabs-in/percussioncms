@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,46 +26,8 @@
 
 package com.percussion.content.data;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.bind.annotation.*;
 
-
-/**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element ref="{}AssetDef" minOccurs="0"/>
- *       &lt;/sequence>
- *       &lt;attribute name="widgetName" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="regionName" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="contentSource" default="shared">
- *         &lt;simpleType>
- *           &lt;restriction base="{http://www.w3.org/2001/XMLSchema}NMTOKEN">
- *             &lt;enumeration value="local"/>
- *             &lt;enumeration value="shared"/>
- *           &lt;/restriction>
- *         &lt;/simpleType>
- *       &lt;/attribute>
- *       &lt;attribute name="sourceAssetName" type="{http://www.w3.org/2001/XMLSchema}string" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "assetDef"
@@ -79,133 +42,48 @@ public class Widget {
     @XmlAttribute(required = true)
     protected String regionName;
     @XmlAttribute
-    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlJavaTypeAdapter(javax.xml.bind.annotation.adapters.CollapsedStringAdapter.class)
     protected String contentSource;
     @XmlAttribute
     protected String sourceAssetName;
 
-    /**
-     * Gets the value of the assetDef property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link AssetDef }
-     *     
-     */
     public AssetDef getAssetDef() {
         return assetDef;
     }
 
-    /**
-     * Sets the value of the assetDef property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link AssetDef }
-     *     
-     */
     public void setAssetDef(AssetDef value) {
         this.assetDef = value;
     }
 
-    /**
-     * Gets the value of the widgetName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getWidgetName() {
         return widgetName;
     }
 
-    /**
-     * Sets the value of the widgetName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setWidgetName(String value) {
         this.widgetName = value;
     }
 
-    /**
-     * Gets the value of the regionName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getRegionName() {
         return regionName;
     }
 
-    /**
-     * Sets the value of the regionName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setRegionName(String value) {
         this.regionName = value;
     }
 
-    /**
-     * Gets the value of the contentSource property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getContentSource() {
-        if (contentSource == null) {
-            return "shared";
-        } else {
-            return contentSource;
-        }
+        return java.util.Optional.ofNullable(contentSource).orElse("shared");
     }
 
-    /**
-     * Sets the value of the contentSource property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setContentSource(String value) {
         this.contentSource = value;
     }
 
-    /**
-     * Gets the value of the sourceAssetName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getSourceAssetName() {
         return sourceAssetName;
     }
 
-    /**
-     * Sets the value of the sourceAssetName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setSourceAssetName(String value) {
         this.sourceAssetName = value;
     }
-
 }

@@ -26,67 +26,54 @@ import com.percussion.server.PSServer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * @author LucasPiccoli
  *
  */
-public class PSProxyConfigService implements IPSProxyConfigService
-{
-   /**
-    * The configuration file path, never <code>null</code>.
-    */
-   private static File PROXY_CONFIG_FILE = new File(PSServer.getRxDir(), "rxconfig/Proxy/proxy-config.xml");
+public class PSProxyConfigService implements IPSProxyConfigService {
+    /**
+     * The configuration file path, never <code>null</code>.
+     */
+    private static final File PROXY_CONFIG_FILE = new File(PSServer.getRxDir(), "rxconfig/Proxy/proxy-config.xml");
 
-   /**
-    * A list of configurations specified in the proxy configuration file.
-    */
-   private List<PSProxyConfig> proxyConfigurations = new ArrayList<>();
+    /**
+     * A list of configurations specified in the proxy configuration file.
+     */
+    private List<PSProxyConfig> proxyConfigurations = new ArrayList<>();
 
-   public PSProxyConfigService()
-   {
-      if (!configFileExists())
-         return;
+    public PSProxyConfigService() {
+        if (!configFileExists()) return;
+        var proxyConfigLoader = new PSProxyConfigLoader(PROXY_CONFIG_FILE);
+        proxyConfigurations = proxyConfigLoader.getProxyConfigurations();
+    }
 
-      PSProxyConfigLoader proxyConfigLoader = new PSProxyConfigLoader(PROXY_CONFIG_FILE);
-      proxyConfigurations = proxyConfigLoader.getProxyConfigurations();
-   }
-   
-   /*
-    *  This constructor is for JUnit Testing purposes
-    */
-   public PSProxyConfigService(File file)
-   {
-      PSProxyConfigLoader proxyConfigLoader = new PSProxyConfigLoader(file);
-      proxyConfigurations = proxyConfigLoader.getProxyConfigurations();
-   }
-   
-   public List<PSProxyConfig> findAll()
-   {
-      return proxyConfigurations;
-   }
+    /**
+     * This constructor is for JUnit Testing purposes
+     */
+    public PSProxyConfigService(File file) {
+        var proxyConfigLoader = new PSProxyConfigLoader(file);
+        proxyConfigurations = proxyConfigLoader.getProxyConfigurations();
+    }
 
-   public PSProxyConfig findByProtocol(String protocol)
-   {
-      notNull(protocol);
+    @Override
+    public List<PSProxyConfig> findAll() {
+        return List.copyOf(proxyConfigurations);
+    }
 
-      for (PSProxyConfig proxyConf : proxyConfigurations)
-      {
-         for (String confProtocol : proxyConf.getProtocols())
-         {
-            if (equalsIgnoreCase(protocol, confProtocol))
-            {
-               return proxyConf;
-            }
-         }
-      }
-      return null;
-   }
-   
-   public boolean configFileExists()
-   {
-      return PROXY_CONFIG_FILE.exists();
-   }
-   
-   
+    @Override
+    public Optional<PSProxyConfig> findByProtocol(String protocol) {
+        notNull(protocol);
+        return proxyConfigurations.stream()
+                .filter(proxyConf -> proxyConf.getProtocols().stream()
+                        .anyMatch(confProtocol -> equalsIgnoreCase(protocol, confProtocol)))
+                .findFirst();
+    }
+
+    @Override
+    public boolean configFileExists() {
+        return PROXY_CONFIG_FILE.exists();
+    }
 }

@@ -49,28 +49,24 @@ import org.apache.commons.lang.StringUtils;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author miltonpividori
  *
  */
-@RunWith(JMock.class)
-@Ignore("There are no Tomcat running in the continuos machine. If you want to " +
-        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
-        "server. Be sure build and install the latest delivery services code.")
-@Category(IntegrationTest.class)
+//@RunWith(JMock.class)
+//@Ignore("There are no Tomcat running in the continuos machine. If you want to " +
+//        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
+//        "server. Be sure build and install the latest delivery services code.")
+//@Category(IntegrationTest.class)
 public class PSDeliveryContentGeneratorTest
 {
     private static final String SERVER_URL = "http://localhost:9970";
@@ -316,7 +312,7 @@ public class PSDeliveryContentGeneratorTest
         return getClass().getResourceAsStream(filePath);
     }
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         deleteAllCommentsInRemoteServer();
@@ -325,19 +321,19 @@ public class PSDeliveryContentGeneratorTest
     @Test
     public void testContentGenerator_LoadsXmlFile_XmlIsValid() throws Exception
     {
-        InputStream xmlFile = getDataFile(VALID_XML_FILE);
+        var xmlFile = getDataFile(VALID_XML_FILE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
         contentGenerator.cleanup();
 
-        assertTrue("data is valid", contentGenerator.dataSuccessfullyLoaded());
+        assertTrue(contentGenerator.dataSuccessfullyLoaded(), "data is valid");
 
-        CommentService commentsService = contentGenerator.getRootData().getCommentService();
-        assertNotNull("comment service not null", commentsService);
-        assertNotNull("comments element not null", commentsService.getComments());
-        assertEquals("comments element size", 1, commentsService.getComments().size());
-        assertEquals("comments count", 3, commentsService.getComments().get(0).getComment().size());
+        var commentsService = contentGenerator.getRootData().getCommentService();
+        assertNotNull(commentsService, "comment service not null");
+        assertNotNull(commentsService.getComments(), "comments element not null");
+        assertEquals(1, commentsService.getComments().size(), "comments element size");
+        assertEquals(3, commentsService.getComments().get(0).getComment().size(), "comments count");
 
-        for (Comment com : commentsService.getComments().get(0).getComment())
+        for (var com : commentsService.getComments().get(0).getComment())
         {
             if (StringUtils.isBlank(com.getTitle()))
                 fail("Comment's title must not be null");
@@ -349,33 +345,31 @@ public class PSDeliveryContentGeneratorTest
     @Test
     public void testContentGenerator_LoadsXmlFile_XmlIsInvalid() throws Exception
     {
-        InputStream xmlFile = getDataFile(INVALID_XML_FILE);
+        var xmlFile = getDataFile(INVALID_XML_FILE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
-        // Try to generate something, so you
         contentGenerator.generateContent();
 
-        assertFalse("data is invalid", contentGenerator.dataSuccessfullyLoaded());
+        assertFalse(contentGenerator.dataSuccessfullyLoaded(), "data is invalid");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_AddComments_CountGreaterThan1() throws Exception
     {
         int count = 10;
 
-        InputStream xmlFile = getDataFile(VALID_XML_FILE);
+        var xmlFile = getDataFile(VALID_XML_FILE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
         contentGenerator.generateContent();
 
-        // Check that the comments were added in the delivery server
-        List<PSComment> allComments = getAllComments();
+        var allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", count * 3, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(count * 3, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         for (int i=1; i<=count; i++)
         {
             expectedTitles.add("Comment 1 Copy " + i);
@@ -385,121 +379,113 @@ public class PSDeliveryContentGeneratorTest
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = getCopyN(com.getCommentTitle());
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = getCopyN(com.getCommentTitle());
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_AddComments_CountEqualsThan1() throws Exception
     {
-        InputStream xmlFile = getDataFile(VALID_XML_FILE_COUNT_EQUALS_TO_ONE);
+        var xmlFile = getDataFile(VALID_XML_FILE_COUNT_EQUALS_TO_ONE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
         contentGenerator.generateContent();
 
-        // Check that the comments were added in the delivery server
-        List<PSComment> allComments = getAllComments();
+        var allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 3, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(3, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         expectedTitles.add("Comment 1");
         expectedTitles.add("Comment 2");
         expectedTitles.add("Comment 3");
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = StringUtils.EMPTY; // Don't add a "Copy N", as the count is equals to 1
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = StringUtils.EMPTY; // Don't add a "Copy N", as the count is equals to 1
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_AddComments_CountLessThan1() throws Exception
     {
-        InputStream xmlFile = getDataFile(VALID_XML_FILE_COUNT_LESS_THAN_ONE);
+        var xmlFile = getDataFile(VALID_XML_FILE_COUNT_LESS_THAN_ONE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
         contentGenerator.generateContent();
 
-        // Check that the comments were added in the delivery server
-        List<PSComment> allComments = getAllComments();
+        var allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 3, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(3, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         expectedTitles.add("Comment 1 Copy 1");
         expectedTitles.add("Comment 2 Copy 1");
         expectedTitles.add("Comment 3 Copy 1");
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = " Copy 1";
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = " Copy 1";
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_AddComments_MultipleCommentsNodes() throws Exception
     {
-        InputStream xmlFile = getDataFile(VALID_XML_FILE_MULTIPLE_COMMENTS_NODES);
+        var xmlFile = getDataFile(VALID_XML_FILE_MULTIPLE_COMMENTS_NODES);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
         contentGenerator.generateContent();
@@ -508,39 +494,36 @@ public class PSDeliveryContentGeneratorTest
          * Site1 comments
          */
 
-        // Check that the comments were added in the delivery server
-        List<PSComment> allComments = getAllComments(SITE1, PAGEPATH1);
+        var allComments = getAllComments(SITE1, PAGEPATH1);
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 3, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(3, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         expectedTitles.add("MultiComments Comment 1");
         expectedTitles.add("MultiComments Comment 2");
         expectedTitles.add("MultiComments Comment 3");
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = StringUtils.EMPTY; // Don't add a "Copy N", as the count is equals to 1
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = StringUtils.EMPTY; // Don't add a "Copy N", as the count is equals to 1
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
 
 
 
@@ -548,13 +531,12 @@ public class PSDeliveryContentGeneratorTest
          * Site2 comments
          */
 
-        // Check that the comments were added in the delivery server
         int count = 5;
 
         allComments = getAllComments(SITE2, PAGEPATH2);
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 3 * count, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(3 * count, allComments.size(), "comment count");
 
         expectedTitles = new ArrayList<String>();
         for (int i=1; i<=count; i++)
@@ -566,42 +548,40 @@ public class PSDeliveryContentGeneratorTest
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE2, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH2, com.getPagePath());
+            assertEquals(SITE2, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH2, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = getCopyN(com.getCommentTitle());
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = getCopyN(com.getCommentTitle());
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_Cleanup() throws Exception
     {
         // Generate some comments from different XML files.
-        InputStream xmlFile = getDataFile(VALID_XML_FILE);
+        var xmlFile = getDataFile(VALID_XML_FILE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, xmlFile);
 
         contentGenerator.generateContent();
 
-        List<PSComment> allComments = getAllComments();
+        var allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 30, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(30, allComments.size(), "comment count");
 
         // Another XML file. This one has comments for the same site and
         // page path than VALID_XML_FILE. In this way I can test that only
@@ -613,8 +593,8 @@ public class PSDeliveryContentGeneratorTest
 
         allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 40, allComments.size()); //  30 + 10 = 40
+        assertNotNull(allComments, "comments not null");
+        assertEquals(40, allComments.size(), "comment count"); //  30 + 10 = 40
 
         // Remove comments from VALID_XML_FILE
         xmlFile = getDataFile(VALID_XML_FILE);
@@ -624,10 +604,10 @@ public class PSDeliveryContentGeneratorTest
 
         allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 10, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(10, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         for (int i=1; i<=5; i++)
         {
             expectedTitles.add("First comment Copy " + i);
@@ -636,42 +616,40 @@ public class PSDeliveryContentGeneratorTest
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = getCopyN(com.getCommentTitle());
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = getCopyN(com.getCommentTitle());
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testContentGenerator_Cleanup_MultipleCommentsNodes() throws Exception
     {
         // Generate some comments from different XML files.
-        InputStream xmlFile = getDataFile(VALID_XML_FILE);
+        var xmlFile = getDataFile(VALID_XML_FILE);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, SECURE_SERVER_URL, true, xmlFile, SECURE_ADMIN_USER, SECURE_ADMIN_PASSWORD, LICENSE_ID);
 
         contentGenerator.generateContent();
 
-        List<PSComment> allComments = getAllComments();
+        var allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 30, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(30, allComments.size(), "comment count");
 
         // Generate comments for several sites with only one XML file.
         xmlFile = getDataFile(VALID_XML_FILE_MULTIPLE_COMMENTS_NODES);
@@ -681,8 +659,8 @@ public class PSDeliveryContentGeneratorTest
 
         allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 48, allComments.size()); //  30 + 18 = 48
+        assertNotNull(allComments, "comments not null");
+        assertEquals(48, allComments.size(), "comment count"); //  30 + 18 = 48
 
         // Remove comments from VALID_XML_FILE_MULTIPLE_COMMENTS_NODES
         xmlFile = getDataFile(VALID_XML_FILE_MULTIPLE_COMMENTS_NODES);
@@ -691,10 +669,10 @@ public class PSDeliveryContentGeneratorTest
 
         allComments = getAllComments();
 
-        assertNotNull("comments not null", allComments);
-        assertEquals("comment count", 30, allComments.size());
+        assertNotNull(allComments, "comments not null");
+        assertEquals(30, allComments.size(), "comment count");
 
-        List<String> expectedTitles = new ArrayList<String>();
+        var expectedTitles = new ArrayList<String>();
         for (int i=1; i<=10; i++)
         {
             expectedTitles.add("Comment 1 Copy " + i);
@@ -704,32 +682,30 @@ public class PSDeliveryContentGeneratorTest
 
         for (int i=0; i<allComments.size(); i++)
         {
-            PSComment com = allComments.get(i);
-            String plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
+            var com = allComments.get(i);
+            var plainCommentTitle = getPlainCommentTitle(com.getCommentTitle());
 
-            assertEquals("comment site", SITE1, com.getSiteName());
-            assertEquals("comment pagepath", "/" + PAGEPATH1, com.getPagePath());
+            assertEquals(SITE1, com.getSiteName(), "comment site");
+            assertEquals("/" + PAGEPATH1, com.getPagePath(), "comment pagepath");
 
-            assertTrue("comment - expected title, current: " + com.getCommentTitle(),
-                    expectedTitles.contains(com.getCommentTitle()));
+            assertTrue(expectedTitles.contains(com.getCommentTitle()), "comment - expected title, current: " + com.getCommentTitle());
 
-            String copyN = getCopyN(com.getCommentTitle());
-            assertEquals("comment body", plainCommentTitle + " - Body" + copyN, com.getCommentText());
-            assertEquals("comment username", plainCommentTitle + " - Username" + copyN, com.getUserName());
-            assertEquals("comment email", plainCommentTitle + " - Email" + copyN, com.getUserEmail());
-            assertEquals("comment url", plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl());
+            var copyN = getCopyN(com.getCommentTitle());
+            assertEquals(plainCommentTitle + " - Body" + copyN, com.getCommentText(), "comment body");
+            assertEquals(plainCommentTitle + " - Username" + copyN, com.getUserName(), "comment username");
+            assertEquals(plainCommentTitle + " - Email" + copyN, com.getUserEmail(), "comment email");
+            assertEquals(plainCommentTitle + " - Url" + copyN, com.getUserLinkUrl(), "comment url");
 
-            // The current comment is no longer expected
             expectedTitles.remove(com.getCommentTitle());
         }
 
-        assertEquals("pending expected titles should be zero", 0, expectedTitles.size());
+        assertEquals(0, expectedTitles.size(), "pending expected titles should be zero");
     }
 
     @Test
     public void testCreateMemberships() throws Exception
     {
-        InputStream xmlFile = getDataFile(VALID_XML_FILE_MEMBERSHIPS);
+        var xmlFile = getDataFile(VALID_XML_FILE_MEMBERSHIPS);
         contentGenerator = new PSDeliveryContentGenerator(SERVER_URL, SECURE_SERVER_URL, true, xmlFile, SECURE_ADMIN_USER, SECURE_ADMIN_PASSWORD, LICENSE_ID);
         contentGenerator.cleanup();
         contentGenerator.cleanupMemberships();

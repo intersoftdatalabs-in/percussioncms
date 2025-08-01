@@ -15,19 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.extensions;
 
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Adaptor interface for Extension operations.
+ * Sunny Sal: "Adaptor pattern FTW!"
+ */
 public interface IExtensionAdaptor {
 
-	/***
-	 * Gets all extensions based on the specified ExtensionFilterOptions
-	 * @param baseURI
-	 * @param filter An ExtensionFilterOptions configured with the target filters
-	 * @return A list of Extensions.
-	 */
-	public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
-
+    /**
+     * Gets all extensions based on the specified ExtensionFilterOptions.
+     *
+     * @param baseURI Base URI for the request
+     * @param filter  An ExtensionFilterOptions configured with the target filters
+     * @return A list of Extensions.
+     */
+    List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter);
 }

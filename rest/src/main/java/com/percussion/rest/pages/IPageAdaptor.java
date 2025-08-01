@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import com.percussion.rest.errors.BackendException;
@@ -25,27 +27,59 @@ import com.percussion.share.service.exception.PSValidationException;
 import java.net.URI;
 import java.util.List;
 
-public interface IPageAdaptor
-{
+/**
+ * Adaptor interface for Page operations.
+ * Sunny Sal: "Page adaptor, content ka doctor!"
+ */
+public interface IPageAdaptor {
 
-    public Page getPage(URI baseURI, String siteName, String path, String pageName) throws BackendException, PSDataServiceException;
+    /**
+     * Gets a page by site, path, and page name.
+     */
+    Page getPage(URI baseUri, String siteName, String path, String pageName) throws BackendException, PSDataServiceException;
 
-    public Page updatePage(URI baseURI, Page page) throws BackendException, PSDataServiceException;
+    /**
+     * Updates or creates a page.
+     */
+    Page updatePage(URI baseUri, Page page) throws BackendException, PSDataServiceException;
 
-    public void deletePage(URI baseURI, String siteName, String path, String pageName) throws BackendException;
+    /**
+     * Deletes a page.
+     */
+    void deletePage(URI baseUri, String siteName, String path, String pageName) throws BackendException;
 
-    public Page getPage(URI baseURI, String id) throws BackendException;
-    
-    public Page renamePage(URI baseURI, String siteName, String path, String pageName, String newName) throws BackendException, PSDataServiceException;
-  
-    public int approveAllPages(URI baseURI, String folderPath) throws BackendException;
-    
-    public int archiveAllPages(URI baseUri, String folderPath) throws BackendException;
-    
-    public int submitForReviewAllPages(URI baseUri, String folderPath) throws BackendException;
+    /**
+     * Gets a page by id.
+     */
+    Page getPage(URI baseUri, String id) throws BackendException;
 
-	public Page changePageTemplate(URI baseUri, Page p) throws BackendException;
-	
-	public List<String> allPagesReport(URI baseUri, String siteFolderPath) throws BackendException;
-	
+    /**
+     * Renames a page.
+     */
+    Page renamePage(URI baseUri, String siteName, String path, String pageName, String newName) throws BackendException, PSDataServiceException;
+
+    /**
+     * Approves all pages in a folder.
+     */
+    int approveAllPages(URI baseUri, String folderPath) throws BackendException;
+
+    /**
+     * Archives all pages in a folder.
+     */
+    int archiveAllPages(URI baseUri, String folderPath) throws BackendException;
+
+    /**
+     * Submits all pages in a folder for review.
+     */
+    int submitForReviewAllPages(URI baseUri, String folderPath) throws BackendException;
+
+    /**
+     * Changes the template for a page.
+     */
+    Page changePageTemplate(URI baseUri, Page page) throws BackendException;
+
+    /**
+     * Returns a report of all pages in a site folder.
+     */
+    List<String> allPagesReport(URI baseUri, String siteFolderPath) throws BackendException;
 }

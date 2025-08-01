@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+// REFACTORED: CP-JAVA11
 public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidation
 {
    @Override
@@ -57,7 +58,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
          Object pvalue, Map<String, Object> defs) throws PSNotFoundException {
       if (super.addPropertyDefs(obj, propName, pvalue, defs))
          return true;
-      
+
       if (VISIBILITY.equals(propName))
       {
          addFixmePropertyDefsForList(propName, pvalue, defs);
@@ -72,15 +73,15 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    protected Object getPropertyValue(Object obj, String propName) throws PSNotFoundException {
       if (VISIBILITY.equals(propName))
       {
-         IPSSite site = getSite(obj, propName);
-         List<String> templates = new ArrayList<>();
-         for (IPSAssemblyTemplate t : site.getAssociatedTemplates())
+         var site = getSite(obj, propName);
+         var templates = new ArrayList<String>();
+         for (var t : site.getAssociatedTemplates())
          {
             templates.add(t.getName());
          }
          return templates;
       }
-      
+
       return super.getPropertyValue(obj, propName);
    }   
 
@@ -97,7 +98,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    private IPSSite getSite(Object obj, String propName)
    {
       // validate the arguments.
-      if (!(obj instanceof IPSSite))         
+      if (!(obj instanceof IPSSite))
       {
          throw new PSConfigException("obj must be an instance of IPSSite.");
       }
@@ -106,7 +107,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
          throw new PSConfigException("Unknow property name, \"" + propName
                + "\".");
       }
-      
+
       return (IPSSite) obj;
    }
    
@@ -115,12 +116,12 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
          @SuppressWarnings("unused")
          List<IPSAssociationSet> aSets, String propName, Object propValue)
    {
-      IPSSite site = getSite(obj, propName);
-      Collection<String> curList = convertObjectToList(propValue);
-      
+      var site = getSite(obj, propName);
+      var curList = convertObjectToList(propValue);
+
       if (curList.isEmpty())
          return false;
-      
+
       mergeOrRemoveTemplates(site, curList, true);
       return true;
    }
@@ -130,22 +131,20 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
          String propName, Object propValue, Object otherValue) throws PSNotFoundException {
       if (!VISIBILITY.equals(propName))
          return super.validate(objName, state, propName, propValue, otherValue);
-      
-      Collection<String> curList = convertObjectToList(propValue);
-      Collection<String> otherList = convertObjectToList(otherValue);
+
+      var curList = convertObjectToList(propValue);
+      var otherList = convertObjectToList(otherValue);
       if (curList.isEmpty() || otherList.isEmpty())
          return Collections.emptyList();
 
-      Collection<String> commons = new ArrayList<>();
+      var commons = new ArrayList<String>();
       commons.addAll(curList);
       commons.retainAll(otherList);
       if (commons.isEmpty())
          return Collections.emptyList();
-      
+
       PSConfigValidation vError;
-      String msg = " Site \"" + objName + "\" associates with Templates \""
-            + curList.toString()
-            + "\" is already configured.";
+      var msg = " Site \"" + objName + "\" associates with Templates \"" + curList.toString() + "\" is already configured.";
       vError = new PSConfigValidation(objName, VISIBILITY, true, msg);
       return Collections.singletonList(vError);
    }
@@ -166,25 +165,25 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    private boolean applyToSite(IPSSite site, ObjectState state,
          Object propValue) throws Exception
    {
-      Collection<String> curList = convertObjectToList(propValue);
-      Collection<String> prevList = getPrevTemplates();
-      
+      var curList = convertObjectToList(propValue);
+      var prevList = getPrevTemplates();
+
       if (curList.isEmpty() && prevList.isEmpty())
          return false;
-      
+
       if (state.equals(ObjectState.PREVIOUS))
       {
          mergeOrRemoveTemplates(site, prevList, true);
          return true;
       }
-      
-      List<String> templates = new ArrayList<>();
+
+      var templates = new ArrayList<String>();
       templates.addAll(prevList);
       templates.removeAll(curList);
       mergeOrRemoveTemplates(site, templates, true);
-      
+
       mergeOrRemoveTemplates(site, curList, false);
-      
+
       return true;
    }
    
@@ -201,9 +200,8 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
       if (propValue == null)
          return Collections.emptyList();
 
-      IPSDesignModelFactory dmFactory = PSDesignModelFactoryLocator
-            .getDesignModelFactory();
-      IPSDesignModel model = dmFactory.getDesignModel(PSTypeEnum.TEMPLATE);
+      var dmFactory = PSDesignModelFactoryLocator.getDesignModelFactory();
+      var model = dmFactory.getDesignModel(PSTypeEnum.TEMPLATE);
       return PSConfigUtils.getObjectNames(propValue, model, VISIBILITY);
    }
    
@@ -214,10 +212,10 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
     */
    private Collection<String> getPrevTemplates()
    {
-      Map<String, Object> props = getPrevProperties();
+      var props = getPrevProperties();
       if (props == null)
          return Collections.emptyList();
-      
+
       return convertObjectToList(props.get(VISIBILITY));
    }
    
@@ -235,13 +233,12 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    private boolean mergeOrRemoveTemplates(IPSSite site,
          Collection<String> tgtNames, boolean isRemove)
    {
-      boolean isModified = false;
-      
-      IPSAssemblyService srv = PSAssemblyServiceLocator.getAssemblyService();
-      for (String name : tgtNames)
+      var isModified = false;
+
+      var srv = PSAssemblyServiceLocator.getAssemblyService();
+      for (var name : tgtNames)
       {
-         IPSAssemblyTemplate t = getNamedTemplate(name, site
-               .getAssociatedTemplates());
+         var t = getNamedTemplate(name, site.getAssociatedTemplates());
          if (t != null)
          {
             if (isRemove)
@@ -260,7 +257,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
          t = getTemplate(srv, name);
          if (t == null)
             continue;
-         
+
          site.getAssociatedTemplates().add(t);
          isModified = true;
       }
@@ -280,7 +277,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    private IPSAssemblyTemplate getNamedTemplate(String name,
          Collection<IPSAssemblyTemplate> templates)
    {
-      for (IPSAssemblyTemplate t : templates)
+      for (var t : templates)
       {
          if (t.getName().equalsIgnoreCase(name))
             return t;
@@ -302,7 +299,7 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
    {
       try
       {
-         IPSAssemblyTemplate t = srv.findTemplateByName(name);
+         var t = srv.findTemplateByName(name);
          return t;
       }
       catch (Exception e)
@@ -316,10 +313,5 @@ public class PSSiteTemplateVisibilitySetter extends PSPropertySetterWithValidati
     * The property name for this setter.
     */
    public static final String VISIBILITY = "templateVisibility";
-   
-   /**
-    * The logger of the setter.
-    */
    private static final Logger ms_log = LogManager.getLogger("PSSiteTemplateVisibilitySetter");
-
 }

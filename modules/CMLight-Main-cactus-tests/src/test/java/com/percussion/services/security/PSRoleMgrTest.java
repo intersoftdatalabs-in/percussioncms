@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,31 +30,27 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import java.util.*;
 import javax.security.auth.Subject;
 
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link IPSRoleMgr}.
  */
-@Category(IntegrationTest.class)
-public class PSRoleMgrTest extends ServletTestCase
+@Tag("IntegrationTest")
+public class PSRoleMgrTest
 {
    /**
     * Tests getting and setting cataloger configs.
     * 
     * @throws Exception If the test fails.
     */
+   @Test
    public void testConfigs() throws Exception
    {
       List<PSCatalogerConfig> curConfigs = null;
@@ -108,6 +105,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if there are any errors
     */
+   @Test
    public void testFindUsers() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -159,6 +157,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception If the test fails
     */
+   @Test
    public void testGetRoleMembersString() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -178,6 +177,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if the test fails
     */
+   @Test
    public void testGetRoleMembersStringPrincipalTypes() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -200,6 +200,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if there are any errors
     */
+   @Test
    public void testGetDefaultUserRoles() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -216,6 +217,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if there are any errors
     */
+   @Test
    public void testGetUserRoles() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -321,6 +323,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if there are any errors
     */
+   @Test
    public void testSupportsGroups() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -338,6 +341,7 @@ public class PSRoleMgrTest extends ServletTestCase
     * 
     * @throws Exception if there are any errors
     */
+   @Test
    public void testGetDefinedRoles() throws Exception
    {
       IPSRoleMgr rolemgr = PSRoleMgrLocator.getRoleManager();
@@ -401,4 +405,3 @@ public class PSRoleMgrTest extends ServletTestCase
     */
    PSServerConfiguration m_oldConfig = null;
 }
-

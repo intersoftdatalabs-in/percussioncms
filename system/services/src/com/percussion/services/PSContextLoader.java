@@ -31,74 +31,89 @@ import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 import javax.servlet.ServletContext;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * 
  * The context loader loads the root spring context which is
  * first setup by {@link PSBaseServiceLocator#init(ServletContext)}.
  * <p>
  * The loader is kicked off by {@link PSContextLoaderListener}.
  * 
  * @author adamgent
- *
  */
-public class PSContextLoader extends ContextLoader
-{
+// REFACTORED: CP-JAVA11
+public class PSContextLoader extends ContextLoader {
 
-   
-   /**
-    * Shuts down the server and the spring context. See spring doc.
-    * @param servletContext The base servlet context.
-    */
-   @Override
-   public void closeWebApplicationContext(ServletContext servletContext)
-   {
-      PSServer.shutdown();
-      super.closeWebApplicationContext(servletContext);
-   }
+    /**
+     * The log instance to use for this class, never <code>null</code>.
+     */
+    private static final Logger log = LogManager.getLogger(PSContextLoader.class);
 
-   /**
-    * Initialiazes part of the server and then initializes spring. 
-    * See spring doc.
-    * @param servletContext The base servlet context.
-    * @return the root web application context.
-    */
-   @Override
-   public WebApplicationContext initWebApplicationContext(ServletContext servletContext)
-         throws IllegalStateException, BeansException
-   {
-      log.info("Initializing Root Web Application Context");
+    /**
+     * Shuts down the server and the spring context. See spring doc.
+     *
+     * @param servletContext The base servlet context, must not be null
+     * @throws IllegalArgumentException if servletContext is null
+     */
+    @Override
+    public void closeWebApplicationContext(ServletContext servletContext) {
+        Objects.requireNonNull(servletContext, "ServletContext must not be null");
 
-      PSServer.setRxDir(PathUtils.getRxDir(null));
-      PSEntityResolver.setResolutionHome(PathUtils.getRxDir(null));
+        log.info("Shutting down Web Application Context");
+        PSServer.shutdown();
+        super.closeWebApplicationContext(servletContext);
+        log.info("Web Application Context shutdown complete");
+    }
 
-      // initialize jndi prefix
-      String jndiLookupPrefix = servletContext.getInitParameter("jndiPrefix");
-      PSJndiObjectLocator.setPrefix(jndiLookupPrefix);
-      PSServletUtils.initialize(servletContext);
+    /**
+     * Initializes part of the server and then initializes spring.
+     * See spring doc.
+     *
+     * @param servletContext The base servlet context, must not be null
+     * @return the root web application context, never null
+     * @throws IllegalStateException if context initialization fails
+     * @throws BeansException if bean creation fails
+     * @throws IllegalArgumentException if servletContext is null
+     */
+    @Override
+    public WebApplicationContext initWebApplicationContext(ServletContext servletContext)
+            throws IllegalStateException, BeansException {
+        Objects.requireNonNull(servletContext, "ServletContext must not be null");
 
-      WebApplicationContext context = super.initWebApplicationContext(servletContext);
-      log.info("Finished loading spring");
-      return context;
-   }
+        log.info("Initializing Root Web Application Context");
 
-   /**
-    * Delegates to PSBaseServiceLocator.
-    * @param servletContext Base servlet context.
-    */
-   @Override
-   protected ApplicationContext loadParentContext(ServletContext servletContext)
-         throws BeansException
-   {
-      log.info("Loading Service locators");
-      PSBaseServiceLocator.init(servletContext);
-      log.info("Finished loading service locators");
-      return PSBaseServiceLocator.getCtx();
-   }
+        java.io.File rxDir = PathUtils.getRxDir(null);
+        PSServer.setRxDir(rxDir);
+        PSEntityResolver.setResolutionHome(rxDir);
 
-   /**
-    * The log instance to use for this class, never <code>null</code>.
-    */
-   private static final Logger log = LogManager.getLogger(PSContextLoader.class);
+        // Initialize JNDI prefix from servlet context
+        Optional.ofNullable(servletContext.getInitParameter("jndiPrefix"))
+            .ifPresent(PSJndiObjectLocator::setPrefix);
 
+        PSServletUtils.initialize(servletContext);
+
+        WebApplicationContext context = super.initWebApplicationContext(servletContext);
+        log.info("Finished loading spring");
+        return context;
+    }
+
+    /**
+     * Delegates to PSBaseServiceLocator to load the parent application context.
+     *
+     * @param servletContext Base servlet context, must not be null
+     * @return the parent application context, never null
+     * @throws BeansException if bean loading fails
+     * @throws IllegalArgumentException if servletContext is null
+     */
+    @Override
+    protected ApplicationContext loadParentContext(ServletContext servletContext)
+            throws BeansException {
+        Objects.requireNonNull(servletContext, "ServletContext must not be null");
+
+        log.info("Loading Service locators");
+        PSBaseServiceLocator.init(servletContext);
+        log.info("Finished loading service locators");
+        return PSBaseServiceLocator.getCtx();
+    }
 }

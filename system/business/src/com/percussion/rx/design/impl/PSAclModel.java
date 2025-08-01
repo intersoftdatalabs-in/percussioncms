@@ -20,59 +20,52 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.services.security.IPSAclService;
-import com.percussion.services.security.PSSecurityException;
-import com.percussion.utils.guid.IPSGuid;
 
 import java.text.MessageFormat;
 
-public class PSAclModel extends PSLimitedDesignModel
-{
-   @Override
-   public Object load(IPSGuid guid)
-   {
-      throw new UnsupportedOperationException("load(IPSGuid) is not currently "
-            + "implemented for design objects of type " + getType().name());
-   }
-   
-   @Override
-   public Object load(String name)
-   {
-      if (name == null || name.trim().length() == 0)
-         throw new IllegalArgumentException("name may not be null or empty");
-      IPSAclService service = (IPSAclService) getService();
-      try
-      {
-         IPSGuid guid = new PSGuid(PSTypeEnum.ACL, Long.parseLong(name));
-         return service.loadAcl(guid);
-      }
-      catch (PSSecurityException e)
-      {
-         String msg = "Failed to get the design object for name {0}";
-         Object[] args = { name };
-         throw new RuntimeException(MessageFormat.format(msg, args), e);
-      }
-   }
-   
-   @Override
-   public void delete(IPSGuid guid)
-   {
-      if (guid == null || !isValidGuid(guid))
-         throw new IllegalArgumentException("guid is not valid for this model");
-      IPSAclService service = (IPSAclService) getService();
-      try
-      {
-         IPSGuidManager mgr = PSGuidManagerLocator.getGuidMgr();
-         guid = mgr.makeGuid(Long.parseLong(guid.getUUID() + ""), PSTypeEnum
-               .valueOf(guid.getType()));
+// REFACTORED: CP-JAVA11
+package com.percussion.rx.design.impl;
 
-         service.deleteAcl(guid);
-      }
-      catch (PSSecurityException e)
-      {
-         String msg = "Failed to delete the design object for guid {0}";
-         Object[] args = { guid };
-         throw new RuntimeException(MessageFormat.format(msg, args), e);
-      }
-   }
+import com.percussion.services.security.IPSAclService;
+import com.percussion.services.security.PSSecurityException;
+import com.percussion.utils.guid.IPSGuid;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * Java 11 refactored implementation of the ACL Model.
+ */
+public class PSAclModel extends PSLimitedDesignModel {
+
+    @Override
+    public Object load(IPSGuid guid) {
+        if (guid == null || !isValidGuid(guid)) {
+            throw new IllegalArgumentException("guid is not valid for this model");
+        }
+        var service = (IPSAclService) getService();
+        try {
+            List<?> acls = service.loadAclsForObjects(Collections.singletonList(guid));
+            return acls.isEmpty() ? null : acls.get(0);
+        } catch (PSSecurityException e) {
+            throw new RuntimeException("Failed to get the design object for guid " + guid, e);
+        }
+    }
+
+    @Override
+    public Object load(String name) {
+        throw new UnsupportedOperationException("load(String) is not implemented for ACLs. Use load(IPSGuid) instead.");
+    }
+
+    @Override
+    public void delete(IPSGuid guid) {
+        if (guid == null || !isValidGuid(guid)) {
+            throw new IllegalArgumentException("guid is not valid for this model");
+        }
+        var service = (IPSAclService) getService();
+        try {
+            service.deleteAcls(Collections.singletonList(guid));
+        } catch (PSSecurityException e) {
+            throw new RuntimeException("Failed to delete the design object for guid " + guid, e);
+        }
+    }
 }

@@ -111,8 +111,7 @@ import static org.apache.commons.lang.Validate.notEmpty;
 //TODO Use name Maps to convert between internal and external names for creating/update assets
 @PSSiteManageBean
 @Lazy
-public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
-{
+public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor {
 
     /**
      * Logger for this service.
@@ -131,28 +130,33 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     @Autowired
     private IPSPathService pathService;
 
-    public static String IMAGE_THUMB_PREFIX = "thumb_";
+    public static final String IMAGE_THUMB_PREFIX = "thumb_";
 
-    private enum WorkflowStates{
+    private enum WorkflowStates {
         APPROVE,
         ARCHIVE,
         REVIEW
     }
 
     private final IPSAssetService assetService;
-
     private final IPSIdMapper idMapper;
     private IPSRedirectService redirectService;
     private IPSSiteDataService siteDataService;
 
     @Autowired
-    public AssetAdaptor(IPSAssetDao assetDao, @Qualifier(value = "sys_workflowService") IPSWorkflowService workflowService, IPSWorkflowHelper workflowHelper,
-                        IPSAssetService assetService, IPSUserService userService,
-                        IPSItemWorkflowService itemWorkflowService, IPSIdMapper idMapper,  ImageCacheManager imgCacheManager, ImageResizeManager imgResizeManager,
-                        IPSRedirectService redirectService, IPSSiteDataService siteDataService)
-    {
+    public AssetAdaptor(
+            IPSAssetDao assetDao,
+            @Qualifier(value = "sys_workflowService") IPSWorkflowService workflowService,
+            IPSWorkflowHelper workflowHelper,
+            IPSAssetService assetService,
+            IPSUserService userService,
+            IPSItemWorkflowService itemWorkflowService,
+            IPSIdMapper idMapper,
+            ImageCacheManager imgCacheManager,
+            ImageResizeManager imgResizeManager,
+            IPSRedirectService redirectService,
+            IPSSiteDataService siteDataService) {
         super(userService, itemWorkflowService);
-
         this.assetDao = assetDao;
         this.workflowService = workflowService;
         this.workflowHelper = workflowHelper;
@@ -160,90 +164,55 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
         this.idMapper = idMapper;
         this.redirectService = redirectService;
         this.siteDataService = siteDataService;
-   
     }
 
-
-    public Asset getSharedAssetByPath(URI baseURI, String path)
-    {
-        String folder = StringUtils.substringBeforeLast(path, "/");
-        String filename = StringUtils.substringAfterLast(path, "/");
-       
-        // should base on prefix stored on asset.  Would require a search for match in folder.
-        if (filename.startsWith(IMAGE_THUMB_PREFIX))
+    @Override
+    public Asset getSharedAssetByPath(URI baseURI, String path) {
+        var folder = StringUtils.substringBeforeLast(path, "/");
+        var filename = StringUtils.substringAfterLast(path, "/");
+        if (filename.startsWith(IMAGE_THUMB_PREFIX)) {
             filename = StringUtils.substringAfter(filename, IMAGE_THUMB_PREFIX);
-        
-        PSPathItem item = null;
-        try
-        {
-            item = pathService.find(folder+"/"+filename);
-            return this.psAssetToAsset(baseURI, this.assetDao.find(item.getId()));
         }
-        catch (IPSPathService.PSPathServiceException | PSDataServiceException e)
-        {
+        try {
+            var item = pathService.find(folder + "/" + filename);
+            return this.psAssetToAsset(baseURI, this.assetDao.find(item.getId()));
+        } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
             throw new AssetNotFoundException();
         }
-        
-
     }
-    
-    @Override
-    public Collection<Asset> getSharedAssets(URI baseURI, String path, String type) throws PSDataServiceException, BackendException {
-        checkAPIPermission();
 
-        // Type OR Path must be specified, error if both are blank.
-        if (StringUtils.isBlank(path) && StringUtils.isBlank(type))
-        {
+    @Override
+    public Collection<Asset> getSharedAssets(URI baseURI, String path, String type)
+            throws PSDataServiceException, BackendException {
+        checkAPIPermission();
+        if (StringUtils.isBlank(path) && StringUtils.isBlank(type)) {
             throw new NullArgumentException(StringUtils.isBlank(path) ? "path" : "type");
         }
-        try
-        {
+        try {
             path = URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage(), e);
         }
-        catch (UnsupportedEncodingException e1)
-        {
-            log.error(e1.getMessage());
-            log.debug(e1.getMessage(), e1);
-        }
-        Collection<Asset> filteredAssets = new ArrayList<Asset>();
-        // If the type is requested, collect those then filter by path if
-        // requested
-        if (StringUtils.isNotBlank(type))
-        {
-            // Collect all assets by type
-            Collection<PSAsset> internalAssets = assetDao.findByType(type);
-
-            // Both type and path were given, filter list
+        var filteredAssets = new ArrayList<Asset>();
+        if (StringUtils.isNotBlank(type)) {
+            var internalAssets = assetDao.findByType(type);
             boolean filterByPath = StringUtils.isNotBlank(path);
-
-            // Loop PSAssets, creating REST types from them before return
-            for (PSAsset asset : internalAssets)
-            {
-                if (filterByPath)
-                {
-                    if (!StringUtils.endsWith(asset.getFolderPaths().get(0), path))
-                    {
+            for (var asset : internalAssets) {
+                if (filterByPath) {
+                    if (!StringUtils.endsWith(asset.getFolderPaths().get(0), path)) {
                         continue;
                     }
                 }
                 filteredAssets.add(this.psAssetToAsset(baseURI, asset));
             }
-        }
-        else
-        { // If type is blank, path cannot be blank by this point so search by
-          // it
-            PSPathItem item = null;
-            try
-            {
-                item = pathService.find(path);
-            }
-            catch (IPSPathService.PSPathServiceException | PSDataServiceException e)
-            {
+        } else {
+            try {
+                var item = pathService.find(path);
+                var asset = this.assetService.load(item.getId());
+                filteredAssets.add(this.psAssetToAsset(baseURI, asset));
+            } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
                 throw new AssetNotFoundException();
             }
-
-            PSAsset asset = this.assetService.load(item.getId());
-            filteredAssets.add(this.psAssetToAsset(baseURI, asset));
         }
         return filteredAssets;
     }
@@ -251,232 +220,153 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
     @Override
     public Asset getSharedAsset(URI baseURI, String id) throws BackendException, PSDataServiceException {
         checkAPIPermission();
-
         notEmpty(id);
-        PSAsset asset = this.assetDao.find(id);
-        if (asset == null)
-        {
+        var asset = this.assetDao.find(id);
+        if (asset == null) {
             throw new AssetNotFoundException();
         }
-
         return this.psAssetToAsset(baseURI, asset);
     }
 
     @Override
     public Status deleteSharedAsset(String id) throws BackendException, PSDataServiceException {
         checkAPIPermission();
-
         notEmpty(id);
-        PSAsset asset = this.assetDao.find(id);
-        if (asset == null)
-        {
+        var asset = this.assetDao.find(id);
+        if (asset == null) {
             throw new AssetNotFoundException();
         }
-
         try {
             this.assetService.delete(id);
         } catch (PSNotFoundException e) {
             throw new AssetNotFoundException(e);
         }
-        return new Status(200,"Deleted");
+        return new Status(200, "Deleted");
     }
 
     @Override
     public Status deleteSharedAssetByPath(String path) throws BackendException {
         checkAPIPermission();
-
         notEmpty(path);
-        PSPathItem item = null;
-        try
-        {
-            item = pathService.find(path);
+        try {
+            var item = pathService.find(path);
             this.assetService.delete(item.getId());
-        }
-        catch (PSDataServiceException | IPSPathService.PSPathServiceException | PSNotFoundException e)
-        {
+        } catch (PSDataServiceException | IPSPathService.PSPathServiceException | PSNotFoundException e) {
             throw new AssetNotFoundException();
         }
-        
-        return new Status(200,"Deleted");
+        return new Status(200, "Deleted");
     }
 
     @Override
     public Asset createOrUpdateSharedAsset(URI baseURI, String path, Asset asset) throws BackendException {
-       
-    	
-    	PSPathItem item = null;
-        try
-        {
-            item = pathService.find(path);
-        }
-        catch (IPSPathService.PSPathServiceException | PSDataServiceException e)
-        {
-            // Nothing found at this path, create a new asset
+        try {
+            var item = pathService.find(path);
+            return this.updateSharedAsset(baseURI, item.getId(), asset);
+        } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
+            // Not found, create new asset
             return this.createSharedAsset(baseURI, path, asset);
         }
-
-        // It exists and is an asset. Pass it to the update method
-        return this.updateSharedAsset(baseURI, item.getId(), asset);
-
     }
 
     @Override
     public Asset updateSharedAsset(URI baseURI, String id, Asset asset) throws BackendException {
-
         try {
-            PSAsset oldPSAsset = this.assetService.load(id);
-            WorkflowInfo workflowInfo = this.getWorkflowInfo(oldPSAsset);
+            var oldPSAsset = this.assetService.load(id);
+            var workflowInfo = this.getWorkflowInfo(oldPSAsset);
+            String endState = asset.getWorkflow() != null && StringUtils.isNotBlank(asset.getWorkflow().getState())
+                    ? asset.getWorkflow().getState()
+                    : workflowInfo.getState();
 
-            String endState;
-
-            if (asset.getWorkflow() != null && StringUtils.isNotBlank(asset.getWorkflow().getState())) { // If there is workflow in the update object, set the goal to that
-                endState = asset.getWorkflow().getState();
-            } else { // otherwise use whatever the current state is.
-                endState = workflowInfo.getState();
+            if (this.workflowHelper.isItemInApproveState(idMapper.getContentId(id))) {
+                workflowInfo.setState(this.setWorkflowState(id, DefaultWorkflowStates.quickEdit, new ArrayList<>()));
             }
-
-            if (this.workflowHelper.isItemInApproveState(idMapper.getContentId(id))) { // If this is pending or live it needs to be in quick edit while we
-                // work with it
-                workflowInfo.setState(this.setWorkflowState(id, DefaultWorkflowStates.quickEdit, new ArrayList<String>()));
-            }
-            if (!this.workflowHelper.isCheckedOutToCurrentUser(id)) { // If this isn't checked out to the currently logged in user it needs
-                // to be.
-                PSItemUserInfo userInfo = this.itemWorkflowService.forceCheckOut(id);
+            if (!this.workflowHelper.isCheckedOutToCurrentUser(id)) {
+                var userInfo = this.itemWorkflowService.forceCheckOut(id);
                 workflowInfo.setCheckedOut(true);
                 workflowInfo.setCheckedOutUser(userInfo.getCurrentUser());
             }
-
-            // First, update the modified date to NOW
-            // TODO: does this need formatting?
             oldPSAsset.getFields().put(lastModifiedDateFieldName, new Date());
-
-            if (StringUtils.isNotBlank(asset.getName()) && !asset.getName().equals(oldPSAsset.getName())) { // Update name if new name is given, not blank or empty and different
-                // than old name.
+            if (StringUtils.isNotBlank(asset.getName()) && !asset.getName().equals(oldPSAsset.getName())) {
                 oldPSAsset.setName(asset.getName());
             }
-
-            // reconcile fields
-            // TODO we probably want some protection here against creating
-            // completely useless fields or overriding something protected
-            for (AssetField field : asset.getFields()) { // blanket update
+            for (var field : asset.getFields()) {
                 oldPSAsset.getFields().put(field.getName(), field.getValue());
             }
-
-            // Is anyone trying to move this?
-            // TODO Is this necessary or can this be done by simply changing the
-            // path on the asset itself before saving?
-            if (StringUtils.isNotBlank(asset.getFolderPath())) { // We've been given path information in the update object
+            if (StringUtils.isNotBlank(asset.getFolderPath())) {
                 if (asset.getFolderPath().endsWith("/")) {
                     asset.setFolderPath(asset.getFolderPath().substring(0, asset.getFolderPath().length() - 1));
                 }
-                String currentPath = PSPathUtils.getFinderPath(oldPSAsset.getFolderPaths().get(0));
+                var currentPath = PSPathUtils.getFinderPath(oldPSAsset.getFolderPaths().get(0));
                 if (currentPath.endsWith("/")) {
                     currentPath = currentPath.substring(1, currentPath.length() - 1);
                 }
-
-                if(currentPath.startsWith("//"))
+                if (currentPath.startsWith("//")) {
                     currentPath = currentPath.substring(1);
-
-                if(asset.getFolderPath().startsWith("//"))
+                }
+                if (asset.getFolderPath().startsWith("//")) {
                     asset.setFolderPath(asset.getFolderPath().substring(1));
-
-                if(!asset.getFolderPath().startsWith("/"))
+                }
+                if (!asset.getFolderPath().startsWith("/")) {
                     asset.setFolderPath("/" + asset.getFolderPath());
-
-                if(!currentPath.startsWith("/"))
+                }
+                if (!currentPath.startsWith("/")) {
                     currentPath = "/" + currentPath;
-
-                if (!asset.getFolderPath().equalsIgnoreCase(currentPath)) { // And the given path information is different than the current
-                    // path
-
-                    // Try to create the folder, this shouldn't fail if the folder
-                    // exists.
+                }
+                if (!asset.getFolderPath().equalsIgnoreCase(currentPath)) {
                     this.pathService.addFolder(asset.getFolderPath() + "/");
-                    PSMoveFolderItem request = new PSMoveFolderItem();
+                    var request = new PSMoveFolderItem();
                     request.setItemPath(currentPath + "/" + oldPSAsset.getName());
                     request.setTargetFolderPath(asset.getFolderPath() + "/");
-                    this.pathService.moveItem(request); // PXA What to do if this
-                    // fails? Have we changed
-                    // anything yet?
+                    this.pathService.moveItem(request);
                     oldPSAsset.setFolderPaths(Arrays.asList("//" + PSPathUtils.getFolderPath(asset.getFolderPath())));
                 }
             }
-
-            // Save down the object! Woo!
             this.assetDao.save(oldPSAsset);
-
-            // Finish up the workflow stuff
-            workflowInfo.setState(this.setWorkflowState(id, endState, new ArrayList<String>()));
-
-            //Checkin the item before we leave.
+            workflowInfo.setState(this.setWorkflowState(id, endState, new ArrayList<>()));
             if (this.itemWorkflowService.isCheckedOutToCurrentUser(id)) {
                 this.itemWorkflowService.checkIn(id);
             }
-
-            // Get an updated asset after the updates
-            // TODO Is it possible to avoid this trip to the DB since we've been
-            // modifying the oldPSAsset as we went along?
             return this.getSharedAsset(baseURI, id);
         } catch (IPSItemWorkflowService.PSItemWorkflowServiceException | IPSPathService.PSPathServiceException | PSDataServiceException e) {
             throw new BackendException(e);
         }
-
     }
 
     @Override
     public Asset createSharedAsset(URI baseURI, String path, Asset asset) throws BackendException {
-        PSAsset newAsset = new PSAsset();
+        var newAsset = new PSAsset();
         newAsset.setCategory(Category.ASSET);
         notBlank(asset.getName());
         notBlank(asset.getType());
-
         newAsset.setName(asset.getName());
         newAsset.getFields().put(titleFieldName, asset.getName());
-
         newAsset.setType(asset.getType());
-        // newAsset.getFields().put(contentTypeFieldName, this.assetService.);
-
         if (asset.getWorkflow() == null) {
-            newAsset.getFields().put(workflowIdFieldName, PSGuidUtils.toLongArray(new IPSGuid[]
-                    {this.workflowService.getDefaultWorkflowId()})[0]);
+            newAsset.getFields().put(workflowIdFieldName,
+                    PSGuidUtils.toLongArray(new IPSGuid[]{this.workflowService.getDefaultWorkflowId()})[0]);
             newAsset.getFields().put(workflowStatusFieldName,
                     this.workflowService.getDefaultWorkflow().getInitialStateId());
         } else {
-            // There should only be one WF since we're not using wildcards...
-            // TODO Does this need string filtering to drop wildcards?
-            IPSGuid wfguid = this.workflowService.findWorkflowsByName(asset.getWorkflow().getName()).get(0).getGUID();
-            newAsset.getFields().put(workflowIdFieldName, PSGuidUtils.toLongArray(new IPSGuid[]
-                    {wfguid})[0]);
+            var wfguid = this.workflowService.findWorkflowsByName(asset.getWorkflow().getName()).get(0).getGUID();
+            newAsset.getFields().put(workflowIdFieldName,
+                    PSGuidUtils.toLongArray(new IPSGuid[]{wfguid})[0]);
             newAsset.getFields().put(workflowStatusFieldName,
                     this.workflowService.loadWorkflowStateByName(asset.getWorkflow().getState(), wfguid).getStateId());
         }
-
-        // Binary asset type?
         if (assetBinaryTypes.contains(asset.getType())) {
-            boolean found = false;
-            for(AssetField f : asset.getFields() ){
-                if(f.getName().equalsIgnoreCase("displaytitle")){
-                    found = true;
-                    break;
-                }
-            }
+            boolean found = asset.getFields().stream()
+                    .anyMatch(f -> f.getName().equalsIgnoreCase("displaytitle"));
             if (!found) {
                 asset.getFields().add(new AssetField("displaytitle", asset.getName()));
             }
             try {
-
-                String fieldname = this.getFileFieldByType(asset.getType());
-
-                // PSPurgableTempFile tmpFile = new PSPurgableTempFile("api", null, null, asset.getName(), "image/gif", null);
-                PSPurgableTempFile tmpFile = new PSPurgableTempFile("api", null, null, asset.getName(), "image/gif", null);
-
-                FileOutputStream fos = new FileOutputStream(tmpFile);
-                fos.write(PIXEL_BYTES);
-                fos.flush();
-                fos.close();
+                var fieldname = this.getFileFieldByType(asset.getType());
+                var tmpFile = new PSPurgableTempFile("api", null, null, asset.getName(), "image/gif", null);
+                try (var fos = new FileOutputStream(tmpFile)) {
+                    fos.write(PIXEL_BYTES);
+                    fos.flush();
+                }
                 newAsset.getFields().put(fieldname, tmpFile);
-
-
                 asset.getFields().add(new AssetField("filename", asset.getName()));
                 asset.getFields().add(new AssetField(fieldname + "_type", "image/gif"));
                 asset.getFields().add(new AssetField(fieldname + "_filename", asset.getName()));
@@ -485,138 +375,97 @@ public class AssetAdaptor extends SiteManageAdaptorBase implements IAssetAdaptor
                         Response.Status.INTERNAL_SERVER_ERROR);
             }
         }
-
-        try{
-        if (asset.getFields() != null) {
-            for (AssetField field : asset.getFields()) {
-                // TODO Should this have a contains check first, to prevent
-                // overwriting of workflow stuff?
-                newAsset.getFields().put(field.getName(), field.getValue());
-            }
-        }
-
-        if (asset.getFolderPath() != null && StringUtils.isNotBlank(asset.getFolderPath())
-                && asset.getFolderPath().startsWith(PSPathUtils.ASSETS_FINDER_ROOT)) { // If there is a path given in the object and it's an Assets path,
-            // override the URL-based path passed.
-            path = asset.getFolderPath();
-        }
-        // TODO This looks like the value should be path not asset.getFolderPath
-        newAsset.setFolderPaths(Arrays.asList(PSPathUtils.getFolderPath("/" + asset.getFolderPath())));
-
-        this.assetService.validate(newAsset);
-
-        // Save it once.
-        newAsset = this.assetDao.save(newAsset);
-
-        /*
-         * if (newAsset.getFields().containsKey("filename")) { String fieldname
-         * = this.getFileFieldByType(newAsset.getType());
-         * newAsset.getFields().put(fieldname+"_filename",
-         * newAsset.getFields().get("filename")); }
-         */
-
-        // Images save automatically with a hardcoded 50px width, if anything
-        // else was specified, we want to update and save again.
-        if (newAsset.getType().equals("percImageAsset")) {
-            if (asset.getThumbnail() != null) {
-                if (asset.getThumbnail().getWidth() != 0 && asset.getThumbnail().getHeight() != 0) {
-                    newAsset.getFields().put("img2_width", asset.getThumbnail().getWidth());
-                    newAsset.getFields().put("img2_height", asset.getThumbnail().getHeight());
-
-                    newAsset = this.assetDao.save(newAsset);
+        try {
+            if (asset.getFields() != null) {
+                for (var field : asset.getFields()) {
+                    newAsset.getFields().put(field.getName(), field.getValue());
                 }
             }
-        }
-
-        //Checkin the item before we leave.
-        if (this.itemWorkflowService.isCheckedOutToCurrentUser(newAsset.getId())) {
-            this.itemWorkflowService.checkIn(newAsset.getId());
-        }
-
-        return this.psAssetToAsset(baseURI, newAsset);
-    } catch (IPSItemWorkflowService.PSItemWorkflowServiceException | PSDataServiceException e) {
+            if (asset.getFolderPath() != null && StringUtils.isNotBlank(asset.getFolderPath())
+                    && asset.getFolderPath().startsWith(PSPathUtils.ASSETS_FINDER_ROOT)) {
+                path = asset.getFolderPath();
+            }
+            newAsset.setFolderPaths(Arrays.asList(PSPathUtils.getFolderPath("/" + asset.getFolderPath())));
+            this.assetService.validate(newAsset);
+            newAsset = this.assetDao.save(newAsset);
+            if (newAsset.getType().equals("percImageAsset")) {
+                if (asset.getThumbnail() != null) {
+                    if (asset.getThumbnail().getWidth() != 0 && asset.getThumbnail().getHeight() != 0) {
+                        newAsset.getFields().put("img2_width", asset.getThumbnail().getWidth());
+                        newAsset.getFields().put("img2_height", asset.getThumbnail().getHeight());
+                        newAsset = this.assetDao.save(newAsset);
+                    }
+                }
+            }
+            if (this.itemWorkflowService.isCheckedOutToCurrentUser(newAsset.getId())) {
+                this.itemWorkflowService.checkIn(newAsset.getId());
+            }
+            return this.psAssetToAsset(baseURI, newAsset);
+        } catch (IPSItemWorkflowService.PSItemWorkflowServiceException | PSDataServiceException e) {
             throw new BackendException(e);
         }
     }
 
     @Override
     public Asset uploadBinary(URI baseURI, String path, String assetTypeStr, InputStream inputStream,
-            String uploadFilename, String fileMimeType, boolean forceCheckOut) throws BackendException {
+                              String uploadFilename, String fileMimeType, boolean forceCheckOut) throws BackendException {
         checkAPIPermission();
-
         PSPathItem item = null;
         PSAsset resource = null;
-
         try {
             item = pathService.find("/" + path);
         } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
-            // Expect to not find item
+            // Expected: not found
         }
-
-        String folder = StringUtils.substringBeforeLast(path, "/");
-        String filename = StringUtils.substringAfterLast(path, "/");
-        if (PSFolderPathUtils.testHasInvalidChars(filename))
-            throw new IllegalArgumentException("cannot upload binary the following chars " + SecureStringUtils.INVALID_ITEM_NAME_CHARACTERS);
-
+        var folder = StringUtils.substringBeforeLast(path, "/");
+        var filename = StringUtils.substringAfterLast(path, "/");
+        if (PSFolderPathUtils.testHasInvalidChars(filename)) {
+            throw new IllegalArgumentException(
+                    "cannot upload binary the following chars " + SecureStringUtils.INVALID_ITEM_NAME_CHARACTERS);
+        }
         if (StringUtils.isEmpty(assetTypeStr)) {
-            if (fileMimeType.startsWith("image"))
+            if (fileMimeType.startsWith("image")) {
                 assetTypeStr = "image";
-            else if (fileMimeType.startsWith("application/x-shockwave-flash"))
+            } else if (fileMimeType.startsWith("application/x-shockwave-flash")) {
                 assetTypeStr = "flash";
-            else
+            } else {
                 assetTypeStr = "file";
+            }
         }
-try{
-        AssetType assetType = PSAssetCreator.getAssetType(assetTypeStr);
-        PSAbstractAssetRequest ar = new PSBinaryAssetRequest("/" + folder, assetType, filename, fileMimeType,
-                inputStream);
-        if (item != null) {
-
-            resource = assetService.updateAsset(item.getId(), ar, forceCheckOut);
-        } else {
-            resource = assetService.createAsset(ar);
+        try {
+            var assetType = PSAssetCreator.getAssetType(assetTypeStr);
+            var ar = new PSBinaryAssetRequest("/" + folder, assetType, filename, fileMimeType, inputStream);
+            if (item != null) {
+                resource = assetService.updateAsset(item.getId(), ar, forceCheckOut);
+            } else {
+                resource = assetService.createAsset(ar);
+            }
+            if (this.itemWorkflowService.isCheckedOutToCurrentUser(resource.getId())) {
+                this.itemWorkflowService.checkIn(resource.getId());
+            }
+            return this.psAssetToAsset(baseURI, resource);
+        } catch (IPSAssetService.PSAssetServiceException | IPSItemWorkflowService.PSItemWorkflowServiceException | PSValidationException e) {
+            throw new BackendException(e);
         }
-
-        //Checkin the item before we leave.
-
-        if (this.itemWorkflowService.isCheckedOutToCurrentUser(resource.getId())) {
-            this.itemWorkflowService.checkIn(resource.getId());
-        }
-
-        return this.psAssetToAsset(baseURI, resource);
-    } catch (IPSAssetService.PSAssetServiceException | IPSItemWorkflowService.PSItemWorkflowServiceException | PSValidationException e) {
-         throw new BackendException(e);
     }
-}
 
     @Override
     public StreamingOutput getBinary(String path) throws BackendException {
         checkAPIPermission();
-
         notEmpty(path);
-        
-        String folder = StringUtils.substringBeforeLast(path, "/");
-        String filename = StringUtils.substringAfterLast(path, "/");
+        var folder = StringUtils.substringBeforeLast(path, "/");
+        var filename = StringUtils.substringAfterLast(path, "/");
         boolean thumbRequest = false;
-        // should base on prefix stored on asset.  Would require a search for match in folder.
-        if (filename.startsWith(IMAGE_THUMB_PREFIX))
-        {
+        if (filename.startsWith(IMAGE_THUMB_PREFIX)) {
             thumbRequest = true;
             filename = StringUtils.substringAfter(filename, IMAGE_THUMB_PREFIX);
         }
-        
-        
-        PSPathItem item = null;
-        try
-        {
-            item = pathService.find(folder+"/"+filename);
-        }
-        catch (IPSPathService.PSPathServiceException | PSDataServiceException e)
-        {
+        PSPathItem item;
+        try {
+            item = pathService.find(folder + "/" + filename);
+        } catch (IPSPathService.PSPathServiceException | PSDataServiceException e) {
             throw new AssetNotFoundException();
         }
-        
-        // TODO - Checkout item.
         PSAsset asset;
         try {
             asset = this.assetDao.find(item.getId());
@@ -624,78 +473,54 @@ try{
                 throw new AssetNotFoundException();
             }
         } catch (PSDataServiceException e) {
-           throw new AssetNotFoundException(e);
+            throw new AssetNotFoundException(e);
         }
-
         StreamingOutput out = null;
-
-        String fieldname = this.getFileFieldByType(asset.getType());
-        if (asset.getType().equals("percImageAsset") && thumbRequest)
-        {
+        var fieldname = this.getFileFieldByType(asset.getType());
+        if (asset.getType().equals("percImageAsset") && thumbRequest) {
             fieldname = "img2";
         }
-        PSPurgableTempFile ptf = (PSPurgableTempFile) asset.getFields().get(fieldname);
-
-        FileInputStream fis = null;
-        try
-        {
-            fis = new FileInputStream(ptf);
+        var ptf = (PSPurgableTempFile) asset.getFields().get(fieldname);
+        try (var fis = new FileInputStream(ptf)) {
             out = new PSStreamingOutput(fis);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-
         return out;
     }
 
     /**
-     * @param assetType
-     * @return field name
+     * Returns the field name for the given asset type.
      */
-    private String getFileFieldByType(String assetType)
-    {
-        if (assetType.equals("percFileAsset") || assetType.equals("percFlashAsset"))
-        {
+    private String getFileFieldByType(String assetType) {
+        if (assetType.equals("percFileAsset") || assetType.equals("percFlashAsset")) {
             return "item_file_attachment";
         }
-        if (assetType.equals("percImageAsset"))
-        {
+        if (assetType.equals("percImageAsset")) {
             return "img";
         }
         return null;
     }
 
-    private static void notBlank(String string)
-    {
+    private static void notBlank(String string) {
         Validate.notNull(string);
-        // Not null means .trim() is safe
         Validate.notEmpty(string.trim());
     }
 
     private Asset psAssetToAsset(URI baseURI, PSAsset from) throws PSValidationException {
-        Asset to = new Asset();
+        var to = new Asset();
         to.setId(from.getId());
         to.setName(from.getName());
         to.setType(from.getType());
-
-        WorkflowInfo wfi = getWorkflowInfo(from);
+        var wfi = getWorkflowInfo(from);
         to.setWorkflow(wfi);
-
-        to.setLastModifiedDate(PSDateUtils.parseSystemDateString((String) from.getFields().get(
-                lastModifiedDateFieldName)));
-
+        to.setLastModifiedDate(PSDateUtils.parseSystemDateString((String) from.getFields().get(lastModifiedDateFieldName)));
         to.setCreatedDate(PSDateUtils.parseSystemDateString((String) from.getFields().get(createdDateFieldName)));
-
         to.setFolderPath(StringUtils.substring(PSPathUtils.getFinderPath(from.getFolderPaths().get(0)), 1));
-
-        if (from.getType().equals("percImageAsset"))
-        {
-            // Main Image
-            ImageInfo image = new ImageInfo();
-            if (from.getFields().get("img_filename")!=null)
+        if (from.getType().equals("percImageAsset")) {
+            var image = new ImageInfo();
+            if (from.getFields().get("img_filename") != null)
                 image.setFilename(from.getFields().get("img_filename").toString());
             image.setExtension(from.getFields().get("img_ext").toString());
             image.setType(from.getFields().get("img_type").toString());
@@ -703,9 +528,7 @@ try{
             image.setHeight(Integer.parseInt(from.getFields().get("img_height").toString()));
             image.setSize(Long.parseLong(from.getFields().get("img_size").toString()));
             to.setImage(image);
-
-            // Thumbnail
-            ImageInfo thumb = new ImageInfo();
+            var thumb = new ImageInfo();
             thumb.setFilename(from.getFields().get("thumbprefix").toString()
                     + from.getFields().get("filename").toString());
             thumb.setExtension(from.getFields().get("img2_ext").toString());
@@ -714,11 +537,8 @@ try{
             thumb.setHeight(Integer.parseInt(from.getFields().get("img2_height").toString()));
             thumb.setSize(Long.parseLong(from.getFields().get("img2_size").toString()));
             to.setThumbnail(thumb);
-
-        }
-        else if (from.getType().equals("percFileAsset"))
-        {
-            BinaryFile file = new BinaryFile();
+        } else if (from.getType().equals("percFileAsset")) {
+            var file = new BinaryFile();
             if (from.getFields().get("item_file_attachment_filename") != null)
                 file.setFilename(from.getFields().get("item_file_attachment_filename").toString());
             if (from.getFields().get("item_file_attachment_size") != null)
@@ -727,14 +547,9 @@ try{
                 file.setType(from.getFields().get("item_file_attachment_type").toString());
             if (from.getFields().get("item_file_attachment_ext") != null)
                 file.setExtension(from.getFields().get("item_file_attachment_ext").toString());
-
             to.setFile(file);
-
-        
-        }
-        else if (from.getType().equals("percFlashAsset"))
-        {
-            Flash flash = new Flash();
+        } else if (from.getType().equals("percFlashAsset")) {
+            var flash = new Flash();
             if (from.getFields().get("item_file_attachment_filename") != null)
                 flash.setFilename(from.getFields().get("item_file_attachment_filename").toString());
             if (from.getFields().get("item_file_attachment_size") != null)
@@ -751,59 +566,40 @@ try{
                 flash.setWidth(Integer.parseInt(from.getFields().get("item_file_attachment_width").toString()));
             if (from.getFields().get("item_file_attachment_height") != null)
                 flash.setHeight(Integer.parseInt(from.getFields().get("item_file_attachment_height").toString()));
-
             to.setFlash(flash);
-
         }
-
-        for (Entry<String, Object> kvp : from.getFields().entrySet())
-        {
-            String fieldname = kvp.getKey();
-            Object value = kvp.getValue();
+        for (var kvp : from.getFields().entrySet()) {
+            var fieldname = kvp.getKey();
+            var value = kvp.getValue();
             if (!fieldname.startsWith("jcr:") && !fieldname.startsWith("sys_") && !fieldname.startsWith("img_")
                     && !fieldname.startsWith("img2_") && !fieldname.startsWith("item_file_attachment_")
-                    && !localHandledFields.contains(fieldname))
-            {
-                if (value == null)
-                {
+                    && !localHandledFields.contains(fieldname)) {
+                if (value == null) {
                     to.getFields().add(new AssetField(fieldname, null));
-                }
-                else if (value instanceof List)
-                {
-                    throw new RuntimeException("Mutli valued asset fields not currently supported in api, field ="
+                } else if (value instanceof List) {
+                    throw new RuntimeException("Multi-valued asset fields not currently supported in API, field ="
                             + fieldname);
-                }
-                else if (value instanceof PSPurgableTempFile)
-                {
+                } else if (value instanceof PSPurgableTempFile) {
                     throw new RuntimeException("Found unknown binary field " + fieldname + " in asset");
-                }
-                else if (value instanceof String)
-                {
+                } else if (value instanceof String) {
                     to.getFields().add(new AssetField(fieldname, kvp.getValue().toString()));
-                }
-                else
-                {
+                } else {
                     throw new RuntimeException("Found unknown field type " + value.getClass().getName() + " field="
                             + fieldname);
                 }
             }
         }
-
         return to;
     }
 
     /**
      * Retrieves the workflow info object for a given PSAsset.
-     * 
-     * @param from
-     * @return WorkflowInfo check out info, state and workflow name
      */
     private WorkflowInfo getWorkflowInfo(PSAsset from) throws PSValidationException {
-        PSComponentSummary summ = this.workflowHelper.getComponentSummary(from.getId());
-        PSWorkflow wf = this.workflowService.loadWorkflow(PSGuidUtils.makeGuid(
+        var summ = this.workflowHelper.getComponentSummary(from.getId());
+        var wf = this.workflowService.loadWorkflow(PSGuidUtils.makeGuid(
                 Long.parseLong((String) from.getFields().get(workflowIdFieldName)), PSTypeEnum.WORKFLOW));
-
-        WorkflowInfo wfi = new WorkflowInfo();
+        var wfi = new WorkflowInfo();
         wfi.setName(wf.getName());
         wfi.setState(wf.findState(
                 PSGuidUtils.makeGuid(Long.parseLong((String) from.getFields().get(workflowStatusFieldName)),
@@ -813,53 +609,34 @@ try{
         return wfi;
     }
 
-    private static final String PIXEL_B64  = "R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+    private static final String PIXEL_B64 = "R0lGODlhAQABAPAAAAAAAAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
     private static final byte[] PIXEL_BYTES = Base64.decodeBase64(PIXEL_B64.getBytes());
-   
     private static final String jcrCheckedOutFieldName = "jcr:isCheckedOut";
-
     private static final String lastModifiedDateFieldName = "sys_contentlastmodifieddate";
-
     private static final String workflowIdFieldName = "sys_workflowid";
-
     private static final String workflowStatusFieldName = "sys_contentstateid";
-
     private static final String createdDateFieldName = "sys_contentcreateddate";
-
     private static final String titleFieldName = "sys_title";
-
     private static final String contentTypeFieldName = "sys_contenttypeid";
-
     private static final ImmutableList<String> localHandledFields;
-
     private static final ImmutableMap<String, ImmutableList<String>> assetRequiredFields;
-
     public static final String ASSET_TYPE_FILE = "percFileAsset";
     public static final String ASSET_TYPE_FLASH = "percFlashAsset";
     public static final String ASSET_TYPE_IMAGE = "percImageAsset";
-    
     private static final ImmutableList<String> assetBinaryTypes;
 
-
-	
-    static
-    {
-        localHandledFields = ImmutableList.<String> builder().add("usage").add("thumbprefix").add("revision")
+    static {
+        localHandledFields = ImmutableList.<String>builder().add("usage").add("thumbprefix").add("revision")
                 .add("img").add("img2").add("item_file_attachment").build();
-
-        assetRequiredFields = ImmutableMap.<String, ImmutableList<String>> builder()
-                .put("percRichTextAsset", ImmutableList.<String> builder().add("text").build()).build();
-
-        assetBinaryTypes = ImmutableList.<String> builder().add(ASSET_TYPE_FILE).add(ASSET_TYPE_IMAGE)
+        assetRequiredFields = ImmutableMap.<String, ImmutableList<String>>builder()
+                .put("percRichTextAsset", ImmutableList.<String>builder().add("text").build()).build();
+        assetBinaryTypes = ImmutableList.<String>builder().add(ASSET_TYPE_FILE).add(ASSET_TYPE_IMAGE)
                 .add(ASSET_TYPE_FLASH).build();
     }
-    
 
-    
-    
-	@Override
-	public Asset renameSharedAsset(URI baseUri, String site, String folder, String name, String newName) throws BackendException {
-		
+    @Override
+    public Asset renameSharedAsset(URI baseUri, String site, String folder, String name, String newName) throws BackendException {
+
 		 checkAPIPermission();
 
 		 
@@ -1182,28 +959,20 @@ try{
         }
     }
 
-    public void setPathService(IPSPathService pathService)
-    {
+    public void setPathService(IPSPathService pathService) {
         this.pathService = pathService;
     }
-
-
 }
 
-class PSStreamingOutput implements StreamingOutput
-{
-    private FileInputStream fis;
+class PSStreamingOutput implements StreamingOutput {
+    private final FileInputStream fis;
 
-    public PSStreamingOutput(FileInputStream fis)
-    {
+    public PSStreamingOutput(FileInputStream fis) {
         this.fis = fis;
     }
 
     @Override
-    public void write(OutputStream arg0) throws IOException, WebApplicationException
-    {
-        PSCopyStream.copyStream(fis, arg0);
+    public void write(OutputStream output) throws IOException, WebApplicationException {
+        PSCopyStream.copyStream(fis, output);
     }
-    
-  
 }

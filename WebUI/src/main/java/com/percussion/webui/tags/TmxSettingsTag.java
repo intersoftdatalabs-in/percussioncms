@@ -27,101 +27,83 @@ import java.util.Iterator;
 
 /**
  * @author erikserating
- *
  */
-public class TmxSettingsTag extends TagSupport
-{
+public class TmxSettingsTag extends TagSupport {
+    private String prefixes;
+    private String lang = DEFAULT_LANG;
+    private String debug = "false";
+    private static final String DEFAULT_LANG = "en-us";
 
-      
-   public void setPrefixes(String prefixes)
-   {
-      m_prefixes = prefixes;   
-   }
-   
-   public void setLang(String lang)
-   {
-      if(m_lang == null || m_lang.length() == 0)
-         return;
-      m_lang = lang;   
-   }
-   
-   public void setDebug(String debug)
-   {
-      if(debug == null)
-         debug = "false";
-      m_debug = debug;
-   }
-   
-   /* (non-Javadoc)
-    * @see javax.servlet.jsp.tagext.TagSupport#doStartTag()
-    */
-   @Override
-   public int doStartTag() throws JspException
-   {      
-      try
-      {
-         pageContext.setAttribute("debug",m_debug);
-         pageContext.setAttribute("sys_lang", m_lang);
-         loadTmx();
-      }
-      catch (Exception e)
-      {
-         throw new JspException(e);
-      }      
-      
-      return SKIP_BODY;
-   }
-   
-   /**
-    * Loads the tmx keys for the specified lang and
-    * prefixes if not yet cached.
-    * @throws IOException
-    * @throws ParserConfigurationException
-    * @throws SAXException
-    */
-   private void loadTmx() throws IOException, ParserConfigurationException, SAXException
-   {
-      TmxCache cache = TmxCache.getInstance();
-      String prefixStr = m_prefixes == null || m_prefixes.length() == 0
-         ? "*"
-         : m_prefixes;         
-      if(cache.isIndexed(m_lang, prefixStr))
-         return;
-      
-      String[] prefixes = prefixStr.split(",");
-      
-      PSTmxResourceBundle tmxBundle = PSTmxResourceBundle.getInstance();
-      Iterator<?> keys = tmxBundle.getKeys(m_lang);
-      
-      while(keys.hasNext())
-      {
-          String key = (String)keys.next();
-          if(!prefixStr.equals("*") && !accept(prefixes, key))
-              continue;
-          String val = tmxBundle.getString(key, m_lang).replaceAll("\"", "\\\"");
-          cache.addEntry(m_lang, key, val);
-      }
+    public void setPrefixes(String prefixes) {
+        this.prefixes = prefixes;
+    }
 
+    public void setLang(String lang) {
+        if (lang == null || lang.isEmpty()) {
+            return;
+        }
+        this.lang = lang;
+    }
 
-      cache.setIndexed(m_lang, prefixStr);
-      
-   }
-   
-   public boolean accept(String[] prefixes, String key)
-   {
-       for(int i = 0; i < prefixes.length; i++)
-       {
-           if(key.startsWith(prefixes[i]))
-               return true;
-       }
-       return false;
-   }
-   
-   private String m_prefixes;
-   private String m_lang = DEFAULT_LANG;
-   private String m_debug = "false";
+    public void setDebug(String debug) {
+        if (debug == null) {
+            debug = "false";
+        }
+        this.debug = debug;
+    }
 
-   private static final String DEFAULT_LANG = "en-us";
-   
-   
+    @Override
+    public int doStartTag() throws JspException {
+        try {
+            pageContext.setAttribute("debug", debug);
+            pageContext.setAttribute("sys_lang", lang);
+            loadTmx();
+        } catch (Exception e) {
+            throw new JspException(e);
+        }
+        return SKIP_BODY;
+    }
+
+    /**
+     * Loads the tmx keys for the specified lang and prefixes if not yet cached.
+     *
+     * @throws IOException                  if IO error occurs
+     * @throws ParserConfigurationException if parser config error occurs
+     * @throws SAXException                 if XML error occurs
+     */
+    private void loadTmx() throws IOException, ParserConfigurationException, SAXException {
+        TmxCache cache = TmxCache.getInstance();
+        String prefixStr = (prefixes == null || prefixes.isEmpty()) ? "*" : prefixes;
+        if (cache.isIndexed(lang, prefixStr)) {
+            return;
+        }
+        String[] prefixArr = prefixStr.split(",");
+        PSTmxResourceBundle tmxBundle = PSTmxResourceBundle.getInstance();
+        Iterator<?> keys = tmxBundle.getKeys(lang);
+        while (keys.hasNext()) {
+            String key = (String) keys.next();
+            if (!prefixStr.equals("*") && !accept(prefixArr, key)) {
+                continue;
+            }
+            String val = tmxBundle.getString(key, lang).replace("\"", "\\\"");
+            cache.addEntry(lang, key, val);
+        }
+        cache.setIndexed(lang, prefixStr);
+    }
+
+    /**
+     * Checks if the key starts with any of the given prefixes.
+     *
+     * @param prefixes array of prefixes
+     * @param key      key to check
+     * @return true if key matches any prefix
+     */
+    public boolean accept(String[] prefixes, String key) {
+        for (String prefix : prefixes) {
+            if (key.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

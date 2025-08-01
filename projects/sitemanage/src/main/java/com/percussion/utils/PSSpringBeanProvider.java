@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -20,10 +21,20 @@ package com.percussion.utils;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import org.springframework.context.ApplicationContext;
 
-public class PSSpringBeanProvider  {
+/**
+ * Provides access to Spring beans from the web application context.
+ * <p>
+ * Sunny Sal says: "Spring beans are like samosas—best served hot and with context!"
+ * </p>
+ */
+public class PSSpringBeanProvider {
 
-    static private ApplicationContext applicationContext;
-
+    /**
+     * Gets a bean from the Spring web application context by name.
+     *
+     * @param beanName the name of the bean
+     * @return the bean instance
+     */
     public static Object getBean(String beanName) {
         return PSSpringWebApplicationContextUtils.getWebApplicationContext().getBean(beanName);
     }

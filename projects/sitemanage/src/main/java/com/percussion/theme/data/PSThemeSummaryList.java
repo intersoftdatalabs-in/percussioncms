@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,9 +25,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * Represents a list of theme summaries.
+ */
 @XmlRootElement(name = "ThemeSummary")
-@ArraySchema(schema=@Schema(implementation = PSThemeSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSThemeSummary.class))
 public class PSThemeSummaryList extends ArrayList<PSThemeSummary> {
     public PSThemeSummaryList(Collection<? extends PSThemeSummary> c) {
         super(c);

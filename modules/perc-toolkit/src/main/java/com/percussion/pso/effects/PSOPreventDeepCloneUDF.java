@@ -35,18 +35,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Allocates the next number in a sequence. 
+ * Allocates the next number in a sequence.
  *
- * @author davidbenua,stephenbolton,natechadwick
+ * @author davidbenua, stephenbolton, natechadwick
  *
+ * // REFACTORED: CP-JAVA11
  */
 public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension
-      implements
-         IPSUdfProcessor
 {
    /**
-    * Logger for this class
-    */
+	* Logger for this class
+	*/
    private static final Logger log = LogManager.getLogger(PSOPreventDeepCloneUDF.class);
    
 
@@ -57,123 +56,122 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension
 
 	  private static void initServices()
 	   {
-	      if(wf == null)
-	      {
-	    		
-	    		wf = PSWorkflowServiceLocator.getWorkflowService();
-	    		sumsvc = PSCmsContentSummariesLocator.getObjectManager();
-	      }
+		  if(wf == null)
+		  {
+				
+				wf = PSWorkflowServiceLocator.getWorkflowService();
+				sumsvc = PSCmsContentSummariesLocator.getObjectManager();
+		  }
 	   }
 	
 	
    /**
-    * 
-    */
+	* 
+	*/
    public PSOPreventDeepCloneUDF()
    {
-      super();
+	  super();
    }
    /**
-    * Checks for deep cloning exclusion flag in private object.  This 
-    * is used in the deep cloning conditionals
-    * <code>params[0]</code>.  
-    * @param params the parameter array
-    * @param request the callers request context
-    * @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
-    */
+	* Checks for deep cloning exclusion flag in private object.  This 
+	* is used in the deep cloning conditionals
+	* <code>params[0]</code>.  
+	* @param params the parameter array
+	* @param request the callers request context
+	* @see com.percussion.extension.IPSUdfProcessor#processUdf(java.lang.Object[], com.percussion.server.IPSRequestContext)
+	*/
    public Object processUdf(Object[] params, IPSRequestContext request)
-         throws PSConversionException
+		 throws PSConversionException
    {
-	   	
+		
 	   initServices();
 	   log.info("Filtering items for revision" );
 	
-	   
-	   String stateList = getParameter(params,0,""); 
-	      if (stateList == null)
-	         throw new PSConversionException(0,
-	            "states parameter name cannot be null" );
-	      
-	  
-	   	List<String> states = Arrays.asList(stateList.split(","));
-	   	log.debug("Deep cloning configured for states {}", states);
-	   	String contentid = request.getParameter("sys_contentid");
-	   	log.debug("Checking deep cloning for id {}", contentid);
-	   	
-	   	int id = Integer.parseInt(contentid);
-	   	
-	   	
-	      PSComponentSummary sum = sumsvc.loadComponentSummary(id);
-	      if(sum == null)
-	      {
-	         String emsg = "Content item not found "+ id;
-	         log.error(emsg); 
-	         throw new PSConversionException(0,emsg);
-	      }
-	      
-	   	log.debug("Got summary for id {}", id);
+		initServices();
+		log.info("Filtering items for revision");
 
-	   	int wfid = sum.getWorkflowAppId();
-	   	int stateid = sum.getContentStateId();
-	   	
-	   	//Always clone non workflow objects.
-	   	if(wfid > 0 && stateid > 0){
-	   	
-		   	
-		   	String wfName = getWorkflowName(wfid);
-		   	String stateName = getStateName(wfid, stateid);
-		   	
-		   	log.debug("Item is in workflow= {} state={}", wfName, stateName);
-		   
-		   	if (states.contains(stateName)) {
-		   		log.debug("Found item state in deep clone list ");
-		   		return true;
-		   	}
-		   	
-	   	}else{
-	   		log.debug("Item is not workflowable..skipping.");
-	   		return true;
-	   	}
+		var stateList = getParameter(params, 0, "");
+		if (stateList == null) {
+			throw new PSConversionException(0, "states parameter name cannot be null");
+		}
+
+		var states = Arrays.asList(stateList.split(","));
+		log.debug("Deep cloning configured for states {}", states);
+		var contentIdStr = request.getParameter("sys_contentid");
+		log.debug("Checking deep cloning for id {}", contentIdStr);
+
+		var id = Integer.parseInt(contentIdStr);
+		var summary = sumsvc.loadComponentSummary(id);
+		if (summary == null) {
+			var emsg = "Content item not found " + id;
+			log.error(emsg);
+			throw new PSConversionException(0, emsg);
+		}
+
+		log.debug("Got summary for id {}", id);
+
+		var workflowId = summary.getWorkflowAppId();
+		var stateId = summary.getContentStateId();
+
+		// Always clone non-workflow objects.
+		if (workflowId > 0 && stateId > 0) {
+			var wfName = getWorkflowName(workflowId);
+			var stateName = getStateName(workflowId, stateId);
+			log.debug("Item is in workflow= {} state={}", wfName, stateName);
+			if (states.contains(stateName)) {
+				log.debug("Found item state in deep clone list");
+				return true;
+			}
+		} else {
+			log.debug("Item is not workflowable..skipping.");
+			return true;
+		}
+		return false;
 	   return false;
    }
    
-   private String getWorkflowName(int id) {
+	private String getWorkflowName(int id) {
 		initServices();
 		log.debug("Getting workflow name");
-		PSWorkflow workflow = wf.loadWorkflow(new PSGuid(PSTypeEnum.WORKFLOW,id));
-		log.debug("got workflow name "+workflow.getName());
+		var workflow = wf.loadWorkflow(new PSGuid(PSTypeEnum.WORKFLOW, id));
+		log.debug("got workflow name {}", workflow.getName());
 		return workflow.getName();
 	}
    
-	private String getStateName(int wfid,int stateid) {
+	private String getStateName(int wfid, int stateid) {
 		initServices();
 		log.debug("Getting state name");
-		PSState state = wf.loadWorkflowState(new PSGuid(PSTypeEnum.WORKFLOW_STATE,stateid),new PSGuid(PSTypeEnum.WORKFLOW,wfid));
-		log.debug("Got state name"+state.getName());
+		var state = wf.loadWorkflowState(
+			new PSGuid(PSTypeEnum.WORKFLOW_STATE, stateid),
+			new PSGuid(PSTypeEnum.WORKFLOW, wfid));
+		log.debug("Got state name {}", state.getName());
 		return state.getName();
 	}
 	
-	    /**
-	    * Safely gets the specified index of the parameter array as a String.
-	    * The default value will be returned if parameter array is null, or does not
-	    * contain a non-empty string at the specified index.
-	    *
-	    * @param params array of parameter objects from the calling function.
-	    * @param index specifies which parameter from the array will be returned
-	    * @param defaultValue returned if array does not have a non-empty
-	    * string at the specified index.
-	    *
-	    * @return the parameter at the specified index (converted to a String and
-	    * trimmed), or the defaultValue.
-	    */
-	   private static String getParameter(Object[] params, int index,
-	                                     String defaultValue) {
-	      if (params == null || params.length < index + 1 || params[index] == null ||
-	            params[index].toString().trim().length() == 0) {
-	         return defaultValue;
-	      } else {
-	         return params[index].toString().trim();
-	      }
-	   }
+		/**
+		* Safely gets the specified index of the parameter array as a String.
+		* The default value will be returned if parameter array is null, or does not
+		* contain a non-empty string at the specified index.
+		*
+		* @param params array of parameter objects from the calling function.
+		* @param index specifies which parameter from the array will be returned
+		* @param defaultValue returned if array does not have a non-empty
+		* string at the specified index.
+		*
+		* @return the parameter at the specified index (converted to a String and
+		* trimmed), or the defaultValue.
+		*/
+	/**
+	 * Safely gets the specified index of the parameter array as a String.
+	 * The default value will be returned if parameter array is null, or does not
+	 * contain a non-empty string at the specified index.
+	 */
+	private static String getParameter(Object[] params, int index, String defaultValue) {
+		if (params == null || params.length < index + 1 || params[index] == null ||
+				params[index].toString().trim().isEmpty()) {
+			return defaultValue;
+		}
+		return params[index].toString().trim();
+	}
 
 }

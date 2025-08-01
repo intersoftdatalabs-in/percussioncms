@@ -28,7 +28,8 @@ import com.percussion.guitools.PSTableSorter;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -98,7 +99,7 @@ import java.util.concurrent.FutureTask;
 public class PSMainDisplayPanel extends JScrollPane
    implements DragGestureListener, DropTargetListener
 {
-   static Logger log = Logger.getLogger(PSMainDisplayPanel.class);
+   static Logger log = LogManager.getLogger(PSMainDisplayPanel.class);
    
    /**
     * Constructs the panel with supplied parameters.
@@ -1387,7 +1388,7 @@ public class PSMainDisplayPanel extends JScrollPane
     */
    private class TableKeyBoardHandler extends KeyAdapter
    {
-	  private Logger log = Logger.getLogger(TableKeyBoardHandler.class);
+	  private Logger log = LogManager.getLogger(TableKeyBoardHandler.class);
 	  private boolean isPopup = false;
 	  private int enter=0;
 	  

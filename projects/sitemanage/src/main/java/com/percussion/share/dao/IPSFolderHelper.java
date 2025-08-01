@@ -39,8 +39,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * A wrapper around {@link IPSContentWs} to add items to folders
- * and removing items from folders.
+ * A wrapper around {@link IPSContentWs} to add items to folders and remove items from folders.
  * <p>
  * The methods mainly throw checked exceptions due to the underlying architecture.
  * So conversion to other exceptions will have to be done in another layer.
@@ -48,19 +47,16 @@ import java.util.List;
  * <p>
  * Behavior of this class is also not transactional so do not expect rollbacks.
  * This limitation will have to be looked at a later date.
- *  
- * @author adamgent
- *
  */
 public interface IPSFolderHelper {
-    
+
     /**
      * The path separator used in CM system paths.
      * This will almost always be '<code>/</code>'.
      * @return never <code>null</code> or empty.
      */
-    public String pathSeparator();
-    
+    String pathSeparator();
+
     /**
      * Adds an item to a particular folder path, creating missing
      * folders if they do not exist in the path.
@@ -73,24 +69,24 @@ public interface IPSFolderHelper {
      * @param id never <code>null</code> or empty.
      * @throws Exception if the item cannot be added to the path.
      */
-    public void addItem(String path, String id) throws Exception;
-    
+    void addItem(String path, String id) throws Exception;
+
     /**
      * Gets a folder path for legacy folder id or fails. 
      * @param id the legacy content id (sys_contentid) of a folder, never <code>null</code>.
      * @return never <code>null</code> or empty.
      * @throws Exception if no folder path can be found.
      */
-    public String findPathFromLegacyFolderId(Number id) throws Exception;
-    
+    String findPathFromLegacyFolderId(Number id) throws Exception;
+
     /**
      * The inverse of {@link #findPathFromLegacyFolderId(Number)}.
      * @param path a valid folder path, never <code>null</code> or empty.
      * @return legacy content id (sys_contentid), never <code>null</code>.
      * @throws Exception if the folder cannot be found or the item is not a folder.
      */
-    public Number findLegacyFolderIdFromPath(String path) throws Exception;
-    
+    Number findLegacyFolderIdFromPath(String path) throws Exception;
+
     /**
      * Removes a specified item from the specified folder. 
      * @param path a valid folder path, never <code>null</code> or empty.
@@ -99,8 +95,8 @@ public interface IPSFolderHelper {
      * from the folder.
      * @throws Exception if the item cannot be removed from the folder.
      */
-    public void removeItem(String path, String itemId, boolean purgeItem) throws Exception;
-    
+    void removeItem(String path, String itemId, boolean purgeItem) throws Exception;
+
     /**
      * Finds all the paths associated with an item.
      * If the item is a folder a singleton list will be returned.
@@ -109,7 +105,7 @@ public interface IPSFolderHelper {
      * @return should not be empty but is not guaranteed to be, never <code>null</code>.
      * @throws Exception if the item does not exist.
      */
-    public List<String> findPaths(String itemId) throws Exception;
+    List<String> findPaths(String itemId) throws Exception;
 
     /**
      * Finds all the paths associated with an item.
@@ -119,8 +115,8 @@ public interface IPSFolderHelper {
      * @return should not be empty but is not guaranteed to be, never <code>null</code>.
      * @throws Exception if the item does not exist.
      */
-    public List<String> findPaths(String itemId, String relationshipTypeName) throws Exception;
-    
+    List<String> findPaths(String itemId, String relationshipTypeName) throws Exception;
+
     /**
      * Finds items that a children to a given folder path.
      * 
@@ -128,8 +124,8 @@ public interface IPSFolderHelper {
      * @return maybe empty, never <code>null</code>.
      * @throws Exception if the path is not a folder path.
      */
-    public List<IPSItemSummary> findItems(String path) throws Exception;
-    
+    List<IPSItemSummary> findItems(String path) throws Exception;
+
 
     /**
      * Finds child items for a given path, optionally finding only folders.
@@ -138,8 +134,8 @@ public interface IPSFolderHelper {
      * @return maybe empty, never <code>null</code>.
      * @throws Exception if the path is not a folder path.
      */
-    public List<IPSItemSummary> findItems(String path, boolean foldersOnly) throws Exception;
-    
+    List<IPSItemSummary> findItems(String path, boolean foldersOnly) throws Exception;
+
     
     /**
      * Finds all child item ids within the specified folder folder, recursing into child folders.  A very lightweight
@@ -152,16 +148,16 @@ public interface IPSFolderHelper {
      * 
      * @throws Exception if there are any errors.
      */
-    public List<String> findItemIdsByPath(String path) throws Exception;
-    
+    List<String> findItemIdsByPath(String path) throws Exception;
+
     /**
      * Finds an item by path.
      * @param path never <code>null</code>.
      * @return never <code>null</code>.
      * @throws Exception if the item is not found.
      */
-    public IPSItemSummary findItem(String path) throws Exception;
-    
+    IPSItemSummary findItem(String path) throws Exception;
+
     /**
      * Finds an item by ID. The usage of this method is to find 
      * all properties of the item, except its path. So the path
@@ -171,10 +167,10 @@ public interface IPSFolderHelper {
      * 
      * @return the item, never <code>null</code>.
      */
-    public PSPathItem findItemById(String id) throws IPSDataService.DataServiceLoadException, PSValidationException, PSNotFoundException;
+    PSPathItem findItemById(String id) throws IPSDataService.DataServiceLoadException, PSValidationException, PSNotFoundException;
 
-    public PSPathItem findItemById(String id, String relationshipTypeName) throws IPSDataService.DataServiceLoadException, PSValidationException, PSNotFoundException;
-    
+    PSPathItem findItemById(String id, String relationshipTypeName) throws IPSDataService.DataServiceLoadException, PSValidationException, PSNotFoundException;
+
     /**
      * Gets the parent folder ID for the specified item.
      * 
@@ -182,7 +178,7 @@ public interface IPSFolderHelper {
      * 
      * @return the folder ID, never <code>null</code>.
      */
-    public IPSGuid getParentFolderId(IPSGuid itemId) throws PSValidationException;
+    IPSGuid getParentFolderId(IPSGuid itemId) throws PSValidationException;
 
     /**
      * Gets the parent folder ID for the specified item.
@@ -195,7 +191,7 @@ public interface IPSFolderHelper {
      * and cannot find the parent folder; otherwise it can never be <code>null</code> if 
      * <code>isRequired</code> is <code>true</code>.
      */
-    public IPSGuid getParentFolderId(IPSGuid itemId, boolean isRequired) throws PSValidationException;
+    IPSGuid getParentFolderId(IPSGuid itemId, boolean isRequired) throws PSValidationException;
 
     /**
      * Sets the access level to the specified item. The ACL is calculated according 
@@ -207,7 +203,7 @@ public interface IPSFolderHelper {
      * @return the item which contains the access level for the current user, 
      * never <code>null</code>.
      */
-    public PSPathItem setFolderAccessLevel(PSPathItem item) throws PSValidationException, PSNotFoundException;
+    PSPathItem setFolderAccessLevel(PSPathItem item) throws PSValidationException, PSNotFoundException;
 
     /**
      * Sets the access level for current user to the specified items (siblings).
@@ -218,14 +214,14 @@ public interface IPSFolderHelper {
      * 
      * @return the passed in items, never <code>null</code>.
      */
-    public List<PSPathItem> setFolderAccessLevel(List<PSPathItem> items);
+    List<PSPathItem> setFolderAccessLevel(List<PSPathItem> items);
 
     /**
      * Determines what the path points to.
      * @param path never <code>null</code> or empty.
      * @return never <code>null</code>.
      */
-    public PathTarget pathTarget(String path) throws IPSDataService.DataServiceNotFoundException;
+    PathTarget pathTarget(String path) throws IPSDataService.DataServiceNotFoundException;
 
     /**
      * {@link #pathTarget(String)}
@@ -236,8 +232,8 @@ public interface IPSFolderHelper {
      *                      type is used or not.
      * @return never <code>null</code>.
      */
-    public PathTarget pathTarget(String path, boolean shouldRecycle) throws IPSDataService.DataServiceNotFoundException;
-    
+    PathTarget pathTarget(String path, boolean shouldRecycle) throws IPSDataService.DataServiceNotFoundException;
+
     
     /**
      * Provides a unique folder name for the given folder path and given base name.  The name is also valid for a
@@ -249,8 +245,8 @@ public interface IPSFolderHelper {
      * @param baseName must not be blank and must contain at least one valid character.
      * @return String unique and valid name never blank.
      */
-    public String getUniqueFolderName(String parentPath, String baseName) throws IPSPathService.PSPathNotFoundServiceException;
-    
+    String getUniqueFolderName(String parentPath, String baseName) throws IPSPathService.PSPathNotFoundServiceException;
+
        
     /**
      * Provides a unique name within a given folder path, given base name, and suffix.
@@ -264,7 +260,7 @@ public interface IPSFolderHelper {
      * @param skipFirstIndex whether the first index should be skipped
      * @return String  unique name never blank.
      */
-    public String getUniqueNameInFolder(String parentPath, String baseName, String suffix, int startingIndex, boolean skipFirstIndex) throws IPSPathService.PSPathNotFoundServiceException;
+    String getUniqueNameInFolder(String parentPath, String baseName, String suffix, int startingIndex, boolean skipFirstIndex) throws IPSPathService.PSPathNotFoundServiceException;
 
     /**
      * The target of a path.
@@ -273,7 +269,7 @@ public interface IPSFolderHelper {
      * @author adamgent
      *
      */
-    public static class PathTarget {
+    class PathTarget {
         private String path;
         private IPSItemSummary item;
         private PathTargetType targetType;
@@ -398,7 +394,7 @@ public interface IPSFolderHelper {
      * @author adamgent
      *
      */
-    public static enum PathTargetType {
+    enum PathTargetType {
         /**
          * The path is invalid.
          */
@@ -414,7 +410,7 @@ public interface IPSFolderHelper {
         /**
          * The path points to an item (that is not a folder).
          */
-        ITEM;
+        ITEM
     }
     
     /**
@@ -424,24 +420,24 @@ public interface IPSFolderHelper {
      * @return never <code>null</code>.
      * @see PSFolderPathUtils#concatPath(String, String...)
      */
-    public String concatPath(String start, String ... end);
-    
+    String concatPath(String start, String ... end);
+
     /**
      * 
      * @param path never <code>null</code>.
      * @return never <code>null</code>.
      * @see PSFolderPathUtils#parentPath(String)
      */
-    public String parentPath(String path);
-    
+    String parentPath(String path);
+
     /**
      * 
      * @param path never <code>null</code>.
      * @return never <code>null</code>.
      * @see PSFolderPathUtils#getName(String)
      */
-    public String name(String path);
-    
+    String name(String path);
+
     /**
      * Creates a particular folder path, creating missing
      * folders if they do not exist in the path.
@@ -459,8 +455,8 @@ public interface IPSFolderHelper {
      * @param path never <code>null</code> or empty.
      * @throws Exception if the components of the path are not folders.
      */
-    public void createFolder(String path) throws Exception;
-    
+    void createFolder(String path) throws Exception;
+
     /**
      * In addition of creating a folder, just like {@link #createFolder(String)},
      * the created folder also has the specified folder permission.
@@ -468,15 +464,15 @@ public interface IPSFolderHelper {
      * @param path the path of the created folder, never <code>null</code> or empty.
      * @param acl the folder permission of the created folder, never <code>null</code>.
      */
-    public void createFolder(String path, PSFolderPermission.Access acl) throws Exception;
-    
+    void createFolder(String path, PSFolderPermission.Access acl) throws Exception;
+
     /**
      * Deletes a folder identified by the specified path.  This is a recursive delete, meaning all sub-folders and items
      * will also be deleted.  Items are not purged from the system.
      * @param path a valid folder path, never <code>null</code> or empty.
      * @throws Exception if the folder cannot be deleted.
      */
-    public void deleteFolder(String path) throws Exception;
+    void deleteFolder(String path) throws Exception;
 
     /**
      * Deletes a folder identified by the specified path.  This is a recursive delete, meaning all sub-folders and items
@@ -485,8 +481,8 @@ public interface IPSFolderHelper {
      * @param recycleFolder <code>true</code> to recycle the folder, <code>false</code> to purge the folder and its contents.
      * @throws Exception if the folder cannot be deleted.
      */
-    public void deleteFolder(String path, boolean recycleFolder) throws Exception;
-    
+    void deleteFolder(String path, boolean recycleFolder) throws Exception;
+
     /**
      * Determines if the current user has "admin" access for the specified folder and all 
      * its descendant folders.
@@ -496,8 +492,8 @@ public interface IPSFolderHelper {
      * @return <code>true</code> if current user does have "admin" access to the folder
      * and its descendant folders; otherwise return <code>false</code>. 
      */
-    public boolean validateFolderPermissionForDelete(String folderId);
-    
+    boolean validateFolderPermissionForDelete(String folderId);
+
     /**
      * Determines if the current user has the specified access level for the given folder.
      * 
@@ -507,16 +503,16 @@ public interface IPSFolderHelper {
      * @return <code>true</code> if current user does have the specified access level
      * to the specified folder; otherwise return <code>false</code>.
      */
-    public boolean hasFolderPermission(String folderId, PSFolderPermission.Access acl);
-    
+    boolean hasFolderPermission(String folderId, PSFolderPermission.Access acl);
+
     /**
      * Changes the name of a folder identified by the specified path to the specified name. 
      * @param path a valid folder path, never <code>null</code> or empty.
      * @param name the new name of the folder, never blank.
      * @throws Exception if the folder cannot be renamed.
      */
-    public void renameFolder(String path, String name) throws Exception;
-    
+    void renameFolder(String path, String name) throws Exception;
+
     /**
      * 
      * Finds child paths of a given folder path.
@@ -526,8 +522,8 @@ public interface IPSFolderHelper {
      * @throws Exception if the path is not valid or is an item.
      * @see #findItems(String)
      */
-    public List<String> findChildren(String path) throws Exception;
-    
+    List<String> findChildren(String path) throws Exception;
+
     /**
      * Gets the item properties.
      * 
@@ -536,7 +532,7 @@ public interface IPSFolderHelper {
      * @return never <code>null</code>.
      * @throws Exception If an item cannot be found for the given path.
      */
-    public PSItemProperties findItemProperties(String path) throws Exception;
+    PSItemProperties findItemProperties(String path) throws Exception;
 
     /**
      * Gets the item properties.
@@ -546,8 +542,8 @@ public interface IPSFolderHelper {
      * @return never <code>null</code>.
      * @throws Exception If an item cannot be found for the given path.
      */
-    public PSItemProperties findItemProperties(String path, String relationshipTypeName) throws Exception;
-    
+    PSItemProperties findItemProperties(String path, String relationshipTypeName) throws Exception;
+
     /**
      * Gets the item properties by id.
      * 
@@ -556,7 +552,7 @@ public interface IPSFolderHelper {
      * @return never <code>null</code>.
      * @throws Exception If an item cannot be found for the given id.
      */
-    public PSItemProperties findItemPropertiesById(String id) throws Exception;
+    PSItemProperties findItemPropertiesById(String id) throws Exception;
 
     /**
      * Gets the item properties by id.
@@ -566,8 +562,8 @@ public interface IPSFolderHelper {
      * @return never <code>null</code>.
      * @throws Exception If an item cannot be found for the given id.
      */
-    public PSItemProperties findItemPropertiesById(String id, String relationshipTypeName) throws Exception;
-    
+    PSItemProperties findItemPropertiesById(String id, String relationshipTypeName) throws Exception;
+
     /**
      * Gets the access level for a specified folder according to current user.
      * 
@@ -575,8 +571,8 @@ public interface IPSFolderHelper {
      * 
      * @return the access level, never <code>null</code>.
      */
-    public PSFolderPermission.Access getFolderAccessLevel(String id) throws PSValidationException;
-    
+    PSFolderPermission.Access getFolderAccessLevel(String id) throws PSValidationException;
+
     /**
      * Gets the specified folder properties from its ID.
      * 
@@ -586,8 +582,8 @@ public interface IPSFolderHelper {
      * 
      * @throws PSErrorException If cannot be found the folder with the given path.
      */
-    public PSFolderProperties findFolderProperties(String id) throws PSErrorException, PSValidationException;
-    
+    PSFolderProperties findFolderProperties(String id) throws PSErrorException, PSValidationException;
+
     /**
      * Saves the specified folder properties.
      * <p>
@@ -598,8 +594,8 @@ public interface IPSFolderHelper {
      * 
      * @param folder the folder properties, never <code>null</code>.
      */
-    public void saveFolderProperties(PSFolderProperties folder) throws PSValidationException;
-    
+    void saveFolderProperties(PSFolderProperties folder) throws PSValidationException;
+
     /**
      * When trying to find a folder under Assets, the folders system path is
      * required, but this is not necessary when trying to find a folder under
@@ -625,7 +621,7 @@ public interface IPSFolderHelper {
     * 
     * @throws PSErrorException if an error occurs.
     */
-    public void moveItem(String targetFolderPath, String itemPath, boolean isFolder);
+    void moveItem(String targetFolderPath, String itemPath, boolean isFolder);
 
     /**
      * Finds the folder for the given path.
@@ -634,8 +630,8 @@ public interface IPSFolderHelper {
      * @return the folders item summer, never <code>null</code>.
      * @throws Exception if the path is to nothing or an item that is not a folder.
      */
-    public IPSItemSummary findFolder(String path) throws Exception;
-    
+    IPSItemSummary findFolder(String path) throws Exception;
+
     /**
      * Find and return all the sites the item exists in. The sites are ordered by
      * the name of the sites it exists in. 
@@ -646,16 +642,16 @@ public interface IPSFolderHelper {
      * @return the sites the item exists in never <code>null</code> may be
      *         empty, if the item does not exist in any site.
      */
-    public List<IPSSite> getItemSites(String contentId);    
-    
+    List<IPSSite> getItemSites(String contentId);
+
     /**
      * Validates if the given name is contained in a list of reserved folder names not available
      * 
      * @param name the string representation of the folder name
      * @return <code>true</code> if the name is not a reserved folder name
      */
-    public boolean validateFolderReservedName(String name);      
-    
+    boolean validateFolderReservedName(String name);
+
     /**
      * Returns a valid workflow id for the given {@link PSFolderProperties} object.
      * It tries to get the ID of the workflow currently assigned to the folder. If
@@ -665,15 +661,15 @@ public interface IPSFolderHelper {
      * @return The workflow id associated to the folder, or the default workflow id
      * if the former is invalid.
      */
-    public int getValidWorkflowId(PSFolderProperties folder);
-    
+    int getValidWorkflowId(PSFolderProperties folder);
+
     /**
      * Get the id of the default workflow
      * 
      * @return The id.
      */
-    public int getDefaultWorkflowId();
-    
+    int getDefaultWorkflowId();
+
     /**
      * Gets the root level folder (immediate child for assets root) for a given shared asset.
      * Eg: /Assets/RootLevelFolder/anotherFolder/anotherInnerFolder/RichTextAsset.
@@ -683,8 +679,8 @@ public interface IPSFolderHelper {
      * @param assetId - the id of the asset. Never <code>null</code>.
      * @return the PSFolder object of the root level folder the shared asset is descendant of
      */
-    public PSFolder getRootFolderForAsset(String assetId);
-    
+    PSFolder getRootFolderForAsset(String assetId);
+
     /**
      * Gets the allowed sites properties of the root level folder for a given shared asset.
      * The allowed sites property represent the list of sites that the asset can be published to
@@ -695,7 +691,7 @@ public interface IPSFolderHelper {
      * @return the value of the allowed sites property.
      * <code> Null </code> if the property is not set for the specific folder.
      */
-    public String getRootLevelFolderAllowedSitesPropertyValue(String assetId);
+    String getRootLevelFolderAllowedSitesPropertyValue(String assetId);
 
     /**
      * Checks to see if the target path exists.  Checks the ID of the target and source and

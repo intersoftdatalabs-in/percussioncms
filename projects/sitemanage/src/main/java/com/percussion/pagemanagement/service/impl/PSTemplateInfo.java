@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -38,186 +39,140 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Servlet that allows to import or export a given template from the system
- * using a XML file. When is a GET request, attempts to export a template and
- * return it as a XML file. When is a POST request, attempts to save the
- * template associated to the site supplied as parameter.
- * 
- * @author leonardohildt
- * 
+ * Servlet for importing/exporting templates as XML files.
+ * GET: Exports a template as XML.
+ * POST: Imports a template for a given site.
+ * <p>
+ * Sunny Sal says: "Template import/export, now with 100% more Java 11!"
  */
-public class PSTemplateInfo extends HttpServlet  {
-	
-private static final long serialVersionUID = 1L;
-  
-private static final int DEFAULT_BUFFER_SIZE = 20480; // 20KB.
+public class PSTemplateInfo extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+    private static final int DEFAULT_BUFFER_SIZE = 20480; // 20KB
+    private static final Logger log = LogManager.getLogger(PSTemplateInfo.class);
 
-	private static final Logger log = LogManager.getLogger(PSTemplateInfo.class);
-	
-   public PSTemplateInfo()
-   {
-	   PSSpringWebApplicationContextUtils.injectDependencies(this);
-   }
-   
-   /**
-    * Handles queries for a xml file
-	*/
-   @Override
-   protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-       throws ServletException, IOException
-   {
-       String templateName = "*";
-       String templateId = "";
-       String pathInfo = req.getPathInfo();
-       PSTemplate templateSelected = null;
-       
-       if(pathInfo != null)
-       {
-          String[] path = pathInfo.split("/");
-          if(path.length > 1)
-          {
-        	  templateId = path[1];
-        	  templateName = path[2];
-          }
-       }
+    private static IPSTemplateService templateService;
 
-       try
-       {
-    	   // Get the selected template
-    	   templateSelected = templateService.exportTemplate(templateId, templateName);
-    	   // Init servlet response
-           resp.reset();
-           resp.setBufferSize(DEFAULT_BUFFER_SIZE);
-           resp.setContentType("text/xml");
-           resp.setHeader("Content-Disposition", "attachment; filename=\"" + SecureStringUtils.stripAllLineBreaks(
-           		templateName) + "\"");
-           String ret = PSSerializerUtils.marshal(templateSelected);
-           if(ret != null)
-           		resp.getWriter().write(ret);
-           else
-           		throw new IOException("Unable to export template");
-       }
-       catch (Exception ex)
-       {
-       	log.error(PSExceptionUtils.getMessageForLog(ex));
-       	log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
-			try{
-				resp.sendError(500);
-			}catch(IOException e){
-				resp.reset();
-				resp.setStatus(500);
-			}
-       }      
-   }
-   
-	  @Override
-	  protected void doPost(HttpServletRequest request,
-	        HttpServletResponse response) throws ServletException, IOException
-	  {
-		  String siteId = null;
-	      
-	      //Get the site Id from the path
-	      String pathInfo = request.getPathInfo();
-	      if(pathInfo != null)
-	      {
-	         String[] path = pathInfo.split("/");
-	         if(path.length > 1)
-	         {
-	       	  siteId = path[1];
-	         }
-	      }
-	       
-	      PSTemplate templateImported = null;
-	      boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-	      
-	      if (isMultipart)
-	      {
-	    	  try
-			  {
-			     List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory())
-			           .parseRequest(request);
-			     for (FileItem item : items)
-			     {
-			        if (!item.isFormField())
-			        {
-			           templateImported = importTemplate(siteId, item);
-			        }           
-			     }
+    public PSTemplateInfo() {
+        PSSpringWebApplicationContextUtils.injectDependencies(this);
+    }
 
-			     if(templateImported != null && templateImported.getName() != null) {
-					 // Return the imported template
-					 response.getWriter().print(templateImported.getName());
-				 }else
-				 	throw new IOException("Unexpected error while importing template.");
-			   }
-			   catch (Exception e)
-			   {
-				   log.error(PSExceptionUtils.getMessageForLog(e));
-				   log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-				   try{
-					   response.sendError(500);
-				   }catch(IOException e1){
-					   response.reset();
-					   response.setStatus(500);
-				   }
-			   }
-	      }
-	   }
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        var templateName = "*";
+        var templateId = "";
+        var pathInfo = req.getPathInfo();
+        PSTemplate templateSelected = null;
 
-	 
-	   /**
-	    * Create the template from the uploaded file.
-	    * @param siteId the id of the site, assumed not <code>null</code>.
-	    * @param item the file item, assumed not <code>null</code>.  The input stream of this item will be closed by this
-	    * method.
-	    * <code>false</code> otherwise.
-	    * @return the newly created template, never <code>null</code>.
-	    * @throws PSExtractHTMLException if fail to create template due to error on extracting content
-	    */
-	   private PSTemplate importTemplate(String siteId, FileItem item)
-	      throws PSExtractHTMLException
-	   {
+        if (pathInfo != null) {
+            var path = pathInfo.split("/");
+            if (path.length > 2) {
+                templateId = path[1];
+                templateName = path[2];
+            }
+        }
 
-	      PSTemplate convertedTemplate = new PSTemplate();
-	      
-	      try(InputStream fileInput = item.getInputStream())
-	      {
+        try {
+            templateSelected = templateService.exportTemplate(templateId, templateName);
+            resp.reset();
+            resp.setBufferSize(DEFAULT_BUFFER_SIZE);
+            resp.setContentType("text/xml");
+            resp.setHeader("Content-Disposition", "attachment; filename=\"" +
+                    SecureStringUtils.stripAllLineBreaks(templateName) + "\"");
+            var ret = PSSerializerUtils.marshal(templateSelected);
+            if (ret != null) {
+                resp.getWriter().write(ret);
+            } else {
+                throw new IOException("Unable to export template");
+            }
+        } catch (Exception ex) {
+            log.error(PSExceptionUtils.getMessageForLog(ex));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(ex));
+            try {
+                resp.sendError(500);
+            } catch (IOException e) {
+                resp.reset();
+                resp.setStatus(500);
+            }
+        }
+    }
 
-	    	  //Build a string with the InputStream
-	    	  BufferedReader br = new BufferedReader(new InputStreamReader(item.getInputStream()));
-	    	  StringBuilder sb = new StringBuilder();
-	    	  String line = null;
-	    	  while ((line = br.readLine()) != null) {
-	    	        sb.append(line).append("\n");
-	    	  }
-	    	  br.close();
-	    	 
-	    	  String validStringXml = sb.toString();
-	    	  validStringXml = validStringXml.trim().replaceFirst("^([\\W]+)<","<");
-	    	  convertedTemplate = PSSerializerUtils.unmarshal(validStringXml, PSTemplate.class);
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String siteId = null;
+        var pathInfo = request.getPathInfo();
+        if (pathInfo != null) {
+            var path = pathInfo.split("/");
+            if (path.length > 1) {
+                siteId = path[1];
+            }
+        }
 
-	    	  //Import the template
-	         return  templateService.importTemplate(convertedTemplate,siteId);
+        PSTemplate templateImported = null;
+        var isMultipart = ServletFileUpload.isMultipartContent(request);
 
-	      } catch (PSDataServiceException | IPSPathService.PSPathNotFoundServiceException | IOException e) {
-			throw new PSExtractHTMLException(e);
-		  }
-	   }
-   
-   public static IPSTemplateService getTemplateService() {
-		return templateService;
-	}
+        if (isMultipart) {
+            try {
+                var items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+                for (var item : items) {
+                    if (!item.isFormField()) {
+                        templateImported = importTemplate(siteId, item);
+                    }
+                }
+                if (templateImported != null && templateImported.getName() != null) {
+                    response.getWriter().print(templateImported.getName());
+                } else {
+                    throw new IOException("Unexpected error while importing template.");
+                }
+            } catch (Exception e) {
+                log.error(PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                try {
+                    response.sendError(500);
+                } catch (IOException e1) {
+                    response.reset();
+                    response.setStatus(500);
+                }
+            }
+        }
+    }
 
-	public static void setTemplateService(IPSTemplateService templateService) {
-		PSTemplateInfo.templateService = templateService;
-	} 
+    /**
+     * Imports a template from the uploaded file.
+     *
+     * @param siteId the site ID, not null
+     * @param item   the uploaded file item, not null
+     * @return the imported template, never null
+     * @throws PSExtractHTMLException if extraction fails
+     */
+    private PSTemplate importTemplate(String siteId, FileItem item)
+            throws PSExtractHTMLException {
+        try (var fileInput = item.getInputStream();
+             var br = new BufferedReader(new InputStreamReader(fileInput))) {
+            var sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            var validStringXml = sb.toString().trim().replaceFirst("^([\\W]+)<", "<");
+            var convertedTemplate = PSSerializerUtils.unmarshal(validStringXml, PSTemplate.class);
+            return templateService.importTemplate(convertedTemplate, siteId);
+        } catch (PSDataServiceException | IPSPathService.PSPathNotFoundServiceException | IOException e) {
+            throw new PSExtractHTMLException(e);
+        }
+    }
 
-	private static IPSTemplateService templateService;
+    public static IPSTemplateService getTemplateService() {
+        return templateService;
+    }
 
-   
+    public static void setTemplateService(IPSTemplateService templateService) {
+        PSTemplateInfo.templateService = templateService;
+    }
 }

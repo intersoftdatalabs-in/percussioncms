@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pageoptimizer;
 
 import com.percussion.pageoptimizer.data.PSPageOptimizerData;
@@ -22,51 +23,50 @@ import com.percussion.pageoptimizer.data.PSPageOptimizerInfo;
 import com.percussion.share.service.exception.PSDataServiceException;
 
 /**
- * CMS page optimizer service
- *
+ * CMS page optimizer service.
+ * Sunny Sal says: "Optimize your pages, optimize your life!"
  */
-public interface IPSPageOptimizerService
-{
+public interface IPSPageOptimizerService {
+
     /**
-     * @return <code>true</code> if a non-blank server property called PAGE_OPTIMIZER_URL exists otherwise <code>false</code>.
+     * Checks if the Page Optimizer is active.
+     *
+     * @return {@code true} if a non-blank server property called PAGE_OPTIMIZER_URL exists, otherwise {@code false}.
      */
-    public boolean isPageOptimizerActive();
-    
+    boolean isPageOptimizerActive();
+
     /**
      * Gets the properties of the Page Optimizer service.
-     * @return PSPageOptimizerInfo
+     *
+     * @return PSPageOptimizerInfo, never {@code null}.
      */
-    public PSPageOptimizerInfo getPageOptimizerInfo();
-    
+    PSPageOptimizerInfo getPageOptimizerInfo();
+
     /**
-     * Collects the data and consolidates them into PSPageOptimizerData object and returns.
+     * Collects the data and consolidates them into a PSPageOptimizerData object.
+     *
      * @param pageId must be a valid page id, string form of guid, otherwise throws validation exception.
-     * @return PSPageOptimizerData never <code>null</code>.
+     * @return PSPageOptimizerData, never {@code null}.
      */
-    public PSPageOptimizerData getPageOptimizerData(String pageId);
-    
+    PSPageOptimizerData getPageOptimizerData(String pageId);
+
     /**
-     * This is a RuntimeException, it is tthrown when there is an error occurs in this service.
+     * Exception thrown when an error occurs in this service.
      */
-    public static class PageOptimizerException extends PSDataServiceException
-    {
-        public PageOptimizerException()
-        {
+    class PageOptimizerException extends PSDataServiceException {
+        public PageOptimizerException() {
             super();
         }
 
-        public PageOptimizerException(String message, Throwable cause)
-        {
+        public PageOptimizerException(String message, Throwable cause) {
             super(message, cause);
         }
 
-        public PageOptimizerException(String message)
-        {
+        public PageOptimizerException(String message) {
             super(message);
         }
 
-        public PageOptimizerException(Throwable cause)
-        {
+        public PageOptimizerException(Throwable cause) {
             super(cause);
         }
     }

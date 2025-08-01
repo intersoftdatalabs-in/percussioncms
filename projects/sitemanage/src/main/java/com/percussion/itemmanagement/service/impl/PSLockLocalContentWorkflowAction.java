@@ -35,7 +35,6 @@ import java.util.Map;
  */
 public class PSLockLocalContentWorkflowAction extends PSAbstractWorkflowExtension implements IPSWorkflowAction
 {
-
     private static final Logger log = LogManager.getLogger(PSLockLocalContentWorkflowAction.class);
     /**
      * The workflow state that page must be in for local content to be locked.
@@ -46,15 +45,15 @@ public class PSLockLocalContentWorkflowAction extends PSAbstractWorkflowExtensio
     public void performAction(IPSWorkFlowContext wfContext, @SuppressWarnings("unused") IPSRequestContext request) 
     {
         log.debug("Started workflowing local assets");
-        
-        String currentUser = getUser();
+
+        var currentUser = getUser();
         setSecurity();
-        
+
         try
         {
-            Map<String, String> params = new HashMap<>();
+            var params = new HashMap<String, String>();
             params.put(STATE_PARAMETER, LOCK_STATE);
-            WorkflowItemWorker worker = getWorker(params);
+            var worker = getWorker(params);
             worker.processItem(wfContext);
 
             log.debug("Finished workflowing assets");
@@ -66,6 +65,4 @@ public class PSLockLocalContentWorkflowAction extends PSAbstractWorkflowExtensio
             setSecurity(currentUser);
         }
     }
-
 }
-

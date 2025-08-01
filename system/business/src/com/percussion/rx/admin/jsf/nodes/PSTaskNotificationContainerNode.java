@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.admin.jsf.nodes;
 
 import com.percussion.rx.jsf.PSEditableNodeContainer;
@@ -35,16 +36,12 @@ import java.util.Set;
  * 
  * @author Andriy Palamarchuk
  */
-public class PSTaskNotificationContainerNode
-      extends PSEditableNodeContainer
-{
+public class PSTaskNotificationContainerNode extends PSEditableNodeContainer {
    /**
     * Creates new node.
     */
-   public PSTaskNotificationContainerNode()
-   {
-      super("The templates of the scheduled events messages.",
-            ADMIN_NOTIFICATION_VIEWS, "Task Notifications");
+   public PSTaskNotificationContainerNode() {
+      super("The templates of the scheduled events messages.", ADMIN_NOTIFICATION_VIEWS, "Task Notifications");
    }
 
    /**
@@ -53,8 +50,7 @@ public class PSTaskNotificationContainerNode
     * which will navigate to the editor.
     */
    public String createNotification() throws PSNotFoundException {
-      final PSNotificationTemplate notification =
-            getSchedulingService().createNotificationTemplate();
+      var notification = getSchedulingService().createNotificationTemplate();
       return initNewNotification(notification);
    }
    
@@ -67,17 +63,14 @@ public class PSTaskNotificationContainerNode
    private String initNewNotification(PSNotificationTemplate notification) throws PSNotFoundException {
       notification.setName(getUniqueName("Notification", false));
       getSchedulingService().saveNotificationTemplate(notification);
-      
-      final PSTaskNotificationNode node =
-            new PSTaskNotificationNode(notification);
+      var node = new PSTaskNotificationNode(notification);
       addNode(node);
       return node.perform();
    }
 
    @Override
    public List<? extends PSNodeBase> getChildren() throws PSNotFoundException {
-      if (m_children == null)
-      {
+      if (m_children == null) {
          initChildrenNodes();
       }
       return super.getChildren();
@@ -86,24 +79,17 @@ public class PSTaskNotificationContainerNode
    /**
     * Initializes the children nodes.
     */
-   private void initChildrenNodes()
-   {
-      final List<PSNotificationTemplate> notifications =
-            new ArrayList<>(
-                  getSchedulingService().findAllNotificationTemplates());
+   private void initChildrenNodes() {
+      var notifications = new ArrayList<>(getSchedulingService().findAllNotificationTemplates());
       notifications.sort(new ByLabelComparator());
-      for (PSNotificationTemplate notification : notifications)
-      {
-         addNode(new PSTaskNotificationNode(notification));
-      }
+      notifications.forEach(notification -> addNode(new PSTaskNotificationNode(notification)));
    }
 
    /**
     * Provides current scheduling service.
     * @return the scheduling service. Not <code>null</code>.
     */
-   private IPSSchedulingService getSchedulingService()
-   {
+   private IPSSchedulingService getSchedulingService() {
       return PSSchedulingServiceLocator.getSchedulingService();
    }
 
@@ -115,47 +101,39 @@ public class PSTaskNotificationContainerNode
     * @return the type, or the string "unknown". Never <code>null</code>.
     */
    @Override
-   public String getSelectedType()
-   {
+   public String getSelectedType() {
       return PSTypeEnum.SCHEDULE_NOTIFICATION_TEMPLATE.getDisplayName();
    }
 
    @Override
-   public Set<Object> getAllNames()
-   {
-      final Set<Object> names = new HashSet<>();
-      for (final PSNotificationTemplate notificationTemplate
-            : getSchedulingService().findAllNotificationTemplates())
-      {
+   public Set<Object> getAllNames() {
+      var names = new HashSet<>();
+      for (var notificationTemplate : getSchedulingService().findAllNotificationTemplates()) {
          names.add(notificationTemplate.getName());
       }
       return names;
    }
 
    @Override
-   public String returnToListView()
-   {
+   public String returnToListView() {
       return "return-to-events-notifications";
    }
 
    
    @Override
-   public String getHelpTopic()
-   {
+   public String getHelpTopic() {
       return "TaskNotificationList";
    }
 
    // see base
    @Override
-   protected boolean findObjectByName(String name)
-   {
-      final IPSSchedulingService service = getSchedulingService();
+   protected boolean findObjectByName(String name) {
+      var service = getSchedulingService();
       return service.findNotificationTemplateByName(name) != null;
    }
 
    /**
     * Outcome for the notifications page.
     */
-   public static final String ADMIN_NOTIFICATION_VIEWS =
-         "admin-timed-event-notifications";
+   public static final String ADMIN_NOTIFICATION_VIEWS = "admin-timed-event-notifications";
 }

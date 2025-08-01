@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  * Represents a file dependency that must be specified by the user as it may not
@@ -44,29 +45,31 @@ public class PSUserDependency extends PSDeployableObject
     * 
     * @throws IllegalArgumentException if any param is invalid.
     */
-   PSUserDependency(File path, PSDependency parent)
-   {
-      super();
-      
-      // do validation
-      if (path == null)
-         throw new IllegalArgumentException("path may not be null");
-      if (parent == null)
-         throw new IllegalArgumentException("parent may not be null");
-         
-      // this is a bit ugly, but lets us validate input params instead of 
-      // calling full super() first, possibly throwing a NullPointerException.
-      PSDeployableObject obj = new PSDeployableObject(PSDependency.TYPE_USER, 
-         PSDeployComponentUtils.getNormalizedPath(path.getPath()), 
-         USER_DEPENDENCY_TYPE, USER_DEPENDENCY_TYPE_NAME, path.getName(), 
-         false, false, false);
-      
-      super.copyFrom(obj);
-      
-      m_path = path;
-      m_parentType = parent.getObjectType();
-      m_parentId = parent.getDependencyId();
-      m_parentKey = parent.getKey();
+   PSUserDependency(File path, PSDependency parent) {
+    super();
+
+    if (path == null || parent == null) {
+        throw new IllegalArgumentException("path and parent may not be null");
+    }
+
+    var normalizedPath = PSDeployComponentUtils.getNormalizedPath(path.getPath());
+    var obj = new PSDeployableObject(
+        PSDependency.TYPE_USER,
+        normalizedPath,
+        USER_DEPENDENCY_TYPE,
+        USER_DEPENDENCY_TYPE_NAME,
+        path.getName(),
+        false,
+        false,
+        false
+    );
+
+    super.copyFrom(obj);
+
+    m_path = path;
+    m_parentType = parent.getObjectType();
+    m_parentId = parent.getDependencyId();
+    m_parentKey = parent.getKey();
    }
    
    /**
@@ -167,21 +170,19 @@ public class PSUserDependency extends PSDeployableObject
     * 
     * @throws IllegalArgumentException if doc is <code>null</code>.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
-         throw new IllegalArgumentException("doc may not be null");
-         
-      Element root = doc.createElement(XML_NODE_NAME);
-      root.setAttribute(XML_ATTR_PARENT_ID, m_parentId);
-      root.setAttribute(XML_ATTR_PARENT_TYPE, m_parentType);
-      root.setAttribute(XML_ATTR_PARENT_KEY, m_parentKey);
-      root.setAttribute(XML_ATTR_PATH, PSDeployComponentUtils.getNormalizedPath(
-         m_path.getPath()));
-      root.appendChild(super.toXml(doc));
-      
-      
-      return root;
+   public Element toXml(Document doc) {
+    if (doc == null) {
+        throw new IllegalArgumentException("doc may not be null");
+    }
+
+    var root = doc.createElement(XML_NODE_NAME);
+    root.setAttribute(XML_ATTR_PARENT_ID, m_parentId);
+    root.setAttribute(XML_ATTR_PARENT_TYPE, m_parentType);
+    root.setAttribute(XML_ATTR_PARENT_KEY, m_parentKey);
+    root.setAttribute(XML_ATTR_PATH, PSDeployComponentUtils.getNormalizedPath(m_path.getPath()));
+    root.appendChild(super.toXml(doc));
+
+    return root;
    }
 
    /**
@@ -195,38 +196,30 @@ public class PSUserDependency extends PSDeployableObject
     * @throws PSUnknownNodeTypeException if the XML element node does not 
     * represent a type supported by the class.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
-      
-      m_parentId = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_ID);
-      m_parentType = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_TYPE);
-      m_parentKey = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_KEY);
-      m_path = new File(getRequiredAttribute(sourceNode, XML_ATTR_PATH));
-            
-      int firstFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      int nextFlags = (PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS | 
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT);
-      
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      Element dep = tree.getNextElement(PSDeployableObject.XML_NODE_NAME, 
-         firstFlags);
-      if (dep == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, 
-               PSDeployableObject.XML_NODE_NAME);
-      }
-      super.fromXml(dep);
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+        throw new IllegalArgumentException("sourceNode may not be null");
+    }
+
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+        throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+        );
+    }
+
+    m_parentId = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_ID);
+    m_parentType = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_TYPE);
+    m_parentKey = getRequiredAttribute(sourceNode, XML_ATTR_PARENT_KEY);
+    m_path = new File(getRequiredAttribute(sourceNode, XML_ATTR_PATH));
+
+    var tree = new PSXmlTreeWalker(sourceNode);
+    var dep = Optional.ofNullable(tree.getNextElement(PSDeployableObject.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN))
+        .orElseThrow(() -> new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_NULL,
+            PSDeployableObject.XML_NODE_NAME
+        ));
+    super.fromXml(dep);
    }
 
    // see IPSDeployComponent
@@ -248,11 +241,10 @@ public class PSUserDependency extends PSDeployableObject
    }
    
    //overridden to deep copy mutable members
-   public Object clone()
-   {
-      PSUserDependency copy = (PSUserDependency)super.clone();
-      copy.m_path = new File(m_path.getPath());
-      return copy;
+   public Object clone() {
+    var copy = (PSUserDependency) super.clone();
+    copy.m_path = new File(m_path.getPath());
+    return copy;
    }
 
    // see IPSDeployComponent

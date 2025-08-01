@@ -35,54 +35,40 @@ import java.util.List;
  */
 @Component("getAssignedFoldersJob")
 @Scope("prototype")
-public class PSGetAssignedFoldersJob extends PSAsyncJob
-{
+public class PSGetAssignedFoldersJob extends PSAsyncJob {
     private IPSFolderService folderService;
     private String workflowName;
     private String path;
     private boolean includeFoldersWithDifferentWorkflow;
     PSGetAssignedFoldersJobStatus status;
-    
+
     private static final Logger log = LogManager.getLogger(PSGetAssignedFoldersJob.class);
 
-    
     @Override
-    public void doRun()
-    {
-        try
-        {
-            if (!isCancelled())
-            {    
-                List<PSFolderItem> folderItems = folderService.getAssignedFolders(workflowName, path,
-                        includeFoldersWithDifferentWorkflow);
+    public void doRun() {
+        try {
+            if (!isCancelled()) {
+                var folderItems = folderService.getAssignedFolders(workflowName, path, includeFoldersWithDifferentWorkflow);
                 status.setFolderItems(folderItems);
-                
                 status.setStatus(String.valueOf(COMPLETE_STATUS));
                 setResult(status);
                 setStatus(COMPLETE_STATUS);
                 setStatusMessage("completed");
             }
-
-        }
-        catch (Exception e)
-        {
-            if (!isCancelled())
-            {
+        } catch (Exception e) {
+            if (!isCancelled()) {
                 log.error(e.getLocalizedMessage(), e);
             }
             setStatus(ABORT_STATUS);
             setStatusMessage("aborted");
-        }
-        finally
-        {
+        } finally {
             setCompleted();
         }
     }
 
-
     @Override
     protected void doInit(Object config) throws IPSFolderService.PSWorkflowNotFoundException {
-        Object[] args = (Object[]) config;
+        var args = (Object[]) config;
         workflowName = (String) args[0];
         path = (String) args[1];
         includeFoldersWithDifferentWorkflow = (Boolean) args[2];
@@ -93,8 +79,7 @@ public class PSGetAssignedFoldersJob extends PSAsyncJob
     }
 
     @Autowired
-    public void setFolderService(IPSFolderService folderService)
-    {
+    public void setFolderService(IPSFolderService folderService) {
         this.folderService = folderService;
     }
 }

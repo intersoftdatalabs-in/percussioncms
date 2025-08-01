@@ -124,29 +124,19 @@ public class PSDeploymentServerConnectionInfo implements IPSDeployComponent
    }
 
    // see interface for javadoc
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args =
-         {XML_NODE_NAME, sourceNode.getNodeName()};
-         throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-
-      m_server = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_SERVER);
-      m_port = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(
-            sourceNode, XML_ATTR_PORT));
-      m_userid = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_USERID);
-      m_password = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-            XML_ATTR_PASSWORD);
-      m_isPwdEncrypted = Boolean.getBoolean(PSDeployComponentUtils
-            .getRequiredAttribute(sourceNode, XML_ATTR_IS_PWD_ENCRYPTED));
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, sourceNode.getNodeName()});
+      }
+      var tree = new PSXmlTreeWalker(sourceNode);
+      m_server = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_SERVER);
+      m_port = Integer.parseInt(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PORT));
+      m_userid = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_USERID);
+      m_password = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_PASSWORD);
+      m_isPwdEncrypted = Boolean.parseBoolean(PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_IS_PWD_ENCRYPTED));
    }
 
    // see interface for javadoc

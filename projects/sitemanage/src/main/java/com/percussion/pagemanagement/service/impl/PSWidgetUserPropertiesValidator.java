@@ -14,39 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
+
+import com.percussion.pagemanagement.data.PSWidgetDefinition;
+import com.percussion.pagemanagement.data.PSWidgetDefinition.UserPref;
+import com.percussion.pagemanagement.data.PSWidgetItem;
+import com.percussion.pagemanagement.service.IPSWidgetService;
 
 import java.util.Map;
 
-import com.percussion.pagemanagement.data.PSWidgetDefinition;
-import com.percussion.pagemanagement.data.PSWidgetItem;
-import com.percussion.pagemanagement.data.PSWidgetDefinition.UserPref;
-import com.percussion.pagemanagement.service.IPSWidgetService;
-
 /**
- * 
- * @author adamgent
+ * Validates user properties for widgets.
  *
+ * @author adamgent
  */
-public class PSWidgetUserPropertiesValidator extends PSWidgetPropertiesValidator<UserPref>
-{
+public class PSWidgetUserPropertiesValidator extends PSWidgetPropertiesValidator<UserPref> {
 
-    public PSWidgetUserPropertiesValidator(IPSWidgetService widgetService)
-    {
+    public PSWidgetUserPropertiesValidator(IPSWidgetService widgetService) {
         super(widgetService);
     }
 
     @Override
-    protected Map<String, Object> getProperties(PSWidgetItem widgetItem)
-    {
+    protected Map<String, Object> getProperties(PSWidgetItem widgetItem) {
         return widgetItem.getProperties();
     }
 
     @Override
-    protected Map<String, UserPref> getPropertyDefinitions(PSWidgetDefinition definition)
-    {
+    protected Map<String, UserPref> getPropertyDefinitions(PSWidgetDefinition definition) {
         return PSWidgetUtils.getUserPrefs(definition);
     }
-
 }
-

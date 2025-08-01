@@ -438,4 +438,45 @@ public interface IPSDeployConstants
     * imported package.
     */
    public static final String APPLY_TO_ALL_COMMS = "sys_pkgVisibleToAllCommunities";
+
+   public enum IDTypeElement {
+    REQUEST_PROPERTIES("RequestProperties"),
+    CE_FIELD("CEField"),
+    CE_UI_DEF("CEUIDefinition"),
+    CE_APP_FLOW("CEAppFlow"),
+    CE_CUSTOM_ACTIONS("CECustomActionGroup"),
+    CE_INPUT_TRANSLATIONS("CEInputTranslations"),
+    CE_OUTPUT_TRANSLATIONS("CEOutputTranslations"),
+    CE_SECTION_LINK_LIST("CESectionLinkList"),
+    CE_COMMAND_HANDLER_STYLESHEETS("CECommandHandlerStylesheets"),
+    CE_VALIDATION_RULES("CEValidationRules"),
+    INPUT_DATA_EXITS("InputDataExits"),
+    RESULT_DATA_EXITS("ResultDataExits"),
+    SELECTOR("Selector"),
+    RESULT_PAGES("ResultPages"),
+    DATA_MAPPER("DataMapper"),
+    INIT_PARAMS("InitParams"),
+    EXTENSIONS("Extensions"),
+    EFFECTS("Effects"),
+    USER_PROPERTIES("UserProps"),
+    PROCESS_CHECKS("ProcessChecks"),
+    URL_PARAMS("UrlParams"),
+    CLONE_FIELD_OVERRIDES("CloneFieldOverrides"),
+    ITEM_DATA("ItemData"),
+    SLOT_FINDER_PARAMS("SlotFinderParams"),
+    CONTENTLIST_EXPANDER_PARAMS("ExpanderParams"),
+    CONTENTLIST_GENERATOR_PARAMS("GeneratorParams"),
+    RULEDEF_PARAMS("RuleDefParams"),
+    TEMPLATE_BINDINGS("TemplateBindings");
+
+    private final String value;
+
+    IDTypeElement(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+}
 }

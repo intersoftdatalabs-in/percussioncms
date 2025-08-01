@@ -38,48 +38,23 @@ public class PSPairDependencyId
     * format of <code>parentId:childId</code> where <code>parentId</code> is
     * numeric.
     */
-   public PSPairDependencyId(String depId) throws PSDeployException
-   {
-      if (depId == null || depId.trim().length() == 0)
+   public PSPairDependencyId(String depId) throws PSDeployException {
+      if (depId == null || depId.isBlank()) {
          throw new IllegalArgumentException("depId may not be null or empty");
+      }
 
-      // get the parent and child ids
-      boolean isValid = true;
-      int sepPos = depId.indexOf(":");
-      if (sepPos == -1)
-         isValid = false;
-         
-      // test not empty child
-      if (isValid)
-      {
-         m_parentId = depId.substring(0, sepPos);
-         m_childId = depId.substring(sepPos + 1);
-         
-         if (m_parentId.trim().length() == 0 ||
-            m_childId.trim().length() == 0)
-         {
-            isValid = false;
-         }
+      var sepPos = depId.indexOf(":");
+      if (sepPos == -1 || sepPos == depId.length() - 1) {
+         throw new PSDeployException(IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[]{depId});
       }
-      
-      // test numeric parent
-      if (isValid)
-      {
-         try 
-         {
-            Integer.parseInt(m_parentId);
-         }
-         catch (NumberFormatException e) 
-         {
-            isValid = false;
-         }
-      }
-      
-      if (!isValid)
-      {
-          Object[] args = {depId};
-          throw new PSDeployException(
-             IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, args);
+
+      m_parentId = depId.substring(0, sepPos);
+      m_childId = depId.substring(sepPos + 1);
+
+      try {
+         Integer.parseInt(m_parentId);
+      } catch (NumberFormatException e) {
+         throw new PSDeployException(IPSDeploymentErrors.WRONG_FORMAT_FOR_PAIRID_DEP_ID, new Object[]{depId});
       }
    }
 

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,10 +20,8 @@ package com.percussion.widgetbuilder.utils.xform;
 import com.percussion.design.objectstore.PSControlMeta;
 
 /**
- * @author JaySeletz
- *
+ * Provides access to control metadata by name.
  */
-public interface IPSControlManager
-{
+public interface IPSControlManager {
     PSControlMeta getControl(String name);
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,14 +18,12 @@
 
 package com.percussion.pagemanagement.assembler;
 
-
 /**
  * Helper class to get a widget template for a given widget item id.
- * 
+ * (Stub for future implementation.)
+ *
  * @author bjoginipally
- * 
  */
-public class PSWidgetTemplateHelper
-{
- 
+public class PSWidgetTemplateHelper {
+    // No implementation yet.
 }

@@ -21,28 +21,27 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.ui.data.NodeType;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSNodeTypeConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSNodeTypeConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSHierarchyNode.NodeType source = PSHierarchyNode.NodeType.PLACEHOLDER;
-      
-      PSHierarchyNode.NodeType target = 
-         (PSHierarchyNode.NodeType) roundTripConversion(
-            PSHierarchyNode.NodeType.class, 
-            NodeType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
-}
+public class PSNodeTypeConverterTest extends PSConverterTestBase {
 
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // Create the source object
+        var source = PSHierarchyNode.NodeType.PLACEHOLDER;
+
+        var target = (PSHierarchyNode.NodeType) roundTripConversion(
+                PSHierarchyNode.NodeType.class,
+                NodeType.class,
+                source);
+
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
+}

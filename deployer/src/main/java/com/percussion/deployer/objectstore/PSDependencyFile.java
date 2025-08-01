@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
+import java.util.Optional;
 
 
 
@@ -203,78 +204,20 @@ public class PSDependencyFile implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
-         throw new IllegalArgumentException("sourceNode may not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
-      }
-
-      String sTemp = null;
-
-      // get type
-      m_type = UNDEFINED;
-      sTemp = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_FILE_TYPE);
-      for (int i = 0; i < TYPE_ENUM.length && m_type == UNDEFINED; i++)
-      {
-         if (TYPE_ENUM[i].equals(sTemp))
-            m_type = i;
-      }
-
-      if (m_type == UNDEFINED)
-      {
-         Object[] args = {sourceNode.getTagName(), XML_ATTR_FILE_TYPE,
-               sTemp};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_ATTR, args);
-      }
-
-
-      // get rx file
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      m_file = new File(PSDeployComponentUtils.getRequiredElement(tree,
-         XML_NODE_NAME, XML_EL_RX_FILE, true));
-
-      // get archive location, it cannot be null or empty
-      m_archiveLocation = null;
-      tree.setCurrent(sourceNode);
-      String archiveLocation = PSDeployComponentUtils.getRequiredElement(tree,
-         XML_NODE_NAME, XML_EL_ARCHIVE_FILE, false);
-      if (archiveLocation.trim().length() > 0)
-      {
-         m_archiveLocation = new File(archiveLocation);
-      }
-      else
-      {
-         Object[] args = {XML_NODE_NAME, XML_EL_ARCHIVE_FILE, "null"};
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-      }
-
-      // get original file if specified
-      m_originalFile = null;
-      tree.setCurrent(sourceNode);
-      Element fileEl = tree.getNextElement(XML_EL_ORIG_FILE, 
-         PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-      if (fileEl != null)
-      {
-         String origPath = tree.getElementData(fileEl);
-         if (origPath.trim().length() > 0)
-            m_originalFile = new File(PSDeployComponentUtils.getNormalizedPath(
-               origPath));
-         else
-         {
-            Object[] args = {XML_NODE_NAME, XML_EL_ORIG_FILE, "null"};
-            throw new PSUnknownNodeTypeException(
-               IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, args);
-         }
-      }
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+    if (sourceNode == null) {
+        throw new IllegalArgumentException("sourceNode may not be null");
+    }
+    if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+        throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, sourceNode.getNodeName()});
+    }
+    var tree = new PSXmlTreeWalker(sourceNode);
+    m_file = new File(PSDeployComponentUtils.getRequiredElement(tree, XML_NODE_NAME, XML_EL_RX_FILE, true));
+    m_archiveLocation = Optional.ofNullable(tree.getElementData(XML_EL_ARCHIVE_FILE))
+        .map(File::new)
+        .orElseThrow(() -> new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_INVALID_CHILD, new Object[]{XML_NODE_NAME, XML_EL_ARCHIVE_FILE, "null"}));
+    var origFileEl = tree.getNextElement(XML_EL_ORIG_FILE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+    m_originalFile = origFileEl != null ? new File(PSDeployComponentUtils.getNormalizedPath(tree.getElementData(origFileEl))) : null;
    }
 
    // see IPSDeployComponent

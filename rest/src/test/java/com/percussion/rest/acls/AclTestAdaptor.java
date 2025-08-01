@@ -66,12 +66,12 @@ public class AclTestAdaptor implements IAclAdaptor {
 
     @Override
     public void saveAcls(AclList aclList) throws PSSecurityException {
-
+        // No-op for test adaptor
     }
 
     @Override
     public void deleteAcl(Guid aclGuid) throws PSSecurityException {
-
+        // No-op for test adaptor
     }
 
     @Override

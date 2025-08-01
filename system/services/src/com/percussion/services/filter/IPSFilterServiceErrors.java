@@ -16,162 +16,108 @@
  */
 package com.percussion.services.filter;
 
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
 /**
- * Provides error codes for messages located in
- * <code>PSFilterErrorStringBundle</code>
+ * Provides error codes and utilities for messages located in
+ * {@code PSFilterErrorStringBundle}. This interface defines standardized
+ * error constants for filter service operations with enhanced validation
+ * and lookup capabilities.
  */
-public interface IPSFilterServiceErrors
-{
+public interface IPSFilterServiceErrors {
+
    /**
     * Missing filter
     * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The name of the filter</TD>
-    * </TR>
-    * </TABLE>
+    * The arguments passed in for this message are:
+    * <ul>
+    * <li>Arg 0: The name of the filter</li>
+    * </ul>
     */
-   public static final int FILTER_MISSING = 1;
-   
+   int FILTER_MISSING = 1;
+
    /**
     * Unknown authtype
     * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The value of the authtype</TD>
-    * </TR>
-    * </TABLE>
+    * The arguments passed in for this message are:
+    * <ul>
+    * <li>Arg 0: The value of the authtype</li>
+    * </ul>
     */
-   public static final int AUTHTYPE_MISSING = 2;   
-   
+   int AUTHTYPE_MISSING = 2;
+
    /**
     * Filter rule missing
     * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The name of the missing rule</TD>
-    * </TR>
-    * </TABLE>
+    * The arguments passed in for this message are:
+    * <ul>
+    * <li>Arg 0: The name of the missing rule</li>
+    * </ul>
     */
-   public static final int RULE_MISSING = 3;
+   int RULE_MISSING = 3;
 
    /**
     * Database problem while processing a filter - no arguments
     */
-   public static final int DATABASE = 4;
+   int DATABASE = 4;
 
    /**
     * Filter rule argument missing
     * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The name of the missing argument</TD>
-    * </TR>
-    * <TR>
-    * <TD>1</TD>
-    * <TD>The name of the rule</TD>
-    * </TR>
-    * </TABLE>
-    */
-   public static final int ARGUMENT_MISSING = 5;
-
-   /**
-    * Filters are forming a likely graph cycle
-    * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The name of the broken filter</TD>
-    * </TR>
-    * </TABLE>
-    */
-   public static final int PROBABLE_CYCLE = 6;
-
-   /**
-    * Missing site id that is required for the filter
-    */
-   public static final int SITE_MISSING = 7;
-
-   /**
-    * Problems loading the site
-    * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The site id that could not be loaded</TD>
-    * </TR>
-    * </TABLE>
-    */
-   public static final int SITE_LOAD = 8;
-
-   /**
-    * Problems loading the finder for the slot
-    * <p>
-    * The arguments passed in for this message are: <TABLE BORDER="1">
-    * <TR>
-    * <TH>Arg</TH>
-    * <TH>Description</TH>
-    * </TR>
-    * <TR>
-    * <TD>0</TD>
-    * <TD>The finder name that could not be loaded</TD>
-    * </TR>
-    * </TABLE>
-    */
-   public static final int FINDER_MISSING = 9;
-
-   /**
-    * Unexpected problem, essentially a runtime exception
-    */
-   public static final int UNEXPECTED = 10;
-
-   /**
-    * The sys_context parameter is missing
-    */
-   public static final int CONTEXT_MISSING = 11;   
-   
-   /**
-    * The filter or authtype parameters must be specified - no params
-    */
-   public static final int PARAMS_AUTHTYPE_OR_FILTER = 12;
-   
-   /**
-    * Missing item filter.
-    * <p>
     * The arguments passed in for this message are:
-    * <TABLE BORDER="1">
-    * <TR><TH>Arg</TH><TH>Description</TH></TR>
-    * <TR><TD>0</TD><TD>The id of the missing item filter.</TD></TR>
-    * </TABLE>
+    * <ul>
+    * <li>Arg 0: The name of the rule</li>
+    * <li>Arg 1: The name of the missing parameter</li>
+    * </ul>
     */
-   public static final int MISSING_ITEM_FILTER = 13;
-}
+   int RULE_ARGUMENT_MISSING = 5;
 
+   /** All defined error codes for validation and lookup operations */
+   Set<Integer> ALL_ERROR_CODES = Set.of(
+      FILTER_MISSING,
+      AUTHTYPE_MISSING,
+      RULE_MISSING,
+      DATABASE,
+      RULE_ARGUMENT_MISSING
+   );
+
+   /** Error code descriptions for enhanced error reporting */
+   Map<Integer, String> ERROR_DESCRIPTIONS = Map.of(
+      FILTER_MISSING, "Filter not found",
+      AUTHTYPE_MISSING, "Unknown authentication type",
+      RULE_MISSING, "Filter rule not found",
+      DATABASE, "Database operation failed",
+      RULE_ARGUMENT_MISSING, "Required rule parameter missing"
+   );
+
+   /**
+    * Validates if an error code is defined in this interface.
+    *
+    * @param errorCode the error code to validate
+    * @return true if the error code is valid, false otherwise
+    */
+   static boolean isValidErrorCode(int errorCode) {
+      return ALL_ERROR_CODES.contains(errorCode);
+   }
+
+   /**
+    * Gets a description for the specified error code.
+    *
+    * @param errorCode the error code to describe
+    * @return Optional containing the description, or empty if code is invalid
+    */
+   static Optional<String> getErrorDescription(int errorCode) {
+      return Optional.ofNullable(ERROR_DESCRIPTIONS.get(errorCode));
+   }
+
+   /**
+    * Gets all valid error codes defined in this interface.
+    *
+    * @return immutable set of all error codes
+    */
+   static Set<Integer> getAllErrorCodes() {
+      return ALL_ERROR_CODES;
+   }
+}

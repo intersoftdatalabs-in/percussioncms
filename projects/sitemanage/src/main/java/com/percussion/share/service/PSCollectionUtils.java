@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.service;
 
 import java.util.Collection;
@@ -21,28 +22,22 @@ import java.util.Collection;
 /**
  * Custom utility methods for {@link Collection} objects.
  */
-public class PSCollectionUtils
-{
+public class PSCollectionUtils {
+
     /**
      * Like {@link Collection#contains(Object)} but ignoring string case.
-     * 
-     * @param strings never <code>null</code>.
-     * @param string the role name in question, assumed not blank.
-     * 
-     * @return <code>true</code> if the string is in the collection
+     *
+     * @param strings never {@code null}
+     * @param string  the role name in question, assumed not blank
+     * @return {@code true} if the string is in the collection (case-insensitive)
      */
-    public static boolean containsIgnoringCase(Collection<String> strings, String string)
-    {
-        if (string == null)
+    public static boolean containsIgnoringCase(Collection<String> strings, String string) {
+        if (string == null) {
             return false;
-        for (String s : strings)
-        {
-            if (s != null && s.equalsIgnoreCase(string))
-            {
-                return true;
-            }
         }
-        return false;
+        // Java 11 Streams for elegance and performance
+        return strings.stream()
+                .filter(s -> s != null)
+                .anyMatch(s -> s.equalsIgnoreCase(string));
     }
-
 }

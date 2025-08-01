@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.itemmanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
 import com.percussion.itemmanagement.data.PSRevision;
@@ -28,59 +29,57 @@ import com.percussion.share.test.PSTestDataCleaner;
 
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClient> {
-    
+
     static PSItemServiceRestClient restClient;
     private static PSTestSiteData testSiteData;
-    
-    @BeforeClass
+
+    @BeforeAll
     public static void setUp() throws Exception
     {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
     }
-    
+
     @Override
     protected PSItemServiceRestClient getRestClient(String baseUrl)
     {
         restClient = new PSItemServiceRestClient(baseUrl);
         return restClient;
     }
-    
+
     @Test
     public void testGetRevisions() throws Exception
     {
         // create a page
-        String id = testSiteData.createPage("testPage", testSiteData.site1.getFolderPath(),
+        var id = testSiteData.createPage("testPage", testSiteData.site1.getFolderPath(),
                 testSiteData.template1.getId());
 
         // get revisions, should be one in "Draft"
-        PSRevisionsSummary revSummary = restClient.getRevisions(id);
-        List<PSRevision> revisions = revSummary.getRevisions();
+        var revSummary = restClient.getRevisions(id);
+        var revisions = revSummary.getRevisions();
         assertEquals(1, revisions.size());
         assertEquals("Draft", revisions.get(0).getStatus());
         // transition the page so that revisions are generated
-        PSItemWorkflowServiceRestClient wfClient = getWorkflowClient();
+        var wfClient = getWorkflowClient();
         wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
-        
+
         // get revisions, should be one in "Pending"
         revSummary = restClient.getRevisions(id);
         revisions = revSummary.getRevisions();
         assertEquals(1, revisions.size());
         assertEquals("Pending", revisions.get(0).getStatus());
-        
-        
+
         // transition to "Quick Edit"
         wfClient.checkOut(id);
-       
+
         // check in to create a new revision
         wfClient.checkIn(id);
-        
+
         // get revisions, should be two: "Pending," "Quick Edit"
         revSummary = restClient.getRevisions(id);
         revisions = revSummary.getRevisions();
@@ -88,22 +87,22 @@ public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClien
         assertEquals("Pending", revisions.get(0).getStatus());
         assertEquals("Quick Edit", revisions.get(1).getStatus());
     }
-    
+
     @Test
     public void testRestoreRevision() throws Exception
     {
         // create a page
-        String id = testSiteData.createPage("testPage1", testSiteData.site1.getFolderPath(),
+        var id = testSiteData.createPage("testPage1", testSiteData.site1.getFolderPath(),
                 testSiteData.template1.getId());
 
         // get revisions, should be one in "Draft"
-        PSRevisionsSummary revSummary = restClient.getRevisions(id);
-        List<PSRevision> revisions = revSummary.getRevisions();
+        var revSummary = restClient.getRevisions(id);
+        var revisions = revSummary.getRevisions();
         assertEquals(1, revisions.size());
         assertEquals("Draft", revisions.get(0).getStatus());
-        
+
         // transition the page so that revisions are generated
-        PSItemWorkflowServiceRestClient wfClient = getWorkflowClient();
+        var wfClient = getWorkflowClient();
         wfClient.transition(id, IPSItemWorkflowService.TRANSITION_TRIGGER_APPROVE);
         // create three more revisions
         wfClient.checkOut(id);
@@ -116,40 +115,40 @@ public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClien
         revSummary = restClient.getRevisions(id);
         revisions = revSummary.getRevisions();
         assertEquals(4, revisions.size());
-        assertEquals(true,revSummary.isRestorable());
-        
+        assertEquals(true, revSummary.isRestorable());
+
         //Reset the id to older revision and restore that revision
-        String newId = "1-" + id.split("-")[1] + "-" + id.split("-")[2];
+        var newId = "1-" + id.split("-")[1] + "-" + id.split("-")[2];
         restClient.restoreRevision(newId);
-        
+
         //Make sure we have 5 revisions now
         revSummary = restClient.getRevisions(id);
         revisions = revSummary.getRevisions();
         assertEquals(5, revisions.size());
     }
-    
-    @AfterClass
+
+    @AfterAll
     public static void tearDown() throws Exception
     {
         assetCleaner.clean();
         testSiteData.tearDown();
     }
-    
+
     private static PSAssetServiceRestClient getAssetClient() throws Exception
     {
-        PSAssetServiceRestClient client = new PSAssetServiceRestClient(baseUrl);
+        var client = new PSAssetServiceRestClient(baseUrl);
         setupClient(client);
         return client;
     }
-    
+
     private static PSItemWorkflowServiceRestClient getWorkflowClient() throws Exception
     {
-        PSItemWorkflowServiceRestClient client = new PSItemWorkflowServiceRestClient(baseUrl);
+        var client = new PSItemWorkflowServiceRestClient(baseUrl);
         setupClient(client);
         return client;
     }
-    
-    static PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<String>()
+
+    static PSTestDataCleaner<String> assetCleaner = new PSTestDataCleaner<>()
     {
         @Override
         protected void clean(String id) throws Exception

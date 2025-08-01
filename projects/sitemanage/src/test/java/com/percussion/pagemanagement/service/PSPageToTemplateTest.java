@@ -97,14 +97,12 @@ public class PSPageToTemplateTest extends PSServletTestCase
     @Override
     public void setUp() throws Exception
     {
-        
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
-     
+
         fixture.setUp();
-        
+
         fixture.pageCleaner.add(fixture.site1.getFolderPath() + "/Page1");
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
     }
 
@@ -246,32 +244,30 @@ public class PSPageToTemplateTest extends PSServletTestCase
 
     public void testTemplateToPage() throws Exception
     {
+        var name = "Sinister-Plans";
+        var title = "The Plans of Fu Manchu";
+        var folderPath = fixture.site1.getFolderPath();
+        var linkTitle = "The link of Fu Manchu";
 
+        var siteSummary = siteDao.findSummary(fixture.site1.getId());
+        assertNotNull(siteSummary);
+        var templateId = pageCatalogService.getCatalogTemplateId(siteSummary);
+        var pageId = createPage(name, title, templateId, folderPath, linkTitle,
+                fixture.site1.getBaseUrl() + "/Plans_Of_Fu_Manchu.html", "true", "This is the plan of Fu Manchu");
 
-            String name = "Sinister-Plans";
-            String title = "The Plans of Fu Manchu";
-            String folderPath = fixture.site1.getFolderPath();
-            String linkTitle = "The link of Fu Manchu";
-            
-            PSSiteSummary siteSummary = siteDao.findSummary(fixture.site1.getId());
-            assertNotNull(siteSummary);
-            String templateId = pageCatalogService.getCatalogTemplateId(siteSummary);
-            String pageId = createPage(name, title, templateId, folderPath, linkTitle,
-                    fixture.site1.getBaseUrl() + "/Plans_Of_Fu_Manchu.html", "true", "This is the plan of Fu Manchu");
-            
-            PSPage page = pageDao.find(pageId);  
-            
-            PSPageToTemplatePair pair = new PSPageToTemplatePair();
-            pair.setPageId(page.getId());
-            pair.setSiteId(fixture.site1.getId());
-            
-            PSTemplateSummary summary = siteTemplateService.createTemplateFromPage(pair);
-            PSTemplate template = templateService.load(summary.getId());
-            
-            assertTrue(template.getAdditionalHeadContent().equals(page.getAdditionalHeadContent()));
-            assertTrue(template.getAfterBodyStartContent().equals(page.getAfterBodyStartContent()));
-            assertTrue(template.getBeforeBodyCloseContent().equals(page.getBeforeBodyCloseContent()));
-            assertTrue(template.getDescription().equals(page.getDescription()));
+        var page = pageDao.find(pageId);
+
+        var pair = new PSPageToTemplatePair();
+        pair.setPageId(page.getId());
+        pair.setSiteId(fixture.site1.getId());
+
+        var summary = siteTemplateService.createTemplateFromPage(pair);
+        var template = templateService.load(summary.getId());
+
+        assertEquals(template.getAdditionalHeadContent(), page.getAdditionalHeadContent());
+        assertEquals(template.getAfterBodyStartContent(), page.getAfterBodyStartContent());
+        assertEquals(template.getBeforeBodyCloseContent(), page.getBeforeBodyCloseContent());
+        assertEquals(template.getDescription(), page.getDescription());
     }
 
     /**

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -36,7 +37,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 /**
  * Entity for PSRecentService service.
- * 
+ * Represents a recent item for a user, site, and type.
  * @author Stephen Bolton
  */
 @Entity
@@ -44,21 +45,31 @@ import org.hibernate.annotations.GenericGenerator;
 @Table(name = "PSX_RECENT")
 @XmlRootElement(name = "recent")
 @JsonRootName("recent")
-public class PSRecent extends PSAbstractDataObject
-{
+public class PSRecent extends PSAbstractDataObject {
+
     private static final long serialVersionUID = 1L;
 
-    public static enum RecentType {
-        ITEM(20), TEMPLATE(6), SITE_FOLDER(10), ASSET_FOLDER(10), ASSET_TYPE(6);
+    /**
+     * Enum for recent item types and their max size.
+     */
+    public enum RecentType {
+        ITEM(20),
+        TEMPLATE(6),
+        SITE_FOLDER(10),
+        ASSET_FOLDER(10),
+        ASSET_TYPE(6);
+
         private final int maxSize;
 
-        RecentType(int maxSize)
-        {
+        RecentType(int maxSize) {
             this.maxSize = maxSize;
         }
 
-        public int MaxSize()
-        {
+        /**
+         * Gets the maximum size for this type.
+         * @return the max size
+         */
+        public int maxSize() {
             return this.maxSize;
         }
     }
@@ -73,7 +84,7 @@ public class PSRecent extends PSAbstractDataObject
     private String user;
 
     /**
-     * siteName can be null for recent entries that 
+     * siteName can be null for recent entries that
      * do not need to be filtered by site.
      */
     @Basic
@@ -89,21 +100,20 @@ public class PSRecent extends PSAbstractDataObject
 
     /**
      * Representation of value based upon the type and
-     * controlled by the service
+     * controlled by the service.
      */
     @Column(name = "VALUE")
     private String value;
 
     /**
-     *
-     * @param user
-     * @param siteName
-     * @param type
-     * @param order
-     * @param value
+     * Constructs a recent item.
+     * @param user the user name
+     * @param siteName the site name
+     * @param type the recent type
+     * @param order the sort order
+     * @param value the value
      */
-    public PSRecent(String user, String siteName, RecentType type, int order, String value)
-    {
+    public PSRecent(String user, String siteName, RecentType type, int order, String value) {
         this.user = user;
         this.siteName = siteName;
         this.type = type;
@@ -112,61 +122,49 @@ public class PSRecent extends PSAbstractDataObject
     }
 
     /**
-    * 
-    */
-    public PSRecent()
-    {
-
+     * Default constructor.
+     */
+    public PSRecent() {
+        // Default constructor
     }
 
-    public String getUser()
-    {
+    public String getUser() {
         return user;
     }
 
-    public void setUser(String user)
-    {
+    public void setUser(String user) {
         this.user = user;
     }
 
-    public String getSiteName()
-    {
+    public String getSiteName() {
         return siteName;
     }
 
-    public void setSiteName(String siteName)
-    {
+    public void setSiteName(String siteName) {
         this.siteName = siteName;
     }
 
-    public RecentType getType()
-    {
+    public RecentType getType() {
         return type;
     }
 
-    public void setType(RecentType type)
-    {
+    public void setType(RecentType type) {
         this.type = type;
     }
 
-    public int getOrder()
-    {
+    public int getOrder() {
         return order;
     }
 
-    public void setOrder(int order)
-    {
+    public void setOrder(int order) {
         this.order = order;
     }
 
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
-
 }

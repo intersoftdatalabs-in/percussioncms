@@ -177,15 +177,14 @@ public class PSSiteTemplateService implements IPSSiteTemplateService
     public List<PSTemplateSummary> findTemplatesWithNoSite()
     {
         try {
-            List<PSTemplateSummary> sums = templateService.findAllUserTemplates();
-            List<PSTemplateSummary> rvalue = new ArrayList<>();
-            for (PSTemplateSummary sum : sums) {
-                List<IPSFolderPath> paths = findFolderPaths(sum.getId());
+            var sums = templateService.findAllUserTemplates();
+            var rvalue = new ArrayList<PSTemplateSummary>();
+            for (var sum : sums) {
+                var paths = findFolderPaths(sum.getId());
                 if (paths == null || paths.isEmpty()) {
                     rvalue.add(sum);
                 }
             }
-
             return new PSTemplateSummaryList(rvalue);
         } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -198,7 +197,7 @@ public class PSSiteTemplateService implements IPSSiteTemplateService
 
     private List<IPSFolderPath> findFolderPaths(String templateId) throws PSDataServiceException {
         rejectIfBlank("findSitesByTemplate", "templateId", templateId);
-        PSTemplateSummary sum =  templateService.find(templateId);
+        var sum = templateService.find(templateId);
         return siteSectionMetaDataService.findSections(TEMPLATES, sum.getId());
     }
     
@@ -208,20 +207,17 @@ public class PSSiteTemplateService implements IPSSiteTemplateService
     public List<PSSiteSummary> findSitesByTemplate(@PathParam("id") String templateId)
     {
         try {
-            List<IPSFolderPath> folderPaths = findFolderPaths(templateId);
-
-            List<String> paths = new ArrayList<>();
-            for (IPSFolderPath fp : folderPaths) {
+            var folderPaths = findFolderPaths(templateId);
+            var paths = new ArrayList<String>();
+            for (var fp : folderPaths) {
                 paths.add(fp.getFolderPath());
             }
-
-            List<PSSiteSummary> rvalue = new ArrayList<>();
-            List<PSSiteSummary> sites = siteDao.findAllSummaries();
-            for (PSSiteSummary site : sites) {
+            var rvalue = new ArrayList<PSSiteSummary>();
+            var sites = siteDao.findAllSummaries();
+            for (var site : sites) {
                 if (paths.contains(site.getFolderPath()))
                     rvalue.add(site);
             }
-
             return new PSSiteSummaryList(rvalue);
         } catch (PSDataServiceException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
@@ -299,53 +295,42 @@ public class PSSiteTemplateService implements IPSSiteTemplateService
      * @return list of template summaries.  Never <code>null</code>, may be empty.
      */
     private List<PSTemplateSummary> findTemplates(String siteId, String widgetId, PSTemplateTypeEnum type) throws IPSTemplateService.PSTemplateException, IPSDataService.DataServiceNotFoundException {
-        PSSiteSummary site=null;
-        try
-        {
+        PSSiteSummary site = null;
+        try {
             site = siteDao.find(siteId);
+        } catch (Exception e) {
+            log.error("Failed to load site: {} Error: {}", siteId, PSExceptionUtils.getMessageForLog(e));
         }
-        catch (Exception e)
-        {
-            log.error("Failed to load site: {} Error: {}" , siteId, PSExceptionUtils.getMessageForLog(e));
-        }
-        if (site==null)
-        {
-            log.debug("Failed to load site: {}" , siteId);
+        if (site == null) {
+            log.debug("Failed to load site: {}", siteId);
             return new ArrayList<>();
         }
-
-        FolderPath folderPath = new FolderPath();
+        var folderPath = new FolderPath();
         folderPath.setFolderPath(site.getFolderPath());
-        List<IPSItemSummary> items =  siteSectionMetaDataService.findItems(folderPath, TEMPLATES);
-        List<PSTemplateSummary> templates = itemsToTemplates(items, site.getName(), type);
-        
-        if (widgetId != null)
-        {
+        var items = siteSectionMetaDataService.findItems(folderPath, TEMPLATES);
+        var templates = itemsToTemplates(items, site.getName(), type);
+        if (widgetId != null) {
             templates.removeIf(tempSum -> !((PSTemplate) tempSum).hasWidget(widgetId));
         }
-
-        return  new PSTemplateSummaryList(templates);
+        return new PSTemplateSummaryList(templates);
     }
     
     private List<PSTemplateSummary> itemsToTemplates(List<IPSItemSummary> items, String siteName, PSTemplateTypeEnum type) throws IPSTemplateService.PSTemplateException {
-        List<String> templateIds = new ArrayList<>();
-        for (IPSItemSummary i : items) { templateIds.add(i.getId()); }
-        List<PSTemplateSummary> templateSummaries = templateService.loadUserTemplateSummaries(templateIds, siteName);
-        List<PSTemplateSummary> results = new ArrayList<>();
-        
-        for (PSTemplateSummary template : templateSummaries)
-        {
-            if (type == null || type.equals(PSTemplateTypeEnum.NORMAL))
-            {
+        var templateIds = new ArrayList<String>();
+        for (var i : items) {
+            templateIds.add(i.getId());
+        }
+        var templateSummaries = templateService.loadUserTemplateSummaries(templateIds, siteName);
+        var results = new ArrayList<PSTemplateSummary>();
+        for (var template : templateSummaries) {
+            if (type == null || type.equals(PSTemplateTypeEnum.NORMAL)) {
                 if (template.getType() == null || PSTemplateTypeEnum.NORMAL.equals(PSTemplateTypeEnum.getEnum(template.getType())))
                     results.add(template);
-            }
-            else if (type.equals(PSTemplateTypeEnum.getEnum(template.getType())))
-            {
+            } else if (type.equals(PSTemplateTypeEnum.getEnum(template.getType()))) {
                 results.add(template);
-            }            
+            }
         }
-        return  new PSTemplateSummaryList(results);
+        return new PSTemplateSummaryList(results);
     }
 
     @POST
@@ -819,22 +804,18 @@ public class PSSiteTemplateService implements IPSSiteTemplateService
      */
     public String generateNewTemplateName(String templateName, String siteId)
     {
- 
-        List<PSTemplateSummary> siteTemplates = this.findTemplatesBySite(siteId);
-        List<String> existingTemplateNames = new ArrayList<>();
-        for (PSTemplateSummary templateSummary : siteTemplates)
-        {
+        var siteTemplates = this.findTemplatesBySite(siteId);
+        var existingTemplateNames = new ArrayList<String>();
+        for (var templateSummary : siteTemplates) {
             existingTemplateNames.add(templateSummary.getName());
         }
-
         int count = 1;
         String generatedTemplateName;
-        for(String tname : existingTemplateNames){
-            if(tname.contains(templateName)){
+        for (var tname : existingTemplateNames) {
+            if (tname.contains(templateName)) {
                 count++;
             }
         }
-
         generatedTemplateName = PSPageManagementUtils.getNameForCount(templateName, count);
         return generatedTemplateName;
     }

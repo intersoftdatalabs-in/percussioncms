@@ -22,36 +22,31 @@ import com.percussion.rest.MainTest;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
-public class AssetsTest extends MainTest
-{
+@Tag("IntegrationTest")
+public class AssetsTest extends MainTest {
 
     private static final Logger log = LogManager.getLogger(AssetsTest.class);
-    
+
     @Test
-    public void testRenameAsset(){
-    	
-        Entity<String> assetEntity = Entity.entity("{}", MediaType.APPLICATION_JSON_TYPE);
+    public void testRenameAsset() {
+        var assetEntity = Entity.entity("{}", MediaType.APPLICATION_JSON_TYPE);
 
         try {
-            Asset response = target("assets/rename/Assets/path1/pathsub/pathsub2/page1.png/newname.png")
+            var response = target("assets/rename/Assets/path1/pathsub/pathsub2/page1.png/newname.png")
                     .request().post(assetEntity, Asset.class);
-            assertTrue("New Name Should Match", response.getName().equals("newname.png"));
-        } catch (Exception e)
-        {
+            assertTrue(response.getName().equals("newname.png"), "New Name Should Match");
+        } catch (Exception e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             throw e;
         }
-
     }
-
 }

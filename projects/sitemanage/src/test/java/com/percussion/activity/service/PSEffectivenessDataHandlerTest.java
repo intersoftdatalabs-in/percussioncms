@@ -16,7 +16,7 @@
  */
 package com.percussion.activity.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.activity.data.PSContentActivity;
 import com.percussion.activity.data.PSEffectiveness;
@@ -27,33 +27,31 @@ import com.percussion.activity.service.impl.PSEffectivenessDataHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
- * @author peterfrontiero
+ * Tests for {@link PSEffectivenessDataHandler}.
  */
-public class PSEffectivenessDataHandlerTest
-{
+class PSEffectivenessDataHandlerTest {
+
     @Test
-    public void testGetEffectiveness() throws Exception
-    {
-        PSEffectivenessDataHandler handler = new PSEffectivenessDataHandler();
+    void testGetEffectiveness() throws Exception {
+        var handler = new PSEffectivenessDataHandler();
         handler.setFile("src/test/resources/activity/Effectiveness.xml");
-        
-        PSEffectivenessRequest request = new PSEffectivenessRequest();
+
+        var request = new PSEffectivenessRequest();
         request.setDurationType("days");
         request.setDuration("5");
         request.setPath("/Sites/");
         request.setUsage(PSUsageEnum.pageviews);
         request.setThreshold(10);
-        
-        List<PSContentActivity> emptyList = new ArrayList<PSContentActivity>();
-        List<PSEffectiveness> eList = handler.getEffectiveness(request, emptyList);
+
+        var emptyList = new ArrayList<PSContentActivity>();
+        var eList = handler.getEffectiveness(request, emptyList);
         assertEquals(2, eList.size());
-        
+
         request.setPath("/Sites/MySite.com");
         eList = handler.getEffectiveness(request, emptyList);
         assertEquals(4, eList.size());
     }
-
 }

@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class encapsulates a list of database information mapping objects,
@@ -87,8 +88,7 @@ public class PSDbmsMap  implements IPSDeployComponent
     * @return an Iterator over zero or more <code>PSDbmsMapping</code> objects,
     * never <code>null</code>, but might be empty.
     */
-   public Iterator getMappings()
-   {
+   public Iterator<PSDbmsMapping> getMappings() {
       return m_mappingList.iterator();
    }
 
@@ -141,22 +141,15 @@ public class PSDbmsMap  implements IPSDeployComponent
     * @throws IllegalArgumentException If <code>sourceInfo</code> is
     * <code>null</code>.
     */
-   public PSDbmsMapping getMapping(String sourceInfo)
-   {
-      if (sourceInfo == null)
-         throw new IllegalArgumentException("sourceInfo may not be null");
-
-      PSDbmsMapping result = null;
-      Iterator list = m_mappingList.iterator();
-
-      while (list.hasNext() && result == null)
-      {
-         PSDbmsMapping currMap = (PSDbmsMapping) list.next();
-         if ( sourceInfo.equals(currMap.getSourceInfo()) )
-            result = currMap;
+   public PSDbmsMapping getMapping(String sourceInfo) {
+      if (sourceInfo == null || sourceInfo.trim().isEmpty()) {
+         throw new IllegalArgumentException("sourceInfo may not be null or empty");
       }
 
-      return result;
+      return m_mappingList.stream()
+          .filter(mapping -> sourceInfo.equals(mapping.getSourceInfo()))
+          .findFirst()
+          .orElse(null);
    }
 
    /**
@@ -172,21 +165,18 @@ public class PSDbmsMap  implements IPSDeployComponent
     * See {@link PSDbmsMapping#toXml(Document)} for the XML format of
     * PSXDbmsMapping element.
     */
-   public Element toXml(Document doc)
-   {
-      if (doc == null)
+   public Element toXml(Document doc) {
+      if (doc == null) {
          throw new IllegalArgumentException("doc may not be null");
+      }
 
-      Element root = doc.createElement(XML_NODE_NAME);
+      var root = doc.createElement(XML_NODE_NAME);
       root.setAttribute(XML_ATTR_SRC_SERVER, m_srcServer);
 
-      Iterator maplist = m_mappingList.iterator();
-      while (maplist.hasNext())
-      {
-         PSDbmsMapping mapping = (PSDbmsMapping) maplist.next();
-         Element mappingXml = mapping.toXml(doc);
-         root.appendChild(mappingXml);
-      }
+      m_mappingList.stream()
+          .map(mapping -> mapping.toXml(doc))
+          .forEach(root::appendChild);
+
       return root;
    }
 
@@ -196,40 +186,27 @@ public class PSDbmsMap  implements IPSDeployComponent
     * {@link IPSDeployComponent#fromXml(Element)} for more info on method
     * signature.
     */
-   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException
-   {
-      if (sourceNode == null)
+   public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException {
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode should not be null");
-
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
 
-      int firstFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
-      int nextFlags = PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS |
-         PSXmlTreeWalker.GET_NEXT_RESET_CURRENT;
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(
+            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE,
+            new Object[]{XML_NODE_NAME, sourceNode.getNodeName()}
+         );
+      }
 
-      m_srcServer = PSDeployComponentUtils.getRequiredAttribute(sourceNode,
-         XML_ATTR_SRC_SERVER);
+      m_srcServer = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_SRC_SERVER);
 
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-
+      var tree = new PSXmlTreeWalker(sourceNode);
       m_mappingList.clear();
 
-      Element mappingEl = tree.getNextElement(PSDbmsMapping.XML_NODE_NAME,
-         firstFlags);
-
-      while (mappingEl != null)
-      {
-         PSDbmsMapping mapping = new PSDbmsMapping(mappingEl);
-         m_mappingList.add(mapping);
-
-         mappingEl = tree.getNextElement(PSDbmsMapping.XML_NODE_NAME,
-            nextFlags);
+      var mappingEl = tree.getNextElement(PSDbmsMapping.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
+      while (mappingEl != null) {
+         m_mappingList.add(new PSDbmsMapping(mappingEl));
+         mappingEl = tree.getNextElement(PSDbmsMapping.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
       }
    }
 
@@ -303,6 +280,6 @@ public class PSDbmsMap  implements IPSDeployComponent
     * by <code>fromXml(), addMapping() and copyFrom()</code> can never to
     * <code>null</code>.
     */
-   private List m_mappingList =  new ArrayList();;
+   private List<PSDbmsMapping> m_mappingList = new ArrayList<>();;
 
 }

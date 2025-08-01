@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,51 +18,44 @@
 
 package com.percussion.assetmanagement.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/***
+/**
  * Basic tests for the CSV Row base class.
- * 
  * @author natechadwick
- *
  */
-public class PSAbstractBaseCSVReportRowTest {
+class PSAbstractBaseCSVReportRowTest {
 
-	private PSTestCSVReportRow row=null;
-	
-	@Before
-	public void Setup(){
-		row = new PSTestCSVReportRow();
-		row.col1="A1";
-		row.col2="A2";
-		row.col3multiline = "A3a\r\nA3b\r\nA3c";
-		row.col4empty="";
-	}
-	
-	@Test
-	public void testToCSVRow(){
-		String test = row.toCSVRow();
-		assertEquals("Values should match",test,"\"A1\",\"A2\",\"A3a\r\nA3b\r\nA3c\",\"\"\r\n");
-	}
-	
-	@Test
-	public void testDelimitValue(){
-		String test = row.delimitValue("myval");
-		
-		assertEquals("Values should match","\"myval\"", test);
-		
-	}
-	
-	@Test
-	public void testCSVEscapeString(){
-		String test = row.csvEscapeString("The world is a \"vampire\"");
-		
-		assertTrue("String shouldn't have any quotes", !test.contains("\""));
-		
-	}
+    private PSTestCSVReportRow row = null;
 
+    @BeforeEach
+    void setUp() {
+        row = new PSTestCSVReportRow();
+        row.col1 = "A1";
+        row.col2 = "A2";
+        row.col3multiline = "A3a\r\nA3b\r\nA3c";
+        row.col4empty = "";
+    }
+
+    @Test
+    void testToCSVRow() {
+        var test = row.toCSVRow();
+        assertEquals("\"A1\",\"A2\",\"A3a\r\nA3b\r\nA3c\",\"\"\r\n", test, "Values should match");
+    }
+
+    @Test
+    void testDelimitValue() {
+        var test = row.delimitValue("myval");
+        assertEquals("\"myval\"", test, "Values should match");
+    }
+
+    @Test
+    void testCSVEscapeString() {
+        var test = row.csvEscapeString("The world is a \"vampire\"");
+        assertTrue(!test.contains("\""), "String shouldn't have any quotes");
+    }
 }

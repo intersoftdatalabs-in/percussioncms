@@ -21,7 +21,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.error.PSDeployException;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -69,8 +68,8 @@ public class PSViewDependencyHandler  extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -97,11 +96,6 @@ public class PSViewDependencyHandler  extends PSElementDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List ms_childTypes = new ArrayList();
-
-   static
-   {
-      ms_childTypes.add(PSViewDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSViewDefDependencyHandler.DEPENDENCY_TYPE);
 
 }

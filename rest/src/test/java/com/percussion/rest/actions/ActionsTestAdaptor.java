@@ -25,9 +25,10 @@ import java.util.List;
 
 @Component
 @Lazy
-public class ActionsTestAdaptor implements IActionMenuAdaptor{
+public class ActionsTestAdaptor implements IActionMenuAdaptor {
     @Override
-    public List<ActionMenu> findMenus(String name, String label, Boolean item, Boolean dynamic, Boolean cascading) throws PSErrorResultsException {
+    public List<ActionMenu> findMenus(String name, String label, Boolean item, Boolean dynamic, Boolean cascading)
+            throws PSErrorResultsException {
         return null;
     }
 

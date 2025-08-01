@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,33 +23,30 @@ import com.percussion.rest.Permissions;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a user's access level for a given ACL.
+ */
 @XmlRootElement
 @Schema(description = "User Access Level")
 public class UserAccessLevel {
 
-    @Schema(description="Unique id of this access level")
+    @Schema(description = "Unique id of this access level")
     private long id;
 
-    @Schema(description="The permissions defined for this acl")
+    @Schema(description = "The permissions defined for this ACL")
     private Permissions permission;
 
     private PermissionList permissions;
 
-    public PermissionList getPermissions() {
-        return permissions;
-    }
+    public UserAccessLevel() {}
 
-    public void setPermissions(PermissionList permissions) {
-        this.permissions = permissions;
-    }
-
-    public Permissions getPermission() {
-        return permission;
-    }
-
-    public void setPermission(Permissions permission) {
+    public UserAccessLevel(long id, Permissions permission, PermissionList permissions) {
+        this.id = id;
         this.permission = permission;
+        this.permissions = permissions;
     }
 
     public long getId() {
@@ -59,5 +57,43 @@ public class UserAccessLevel {
         this.id = id;
     }
 
-    public UserAccessLevel(){}
+    public Optional<Permissions> getPermission() {
+        return Optional.ofNullable(permission);
+    }
+
+    public void setPermission(Permissions permission) {
+        this.permission = permission;
+    }
+
+    public Optional<PermissionList> getPermissions() {
+        return Optional.ofNullable(permissions);
+    }
+
+    public void setPermissions(PermissionList permissions) {
+        this.permissions = permissions;
+    }
+
+    @Override
+    public String toString() {
+        return "UserAccessLevel{" +
+                "id=" + id +
+                ", permission=" + permission +
+                ", permissions=" + permissions +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserAccessLevel)) return false;
+        var that = (UserAccessLevel) o;
+        return id == that.id &&
+                Objects.equals(permission, that.permission) &&
+                Objects.equals(permissions, that.permissions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, permission, permissions);
+    }
 }

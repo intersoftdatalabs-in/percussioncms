@@ -55,29 +55,27 @@ import static org.apache.commons.lang.Validate.notNull;
 
 /**
  * An adapter for legacy location scheme generators.
- * The location scheme parameters are wrapped in more friendly
+ * The location scheme parameters are wrapped in a more friendly
  * object: {@link PSAssemblyLocationRequest}.
- * 
- * @author adamgent
  *
+ * @author adamgent
  */
-public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLocation
-{
+public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLocation {
 
     private IPSGuidManager guidManager;
     private IPSAssemblyService assemblyService;
     private PSItemDefManager itemDefManager;
-    
+
     private List<String> parameterNames = new ArrayList<>();
-    
+
     @Override
     public String createLocation(Object[] parameters, IPSRequestContext request) throws PSExtensionException {
-        PSAssemblyLocationRequest lr = new PSAssemblyLocationRequest();
-        Map<String, String> paramMap = new HashMap<>();
+        var lr = new PSAssemblyLocationRequest();
+        var paramMap = new HashMap<String, String>();
         addParameters(paramMap, getParameterNames(), parameters);
         addParameters(paramMap, request);
         lr.setParameters(paramMap);
-        
+
         lr.setItemId(getItemGuid(lr));
         lr.setTemplateId(getTemplateGuid(lr));
         lr.setSiteId(getSiteGuid(lr));
@@ -87,110 +85,106 @@ public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLo
         lr.setContext(getContext(lr));
         lr.setAssemblyContext(getAssemblyContext(lr));
         lr.setDeliveryContext(getDeliveryContext(lr));
-        
 
         log.debug("Validating location request: {}", lr);
         try {
             PSBeanValidationUtils.validate(lr).throwIfInvalid();
-
-        return createLocation(lr);
+            return createLocation(lr);
         } catch (PSDataServiceException | PSException e) {
-            throw new PSExtensionException(e.getMessage(),e);
+            throw new PSExtensionException(e.getMessage(), e);
         }
     }
-    
+
     /**
-     * Creates a url from a location request.
-     * @param locationRequest never <code>null</code>.
-     * @return never <code>null</code>.
+     * Creates a URL from a location request.
+     * @param locationRequest never {@code null}.
+     * @return never {@code null}.
      */
     protected abstract String createLocation(PSAssemblyLocationRequest locationRequest) throws PSDataServiceException, PSException;
-    
+
     /**
      * Gets the assembly template.
-     * @param locationRequest never <code>null</code>.
-     * @return never <code>null</code>.
+     * @param locationRequest never {@code null}.
+     * @return never {@code null}.
      */
     protected IPSAssemblyTemplate getTemplate(PSAssemblyLocationRequest locationRequest) {
-        IPSGuid templateId = locationRequest.getTemplateId();
-        notNull(templateId);
+        var templateId = Objects.requireNonNull(locationRequest.getTemplateId());
         return assemblyService.findTemplate(templateId);
     }
-    
+
     protected Number getAssemblyContext(PSAssemblyLocationRequest locationRequest) {
-        String ac = locationRequest.getParameter(IPSHtmlParameters.SYS_ASSEMBLY_CONTEXT);
+        var ac = locationRequest.getParameter(IPSHtmlParameters.SYS_ASSEMBLY_CONTEXT);
         if (isNotBlank(ac)) {
             return Integer.parseInt(ac);
         }
         return null;
     }
-    
+
     protected Number getDeliveryContext(PSAssemblyLocationRequest locationRequest) {
-        String ac = locationRequest.getParameter(IPSHtmlParameters.SYS_DELIVERY_CONTEXT);
+        var ac = locationRequest.getParameter(IPSHtmlParameters.SYS_DELIVERY_CONTEXT);
         if (isNotBlank(ac)) {
             return Integer.parseInt(ac);
         }
         return null;
     }
+
     /**
      * Gets the content type.
-     * @param locationRequest never <code>null</code>.
-     * @return never <code>null</code>.
+     * @param locationRequest never {@code null}.
+     * @return never {@code null}.
      */
     protected String getContentTypeName(PSAssemblyLocationRequest locationRequest) throws PSException {
-        PSLocator locator = guidManager.makeLocator(locationRequest.getItemId());
-        long contentTypeId = itemDefManager.getItemContentType(locator);
-        try
-        {
+        var locator = guidManager.makeLocator(locationRequest.getItemId());
+        var contentTypeId = itemDefManager.getItemContentType(locator);
+        try {
             return itemDefManager.contentTypeIdToName(contentTypeId);
-        }
-        catch (PSInvalidContentTypeException e)
-        {
+        } catch (PSInvalidContentTypeException e) {
             throw new PSException("Cannot get content type for location request", e);
         }
     }
-    
+
     protected String getAuthtype(PSAssemblyLocationRequest request) {
         return request.getParameter(IPSHtmlParameters.SYS_AUTHTYPE);
     }
-    
+
     protected String getItemFilter(PSAssemblyLocationRequest request) {
         return request.getParameter(IPSHtmlParameters.SYS_ITEMFILTER);
     }
-    
+
     protected Integer getPageNumber(PSAssemblyLocationRequest request) {
-        String pagestr = request.getParameter("sys_page");
+        var pagestr = request.getParameter("sys_page");
         if (isNotBlank(pagestr)) {
             return Integer.parseInt(pagestr);
         }
         return null;
     }
+
     protected Integer getContext(PSAssemblyLocationRequest request) {
-        String contextstr = request.getParameter(IPSHtmlParameters.SYS_CONTEXT);
+        var contextstr = request.getParameter(IPSHtmlParameters.SYS_CONTEXT);
         return Integer.parseInt(contextstr);
     }
-    
+
     protected IPSGuid getFolderGuid(PSAssemblyLocationRequest request) {
-        String fidstr = request.getParameter(IPSHtmlParameters.SYS_FOLDERID);
-        if(isNotBlank(fidstr)) {
+        var fidstr = request.getParameter(IPSHtmlParameters.SYS_FOLDERID);
+        if (isNotBlank(fidstr)) {
             return getGuidManager().makeGuid(new PSLocator(fidstr, "0"));
         }
         return null;
-        
     }
+
     protected IPSGuid getItemGuid(PSAssemblyLocationRequest request) {
-        String cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-        String revstr = request.getParameter(IPSHtmlParameters.SYS_REVISION);
-        return getGuidManager().makeGuid(new PSLocator(cidstr,revstr));
+        var cidstr = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+        var revstr = request.getParameter(IPSHtmlParameters.SYS_REVISION);
+        return getGuidManager().makeGuid(new PSLocator(cidstr, revstr));
     }
-    
+
     protected IPSGuid getTemplateGuid(PSAssemblyLocationRequest request) {
-        String variantid = request.getParameter(IPSHtmlParameters.SYS_VARIANTID);
+        var variantid = request.getParameter(IPSHtmlParameters.SYS_VARIANTID);
         return getGuidManager().makeGuid(variantid, PSTypeEnum.TEMPLATE);
     }
-    
+
     protected IPSGuid getSiteGuid(PSAssemblyLocationRequest request) {
-        String sitestr = request.getParameter(IPSHtmlParameters.SYS_SITEID);
+        var sitestr = request.getParameter(IPSHtmlParameters.SYS_SITEID);
         if (isNotBlank(sitestr)) {
             return getGuidManager().makeGuid(sitestr, PSTypeEnum.SITE);
         }
@@ -198,60 +192,48 @@ public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLo
     }
 
     @Override
-    public void init(IPSExtensionDef extensionDef, @SuppressWarnings("unused") File file)
-    {
+    public void init(IPSExtensionDef extensionDef, @SuppressWarnings("unused") File file) {
         setParameterNames(PSLegacyExtensionUtils.getParameterNames(extensionDef));
     }
-    
-    
-    
-    public List<String> getParameterNames()
-    {
+
+    public List<String> getParameterNames() {
         return parameterNames;
     }
 
-    public void setParameterNames(List<String> parameterNames)
-    {
+    public void setParameterNames(List<String> parameterNames) {
         this.parameterNames = parameterNames;
     }
 
-    public IPSGuidManager getGuidManager()
-    {
+    public IPSGuidManager getGuidManager() {
         return guidManager;
     }
 
-    public void setGuidManager(IPSGuidManager guidManager)
-    {
+    public void setGuidManager(IPSGuidManager guidManager) {
         this.guidManager = guidManager;
     }
 
-    public IPSAssemblyService getAssemblyService()
-    {
+    public IPSAssemblyService getAssemblyService() {
         return assemblyService;
     }
 
-    public void setAssemblyService(IPSAssemblyService assemblyService)
-    {
+    public void setAssemblyService(IPSAssemblyService assemblyService) {
         this.assemblyService = assemblyService;
     }
-    
-    public PSItemDefManager getItemDefManager()
-    {
+
+    public PSItemDefManager getItemDefManager() {
         return itemDefManager;
     }
 
-    public void setItemDefManager(PSItemDefManager itemDefManager)
-    {
+    public void setItemDefManager(PSItemDefManager itemDefManager) {
         this.itemDefManager = itemDefManager;
     }
 
     /**
      * Wraps all the parameters passed into a location
      * scheme generator. Most of the ids have been
-     * converted to guids.
-     * 
-     * @author adamgent
+     * converted to GUIDs.
      *
+     * @author adamgent
      */
     public static class PSAssemblyLocationRequest {
 
@@ -264,108 +246,94 @@ public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLo
         private IPSGuid folderId;
         @NotNull
         private Number context;
-        
+
         private Number assemblyContext;
-        
         private Number deliveryContext;
-        
         private String itemFilter;
-        
         private Integer page;
         private Map<String, String> parameters = new HashMap<>();
-        
+
         public String getParameter(String name) {
             return parameters.get(name);
         }
 
-        public IPSGuid getItemId()
-        {
+        public IPSGuid getItemId() {
             return itemId;
         }
-        public void setItemId(IPSGuid itemId)
-        {
+
+        public void setItemId(IPSGuid itemId) {
             this.itemId = itemId;
         }
-        public IPSGuid getFolderId()
-        {
+
+        public IPSGuid getFolderId() {
             return folderId;
         }
-        public void setFolderId(IPSGuid folderId)
-        {
+
+        public void setFolderId(IPSGuid folderId) {
             this.folderId = folderId;
         }
-        public IPSGuid getTemplateId()
-        {
+
+        public IPSGuid getTemplateId() {
             return templateId;
         }
-        public void setTemplateId(IPSGuid templateId)
-        {
+
+        public void setTemplateId(IPSGuid templateId) {
             this.templateId = templateId;
         }
-        public IPSGuid getSiteId()
-        {
+
+        public IPSGuid getSiteId() {
             return siteId;
         }
-        public void setSiteId(IPSGuid siteId)
-        {
+
+        public void setSiteId(IPSGuid siteId) {
             this.siteId = siteId;
         }
-        public Map<String, String> getParameters()
-        {
+
+        public Map<String, String> getParameters() {
             return parameters;
         }
-        public void setParameters(Map<String, String> parameters)
-        {
+
+        public void setParameters(Map<String, String> parameters) {
             this.parameters = parameters;
         }
-        public Integer getPage()
-        {
+
+        public Integer getPage() {
             return page;
         }
-        public void setPage(Integer page)
-        {
+
+        public void setPage(Integer page) {
             this.page = page;
         }
-        
-        
-        public String getItemFilter()
-        {
+
+        public String getItemFilter() {
             return itemFilter;
         }
-        public void setItemFilter(String itemFilter)
-        {
+
+        public void setItemFilter(String itemFilter) {
             this.itemFilter = itemFilter;
         }
-        
-        
-        public Number getContext()
-        {
+
+        public Number getContext() {
             return context;
         }
-        public void setContext(Number context)
-        {
+
+        public void setContext(Number context) {
             this.context = context;
         }
-        
-        
-        
-        public Number getAssemblyContext()
-        {
+
+        public Number getAssemblyContext() {
             return assemblyContext;
         }
 
-        public void setAssemblyContext(Number assemblyContext)
-        {
+        public void setAssemblyContext(Number assemblyContext) {
             this.assemblyContext = assemblyContext;
         }
 
-        public Number getDeliveryContext()
-        {
+        public Number getDeliveryContext() {
             return deliveryContext;
         }
 
-        public void setDeliveryContext(Number deliveryContext)
-        {
+        public void setDeliveryContext(Number deliveryContext) {
             this.deliveryContext = deliveryContext;
         }
 
@@ -373,51 +341,53 @@ public abstract class PSAbstractAssemblyLocationAdapter implements IPSAssemblyLo
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof PSAssemblyLocationRequest)) return false;
-            PSAssemblyLocationRequest that = (PSAssemblyLocationRequest) o;
-            return Objects.equals(getItemId(), that.getItemId()) && Objects.equals(getTemplateId(), that.getTemplateId()) && Objects.equals(getSiteId(), that.getSiteId()) && Objects.equals(getFolderId(), that.getFolderId()) && Objects.equals(getContext(), that.getContext()) && Objects.equals(getAssemblyContext(), that.getAssemblyContext()) && Objects.equals(getDeliveryContext(), that.getDeliveryContext()) && Objects.equals(getItemFilter(), that.getItemFilter()) && Objects.equals(getPage(), that.getPage()) && Objects.equals(getParameters(), that.getParameters());
+            var that = (PSAssemblyLocationRequest) o;
+            return Objects.equals(getItemId(), that.getItemId())
+                    && Objects.equals(getTemplateId(), that.getTemplateId())
+                    && Objects.equals(getSiteId(), that.getSiteId())
+                    && Objects.equals(getFolderId(), that.getFolderId())
+                    && Objects.equals(getContext(), that.getContext())
+                    && Objects.equals(getAssemblyContext(), that.getAssemblyContext())
+                    && Objects.equals(getDeliveryContext(), that.getDeliveryContext())
+                    && Objects.equals(getItemFilter(), that.getItemFilter())
+                    && Objects.equals(getPage(), that.getPage())
+                    && Objects.equals(getParameters(), that.getParameters());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(getItemId(), getTemplateId(), getSiteId(), getFolderId(), getContext(), getAssemblyContext(), getDeliveryContext(), getItemFilter(), getPage(), getParameters());
+            return Objects.hash(getItemId(), getTemplateId(), getSiteId(), getFolderId(), getContext(),
+                    getAssemblyContext(), getDeliveryContext(), getItemFilter(), getPage(), getParameters());
         }
 
         @Override
         public String toString() {
-            final StringBuffer sb = new StringBuffer("PSAssemblyLocationRequest{");
-            sb.append("itemId=").append(itemId);
-            sb.append(", templateId=").append(templateId);
-            sb.append(", siteId=").append(siteId);
-            sb.append(", folderId=").append(folderId);
-            sb.append(", context=").append(context);
-            sb.append(", assemblyContext=").append(assemblyContext);
-            sb.append(", deliveryContext=").append(deliveryContext);
-            sb.append(", itemFilter='").append(itemFilter).append('\'');
-            sb.append(", page=").append(page);
-            sb.append(", parameters=").append(parameters);
-            sb.append('}');
-            return sb.toString();
+            return "PSAssemblyLocationRequest{" +
+                    "itemId=" + itemId +
+                    ", templateId=" + templateId +
+                    ", siteId=" + siteId +
+                    ", folderId=" + folderId +
+                    ", context=" + context +
+                    ", assemblyContext=" + assemblyContext +
+                    ", deliveryContext=" + deliveryContext +
+                    ", itemFilter='" + itemFilter + '\'' +
+                    ", page=" + page +
+                    ", parameters=" + parameters +
+                    '}';
         }
 
         @Override
-        public PSAbstractAssemblyLocationAdapter clone()
-        {
-            try
-            {
+        public PSAbstractAssemblyLocationAdapter clone() {
+            try {
                 return (PSAbstractAssemblyLocationAdapter) BeanUtils.cloneBean(this);
-            }
-            catch (Exception e)
-            {
-              throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
     }
-    
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
     protected final Logger log = LogManager.getLogger(getClass());
-
 }
-

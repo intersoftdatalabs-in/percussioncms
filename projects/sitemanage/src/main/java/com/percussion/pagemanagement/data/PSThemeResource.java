@@ -14,41 +14,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
 import com.percussion.theme.data.PSThemeSummary;
 
-public class PSThemeResource extends PSResourceDefinition
-{
+/**
+ * Represents a theme resource definition.
+ * @author Sunny Sal
+ */
+public class PSThemeResource extends PSResourceDefinition {
 
     private PSThemeSummary themeSummary;
-    
+
     @Override
-    public void accept(IPSResourceDefinitionVisitor visitor)
-    {
+    public void accept(IPSResourceDefinitionVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public PSResourceDefinitionType getResourceType()
-    {
+    public PSResourceDefinitionType getResourceType() {
         return PSResourceDefinitionType.THEME;
     }
 
-    public PSThemeSummary getThemeSummary()
-    {
+    public PSThemeSummary getThemeSummary() {
         return themeSummary;
     }
 
-    public void setThemeSummary(PSThemeSummary themeSummary)
-    {
+    public void setThemeSummary(PSThemeSummary themeSummary) {
         this.themeSummary = themeSummary;
     }
-    
-    
-    
-    
-
 }
