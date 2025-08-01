@@ -21,12 +21,41 @@ import java.io.OutputStream;
 
 /**
  * This is a container class to hold a body part which may be used to POST
- * to a HTTP server.
+ * to an HTTP server.
+ *
+ * // REFACTORED: CP-JAVA11
  *
  * @author DavidBenua
  */
-class PSHttpBodyPart
-{
+class PSHttpBodyPart {
+   /**
+    * The name of the field, initialized by ctor, never <code>null</code>
+    * or empty after that.
+    */
+   private final String m_fieldName;
+
+   /**
+    * The name of the file, initialized by ctor, may be <code>null</code> or empty.
+    */
+   private final String m_fileName;
+
+   /**
+    * The mime type of the content, initialized by ctor, never <code>null</code>
+    * or empty after that.
+    */
+   private final String m_mimeType;
+
+   /**
+    * The byte array which contains the content. It may be
+    * <code>null</code> if there is no content.
+    */
+   private final ByteArrayOutputStream m_bos;
+
+   /**
+    * Encoding The encoding of the content, it may be <code>null</code>
+    * if the content is for in bytes only.
+    */
+   private final String m_encoding;
    /**
     * Constrcuts an instance from the given parameters.
     *
@@ -46,24 +75,22 @@ class PSHttpBodyPart
     *    <code>null</code> if there is no content.
     */
    public PSHttpBodyPart(
-      String fieldName,
-      String fileName,
-      String mimeType,
-      String encoding,
-      ByteArrayOutputStream bos)
-   {
-      if (fieldName == null || fieldName.trim().length() ==0)
-         throw new IllegalArgumentException(
-            "fieldName may not be null or empty.");
-      if (mimeType == null || mimeType.trim().length() ==0)
-         throw new IllegalArgumentException(
-            "m_mimeType may not be null or empty.");
-
-      m_fieldName = fieldName;
-      m_fileName = fileName;
-      m_mimeType = mimeType;
-      m_encoding = encoding;
-      m_bos = bos;
+         String fieldName,
+         String fileName,
+         String mimeType,
+         String encoding,
+         ByteArrayOutputStream bos) {
+      if (fieldName == null || fieldName.trim().isEmpty()) {
+         throw new IllegalArgumentException("fieldName may not be null or empty.");
+      }
+      if (mimeType == null || mimeType.trim().isEmpty()) {
+         throw new IllegalArgumentException("mimeType may not be null or empty.");
+      }
+      this.m_fieldName = fieldName;
+      this.m_fileName = fileName;
+      this.m_mimeType = mimeType;
+      this.m_encoding = encoding;
+      this.m_bos = bos;
    }
 
    /**
@@ -72,9 +99,8 @@ class PSHttpBodyPart
     * @return The encoding, it may be <code>null</code> if the content is
     *    in bytes only.
     */
-   public String getEncoding()
-   {
-      return m_encoding;
+   public String getEncoding() {
+      return this.m_encoding;
    }
 
    /**
@@ -82,9 +108,8 @@ class PSHttpBodyPart
     *
     * @return The field name, it never <code>null</code> or empty.
     */
-   public String getFieldName()
-   {
-      return m_fieldName;
+   public String getFieldName() {
+      return this.m_fieldName;
    }
    
    /**
@@ -92,19 +117,17 @@ class PSHttpBodyPart
     *
     * @return The file name, may be <code>null</code> or empty.
     */
-   public String getFileName()
-   {
-      return m_fileName;
-   }   
+   public String getFileName() {
+      return this.m_fileName;
+   }
 
    /**
     * Get the mime type of the content.
     *
     * @return The mime type, never <code>null</code> or empty.
     */
-   public String getMimeType()
-   {
-      return m_mimeType;
+   public String getMimeType() {
+      return this.m_mimeType;
    }
 
    /**
@@ -112,9 +135,8 @@ class PSHttpBodyPart
     *
     * @return The stream, it may be <code>null</code> if there is no content.
     */
-   public OutputStream getStream()
-   {
-      return (OutputStream) m_bos;
+   public OutputStream getStream() {
+      return this.m_bos;
    }
 
    /**
@@ -122,42 +144,9 @@ class PSHttpBodyPart
     *
     * @return The byte array, it may be <code>null</code> if there is no content
     */
-   public byte[] getBytes()
-   {
-      if (m_bos == null)
-         return null;
-      else
-         return m_bos.toByteArray();
+   public byte[] getBytes() {
+      return this.m_bos == null ? null : this.m_bos.toByteArray();
    }
 
-   /**
-    * The name of the field, initialized by ctor, never <code>null</code>
-    * or empty after that.
-    */
-   private String m_fieldName;
-   
-   /**
-    * The name of the file, initialized by ctor, never <code>null</code>
-    * or empty after that.
-    */
-   private String m_fileName;
-
-   /**
-    * The mime type of the content, initialized by ctor, never <code>null</code>
-    * or empty after that.
-    */
-   private String m_mimeType;
-
-   /**
-    * The byte array which contains the content. It may be
-    * <code>null</code> if there is no content.
-    */
-   private ByteArrayOutputStream m_bos;
-
-   /**
-    * Encoding The encoding of the content, it may be <code>null</code>
-    * if the content is for in bytes only.
-    */
-   private String m_encoding;
-
+   // ...existing code...
 }

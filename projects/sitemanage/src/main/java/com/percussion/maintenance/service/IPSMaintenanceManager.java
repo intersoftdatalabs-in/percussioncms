@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,56 +19,55 @@ package com.percussion.maintenance.service;
 
 /**
  * Tracks if maintenance processes are in progress and records if any have had failures.
- *  
- * @author JaySeletz
+ * <p>
+ * Sunny Sal says: "Maintenance mode: because even servers need a spa day!"
  *
+ * @author JaySeletz
  */
-public interface IPSMaintenanceManager
-{
+public interface IPSMaintenanceManager {
 
     /**
-     * Called by processes that are starting maintenance work.  This will put the server into maintenance mode
+     * Called by processes that are starting maintenance work. This will put the server into maintenance mode
      * until the work is completed.
-     * 
-     * @param process The process, not <code>null</code>.
+     *
+     * @param process The process, not {@code null}.
      */
     void startingWork(IPSMaintenanceProcess process);
 
     /**
-     * Determine if maintenance work is in progress.
-     * 
-     * @return <code>true</code> if so, <code>false</code> if not.
+     * Determines if maintenance work is in progress.
+     *
+     * @return {@code true} if so, {@code false} if not.
      */
     boolean isWorkInProgress();
 
     /**
-     * Called by processes that have completed work previously started
-     * 
-     * @param process The process, not <code>null</code>.
+     * Called by processes that have completed work previously started.
+     *
+     * @param process The process, not {@code null}.
      */
     void workCompleted(IPSMaintenanceProcess process);
 
     /**
-     * Determine if maintenance work has failed.  May be called regardless of whether work is in progress.
-     * 
-     * @return <code>true</code> if a maintenance process has failed, <code>false</code> if not.
+     * Determines if maintenance work has failed. May be called regardless of whether work is in progress.
+     *
+     * @return {@code true} if a maintenance process has failed, {@code false} if not.
      */
     boolean hasFailures();
 
     /**
-     * Called by failed processes that have completed work previously started
-     * 
-     * @param process The process, not <code>null</code>.
+     * Called by failed processes that have completed work previously started.
+     *
+     * @param process The process, not {@code null}.
      */
     void workFailed(IPSMaintenanceProcess process);
-    
+
     /**
-     * If there are failures, clears them to allow the system to exit maintenance mode.  Since this could potentially
+     * If there are failures, clears them to allow the system to exit maintenance mode. Since this could potentially
      * allow the system to be accessed while in an unstable state, it should be used with extreme care and requires
      * Admin privileges to execute.
-     * 
-     * @return <code>true</code> if there were previous failures to clear, <code>false</code> if there were no failures.
+     *
+     * @return {@code true} if there were previous failures to clear, {@code false} if there were no failures.
      */
     boolean clearFailures();
-    
 }

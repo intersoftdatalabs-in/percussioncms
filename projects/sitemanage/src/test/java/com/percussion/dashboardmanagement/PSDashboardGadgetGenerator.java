@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,66 +24,48 @@ import com.percussion.dashboardmanagement.data.DashboardContent;
 import java.io.InputStream;
 
 /**
- * This class provide services to add gadgets to the dashboard. You are also
- * able to do a cleanup, selectively removing gadgets in the dashboard.
- * <p>
- * A server URL and an XML file defining the content to be generated are
- * required. User and password to authenticate against the server are optional.
- * 
+ * Provides services to add and clean up gadgets on the dashboard.
+ * Requires a server URL and an XML file defining the content to be generated.
+ * User and password to authenticate against the server are required.
+ *
  * @author miltonpividori
- * 
  */
-public class PSDashboardGadgetGenerator extends PSGenericContentGenerator<DashboardContent>
-{
+public class PSDashboardGadgetGenerator extends PSGenericContentGenerator<DashboardContent> {
+
     /**
-     * The gadget generator. This is the instance responsible for generating
-     * and cleaning up gadgets.
+     * The gadget generator responsible for generating and cleaning up gadgets.
      */
-    private PSGadgetGenerator gadgetGenerator;
-    
+    private final PSGadgetGenerator gadgetGenerator;
+
     /**
-     * @see PSDashboardGadgetGenerator
-     * @param serverUrl
-     * @param xmlData
-     * @param username
-     * @param password
+     * Constructs a dashboard gadget generator.
+     *
+     * @param serverUrl the server URL
+     * @param xmlData   the XML data input stream
+     * @param username  the username
+     * @param password  the password
      */
-    public PSDashboardGadgetGenerator(String serverUrl, InputStream xmlData, String username, String password)
-    {
+    public PSDashboardGadgetGenerator(String serverUrl, InputStream xmlData, String username, String password) {
         super(serverUrl, xmlData, username, password);
-        
         this.gadgetGenerator = new PSGadgetGenerator(this.serverUrl, this.username, this.password);
     }
 
-    public static void main(String[] args) throws Exception
-    {
+    public static void main(String[] args) throws Exception {
         PSGenericContentGenerator.runMainMethod(args, PSDashboardGadgetGenerator.class);
     }
-    
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.content.PSGenericContentGenerator#getRootDataType()
-     */
-    protected Class<DashboardContent> getRootDataType()
-    {
+
+    @Override
+    protected Class<DashboardContent> getRootDataType() {
         return DashboardContent.class;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.content.PSGenericContentGenerator#generateAllContent()
-     */
-    protected void generateAllContent()
-    {
+    @Override
+    protected void generateAllContent() {
         gadgetGenerator.addGadgets(content.getGadgetDef());
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.percussion.content.PSGenericContentGenerator#cleanupAllContent()
-     */
-    protected void cleanupAllContent()
-    {
+    @Override
+    protected void cleanupAllContent() {
         gadgetGenerator.cleanup(content.getGadgetDef());
     }
 }

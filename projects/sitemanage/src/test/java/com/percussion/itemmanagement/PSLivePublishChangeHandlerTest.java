@@ -72,8 +72,8 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
     protected void tearDown() throws Exception
     {
         super.tearDown();
-        IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
-        List<PSFolder> folders = contentWs.loadFolders(new String[]{PSPathUtils.getFolderPath(ASSETS_TEST_FOLDER)});
+        var contentWs = PSContentWsLocator.getContentWebservice();
+        var folders = contentWs.loadFolders(new String[]{PSPathUtils.getFolderPath(ASSETS_TEST_FOLDER)});
         if (!folders.isEmpty())
             contentWs.deleteFolders(Arrays.asList(folders.get(0).getGuid()), true);
     }
@@ -83,13 +83,13 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
         securityWs.login("admin1", "demo", "Enterprise_Investments", null);
 
         changeService = PSContentChangeServiceLocator.getContentChangeService();
-        long siteId = fixture.site1.getSiteId().longValue();
-        
+        var siteId = fixture.site1.getSiteId().longValue();
+
         try
         {
             // create page
-            PSPage page = createPage("testPage", this.templateId);
-            String pageId = this.pageService.save(page).getId();
+            var page = createPage("testPage", this.templateId);
+            var pageId = this.pageService.save(page).getId();
             pageCleaner.add(pageId);
             
             
@@ -310,8 +310,7 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
     }
 
     private void createContentChange(long siteId, int contentId) throws IPSGenericDao.SaveException {
-        PSContentChangeEvent changeEvent;
-        changeEvent = new PSContentChangeEvent();
+        var changeEvent = new PSContentChangeEvent();
         changeEvent.setChangeType(PSContentChangeType.PENDING_LIVE);
         changeEvent.setContentId(contentId);
         changeEvent.setSiteId(siteId);
@@ -326,16 +325,14 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
 
     private void assertNothingToPublish(long siteId)
     {
-        List<Integer> changes = changeService.getChangedContent(siteId,
-                PSContentChangeType.PENDING_LIVE);
+        var changes = changeService.getChangedContent(siteId, PSContentChangeType.PENDING_LIVE);
         assertNotNull(changes);
         assertEquals(0, changes.size());
     }
     
     private void assertSomethingToPublish(long siteId, String itemId)
     {
-        List<Integer> changes = changeService.getChangedContent(siteId,
-                PSContentChangeType.PENDING_LIVE);
+        var changes = changeService.getChangedContent(siteId, PSContentChangeType.PENDING_LIVE);
         assertNotNull(changes);
         assertEquals(1, changes.size());
         assertEquals(Integer.valueOf(idMapper.getContentId(itemId)), changes.get(0));
@@ -343,17 +340,15 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
     
     /**
      * Creates an asset.
-     * 
-     * @param name assumed not <code>null</code>.
-     * @param folder assumed not <code>null</code>.
-     * 
-     * @return {@link PSAsset} representation of the asset item, never <code>null</code>.
-     * 
+     *
+     * @param name   asset name, not null.
+     * @param folder folder path, not null.
+     * @return {@link PSAsset} representation of the asset item, never null.
      * @throws Exception if an error occurs saving the asset.
      */
     private PSAsset createAsset(String name, String folder) throws Exception
     {
-        PSAsset asset = new PSAsset();
+        var asset = new PSAsset();
         asset.getFields().put("sys_title", name + System.currentTimeMillis());
         asset.setType("percRawHtmlAsset");
         asset.getFields().put("html", "TestHTML");
@@ -361,7 +356,6 @@ public class PSLivePublishChangeHandlerTest extends PSItemWorkflowServiceTestBas
         {
             asset.setFolderPaths(asList(folder));
         }
-             
         return assetService.save(asset);
     }
 

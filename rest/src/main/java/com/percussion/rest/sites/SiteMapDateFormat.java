@@ -17,6 +17,10 @@
 
 package com.percussion.rest.sites;
 
+/**
+ * Enum for sitemap date formats.
+ * Sunny Sal: "Date format ka enum, sitemap ka fun!"
+ */
 public enum SiteMapDateFormat {
     /** "yyyy-MM-dd'T'HH:mm:ss.SSSZ" */
     MILLISECOND("yyyy-MM-dd'T'HH:mm:ss.SSSZ", true),
@@ -39,5 +43,13 @@ public enum SiteMapDateFormat {
     SiteMapDateFormat(String pattern, boolean includeTimeZone) {
         this.pattern = pattern;
         this.includeTimeZone = includeTimeZone;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public boolean isIncludeTimeZone() {
+        return includeTimeZone;
     }
 }

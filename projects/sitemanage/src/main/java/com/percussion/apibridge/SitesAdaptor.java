@@ -15,8 +15,9 @@
  * limitations under the License.
  */
 
-package com.percussion.apibridge;
+// REFACTORED: CP-JAVA11
 
+package com.percussion.apibridge;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.rest.sites.ISiteAdaptor;
@@ -34,26 +35,29 @@ import org.springframework.context.annotation.Lazy;
 
 import java.util.List;
 
+/**
+ * Adaptor for managing sites in Percussion CMS.
+ */
 @PSSiteManageBean
 @Lazy
 public class SitesAdaptor implements ISiteAdaptor {
     private static final Logger log = LogManager.getLogger(IPSConstants.API_LOG);
 
+    @Autowired
+    private IPSPublishingWs publishingWs;
 
     @Autowired
-    IPSPublishingWs publishingWs;
+    private IPSSiteDataService siteDataService;
 
     @Autowired
-    IPSSiteDataService siteDataService;
-
-    @Autowired
-    IPSSiteSectionService siteSectionService;
-
+    private IPSSiteSectionService siteSectionService;
 
     /***
-     * ctor
+     * Default constructor.
      */
-    public SitesAdaptor(){}
+    public SitesAdaptor() {
+        // No-op constructor for dependency injection.
+    }
 
     /***
      * Find all sites.
@@ -61,57 +65,57 @@ public class SitesAdaptor implements ISiteAdaptor {
      */
     @Override
     public SiteList findAllSites() {
-
-        List<PSSiteSummary> sites = siteDataService.findAll();
-
+        var sites = siteDataService.findAll();
         return ApiUtils.convertSiteSummaryList(sites);
     }
 
     /***
-     * Save a site
-     * @param site
+     * Save a site.
+     * @param site The site to save.
      */
     @Override
     public void saveSite(Site site) {
-
+        // Not yet implemented
     }
 
     /***
-     *
-     * @param name
-     * @return
+     * Find site by name.
+     * @param name The site name.
+     * @return Site or null if not found.
      */
     @Override
     public Site findByName(String name) {
+        // Not yet implemented
         return null;
     }
 
     /***
-     * find By Guid
-     * @param guid
-     * @return
+     * Find site by GUID.
+     * @param guid The site GUID.
+     * @return Site or null if not found.
      */
     @Override
     public Site findByGuid(String guid) {
+        // Not yet implemented
         return null;
     }
 
     /***
-     * Delete the site
-     * @param site
+     * Delete the site.
+     * @param site The site to delete.
      */
     @Override
     public void deleteSite(Site site) {
-
+        // Not yet implemented
     }
 
     /***
-     * Create a new Site
-     * @return
+     * Create a new Site.
+     * @return The created site.
      */
     @Override
     public Site createSite() {
+        // Not yet implemented
         return null;
     }
-
 }

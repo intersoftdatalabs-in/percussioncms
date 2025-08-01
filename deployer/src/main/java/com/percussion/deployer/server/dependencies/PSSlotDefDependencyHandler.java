@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Class to handle packaging and deploying a Slot definition the new way.
@@ -330,44 +332,27 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler  implements 
    // see base class
    // Load all the templates and return dependencies
    @Override
-   public Iterator<PSDependency> getDependencies(PSSecurityToken tok)
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      
-      init();
-      List<PSDependency> deps = new ArrayList<>();
-      List<IPSTemplateSlot> slots = m_assemblyHelper.getSlots();
-      PSDependency dep = null;
-      for (IPSTemplateSlot slot : slots)
-      {
-         dep = createDeployableElement(m_def, String.valueOf(slot.getGUID()
-               .longValue()), slot.getName());
-         deps.add(dep);
       }
-      return deps.iterator();
+
+      init();
+      return m_assemblyHelper.getSlots().stream()
+         .map(slot -> createDeployableElement(m_def, String.valueOf(slot.getGUID().longValue()), slot.getName()))
+         .iterator();
    }
 
    
    // see base class
    @Override
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
-      throws PSDeployException
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep) throws PSDeployException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-
-      // pack the data into the files
-      List<PSDependencyFile> files = new ArrayList<>();
-      IPSTemplateSlot slot  = findSlotByDependencyID(dep.getDependencyId());
-      PSDependencyFile f = getDepFileFromSlot(slot);
-      files.add(f);
-      return files.iterator();
+      var slot = findSlotByDependencyID(dep.getDependencyId());
+      return slot != null ? List.of(getDepFileFromSlot(slot)).iterator() : List.<PSDependencyFile>of().iterator();
    }
 
    /**

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,90 +17,66 @@
  */
 package com.percussion.share.service;
 
-import java.util.List;
-
-import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.share.service.exception.PSValidationException;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JMock;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.data.IPSItemSummary;
+import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSParametersValidationException;
+import com.percussion.share.service.exception.PSValidationException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-//import static java.util.Arrays.*;
-//import static org.hamcrest.CoreMatchers.*;
-//import static org.junit.matchers.JUnitMatchers.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Scenario description: 
- * @author adamgent, Oct 8, 2009
+ * Scenario description:
+ * Unit tests for PSAbstractFullDataService.
+ * Sunny Sal: "Full data service, Java 11, and validation ka hero!"
  */
-@RunWith(JMock.class)
-public class PSAbstractFullDataServiceTest
-{
+public class PSAbstractFullDataServiceTest {
 
-    Mockery context = new JUnit4Mockery();
-
-    @SuppressWarnings("unchecked")
-    PSAbstractFullDataService sut;
-
-    @SuppressWarnings("unchecked")
-    IPSGenericDao dao;
+    PSAbstractFullDataService<Object, IPSItemSummary> sut;
+    IPSGenericDao<Object, String> dao;
     IPSDataItemSummaryService dataItemSummaryService;
 
-    @SuppressWarnings("unchecked")
-    @Before
-    public void setUp() throws Exception
-    {
-        
-        dao = context.mock(IPSGenericDao.class);
-        dataItemSummaryService = context.mock(IPSDataItemSummaryService.class);
+    @BeforeEach
+    void setUp() {
+        dao = Mockito.mock(IPSGenericDao.class);
+        dataItemSummaryService = Mockito.mock(IPSDataItemSummaryService.class);
         sut = new TestFullDataService(dataItemSummaryService, dao);
     }
-    
-    @Test(expected=PSParametersValidationException.class)
-    public void shouldThrowValidationExceptionOnInvalidFindParameter() throws PSDataServiceException {
-        sut.find(null);
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Test(expected=PSParametersValidationException.class)
-    public void shouldThrowValidationExceptionOnInvalidLoadParameter() throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
-        sut.load(null);
-    }
-    
-    @SuppressWarnings("unchecked")
-    @Test(expected=PSParametersValidationException.class)
-    public void shouldThrowValidationExceptionOnInvalidDeleteParameter() throws PSDataServiceException {
-        sut.delete(null);
-    }
-    
-    
-    public static class TestFullDataService extends PSAbstractFullDataService<Object, IPSItemSummary> {
 
-        public TestFullDataService(IPSDataItemSummaryService itemSummaryService, IPSGenericDao<Object, String> dao)
-        {
+    @Test
+    void shouldThrowValidationExceptionOnInvalidFindParameter() {
+        assertThrows(PSParametersValidationException.class, () -> sut.find(null));
+    }
+
+    @Test
+    void shouldThrowValidationExceptionOnInvalidLoadParameter() {
+        assertThrows(PSParametersValidationException.class, () -> sut.load(null));
+    }
+
+    @Test
+    void shouldThrowValidationExceptionOnInvalidDeleteParameter() {
+        assertThrows(PSParametersValidationException.class, () -> sut.delete(null));
+    }
+
+    public static class TestFullDataService extends PSAbstractFullDataService<Object, IPSItemSummary> {
+        public TestFullDataService(IPSDataItemSummaryService itemSummaryService, IPSGenericDao<Object, String> dao) {
             super(itemSummaryService, dao);
         }
 
         @Override
-        protected IPSItemSummary createSummary(String id)
-        {
+        protected IPSItemSummary createSummary(String id) {
             throw new UnsupportedOperationException("createSummary is not yet supported");
         }
 
+        @Override
         public List<IPSItemSummary> findAll()
-                throws com.percussion.share.service.IPSDataService.DataServiceLoadException,
-                com.percussion.share.service.IPSDataService.DataServiceNotFoundException
-        {
+                throws IPSDataService.DataServiceLoadException, IPSDataService.DataServiceNotFoundException {
             throw new UnsupportedOperationException("findAll is not yet supported");
         }
     }
-
 }
-

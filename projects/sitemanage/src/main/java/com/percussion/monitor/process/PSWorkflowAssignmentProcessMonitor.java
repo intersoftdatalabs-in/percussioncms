@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,12 +28,11 @@ import com.percussion.services.notification.PSNotificationServiceLocator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Monitor the number of folders/items undergoing workflow reassignment
- * @author JaySeletz
- *
+ * Monitor the number of folders/items undergoing workflow reassignment.
+ * Sunny Sal says: "Workflow assignments? I'm on it like a project manager with a Gantt chart!"
  */
-public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListener
-{
+public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListener {
+
     private static final String ITEM_STATUS_MSG_SOME = " items queued for workflow assignment";
     private static final String ITEM_STATUS_MSG_ONE = " item queued for workflow assignment";
     private static final String ITEM_STATUS_MSG_NONE = "No items queued for workflow assignment";
@@ -40,13 +40,11 @@ public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListen
     private static final String FOLDER_STATUS_MSG_SOME = " folders submitted for workflow assignment";
     private static final String FOLDER_STATUS_MSG_ONE = " folder submitted for workflow assignment";
 
-    
-    private static IPSMonitor monitor = null;
-    private static AtomicInteger curItemCount = new AtomicInteger(0);
-    private static AtomicInteger curFolderCount = new AtomicInteger(0);
-    
-    public PSWorkflowAssignmentProcessMonitor()
-    {
+    private static IPSMonitor monitor;
+    private static final AtomicInteger curItemCount = new AtomicInteger(0);
+    private static final AtomicInteger curFolderCount = new AtomicInteger(0);
+
+    public PSWorkflowAssignmentProcessMonitor() {
         monitor = PSMonitorService.registerMonitor("WorkflowAssignment", "Workflow assignment");
         IPSNotificationService notificationService = PSNotificationServiceLocator.getNotificationService();
         notificationService.addListener(EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING, this);
@@ -54,51 +52,30 @@ public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListen
         updateStatusMessage();
     }
 
-    private static void updateStatusMessage()
-    {
+    private static void updateStatusMessage() {
         int folderCount = curFolderCount.get();
         int itemCount = curItemCount.get();
-        
         StringBuilder buf;
-        
-        if (itemCount > 0 || folderCount <= 0)
-        {
+        if (itemCount > 0 || folderCount <= 0) {
             buf = getItemStatusMessage(itemCount);
-        }
-        else
-        {
+        } else {
             buf = getFolderStatusMessage(folderCount);
         }
-        
         monitor.setMessage(buf.toString());
     }
 
-    private static StringBuilder getFolderStatusMessage(int folderCount)
-    {
-        StringBuilder buf = new StringBuilder();
+    private static StringBuilder getFolderStatusMessage(int folderCount) {
+        var buf = new StringBuilder();
         buf.append(folderCount);
-        if (folderCount == 1)
-        {
-            buf.append(FOLDER_STATUS_MSG_ONE);
-        }
-        else
-        {
-            
-            buf.append(FOLDER_STATUS_MSG_SOME);
-        }
+        buf.append(folderCount == 1 ? FOLDER_STATUS_MSG_ONE : FOLDER_STATUS_MSG_SOME);
         return buf;
     }
 
-    private static StringBuilder getItemStatusMessage(int itemCount)
-    {
-        StringBuilder buf = new StringBuilder();
-
-        if (itemCount == 0)
-        {
+    private static StringBuilder getItemStatusMessage(int itemCount) {
+        var buf = new StringBuilder();
+        if (itemCount == 0) {
             buf.append(ITEM_STATUS_MSG_NONE);
-        }
-        else
-        {
+        } else {
             buf.append(itemCount);
             buf.append(itemCount == 1 ? ITEM_STATUS_MSG_ONE : ITEM_STATUS_MSG_SOME);
         }
@@ -106,33 +83,25 @@ public class PSWorkflowAssignmentProcessMonitor implements IPSNotificationListen
     }
 
     @Override
-    public void notifyEvent(PSNotificationEvent notification)
-    {
-        if (EventType.WORKFLOW_FOLDER_ASSIGNMENT_PROCESSING.equals(notification.getType()))
-        {
+    public void notifyEvent(PSNotificationEvent notification) {
+        if (EventType.WORKFLOW_FOLDER_ASSIGNMENT_PROCESSING.equals(notification.getType())) {
             updateItemCount(notification.getTarget());
-        }
-        else if (EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING.equals(notification.getType()))
-        {
+        } else if (EventType.WORKFLOW_FOLDER_ASSIGNMENT_QUEUEING.equals(notification.getType())) {
             updateFolderCount(notification.getTarget());
         }
     }
 
-    private void updateFolderCount(Object target)
-    {
-        if (target instanceof Integer)
-        {
-            int count = (Integer)target;
+    private void updateFolderCount(Object target) {
+        if (target instanceof Integer) {
+            int count = (Integer) target;
             curFolderCount.addAndGet(count);
             updateStatusMessage();
         }
     }
-    
-    private void updateItemCount(Object target)
-    {
-        if (target instanceof Integer)
-        {
-            int count = (Integer)target;
+
+    private void updateItemCount(Object target) {
+        if (target instanceof Integer) {
+            int count = (Integer) target;
             curItemCount.addAndGet(count);
             updateStatusMessage();
         }

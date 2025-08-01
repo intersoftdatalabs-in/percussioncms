@@ -14,24 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.user.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.percussion.user.service.IPSUserService;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
- * A single user that
- * <strong>may or may not</strong> have been
- * imported successfully.
- *
+ * Represents a user that may or may not have been imported successfully.
  * See {@link PSImportedUser#getStatus()}.
- *
  * @author adamgent
- *
  */
 @XmlRootElement(name = "ImportedUser")
 @JsonRootName("ImportedUser")
@@ -42,42 +33,27 @@ public class PSImportedUser extends PSAbstractUser {
 
     /**
      * Was the user imported?
-     * @return never <code>null</code>.
+     * @return never {@code null}.
      */
-    public ImportStatus getStatus()
-    {
+    public ImportStatus getStatus() {
         return status;
     }
 
-
-    public void setStatus(ImportStatus status)
-    {
+    public void setStatus(ImportStatus status) {
         this.status = status;
     }
 
-
     /**
-     *
-     * Indicates whether or not the users was imported.
-     * @author adamgent
-     *
+     * Indicates whether or not the user was imported.
      */
-    public static enum ImportStatus {
-        /**
-         * The user was successfully imported.
-         */
+    public enum ImportStatus {
+        /** The user was successfully imported. */
         SUCCESS,
-        /**
-         * The user already exists a back-end user.
-         */
+        /** The user already exists as a back-end user. */
         DUPLICATE,
-        /**
-         * The user was not imported because its invalid name.
-         */
+        /** The user was not imported because of an invalid name. */
         INVALID,
-        /**
-         * Some unknown error
-         */
+        /** Some unknown error occurred. */
         ERROR
     }
 }

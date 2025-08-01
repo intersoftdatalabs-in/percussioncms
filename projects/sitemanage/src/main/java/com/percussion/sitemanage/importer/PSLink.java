@@ -15,145 +15,139 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer;
 
 import org.jsoup.nodes.Element;
 
-public final class PSLink
-{    
+/**
+ * Represents a link extracted from a site import.
+ */
+public final class PSLink {
     private static final String SLASH = "/";
-    /**
-     * The user viewable text for the link
-     */
-    private String LINK_TEXT = null;
-    /**
-     * The relative path for the link
-     */
-    private String LINK_PATH = null;
+
+    /** The user-viewable text for the link. */
+    private String linkText;
+
+    /** The relative path for the link. */
+    private String linkPath;
+
+    /** The absolute HREF for the link. */
+    private String absoluteLink;
+
+    /** The page name (file name). */
+    private String pageName;
+
+    /** The actual Jsoup element. */
+    private Element element;
 
     /**
-     * The Absolute Href for the link
-     */
-    private String ABS_Link = null;
-
-    /**
-     * The Page Name... as in file name
-     */
-    private String PAGE_NAME = null;
-
-    /**
-     * The actual Jsoup element
-     */
-    private Element ELEMENT = null;
-    
-    /**
-     * Gets the page name (file name)
-     * 
-     * @return a name for the file
+     * Gets the page name (file name).
+     *
+     * @return the file name.
      */
     public String getPageName() {
-        return PAGE_NAME;
+        return pageName;
     }
 
     /**
-     * Sets the page name (file name)
-     * 
-     * @param pageName
-     *            the file name
+     * Sets the page name (file name).
+     *
+     * @param pageName the file name.
      */
     public void setPageName(String pageName) {
-        PAGE_NAME = pageName;
+        this.pageName = pageName;
     }
 
     /**
-     * Gets the Absolute HREF link for the link
-     * 
-     * @return the Absolute HREF for the link
+     * Gets the absolute HREF for the link.
+     *
+     * @return the absolute HREF.
      */
     public String getAbsoluteLink() {
-        return ABS_Link;
+        return absoluteLink;
     }
 
     /**
-     * Sets the Absolute HREF for the link
-     * 
-     * @param absLink
-     *            the Absolute HREF for the link
+     * Sets the absolute HREF for the link.
+     *
+     * @param absLink the absolute HREF.
      */
     public void setAbsoluteLink(final String absLink) {
-        ABS_Link = absLink;
+        this.absoluteLink = absLink;
     }
 
     /**
-     * Gets the user viewable text for the link
-     * 
-     * @return the user viewable text for the link
+     * Gets the user-viewable text for the link.
+     *
+     * @return the link text.
      */
     public String getLinkText() {
-        return LINK_TEXT;
+        return linkText;
     }
 
     /**
-     * Sets the user viewable text for the link
-     * 
-     * @param lINK_TEXT
-     *            the user viewable text for the link
+     * Sets the user-viewable text for the link.
+     *
+     * @param linkText the link text.
      */
     public void setLinkText(final String linkText) {
-        LINK_TEXT = linkText;
+        this.linkText = linkText;
     }
 
     /**
-     * Gets the relative path for the link
-     * 
-     * @return the relative path for the link
+     * Gets the relative path for the link.
+     *
+     * @return the relative path.
      */
     public String getLinkPath() {
-        return LINK_PATH;
+        return linkPath;
     }
 
     /**
-     * Sets the relative path for the link
-     * 
-     * @param linkPath
-     *            the relative path for the link
+     * Sets the relative path for the link.
+     *
+     * @param linkPath the relative path.
      */
     public void setLinkPath(final String linkPath) {
-        LINK_PATH = linkPath;
+        this.linkPath = linkPath;
     }
 
     /**
-     * Sets the actual JSoup element
-     * @param element the element
+     * Sets the actual JSoup element.
+     *
+     * @param element the element.
      */
     public void setElement(Element element) {
-        ELEMENT = element;
+        this.element = element;
     }
-    
-    /**
-     * Gets the element
-     * @return the Jsoup element for 
-     */
-    public Element getElement(){
-        return ELEMENT;
-    }
-    
 
     /**
-     * Factory for PSLink
-     * 
-     * @param linkPath
-     *            the relative path for the link
-     * @param linkText
-     *            the text to display to the user
-     * 
-     * @param absoluteHref
-     *            the absolute HREF for the link
+     * Gets the Jsoup element.
+     *
+     * @return the Jsoup element.
      */
-    public static PSLink createLink(final String linkPath,
-            final String linkText, final String absoluteHref,
-            final String pageName, Element element) {
-        final PSLink link = new PSLink();
+    public Element getElement() {
+        return element;
+    }
+
+    /**
+     * Factory for PSLink.
+     *
+     * @param linkPath     the relative path for the link.
+     * @param linkText     the text to display to the user.
+     * @param absoluteHref the absolute HREF for the link.
+     * @param pageName     the page name.
+     * @param element      the Jsoup element.
+     * @return a new PSLink instance.
+     */
+    public static PSLink createLink(
+            final String linkPath,
+            final String linkText,
+            final String absoluteHref,
+            final String pageName,
+            Element element) {
+        var link = new PSLink();
         link.setLinkPath(linkPath);
         link.setLinkText(linkText);
         link.setAbsoluteLink(absoluteHref);
@@ -161,61 +155,63 @@ public final class PSLink
         link.setElement(element);
         return link;
     }
-    
-    public static PSLink createLinkWithoutElementReference(final String linkPath,
-            final String linkText, final String absoluteHref,
-            final String pageName)
-    {
-    	 final PSLink link = new PSLink();
-         link.setLinkPath(linkPath);
-         link.setLinkText(linkText);
-         link.setAbsoluteLink(absoluteHref);
-         link.setPageName(pageName);
-         return link;
+
+    /**
+     * Factory for PSLink without element reference.
+     *
+     * @param linkPath     the relative path for the link.
+     * @param linkText     the text to display to the user.
+     * @param absoluteHref the absolute HREF for the link.
+     * @param pageName     the page name.
+     * @return a new PSLink instance.
+     */
+    public static PSLink createLinkWithoutElementReference(
+            final String linkPath,
+            final String linkText,
+            final String absoluteHref,
+            final String pageName) {
+        var link = new PSLink();
+        link.setLinkPath(linkPath);
+        link.setLinkText(linkText);
+        link.setAbsoluteLink(absoluteHref);
+        link.setPageName(pageName);
+        return link;
     }
 
     /**
-     * Gets the relative path with the file name
-     * 
-     * @return the relative path with the file name
+     * Gets the relative path with the file name.
+     *
+     * @return the relative path with the file name.
      */
-    public String getRelativePathWithFileName()
-    {
-        String out = this.getLinkPath();
-        if (!hasTrailingSlash(out)){
-            out = out.concat("/");
+    public String getRelativePathWithFileName() {
+        var out = this.getLinkPath();
+        if (!hasTrailingSlash(out)) {
+            out = out.concat(SLASH);
         }
         out = this.getLinkPath() + this.getPageName();
         return out;
     }
-    
+
+    @Override
     public String toString() {
-        return "Link Path: " + this.getLinkPath() + " Link Text: "
-                + this.getLinkText() + " Page Name: " + this.getPageName()
+        return "Link Path: " + this.getLinkPath()
+                + " Link Text: " + this.getLinkText()
+                + " Page Name: " + this.getPageName()
                 + " HREF: " + this.getAbsoluteLink();
     }
 
     /**
-     * Checks text for a trailing slash
-     * 
-     * @param linkText the link text for evaluation
-     * @return a boolean indicating the presence or lack of a trailing slash
+     * Checks if the given text has a trailing slash.
+     *
+     * @param linkText the link text for evaluation.
+     * @return true if there is a trailing slash, false otherwise.
      */
-    public static boolean hasTrailingSlash(final String linkText)
-    {
-        boolean hasTrailingSlash = false;
-        if (!linkText.isEmpty())
-        {
-            hasTrailingSlash = linkText.substring(linkText.length() - 1).equals(SLASH);
-        }
-        return hasTrailingSlash;
+    public static boolean hasTrailingSlash(final String linkText) {
+        return !linkText.isEmpty() && linkText.substring(linkText.length() - 1).equals(SLASH);
     }
-    /**
-     * Private constructor
-     */
+
+    /** Private constructor for factory methods. */
     public PSLink() {
-
+        // Intentionally empty.
     }
-
-    
 }

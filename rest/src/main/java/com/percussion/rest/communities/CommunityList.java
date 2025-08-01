@@ -25,15 +25,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
+/**
+ * List of Community objects.
+ */
 @XmlRootElement(name = "CommunityList")
-@ArraySchema(schema=@Schema(implementation = Community.class))
+@ArraySchema(schema = @Schema(implementation = Community.class))
 @XmlSeeAlso({Community.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommunityList extends ArrayList<Community> {
+
     public CommunityList(Collection<? extends Community> c) {
         super(c);
     }
-    public CommunityList(){}
-}
 
+    public CommunityList() {}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof CommunityList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "CommunityList" + super.toString();
+    }
+}

@@ -93,9 +93,10 @@ public class PSDeployFileJobControl implements IPSDeployJobControl
                m_cancelledStatus = IPSDeployJobControl.JOB_CANCELLED;
             else
             {
-               m_streamCounter.closeStream();
-               
-               if (m_streamCounter.getByteCount() < m_totalBytes)
+               var streamCounter = m_streamCounter;
+               streamCounter.closeStream();
+
+               if (streamCounter.getByteCount() < m_totalBytes)
                   m_cancelledStatus = IPSDeployJobControl.JOB_CANCELLED;
                else
                   m_cancelledStatus = IPSDeployJobControl.JOB_COMPLETED;

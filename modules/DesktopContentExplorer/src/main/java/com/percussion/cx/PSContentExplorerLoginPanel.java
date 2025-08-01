@@ -29,7 +29,8 @@ import com.percussion.webservices.faults.PSNotAuthenticatedFault;
 import com.percussion.webservices.security.data.PSLocale;
 import org.apache.axis.AxisFault;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -90,7 +91,7 @@ import java.util.concurrent.ExecutionException;
 ////////////////////////////////////////////////////////////////////////////////
 public class PSContentExplorerLoginPanel extends JFrame
 {
-   static Logger log = Logger.getLogger(PSContentExplorerLoginPanel.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerLoginPanel.class);
 
    /**
     * The name of the file where various properties are stored, such as the last

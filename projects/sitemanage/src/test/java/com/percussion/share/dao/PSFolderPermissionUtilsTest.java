@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,16 +17,13 @@
  */
 package com.percussion.share.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAcl;
@@ -33,102 +31,70 @@ import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.pathmanagement.data.PSFolderPermission.Principal;
 import com.percussion.pathmanagement.data.PSFolderPermission.PrincipalType;
 
-public class PSFolderPermissionUtilsTest
-{
+/**
+ * Tests for {@link PSFolderPermissionUtils}.
+ * Sunny Sal: "Folder permission utils, Java 11, and permission ka hero!"
+ */
+public class PSFolderPermissionUtilsTest {
 
-    /**
-     * Tests {@link PSFolderPermissionUtils#getFolderPermission(PSFolder)}.
-     * 
-     * @throws Exception
-     */
     @Test
-    public void testGetPermission() throws Exception
-    {
-        PSFolder folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
-        
-        PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.ADMIN);
-        assertTrue(permission.getAdminPrincipals().size() == 1 &&
-                permission.getAdminPrincipals().get(0).getName().equals("admin"));
+    void testGetPermission() {
+        var folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
+        var permission = PSFolderPermissionUtils.getFolderPermission(folder);
+        assertEquals(PSFolderPermission.Access.ADMIN, permission.getAccessLevel());
+        assertEquals(1, permission.getAdminPrincipals().size());
+        assertEquals("admin", permission.getAdminPrincipals().get(0).getName());
         assertNull(permission.getReadPrincipals());
         assertNull(permission.getWritePrincipals());
 
         folder = createFolder(PSFolderPermission.Access.WRITE, "writer");
-        
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.WRITE);
-        assertTrue(permission.getWritePrincipals().size() == 1 
-                && permission.getWritePrincipals().get(0).getName().equals("writer"));
+        assertEquals(PSFolderPermission.Access.WRITE, permission.getAccessLevel());
+        assertEquals(1, permission.getWritePrincipals().size());
+        assertEquals("writer", permission.getWritePrincipals().get(0).getName());
         assertNull(permission.getAdminPrincipals());
         assertNull(permission.getReadPrincipals());
 
         folder = createFolder(PSFolderPermission.Access.READ, "reader");
-        
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.READ);
-        assertTrue(permission.getReadPrincipals().size() == 1 
-                && permission.getReadPrincipals().get(0).getName().equals("reader"));
+        assertEquals(PSFolderPermission.Access.READ, permission.getAccessLevel());
+        assertEquals(1, permission.getReadPrincipals().size());
+        assertEquals("reader", permission.getReadPrincipals().get(0).getName());
         assertNull(permission.getAdminPrincipals());
         assertNull(permission.getWritePrincipals());
     }
-    
-    /**
-     * Tests {@link PSFolderPermissionUtils#setFolderPermission(PSFolder, com.percussion.pathmanagement.data.PSFolderPermission.Access)}.
-     * 
-     * @throws Exception
-     */
+
     @Test
-    public void testSetPermission() throws Exception
-    {
-        PSFolder folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
-        
-        // set to ADMIN
+    void testSetPermission() {
+        var folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
         PSFolderPermissionUtils.setFolderPermission(folder, PSFolderPermission.Access.ADMIN);
-        
-        // validate get ADMIN
-        PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.ADMIN);
-        
+        var permission = PSFolderPermissionUtils.getFolderPermission(folder);
+        assertEquals(PSFolderPermission.Access.ADMIN, permission.getAccessLevel());
 
-        // set to WRITE
         PSFolderPermissionUtils.setFolderPermission(folder, PSFolderPermission.Access.WRITE);
-        
-        // validate get WRITE
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.WRITE);
+        assertEquals(PSFolderPermission.Access.WRITE, permission.getAccessLevel());
 
-        // set to READ
         PSFolderPermissionUtils.setFolderPermission(folder, PSFolderPermission.Access.READ);
-        
-        // validate get READ
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertTrue(permission.getAccessLevel() == PSFolderPermission.Access.READ);
+        assertEquals(PSFolderPermission.Access.READ, permission.getAccessLevel());
     }
-    
-    /**
-     * Tests {@link PSFolderPermissionUtils#setFolderPermission(PSFolder, PSFolderPermission)}.
-     * 
-     * @throws Exception
-     */
+
     @Test
-    public void testSetFolderPermission() throws Exception
-    {
-        PSFolder folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
-        
-        PSFolderPermission perm = new PSFolderPermission();
+    void testSetFolderPermission() {
+        var folder = createFolder(PSFolderPermission.Access.ADMIN, "admin");
+
+        var perm = new PSFolderPermission();
         perm.setAccessLevel(PSFolderPermission.Access.ADMIN);
-        Principal p = new Principal();
+        var p = new Principal();
         p.setName("admin2");
         p.setType(PrincipalType.USER);
-        List<Principal> principals = new ArrayList<Principal>();
+        var principals = new ArrayList<Principal>();
         principals.add(p);
         perm.setAdminPrincipals(principals);
-        
-        // set to ADMIN with an additional ADMIN user
+
         PSFolderPermissionUtils.setFolderPermission(folder, perm);
-        
-        // validate get ADMIN with an additional ADMIN user
-        PSFolderPermission permission = PSFolderPermissionUtils.getFolderPermission(folder);
+        var permission = PSFolderPermissionUtils.getFolderPermission(folder);
         assertEquals(perm, permission);
 
         perm = new PSFolderPermission();
@@ -137,11 +103,8 @@ public class PSFolderPermissionUtilsTest
         principals.clear();
         principals.add(p);
         perm.setWritePrincipals(principals);
-        
-        // set to WRITE with a WRITE user
+
         PSFolderPermissionUtils.setFolderPermission(folder, perm);
-        
-        // validate get WRITE with a WRITE user
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
         assertEquals(perm, permission);
 
@@ -151,102 +114,67 @@ public class PSFolderPermissionUtilsTest
         principals.clear();
         principals.add(p);
         perm.setReadPrincipals(principals);
-        
-        // set to READ with a READ user
+
         PSFolderPermissionUtils.setFolderPermission(folder, perm);
-        
-        // validate get READ with a READ user
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
         assertEquals(perm, permission);
-        
-        // set to default permission
+
         perm = new PSFolderPermission();
         PSFolderPermissionUtils.setFolderPermission(folder, perm);
-        
-        // validate get default permission
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
         assertEquals(perm, permission);
-        
+
         perm = new PSFolderPermission();
         perm.setAccessLevel(PSFolderPermission.Access.READ);
-        List<Principal> adminPrincipals = new ArrayList<Principal>();
-        List<Principal> writePrincipals = new ArrayList<Principal>();
-        List<Principal> readPrincipals = new ArrayList<Principal>();
-        Principal adminUser = new Principal();
+        var adminPrincipals = new ArrayList<Principal>();
+        var writePrincipals = new ArrayList<Principal>();
+        var readPrincipals = new ArrayList<Principal>();
+        var adminUser = new Principal();
         adminUser.setName("user1");
         adminUser.setType(PrincipalType.USER);
         adminPrincipals.add(adminUser);
         perm.setAdminPrincipals(adminPrincipals);
-        Principal writeUser = new Principal();
+        var writeUser = new Principal();
         writeUser.setName("user1");
         writeUser.setType(PrincipalType.USER);
         writePrincipals.add(writeUser);
         perm.setWritePrincipals(writePrincipals);
-        Principal readUser = new Principal();
+        var readUser = new Principal();
         readUser.setName("user1");
         readUser.setType(PrincipalType.USER);
         readPrincipals.add(readUser);
         perm.setReadPrincipals(readPrincipals);
-        
-        // set to READ with one user with READ, WRITE, and ADMIN permission
+
         PSFolderPermissionUtils.setFolderPermission(folder, perm);
-        
-        // validate one ADMIN user remains
         permission = PSFolderPermissionUtils.getFolderPermission(folder);
-        assertFalse(permission.equals(perm));
-        assertTrue(permission.getAdminPrincipals().size() == 1 &&
-                permission.getAdminPrincipals().get(0).equals(adminUser));
+        assertNotEquals(perm, permission);
+        assertEquals(1, permission.getAdminPrincipals().size());
+        assertEquals(adminUser, permission.getAdminPrincipals().get(0));
         assertNull(permission.getWritePrincipals());
-        assertNull(permission.getReadPrincipals());        
+        assertNull(permission.getReadPrincipals());
     }
-    
-    /**
-     * Tests {@link PSFolderPermissionUtils#getUserAcl(PSFolder, String, Collection<String)}.
-     * 
-     * @throws Exception
-     */
+
     @Test
-    public void testGetUserAcl() throws Exception
-    {
-        PSFolder folder = createFolder(PSFolderPermission.Access.ADMIN, PSFolderPermission.Access.WRITE, "user1");
-        PSFolderPermission.Access acl = PSFolderPermissionUtils.getUserAcl(folder, "user1", Collections.singletonList("")).getFirst();
-        
-        assertTrue("user1 should have WRITE permission", acl == PSFolderPermission.Access.WRITE);
-        
+    void testGetUserAcl() {
+        var folder = createFolder(PSFolderPermission.Access.ADMIN, PSFolderPermission.Access.WRITE, "user1");
+        var acl = PSFolderPermissionUtils.getUserAcl(folder, "user1", Collections.singletonList("")).getFirst();
+        assertEquals(PSFolderPermission.Access.WRITE, acl);
+
         acl = PSFolderPermissionUtils.getUserAcl(folder, "user2", Collections.singletonList("Admin")).getFirst();
-        assertTrue("user2 should have ADMIN permission", acl == PSFolderPermission.Access.ADMIN);
+        assertEquals(PSFolderPermission.Access.ADMIN, acl);
     }
-    
-    /**
-     * Create a folder with the specified permission and user with the same permission.
-     * 
-     * @param permission the permission of the created folder, assumed not <code>null</code>.
-     * @param user the name of the user, assumed not <code>null</code>.
-     * 
-     * @return the created folder, never <code>null</code>.
-     */
-    private PSFolder createFolder(PSFolderPermission.Access accessLevel, String user)
-    {
+
+    private PSFolder createFolder(PSFolderPermission.Access accessLevel, String user) {
         return createFolder(accessLevel, accessLevel, user);
     }
-    
-    /**
-     * Create a folder with the specified permission and a user with the specified permission.
-     * 
-     * @param virtualAcl permission of the folder.
-     * @param userAcl permission of the user.
-     * @param userName the name of the user, assumed not <code>null</code>.
-     * 
-     * @return the created folder, never <code>null</code>.
-     */
-    private PSFolder createFolder(PSFolderPermission.Access virtualAccess, PSFolderPermission.Access userAccess, String userName)
-    {
-        PSFolder folder = new PSFolder("folder1", -1, 0, "Test folder");
-        PSObjectAcl acl = new PSObjectAcl();
-        
-        PSFolderPermission permission = new PSFolderPermission();
+
+    private PSFolder createFolder(PSFolderPermission.Access virtualAccess, PSFolderPermission.Access userAccess, String userName) {
+        var folder = new PSFolder("folder1", -1, 0, "Test folder");
+        var acl = new PSObjectAcl();
+
+        var permission = new PSFolderPermission();
         permission.setAccessLevel(virtualAccess);
-        PSFolderPermission.Principal principle = new PSFolderPermission.Principal();
+        var principle = new PSFolderPermission.Principal();
         principle.setType(PSFolderPermission.PrincipalType.USER);
         principle.setName(userName);
         if (userAccess == PSFolderPermission.Access.ADMIN)
@@ -255,10 +183,9 @@ public class PSFolderPermissionUtilsTest
             permission.setWritePrincipals(Collections.singletonList(principle));
         else
             permission.setReadPrincipals(Collections.singletonList(principle));
-        
+
         PSFolderPermissionUtils.setFolderPermission(folder, permission);
-        
+
         return folder;
     }
-    
 }

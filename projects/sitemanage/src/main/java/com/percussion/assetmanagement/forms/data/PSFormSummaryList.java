@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.forms.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,9 +26,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSFormSummary.
+ */
 @XmlRootElement(name = "FormSummary")
-@ArraySchema(schema=@Schema(implementation =PSFormSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSFormSummary.class))
 public class PSFormSummaryList extends ArrayList<PSFormSummary> {
     public PSFormSummaryList(Collection<? extends PSFormSummary> c) {
         super(c);

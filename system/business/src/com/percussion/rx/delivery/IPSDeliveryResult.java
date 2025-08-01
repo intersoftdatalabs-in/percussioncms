@@ -41,6 +41,7 @@ import com.percussion.utils.guid.IPSGuid;
  * 
  * @author dougrand
  */
+// REFACTORED: CP-JAVA11
 public interface IPSDeliveryResult
 {
    /**

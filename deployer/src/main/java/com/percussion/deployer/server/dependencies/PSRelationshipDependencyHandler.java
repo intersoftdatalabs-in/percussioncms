@@ -21,7 +21,6 @@ import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.error.PSDeployException;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,12 +48,12 @@ public class PSRelationshipDependencyHandler  extends PSElementDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
          m_childHandler = getDependencyHandler(
             PSRelationshipDefDependencyHandler.DEPENDENCY_TYPE);
-
+      }
       return m_childHandler;
    }
 
@@ -69,12 +68,13 @@ public class PSRelationshipDependencyHandler  extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
-      return ms_childTypes.iterator();
+   @Override
+   public Iterator<String> getChildTypes() {
+      return List.of(PSRelationshipDefDependencyHandler.DEPENDENCY_TYPE).iterator();
    }
 
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;
@@ -92,17 +92,6 @@ public class PSRelationshipDependencyHandler  extends PSElementDependencyHandler
     * <code>null</code> after that.
     */
    private PSDependencyHandler m_childHandler = null;
-
-   /**
-    * List of child types supported by this handler, it will never be
-    * <code>null</code> or empty.
-    */
-   private static List ms_childTypes = new ArrayList();
-
-   static
-   {
-      ms_childTypes.add(PSRelationshipDefDependencyHandler.DEPENDENCY_TYPE);
-   }
 
 
 }

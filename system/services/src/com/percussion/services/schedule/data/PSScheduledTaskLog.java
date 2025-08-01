@@ -36,10 +36,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * It contains the information of executing a scheduled task. This creates
+ * Contains the information of executing a scheduled task. This creates
  * immutable objects. Note, the second level cache is off (configured in
- * ehcache.xml) because the system does not load individual log entry.
- * 
+ * ehcache.xml) because the system does not load individual log entries.
+ *
  * @author Yu-Bing Chen
  */
 @Entity

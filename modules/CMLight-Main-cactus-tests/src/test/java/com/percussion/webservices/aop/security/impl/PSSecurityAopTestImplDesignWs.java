@@ -27,78 +27,71 @@ import com.percussion.webservices.aop.security.data.PSMockDesignObject;
 import java.util.List;
 
 /**
- * Concreate implementation of the AOP test service interfaces. 
+ * Concrete implementation of the AOP test service interfaces.
  */
 public class PSSecurityAopTestImplDesignWs
-   extends  PSSecurityAopTestImplBase
-   implements IPSSecurityAopTestImplDesignWs
-{
-   @Override
-   @SuppressWarnings(value={"unchecked"})
-   public List<PSMockDesignObject> loadDesignObjects(List<IPSGuid> ids,
-      boolean lock, boolean overrideLock, String session, String user)
-      throws PSErrorResultsException
-   {
-      return super.loadDesignObjects(ids, lock, overrideLock, session, user);
-   }
+        extends PSSecurityAopTestImplBase
+        implements IPSSecurityAopTestImplDesignWs {
 
-   @Override
-   @SuppressWarnings(value={"unchecked"})
-   public List<PSMockDesignObject> loadDesignObjects(String name, boolean lock,
-      boolean overrideLock, String session, String user)
-      throws PSErrorResultsException
-   {
-      return super.loadDesignObjects(name, lock, overrideLock, session, user);
-   }
+    @Override
+    public List<PSMockDesignObject> loadDesignObjects(List<IPSGuid> ids,
+                                                     boolean lock, boolean overrideLock, String session, String user)
+            throws PSErrorResultsException {
+        return super.loadDesignObjects(ids, lock, overrideLock, session, user);
+    }
 
-   @Override
-   public String loadDesignObject(String name, boolean lock,
-            boolean overrideLock, String session, String user)
-            throws PSLockErrorException
-   {
-      return super.loadDesignObject(name, lock, overrideLock, session, user);
-   }
-   @Override
-   public PSMockDesignObject loadDesignObject(boolean lock,
-      boolean overrideLock, String session, String user)
-      throws PSLockErrorException
-   {
-      return super.loadDesignObject(lock, overrideLock, session, user);
-   }
+    @Override
+    public List<PSMockDesignObject> loadDesignObjects(String name, boolean lock,
+                                                     boolean overrideLock, String session, String user)
+            throws PSErrorResultsException {
+        return super.loadDesignObjects(name, lock, overrideLock, session, user);
+    }
 
-   @Override
-   public List<IPSCatalogSummary> findDesignObjects(String name)
-   {
-      return super.findDesignObjects(name);
-   }
+    @Override
+    public String loadDesignObject(String name, boolean lock,
+                                   boolean overrideLock, String session, String user)
+            throws PSLockErrorException {
+        return super.loadDesignObject(name, lock, overrideLock, session, user);
+    }
 
-   public void saveDesignObject(String name, 
-      @SuppressWarnings("unused")String session)
-   {
-      super.saveDesignObject(name);
-   }
+    @Override
+    public PSMockDesignObject loadDesignObject(boolean lock,
+                                               boolean overrideLock, String session, String user)
+            throws PSLockErrorException {
+        return super.loadDesignObject(lock, overrideLock, session, user);
+    }
 
-   public void saveDesignObjects(Object obj, boolean throwException, 
-      @SuppressWarnings("unused")String session) throws PSErrorsException
-   {
-      super.saveDesignObjects(obj, throwException);
-   }
+    @Override
+    public List<IPSCatalogSummary> findDesignObjects(String name) {
+        return super.findDesignObjects(name);
+    }
 
-   public void deleteDesignObject(String name, 
-      @SuppressWarnings("unused")String session)
-   {
-      super.deleteDesignObject(name);
-   }
+    @Override
+    public void saveDesignObject(String name,
+                                 String session) {
+        super.saveDesignObject(name);
+    }
 
-   public void deleteDesignObjects(Object obj, boolean throwException, 
-      @SuppressWarnings("unused")String session) throws PSErrorsException
-   {
-      super.deleteDesignObjects(obj, throwException);
-   }
-   
-   @Override
-   public List<IPSCatalogSummary> findDesignObjectsPerm(String name)
-   {
-      return findDesignObjects(name);
-   }
+    @Override
+    public void saveDesignObjects(Object obj, boolean throwException,
+                                  String session) throws PSErrorsException {
+        super.saveDesignObjects(obj, throwException);
+    }
+
+    @Override
+    public void deleteDesignObject(String name,
+                                   String session) {
+        super.deleteDesignObject(name);
+    }
+
+    @Override
+    public void deleteDesignObjects(Object obj, boolean throwException,
+                                    String session) throws PSErrorsException {
+        super.deleteDesignObjects(obj, throwException);
+    }
+
+    @Override
+    public List<IPSCatalogSummary> findDesignObjectsPerm(String name) {
+        return findDesignObjects(name);
+    }
 }

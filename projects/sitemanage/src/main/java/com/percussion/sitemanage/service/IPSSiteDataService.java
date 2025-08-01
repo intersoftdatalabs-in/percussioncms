@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -37,70 +38,34 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * CRUDS sites.
- * 
- * @author adamgent
- *
+ * CRUD operations for sites.
  */
-public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary, String> {
+public interface IPSSiteDataService extends IPSDataService<PSSite, PSSiteSummary, String> {
+
     /**
-     * The publishing type. Used to indicate which mechanism to be used to
-     * publish to the live site.
+     * The publishing type. Indicates which mechanism is used to publish to the live site.
      */
-    public enum PublishType{
-        /**
-         * Publishing defaults to local
-         */
+    enum PublishType {
         filesystem,
-        /**
-         * Publishing will be done via FTP
-         */
         ftp,
-        /**
-         * Publishing will be done via SFTP
-         */
         sftp,
-        /**
-         * publishing will be done to database
-         */
         database,
-        /**
-         * Publishing defaults to local and avoid meta data indexer
-         */
         filesystem_only,
-        /**
-         * Publishing will be done via FTP and avoid meta data indexer
-         */
         ftp_only,
-        /**
-         * Publishing will be done via FTPS and avoid meta data indexer
-         */
         ftps,
-        /**
-         * Publishing will be done via FTPS and avoid meta data indexer
-         */
         ftps_only,
-        /**
-         * Publishing will be done via SFTP and avoid meta data indexer
-         */
         sftp_only,
-        /**
-         * Publishing will be done using amazon api
-         */
         amazon_s3,
-        /**
-         * Publishing will be done via amazon api and avoid meta data indexer
-         */
         amazon_s3_only;
-        
-        
-        public boolean isFtpType()
-        {
-            return equals(ftp) || equals(ftp_only) || equals(sftp) || equals(sftp_only) || equals(ftps) || equals(ftps_only);
+
+        public boolean isFtpType() {
+            return this == ftp || this == ftp_only || this == sftp || this == sftp_only
+                    || this == ftps || this == ftps_only;
         }
-     }
-    
-    public PSSiteSummary find(String id) throws DataServiceLoadException, PSValidationException, IPSGenericDao.LoadException;
+    }
+
+    PSSiteSummary find(String id)
+            throws DataServiceLoadException, PSValidationException, IPSGenericDao.LoadException;
 
     /**
      * Finds the site and adds the publishing info based on the includePubInfo flag.
@@ -109,8 +74,9 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @return site summary 
      * @throws DataServiceLoadException
      */
-    public PSSiteSummary find(String id, boolean includePubInfo) throws DataServiceLoadException, PSValidationException, IPSGenericDao.LoadException;
-    
+    PSSiteSummary find(String id, boolean includePubInfo)
+            throws DataServiceLoadException, PSValidationException, IPSGenericDao.LoadException;
+
     /**
      * Finds the site summary by the legacy ID.
      * 
@@ -123,27 +89,29 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * 
      * @throws DataServiceLoadException if cannot find the specified site.
      */
-    public PSSiteSummary findByLegacySiteId(String id, boolean isValidate) throws DataServiceLoadException, PSValidationException;
-    
-    public PSSiteSummary findByPath(String path) throws DataServiceNotFoundException, PSValidationException;
+    PSSiteSummary findByLegacySiteId(String id, boolean isValidate)
+            throws DataServiceLoadException, PSValidationException;
 
-    public List<PSSiteSummary> findAll();
+    PSSiteSummary findByPath(String path)
+            throws DataServiceNotFoundException, PSValidationException;
+
+    List<PSSiteSummary> findAll();
 
     /***
      * Gets the publishing server info for the supplied siteid
      * @param siteId
      * @return may be null or a publishing server
      */
-    public PSPubInfo getS3PubServerInfo(long siteId);
+    PSPubInfo getS3PubServerInfo(long siteId);
     /**
      * Returns the site summaries, adds the publishing info if includePubInfo is <code>true</code>.
      * @param includePubInfo if <code>true</code> adds the publishing info, the value may be <code>null</code>
      * if the site's default server is not amazon s3 server.
      * @return List<PSSiteSummary> of all sites.
      */
-    public List<PSSiteSummary> findAll(boolean includePubInfo);
+    List<PSSiteSummary> findAll(boolean includePubInfo);
 
-    public void delete(String id) throws PSDataServiceException;
+    void delete(String id) throws PSDataServiceException;
 
     /**
      * Creates the specified site and its related components.
@@ -153,8 +121,8 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * 
      * @return the created site, never <code>null</code>.
      */
-    public PSSite save(PSSite site) throws PSDataServiceException;
-    
+    PSSite save(PSSite site) throws PSDataServiceException;
+
     /**
      * Creates the specified site importing its content from an external URL.
      * Its related components are also created.
@@ -170,8 +138,9 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @deprecated use the async method instead.
      */
     @Deprecated
-    public PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site) throws PSSiteImportException, PSValidationException;
-    
+    PSSite createSiteFromUrl(@Context HttpServletRequest request, PSSite site)
+            throws PSSiteImportException, PSValidationException;
+
     /**
      * Creates the specified site importing its content from an external URL.
      * Its related components are also created.
@@ -186,8 +155,9 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @throws PSSiteImportException if an unexpected error occurred during site
      *             import.
      */
-    public Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config) throws PSValidationException, IPSFolderService.PSWorkflowNotFoundException;
-    
+    Long createSiteFromUrlAsync(@Context HttpServletRequest request, PSSiteImportConfiguration config)
+            throws PSValidationException, IPSFolderService.PSWorkflowNotFoundException;
+
     /**
      * Once the import from url job is completed, it gets the site that was
      * imported in the process.
@@ -199,9 +169,9 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      *         finished, or if it wasn't possible to retrieve result from the
      *         job.
      */
-    public PSSite getImportedSite(Long jobId);
+    PSSite getImportedSite(Long jobId);
 
-    public PSValidationErrors validate(PSSite site) throws PSValidationException;
+    PSValidationErrors validate(PSSite site) throws PSValidationException;
 
     /**
      * Gets the properties of the specified site.
@@ -210,8 +180,9 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * 
      * @return the specified site properties, never <code>null</code>.
      */
-    public PSSiteProperties getSiteProperties(String siteName) throws IPSSiteSectionService.PSSiteSectionException, PSValidationException, PSNotFoundException;
-    
+    PSSiteProperties getSiteProperties(String siteName)
+            throws IPSSiteSectionService.PSSiteSectionException, PSValidationException, PSNotFoundException;
+
     /**
      * Updates the specified site properties.
      * 
@@ -219,15 +190,17 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * 
      * @return the updated properties, never <code>null</code>.
      */
-    public PSSiteProperties updateSiteProperties(PSSiteProperties props) throws PSDataServiceException, PSNotFoundException;
-    
+    PSSiteProperties updateSiteProperties(PSSiteProperties props)
+            throws PSDataServiceException, PSNotFoundException;
+
     /**
      * Gets the publishing properties of the specified site
      * @param siteName name of the site, not blank
      * @return sites publishing properties never <code>null</code>.
      */
-    public PSSitePublishProperties getSitePublishProperties(String siteName) throws PSValidationException, PSNotFoundException;
-   
+    PSSitePublishProperties getSitePublishProperties(String siteName)
+            throws PSValidationException, PSNotFoundException;
+
     /**
      * Updates the specified site with publish properties, the specified site is
      * in publishprops
@@ -238,15 +211,16 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @throws IOException if an error takes place when handling the secure
      *             configuration files.
      */
-    public PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps) throws DataServiceSaveException, PSNotFoundException;
-    
+    PSSitePublishProperties updateSitePublishProperties(PSSitePublishProperties publishProps)
+            throws DataServiceSaveException, PSNotFoundException;
+
     /**
      * Finds all choices.  A choice is comprised of a value (site name).  See {@link PSEnumVals.EnumVal} for details.
      *
      * @return the choices as a {@link PSEnumVals} object, never <code>null</code>.
      */
-    public PSEnumVals getChoices();
-    
+    PSEnumVals getChoices();
+
     /**
      * Finds all choices.  A choice is comprised of a value (site name).  See {@link PSEnumVals.EnumVal} for details.
      *
@@ -259,8 +233,8 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * 
      * @return Source and Target in a {@link PSMapWrapper} object.
      */
-    public PSMapWrapper getCopySiteInfo();
-    
+    PSMapWrapper getCopySiteInfo();
+
     /**
      * Create a full publish edition for the specified publish server.
      * 
@@ -269,7 +243,8 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @param isDefaultServer boolean flag that indicates whether the publish server is the default, not <code>null</code>.
      * 
      */
-    public void createPublishingItemsForPubServer(IPSSite site, PSPubServer pubServer, boolean isDefaultServer) throws PSNotFoundException;
+    void createPublishingItemsForPubServer(IPSSite site, PSPubServer pubServer, boolean isDefaultServer)
+            throws PSNotFoundException;
 
     /**
      * Update the publish edition to set the default publish server.
@@ -278,8 +253,8 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @param pubServer the pubServer associated to the edition, not <code>null</code>.
      * 
      */
-    public void setPublishServerAsDefault(IPSSite site, PSPubServer pubServer) throws PSNotFoundException;
-    
+    void setPublishServerAsDefault(IPSSite site, PSPubServer pubServer) throws PSNotFoundException;
+
     /**
      * Update the publish edition to set the default publish server.
      * 
@@ -307,8 +282,8 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @param pubServer the pubServer associated to the edition, not <code>null</code>.
      * 
      */
-    public void deletePublishingItemsByPubServer(PSPubServer pubServer) throws PSNotFoundException;
-    
+    void deletePublishingItemsByPubServer(PSPubServer pubServer) throws PSNotFoundException;
+
     /**
      * Update a full publish edition for the specified publish server.
      * 
@@ -318,16 +293,17 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @param isDefaultServer boolean flag that indicates whether the publish server is the default, not <code>null</code>.
      * 
      */
-    public void updateServerEditions(IPSSite site, PSPubServer oldServer, PSPubServer pubServer, boolean isDefaultServer) throws PSNotFoundException;
-    
+    void updateServerEditions(IPSSite site, PSPubServer oldServer, PSPubServer pubServer, boolean isDefaultServer)
+            throws PSNotFoundException;
+
     /**
      * Gets the statistics of the specified site.
      * 
      * @param siteId id of the site, not blank
      * @return site statistics never <code>null</code>.
      */
-    public PSSiteStatisticsSummary getSiteStatistics(String siteId) throws PSDataServiceException;
-   
+    PSSiteStatisticsSummary getSiteStatistics(String siteId) throws PSDataServiceException;
+
     
     /**
      * Loads all the json files from {@value #SAAS_SITE_CONFIG_FOLDER_PATH} folder and
@@ -337,11 +313,11 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * if this flag is set to <code>true</code>.
      * @return map of site names and config file names.
      */
-    public PSMapWrapper getSaaSSiteNames(boolean filterUsedSites) throws DataServiceLoadException;
-   
-    public PSSaasSiteConfig getSaasSiteConfig(String siteName) throws DataServiceLoadException;
-    
-    public String isSiteBeingImported(String sitename) throws PSDataServiceException;
+    PSMapWrapper getSaaSSiteNames(boolean filterUsedSites) throws DataServiceLoadException;
+
+    PSSaasSiteConfig getSaasSiteConfig(String siteName) throws DataServiceLoadException;
+
+    String isSiteBeingImported(String sitename) throws PSDataServiceException;
 
     /***
      * Finds a site by name;
@@ -349,10 +325,10 @@ public interface IPSSiteDataService extends IPSDataService<PSSite,PSSiteSummary,
      * @param name  The site name, never null
      * @return the Site
      */
-    public PSSiteSummary findByName(String name) throws DataServiceLoadException, PSValidationException;
+    PSSiteSummary findByName(String name) throws DataServiceLoadException, PSValidationException;
 
     /**
      * Constant for the folder path where the site configuration is stored.
      */
-    public static final String SAAS_SITE_CONFIG_FOLDER_PATH = "/var/config/saas/siteconfig";
+    String SAAS_SITE_CONFIG_FOLDER_PATH = "/var/config/saas/siteconfig";
 }

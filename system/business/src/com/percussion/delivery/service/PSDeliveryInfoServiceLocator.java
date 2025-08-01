@@ -22,6 +22,7 @@ import com.percussion.services.PSBaseServiceLocator;
  * Delivery Info Service locator 
  * @author YuBingChen
  */
+// REFACTORED: CP-JAVA11
 public class PSDeliveryInfoServiceLocator extends PSBaseServiceLocator
 {
    private static volatile IPSDeliveryInfoService infoService = null;

@@ -15,112 +15,96 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
+import java.util.Optional;
 import java.util.ResourceBundle;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.annotation.XmlRootElement;
+
+/**
+ * Base class for REST exceptions in Percussion CMS.
+ * Sunny Sal: "Exception ka baap yeh hai!"
+ */
 @XmlRootElement(name = "Error")
-public class RestExceptionBase extends WebApplicationException
-{
+public class RestExceptionBase extends WebApplicationException {
+
     private RestErrorCode errorCode;
-
     private String message;
-
     private String detailMessage;
-
     private Object errorData;
-
     private Status status;
 
-    public RestExceptionBase()
-    {
-        
+    public RestExceptionBase() {
+        // Default constructor for frameworks
     }
-    
-    public RestExceptionBase(RestErrorCode errorCode, String detailMessage, Object errorData, Status status)
-    {
+
+    public RestExceptionBase(RestErrorCode errorCode, String detailMessage, Object errorData, Status status) {
         this(errorCode, null, detailMessage, errorData, status);
     }
 
-    public RestExceptionBase(RestErrorCode errorCode, String message, String detailMessage, Object errorData, Status status)
-    {
+    public RestExceptionBase(RestErrorCode errorCode, String message, String detailMessage, Object errorData, Status status) {
         this.errorCode = errorCode;
-        if (message == null)
-        {
-            ResourceBundle errorMsg = ResourceBundle.getBundle("com.percussion.rest.errors.ErrorMessages");
+        if (message == null) {
+            var errorMsg = ResourceBundle.getBundle("com.percussion.rest.errors.ErrorMessages");
             this.message = errorMsg.getString(Integer.toString(errorCode.getNumVal()));
-        }
-        else
-        {
+        } else {
             this.message = message;
         }
         this.detailMessage = detailMessage;
         this.errorData = errorData;
-        if (status == null)
-        {
-            this.status = Status.INTERNAL_SERVER_ERROR;
-        }
-        else
-        {
-            this.status = status;
-        }
-
+        this.status = status == null ? Status.INTERNAL_SERVER_ERROR : status;
     }
 
-    public RestErrorCode getErrorCode()
-    {
+    public RestErrorCode getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(RestErrorCode errorCode)
-    {
+    public void setErrorCode(RestErrorCode errorCode) {
         this.errorCode = errorCode;
     }
 
-    public String getMessage()
-    {
+    public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message)
-    {
+    public void setMessage(String message) {
         this.message = message;
     }
 
-    public String getDetailMessage()
-    {
+    public String getDetailMessage() {
         return detailMessage;
     }
 
-    public void setDetailMessage(String detailMessage)
-    {
+    public void setDetailMessage(String detailMessage) {
         this.detailMessage = detailMessage;
     }
 
-    public Object getErrorData()
-    {
-        return errorData;
+    /**
+     * Returns the error data as an Optional.
+     *
+     * @return Optional containing error data if present
+     */
+    public Optional<Object> getErrorData() {
+        return Optional.ofNullable(errorData);
     }
 
-    public void setErrorData(Object errorData)
-    {
+    public void setErrorData(Object errorData) {
         this.errorData = errorData;
     }
 
-    public Status getStatus()
-    {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(Status status)
-    {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    public RestExceptionBase(Throwable cause){
+    public RestExceptionBase(Throwable cause) {
         super(cause);
     }
 }

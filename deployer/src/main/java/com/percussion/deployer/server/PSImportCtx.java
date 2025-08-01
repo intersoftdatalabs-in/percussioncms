@@ -35,8 +35,7 @@ import java.util.Set;
 /**
  * Contains objects used during the installation of deployment packages.
  */
-public class PSImportCtx 
-{
+public class PSImportCtx {
 
    /**
     * Construct the import context for the current import job.
@@ -57,23 +56,23 @@ public class PSImportCtx
     */
    public PSImportCtx(String userId, PSDbmsInfo sourceRepository, 
       PSDbmsMap dbmsMap, PSIdMapManager idMapMgr, PSLogHandler logHander, 
-         PSAppPolicySettings policySettings)
-   {
-      if (userId == null || userId.trim().length() == 0)
+         PSAppPolicySettings policySettings) {
+      if (userId == null || userId.isBlank()) {
          throw new IllegalArgumentException("userId may not be null or empty");
-      
-      if (sourceRepository == null)
+      }
+      if (sourceRepository == null) {
          throw new IllegalArgumentException("sourceRepository may not be null");
-      
-      if (idMapMgr == null)
+      }
+      if (idMapMgr == null) {
          throw new IllegalArgumentException("idMapMgr may not be null");
-      
-      if (logHander == null)
+      }
+      if (logHander == null) {
          throw new IllegalArgumentException("logHander may not be null");
-      
-      if (policySettings == null)
+      }
+      if (policySettings == null) {
          throw new IllegalArgumentException("policySettings may not be null");
-      
+      }
+
       m_userId = userId;
       m_repository = sourceRepository;
       m_dbmsMap = dbmsMap;
@@ -236,15 +235,9 @@ public class PSImportCtx
     */
    public int getNextTxnSequence(int packageLogId)
    {
-      // default to 1 if first call
-      Integer pkgId = new Integer(packageLogId);
-      int nextId = 1;
-      Integer lastId = (Integer)m_txnSeqMap.get(pkgId);
-      if (lastId != null)
-         nextId = lastId.intValue() + 1;
-      
-      m_txnSeqMap.put(pkgId, new Integer(nextId));
-      
+      var pkgId = Integer.valueOf(packageLogId);
+      var nextId = m_txnSeqMap.getOrDefault(pkgId, 0) + 1;
+      m_txnSeqMap.put(pkgId, nextId);
       return nextId;
    }
 
@@ -469,16 +462,16 @@ public class PSImportCtx
     * <code>String</code> object, value is a <code>List</code> of package
     * keys as <code>String</code> objects.
     */
-   private Map m_installedPkgDeps = new HashMap();
-   
+   private Map<String, Set<String>> m_installedPkgDeps = new HashMap<>();
+
    /**
     * Map of pacakge log ids to next transaction sequence number.  Key is the
     * package log id, and value is the last transaction sequence number used,
     * both as <code>Integer</code> objets.  Never <code>null</code>, modified
     * by calls to {@link #getNextTxnSequence(int)}.
     */
-   private Map m_txnSeqMap = new HashMap();
-   
+   private Map<Integer, Integer> m_txnSeqMap = new HashMap<>();
+
    /**
     * A place holder for the current dependency that is being deployed. This is 
     * for tracking installation of package errors, so that the user can have 

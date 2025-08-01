@@ -28,7 +28,8 @@ import java.util.List;
 
 @Component
 @Lazy
-public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor{
+public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor {
+
     @Override
     public List<DisplayFormat> createDisplayFormats(List<String> names, String session, String user) {
         return null;
@@ -36,26 +37,29 @@ public class DisplayFormatTestAdaptor implements IDisplayFormatAdaptor{
 
     @Override
     public void deleteDisplayFormats(List<IPSGuid> ids, boolean ignoreDependencies, String session, String user) {
-
+        // No-op for test adaptor
     }
 
     @Override
-    public List<DisplayFormat> findAllDisplayFormats() throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
+    public List<DisplayFormat> findAllDisplayFormats()
+            throws PSCmsException, PSErrorResultsException, PSUnknownNodeTypeException {
         return null;
     }
 
     @Override
-    public DisplayFormat findDisplayFormat(IPSGuid id) throws PSCmsException, PSUnknownNodeTypeException {
+    public DisplayFormat findDisplayFormat(IPSGuid id)
+            throws PSCmsException, PSUnknownNodeTypeException {
         return null;
     }
 
     @Override
-    public DisplayFormat findDisplayFormat(String name) throws PSCmsException, PSUnknownNodeTypeException {
+    public DisplayFormat findDisplayFormat(String name)
+            throws PSCmsException, PSUnknownNodeTypeException {
         return null;
     }
 
     @Override
     public void saveDisplayFormats(List<DisplayFormat> displayFormats, boolean release, String session, String user) {
-
+        // No-op for test adaptor
     }
 }

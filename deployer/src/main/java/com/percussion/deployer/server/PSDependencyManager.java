@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server;
 
 import com.percussion.deployer.client.IPSDeployConstants;
@@ -57,8 +58,7 @@ import java.util.*;
  * creates and holds an instance when initialized. All other classes should call
  * {@link #getInstance()} to obtain an instance of this class.
  */
-public class PSDependencyManager implements IPSDependencyManagerBaseline
-{
+public class PSDependencyManager implements IPSDependencyManagerBaseline {
    /**
     * Singleton instance of this class. Initialized when first instance of the
     * class is constructed, never <code>null</code> or modified after that.
@@ -75,21 +75,16 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline
     * initialized. All other classes should call {@link #getInstance()} to
     * obtain an instance of this class.
     */
-   private PSDependencyManager()
-   {
+   private PSDependencyManager() {
 
       String configDir = ms_configDir;
       boolean buildDepMaps = true;
-      try
-      {
-         if (ms_configDir == null)
-         {
+      try {
+         if (ms_configDir == null) {
             configDir = PSDeploymentHandler.CFG_DIR.getPath();
          }
          loadConfigFiles(configDir, buildDepMaps);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          log.error("Failed to load config file from {}. Error: {}" ,
                  configDir,
                  PSExceptionUtils.getDebugMessageForLog(e));
@@ -102,8 +97,7 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline
     * @param configDir the configuration directory, may not be <code>null</code>
     * or empty.
     */
-   public static void setConfigDir(String configDir)
-   {
+   public static void setConfigDir(String configDir) {
       if (StringUtils.isBlank(configDir))
          throw new IllegalArgumentException("configDir cannot be null.");
 
@@ -117,25 +111,19 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline
     * empty.
     */
    private void loadConfigFiles(String dir, boolean buildDepMaps) throws PSDeployException {
+      var rootDir = new File(dir);
+      var depMapFile = new File(rootDir, CONFIG_FILE_NAME);
+      try (var in = new FileInputStream(depMapFile)) {
+         var doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+         var config = new PSPackageConfiguration(doc.getDocumentElement(), buildDepMaps);
 
-         File rootDir = new File(dir);
-         File depMapFile = new File(rootDir, CONFIG_FILE_NAME);
-         try(FileInputStream in = new FileInputStream(depMapFile)){
-            Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-            PSPackageConfiguration config = new PSPackageConfiguration(doc
-                  .getDocumentElement(), buildDepMaps);
-
-            m_deployOrder = config.getDeployOrder();
-            m_uninstallIgnoreTypes = config.getUninstallIgnoreTypes();
-            m_depMap = config.getDependencyMap();
-            createTypeMappings();
+         m_deployOrder = config.getDeployOrder();
+         m_uninstallIgnoreTypes = config.getUninstallIgnoreTypes();
+         m_depMap = config.getDependencyMap();
+         createTypeMappings();
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_MGR_INIT, e.toString());
       }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.DEPENDENCY_MGR_INIT,
-               e.toString());
-      }
-
    }
 
    /**
@@ -1124,19 +1112,15 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline
       if (dep == null) {
          throw new IllegalArgumentException(NULL_DEPENDENCY);
       }
-      // save dep as Xml file in directory named using its parent's key
-      String name = "UserDep" + dep.getKey();
-      File depDir = new File(USER_DEP_DIR, dep.getParentKey());
+      var name = "UserDep" + dep.getKey();
+      var depDir = new File(USER_DEP_DIR, dep.getParentKey());
       depDir.mkdirs();
-      File depFile = new File(depDir, name + ".xml");
-      try(FileOutputStream out = new FileOutputStream(depFile)){
-         Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      var depFile = new File(depDir, name + ".xml");
+      try (var out = new FileOutputStream(depFile)) {
+         var doc = PSXmlDocumentBuilder.createXmlDocument();
          PSXmlDocumentBuilder.write(dep.toXml(doc), out);
-      }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e
-               .getLocalizedMessage());
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
 
    }
@@ -1549,27 +1533,21 @@ public class PSDependencyManager implements IPSDependencyManagerBaseline
    private Iterator<PSUserDependency> getUserDependencies(PSDependency dep)
       throws PSDeployException
    {
-      List<PSUserDependency> deps = new ArrayList<>();
-      File depDir = new File(USER_DEP_DIR, dep.getKey());
-      if (depDir.exists())
-      {
-         File[] depFiles = depDir.listFiles();
-         if(depFiles != null) {
-            for (File depFile : depFiles) {
-               try (FileInputStream in = new FileInputStream(depFile)) {
-                  Document doc = PSXmlDocumentBuilder
-                          .createXmlDocument(in, false);
-                  PSUserDependency userDep = new PSUserDependency(doc
-                          .getDocumentElement());
+      var deps = new ArrayList<PSUserDependency>();
+      var depDir = new File(USER_DEP_DIR, dep.getKey());
+      if (depDir.exists()) {
+         var depFiles = depDir.listFiles();
+         if (depFiles != null) {
+            for (var depFile : depFiles) {
+               try (var in = new FileInputStream(depFile)) {
+                  var doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+                  var userDep = new PSUserDependency(doc.getDocumentElement());
                   if (!userDep.getPath().exists())
                      depFile.delete();
-                  else {
+                  else
                      deps.add(userDep);
-                  }
                } catch (Exception e) {
-                  throw new PSDeployException(
-                          IPSDeploymentErrors.UNEXPECTED_ERROR, e
-                          .getMessage());
+                  throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getMessage());
                }
             }
          }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,40 +27,33 @@ import java.util.List;
 /**
  * Represents a list of users.
  * <p>
- * Some tools have problems serializing a list of strings
+ * Some tools have problems serializing a list of strings,
  * hence this wrapping object.
- * 
+ * </p>
  * @author adamgent
  * @author DavidBenua
- *
  */
 @XmlRootElement(name = "UserList")
 @JsonRootName("UserList")
-public class PSUserList extends PSAbstractDataObject
-{
+public class PSUserList extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
     private List<String> users;
-    
-    public PSUserList()
-    {
+
+    public PSUserList() {
         users = new ArrayList<>();
     }
 
     /**
-     * @return the users
+     * Gets the users.
      */
-    public List<String> getUsers()
-    {
+    public List<String> getUsers() {
         return users;
     }
 
     /**
-     * @param users the users to set
+     * Sets the users.
      */
-    public void setUsers(List<String> users)
-    {
+    public void setUsers(List<String> users) {
         this.users = users;
     }
-    
-    
 }

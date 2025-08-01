@@ -553,21 +553,15 @@ public class PSSiteSectionService implements IPSSiteSectionService
     
     @Override
     public List<PSSiteBlogProperties> getAllBlogs() throws PSDataServiceException {
-        List<PSSiteBlogProperties> allBlogsList = new ArrayList<>();
-        List<PSSite> sites = siteDao.findAll();
-        for(PSSite site:sites)
-        {
-            List<PSSiteBlogProperties> siteBlogsList = new ArrayList<>();
-            try
-            {
-                siteBlogsList = getBlogsForSingleSite(site.getName());
+        var allBlogsList = new ArrayList<PSSiteBlogProperties>();
+        var sites = siteDao.findAll();
+        for (var site : sites) {
+            try {
+                allBlogsList.addAll(getBlogsForSingleSite(site.getName()));
+            } catch (PSNotFoundException e) {
+                log.error("Failed to load the root section for the site: {}, Error: {}", site.getName(), PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
-            catch (PSNotFoundException e)
-            {
-                 log.error("Failed to load the root section for the site: {}, Error: {}", site.getName(),PSExceptionUtils.getMessageForLog(e));
-                 log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-            allBlogsList.addAll(siteBlogsList);
         }
         return allBlogsList;
     }
@@ -900,32 +894,24 @@ public class PSSiteSectionService implements IPSSiteSectionService
      * @return list of blog template ids never null may be empty.
      */
     private List<String> getBlogTemplateIdsForSite(String siteName) throws PSSiteSectionException, com.percussion.services.error.PSNotFoundException {
-       List<String> blogTemplateIds = new ArrayList<>();
-       List<PSSiteSection> allSections =loadAllSectionsForSingleSite(siteName);
-       
-       for(PSSiteSection siteSection : allSections)
-       {
-           try
-           {
-               List<PSFolder> folders = contentSrv.loadFolders(new String[]{siteSection.getFolderPath()});
-               if (!folders.isEmpty())
-               {
-                    String blogPostTemplateId = folders.get(0).getPropertyValue(BLOG_POST_TEMPLATE_PROP);
-                    String blogIndexTemplateId = folders.get(0).getPropertyValue(BLOG_INDEX_TEMPLATE_PROPS);
-                    
-                    if(StringUtils.isNotBlank(blogIndexTemplateId))
-                          blogTemplateIds.add(blogIndexTemplateId);
-                    
-                    if(StringUtils.isNotBlank(blogPostTemplateId))
-                          blogTemplateIds.add(blogPostTemplateId);
-               }
-           }
-           catch (PSErrorResultsException e)
-           {
-               log.error("Failed to load the folder for the path {}", siteSection.getFolderPath());
-           }
-       }
-       return blogTemplateIds; 
+        var blogTemplateIds = new ArrayList<String>();
+        var allSections = loadAllSectionsForSingleSite(siteName);
+        for (var siteSection : allSections) {
+            try {
+                var folders = contentSrv.loadFolders(new String[]{siteSection.getFolderPath()});
+                if (!folders.isEmpty()) {
+                    var blogPostTemplateId = folders.get(0).getPropertyValue(BLOG_POST_TEMPLATE_PROP);
+                    var blogIndexTemplateId = folders.get(0).getPropertyValue(BLOG_INDEX_TEMPLATE_PROPS);
+                    if (StringUtils.isNotBlank(blogIndexTemplateId))
+                        blogTemplateIds.add(blogIndexTemplateId);
+                    if (StringUtils.isNotBlank(blogPostTemplateId))
+                        blogTemplateIds.add(blogPostTemplateId);
+                }
+            } catch (PSErrorResultsException e) {
+                log.error("Failed to load the folder for the path {}", siteSection.getFolderPath());
+            }
+        }
+        return blogTemplateIds;
     }
 
     /**
@@ -1810,17 +1796,12 @@ public class PSSiteSectionService implements IPSSiteSectionService
      * @return
      */
     private List<PSSiteSection> loadAllSectionsForSingleSite(String siteName) throws PSSiteSectionException, com.percussion.services.error.PSNotFoundException {
-        PSSiteSection  rootSection = new PSSiteSection();
-        List<PSSiteSection> allSections = new ArrayList<>();
-        List<PSSiteSection> childSections = new ArrayList<>();
-        rootSection = loadRoot(siteName);
-        childSections = loadChildSections(rootSection);
-        for(PSSiteSection section :childSections)
-        {
+        var allSections = new ArrayList<PSSiteSection>();
+        var rootSection = loadRoot(siteName);
+        var childSections = loadChildSections(rootSection);
+        for (var section : childSections) {
             allSections.add(section);
-            List<PSSiteSection> sections = new ArrayList<>();
-            sections = getAllDescendantSections(sections,section);
-            allSections.addAll(sections);
+            allSections.addAll(getAllDescendantSections(new ArrayList<>(), section));
         }
         return allSections;
     }
@@ -1834,11 +1815,10 @@ public class PSSiteSectionService implements IPSSiteSectionService
      */
     private List<PSSiteSection> getAllDescendantSections(List<PSSiteSection> sections, PSSiteSection section)
     {
-        List<PSSiteSection> childSections = loadChildSections(section);
-        for(PSSiteSection child: childSections)
-        {
+        var childSections = loadChildSections(section);
+        for (var child : childSections) {
             sections.add(child);
-            getAllDescendantSections(sections,child);
+            getAllDescendantSections(sections, child);
         }
         return sections;
     }
@@ -1920,8 +1900,8 @@ public class PSSiteSectionService implements IPSSiteSectionService
         page.setTemplateId(req.getTemplateId());
         page.setLinkTitle(req.getPageLinkTitle());
 
-        pageDaoHelper.setWorkflowAccordingToParentFolder(page);
-        
+        pageDaoHelper.setWorkflowAccordingtoParentFolder(page);
+
         page = pageDao.save(page);
         IPSGuid pageId = idMapper.getGuid(page.getId());
 
@@ -1935,7 +1915,7 @@ public class PSSiteSectionService implements IPSSiteSectionService
         return page;
     }
 
-    /*
+   /*
      * //see base interface method for details
      */
     public void delete(String id) throws PSValidationException, DataServiceSaveException {
@@ -2161,8 +2141,8 @@ public class PSSiteSectionService implements IPSSiteSectionService
 
             // check to see if landing page is checked out to another user
             IPSGuid navonId = idMapper.getGuid(req.getId());
-            PSLegacyGuid landingPageId = (PSLegacyGuid)navSrv.getLandingPageFromNavnode(navonId);
-            
+            PSLegacyGuid landingPageId = (PSLegacyGuid)navSrv.getLandingPageFromNavon(navonId);
+
             if(landingPageId == null){
             	log.warn("No Landing Page detected for Section {} attempting to auto-detect Landing Page.",  newFolderName );
             	landingPageId = fixMissingLandingPage(navonId);

@@ -15,18 +15,20 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.velocity.IVelocityAdaptor;
 import com.percussion.util.PSSiteManageBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+/**
+ * Adaptor for Velocity-related operations in Percussion CMS.
+ */
 @PSSiteManageBean
 public class VelocityAdaptor implements IVelocityAdaptor {
 
-
-    public VelocityAdaptor(){
-
+    public VelocityAdaptor() {
+        // No-op constructor for dependency injection.
     }
 }

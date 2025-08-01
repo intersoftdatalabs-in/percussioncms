@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,6 +27,9 @@ import java.util.Iterator;
 public interface IPSTableChangeListener
 {
    /**
+    * // REFACTORED: CP-JAVA11
+    */
+   /**
     * Gets the column names to include in any table change events this listener
     * is interested in receiving.
     *
@@ -43,7 +47,7 @@ public interface IPSTableChangeListener
     *
     * @throws IllegalArgumentException if any param is invalid.
     */
-   public Iterator getColumns(String tableName, int actionType);
+   public Iterator<String> getColumns(String tableName, int actionType);
 
    /**
     * Called to notify listeners when a table has been changed by an update

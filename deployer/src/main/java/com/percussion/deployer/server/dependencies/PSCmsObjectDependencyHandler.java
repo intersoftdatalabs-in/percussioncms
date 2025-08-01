@@ -49,6 +49,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Base class to provide utility methods for all handlers deploying cms objects.
@@ -361,16 +362,11 @@ public abstract class PSCmsObjectDependencyHandler
       if (handler == null)
          throw new IllegalArgumentException("handler may not be null");
 
-      List<PSDependency> deps = new ArrayList<>();
-      Iterator vals = prop.iterator();
-      while (vals.hasNext())
-      {
-         String val = (String)vals.next();
-         PSDependency dep = handler.getDependency(tok, val);
-         if (dep != null)
-            deps.add(dep);
-      }
-
+      var deps = new ArrayList<PSDependency>();
+      prop.iterator().forEachRemaining(val -> {
+          var dep = handler.getDependency(tok, val);
+          Optional.ofNullable(dep).ifPresent(deps::add);
+      });
       return deps;
    }
 

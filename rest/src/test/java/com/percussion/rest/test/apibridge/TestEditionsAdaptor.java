@@ -15,12 +15,17 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.editions.IEditionsAdaptor;
 import com.percussion.rest.editions.PublishResponse;
 import org.springframework.stereotype.Component;
 
+/**
+ * Test adaptor for Editions API bridge.
+ */
 @Component
 public class TestEditionsAdaptor implements IEditionsAdaptor {
 

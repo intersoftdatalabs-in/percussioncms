@@ -41,11 +41,12 @@ import javax.ws.rs.NotFoundException;
 import java.util.List;
 
 
+// REFACTORED: CP-JAVA11
 @PSSiteManageBean
 @Lazy
 public class AclAdaptor implements IAclAdaptor {
 
-    private Logger log = LogManager.getLogger(this.getClass());
+    private final Logger log = LogManager.getLogger(this.getClass());
 
     @Autowired
     private IPSAclService aclService;
@@ -53,10 +54,9 @@ public class AclAdaptor implements IAclAdaptor {
     /***
      * CTOR
      */
-    public AclAdaptor(){
+    public AclAdaptor() {
         // Left blank
     }
-
 
     @Override
     public UserAccessLevel getUserAccessLevel(Guid objectGuid) {
@@ -67,48 +67,40 @@ public class AclAdaptor implements IAclAdaptor {
 
     @Override
     public UserAccessLevel calculateUserAccessLevel(String aclGuid) {
-            UserAccessLevel ret = null;
+        UserAccessLevel ret = null;
         Guid g = null;
         IPSAcl acl = null;
 
-        {
-            if(!StringUtils.isEmpty(aclGuid)) {
-                g = new Guid(aclGuid);
-            }
-            else {
-                g = null;
-            }
+        if (StringUtils.isNotEmpty(aclGuid)) {
+            g = new Guid(aclGuid);
         }
         try {
-            if(g != null) {
+            if (g != null) {
                 acl = aclService.loadAcl(ApiUtils.convertGuid(g));
             }
-        }catch(PSSecurityException e){
-            log.error("Error loading acl " + aclGuid,e);
+        } catch (PSSecurityException e) {
+            log.error("Error loading acl {}", aclGuid, e);
         }
 
-         ret = ApiUtils.convertPSUserAccessLevel(
+        ret = ApiUtils.convertPSUserAccessLevel(
                 aclService.calculateUserAccessLevel(acl));
 
-
-    return ret;
+        return ret;
     }
 
     @Override
     public Acl createAcl(Guid objGuid, TypedPrincipal owner) {
-        return ApiUtils.convertAcl((PSAclImpl)aclService.createAcl(ApiUtils.convertGuid(objGuid),ApiUtils.convertPrincipalType(owner)));
+        return ApiUtils.convertAcl((PSAclImpl) aclService.createAcl(ApiUtils.convertGuid(objGuid), ApiUtils.convertPrincipalType(owner)));
     }
 
     @Override
     public AclList loadAcls(GuidList aclGuids) throws PSSecurityException {
-
         return ApiUtils.convertAcls(aclService.loadAcls(ApiUtils.convertGuids(aclGuids)));
-
     }
 
     @Override
     public Acl loadAcl(Guid aclGuid) throws PSSecurityException {
-        return ApiUtils.convertAcl((PSAclImpl)aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
+        return ApiUtils.convertAcl((PSAclImpl) aclService.loadAcl(ApiUtils.convertGuid(aclGuid)));
     }
 
     @Override
@@ -118,21 +110,17 @@ public class AclAdaptor implements IAclAdaptor {
 
     @Override
     public Acl loadAclForObject(Guid objectGuid) {
-
-           Acl ret = ApiUtils.convertAcl((PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
-
-             if(ret != null) {
-                 return ret;
-             }
-             else
-                 {
-                 throw new NotFoundException();
-             }
+        var ret = ApiUtils.convertAcl((PSAclImpl) aclService.loadAclForObject(ApiUtils.convertGuid(objectGuid)));
+        if (ret != null) {
+            return ret;
+        } else {
+            throw new NotFoundException();
+        }
     }
 
     @Override
     public void saveAcls(AclList aclList) throws PSSecurityException {
-            aclService.saveAcls(ApiUtils.convertAcls(aclList));
+        aclService.saveAcls(ApiUtils.convertAcls(aclList));
     }
 
     @Override

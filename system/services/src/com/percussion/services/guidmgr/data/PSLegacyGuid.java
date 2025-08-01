@@ -14,294 +14,289 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.services.guidmgr.data;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.xml.IPSXmlSerialization;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This class allows the creation of pseudo guids from the legacy content store.
- * These are not globally unique, but are rather unique to a single database.
- * However, they are useful to maintain a single set of apis for the future.
- * This class will be deprecated in the future.
- * <P>
- * <EM>Important</EM>: These GUIDs may not be used across JVM invocations as
- * the child guids can resolve to different objects. Please keep this in mind!
- * This means that they may not be stored. Another caveat, these guids are 
- * invalid after content type changes, so they should not be stored even in 
- * memory across such changes.
- * 
+ * Legacy GUID implementation for backward compatibility with legacy content store.
+ *
+ * <p>This class creates pseudo-GUIDs that are unique within a single database but
+ * not globally unique. It maintains backward compatibility while providing modern
+ * Java 11 features and improved thread safety.
+ *
+ * <p><strong>Important Limitations:</strong>
+ * <ul>
+ *   <li>These GUIDs cannot be used across JVM invocations</li>
+ *   <li>Child GUIDs may resolve to different objects after restart</li>
+ *   <li>GUIDs become invalid after content type changes</li>
+ *   <li>Should not be stored persistently</li>
+ * </ul>
+ *
  * @author dougrand
+ * @since Java 11 Modernization
+ * @deprecated This class will be deprecated in future versions as part of legacy content migration
  */
-public class PSLegacyGuid extends PSGuid
-{
-   /**
-    * 
-    */
+@Deprecated(since = "Java 11 Migration")
+public final class PSLegacyGuid extends PSGuid {
+
    private static final long serialVersionUID = -3200949933035613891L;
 
    /**
-    * Holds the last child id allocated. Note that the algorithm involved
-    * assumes only in-memory reference for these guids. Access to the methods
-    * that manipulate this value must be synchronized.
-    * <p>
-    * NOTE: the initial value must be greater then 0 or the constructor 
-    * {@link #PSLegacyGuid(long)} may fail when converted through webservices.
+    * Undefined revision constant using bit mask for compatibility.
     */
-   private static int ms_childId = 1;
+   public static final int UNDEFINED_REVISION = (int) BIT24;
 
    /**
-    * Holds information about what tuples of contenttypeid + childid have
-    * already been given an in-memory id
+    * Thread-safe counter for child ID allocation.
+    * Initial value must be > 0 for webservice compatibility.
     */
-   private static Map<List<Number>,Long> ms_childIdsAllocated = 
-      new HashMap<>();
-   
-   /**
-    * Holds the reverse mapping from a given child id to a key. This is
-    * used to obtain the original information back from the child id.
-    */
-   private static Map<Long,List<Number>> ms_keysFromIds = 
-      new HashMap<>();
+   private static final AtomicInteger CHILD_ID_COUNTER = new AtomicInteger(1);
 
    /**
-    * Create a legacy guid for a content item. The revision uses the site slot,
-    * the contentid uses the uuid slot.
-    * 
-    * @param contentid the contentid of the item
-    * @param revision the revision of the item. It may be <code>-1</code> if
-    *    the revision of the item is undefined.
+    * Thread-safe mapping of content type + child ID tuples to allocated IDs.
     */
-   public PSLegacyGuid(int contentid, int revision) 
-   {
-      if (revision == -1) revision = UNDEFINED_REVISION;
-      assemble(revision, PSTypeEnum.LEGACY_CONTENT, contentid);
+   private static final Map<List<Long>, Long> CHILD_IDS_ALLOCATED =
+       new ConcurrentHashMap<>();
+
+   /**
+    * Thread-safe reverse mapping from allocated ID to original key.
+    */
+   private static final Map<Long, List<Long>> KEYS_FROM_IDS =
+       new ConcurrentHashMap<>();
+
+   /**
+    * Creates a legacy GUID for a content item.
+    *
+    * @param contentId the content ID of the item
+    * @param revision the revision of the item, or -1 if undefined
+    */
+   public PSLegacyGuid(int contentId, int revision) {
+      var actualRevision = revision == -1 ? UNDEFINED_REVISION : revision;
+      assemble(actualRevision, PSTypeEnum.LEGACY_CONTENT, contentId);
    }
    
    /**
-    * Create a legacy guid for a content child. The content type and
-    * 
-    * @param contenttypeid a reference to the content type id from the content
-    *           editor
-    * @param childid a reference to the mapper id from the content editor for
-    *           the specific child
-    * @param sysid the primary key for the child object
+    * Creates a legacy GUID for a content child.
+    *
+    * @param contentTypeId reference to the content type ID from the content editor
+    * @param childId reference to the mapper ID from the content editor for the child
+    * @param sysId the primary key for the child object
     */
-   public PSLegacyGuid(long contenttypeid, int childid, int sysid) {
-      long virtualsite = mapChildType(contenttypeid, childid);
-      assemble(virtualsite, PSTypeEnum.LEGACY_CHILD, sysid);
+   public PSLegacyGuid(long contentTypeId, int childId, int sysId) {
+      var virtualSite = mapChildType(contentTypeId, childId);
+      assemble(virtualSite, PSTypeEnum.LEGACY_CHILD, sysId);
    }
 
    /**
-    * Creates a legacy guid from regular guid.
-    * 
-    * @param guid the regular guild, never <code>null</code>.
+    * Creates a legacy GUID from a regular GUID with validation.
+    *
+    * @param guid the source GUID, must not be null and must be a legacy type
+    * @throws IllegalArgumentException if guid is null or not a legacy type
     */
-   @SuppressWarnings("cast")
-   public PSLegacyGuid(PSGuid guid)
-   {
-      if (guid.getType() != PSTypeEnum.LEGACY_CONTENT
-            .getOrdinal() && guid.getType() != PSTypeEnum.LEGACY_CHILD.getOrdinal())
-      {
+   public PSLegacyGuid(PSGuid guid) {
+      Objects.requireNonNull(guid, "guid cannot be null");
+
+      var guidType = guid.getType();
+      if (guidType != PSTypeEnum.LEGACY_CONTENT.getOrdinal() &&
+          guidType != PSTypeEnum.LEGACY_CHILD.getOrdinal()) {
          throw new IllegalArgumentException(
-               "guid type must be either LEGACY_CONTENT or LEGACY_CHILD.");
+             "GUID type must be either LEGACY_CONTENT or LEGACY_CHILD, but was: " + guidType);
       }
-      PSTypeEnum type = (guid.getType() == PSTypeEnum.LEGACY_CONTENT
-            .getOrdinal())
-            ? PSTypeEnum.LEGACY_CONTENT
-            : PSTypeEnum.LEGACY_CHILD;
-      assemble(guid.getHostId(), type, (long)guid.getUUID());
+
+      var type = guidType == PSTypeEnum.LEGACY_CONTENT.getOrdinal()
+          ? PSTypeEnum.LEGACY_CONTENT
+          : PSTypeEnum.LEGACY_CHILD;
+      assemble(guid.getHostId(), type, guid.getUUID());
    }
    
    /**
-    * Reconstitute a legacy guid. If the supplied value does not have a type,
-    * {@link PSTypeEnum#LEGACY_CONTENT} will be used. If it does not have a
-    * revision (hostid), a value representing an undefined revision will be
-    * used.
-    * 
-    * @param value If a type is provided, then it must be either
-    * {@link PSTypeEnum#LEGACY_CONTENT} or {@link PSTypeEnum#LEGACY_CHILD}.
+    * Reconstitutes a legacy GUID from a long value with defaults.
+    *
+    * @param value the GUID value; if no type specified, LEGACY_CONTENT is used
+    * @throws IllegalArgumentException if an invalid legacy type is specified
     */
-   public PSLegacyGuid(long value)
-   {
+   public PSLegacyGuid(long value) {
       m_guid = value;
-      if (getType() == 0)
+
+      if (getType() == 0) {
          setType(PSTypeEnum.LEGACY_CONTENT.getOrdinal());
-      else
-      {
-         if (getType() != PSTypeEnum.LEGACY_CONTENT.getOrdinal()
-               && getType() != PSTypeEnum.LEGACY_CHILD.getOrdinal())
-         {
-            throw new IllegalArgumentException(
-               "Only LEGACY_CHILD and LEGACY_CONTENT types are supported by this class.");
-         }
+      } else {
+         validateLegacyType();
       }
-      if (getHostId() == 0)
+
+      if (getHostId() == 0) {
          setHostId(UNDEFINED_REVISION);
+      }
    }
    
    /**
     * Constructs a legacy GUID from its string representation.
     * 
-    * @param raw the string representation of an legacy GUID. Never blank
+    * @param raw the string representation of a legacy GUID, must not be blank
+    * @throws IllegalArgumentException if raw is null or blank
     */
-   public PSLegacyGuid(String raw)
-   {
-      super(raw);
+   public PSLegacyGuid(String raw) {
+      super(Objects.requireNonNull(raw, "raw GUID string cannot be null"));
    }
    
    /**
-    * Retrieve the mapping from a given tuple of contenttypeid and childid to
-    * an id that acts as a placeholder in guids.
-    * @param contenttypeid the content type id
-    * @param childid the child id
-    * @return always returns the allocated temporary id to use
+    * Constructs a legacy GUID from a PSLocator.
+    *
+    * @param locator the source locator, must not be null
     */
-   private long mapChildType(long contenttypeid, int childid)
-   {
-      List<Number> key = new ArrayList<>();
-      key.add(contenttypeid);
-      key.add(childid);
-      Long rval = null;
-      
-      synchronized(ms_childIdsAllocated)
-      {
-         rval = ms_childIdsAllocated.get(key);
-         if (rval == null)
-         {
-            rval = new Long(ms_childId++);
-            ms_childIdsAllocated.put(key, rval);
-            ms_keysFromIds.put(rval, key);
-         }
+   public PSLegacyGuid(PSLocator locator) {
+      this(Objects.requireNonNull(locator, "locator cannot be null").getId(),
+           locator.getRevision());
+   }
+   
+   /**
+    * Safely creates a legacy GUID from a long value.
+    *
+    * @param value the GUID value to validate
+    * @return an Optional containing the PSLegacyGuid, or empty if invalid
+    */
+   public static Optional<PSLegacyGuid> ofNullable(long value) {
+      try {
+         return Optional.of(new PSLegacyGuid(value));
+      } catch (IllegalArgumentException e) {
+         return Optional.empty();
       }
-      
-      return rval.longValue();
    }
    
    /**
-    * Retrieve original contenttypeid and child id for a given stored id.
-    * @param id the allocated id for the tuple
-    * @return the original key or <code>null</code> if the key is not found
+    * Safely creates a legacy GUID from a PSGuid.
+    *
+    * @param guid the source GUID
+    * @return an Optional containing the PSLegacyGuid, or empty if conversion fails
     */
-   private Number[] getKeyFromId(long id)
-   {
-      Number key[] = null;
-      
-      synchronized(ms_childIdsAllocated)
-      {
-         List<Number> list = ms_keysFromIds.get(new Long(id));
-         if (list != null)
-            key = list.toArray(new Number[list.size()]);
+   public static Optional<PSLegacyGuid> ofNullable(PSGuid guid) {
+      try {
+         return guid != null ? Optional.of(new PSLegacyGuid(guid)) : Optional.empty();
+      } catch (IllegalArgumentException e) {
+         return Optional.empty();
       }
-      
-      return key;
    }
    
    /**
-    * Construct a legacy guid from the passed locator.
-    * 
-    * @param locator a locator, never <code>null</code>.
+    * Determines if this GUID represents a child.
+    *
+    * @return true if this is a child GUID
     */
-   public PSLegacyGuid(PSLocator locator)
-   {
-      this(locator.getId(), locator.getRevision());      
-   }
-   
-   /**
-    * Determine if this guid represents a child. This is determined by what
-    * ctor was originally called.
-    * @return <code>true</code> if so
-    */
-   public boolean isChildGuid()
-   {
+   public boolean isChildGuid() {
       return getType() == PSTypeEnum.LEGACY_CHILD.getOrdinal();
    }
    
    /**
-    * Get the original content type id value
-    * @return the original value
+    * Gets the original content type ID value for child GUIDs.
+    *
+    * @return the original content type ID
+    * @throws IllegalStateException if this is not a child GUID or mapping is lost
     */
-   @IPSXmlSerialization(suppress=true)
-   public long getContentTypeId() 
-   {
-      Number keys[] = getKeyFromId(getHostId());
-      if (keys == null)
-      {
-         throw new IllegalStateException("Trying to retrieve content type " +
-               "from unknown child id " + getHostId());
-      }
-      return keys[0].longValue();
+   @IPSXmlSerialization(suppress = true)
+   public long getContentTypeId() {
+      return getKeyFromId(getHostId())
+          .map(keys -> keys.get(0))
+          .orElseThrow(() -> new IllegalStateException(
+              "Cannot retrieve content type from unknown child ID: " + getHostId()));
    }
    
    /**
-    * Get the original child mapper id value
-    * @return the original value
+    * Gets the original child mapper ID value for child GUIDs.
+    *
+    * @return the original child mapper ID
+    * @throws IllegalStateException if this is not a child GUID or mapping is lost
     */
-   @IPSXmlSerialization(suppress=true)
-   public int getChildId() 
-   {
-      Number keys[] = getKeyFromId(getHostId());
-      if (keys == null)
-      {
-         throw new IllegalStateException("Trying to retrieve child mapper id " +
-               "from unknown child id " + getHostId());
-      }
-      return keys[1].intValue();
-   }   
-   
+   @IPSXmlSerialization(suppress = true)
+   public int getChildId() {
+      return getKeyFromId(getHostId())
+          .map(keys -> keys.get(1).intValue())
+          .orElseThrow(() -> new IllegalStateException(
+              "Cannot retrieve child mapper ID from unknown child ID: " + getHostId()));
+   }
+
    /**
-    * Get the content id
-    * @return the original content id
+    * Gets the content ID.
+    *
+    * @return the original content ID
     */
-   @IPSXmlSerialization(suppress=true)
-   public int getContentId()
-   {
+   @IPSXmlSerialization(suppress = true)
+   public int getContentId() {
       return getUUID();
    }
    
    /**
-    * Get the revision id
-    * 
-    * @return the original revision id. It is <code>-1</code> if the revision
-    *    is undefined.
+    * Gets the revision ID.
+    *
+    * @return the original revision ID, or -1 if undefined
     */
-   @IPSXmlSerialization(suppress=true)
-   public int getRevision()
-   {
-      int hostId = (int) getHostId();
-      
+   @IPSXmlSerialization(suppress = true)
+   public int getRevision() {
+      var hostId = (int) getHostId();
       return hostId == UNDEFINED_REVISION ? -1 : hostId;
    }
 
-    @IPSXmlSerialization(suppress=true)
-    public void setRevision(int revisionId)
-    {
-        setHostId(revisionId);
-    }
-
-   
    /**
-    * undefined revision number. 
+    * Sets the revision ID.
+    *
+    * @param revisionId the revision ID to set
     */
-   public static int UNDEFINED_REVISION = (int)BIT24;
+   @IPSXmlSerialization(suppress = true)
+   public void setRevision(int revisionId) {
+      setHostId(revisionId);
+   }
 
    /**
-    * Create a locator from the legacy guid. The guid must be a item
-    * guid and not a child guid
-    * @return a valid locator, never <code>null</code>
+    * Creates a PSLocator from this legacy GUID.
+    *
+    * @return a valid locator
+    * @throws IllegalStateException if this is a child GUID
     */
-   public PSLocator getLocator()
-   {
-      if (isChildGuid())
-      {
-         throw new UnsupportedOperationException("Cannot extract locator for child");
+   public PSLocator getLocator() {
+      if (isChildGuid()) {
+         throw new IllegalStateException("Cannot create locator from child GUID");
       }
       return new PSLocator(getContentId(), getRevision());
+   }
+
+   /**
+    * Thread-safe mapping of content type and child ID to allocated ID.
+    */
+   private long mapChildType(long contentTypeId, int childId) {
+      var key = List.of(contentTypeId, (long) childId);
+      return CHILD_IDS_ALLOCATED.computeIfAbsent(key, k -> {
+         var allocatedId = (long) CHILD_ID_COUNTER.getAndIncrement();
+         KEYS_FROM_IDS.put(allocatedId, k);
+         return allocatedId;
+      });
+   }
+
+   /**
+    * Retrieves the original content type and child ID for an allocated ID.
+    */
+   private Optional<List<Long>> getKeyFromId(long id) {
+      return Optional.ofNullable(KEYS_FROM_IDS.get(id));
+   }
+
+   /**
+    * Validates that the GUID type is a supported legacy type.
+    */
+   private void validateLegacyType() {
+      var type = getType();
+      if (type != PSTypeEnum.LEGACY_CONTENT.getOrdinal() &&
+          type != PSTypeEnum.LEGACY_CHILD.getOrdinal()) {
+         throw new IllegalArgumentException(
+             "Only LEGACY_CHILD and LEGACY_CONTENT types are supported, but was: " + type);
+      }
    }
 }

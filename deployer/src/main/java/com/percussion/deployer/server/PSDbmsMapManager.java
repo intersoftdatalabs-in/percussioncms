@@ -33,8 +33,7 @@ import java.util.StringTokenizer;
  * PSDbmsMapManager handles saving and retrieving <code>PSDbmsMap</code>
  * objects from and to the file system.
  */
-public class PSDbmsMapManager
-{
+public class PSDbmsMapManager {
 
    /**
     * Get a server's <code>PSDbmsMap</code> object from the file system if
@@ -50,34 +49,23 @@ public class PSDbmsMapManager
     * @throws IllegalArgumentException If any param is invalid.
     * @throws PSDeployException if there are other errors.
     */
-   public static PSDbmsMap getDbmsMap(String server) throws PSDeployException
-   {
-      if ( server == null || server.trim().length() == 0 )
+   public static PSDbmsMap getDbmsMap(String server) throws PSDeployException {
+      if (server == null || server.isBlank()) {
          throw new IllegalArgumentException("server may not be null or empty");
-
-      PSDbmsMap result = null;
-
-      File mapFile = getFileFromServerName(server);
-
-      if (!mapFile.exists())
-      {
-         result = new PSDbmsMap(server);
       }
-      else
-      {
-         try
-         {
-            Document doc = getDbmsMapDoc(server);
-            Element root = doc.getDocumentElement();
-            result = new PSDbmsMap(root);
-         }
-         catch (Exception e)
-         {
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               e.getLocalizedMessage());
-         }
+
+      var mapFile = getFileFromServerName(server);
+      if (!mapFile.exists()) {
+         return new PSDbmsMap(server);
       }
-      return result;
+
+      try {
+         var doc = getDbmsMapDoc(server);
+         var root = doc.getDocumentElement();
+         return new PSDbmsMap(root);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
    }
 
    /**
@@ -92,21 +80,13 @@ public class PSDbmsMapManager
     * @throws PSDeployException if there is an error while getting the
     * <code>Document</code>.
     */
-   private static Document getDbmsMapDoc(String serverName) throws PSDeployException
-   {      
-      File mapFile = getFileFromServerName(serverName);
-
-      Document resultDoc = null;
-      try(FileInputStream in = new FileInputStream(mapFile)){
-         resultDoc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+   private static Document getDbmsMapDoc(String serverName) throws PSDeployException {
+      var mapFile = getFileFromServerName(serverName);
+      try (var in = new FileInputStream(mapFile)) {
+         return PSXmlDocumentBuilder.createXmlDocument(in, false);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
-      catch (Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
-      }
-
-      return resultDoc;
    }
 
 
@@ -119,30 +99,25 @@ public class PSDbmsMapManager
     * @throws IllegalArgumentException If <code>map</code> is <code>null</code>.
     * @throws PSDeployException if there is an error while saving to disk.
     */
-   public static void saveDbmsMap(PSDbmsMap map) throws PSDeployException
-   {
-      if ( map == null )
+   public static void saveDbmsMap(PSDbmsMap map) throws PSDeployException {
+      if (map == null) {
          throw new IllegalArgumentException("map may not be null");
+      }
 
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
+      var mapEl = map.toXml(doc);
+      PSXmlDocumentBuilder.replaceRoot(doc, mapEl);
 
-         Document doc = PSXmlDocumentBuilder.createXmlDocument();
-         Element mapEl = map.toXml(doc);
-         PSXmlDocumentBuilder.replaceRoot(doc, mapEl);
+      PSDeploymentHandler.DBMSMAP_DIR.mkdirs();
+      var mapFile = getFileFromServerName(map.getSourceServer());
 
-         PSDeploymentHandler.DBMSMAP_DIR.mkdirs();         
-         File mapFile = getFileFromServerName(map.getSourceServer());
-
-         try(FileOutputStream out = new FileOutputStream(mapFile)){
-            PSXmlDocumentBuilder.write(doc, out);
-         }
-         catch (Exception e)
-         {
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               e.getLocalizedMessage());
-         }
-
+      try (var out = new FileOutputStream(mapFile)) {
+         PSXmlDocumentBuilder.write(doc, out);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
    }
-   
+
    /**
     * Get a file name from a server name. Replace all ':' characters 
     * with '_' if there is any in the source server name. This is because
@@ -156,22 +131,8 @@ public class PSDbmsMapManager
     * @throws IllegalArgumentException If <code>serverName</code> is 
     * <code>null</code> or empty.
     */
-   static private File getFileFromServerName(String serverName)
-   {
-      StringTokenizer toks = new StringTokenizer(serverName, ":");
-      StringBuilder fileName = new StringBuilder();
-      while (toks.hasMoreTokens()) 
-      {
-         if (fileName.length() > 0)
-            fileName.append("_");
-            
-         fileName.append(toks.nextToken());
-      }
-
-      File mapFile = new File(PSDeploymentHandler.DBMSMAP_DIR, 
-         fileName.toString() + ".xml");
-
-      return mapFile;
+   private static File getFileFromServerName(String serverName) {
+      var fileName = serverName.replace(":", "_");
+      return new File(PSDeploymentHandler.DBMSMAP_DIR, fileName + ".xml");
    }
-
 }

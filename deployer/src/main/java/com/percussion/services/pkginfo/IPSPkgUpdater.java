@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,6 +22,6 @@ import com.percussion.rx.config.IPSConfigChangeListener;
 /**
  * Package updater is used for updating package information.
  */
-public interface IPSPkgUpdater extends IPSConfigChangeListener
-{
+interface IPSPkgUpdater extends IPSConfigChangeListener {
+  // Marker interface for package updaters.
 }

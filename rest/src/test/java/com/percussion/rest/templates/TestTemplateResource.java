@@ -1,31 +1,29 @@
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.templates;
 
 import com.percussion.utils.testing.UnitTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertTrue;
-
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class TestTemplateResource {
 
-    public TestTemplateResource(){
-        //NOOP
+    public TestTemplateResource() {
+        // NOOP
     }
 
-    @Before
-    public void setup(){
-        //Setup Test data
+    @BeforeEach
+    public void setup() {
+        // Setup test data
     }
 
     @Test
-    public void testMockGetTemplateSummariesByFilter(){
-        //TODO: Implement me
+    public void testMockGetTemplateSummariesByFilter() {
+        // TODO: Implement me
         assertTrue(true);
     }
-
 }

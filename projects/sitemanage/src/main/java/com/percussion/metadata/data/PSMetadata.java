@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,77 +30,73 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * @author erikserating
- *
+ * Represents a metadata entry with a key and data value.
+ * Sunny Sal says: "Metadata: because every key deserves a value!"
  */
 @Entity
-@Cache (usage=CacheConcurrencyStrategy.READ_WRITE, 
-      region = "PSMetadata")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSMetadata")
 @Table(name = "PSX_METADATA")
 @XmlRootElement(name = "metadata")
 @JsonRootName("metaData")
-public class PSMetadata extends PSAbstractDataObject
-{
-   private static final long serialVersionUID = 1L;
-   
-   @Id
-   @Column(name = "METAKEY")
-   private String key;
-   
-   @Basic
-   @Column(name = "DATA")
-   private String data;
+public class PSMetadata extends PSAbstractDataObject {
 
-   /**
-    * @param key
-    * @param data
-    */
-   public PSMetadata(String key, String data)
-   {
-      this.key = key;
-      this.data = data;
-   }
+    private static final long serialVersionUID = 1L;
 
-   /**
-    * 
-    */
-   public PSMetadata()
-   {
-      
-   }
+    @Id
+    @Column(name = "METAKEY")
+    private String key;
 
-   /**
-    * @return the key
-    */
-   public String getKey()
-   {
-      return key;
-   }
+    @Basic
+    @Column(name = "DATA")
+    private String data;
 
-   /**
-    * @param key the key to set
-    */
-   public void setKey(String key)
-   {
-      this.key = key;
-   }
+    /**
+     * Constructs a metadata entry.
+     *
+     * @param key  the key, not null
+     * @param data the data, may be null
+     */
+    public PSMetadata(String key, String data) {
+        this.key = key;
+        this.data = data;
+    }
 
-   /**
-    * @return the data
-    */
-   public String getData()
-   {
-      return data;
-   }
+    /** Default constructor for JPA. */
+    public PSMetadata() {}
 
-   /**
-    * @param data the data to set
-    */
-   public void setData(String data)
-   {
-      this.data = data;
-   }
-   
-   
-   
+    /**
+     * Gets the key.
+     *
+     * @return the key, not null
+     */
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * Sets the key.
+     *
+     * @param key the key, not null
+     */
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    /**
+     * Gets the data.
+     *
+     * @return the data, may be null
+     */
+    public String getData() {
+        return data;
+    }
+
+    /**
+     * Sets the data.
+     *
+     * @param data the data, may be null
+     */
+    public void setData(String data) {
+        this.data = data;
+    }
 }

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -29,148 +30,114 @@ import java.util.Map;
 /**
  * The model for rendering a widget.
  * @author adamgent
- *
  */
-public class PSWidgetAssemblyContext extends PSAbstractAssemblyContext
-{
+public class PSWidgetAssemblyContext extends PSAbstractAssemblyContext {
+
     private PSWidgetInstance widget;
-
     private PSAbstractRegion region;
-
     private Map<String, Object> properties;
-
     private List<PSRenderAsset> widgetContents;
-    
-    public PSWidgetInstance getWidget()
-    {
+
+    public PSWidgetInstance getWidget() {
         return widget;
     }
 
-    public void setWidget(PSWidgetInstance widgetInstance)
-    {
+    public void setWidget(PSWidgetInstance widgetInstance) {
         this.widget = widgetInstance;
     }
 
-    public PSAbstractRegion getRegion()
-    {
+    public PSAbstractRegion getRegion() {
         return region;
     }
 
-    public void setRegion(PSAbstractRegion region)
-    {
+    public void setRegion(PSAbstractRegion region) {
         this.region = region;
     }
 
-    public Map<String, Object> getProperties()
-    {
+    public Map<String, Object> getProperties() {
         return properties;
     }
 
-    public void setProperties(Map<String, Object> properties)
-    {
+    public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
 
     /**
      * Sets the list of items that can be used while assembling the widgets.
-     * 
-     * @param widgetContents the new list of items, may be <code>null</code> or empty.
+     *
+     * @param widgetContents the new list of items, may be {@code null} or empty.
      */
-    public void setWidgetContents(List<PSRenderAsset> widgetContents)
-    {
+    public void setWidgetContents(List<PSRenderAsset> widgetContents) {
         this.widgetContents = widgetContents;
-        
-        if (log.isDebugEnabled())
-        {
+        if (log.isDebugEnabled()) {
             if (widgetContents == null || widgetContents.isEmpty()) {
-                log.debug("set widget contents to NULL or EMPTY.");
-            }
-            else {
-                log.debug("set widget contents to " + widgetContents.size() + " items.");
+                log.debug("Set widget contents to NULL or EMPTY.");
+            } else {
+                log.debug("Set widget contents to {} items.", widgetContents.size());
             }
         }
-        if (this.widgetContents != null) 
-        {
-            List<PSPair<String,String>> ownerAssetIds = new ArrayList<>();
-            for(PSRenderAsset ai : widgetContents) 
-            {
-                PSPair<String,String> pair = new PSPair<>(ai.getOwnerId().toString(), ai.getId());
-                ownerAssetIds.add(pair);
-            }
-            getWidget().setOwnerAssetIds(ownerAssetIds);
+        if (this.widgetContents != null && widget != null) {
+            var ownerAssetIds = new ArrayList<PSPair<String, String>>();
+            this.widgetContents.stream()
+                .filter(ai -> ai.getOwnerId() != null && ai.getId() != null)
+                .map(ai -> new PSPair<>(ai.getOwnerId().toString(), ai.getId()))
+                .forEach(ownerAssetIds::add);
+            widget.setOwnerAssetIds(ownerAssetIds);
         }
     }
 
     /**
      * Gets a list of items that can be used while assembling the widget.
-     * 
-     * @return a list of items. It cannot be <code>null</code>, but may be
-     * empty.
+     *
+     * @return a list of items. It cannot be {@code null}, but may be empty.
      */
-    @SuppressWarnings("unchecked")
-    public List<PSRenderAsset> getWidgetContents()
-    {
-        return widgetContents == null ? Collections.EMPTY_LIST : widgetContents;
+    public List<PSRenderAsset> getWidgetContents() {
+        return widgetContents == null ? Collections.emptyList() : widgetContents;
     }
-    
+
     /**
-     * Sets the 1st element of the widget content list, which is returned
+     * Sets the first element of the widget content list, which is returned
      * from {@link #getWidgetContents()}.
-     * 
-     * @param item the 1st element of the widget content list. It may be
-     * <code>null</code>, in this case do nothing. 
+     *
+     * @param item the first element of the widget content list. It may be
+     *             {@code null}, in this case do nothing.
      */
-    public void setWidgetContent(PSRenderAsset item)
-    {
-        if (item == null)
-        {
-            log.debug("Attempt set null widget content, do nothing.");
+    public void setWidgetContent(PSRenderAsset item) {
+        if (item == null) {
+            log.debug("Attempted to set null widget content, doing nothing.");
+            return;
         }
-        else
-        {
-            if (widgetContents == null) {
-                widgetContents = new ArrayList<>();
-            }
-            widgetContents.add(0, item);
+        if (widgetContents == null) {
+            widgetContents = new ArrayList<>();
         }
-        if (log.isDebugEnabled())
-        {
-            if (widgetContents == null || widgetContents.isEmpty()) {
-                log.debug("set widget contents to NULL or EMPTY.");
-            }
-            else {
-                log.debug("set widget contents to " + widgetContents.size() + " items.");
+        widgetContents.add(0, item);
+        if (log.isDebugEnabled()) {
+            if (widgetContents.isEmpty()) {
+                log.debug("Set widget contents to NULL or EMPTY.");
+            } else {
+                log.debug("Set widget contents to {} items.", widgetContents.size());
             }
         }
     }
-    
+
     /**
-     * A convenience method, it simply return the 1st element of the
+     * A convenience method, it simply returns the first element of the
      * widget content list, {@link #getWidgetContents()}.
-     *  
-     * @return the 1st element of the widget content list. It may be
-     * <code>null</code> if the widget content list is <code>null</code> or
-     * empty.
+     *
+     * @return the first element of the widget content list. It may be
+     * {@code null} if the widget content list is {@code null} or empty.
      */
-    public PSRenderAsset getWidgetContent()
-    {
-       if (widgetContents == null || widgetContents.isEmpty()) {
-           return null;
-       }
-       
-       return widgetContents.get(0);
+    public PSRenderAsset getWidgetContent() {
+        return (widgetContents == null || widgetContents.isEmpty()) ? null : widgetContents.get(0);
     }
-    
+
     @Override
-    public PSWidgetAssemblyContext clone()
-    {
+    public PSWidgetAssemblyContext clone() {
         return (PSWidgetAssemblyContext) super.clone();
     }
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never {@code null}.
      */
-
     private static final Logger log = LogManager.getLogger(PSWidgetAssemblyContext.class);
-
 }

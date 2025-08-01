@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,152 +17,145 @@
  */
 package com.percussion.pagemanagement.service.impl;
 
-import java.util.List;
-import java.util.Map;
-
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.share.data.IPSLinkableContentItem;
 
-public class PSLinkableAsset implements IPSLinkableContentItem
-{
+import java.util.List;
+import java.util.Map;
 
-    private PSAsset asset;
+/**
+ * Adapter for PSAsset to IPSLinkableContentItem.
+ * Sunny Sal says: "Linkable assets—because every asset deserves a plus one!"
+ */
+public class PSLinkableAsset implements IPSLinkableContentItem {
+
+    private final PSAsset asset;
     private String folderPath;
 
-    public PSLinkableAsset(PSAsset asset, String folderPath)
-    {
-        super();
+    public PSLinkableAsset(PSAsset asset, String folderPath) {
         this.asset = asset;
         this.folderPath = folderPath;
     }
 
-    public Map<String, Object> getFields()
-    {
+    @Override
+    public Map<String, Object> getFields() {
         return asset.getFields();
     }
 
-    public List<String> getFolderPaths()
-    {
+    @Override
+    public List<String> getFolderPaths() {
         return asset.getFolderPaths();
     }
 
-    public boolean isFolder()
-    {
-       return asset.isFolder();
+    @Override
+    public boolean isFolder() {
+        return asset.isFolder();
     }
-    
-    public Category getCategory()
-    {
+
+    @Override
+    public Category getCategory() {
         return asset.getCategory();
     }
-    
-    public void setCategory(Category cat)
-    {
+
+    @Override
+    public void setCategory(Category cat) {
         asset.setCategory(cat);
     }
-    
-    public String getIcon()
-    {
+
+    @Override
+    public String getIcon() {
         return asset.getIcon();
     }
 
-    public String getId()
-    {
+    @Override
+    public String getId() {
         return asset.getId();
     }
 
-    public String getName()
-    {
+    @Override
+    public String getName() {
         return asset.getName();
     }
 
-    public String getType()
-    {
+    @Override
+    public String getType() {
         return asset.getType();
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return asset.hashCode();
     }
 
-    public void setFields(Map<String, Object> fields)
-    {
+    @Override
+    public void setFields(Map<String, Object> fields) {
         asset.setFields(fields);
     }
 
-    public void setFolderPaths(List<String> paths)
-    {
+    @Override
+    public void setFolderPaths(List<String> paths) {
         asset.setFolderPaths(paths);
     }
 
-    public void setIcon(String icon)
-    {
+    @Override
+    public void setIcon(String icon) {
         asset.setIcon(icon);
     }
 
-    public void setId(String id)
-    {
+    @Override
+    public void setId(String id) {
         asset.setId(id);
     }
 
-    public void setName(String name)
-    {
+    @Override
+    public void setName(String name) {
         asset.setName(name);
     }
 
-    public void setType(String type)
-    {
+    @Override
+    public void setType(String type) {
         asset.setType(type);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return asset.toString();
     }
 
-    public String getFolderPath()
-    {
+    public String getFolderPath() {
         return folderPath;
     }
 
-    public void setFolderPath(String folderPath)
-    {
+    public void setFolderPath(String folderPath) {
         this.folderPath = folderPath;
     }
 
     @Override
-    public String getLabel()
-    {
+    public String getLabel() {
         return asset.getLabel();
     }
 
     @Override
-    public void setLabel(String label)
-    {
-        asset.setLabel(label);        
+    public void setLabel(String label) {
+        asset.setLabel(label);
     }
 
-    public boolean isRevisionable()
-    {
+    @Override
+    public boolean isRevisionable() {
         return asset.isRevisionable();
     }
 
-    public void setRevisionable(boolean revisionable)
-    {
+    @Override
+    public void setRevisionable(boolean revisionable) {
         asset.setRevisionable(revisionable);
     }
 
     @Override
-    public boolean isPage()
-    {
+    public boolean isPage() {
         return asset.isPage();
     }
-    
-    public boolean isResource()
-    {
+
+    public boolean isResource() {
         return asset.isResource();
     }
 }

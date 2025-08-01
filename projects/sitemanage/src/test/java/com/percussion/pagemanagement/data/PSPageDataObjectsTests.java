@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -16,200 +17,162 @@
  */
 package com.percussion.pagemanagement.data;
 
-import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static java.util.Arrays.asList;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pagemanagement.data.PSWidgetProperties.PSWidgetProperty;
 import com.percussion.share.data.PSDataObjectTestCase;
 import com.percussion.share.test.PSDataObjectTestUtils;
 
-public class PSPageDataObjectsTests
-{
-    
-    @Test
-    public void test() throws Exception
-    {
-        
-    }
-    
-    public static class PSRegionCodeTest extends PSDataObjectTestCase<PSRegionCode> {
+public class PSPageDataObjectsTests {
 
+    @Test
+    public void test() {
+        // Intentionally left blank for structure validation.
+    }
+
+    public static class PSRegionCodeTest extends PSDataObjectTestCase<PSRegionCode> {
         @Override
-        public PSRegionCode getObject() throws Exception
-        {
-            PSRegionCode code = new PSRegionCode();
+        public PSRegionCode getObject() {
+            var code = new PSRegionCode();
             code.setTemplateCode("#region('' '' '' '' '')");
             return code;
         }
     }
-    
-    public static class PSRegionTest extends PSDataObjectTestCase<PSRegion> {
 
+    public static class PSRegionTest extends PSDataObjectTestCase<PSRegion> {
         @Override
-        public PSRegion getObject() throws Exception
-        {
-            PSRegion region = new PSRegion();
-            PSRegion subRegion = new PSRegion();
+        public PSRegion getObject() {
+            var region = new PSRegion();
+            var subRegion = new PSRegion();
             subRegion.setRegionId("sub");
             region.setRegionId("adam");
-            subRegion.setChildren(Arrays.<PSRegionNode>asList(new PSRegionCodeTest().getObject()));
-            region.setChildren(Arrays.<PSRegionNode>asList(subRegion));
+            subRegion.setChildren(asList(new PSRegionCodeTest().getObject()));
+            region.setChildren(asList(subRegion));
             return region;
         }
-    
     }
-    
-    public static class PSWidgetItemTest extends PSDataObjectTestCase<PSWidgetItem> {
 
+    public static class PSWidgetItemTest extends PSDataObjectTestCase<PSWidgetItem> {
         @Override
-        public PSWidgetItem getObject()
-        {
-            PSWidgetItem wi = new PSWidgetItem();
+        public PSWidgetItem getObject() {
+            var wi = new PSWidgetItem();
             wi.setDefinitionId("test");
             wi.setName("test");
             wi.setId("test");
-            Map<String, Object> props = new HashMap<String, Object>();
-            props.put("list", asList("a","b","c"));
+            Map<String, Object> props = new HashMap<>();
+            props.put("list", asList("a", "b", "c"));
             props.put("number", "42");
             wi.setProperties(props);
             return wi;
         }
-    
     }
-    
-    public static class PSWidgetPropertyTest extends PSDataObjectTestCase<PSWidgetProperty> {
 
+    public static class PSWidgetPropertyTest extends PSDataObjectTestCase<PSWidgetProperty> {
         @Override
-        public PSWidgetProperty getObject()
-        {
-        	PSWidgetProperty wp = new PSWidgetProperty();
-        	wp.setName("jose");
-        	wp.setValue("the best");
+        public PSWidgetProperty getObject() {
+            var wp = new PSWidgetProperty();
+            wp.setName("jose");
+            wp.setValue("the best");
             return wp;
         }
-    
     }
-    
-    public static class PSRegionWidgetsTest extends PSDataObjectTestCase<PSRegionWidgets> {
 
+    public static class PSRegionWidgetsTest extends PSDataObjectTestCase<PSRegionWidgets> {
         @Override
-        public PSRegionWidgets getObject()
-        {
-            PSRegionWidgets rw = new PSRegionWidgets();
+        public PSRegionWidgets getObject() {
+            var rw = new PSRegionWidgets();
             rw.setRegionId("test");
             rw.setWidgetItems(asList(new PSWidgetItemTest().getObject()));
             return rw;
         }
-    
     }
-    
-    
-    public static class PSPageTest extends PSDataObjectTestCase<PSPage> {
 
+    public static class PSPageTest extends PSDataObjectTestCase<PSPage> {
         @Override
-        public PSPage getObject() throws Exception
-        {
-            PSPage page = new PSPage();
+        public PSPage getObject() {
+            var page = new PSPage();
             page.setRegionBranches(new PSRegionBranchesTest().getObject());
             return page;
         }
-        
-        @Test
-		public void testLog() throws Exception {
-            log.debug(PSDataObjectTestUtils.doXmlSerialization(object).actualXml);
-		}
-    
-    }
-    
-    public static class PSPageFullTest extends PSDataObjectTestCase<PSPage> {
 
-        @Override
-        public PSPage getObject() throws Exception
-        {
-            PSPage page = new PSPage();
-            PSDataObjectTestUtils.fillObject(page);
-            page.setTemplateId("blah");
-            return page;
-        }
-        
         @Test
         public void testLog() throws Exception {
             log.debug(PSDataObjectTestUtils.doXmlSerialization(object).actualXml);
         }
-    
     }
-    
-    public static class PSTemplateTest extends PSDataObjectTestCase<PSTemplate> {
 
+    public static class PSPageFullTest extends PSDataObjectTestCase<PSPage> {
         @Override
-        public PSTemplate getObject() throws Exception
-        {
-        	PSTemplate template = new PSTemplate();
-        	template.setRegionTree(new PSRegionTreeTest().getObject());
-        	return template;
+        public PSPage getObject() {
+            var page = new PSPage();
+            PSDataObjectTestUtils.fillObject(page);
+            page.setTemplateId("blah");
+            return page;
         }
-        
+
         @Test
-		public void testLog() throws Exception {
+        public void testLog() throws Exception {
             log.debug(PSDataObjectTestUtils.doXmlSerialization(object).actualXml);
-		}
-    
-    }
-    
-    public static class PSRegionTreeTest extends PSDataObjectTestCase<PSRegionTree> {
-
-        @Override
-        public PSRegionTree getObject() throws Exception
-        {
-        	PSRegionTree tree = new PSRegionTree();
-        	tree.setRootRegion(new PSRegionTest().getObject());
-        	tree.setRegionWidgets("rid", asList(new PSWidgetItemTest().getObject()));
-        	return tree;
         }
-    
     }
-    
-    public static class PSRegionBranchesTest extends PSDataObjectTestCase<PSRegionBranches> {
 
+    public static class PSTemplateTest extends PSDataObjectTestCase<PSTemplate> {
         @Override
-        public PSRegionBranches getObject() throws Exception
-        {
-            PSRegionBranches branches = new PSRegionBranches();
+        public PSTemplate getObject() {
+            var template = new PSTemplate();
+            template.setRegionTree(new PSRegionTreeTest().getObject());
+            return template;
+        }
+
+        @Test
+        public void testLog() throws Exception {
+            log.debug(PSDataObjectTestUtils.doXmlSerialization(object).actualXml);
+        }
+    }
+
+    public static class PSRegionTreeTest extends PSDataObjectTestCase<PSRegionTree> {
+        @Override
+        public PSRegionTree getObject() {
+            var tree = new PSRegionTree();
+            tree.setRootRegion(new PSRegionTest().getObject());
+            tree.setRegionWidgets("rid", asList(new PSWidgetItemTest().getObject()));
+            return tree;
+        }
+    }
+
+    public static class PSRegionBranchesTest extends PSDataObjectTestCase<PSRegionBranches> {
+        @Override
+        public PSRegionBranches getObject() {
+            var branches = new PSRegionBranches();
             branches.setRegions(asList(new PSRegionTest().getObject()));
             branches.setRegionWidgets("rid", asList(new PSWidgetItemTest().getObject()));
             return branches;
         }
-        
+
         @Test
-        public void testRegionWidgetsSet() throws Exception
-        {
-            PSRegionBranches copy = getCopy();
-            Set<PSRegionWidgets> os = object.getRegionWidgetAssociations();
-            Set<PSRegionWidgets> cs = copy.getRegionWidgetAssociations();
+        public void testRegionWidgetsSet() throws Exception {
+            var copy = getCopy();
+            var os = object.getRegionWidgetAssociations();
+            var cs = copy.getRegionWidgetAssociations();
             assertEquals(os.size(), cs.size());
-            PSRegionWidgets o = os.iterator().next();
-            PSRegionWidgets c = cs.iterator().next();
-            assertEquals(o,c);
-            assertEquals(c,o);
+            var o = os.iterator().next();
+            var c = cs.iterator().next();
+            assertEquals(o, c);
+            assertEquals(c, o);
             assertEquals("Widget associations should be equal 1", cs, os);
             assertEquals("Widget associations should be equal 2", os, cs);
         }
-    
     }
-    
-    
+
     /**
-     * The log instance to use for this class, never <code>null</code>.
+     * The log instance to use for this class, never null.
      */
     private static final Logger log = LogManager.getLogger(PSPageDataObjectsTests.class);
-
 }

@@ -34,11 +34,11 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
     * @param dependenciesToSuppress a collection of dependency keys (Strings)
     *           that should be suppressed, not <code>null</code>
     */
-   public PSCollectionDependencySuppressor(Collection dependenciesToSuppress)
-   {
-      if (dependenciesToSuppress == null)
+   public PSCollectionDependencySuppressor(Collection<String> dependenciesToSuppress) {
+      if (dependenciesToSuppress == null) {
          throw new IllegalArgumentException(
                "dependenciesToSuppress may not be null");
+      }
       m_depsToSuppress = dependenciesToSuppress;
    }
 
@@ -54,11 +54,10 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
     *         its key is included in the collection, <code>false</code>
     *         otherwise.
     */
-   public boolean suppress(PSDependency dependency)
-   {
-      if (dependency == null)
+   public boolean suppress(PSDependency dependency) {
+      if (dependency == null) {
          throw new IllegalArgumentException("dependency may not be null");
-
+      }
       return m_depsToSuppress.contains(dependency.getKey());
    }
 
@@ -66,5 +65,5 @@ public class PSCollectionDependencySuppressor implements IPSDependencySuppressor
     * Collection of dependency keys (Strings) that should be suppressed.
     * Assigned in ctor, and never <code>null</code> after.
     */
-   private Collection m_depsToSuppress;
+   private Collection<String> m_depsToSuppress;
 }

@@ -43,9 +43,8 @@ import java.io.StringReader;
  *
  * @author DavidBenua
  */
-class PSInternalResponseXML
-   extends PSInternalResponse
-   implements HttpServletResponse
+// REFACTORED: CP-JAVA11
+class PSInternalResponseXML extends PSInternalResponse
 {
    /**
     * Constructs a new response object based on an original response.

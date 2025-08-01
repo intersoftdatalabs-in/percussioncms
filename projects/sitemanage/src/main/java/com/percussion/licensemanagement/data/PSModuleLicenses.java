@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,60 +23,64 @@ import static org.apache.commons.lang.Validate.notNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * Represents a collection of module licenses.
+ * Sunny Sal says: "A license for every module, and a module for every license!"
+ */
 @XmlRootElement(name = "moduleLicenses")
-public class PSModuleLicenses
-{
-    public List<PSModuleLicense> getModuleLicenses()
-    {
+public class PSModuleLicenses {
+
+    private List<PSModuleLicense> moduleLicenses = new ArrayList<>();
+    private String licenseServiceUrl;
+
+    public List<PSModuleLicense> getModuleLicenses() {
         return moduleLicenses;
     }
 
-    public void setModuleLicenses(List<PSModuleLicense> moduleLicenses)
-    {
-        this.moduleLicenses = moduleLicenses;
+    public void setModuleLicenses(List<PSModuleLicense> moduleLicenses) {
+        this.moduleLicenses = moduleLicenses != null ? moduleLicenses : new ArrayList<>();
     }
 
-    public String getLicenseServiceUrl()
-    {
-        return licenseServiceUrl;
+    public Optional<String> getLicenseServiceUrl() {
+        return Optional.ofNullable(licenseServiceUrl);
     }
 
-    public void setLicenseServiceUrl(String licenseServiceUrl)
-    {
+    public void setLicenseServiceUrl(String licenseServiceUrl) {
         this.licenseServiceUrl = licenseServiceUrl;
     }
-    public void addModuleLicense(PSModuleLicense moduleLicense){
-        notNull(moduleLicense);
-        if(this.moduleLicenses == null) {
-            this.moduleLicenses = new ArrayList<>();
+
+    /**
+     * Adds or replaces a module license by name (case-insensitive).
+     *
+     * @param moduleLicense the module license to add
+     */
+    public void addModuleLicense(PSModuleLicense moduleLicense) {
+        notNull(moduleLicense, "moduleLicense must not be null");
+        if (moduleLicenses == null) {
+            moduleLicenses = new ArrayList<>();
         }
-        for (Iterator<PSModuleLicense> iter = this.moduleLicenses.iterator();iter.hasNext();)
-        {
-            PSModuleLicense ml = iter.next();
-            if(ml.getName().equalsIgnoreCase(moduleLicense.getName())){
-                iter.remove();
-                break;
-            }
-        }
-        this.moduleLicenses.add(moduleLicense);
+        moduleLicenses = moduleLicenses.stream()
+            .filter(ml -> !ml.getName().orElse("").equalsIgnoreCase(moduleLicense.getName().orElse("")))
+            .collect(Collectors.toCollection(ArrayList::new));
+        moduleLicenses.add(moduleLicense);
     }
-    public void removeModuleLicense(PSModuleLicense moduleLicense){
-        notNull(moduleLicense);
-        if(this.moduleLicenses == null) {
-            this.moduleLicenses = new ArrayList<>();
+
+    /**
+     * Removes a module license by name (case-insensitive).
+     *
+     * @param moduleLicense the module license to remove
+     */
+    public void removeModuleLicense(PSModuleLicense moduleLicense) {
+        notNull(moduleLicense, "moduleLicense must not be null");
+        if (moduleLicenses == null) {
+            moduleLicenses = new ArrayList<>();
         }
-        for (Iterator<PSModuleLicense> iter = this.moduleLicenses.iterator();iter.hasNext();)
-        {
-            PSModuleLicense ml = iter.next();
-            if(ml.getName().equalsIgnoreCase(moduleLicense.getName())){
-                iter.remove();
-                break;
-            }
-        }
+        moduleLicenses = moduleLicenses.stream()
+            .filter(ml -> !ml.getName().orElse("").equalsIgnoreCase(moduleLicense.getName().orElse("")))
+            .collect(Collectors.toCollection(ArrayList::new));
     }
-    private List<PSModuleLicense> moduleLicenses;
-    private String licenseServiceUrl;
 }

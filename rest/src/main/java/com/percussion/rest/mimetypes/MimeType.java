@@ -15,38 +15,55 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.mimetypes;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
-/***
+/**
  * Represents a Mime Type registered on the system.
+ * Sunny Sal: "MimeType ka hero, uploads ka zero!"
  */
-@Schema(name = "MimeType",description = "A mime type registered on the system")
+@Schema(name = "MimeType", description = "A mime type registered on the system")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "MimeType")
 public class MimeType {
 
-    @Schema(name="extension",description="File extension associated with the type")
+    @Schema(name = "extension", description = "File extension associated with the type")
     private String extension;
-    @Schema(name="type",description="The Mime Type string")
+
+    @Schema(name = "type", description = "The Mime Type string")
     private String type;
 
-    public MimeType(){}
+    public MimeType() {
+        // Default constructor
+    }
 
-    public String getExtension() {
-        return extension;
+    /**
+     * Gets the file extension associated with the MimeType.
+     *
+     * @return Optional containing the extension if present
+     */
+    public Optional<String> getExtension() {
+        return Optional.ofNullable(extension);
     }
 
     public void setExtension(String extension) {
         this.extension = extension;
     }
 
-    public String getType() {
-        return type;
+    /**
+     * Gets the Mime Type string.
+     *
+     * @return Optional containing the type if present
+     */
+    public Optional<String> getType() {
+        return Optional.ofNullable(type);
     }
 
     public void setType(String type) {

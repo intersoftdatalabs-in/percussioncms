@@ -16,95 +16,115 @@
  */
 package com.percussion.services.aaclient;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Node type definitions for the nodes used in the AA widgets.
+ * Node type definitions for the nodes used in the Active Assembly (AA) widgets.
+ * Each node type has an associated ordinal value and icon URL for UI representation.
+ *
+ * @author Percussion Software
  */
-public enum PSWidgetNodeType
-{
-   /**
-    * AA parent page
-    */
-   WIDGET_NODE_TYPE_PAGE(0, "/Rhythmyx/sys_resources/images/page.gif"),
-   /**
-    * AA slot
-    */
-   WIDGET_NODE_TYPE_SLOT(1, "/Rhythmyx/sys_resources/images/slot.gif"),
-   /**
-    * AA snippet
-    */
-   WIDGET_NODE_TYPE_SNIPPET(2, "/Rhythmyx/sys_resources/images/snippet.gif"),
-   /**
-    * CE Field
-    */
-   WIDGET_NODE_TYPE_FIELD(3, "/Rhythmyx/sys_resources/images/field.gif");
-   /**
-    * Construct a type enum.
-    * 
-    * @param ord The ordinal value to use
-    * @param iconUrl The icon URL for the node, may be <code>null</code> or
-    * empty.
-    */
-   private PSWidgetNodeType(int ord, String iconUrl)
-   {
-      if (ord > Short.MAX_VALUE)
-      {
-         throw new IllegalArgumentException("Ordinal value too large");
-      }
+public enum PSWidgetNodeType {
 
-      mi_ordinal = (short) ord;
+    /** AA parent page node type */
+    WIDGET_NODE_TYPE_PAGE(0, "/Rhythmyx/sys_resources/images/page.gif"),
 
-      mi_iconUrl = iconUrl;
-   }
+    /** AA slot node type */
+    WIDGET_NODE_TYPE_SLOT(1, "/Rhythmyx/sys_resources/images/slot.gif"),
 
-   /**
-    * Returns the ordinal value for the enumeration.
-    * 
-    * @return the ordinal
-    */
-   public short getOrdinal()
-   {
-      return mi_ordinal;
-   }
+    /** AA snippet node type */
+    WIDGET_NODE_TYPE_SNIPPET(2, "/Rhythmyx/sys_resources/images/snippet.gif"),
 
-   /**
-    * Get the icon url associated with the enumeration.
-    * 
-    * @return the icon url, may be <code>null</code> or empty.
-    */
-   public String getIconUrl()
-   {
-      return mi_iconUrl;
-   }
+    /** Content Editor field node type */
+    WIDGET_NODE_TYPE_FIELD(3, "/Rhythmyx/sys_resources/images/field.gif");
 
-   /**
-    * Lookup enum value by ordinal. Ordinals should be unique. If they are not
-    * unique, then the first enum value with a matching ordinal is returned.
-    * 
-    * @param s ordinal value
-    * @return an enumerated value or <code>null</code> if the ordinal does not
-    * match
-    */
-   public static PSWidgetNodeType valueOf(int s)
-      throws IllegalArgumentException
-   {
-      PSWidgetNodeType types[] = values();
-      for (int i = 0; i < types.length; i++)
-      {
-         if (types[i].getOrdinal() == s)
-            return types[i];
-      }
-      return null;
-   }
+    /** Maximum allowed ordinal value */
+    private static final int MAX_ORDINAL = Short.MAX_VALUE;
 
-   /**
-    * Ordinal value, initialized in the ctor, and never modified.
-    */
-   private short mi_ordinal;
+    /** Ordinal value for this node type */
+    private final short ordinal;
 
-   /**
-    * Key value, initialized for legacy types in the ctor, never modified, may
-    * be <code>null</code>, never empty.
-    */
-   private String mi_iconUrl = null;
+    /** Icon URL for UI representation */
+    private final String iconUrl;
+
+    /**
+     * Constructs a new widget node type with the specified ordinal and icon URL.
+     *
+     * @param ordinal the ordinal value for this node type, must be non-negative and within short range
+     * @param iconUrl the icon URL for UI representation, must not be null
+     * @throws IllegalArgumentException if ordinal is negative or exceeds maximum value, or if iconUrl is null
+     */
+    PSWidgetNodeType(int ordinal, String iconUrl) {
+        if (ordinal < 0 || ordinal > MAX_ORDINAL) {
+            throw new IllegalArgumentException(
+                "Ordinal must be between 0 and " + MAX_ORDINAL + ", got: " + ordinal);
+        }
+        this.ordinal = (short) ordinal;
+        this.iconUrl = Objects.requireNonNull(iconUrl, "Icon URL cannot be null");
+    }
+
+    /**
+     * Gets the ordinal value for this node type.
+     *
+     * @return the ordinal value as a short
+     */
+    public short getOrdinal() {
+        return ordinal;
+    }
+
+    /**
+     * Gets the icon URL for this node type.
+     *
+     * @return the icon URL, never null
+     */
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    /**
+     * Creates a PSWidgetNodeType from the given ordinal value.
+     *
+     * @param ordinal the ordinal value to convert
+     * @return Optional containing the matching PSWidgetNodeType, or empty if no match found
+     */
+    public static Optional<PSWidgetNodeType> fromOrdinal(short ordinal) {
+        return Arrays.stream(values())
+            .filter(type -> type.ordinal == ordinal)
+            .findFirst();
+    }
+
+    /**
+     * Creates a PSWidgetNodeType from the given ordinal value.
+     *
+     * @param ordinal the ordinal value to convert
+     * @return the matching PSWidgetNodeType
+     * @throws IllegalArgumentException if no matching node type exists
+     * @deprecated Use {@link #fromOrdinal(short)} instead for better error handling
+     */
+    @Deprecated
+    public static PSWidgetNodeType valueOf(int ordinal) {
+        return fromOrdinal((short) ordinal)
+            .orElseThrow(() -> new IllegalArgumentException("No widget node type with ordinal: " + ordinal));
+    }
+
+    /**
+     * Gets a human-readable description of this node type.
+     *
+     * @return description string, never null
+     */
+    public String getDescription() {
+        return switch (this) {
+            case WIDGET_NODE_TYPE_PAGE -> "Active Assembly Page";
+            case WIDGET_NODE_TYPE_SLOT -> "Active Assembly Slot";
+            case WIDGET_NODE_TYPE_SNIPPET -> "Active Assembly Snippet";
+            case WIDGET_NODE_TYPE_FIELD -> "Content Editor Field";
+        };
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(ordinal=%d, iconUrl='%s')", name(), ordinal, iconUrl);
+    }
 }

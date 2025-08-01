@@ -22,71 +22,61 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
 /**
- * This class contains the structure of the doc type options for templates. The
- * object is composed of a option name and the value for it.
- * 
+ * Structure for doc type options for templates.
+ * Contains an option name and its value.
  * @author leonardohildt
- * 
  */
 @XmlRootElement(name = "Options")
-public class PSMetadataDocTypeOptions extends PSAbstractDataObject
-{
-    /**
-     * 
-     */
+public class PSMetadataDocTypeOptions extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
 
     private String option;
-
     private String value;
 
-    /**
-     * Constructor
-     */
-    public PSMetadataDocTypeOptions()
-    {
+    /** Default constructor. */
+    public PSMetadataDocTypeOptions() {
         super();
     }
 
     /**
-     * @param option
-     * @param value
+     * Constructs with option and value.
+     * @param option the option name
+     * @param value the value
      */
-    public PSMetadataDocTypeOptions(String option, String value)
-    {
+    public PSMetadataDocTypeOptions(String option, String value) {
         this.option = option;
         this.value = value;
     }
 
     /**
+     * Gets the option name.
      * @return the option name
      */
-    public String getOption()
-    {
+    public String getOption() {
         return option;
     }
 
     /**
-     * @param option the option name to set
+     * Sets the option name.
+     * @param option the option name
      */
-    public void setOption(String option)
-    {
+    public void setOption(String option) {
         this.option = option;
     }
 
     /**
+     * Gets the value.
      * @return the value
      */
-    public String getValue()
-    {
+    public String getValue() {
         return value;
     }
 
     /**
-     * @param value the value to set
+     * Sets the value.
+     * @param value the value
      */
-    public void setValue(String value)
-    {
+    public void setValue(String value) {
         this.value = value;
     }
 
@@ -94,8 +84,9 @@ public class PSMetadataDocTypeOptions extends PSAbstractDataObject
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof PSMetadataDocTypeOptions)) return false;
-        PSMetadataDocTypeOptions that = (PSMetadataDocTypeOptions) o;
-        return Objects.equals(getOption(), that.getOption()) && Objects.equals(getValue(), that.getValue());
+        var that = (PSMetadataDocTypeOptions) o;
+        return Objects.equals(getOption(), that.getOption())
+                && Objects.equals(getValue(), that.getValue());
     }
 
     @Override

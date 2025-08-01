@@ -24,9 +24,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;
 
+/**
+ * // REFACTORED: CP-JAVA11
+ */
 @XmlRootElement(name = "MigrateContentRestData")
-public class PSMigrateContentRestData
-{
+public class PSMigrateContentRestData {
     @NotBlank
     private String templateId;
     private String refPageId;
@@ -34,44 +36,44 @@ public class PSMigrateContentRestData
     private String sourceType;
     @NotNull
     private List<String> pageIds;
-    public String getTemplateId()
-    {
+
+    public String getTemplateId() {
         return templateId;
     }
-    public void setTemplateId(String templateId)
-    {
+
+    public void setTemplateId(String templateId) {
         this.templateId = templateId;
     }
-    public String getRefPageId()
-    {
+
+    public String getRefPageId() {
         return refPageId;
     }
-    public void setRefPageId(String refPageId)
-    {
+
+    public void setRefPageId(String refPageId) {
         this.refPageId = refPageId;
     }
-    public List<String> getPageIds()
-    {
+
+    public List<String> getPageIds() {
         return pageIds;
     }
-    public void setPageIds(List<String> pageIds)
-    {
+
+    public void setPageIds(List<String> pageIds) {
         this.pageIds = pageIds;
     }
-    public String getSiteName()
-    {
+
+    public String getSiteName() {
         return siteName;
     }
-    public void setSiteName(String siteName)
-    {
+
+    public void setSiteName(String siteName) {
         this.siteName = siteName;
     }
-    public String getSourceType()
-    {
+
+    public String getSourceType() {
         return sourceType;
     }
-    public void setSourceType(String sourceType)
-    {
+
+    public void setSourceType(String sourceType) {
         this.sourceType = sourceType;
     }
 }

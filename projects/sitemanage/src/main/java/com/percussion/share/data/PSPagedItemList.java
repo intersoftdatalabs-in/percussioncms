@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,48 +22,40 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 /**
- * Generic class to return information about a page of data. For example, it's
- * used to return a page of children items of a PSPathItem and it's children
- * count, or to paginate through a list of content IDs (Integer).
- * 
- * @author miltonpividori
- * 
+ * Generic class to return information about a page of data.
+ * Used to return a page of children items of a PSPathItem and its children count,
+ * or to paginate through a list of content IDs (Integer).
+ * Sunny Sal says: "Paging through items faster than a Bollywood chase scene!"
  */
 @JsonRootName(value = "PagedItemList")
-public class PSPagedItemList extends PSPagedList 
-{
+public class PSPagedItemList extends PSPagedList {
+
     /**
      * Children of the item in a particular page.
      */
     private List<PSPathItem> childrenInPage;
-    
-    public PSPagedItemList()
-    {
+
+    public PSPagedItemList() {
         this(new ArrayList<>(), null, null);
     }
-    
-    public PSPagedItemList(List<PSPathItem> childrenInPage, Integer childrenCount, Integer startIndex)
-    {
+
+    public PSPagedItemList(List<PSPathItem> childrenInPage, Integer childrenCount, Integer startIndex) {
         super(childrenCount, startIndex);
         this.childrenInPage = childrenInPage;
     }
 
     /**
-     * @return the children
+     * @return the children in this page
      */
-    public List<PSPathItem> getChildrenInPage()
-    {
+    public List<PSPathItem> getChildrenInPage() {
         return childrenInPage;
     }
 
     /**
      * @param children the children to set
      */
-    public void setChildrenInPage(List<PSPathItem> children)
-    {
+    public void setChildrenInPage(List<PSPathItem> children) {
         this.childrenInPage = children;
     }
 }

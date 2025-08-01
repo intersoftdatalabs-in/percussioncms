@@ -23,12 +23,35 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
+/**
+ * List of ActionMenu objects.
+ */
 @XmlRootElement(name = "ActionMenuList")
-@ArraySchema(schema=@Schema(implementation = ActionMenu.class))
-public class ActionMenuList  extends ArrayList<ActionMenu> {
+@ArraySchema(schema = @Schema(implementation = ActionMenu.class))
+public class ActionMenuList extends ArrayList<ActionMenu> {
+
+    public ActionMenuList() {
+        super();
+    }
+
     public ActionMenuList(Collection<? extends ActionMenu> c) {
         super(c);
     }
-    public ActionMenuList(){}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof ActionMenuList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "ActionMenuList" + super.toString();
+    }
 }

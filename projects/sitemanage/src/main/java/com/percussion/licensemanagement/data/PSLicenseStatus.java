@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,312 +23,208 @@ import static com.percussion.share.dao.PSDateUtils.getDateToString;
 import com.percussion.licensemanagement.service.impl.PSLicenseService;
 import com.percussion.share.dao.PSDateUtils;
 import com.percussion.share.service.IPSDataService.DataServiceLoadException;
-
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Represents the status of a license.
+ * Sunny Sal says: "License to code? You bet!"
+ */
 @XmlAccessorType(XmlAccessType.PUBLIC_MEMBER)
-@XmlType(name = "", propOrder =
-{"company", "licenseType", "status", "licenseStatus", "activationStatus", "maxSites", "maxPages", "licenseId",
-        "currentSites", "currentPages", "lastRefresh", "usageExceeded", "serverUUID"})
+@XmlType(
+    name = "",
+    propOrder = {
+        "company",
+        "licenseType",
+        "status",
+        "licenseStatus",
+        "activationStatus",
+        "maxSites",
+        "maxPages",
+        "licenseId",
+        "currentSites",
+        "currentPages",
+        "lastRefresh",
+        "usageExceeded",
+        "serverUUID"
+    }
+)
 @XmlRootElement(name = "licenseStatus")
-public class PSLicenseStatus implements Serializable
-{
+public class PSLicenseStatus implements Serializable {
+
     private String company;
-
     private String licenseType;
-
     private String status;
-
     private String licenseStatus;
-
     private Boolean activationStatus;
-
     private Integer maxSites;
-
     private Integer maxPages;
-
     private Integer currentSites;
-
     private Integer currentPages;
-
     private String licenseId;
-
     private Date lastRefresh;
-    
     private Date usageExceeded;
-
     private String serverUUID;
 
-    /**
-     * @return the serverUUID
-     */
-    public String getServerUUID()
-    {
+    public String getServerUUID() {
         return serverUUID;
     }
 
-    /**
-     * @param serverUUID the serverUUID to set
-     */
-    public void setServerUUID(String serverUUID)
-    {
+    public void setServerUUID(String serverUUID) {
         this.serverUUID = serverUUID;
     }
 
-    /**
-     * @return the company
-     */
-    public String getCompany()
-    {
+    public String getCompany() {
         return company;
     }
 
-    /**
-     * @param company the company to set
-     */
-    public void setCompany(String company)
-    {
+    public void setCompany(String company) {
         this.company = company;
     }
 
-    /**
-     * @return the licenseType
-     */
-    public String getLicenseType()
-    {
+    public String getLicenseType() {
         return licenseType;
     }
 
-    /**
-     * @param licenseType the licenseType to set
-     */
-    public void setLicenseType(String licenseType)
-    {
+    public void setLicenseType(String licenseType) {
         this.licenseType = licenseType;
     }
 
     /**
-     * @return status a user friendly license status to be displayed in client
-     *         side.
+     * Returns a user-friendly license status to be displayed on the client side.
      */
-    public String getStatus()
-    {
-        if (activationStatus != null)
-        {
-            if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.CUSTOM_STATUS_SUSPENDED_REFRESH))
-            {
+    public String getStatus() {
+        if (activationStatus != null) {
+            if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.CUSTOM_STATUS_SUSPENDED_REFRESH)) {
                 this.status = PSLicenseService.LICENSE_STATUS_SUSPENDED_REFRESH;
-            }
-            else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.NETSUITE_STATUS_SUSPENDED))
-            {
+            } else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.NETSUITE_STATUS_SUSPENDED)) {
                 this.status = PSLicenseService.LICENSE_STATUS_SUSPENDED;
-            }            
-            else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.CUSTOM_STATUS_ACTIVE_OVERLIMIT))
-            {
+            } else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.CUSTOM_STATUS_ACTIVE_OVERLIMIT)) {
                 this.status = PSLicenseService.LICENSE_STATUS_ACTIVE_OVERLIMIT;
-            }
-            else if (activationStatus)
-            {
+            } else if (activationStatus) {
                 this.status = PSLicenseService.LICENSE_STATUS_ACTIVE;
-            }
-            else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.NETSUITE_STATUS_REGISTERED))
-            {
+            } else if (StringUtils.equalsIgnoreCase(licenseStatus, PSLicenseService.NETSUITE_STATUS_REGISTERED)) {
                 this.status = PSLicenseService.LICENSE_STATUS_REGISTERED;
-            }
-            else
-            {
+            } else {
                 this.status = PSLicenseService.LICENSE_STATUS_INACTIVE;
             }
-        }
-        else
-        {
+        } else {
             this.status = PSLicenseService.LICENSE_STATUS_INACTIVE;
         }
         return this.status;
     }
 
-    /**
-     * @param status the status to set
-     */
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status = status;
     }
 
-    /**
-     * @return the licenseStatus
-     */
-    public String getLicenseStatus()
-    {
+    public String getLicenseStatus() {
         return licenseStatus;
     }
 
-    /**
-     * @param licenseStatus the licenseStatus to set
-     */
-    public void setLicenseStatus(String licenseStatus)
-    {
+    public void setLicenseStatus(String licenseStatus) {
         this.licenseStatus = licenseStatus;
     }
 
-    /**
-     * @return the activationStatus
-     */
-    public Boolean getActivationStatus()
-    {
+    public Boolean getActivationStatus() {
         return activationStatus;
     }
 
-    /**
-     * @param activationStatus the activationStatus to set
-     */
-    public void setActivationStatus(Boolean activationStatus)
-    {
+    public void setActivationStatus(Boolean activationStatus) {
         this.activationStatus = activationStatus;
     }
 
-    /**
-     * @return the maxSites
-     */
-    public Integer getMaxSites()
-    {
+    public Integer getMaxSites() {
         return maxSites;
     }
 
-    /**
-     * @param maxSites the maxSites to set
-     */
-    public void setMaxSites(Integer maxSites)
-    {
+    public void setMaxSites(Integer maxSites) {
         this.maxSites = maxSites;
     }
 
-    /**
-     * @return the maxPages
-     */
-    public Integer getMaxPages()
-    {
+    public Integer getMaxPages() {
         return maxPages;
     }
 
-    /**
-     * @param maxPages the maxPages to set
-     */
-    public void setMaxPages(Integer maxPages)
-    {
+    public void setMaxPages(Integer maxPages) {
         this.maxPages = maxPages;
     }
 
-    /**
-     * @return the licenseId
-     */
-    public String getLicenseId()
-    {
+    public String getLicenseId() {
         return licenseId;
     }
 
-    /**
-     * @param licenseId the licenseId to set
-     */
-    public void setLicenseId(String licenseId)
-    {
+    public void setLicenseId(String licenseId) {
         this.licenseId = licenseId;
     }
 
-    /**
-     * @return the currentSites
-     */
-    public Integer getCurrentSites()
-    {
+    public Integer getCurrentSites() {
         return currentSites;
     }
 
-    /**
-     * @param currentSites the currentSites to set
-     */
-    public void setCurrentSites(Integer currentSites)
-    {
+    public void setCurrentSites(Integer currentSites) {
         this.currentSites = currentSites;
     }
 
-    /**
-     * @return the currentPages
-     */
-    public Integer getCurrentPages()
-    {
+    public Integer getCurrentPages() {
         return currentPages;
     }
 
-    /**
-     * @param currentPages the currentPages to set
-     */
-    public void setCurrentPages(Integer currentPages)
-    {
+    public void setCurrentPages(Integer currentPages) {
         this.currentPages = currentPages;
     }
 
     /**
-     * @return the lastRefresh
+     * Gets the last refresh date as a string.
      */
     @XmlElement(name = "lastRefresh")
-    public String getLastRefresh()
-    {
+    public String getLastRefresh() {
         return getDateToString(this.lastRefresh);
     }
 
     /**
-     * @return the lastRefresh
+     * Gets the last refresh date as a Date object.
      */
-    public Date getLastRefreshDate()
-    {
-        return this.lastRefresh;
+    public Optional<Date> getLastRefreshDate() {
+        return Optional.ofNullable(this.lastRefresh);
     }
 
-    /**
-     * @param lastRefresh the lastRefresh to set
-     */
-    public void setLastRefresh(Date lastRefresh)
-    {
+    public void setLastRefresh(Date lastRefresh) {
         this.lastRefresh = lastRefresh;
     }
 
     public void setLastRefresh(String lastRefresh) throws DataServiceLoadException {
-        Date formattedDate;
         try {
-            formattedDate = getDateFromString(lastRefresh);
+            this.lastRefresh = getDateFromString(lastRefresh);
         } catch (ParseException e) {
             throw new DataServiceLoadException("Error parsing date", e);
         }
-        this.lastRefresh = formattedDate;
     }
-    
+
+    /**
+     * Gets the number of days since usage was exceeded, or null if not applicable.
+     */
     @XmlElement(name = "usageExceeded")
-    public Integer getUsageExceeded()
-    {
-        // If it's not activated. Eg: it's "inactive, registered" do not return the amount of days
-        if (this.usageExceeded == null || !this.activationStatus) {
+    public Integer getUsageExceeded() {
+        if (this.usageExceeded == null || Boolean.FALSE.equals(this.activationStatus)) {
             return null;
         }
         return PSDateUtils.getDaysDiff(this.usageExceeded, new Date());
     }
-    
-    public Date getUsageExceededDate()
-    {
-        return this.usageExceeded;
+
+    public Optional<Date> getUsageExceededDate() {
+        return Optional.ofNullable(this.usageExceeded);
     }
-    
-    public void setUsageExceeded(Date usageExceededDate)
-    {
+
+    public void setUsageExceeded(Date usageExceededDate) {
         this.usageExceeded = usageExceededDate;
     }
 }

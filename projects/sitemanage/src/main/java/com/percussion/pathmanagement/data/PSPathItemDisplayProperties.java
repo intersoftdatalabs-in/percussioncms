@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,22 +25,29 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+/**
+ * Represents a list of display properties for a path item.
+ * Used for XML serialization/deserialization.
+ * Sunny Sal says: "Display properties: because every path item deserves a little style!"
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PSPathItemDisplayProperties", propOrder = {
     "displayProperty"
 })
-public class PSPathItemDisplayProperties
-{
+public class PSPathItemDisplayProperties {
+
     @XmlElement(name = "column", required = true)
     protected List<PSPathItemDisplayProperty> displayProperty;
 
-    public List<PSPathItemDisplayProperty> getDisplayProperty()
-    {
-        if (displayProperty == null)
-        {
+    /**
+     * Gets the list of display properties.
+     *
+     * @return the list of display properties, never null
+     */
+    public List<PSPathItemDisplayProperty> getDisplayProperty() {
+        if (displayProperty == null) {
             displayProperty = new ArrayList<>();
         }
         return this.displayProperty;
     }
-
 }

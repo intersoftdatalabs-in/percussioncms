@@ -22,50 +22,49 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 /**
- * This class is posted to the rest service as part of a request to move 
- * an item (from its original folder) to new (target) folder.  All paths
- * relative to its current root folder.
- * 
+ * This class is posted to the REST service as part of a request to move
+ * an item (from its original folder) to a new (target) folder. All paths
+ * are relative to its current root folder.
+ *
  * @author yubingchen
  */
 @XmlRootElement(name = "MoveFolderItem")
-@Schema(description="Represents a requeust to move a folder item.")
+@Schema(description="Represents a request to move a folder item.")
 public class MoveFolderItem
 {
-	@Schema(required=true,description="path")
+    @Schema(required=true,description="path")
     private String targetFolderPath;
-    
-	@Schema(required=true,description="path")
+
+    @Schema(required=true,description="path")
     private String itemPath;
-    
-	
-	@JsonCreator
-    public MoveFolderItem(@JsonProperty("itemPath")
-    String itemPath, @JsonProperty("targetFolderPath")
-    String targetFolderPath)
+
+
+    @JsonCreator
+    public MoveFolderItem(@JsonProperty("itemPath") String itemPath,
+                          @JsonProperty("targetFolderPath") String targetFolderPath)
     {
         this.itemPath = itemPath;
         this.targetFolderPath = targetFolderPath;
     }
-	
-	public MoveFolderItem(){
-		
-	}
+
+    public MoveFolderItem(){}
+
     /**
      * The target folder path where the item is moved to.
-     * 
-     * @return the target folder path, not blank for a valid folder path. 
+     *
+     * @return the target folder path, not blank for a valid folder path.
      */
-    public String getTargetFolderPath()
+    public Optional<String> getTargetFolderPath()
     {
-        return targetFolderPath;
+        return Optional.ofNullable(targetFolderPath);
     }
-    
+
     /**
      * Sets the target folder path.
-     * 
+     *
      * @param targetFolderPath the new target folder path, not blank for
      * valid target folder path.
      */
@@ -73,20 +72,20 @@ public class MoveFolderItem
     {
         this.targetFolderPath = targetFolderPath;
     }
-    
+
     /**
-     * Gets the path of the moved item. 
-     * 
+     * Gets the path of the moved item.
+     *
      * @return item path, not blank for a valid path.
      */
-    public String getItemPath()
+    public Optional<String> getItemPath()
     {
-        return itemPath;
+        return Optional.ofNullable(itemPath);
     }
-    
+
     /**
      * Sets the path of the moved item.
-     * 
+     *
      * @param itemPath the new item path, not blank for a valid path.
      */
     public void setItemPath(String itemPath)

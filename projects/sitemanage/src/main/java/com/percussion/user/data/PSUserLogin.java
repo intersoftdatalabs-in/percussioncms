@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,58 +28,52 @@ import javax.persistence.Table;
 import net.sf.oval.constraint.NotBlank;
 
 /**
+ * Represents a user login entity.
  * @author DavidBenua
- *
  */
 @Entity
-@Table(name="USERLOGIN")
-public class PSUserLogin extends PSAbstractDataObject
-{
+@Table(name = "USERLOGIN")
+public class PSUserLogin extends PSAbstractDataObject {
     private static final long serialVersionUID = 1L;
+
     @Id
     @NotBlank
-    @Column(name="USERID")
-    private String userid; 
-    
+    @Column(name = "USERID")
+    private String userid;
+
     @Basic
-    @Column(name="PASSWORD")
-    private String password; 
-    
-    public PSUserLogin()
-    {
-        
+    @Column(name = "PASSWORD")
+    private String password;
+
+    public PSUserLogin() {
+        // Default constructor
     }
 
     /**
-     * @return the userid
+     * Gets the user ID.
      */
-    public String getUserid()
-    {
+    public String getUserid() {
         return userid;
     }
 
     /**
-     * @param userid the userid to set
+     * Sets the user ID.
      */
-    public void setUserid(String userid)
-    {
+    public void setUserid(String userid) {
         this.userid = userid;
     }
 
     /**
-     * @return the password
+     * Gets the password.
      */
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
     /**
-     * @param password the password to set
+     * Sets the password.
      */
-    public void setPassword(String password)
-    {
+    public void setPassword(String password) {
         this.password = password;
     }
-    
 }

@@ -33,243 +33,199 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * Concreate implementation of the AOP test service interfaces.
+ * Concrete implementation of the AOP test service interfaces.
  */
-public class PSSecurityAopTestImplBase
-{
-   protected List<PSMockDesignObject> loadDesignObjects(
-      @SuppressWarnings("unused") String name)
-   {
-      List<PSMockDesignObject> results = new ArrayList<PSMockDesignObject>();
+public class PSSecurityAopTestImplBase {
 
-      List<IPSAcl> aclList = PSSecurityAopTest.getTestAcls();
-      for (IPSAcl acl : aclList)
-      {
-         results.add(PSMockDesignObject.createMockObject(acl));
-      }
+    protected List<PSMockDesignObject> loadDesignObjects(String name) {
+        // Use streams for clarity and brevity
+        return PSSecurityAopTest.getTestAcls().stream()
+                .map(PSMockDesignObject::createMockObject)
+                .collect(Collectors.toList());
+    }
 
-      return results;
-   }
+    protected PSMockDesignObject loadDesignObject() {
+        return PSMockDesignObject.createMockObject(
+                PSSecurityAopTest.getTestAcls().get(0));
+    }
 
-   protected PSMockDesignObject loadDesignObject()
-   {
-      return PSMockDesignObject.createMockObject(
-         PSSecurityAopTest.getTestAcls().get(0));
-   }
+    protected List<PSMockDesignObject> loadDesignObjects(List<IPSGuid> ids,
+                                                        boolean lock, boolean overrideLock, String session, String user)
+            throws PSErrorResultsException {
+        var results = new PSErrorResultsException();
+        for (var guid : ids) {
+            var obj = new PSMockDesignObject();
+            obj.setGUID(guid);
+            results.addResult(guid, obj);
+        }
 
-   @SuppressWarnings(value={"unchecked"})
-   protected List<PSMockDesignObject> loadDesignObjects(List<IPSGuid> ids,
-      boolean lock, boolean overrideLock, String session, String user)
-      throws PSErrorResultsException
-   {
-      PSErrorResultsException results = new PSErrorResultsException();
-      for (IPSGuid guid : ids)
-      {
-         PSMockDesignObject obj = new PSMockDesignObject();
-         obj.setGUID(guid);
-         results.addResult(guid, obj);
-      }
+        if (lock) {
+            var lockSvc = PSObjectLockServiceLocator.getLockingService();
+            lockSvc.createLocks(results, session, user, overrideLock);
+        }
 
-      if (lock)
-      {
-         IPSObjectLockService lockSvc =
-            PSObjectLockServiceLocator.getLockingService();
-         lockSvc.createLocks(results, session, user, overrideLock);
-      }
+        if (results.hasErrors())
+            throw results;
 
-      if (results.hasErrors())
-         throw results;
+        return results.getResults(ids);
+    }
 
-      return results.getResults(ids);
-   }
+    protected List<PSMockDesignObject> loadDesignObjects(String name, boolean lock,
+                                                        boolean overrideLock, String session, String user)
+            throws PSErrorResultsException {
+        var results = new PSErrorResultsException();
+        var aclList = PSSecurityAopTest.getTestAcls();
+        var guids = new ArrayList<IPSGuid>();
+        for (var acl : aclList) {
+            var obj = PSMockDesignObject.createMockObject(acl);
+            var guid = obj.getGuid();
+            guids.add(guid);
+            results.addResult(guid, obj);
+        }
 
-   @SuppressWarnings(value={"unchecked"})
-   protected List<PSMockDesignObject> loadDesignObjects(String name, boolean lock,
-      boolean overrideLock, String session, String user)
-      throws PSErrorResultsException
-   {
-      PSErrorResultsException results = new PSErrorResultsException();
-      List<IPSAcl> aclList = PSSecurityAopTest.getTestAcls();
-      List<IPSGuid> guids = new ArrayList<IPSGuid>();
-      for (IPSAcl acl : aclList)
-      {
-         PSMockDesignObject obj = PSMockDesignObject.createMockObject(acl);
-         IPSGuid guid = obj.getGuid();
-         guids.add(guid);
-         results.addResult(guid, obj);
-      }
+        if (name == null) {
+            var dguid = new PSDesignGuid(PSTypeEnum.INTERNAL, 123);
+            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var error = new PSErrorException(code,
+                    PSWebserviceErrors.createErrorMessage(code,
+                            PSTypeEnum.INTERNAL.name(), dguid.longValue()),
+                    ExceptionUtils.getFullStackTrace(new Exception()));
+            results.addError(dguid, error);
+        }
 
-      if (name == null)
-      {
-         PSDesignGuid dguid = new PSDesignGuid(PSTypeEnum.INTERNAL, 123);
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
-         PSErrorException error = new PSErrorException(code,
-            PSWebserviceErrors.createErrorMessage(code,
-               PSTypeEnum.INTERNAL.name(), dguid.longValue()),
-               ExceptionUtils.getFullStackTrace(new Exception()));
-         results.addError(dguid, error);
-      }
+        if (lock) {
+            var lockSvc = PSObjectLockServiceLocator.getLockingService();
+            lockSvc.createLocks(results, session, user, overrideLock);
+        }
 
-      if (lock)
-      {
-         IPSObjectLockService lockSvc =
-            PSObjectLockServiceLocator.getLockingService();
-         lockSvc.createLocks(results, session, user, overrideLock);
-      }
+        if (results.hasErrors())
+            throw results;
 
-      if (results.hasErrors())
-         throw results;
+        return results.getResults(guids);
+    }
 
-      return results.getResults(guids);
-   }
+    protected PSMockDesignObject loadDesignObject(boolean lock,
+                                                  boolean overrideLock, String session, String user)
+            throws PSLockErrorException {
+        var obj = loadDesignObject();
 
-   protected PSMockDesignObject loadDesignObject(boolean lock,
-      boolean overrideLock, String session, String user)
-      throws PSLockErrorException
-   {
-      PSMockDesignObject obj = loadDesignObject();
-
-      if (lock)
-      {
-         IPSObjectLockService lockSvc =
-            PSObjectLockServiceLocator.getLockingService();
-         try
-         {
-            lockSvc.createLock(obj.getGuid(), session, user, null, overrideLock);
-         }
-         catch (PSLockException e)
-         {
-            int code = IPSWebserviceErrors.CREATE_LOCK_FAILED;
-            throw new PSLockErrorException(code,
-               PSWebserviceErrors.createErrorMessage(code,
-                  obj.getClass().getName(),
-                  obj.getGuid().longValue(),
-                  e.getLocalizedMessage()),
-                  ExceptionUtils.getFullStackTrace(e), e.getLocker(),
-                  e.getRemainigTime());
-         }
-      }
-
-      return obj;
-   }
-
-   protected String loadDesignObject(@SuppressWarnings("unused") String name, 
-      boolean lock, boolean overrideLock, String session, String user)
-      throws PSLockErrorException
-   {
-      return loadDesignObject(lock, overrideLock, session, user).getClass()
-         .toString();
-   }
-
-   protected List<PSMockDesignObject> findPublicObjects(String name)
-   {
-      if (name == null)
-         throw new RuntimeException("Name may not be null");
-
-      return loadDesignObjects(name);
-   }
-
-   protected List<IPSCatalogSummary> findDesignObjects(String name)
-   {
-      if (name == null)
-         throw new RuntimeException("Name may not be null");
-
-      List<IPSCatalogSummary> sums = new ArrayList<IPSCatalogSummary>();
-
-      for (PSMockDesignObject obj : loadDesignObjects(name))
-      {
-         sums.add(new PSObjectSummary(obj.getGuid(), "test" +
-            obj.getGuid().getUUID()));
-      }
-
-      return sums;
-   }
-
-   protected void savePublicObjects(@SuppressWarnings("unused") String name)
-   {
-   }
-
-   protected void deletePublicObjects(@SuppressWarnings("unused") String name)
-   {
-   }
-
-   protected void saveDesignObject(@SuppressWarnings("unused") String name)
-   {
-   }
-
-   protected void saveDesignObjects(Object obj, boolean throwException)
-      throws PSErrorsException
-   {
-      if (throwException)
-      {
-         PSErrorsException ex = new PSErrorsException();
-         createError(obj, ex);
-         throw ex;
-      }
-   }
-
-   protected void deleteDesignObject(@SuppressWarnings("unused") String name)
-   {
-   }
-
-   protected void deleteDesignObjects(Object obj, boolean throwException)
-      throws PSErrorsException
-   {
-      if (throwException)
-      {
-         PSErrorsException ex = new PSErrorsException();
-         createError(obj, ex);
-         throw ex;
-      }
-   }
-
-   /**
-    * Adds an error to the supplied exception for the supplied object
-    *
-    * @param obj The object to use, may be <code>null</code>.
-    * @param ex The exception to add to, assumed not <code>null</code>.
-    */
-   private void createError(Object obj, PSErrorsException ex)
-   {
-      if (obj instanceof Collection<?>)
-      {
-         Collection coll = (Collection) obj;
-         for (Object object : coll)
-         {
-            if (object instanceof PSMockDesignObject)
-            {
-               createError(object, ex);
+        if (lock) {
+            var lockSvc = PSObjectLockServiceLocator.getLockingService();
+            try {
+                lockSvc.createLock(obj.getGuid(), session, user, null, overrideLock);
+            } catch (PSLockException e) {
+                int code = IPSWebserviceErrors.CREATE_LOCK_FAILED;
+                throw new PSLockErrorException(code,
+                        PSWebserviceErrors.createErrorMessage(code,
+                                obj.getClass().getName(),
+                                obj.getGuid().longValue(),
+                                e.getLocalizedMessage()),
+                        ExceptionUtils.getFullStackTrace(e), e.getLocker(),
+                        e.getRemainigTime());
             }
-         }
-      }
-      else if (obj instanceof PSMockDesignObject)
-      {
-         PSMockDesignObject desObj = (PSMockDesignObject) obj;
-         int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
-         PSErrorException error = new PSErrorException(code,
-            PSWebserviceErrors.createErrorMessage(code,
-               PSTypeEnum.INTERNAL.name(),
-               desObj.getGuid().longValue()),
-               ExceptionUtils.getFullStackTrace(new Exception()));
-         ex.addError(desObj.getGuid(), error);
-      }
+        }
 
-   }
+        return obj;
+    }
 
-   protected PSMockDesignObject loadDesignObjectIgnore()
-   {
-      return loadDesignObject();
-   }
+    protected String loadDesignObject(String name,
+                                      boolean lock, boolean overrideLock, String session, String user)
+            throws PSLockErrorException {
+        return loadDesignObject(lock, overrideLock, session, user).getClass()
+                .toString();
+    }
 
-   protected List<IPSCatalogSummary> findDesignObjectsPerm(String name)
-   {
-      return findDesignObjects(name);
-   }
+    protected List<PSMockDesignObject> findPublicObjects(String name) {
+        if (name == null)
+            throw new RuntimeException("Name may not be null");
 
-   protected List<PSMockDesignObject> findPublicObjectsCustom(String name)
-   {
-      return findPublicObjects(name);
-   }
+        return loadDesignObjects(name);
+    }
+
+    protected List<IPSCatalogSummary> findDesignObjects(String name) {
+        if (name == null)
+            throw new RuntimeException("Name may not be null");
+
+        var sums = new ArrayList<IPSCatalogSummary>();
+        for (var obj : loadDesignObjects(name)) {
+            sums.add(new PSObjectSummary(obj.getGuid(), "test" +
+                    obj.getGuid().getUUID()));
+        }
+        return sums;
+    }
+
+    protected void savePublicObjects(String name) {
+        // No-op for test
+    }
+
+    protected void deletePublicObjects(String name) {
+        // No-op for test
+    }
+
+    protected void saveDesignObject(String name) {
+        // No-op for test
+    }
+
+    protected void saveDesignObjects(Object obj, boolean throwException)
+            throws PSErrorsException {
+        if (throwException) {
+            var ex = new PSErrorsException();
+            createError(obj, ex);
+            throw ex;
+        }
+    }
+
+    protected void deleteDesignObject(String name) {
+        // No-op for test
+    }
+
+    protected void deleteDesignObjects(Object obj, boolean throwException)
+            throws PSErrorsException {
+        if (throwException) {
+            var ex = new PSErrorsException();
+            createError(obj, ex);
+            throw ex;
+        }
+    }
+
+    /**
+     * Adds an error to the supplied exception for the supplied object.
+     *
+     * @param obj The object to use, may be {@code null}.
+     * @param ex  The exception to add to, assumed not {@code null}.
+     */
+    private void createError(Object obj, PSErrorsException ex) {
+        if (obj instanceof Collection<?>) {
+            for (var object : (Collection<?>) obj) {
+                if (object instanceof PSMockDesignObject) {
+                    createError(object, ex);
+                }
+            }
+        } else if (obj instanceof PSMockDesignObject) {
+            var desObj = (PSMockDesignObject) obj;
+            int code = IPSWebserviceErrors.OBJECT_NOT_FOUND;
+            var error = new PSErrorException(code,
+                    PSWebserviceErrors.createErrorMessage(code,
+                            PSTypeEnum.INTERNAL.name(),
+                            desObj.getGuid().longValue()),
+                    ExceptionUtils.getFullStackTrace(new Exception()));
+            ex.addError(desObj.getGuid(), error);
+        }
+    }
+
+    protected PSMockDesignObject loadDesignObjectIgnore() {
+        return loadDesignObject();
+    }
+
+    protected List<IPSCatalogSummary> findDesignObjectsPerm(String name) {
+        return findDesignObjects(name);
+    }
+
+    protected List<PSMockDesignObject> findPublicObjectsCustom(String name) {
+        return findPublicObjects(name);
+    }
 }

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.deployer.server.dependencies;
 
 
@@ -52,14 +53,14 @@ public class PSMenuActionDependencyHandler  extends PSElementDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSMenuActionDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
+
    /**
     * Provides the list of child dependency types this class can discover.
     * The child types supported by this handler are:
@@ -71,8 +72,8 @@ public class PSMenuActionDependencyHandler  extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -99,7 +100,7 @@ public class PSMenuActionDependencyHandler  extends PSElementDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List ms_childTypes = new ArrayList();
+   private static List<String> ms_childTypes = new ArrayList<>();
 
    static
    {

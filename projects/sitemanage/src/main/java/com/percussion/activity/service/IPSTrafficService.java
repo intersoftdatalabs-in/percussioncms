@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -30,81 +31,59 @@ import com.percussion.share.service.exception.PSValidationException;
 import java.util.List;
 
 /**
- * This service provides methods to get the effectiveness data for a single site or all sites.
+ * Service for retrieving traffic data for a single site or all sites.
+ * <p>
+ * Sunny Sal: "Traffic is good, unless you're on the highway!"
  */
-public interface IPSTrafficService 
-{
+public interface IPSTrafficService {
+
     /**
-     * Gets the content traffic activity for the given site path, and specified date range.
-     * @param request List of traffic data types that is getting requested. Never <code>null</code>.
-     * @return Never <code>null</code>. 
+     * Gets the content traffic activity for the given site path and specified date range.
+     *
+     * @param request List of traffic data types that is getting requested. Never {@code null}.
+     * @return Never {@code null}.
      */
-    public PSContentTraffic getContentTraffic(PSContentTrafficRequest request) throws PSTrafficServiceException, PSValidationException;
-    
+    PSContentTraffic getContentTraffic(PSContentTrafficRequest request)
+            throws PSTrafficServiceException, PSValidationException;
+
     /**
-     * Gets the content traffic activity for the given site path, and specified date range.
-     * @param request List of traffic data types that is getting requested. Never <code>null</code>.
-     * @return Never <code>null</code>. 
+     * Gets the content traffic activity for the given site path and specified date range.
+     *
+     * @param request List of traffic data types that is getting requested. Never {@code null}.
+     * @return Never {@code null}.
      */
-    public List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request) throws PSTrafficServiceException, PSDataServiceException, IPSPathService.PSPathServiceException;
-    
+    List<PSTrafficDetails> getTrafficDetails(PSTrafficDetailsRequest request)
+            throws PSTrafficServiceException, PSDataServiceException, IPSPathService.PSPathServiceException;
+
     /**
-     * (Runtime) Exception is thrown when an unexpected error occurs in this service.
+     * Exception thrown when an unexpected error occurs in this service.
      */
-    public static class PSTrafficServiceException extends PSException
-    {
-       /**
-        * Generated serial number.
-        */
-       private static final long serialVersionUID = 1L;
+    class PSTrafficServiceException extends PSException {
+        private static final long serialVersionUID = 1L;
 
-       /**
-        * Default constructor.
-        */
-       public PSTrafficServiceException()
-       {
-          super();
-       }
+        public PSTrafficServiceException() {
+            super();
+        }
 
-       /**
-        * Constructs an exception with the specified detail message and the cause.
-        * 
-        * @param message the specified detail message.
-        * @param cause the cause of the exception.
-        */
-       public PSTrafficServiceException(String message, Throwable cause)
-       {
-          super(message, cause);
-       }
+        public PSTrafficServiceException(String message, Throwable cause) {
+            super(message, cause);
+        }
 
-       /**
-        * Constructs an exception with the specified detail message.
-        * 
-        * @param message the specified detail message.
-        */
-       public PSTrafficServiceException(String message)
-       {
-          super(message);
-       }
+        public PSTrafficServiceException(String message) {
+            super(message);
+        }
 
-       /**
-        * Constructs an exception with the specified cause.
-        * 
-        * @param cause the cause of the exception.
-        */
-       public PSTrafficServiceException(Throwable cause)
-       {
-          super(cause);
-       }
+        public PSTrafficServiceException(Throwable cause) {
+            super(cause);
+        }
     }
-    
+
     /**
-     * The type of the traffic request
+     * The type of the traffic request.
      */
-    public enum PSTrafficTypeEnum
-    {
+    enum PSTrafficTypeEnum {
         LIVE_PAGES,
-        NEW_PAGES, 
+        NEW_PAGES,
         TAKE_DOWNS,
         UPDATED_PAGES,
         VISITS

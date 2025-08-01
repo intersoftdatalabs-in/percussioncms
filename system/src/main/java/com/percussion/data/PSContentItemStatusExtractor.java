@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -170,7 +171,7 @@ public class PSContentItemStatusExtractor extends PSDataExtractor
          if (doc != null)
             return doc; //has already been cached
                   
-         Map params = new HashMap();
+         Map<String, Object> params = new HashMap<>();
          params.put(IPSHtmlParameters.SYS_CONTENTID, contentid);            
          
          PSInternalRequest rh = PSServer.getInternalRequest(

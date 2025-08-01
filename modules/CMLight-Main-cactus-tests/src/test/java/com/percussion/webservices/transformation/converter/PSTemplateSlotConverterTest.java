@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,6 +27,8 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,142 +36,110 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.percussion.webservices.transformation.converter.PSTemplateSlotConverter;
-import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSTemplateSlotConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSTemplateSlotConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object as well as a
-    * server array of objects to a client array of objects and back.
-    */
-   public void testConversion() throws Exception
-   {
-      PSTemplateSlot source = null;
+public class PSTemplateSlotConverterTest extends PSConverterTestBase {
 
-      try
-      {
-         source = createSlot("name", getNextId(PSTypeEnum.SLOT));
-         
-         PSTemplateSlot target = (PSTemplateSlot) roundTripConversion(
-            PSTemplateSlot.class, 
-            com.percussion.webservices.assembly.data.PSTemplateSlot.class, 
-            source);
-         
-         // verify the the round-trip object is equal to the source object
-         assertTrue(source.equals(target));
-         
-         // create the source array
-         PSTemplateSlot[] sourceArray = new PSTemplateSlot[1];
-         sourceArray[0] = source;
-         
-         PSTemplateSlot[] targetArray = (PSTemplateSlot[]) roundTripConversion(
-            PSTemplateSlot[].class, 
-            com.percussion.webservices.assembly.data.PSTemplateSlot[].class, 
-            sourceArray);
-         
-         // verify the the round-trip array is equal to the source array
-         assertTrue(sourceArray.length == targetArray.length);
-         assertTrue(sourceArray[0].equals(targetArray[0]));
-      }
-      finally
-      {
-         if (source != null)
-         {
-            IPSAssemblyService service = 
-               PSAssemblyServiceLocator.getAssemblyService();
-            service.deleteSlot(source.getGUID());
-         }
-      }
-   }
-   
-   /**
-    * Test a list of server object convert to client array, and vice versa.
-    * 
-    * @throws Exception if an error occurs.
-    */
-   @SuppressWarnings("unchecked")
-   public void testListToArray() throws Exception
-   {
-      List<PSTemplateSlot> srcList = new ArrayList<PSTemplateSlot>();
-      
-      try
-      {
-         srcList.add(createSlot("slot_1", getNextId(PSTypeEnum.SLOT)));
-         srcList.add(createSlot("slot_2", getNextId(PSTypeEnum.SLOT)));
-         
-         List<PSTemplateSlot> srcList2 = roundTripListConversion(
-            com.percussion.webservices.assembly.data.PSTemplateSlot[].class, 
-            srcList);
-   
-         assertTrue(srcList.equals(srcList2));
-      }
-      finally
-      {
-         for (PSTemplateSlot slot : srcList)
-         {
-            IPSAssemblyService service = 
-               PSAssemblyServiceLocator.getAssemblyService();
-            service.deleteSlot(slot.getGUID());
-         }
-      }
-   }
-   
-   /**
-    * Create a test slot for the specified name.
-    * 
-    * @param name the slot name, not <code>null</code> or empty.
-    * @param id the slot id, not <code>null</code>.
-    * @return the test slot, never <code>null</code>.
-    * @throws PSAssemblyException if we cannot save the created template.
-    */
-   public static PSTemplateSlot createSlot(String name, IPSGuid id) 
-      throws PSAssemblyException
-   {
-      if (StringUtils.isBlank(name))
-         throw new IllegalArgumentException("name cannot be null");
-      
-      if (id == null)
-         throw new IllegalArgumentException("id cannot be null");
-      
-      PSTemplateSlot slot = new PSTemplateSlot();
-      slot.setName(name);
-      slot.setGUID(id);
-      slot.setLabel(name + "_label");
-      slot.setDescription(name + "_description");
-      slot.setFinderName(name + "_findeName");
-      slot.setRelationshipName(name + "_relationshipName");
-      slot.setSlottype(IPSTemplateSlot.SlotType.INLINE);
-      slot.setSystemSlot(true);
-      
-      Map<String, String> finderParams = new HashMap<String, String>();
-      finderParams.put("param_1", "value_1");
-      finderParams.put("param_2", "value_2");
-      finderParams.put("param_3", "value_3");
-      slot.setFinderArguments(finderParams);
-      
-      Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations = 
-         new ArrayList<PSPair<IPSGuid, IPSGuid>>();
-      PSPair<IPSGuid, IPSGuid> pair = new PSPair<IPSGuid, IPSGuid>(
-         new PSGuid(PSTypeEnum.NODEDEF, 1000), 
-         new PSGuid(PSTypeEnum.TEMPLATE, 1001));
-      slotAssociations.add(pair);
-      pair = new PSPair<IPSGuid, IPSGuid>(
-         new PSGuid(PSTypeEnum.NODEDEF, 1002), 
-         new PSGuid(PSTypeEnum.TEMPLATE, 1003));
-      slotAssociations.add(pair);
-      slot.setSlotAssociations(slotAssociations);
+    /**
+     * Tests the conversion from a server to a client object as well as a
+     * server array of objects to a client array of objects and back.
+     */
+    public void testConversion() throws Exception {
+        PSTemplateSlot source = null;
+        try {
+            source = createSlot("name", getNextId(PSTypeEnum.SLOT));
 
-      IPSAssemblyService service = 
-         PSAssemblyServiceLocator.getAssemblyService();
-      service.saveSlot(slot);
-      
-      return slot;
-   }
+            var target = (PSTemplateSlot) roundTripConversion(
+                    PSTemplateSlot.class,
+                    com.percussion.webservices.assembly.data.PSTemplateSlot.class,
+                    source);
+
+            assertEquals(source, target);
+
+            var sourceArray = new PSTemplateSlot[]{source};
+            var targetArray = (PSTemplateSlot[]) roundTripConversion(
+                    PSTemplateSlot[].class,
+                    com.percussion.webservices.assembly.data.PSTemplateSlot[].class,
+                    sourceArray);
+
+            assertEquals(sourceArray.length, targetArray.length);
+            assertEquals(sourceArray[0], targetArray[0]);
+        } finally {
+            if (source != null) {
+                var service = PSAssemblyServiceLocator.getAssemblyService();
+                service.deleteSlot(source.getGUID());
+            }
+        }
+    }
+
+    /**
+     * Test a list of server object convert to client array, and vice versa.
+     */
+    @SuppressWarnings("unchecked")
+    public void testListToArray() throws Exception {
+        var srcList = new ArrayList<PSTemplateSlot>();
+        try {
+            srcList.add(createSlot("slot_1", getNextId(PSTypeEnum.SLOT)));
+            srcList.add(createSlot("slot_2", getNextId(PSTypeEnum.SLOT)));
+
+            var srcList2 = roundTripListConversion(
+                    com.percussion.webservices.assembly.data.PSTemplateSlot[].class,
+                    srcList);
+
+            assertEquals(srcList, srcList2);
+        } finally {
+            for (var slot : srcList) {
+                var service = PSAssemblyServiceLocator.getAssemblyService();
+                service.deleteSlot(slot.getGUID());
+            }
+        }
+    }
+
+    /**
+     * Create a test slot for the specified name.
+     *
+     * @param name the slot name, not {@code null} or empty.
+     * @param id   the slot id, not {@code null}.
+     * @return the test slot, never {@code null}.
+     * @throws PSAssemblyException if we cannot save the created template.
+     */
+    public static PSTemplateSlot createSlot(String name, IPSGuid id)
+            throws PSAssemblyException {
+        if (StringUtils.isBlank(name))
+            throw new IllegalArgumentException("name cannot be null");
+        if (id == null)
+            throw new IllegalArgumentException("id cannot be null");
+
+        var slot = new PSTemplateSlot();
+        slot.setName(name);
+        slot.setGUID(id);
+        slot.setLabel(name + "_label");
+        slot.setDescription(name + "_description");
+        slot.setFinderName(name + "_findeName");
+        slot.setRelationshipName(name + "_relationshipName");
+        slot.setSlottype(IPSTemplateSlot.SlotType.INLINE);
+        slot.setSystemSlot(true);
+
+        Map<String, String> finderParams = new HashMap<>();
+        finderParams.put("param_1", "value_1");
+        finderParams.put("param_2", "value_2");
+        finderParams.put("param_3", "value_3");
+        slot.setFinderArguments(finderParams);
+
+        Collection<PSPair<IPSGuid, IPSGuid>> slotAssociations = new ArrayList<>();
+        var pair1 = new PSPair<>(new PSGuid(PSTypeEnum.NODEDEF, 1000), new PSGuid(PSTypeEnum.TEMPLATE, 1001));
+        slotAssociations.add(pair1);
+        var pair2 = new PSPair<>(new PSGuid(PSTypeEnum.NODEDEF, 1002), new PSGuid(PSTypeEnum.TEMPLATE, 1003));
+        slotAssociations.add(pair2);
+        slot.setSlotAssociations(slotAssociations);
+
+        var service = PSAssemblyServiceLocator.getAssemblyService();
+        service.saveSlot(slot);
+
+        return slot;
+    }
 }
-

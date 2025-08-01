@@ -15,16 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.assetmanagement.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * List wrapper for asset editors.
+ */
 @JsonRootName("AssetEditor")
 public class PSAssetEditorList extends ArrayList<PSAssetEditor> {
+
     public PSAssetEditorList(Collection<? extends PSAssetEditor> c) {
         super(c);
+    }
+
+    public PSAssetEditorList() {
+        super();
     }
 }

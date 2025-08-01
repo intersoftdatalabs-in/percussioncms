@@ -258,59 +258,56 @@ public class PSSitePublishServiceWebAdapter
    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
    public PSSitePublishResponse takeDownPage(@PathParam("id") String id, ArrayList<PSPageLinkedToItem> linkedPages) {
       if (linkedPages != null) {
-         IPSRelationshipService relsvc = PSRelationshipServiceLocator.getRelationshipService();
-         List<Integer> contentIds = new ArrayList<>();
-         PSRelationshipSet relationshipSet = new PSRelationshipSet();
+         var relsvc = PSRelationshipServiceLocator.getRelationshipService();
+         var contentIds = new ArrayList<Integer>();
+         var relationshipSet = new PSRelationshipSet();
 
-          for (PSPageLinkedToItem item : linkedPages) {
-
+         for (var item : linkedPages) {
             if(item.getRelationshipId() != null) {
-                  PSRelationship relationship = null;
-                  try {
-                     relationship = relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID());
+               PSRelationship relationship = null;
+               try {
+                  relationship = relsvc.loadRelationship(idMapper.getGuid(item.getRelationshipId()).getUUID());
 
-                     if(relationship.isInlineRelationship()) {
-                         PSRelationshipFilter filter = new PSRelationshipFilter();
-                         filter.setDependent(relationship.getOwner());
-                         filter.setName(PSRelationshipConfig.TYPE_LOCAL_CONTENT);
+                  if(relationship.isInlineRelationship()) {
+                     var filter = new PSRelationshipFilter();
+                     filter.setDependent(relationship.getOwner());
+                     filter.setName(PSRelationshipConfig.TYPE_LOCAL_CONTENT);
 
-                         final List<PSItemSummary> owners = contentWs.findOwners(idMapper.getGuid(relationship.getOwner()), filter, false);
-                         for(PSItemSummary owner:owners){
-                            contentIds.add(owner.getGUID().getUUID());
-                         }
-                     }else{
-                        if (relationship != null) {
-                           relationshipSet.add(relationship);
-                        }
+                     final var owners = contentWs.findOwners(idMapper.getGuid(relationship.getOwner()), filter, false);
+                     for(var owner : owners){
+                        contentIds.add(owner.getGUID().getUUID());
                      }
-                  } catch (PSException e) {
-                      log.error("Unable to load related Relationships",e);
+                  }else{
+                     if (relationship != null) {
+                        relationshipSet.add(relationship);
+                     }
                   }
-                }
+               } catch (PSException e) {
+                   log.error("Unable to load related Relationships",e);
+               }
+            }
          }
          if(!relationshipSet.isEmpty()) {
-            PSRelationshipChangeEvent event = new PSRelationshipChangeEvent(
+            var event = new PSRelationshipChangeEvent(
                     PSRelationshipChangeEvent.ACTION_MODIFY, relationshipSet);
-            PSNotificationEvent notifyEvent = new PSNotificationEvent(
+            var notifyEvent = new PSNotificationEvent(
                     PSNotificationEvent.EventType.RELATIONSHIP_CHANGED, event);
-            IPSNotificationService srv = PSNotificationServiceLocator
-                    .getNotificationService();
+            var srv = PSNotificationServiceLocator.getNotificationService();
             srv.notifyEvent(notifyEvent);
          }
-         for(Integer contentId:contentIds){
-            PSContentChangeEvent changeEvent = new PSContentChangeEvent();
+         for(var contentId : contentIds){
+            var changeEvent = new PSContentChangeEvent();
             changeEvent.setChangeType(PSContentChangeType.PENDING_LIVE);
             changeEvent.setContentId(contentId);
-             List<IPSSite> siteIds =  folderHelper.getItemSites(idMapper.getGuidFromContentId(contentId).toString());
-             //Because if owner of relationship is already deleted, before child, then it will not return site.
-             if(siteIds != null && !siteIds.isEmpty()) {
-                try {
-                   changeEvent.setSiteId(siteIds.get(0).getSiteId());
-                   changeSvc.contentChanged(changeEvent);
-                } catch (IPSGenericDao.SaveException e) {
-                   log.warn("Error creating change event for takedown change. Error: {}", PSExceptionUtils.getMessageForLog(e));
-                }
-             }
+            var siteIds =  folderHelper.getItemSites(idMapper.getGuidFromContentId(contentId).toString());
+            if(siteIds != null && !siteIds.isEmpty()) {
+               try {
+                  changeEvent.setSiteId(siteIds.get(0).getSiteId());
+                  changeSvc.contentChanged(changeEvent);
+               } catch (IPSGenericDao.SaveException e) {
+                  log.warn("Error creating change event for takedown change. Error: {}", PSExceptionUtils.getMessageForLog(e));
+               }
+            }
          }
       }
       return takeDownPage(id);

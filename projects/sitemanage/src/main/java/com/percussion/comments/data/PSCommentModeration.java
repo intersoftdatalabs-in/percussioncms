@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.comments.data;
 
 import java.util.ArrayList;
@@ -27,10 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * Comment moderation object sent by client, with a list of
- * comments IDs to moderate in the delivery side.
- * 
- * @author miltonpividori
- *
+ * comment IDs to moderate in the delivery side.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -39,63 +38,48 @@ import javax.xml.bind.annotation.XmlType;
     "rejects"
 })
 @XmlRootElement(name = "moderation")
-public class PSCommentModeration
-{
-    private Collection<PSSiteComments> deletes;
-    
-    private Collection<PSSiteComments> approves;
+public class PSCommentModeration {
 
+    private Collection<PSSiteComments> deletes;
+    private Collection<PSSiteComments> approves;
     private Collection<PSSiteComments> rejects;
 
-    public PSCommentModeration()
-    {
+    public PSCommentModeration() {
         deletes = new ArrayList<>();
         approves = new ArrayList<>();
         rejects = new ArrayList<>();
     }
 
     /**
-     * Returns the actual (modificable) collection of 'deletes'.
-     * 
-     * @return The actual (modificable) collection of 'deletes'.
+     * @return the collection of deletes
      */
-    public Collection<PSSiteComments> getDeletes()
-    {
+    public Collection<PSSiteComments> getDeletes() {
         return deletes;
     }
 
-    public void setDeletes(Collection<PSSiteComments> deletes)
-    {
+    public void setDeletes(Collection<PSSiteComments> deletes) {
         this.deletes = deletes;
     }
-    
+
     /**
-     * Returns the actual (modificable) collection of 'approves'.
-     * 
-     * @return The actual (modificable) collection of 'approves'.
+     * @return the collection of approves
      */
-    public Collection<PSSiteComments> getApproves()
-    {
+    public Collection<PSSiteComments> getApproves() {
         return approves;
     }
 
-    public void setApproves(Collection<PSSiteComments> approves)
-    {
+    public void setApproves(Collection<PSSiteComments> approves) {
         this.approves = approves;
     }
 
     /**
-     * Returns the actual (modificable) collection of 'rejects'.
-     * 
-     * @return The actual (modificable) collection of 'rejects'.
+     * @return the collection of rejects
      */
-    public Collection<PSSiteComments> getRejects()
-    {
+    public Collection<PSSiteComments> getRejects() {
         return rejects;
     }
 
-    public void setRejects(Collection<PSSiteComments> rejects)
-    {
+    public void setRejects(Collection<PSSiteComments> rejects) {
         this.rejects = rejects;
     }
 }

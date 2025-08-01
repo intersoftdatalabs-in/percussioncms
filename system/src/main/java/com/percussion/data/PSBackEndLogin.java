@@ -19,8 +19,6 @@ package com.percussion.data;
 
 import com.percussion.error.PSErrorException;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.sql.SQLException;
 
@@ -34,29 +32,36 @@ import java.sql.SQLException;
  * @version    1.0
  * @since      1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSBackEndLogin implements IPSExecutionStep, IPSConnectionInfo {
-    private static final Logger ms_log = LogManager.getLogger(PSBackEndLogin.class);
    
    /**
     * Create a new backend login that uses a JNDI datasource
     * @param datasource the name of the datasource, 
     *    may be <code>null</code> or empty to use the default datasource.
     */
-   public PSBackEndLogin(String datasource)
-   {
-      super();
-      
-      m_dataSource = datasource;
+
+   /**
+    * Constructs a new backend login that uses a JNDI datasource.
+    * @param datasource the name of the datasource, may be {@code null} or empty to use the default datasource.
+    */
+   public PSBackEndLogin(String datasource) {
+      this.m_dataSource = datasource;
    }
 
-   public java.lang.String toString()
-   {
+
+   @Override
+   public String toString() {
       return m_dataSource;
    }
 
    
-   public String getDataSource()
-   {
+
+   /**
+    * Gets the datasource used by this login.
+    * @return the datasource, or {@code null} if using the default connection.
+    */
+   public String getDataSource() {
       return m_dataSource;
    }
 
@@ -75,9 +80,15 @@ public class PSBackEndLogin implements IPSExecutionStep, IPSConnectionInfo {
     * @exception   SQLException
     *                                             if a SQL error occurs
     */
-   public void execute(PSExecutionData data) throws SQLException,
-      PSErrorException
-   {
+
+   /**
+    * Executes the backend login step, adding a database connection to the execution data.
+    * @param data execution data containing input and result sets.
+    * @throws SQLException if a SQL error occurs
+    * @throws PSErrorException if a backend error occurs
+    */
+   @Override
+   public void execute(PSExecutionData data) throws SQLException, PSErrorException {
       data.addDbConnection(this);
    }
    
@@ -85,6 +96,6 @@ public class PSBackEndLogin implements IPSExecutionStep, IPSConnectionInfo {
     * The datasource used by this login, may be <code>null</code> to use the 
     * default connection.
     */
-   private String m_dataSource;
+   private final String m_dataSource;
 }
 

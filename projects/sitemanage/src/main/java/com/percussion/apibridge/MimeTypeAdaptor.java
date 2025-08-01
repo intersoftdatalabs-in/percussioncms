@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.mimetypes.IMimeTypeAdaptor;
@@ -24,11 +26,15 @@ import com.percussion.util.PSSiteManageBean;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Adaptor for MimeType management in Percussion CMS.
+ */
 @PSSiteManageBean
 public class MimeTypeAdaptor implements IMimeTypeAdaptor {
 
     @Override
     public MimeType getMimeType(String extension) {
+        // Not yet implemented
         return null;
     }
 
@@ -39,11 +45,12 @@ public class MimeTypeAdaptor implements IMimeTypeAdaptor {
 
     @Override
     public MimeType createOrUpdateMimeType(MimeType type) {
+        // Not yet implemented
         return null;
     }
 
     @Override
     public void deleteMimeType(MimeType type) {
-
+        // Not yet implemented
     }
 }

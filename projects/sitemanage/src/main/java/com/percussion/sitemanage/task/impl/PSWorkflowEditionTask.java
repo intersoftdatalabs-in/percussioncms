@@ -78,45 +78,44 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
         log.debug("Started workflowing items for jobId: {}" , jobId);
 
         setSecurity(); 
-        List<IPSPubItemStatus> items = statusService.getJobStatus();
-        
-        WorkflowItemWorker worker = getWorker(params);
-        
+        var items = statusService.getJobStatus();
+
+        var worker = getWorker(params);
+
         boolean isDefaultPubServer = false;
-        IPSGuid pubServerId = edition.getPubServerId();
-        PSPubServer pubServer = getPubServerService().getDefaultPubServer(site.getGUID());
+        var pubServerId = edition.getPubServerId();
+        var pubServer = getPubServerService().getDefaultPubServer(site.getGUID());
         if (pubServerId != null && pubServer != null && pubServerId.equals(pubServer.getGUID()))
             isDefaultPubServer = true;
-        
-        Set<Integer> pubIds = new HashSet<>();
-        Set<Integer> unpubIds = new HashSet<>();
-        for(IPSPubItemStatus item : items) {
-        	try
-        	{
-        		boolean skipped = worker.processItem(item, site, isDefaultPubServer);
-        		int contentId = item.getContentId();
-        		if (item.getStatus() == Status.SUCCESS && (!skipped))
-        			{
-        				if (item.getOperation() == Operation.PUBLISH)
-        				{
-        					pubIds.add(contentId);
-        				}
-        				else
-        				{
-        					unpubIds.add(contentId);
-        				}
 
-        		}
-        	}
-        	catch(Exception e)
-        	{
-        		log.error("Error workflowing this content: {} Error: {}",
+        var pubIds = new HashSet<Integer>();
+        var unpubIds = new HashSet<Integer>();
+        for(var item : items) {
+            try
+            {
+                boolean skipped = worker.processItem(item, site, isDefaultPubServer);
+                int contentId = item.getContentId();
+                if (item.getStatus() == Status.SUCCESS && (!skipped))
+                {
+                    if (item.getOperation() == Operation.PUBLISH)
+                    {
+                        pubIds.add(contentId);
+                    }
+                    else
+                    {
+                        unpubIds.add(contentId);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                log.error("Error workflowing this content: {} Error: {}",
                         item.getContentId(),
                         PSExceptionUtils.getMessageForLog(e));
-        	}
+            }
         }
         log.debug("Finished workflowing items for jobId: {}" , jobId);
-        
+
         if (!pubIds.isEmpty())
         {
             log.debug("Started updating post date for items for jobId: {}" , jobId);
@@ -137,4 +136,3 @@ public class PSWorkflowEditionTask extends PSAbstractWorkflowExtension implement
     }  
     
 }
-

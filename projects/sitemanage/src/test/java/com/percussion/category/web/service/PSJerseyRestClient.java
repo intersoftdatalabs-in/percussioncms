@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -43,91 +44,89 @@ import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang.Validate.isTrue;
 import static org.apache.commons.lang.Validate.notEmpty;
 
+/**
+ * Jersey REST client for integration testing.
+ */
 public class PSJerseyRestClient {
-	
-	private static final Logger log = LogManager.getLogger(PSJerseyRestClient.class);
-	//private String contextUrl = "http://localhost:9992/Rhythmyx";
-	private static String baseUrl;
-	
-	private static Client client = ClientBuilder.newClient();
-	private static WebTarget WebTarget;
-	
-	static {
-		if (baseUrl == null) {
-            Properties cactusProps = new Properties();
-            InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties");
-            if (stream == null) throw new RuntimeException("Cannot find cactus.properties");
-            try {
-				cactusProps.load(stream);
-			} catch (IOException e) {
-				log.error("IO exception occurred during getting the cactus properties ! " + e);
-			}
-            baseUrl = cactusProps.getProperty("cactus.contextURL");
+
+    private static final Logger log = LogManager.getLogger(PSJerseyRestClient.class);
+    private static String baseUrl;
+
+    private static final Client client = ClientBuilder.newClient();
+    private static WebTarget webTarget;
+
+    static {
+        if (baseUrl == null) {
+            var cactusProps = new Properties();
+            try (InputStream stream = PSRestTestCase.class.getResourceAsStream("/cactus.properties")) {
+                if (stream == null) throw new RuntimeException("Cannot find cactus.properties");
+                cactusProps.load(stream);
+                baseUrl = cactusProps.getProperty("cactus.contextURL");
+            } catch (IOException e) {
+                log.error("IO exception occurred during getting the cactus properties!", e);
+            }
         }
-	}
+    }
 
-	public PSCategory getData(String path) {
+    public PSCategory getData(String path) {
+        webTarget = client.target(path);
+        var response = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
+                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE)
+                .get(PSCategory.class);
 
-		
-		WebTarget = client.target(path);
-		PSCategory response = WebTarget.request(MediaType.APPLICATION_JSON_TYPE).header(IPSHtmlParameters.SYS_USE_BASIC_AUTH,Boolean.TRUE).get(PSCategory.class);
+        System.out.println("Output from Server .... \n");
+        System.out.println(response);
 
-		System.out.println("Output from Server .... \n");
-		System.out.println(response);
-		
-		return response;
-	}
-	
-	public PSCategory postData(String path, PSCategory data) {
-		
-		WebTarget = client.target(path);
-		PSCategory response = WebTarget.request(MediaType.APPLICATION_JSON_TYPE).header(IPSHtmlParameters.SYS_USE_BASIC_AUTH,Boolean.TRUE).post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), PSCategory.class );
+        return response;
+    }
 
-		System.out.println("Output from Server .... \n");
-		
-		System.out.println(response);
-		
-		return response;
-	}
-	
-	public String concatPath(String start, String ... end) {
+    public PSCategory postData(String path, PSCategory data) {
+        webTarget = client.target(path);
+        var response = webTarget.request(MediaType.APPLICATION_JSON_TYPE)
+                .header(IPSHtmlParameters.SYS_USE_BASIC_AUTH, Boolean.TRUE)
+                .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), PSCategory.class);
+
+        System.out.println("Output from Server .... \n");
+        System.out.println(response);
+
+        return response;
+    }
+
+    public String concatPath(String start, String... end) {
         isTrue(isNotBlank(start), "start cannot be blank");
         notEmpty(end, "Must have end paths.");
-        String path = start;
-        for (String p : end ) {
+        var path = start;
+        for (var p : end) {
             path = removeEnd(path, "/") + "/" + removeStart(p, "/");
         }
-        return baseUrl+path;
+        return baseUrl + path;
     }
-	
-	public void login(String userName, String password) {
 
-		final HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(userName,password);
-        client.register(authFilter); 
-	}
-	
-	public class HTTPBasicAuthFilter implements ClientRequestFilter {
+    public void login(String userName, String password) {
+        var authFilter = new HTTPBasicAuthFilter(userName, password);
+        client.register(authFilter);
+    }
 
-	    private final String user;
-	    private final String password;
+    public static class HTTPBasicAuthFilter implements ClientRequestFilter {
 
-	    public HTTPBasicAuthFilter(String user, String password) {
-	        this.user = user;
-	        this.password = password;
-	    }
+        private final String user;
+        private final String password;
 
-	    public void filter(ClientRequestContext requestContext) throws IOException {
-	        MultivaluedMap<String, Object> headers = requestContext.getHeaders();
-	        final String basicAuthentication = getBasicAuthentication();
-	        headers.add("Authorization", basicAuthentication);
+        public HTTPBasicAuthFilter(String user, String password) {
+            this.user = user;
+            this.password = password;
+        }
 
-	    }
+        @Override
+        public void filter(ClientRequestContext requestContext) throws IOException {
+            MultivaluedMap<String, Object> headers = requestContext.getHeaders();
+            final String basicAuthentication = getBasicAuthentication();
+            headers.add("Authorization", basicAuthentication);
+        }
 
-	    private String getBasicAuthentication() {
-	        String token = this.user + ":" + this.password;
-	            return "BASIC " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
-	    }
-	}
-
-	
+        private String getBasicAuthentication() {
+            var token = this.user + ":" + this.password;
+            return "BASIC " + DatatypeConverter.printBase64Binary(token.getBytes(StandardCharsets.UTF_8));
+        }
+    }
 }

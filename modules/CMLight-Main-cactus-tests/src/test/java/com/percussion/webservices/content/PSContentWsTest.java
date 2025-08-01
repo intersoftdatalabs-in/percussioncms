@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -21,96 +22,76 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Tag;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Test the content ws.
+ * Test the content web service.
  */
-@Category(IntegrationTest.class)
-public class PSContentWsTest extends ServletTestCase
-{
-   @Override
-   public void setUp() throws Exception
-   {
-      IPSSecurityWs secWs = PSSecurityWsLocator.getSecurityWebservice();
-      secWs.login(request, response, "admin1", "demo", null, 
-            "Enterprise_Investments_Admin", null);        
-   }
-   
-   /**
-    * Tests the load folders methods.
-    * 
-    * @throws Exception
-    */
-   public void testLoadFolders() throws Exception
-   {
-      IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
-      List<PSFolder> folders = contentWs.loadFolders(
-            new String[]{"//Sites/EnterpriseInvestments"});
-      PSFolder f1 = folders.get(0);
-      IPSGuid f1Guid = f1.getGuid(); 
-      assertNotNull(f1Guid);
-      folders = contentWs.loadFolders(Collections.singletonList(f1Guid));
-      PSFolder f2 = folders.get(0);
-      IPSGuid f2Guid = f2.getGuid();
-      assertNotNull(f2Guid);
-      assertEquals(f1Guid, f2Guid);
-      assertEquals(f1, f2);
-   }
-   
-   /**
-    * Tests load folders followed by save folders.
-    * 
-    * @throws Exception
-    */
-   public void testLoadThenSaveFolders() throws Exception
-   {
-      IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
-      PSFolder testFolder = contentWs.addFolder("Test", "//Sites/EnterpriseInvestments");
-      List<PSFolder> folders = contentWs.loadFolders(Collections.singletonList(testFolder.getGuid()));
-      List<IPSGuid> folderIds = contentWs.saveFolders(folders);
-      assertTrue(!folderIds.isEmpty());
-      
-   }
-   
-   /**
-    * Tests findDescendantFolders() method.
-    * 
-    * @throws Exception
-    */
-   public void testFindDescendantFolders() throws Exception
-   {
-      IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
+@Tag("IntegrationTest")
+class PSContentWsTest {
 
-      IPSGuid id = contentWs.getIdByPath("//Sites/EnterpriseInvestments/AboutEnterpriseInvestments");
-      List<PSFolder> folders = contentWs.findDescendantFolders(id);
-      assertTrue(folders.size() == 4);
+    @BeforeEach
+    void setUp() throws Exception {
+        var secWs = PSSecurityWsLocator.getSecurityWebservice();
+        secWs.login(request, response, "admin1", "demo", null, "Enterprise_Investments_Admin", null);
+    }
 
-      id = contentWs.getIdByPath("//Sites/EnterpriseInvestments/Files");
-      folders = contentWs.findDescendantFolders(id);
-      assertTrue(folders.size() == 0);      
-   }
-   
-   public void tearDown()
-   {
-      try
-      {
-         IPSContentWs contentWs = PSContentWsLocator.getContentWebservice();
-         List<PSFolder> folders = contentWs.loadFolders(new String[]{"//Sites/EnterpriseInvestments/Test"});
-         if (!folders.isEmpty())
-         { 
-            contentWs.deleteFolders(Collections.singletonList(folders.get(0).getGuid()), true);
-         }
-      }
-      catch (Exception e)
-      {
-         // could not delete
-      }
-   }
-   
+    @Test
+    @DisplayName("Load Folders by Path and Guid")
+    void testLoadFolders() throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
+        var folders = contentWs.loadFolders(new String[]{"//Sites/EnterpriseInvestments"});
+        var f1 = folders.get(0);
+        var f1Guid = f1.getGuid();
+        assertNotNull(f1Guid);
+        folders = contentWs.loadFolders(Collections.singletonList(f1Guid));
+        var f2 = folders.get(0);
+        var f2Guid = f2.getGuid();
+        assertNotNull(f2Guid);
+        assertEquals(f1Guid, f2Guid);
+        assertEquals(f1, f2);
+    }
+
+    @Test
+    @DisplayName("Load Then Save Folders")
+    void testLoadThenSaveFolders() throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
+        var testFolder = contentWs.addFolder("Test", "//Sites/EnterpriseInvestments");
+        var folders = contentWs.loadFolders(Collections.singletonList(testFolder.getGuid()));
+        var folderIds = contentWs.saveFolders(folders);
+        assertFalse(folderIds.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Find Descendant Folders")
+    void testFindDescendantFolders() throws Exception {
+        var contentWs = PSContentWsLocator.getContentWebservice();
+
+        var id = contentWs.getIdByPath("//Sites/EnterpriseInvestments/AboutEnterpriseInvestments");
+        var folders = contentWs.findDescendantFolders(id);
+        assertEquals(4, folders.size());
+
+        id = contentWs.getIdByPath("//Sites/EnterpriseInvestments/Files");
+        folders = contentWs.findDescendantFolders(id);
+        assertEquals(0, folders.size());
+    }
+
+    @AfterEach
+    void tearDown() {
+        try {
+            var contentWs = PSContentWsLocator.getContentWebservice();
+            var folders = contentWs.loadFolders(new String[]{"//Sites/EnterpriseInvestments/Test"});
+            if (!folders.isEmpty()) {
+                contentWs.deleteFolders(Collections.singletonList(folders.get(0).getGuid()), true);
+            }
+        } catch (Exception e) {
+            // Could not delete, ignore for test cleanup
+        }
+    }
 }

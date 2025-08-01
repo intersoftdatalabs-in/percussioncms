@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -32,124 +34,114 @@ import com.percussion.assetmanagement.web.service.PSAssetServiceRestClient;
 import com.percussion.content.data.AssetDef;
 import com.percussion.content.data.AssetDef.Field;
 
-
-public class PSAssetGenerator extends PSItemGenerator<PSAssetServiceRestClient>
-{
+/**
+ * Generates assets for Percussion CMS using REST client.
+ * Supports local and shared asset creation, including file-based fields.
+ */
+public class PSAssetGenerator extends PSItemGenerator<PSAssetServiceRestClient> {
     /**
      * Stores the directory that should be used for any href's in an asset def that is relative.
-     * May be <code>null</code>.
+     * May be {@code null}.
      */
     private File hrefBase;
-    
+
     /**
-     * Used to guaranteed unique names for local assets. 
+     * Used to guarantee unique names for local assets.
      */
-    private static long ms_lastUsedIdCounter = 1;
-    
-    public PSAssetGenerator(String baseUrl, String uid, String pw)
-    {
+    private static long msLastUsedIdCounter = 1;
+
+    public PSAssetGenerator(String baseUrl, String uid, String pw) {
         this(baseUrl, uid, pw, null);
     }
-    
+
     /**
      * See
      * {@link PSItemGenerator#PSItemGenerator(Class, String, String, String)
      * base class} for param details.
-     * 
+     *
      * @param hrefBase If provided, any hrefs in the asset def will be
-     * interpreted relative to this directory.
+     *                 interpreted relative to this directory.
      */
-    public PSAssetGenerator(String baseUrl, String uid, String pw, File hrefBase)
-    {
+    public PSAssetGenerator(String baseUrl, String uid, String pw, File hrefBase) {
         super(PSAssetServiceRestClient.class, baseUrl, uid, pw);
         this.hrefBase = hrefBase;
     }
-    
+
     /**
-     * 
-     * @return The remote client used by this class to generate assets. Never <code>null</code>.
+     * @return The remote client used by this class to generate assets. Never {@code null}.
      */
-    public PSAssetServiceRestClient getAssetClient()
-    {
+    public PSAssetServiceRestClient getAssetClient() {
         return getRestClient();
     }
-    
+
     /**
      * Create a local asset.
-     * 
-     * @param def Never <code>null</code>.
-     * @return Never <code>null</code>.
+     *
+     * @param def Never {@code null}.
+     * @return Never {@code null}.
      */
-    public PSAsset createAsset(AssetDef def)
-    {
-        if (def == null)
+    public PSAsset createAsset(AssetDef def) {
+        if (def == null) {
             throw new IllegalArgumentException("def cannot be null");
-        
+        }
         def.setName("LocalContent - " + getNextId());
         return doCreateAsset(def, null);
     }
-    
+
     /**
      * Id generator wrapped so it can be synchronized.
-     * 
+     *
      * @return A positive number that is unique within the lifetime of this class.
      */
-    private synchronized long getNextId()
-    {
-        return ++ms_lastUsedIdCounter; 
+    private synchronized long getNextId() {
+        return ++msLastUsedIdCounter;
     }
 
     /**
      * Create a shared asset.
-     * 
-     * @param def Never <code>null</code>.
+     *
+     * @param def  Never {@code null}.
      * @param path The directory the asset will be saved to, relative to
-     * /Assets, trailing / not a problem, will be stripped.
-     * @return Never <code>null</code>.
+     *             /Assets, trailing / not a problem, will be stripped.
+     * @return Never {@code null}.
      * @throws RuntimeException If the content comes from an href and a problem
-     * occurs.
+     *                          occurs.
      */
-    public PSAsset createAsset(AssetDef def, String path)
-    {
-        if (def == null)
+    public PSAsset createAsset(AssetDef def, String path) {
+        if (def == null) {
             throw new IllegalArgumentException("def cannot be null");
-        
-        if (path.endsWith("/"))
-            path = path.substring(0, path.length()-1);
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
         log.info("Creating asset '/Assets" + path + "/" + def.getName() + "' ...");
-        String sysPath = "//Folders/$System$/Assets" + path;
-
-        PSAsset result = doCreateAsset(def, sysPath);
+        var sysPath = "//Folders/$System$/Assets" + path;
+        var result = doCreateAsset(def, sysPath);
         transitionToState(result.getId(), def.getTargetStateName());
         return result;
     }
-    
-    private PSAsset doCreateAsset(AssetDef def, String path)
-    {
-        PSAsset asset = new PSAsset();
-        Map<String, Object> fieldSet = asset.getFields();
+
+    private PSAsset doCreateAsset(AssetDef def, String path) {
+        var asset = new PSAsset();
+        var fieldSet = asset.getFields();
         fieldSet.put("sys_title", def.getName());
         asset.setType(def.getContentType());
-        
-        for (Field field : def.getField())
-        {
-            String href = field.getHref();
-            if (href == null || href.trim().isEmpty())
-                fieldSet.put(field.getName(), field.getValue() == null ? "" : field.getValue().toString());
-            else
-            {
+
+        for (var field : def.getField()) {
+            var href = Optional.ofNullable(field.getHref()).orElse("").trim();
+            if (href.isEmpty()) {
+                fieldSet.put(field.getName(), Optional.ofNullable(field.getValue()).map(Object::toString).orElse(""));
+            } else {
                 File f = new File(href);
-                if (!f.isAbsolute() && hrefBase != null)
+                if (!f.isAbsolute() && hrefBase != null) {
                     f = new File(hrefBase, href);
-                
+                }
                 if (!f.exists()) {
-                    throw new RuntimeException("File not found for field " + field.getName() + ": " 
-                            + f.getAbsolutePath());
+                    throw new RuntimeException("File not found for field " + field.getName() + ": " + f.getAbsolutePath());
                 }
                 byte[] encoded;
-                ByteArrayOutputStream raw = new ByteArrayOutputStream();
-                try {
-                    IOUtils.copy(new FileInputStream(f), raw);
+                try (var fis = new FileInputStream(f); var raw = new ByteArrayOutputStream()) {
+                    IOUtils.copy(fis, raw);
                     encoded = Base64.encodeBase64(raw.toByteArray());
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -157,10 +149,11 @@ public class PSAssetGenerator extends PSItemGenerator<PSAssetServiceRestClient>
                 fieldSet.put(field.getName(), new String(encoded));
             }
         }
-        
-        if (path != null)
+
+        if (path != null) {
             asset.setFolderPaths(asList(path));
-        PSAsset result = getRestClient().save(asset);
+        }
+        var result = getRestClient().save(asset);
         log.info("Created asset " + result.getId());
         return result;
     }

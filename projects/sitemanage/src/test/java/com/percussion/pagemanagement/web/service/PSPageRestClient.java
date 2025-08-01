@@ -17,6 +17,8 @@
 /**
  * 
  */
+// REFACTORED: CP-JAVA11
+
 package com.percussion.pagemanagement.web.service;
 
 import static java.util.Arrays.asList;
@@ -34,73 +36,62 @@ import com.percussion.share.test.PSRestTestCase;
 
 import java.util.List;
 
-public class PSPageRestClient extends PSDataServiceRestClient<PSPage>
-{
-    
-    public PSPageRestClient(String baseUrl)
-    {
+public class PSPageRestClient extends PSDataServiceRestClient<PSPage> {
+
+    public PSPageRestClient(String baseUrl) {
         super(PSPage.class, baseUrl, "/Rhythmyx/services/pagemanagement/page/");
     }
 
-
-    public PSPage load(String id)
-    {
+    public PSPage load(String id) {
         return get(id);
     }
-    
-    public String getPageEditUrl(String id)
-    {
+
+    public String getPageEditUrl(String id) {
         return GET(concatPath(getPath(), "pageEditUrl", id));
     }
-    
-    public String getPageViewUrl(String id)
-    {
+
+    public String getPageViewUrl(String id) {
         return GET(concatPath(getPath(), "pageViewUrl", id));
     }
-    
+
     public PSPage findPageByFullFolderPath(String fullPath) {
         notEmpty(fullPath, "fullPath");
-        fullPath = removeStart(fullPath, "//");
-        return getObjectFromPath(concatPath(getPath(), "folderpath", fullPath));
+        var normalizedPath = removeStart(fullPath, "//");
+        return getObjectFromPath(concatPath(getPath(), "folderpath", normalizedPath));
     }
-    
-    public void forceDelete(String pageId)
-    {
+
+    public void forceDelete(String pageId) {
         GET(concatPath(getPath(), "/forceDelete", pageId));
     }
 
-    public PSNoContent validateDelete(String pageId)
-    {
+    public PSNoContent validateDelete(String pageId) {
         return getObjectFromPath(concatPath(getPath(), "/validateDelete", pageId), PSNoContent.class);
     }
-    
-    public List<PSSEOStatistics> findNonSEOPages(PSItemByWfStateRequest request)
-    {
+
+    public List<PSSEOStatistics> findNonSEOPages(PSItemByWfStateRequest request) {
         return postObjectToPathAndGetObjects(concatPath(getPath(), "/nonSEOPages"), request, PSSEOStatistics.class);
     }
-    
-    public PSPage createPage(String name, String folderPath) throws Exception
-    {
-        String templateId = getTemplateClient().getContentOnlyTemplateId();
-        
-        PSPage pageNew = new PSPage();
+
+    public PSPage createPage(String name, String folderPath) throws Exception {
+        var templateId = getTemplateClient().getContentOnlyTemplateId();
+
+        var pageNew = new PSPage();
         pageNew.setName(name);
         pageNew.setTitle("title");
         pageNew.setFolderPath(folderPath);
         pageNew.setTemplateId(templateId);
         pageNew.setLinkTitle("dummy");
-        PSRegionBranches br = new PSRegionBranches();
-        PSRegion region = new PSRegion();
+        var br = new PSRegionBranches();
+        var region = new PSRegion();
         region.setRegionId("test");
         br.setRegions(asList(region));
         pageNew.setRegionBranches(br);
-              
+
         return save(pageNew);
     }
-    
-    private PSTemplateServiceClient getTemplateClient() throws Exception
-    {
-        PSTemplateServiceClient client = new PSTemplateServiceClient(getUrl());
+
+    private PSTemplateServiceClient getTemplateClient() throws Exception {
+        var client = new PSTemplateServiceClient(getUrl());
         PSRestTestCase.setupClient(client);
         return client;
     }

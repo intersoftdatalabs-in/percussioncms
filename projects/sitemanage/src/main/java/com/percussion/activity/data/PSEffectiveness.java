@@ -15,77 +15,60 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.activity.data;
 
-import static org.apache.commons.lang.Validate.notEmpty;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonRootName;
-import net.sf.oval.constraint.NotEmpty;
-
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This object holds the effectiveness details of the items under named site or site folder.
  */
 @JsonRootName(value = "Effectiveness")
-public class PSEffectiveness
-{
-    public PSEffectiveness()
-    {        
-    }
-    
+public class PSEffectiveness {
+
+    private String name;
+    private Long effectiveness;
+
+    public PSEffectiveness() {}
+
     /**
      * Constructs an effectiveness object.
-     * 
+     *
      * @param name see {@link #getName()}.
      * @param effectiveness see {@link #getEffectiveness()}.
      */
-    public PSEffectiveness(String name, Long effectiveness)
-    {
-        notEmpty(name);
-        
-        this.name = name;
+    public PSEffectiveness(String name, Long effectiveness) {
+        this.name = Objects.requireNonNull(name, "name must not be null or empty");
         this.effectiveness = effectiveness;
     }
 
     /**
-     * @return the the name of the site, section, or folder, never blank.
+     * @return the name of the site, section, or folder, never blank.
      */
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
     /**
      * @param name must not be blank.
      */
-    public void setName(String name)
-    {
-        notEmpty(name);
-        
-        this.name = name;
+    public void setName(String name) {
+        this.name = Objects.requireNonNull(name, "name must not be null or empty");
     }
 
     /**
      * @return the calculated effectiveness value for the item.
      */
-    public Long getEffectiveness()
-    {
-        return effectiveness;
+    public Optional<Long> getEffectiveness() {
+        return Optional.ofNullable(effectiveness);
     }
 
     /**
      * @param effectiveness the effectiveness to set
      */
-    public void setEffectiveness(Long effectiveness)
-    {
+    public void setEffectiveness(Long effectiveness) {
         this.effectiveness = effectiveness;
     }
-
-    @NotEmpty
-    private String name;
-    
-    private Long effectiveness;
- 
 }

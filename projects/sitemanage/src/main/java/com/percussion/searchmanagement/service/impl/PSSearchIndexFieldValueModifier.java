@@ -31,11 +31,6 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.util.PSDataTypeConverter;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.PSWebserviceUtils;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
@@ -43,92 +38,85 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Modifies field values before items are indexed, to ensure search queries behave as expected.  Currently
- * changes the last modified date/user to match the last user's changes if the item was actually last 
- * modified by the system during a transition from Pending to Live
- * 
- * @author JaySeletz
- *
+ * Modifies field values before items are indexed, to ensure search queries behave as expected.
  */
 @Component("searchIndexFieldValueModifier")
-public class PSSearchIndexFieldValueModifier implements IPSFieldValueModifier, IPSNotificationListener
-{
-    private IPSFolderHelper folderHelper;
-    private IPSIdMapper idMapper;
-    
-    
+public class PSSearchIndexFieldValueModifier implements IPSFieldValueModifier, IPSNotificationListener {
     private static final Logger log = LogManager.getLogger(PSSearchIndexFieldValueModifier.class);
-    
+
+    private final IPSFolderHelper folderHelper;
+    private final IPSIdMapper idMapper;
+
     @Autowired
-    public PSSearchIndexFieldValueModifier(IPSFolderHelper folderHelper, IPSIdMapper idMapper, IPSNotificationService notificationService)
-    {
+    public PSSearchIndexFieldValueModifier(
+            IPSFolderHelper folderHelper,
+            IPSIdMapper idMapper,
+            IPSNotificationService notificationService) {
         this.folderHelper = folderHelper;
         this.idMapper = idMapper;
         notificationService.addListener(EventType.CORE_SERVER_INITIALIZED, this);
     }
 
-
     @Override
-    public void modifyFields(Map<String, Object> itemFragment)
-    {
-        try
-        {
-            // get item id
-            String strContentId = (String) itemFragment.get("sys_contentid");
-            int contentId = NumberUtils.toInt( strContentId);
-            if (contentId <= 0)
+    public void modifyFields(Map<String, Object> itemFragment) {
+        try {
+            var strContentId = (String) itemFragment.get("sys_contentid");
+            var contentId = NumberUtils.toInt(strContentId);
+            if (contentId <= 0) {
                 throw new IllegalArgumentException("Invalid or missing content id: " + strContentId);
-            
-            // get wf and state id, see if publishable
-            int wfId = NumberUtils.toInt( (String) itemFragment.get("sys_workflowid"));
-            String stateName = (String) itemFragment.get("sys_statename");
-            
-            
-            if (wfId <= 0 || StringUtils.isBlank(stateName))
+            }
+
+            var wfId = NumberUtils.toInt((String) itemFragment.get("sys_workflowid"));
+            var stateName = (String) itemFragment.get("sys_statename");
+
+            if (wfId <= 0 || StringUtils.isBlank(stateName)) {
                 return;
-            
-            String userName = (String) itemFragment.get("sys_contentlastmodifier");
-            String strDate = (String) itemFragment.get("sys_contentlastmodifieddate");
-            
-            if (StringUtils.isBlank(userName) || StringUtils.isBlank(strDate))
+            }
+
+            var userName = (String) itemFragment.get("sys_contentlastmodifier");
+            var strDate = (String) itemFragment.get("sys_contentlastmodifieddate");
+
+            if (StringUtils.isBlank(userName) || StringUtils.isBlank(strDate)) {
                 return;
-            
-            StringBuilder patternUsed = new StringBuilder();
-            Date lastModified = PSDataTypeConverter.parseStringToDate(strDate, patternUsed);
-            if (lastModified == null)
+            }
+
+            var patternUsed = new StringBuilder();
+            var lastModified = PSDataTypeConverter.parseStringToDate(strDate, patternUsed);
+            if (lastModified == null) {
                 return;
-            
-            PSWorkflow wf = PSWebserviceUtils.getWorkflow(wfId);
+            }
+
+            var wf = PSWebserviceUtils.getWorkflow(wfId);
             PSState state = null;
-            List<PSState> states = wf.getStates();
-            for (PSState test : states)
-            {
-                if (test.getName().equals(stateName))
+            for (var test : wf.getStates()) {
+                if (test.getName().equals(stateName)) {
                     state = test;
+                    break;
+                }
             }
-            
-            if (state == null)
-            {
+            if (state == null) {
                 return;
             }
-            
-            PSPair<String, String> lastModInfo = folderHelper.fixupLastModified(idMapper.getGuid(new PSLocator(contentId)), userName, lastModified, state.isPublishable());
+
+            var lastModInfo = folderHelper.fixupLastModified(
+                    idMapper.getGuid(new PSLocator(contentId)), userName, lastModified, state.isPublishable());
             itemFragment.put("sys_contentlastmodifier", lastModInfo.getFirst());
-            itemFragment.put("sys_contentlastmodifieddate", PSDataTypeConverter.transformDateString(PSDateUtils.getDateFromString(lastModInfo.getSecond()), null, patternUsed.toString(), true));
-        }
-        catch (Exception e)
-        {
+            itemFragment.put("sys_contentlastmodifieddate",
+                    PSDataTypeConverter.transformDateString(
+                            PSDateUtils.getDateFromString(lastModInfo.getSecond()),
+                            null, patternUsed.toString(), true));
+        } catch (Exception e) {
             log.error("Failed to update last modifier fields for search indexing", e);
         }
-        
     }
-
 
     @Override
-    public void notifyEvent(PSNotificationEvent notification)
-    {
+    public void notifyEvent(PSNotificationEvent notification) {
         PSSearchIndexEventQueue.getInstance().setFieldValueModifier(this);
     }
-
 }

@@ -20,7 +20,8 @@ package com.percussion.cx;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSUserInfo;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
@@ -43,7 +44,7 @@ import java.util.StringTokenizer;
 
 public class PSContentExplorerUtils
 {
-   static Logger log = Logger.getLogger(PSContentExplorerUtils.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerUtils.class);
    public static Map<String, String> getQueryMap(String url)  
    {  
       Map<String, String> map = new HashMap<>();

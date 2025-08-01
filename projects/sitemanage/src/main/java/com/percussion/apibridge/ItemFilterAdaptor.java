@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.rest.Guid;
@@ -32,117 +34,108 @@ import com.percussion.util.PSSiteManageBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Adaptor for ItemFilter management in Percussion CMS.
+ */
 @PSSiteManageBean
 public class ItemFilterAdaptor implements IItemFilterAdaptor {
 
-    private IPSFilterService filterService;
+    private final IPSFilterService filterService;
     private static final Logger log = LogManager.getLogger(ItemFilterAdaptor.class);
 
-    public ItemFilterAdaptor(){
-        filterService = PSFilterServiceLocator.getFilterService();
+    public ItemFilterAdaptor() {
+        this.filterService = PSFilterServiceLocator.getFilterService();
     }
 
-
-    /***
+    /**
      * Get a list of the ItemFilters available on the system populated with rules and parameters.
+     *
      * @return A list of item filters
      */
     @Override
     public List<ItemFilter> getItemFilters() {
-        List<ItemFilter> ret = new ArrayList<>();
-        List<IPSItemFilter> filters = filterService.findAllFilters();
-
-        for(IPSItemFilter i : filters){
-            ret.add(copyFilter(i));
-        }
-        return ret;
+        return filterService.findAllFilters()
+                .stream()
+                .map(this::copyFilter)
+                .collect(Collectors.toList());
     }
 
-    private ItemFilter copyFilter(IPSItemFilter filter){
-        ItemFilter ret  = new ItemFilter();
-
+    private ItemFilter copyFilter(IPSItemFilter filter) {
+        var ret = new ItemFilter();
         ret.setFilter_id(ApiUtils.convertGuid(filter.getGUID()));
         ret.setDescription(filter.getDescription());
         ret.setName(filter.getName());
         ret.setLegacyAuthtype(filter.getLegacyAuthtypeId());
 
-        if(filter.getParentFilter() != null){
+        if (filter.getParentFilter() != null) {
             ret.setParentFilter(copyFilter(filter.getParentFilter()));
         }
 
-        Set<IPSItemFilterRuleDef> ruleDefs = filter.getRuleDefs();
-        Set<ItemFilterRuleDefinition> rules = new HashSet<>();
-        for(IPSItemFilterRuleDef def : ruleDefs){
-            ItemFilterRuleDefinition r = copyItemFilterRuleDef(def);
-            if(r != null) {
-                rules.add(r);
-            }
-        }
+        var rules = filter.getRuleDefs().stream()
+                .map(this::copyItemFilterRuleDef)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         ret.setRules(rules);
         return ret;
     }
 
     private ItemFilterRuleDefinition copyItemFilterRuleDef(IPSItemFilterRuleDef def) {
-        ItemFilterRuleDefinition ret = new ItemFilterRuleDefinition();
-
         try {
+            var ret = new ItemFilterRuleDefinition();
             ret.setName(def.getRuleName());
             ret.setRuleId(ApiUtils.convertGuid(def.getGUID()));
 
-            Map<String,String> params = def.getParams();
-            List<ItemFilterRuleDefinitionParam> retParams = new ArrayList<>();
-            for(Map.Entry<String,String> pair : params.entrySet()){
-                ItemFilterRuleDefinitionParam p = new ItemFilterRuleDefinitionParam();
-                p.setName(pair.getKey());
-                p.setValue(pair.getValue());
-                retParams.add(p);
-            }
-           ret.setParams(retParams);
+            var retParams = def.getParams().entrySet().stream()
+                    .map(pair -> {
+                        var p = new ItemFilterRuleDefinitionParam();
+                        p.setName(pair.getKey());
+                        p.setValue(pair.getValue());
+                        return p;
+                    })
+                    .collect(Collectors.toList());
+            ret.setParams(retParams);
+            return ret;
         } catch (PSFilterException e) {
-            log.error("Error getting ItemFilter Rule Name.  Skipping Rule.", e);
-            ret = null;
+            log.error("Error getting ItemFilter Rule Name. Skipping Rule.", e);
+            return null;
         }
-        return ret;
     }
 
-
-    /***
-     * Update or create an ItemFilter
-     * @param filter  The filter to update or create.
+    /**
+     * Update or create an ItemFilter.
+     *
+     * @param filter The filter to update or create.
      * @return The updated ItemFilter.
      */
     @Override
     public ItemFilter updateOrCreateItemFilter(ItemFilter filter) {
-        //TODO: Implement Me
         log.warn("updateOrCreateItemFilter not yet implemented");
         return null;
     }
 
-    /***
+    /**
      * Delete the specified item filter.
-     * @param itemFilterId A valid ItemFilter id.  Filter must not be associated with any ContentLists or it won't be deleted.
+     *
+     * @param itemFilterId A valid ItemFilter id. Filter must not be associated with any ContentLists or it won't be deleted.
      */
     @Override
     public void deleteItemFilter(Guid itemFilterId) throws PSNotFoundException {
-        IPSItemFilter filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
-
+        var filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
         filterService.deleteFilter(filter);
     }
 
-    /***
+    /**
      * Get a single ItemFilter by id.
-     * @param itemFilterId  A Valid ItemFilter id
+     *
+     * @param itemFilterId A Valid ItemFilter id
      * @return The ItemFilter
      */
     @Override
     public ItemFilter getItemFilter(Guid itemFilterId) throws PSNotFoundException {
-        IPSItemFilter filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
-        return  copyFilter(filter);
+        var filter = filterService.loadFilter(ApiUtils.convertGuid(itemFilterId));
+        return copyFilter(filter);
     }
 }

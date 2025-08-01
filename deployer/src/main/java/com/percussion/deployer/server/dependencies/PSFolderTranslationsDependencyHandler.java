@@ -74,58 +74,36 @@ public class PSFolderTranslationsDependencyHandler
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List childDeps = new ArrayList();
-      
-      String[] parsedId = parseDependencyId(dep.getDependencyId());
-      String path = parsedId[0];
-      String relType = parsedId[1];
-      if (pathSpecifiesParent(path))
-      {
-         PSRelationshipProcessor proc = getRelationshipProcessor(tok);
-         PSComponentSummary sum = getFolderSummary(proc, path);
-         if (sum != null)
-         {
-            PSComponentSummaries summ = getTranslatedFolderSummaries(proc, sum,
-               relType);
-            if (summ.size() > 0)
-            {
-               PSDependencyHandler handler = getDependencyHandler(
-                  PSFolderDefDependencyHandler.DEPENDENCY_TYPE);
-               Iterator transFolders = summ.iterator();
-               while (transFolders.hasNext())
-               {
-                  PSComponentSummary trans =
-                     (PSComponentSummary)transFolders.next();
-                  // get the path of the translated folder path
-                  String transFolderPath = getFolderPath(proc, trans);
-                  PSDependency childDep =
-                     handler.getDependency(tok, transFolderPath);
-                  childDep.setDependencyType(dep.getDependencyType());
-                  childDeps.add(childDep);
-               }
-            }
-         }
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
       }
 
-      // get relationship config dep
-      PSDependencyHandler relHandler = getDependencyHandler(
-         PSRelationshipDependencyHandler.DEPENDENCY_TYPE);
-         
-      PSDependency relDep = relHandler.getDependency(tok, relType);
-      if (relDep != null)
-         childDeps.add(relDep);         
- 
+      var parsedId = parseDependencyId(dep.getDependencyId());
+      var path = parsedId[0];
+      var relType = parsedId[1];
+      var proc = getRelationshipProcessor(tok);
+      var parentFolder = getFolderSummary(proc, path);
+
+      var childDeps = new ArrayList<PSDependency>();
+      if (parentFolder != null) {
+         var translatedFolders = getTranslatedFolderSummaries(proc, parentFolder, relType);
+         translatedFolders.forEach(trans -> {
+            var transFolderPath = getFolderPath(proc, trans);
+            var childDep = getDependencyHandler(PSFolderDefDependencyHandler.DEPENDENCY_TYPE).getDependency(tok, transFolderPath);
+            if (childDep != null) {
+               childDep.setDependencyType(dep.getDependencyType());
+               childDeps.add(childDep);
+            }
+         });
+      }
+
+      var relDep = getDependencyHandler(PSRelationshipDependencyHandler.DEPENDENCY_TYPE).getDependency(tok, relType);
+      if (relDep != null) {
+         childDeps.add(relDep);
+      }
+
       return childDeps.iterator();
    }
 
@@ -461,4 +439,3 @@ public class PSFolderTranslationsDependencyHandler
    }
 
 }
-

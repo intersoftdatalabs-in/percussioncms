@@ -167,21 +167,17 @@ public class PSJexlBinding
    /**
     * make a copy of the binding
     */
-   public PSJexlBinding clone()
-   {
-      PSJexlBinding b = new PSJexlBinding(getIndex(), getName(),
-            getExpression());
-      b.setExpression(new String(getExpression()));
-      return b;
+   public PSJexlBinding clone() {
+      var clonedExpression = new String(getExpression());
+      return new PSJexlBinding(getIndex(), getName(), clonedExpression);
    }
 
    @Override
    public String toString() {
-      final StringBuffer sb = new StringBuffer("PSJexlBinding{");
-      sb.append("m_name='").append(m_name).append('\'');
-      sb.append(", m_expression='").append(m_expression).append('\'');
-      sb.append(", m_index=").append(m_index);
-      sb.append('}');
-      return sb.toString();
+      return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
+        .append("name", m_name)
+        .append("expression", m_expression)
+        .append("index", m_index)
+        .toString();
    }
 }

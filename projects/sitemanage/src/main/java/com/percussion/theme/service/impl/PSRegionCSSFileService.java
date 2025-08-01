@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.theme.service.impl;
 
 import static com.percussion.theme.data.PSRegionCSS.REGION_CLASS;
@@ -52,6 +52,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PSRegionCSSFileService
 {
@@ -237,27 +238,22 @@ public class PSRegionCSSFileService
      * or the source file is empty (or not exist).
      */
     private List<PSRegionCSS> getRegionCssFromTreeAndSource(PSRegionTree tree, String srcPath) throws PSThemeNotFoundException {
-        List<String> names = getRegionNames(tree);
+        var names = getRegionNames(tree);
         if (names.isEmpty())
             return null;
-        
-        String content = getContentFromFile(srcPath);
+
+        var content = getContentFromFile(srcPath);
         if (content == null || isBlank(content))
             return null;
-        
-        List<PSRegionCSS> regions = readFromString(content);
+
+        var regions = readFromString(content);
         if (regions.isEmpty())
             return null;
-        
-        List<PSRegionCSS> results = new ArrayList<>();
-        for (PSRegionCSS r : regions)
-        {
-            if (matchRegionNames(r, names))
-            {
-                results.add(r);
-            }
-        }
-        return results;
+
+        // Java 11: Use streams for filtering
+        return regions.stream()
+                .filter(r -> matchRegionNames(r, names))
+                .collect(Collectors.toList());
     }
     
     private boolean matchRegionNames(PSRegionCSS r, List<String> regionNames)
@@ -274,11 +270,9 @@ public class PSRegionCSSFileService
         return false;
     }
     
-    private List<String> getRegionNames(PSRegionTree tree)
-    {
-        List<String> names = new ArrayList<>();
-        for (PSRegion r : tree.getDescendentRegions())
-        {
+    private List<String> getRegionNames(PSRegionTree tree) {
+        var names = new ArrayList<String>();
+        for (var r : tree.getDescendentRegions()) {
             names.add(r.getRegionId());
         }
         return names;
@@ -404,18 +398,16 @@ public class PSRegionCSSFileService
         return regionCSS;
     }
     
-    private void setProperties(List<CSSDeclaration> decs, PSRegionCSS css)
-    {
-        CSSWriterSettings wsettings = new CSSWriterSettings(ECSSVersion.CSS30, true);
-        List<PSRegionCSS.Property> props = new ArrayList<>();
-        
-        for (CSSDeclaration dec : decs)
-        {
-            PSRegionCSS.Property prop = new PSRegionCSS.Property();
-            prop.setName(dec.getProperty());
-            prop.setValue(dec.getExpression().getAsCSSString(wsettings, 0));
-            props.add(prop);
-        }
+    private void setProperties(List<CSSDeclaration> decs, PSRegionCSS css) {
+        var wsettings = new CSSWriterSettings(ECSSVersion.CSS30, true);
+        var props = decs.stream()
+                .map(dec -> {
+                    var prop = new PSRegionCSS.Property();
+                    prop.setName(dec.getProperty());
+                    prop.setValue(dec.getExpression().getAsCSSString(wsettings, 0));
+                    return prop;
+                })
+                .collect(Collectors.toList());
         css.setProperties(props);
     }
     

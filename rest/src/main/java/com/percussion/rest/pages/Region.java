@@ -15,32 +15,43 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.pages;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * Represents a region of a page either defined locally or by the template.
+ * Sunny Sal: "Region ka hero, widgets ka zero!"
+ */
 @XmlRootElement(name = "Region")
-@Schema(name="Region",description="Represents a region of a page either defined locally or by the template.")
+@Schema(name = "Region", description = "Represents a region of a page either defined locally or by the template.")
 public class Region
 {
-    @Schema(name="name",description="Name of the region.")
+
+    @Schema(name = "name", description = "Name of the region.")
     private String name;
 
-    @Schema(name="type", description="Type of region.",allowableValues = "TEMPLATE,LOCAL")
+    @Schema(name = "type", description = "Type of region.", allowableValues = "TEMPLATE,LOCAL")
     private String type;
 
-    @Schema(name="editable", description="Denotes if region is editable.")
+    @Schema(name = "editable", description = "Denotes if region is editable.")
     private boolean editable;
 
-    @Schema(name="widgets", description="List of widgets within the region."  )
+    @Schema(name = "widgets", description = "List of widgets within the region.")
     private List<Widget> widgets;
 
-    public String getName()
+    /**
+     * Gets the region name.
+     */
+    public Optional<String> getName()
     {
-        return name;
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name)
@@ -48,9 +59,12 @@ public class Region
         this.name = name;
     }
 
-    public String getType()
+    /**
+     * Gets the region type.
+     */
+    public Optional<String> getType()
     {
-        return type;
+        return Optional.ofNullable(type);
     }
 
     public void setType(String type)
@@ -58,6 +72,9 @@ public class Region
         this.type = type;
     }
 
+    /**
+     * Returns true if the region is editable.
+     */
     public boolean isEditable()
     {
         return editable;
@@ -68,14 +85,16 @@ public class Region
         this.editable = editable;
     }
 
-    public List<Widget> getWidgets()
+    /**
+     * Gets the widgets in this region.
+     */
+    public Optional<List<Widget>> getWidgets()
     {
-        return widgets;
+        return Optional.ofNullable(widgets);
     }
 
     public void setWidgets(List<Widget> widgets)
     {
         this.widgets = widgets;
     }
-
 }

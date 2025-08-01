@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -217,64 +218,40 @@ public abstract class PSDescriptor  implements IPSDeployComponent
     * signature.
     */
    public void fromXml(Element sourceNode) throws PSUnknownNodeTypeException, PSDeployException {
-      if (sourceNode == null)
+      if (sourceNode == null) {
          throw new IllegalArgumentException("sourceNode may not be null");
-         
-      if (!XML_NODE_NAME.equals(sourceNode.getNodeName()))
-      {
-         Object[] args = { XML_NODE_NAME, sourceNode.getNodeName() };
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, args);
       }
-      m_id = StringUtils.defaultString(sourceNode.getAttribute(XML_ATTR_ID));
-      m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode, 
-         XML_ATTR_NAME);
-         
-      PSXmlTreeWalker tree = new PSXmlTreeWalker(sourceNode);
-      String description = tree.getElementData(XML_EL_DESC);
-      if (description == null)
-      {
-         throw new PSUnknownNodeTypeException(
-            IPSObjectStoreErrors.XML_ELEMENT_NULL, XML_EL_DESC);
+      if (!XML_NODE_NAME.equals(sourceNode.getNodeName())) {
+         throw new PSUnknownNodeTypeException(IPSObjectStoreErrors.XML_ELEMENT_WRONG_TYPE, new Object[]{XML_NODE_NAME, sourceNode.getNodeName()});
       }
-      
-      m_description = description;
-      setVersion(tree.getElementData(XML_EL_VERSION));
-      setConfigDefFile(tree.getElementData(XML_EL_IMPL_CONFIG_FILE));
-      setLocalConfigFile(tree.getElementData(XML_EL_LOCAL_CONFIG_FILE));
-      Element publisher = tree.getNextElement(XML_EL_PUBLISHER);
-      if(publisher != null)
-      {
-         setPublisherName(publisher.getAttribute(XML_ATTR_NAME));
-         setPublisherUrl(publisher.getAttribute(XML_ATTR_URL));
+      var tree = new PSXmlTreeWalker(sourceNode);
+      m_name = PSDeployComponentUtils.getRequiredAttribute(sourceNode, XML_ATTR_NAME);
+      m_id = sourceNode.getAttribute(XML_ATTR_ID);
+      m_description = Optional.ofNullable(tree.getElementData(XML_EL_DESC)).orElse("");
+      m_version = formatVersion(tree.getElementData(XML_EL_VERSION), true, true);
+      m_configDefFile = tree.getElementData(XML_EL_IMPL_CONFIG_FILE);
+      m_localConfigFile = tree.getElementData(XML_EL_LOCAL_CONFIG_FILE);
+      var publisher = tree.getNextElement(XML_EL_PUBLISHER);
+      if (publisher != null) {
+         m_publisherName = publisher.getAttribute(XML_ATTR_NAME);
+         m_publisherUrl = publisher.getAttribute(XML_ATTR_URL);
       }
-      Element cmsversion = tree.getNextElement(XML_EL_CMS_VERSION);
-      if(cmsversion != null)
-      {
-         setCmsMaxVersion(cmsversion.getAttribute(XML_ATTR_MAX));
-         setCmsMinVersion(cmsversion.getAttribute(XML_ATTR_MIN));
+      var cmsVersion = tree.getNextElement(XML_EL_CMS_VERSION);
+      if (cmsVersion != null) {
+         m_cmsMaxVersion = cmsVersion.getAttribute(XML_ATTR_MAX);
+         m_cmsMinVersion = cmsVersion.getAttribute(XML_ATTR_MIN);
       }
-      // Get Package Dependencies    
-      PSXmlTreeWalker pkgDepTree = 
-         new PSXmlTreeWalker(tree.getNextElement(XML_PKG_DEP_ROOT_NAME));
-      
-      Element pkgDepElem = pkgDepTree.getNextElement(XML_PKG_DEP_EL_NAME);
-
-      while( pkgDepElem != null )
-      {
-         Map<String,String> pkgDepMap = new HashMap<>();
-         pkgDepMap.put(XML_PKG_DEP_NAME, 
-               pkgDepElem.getAttribute(XML_PKG_DEP_NAME));
-         pkgDepMap.put(XML_PKG_DEP_VERSION, 
-               pkgDepElem.getAttribute(XML_PKG_DEP_VERSION));         
-         pkgDepMap.put(XML_PKG_DEP_IMPLIED, 
-               pkgDepElem.getAttribute(XML_PKG_DEP_IMPLIED));
+      var pkgDepTree = new PSXmlTreeWalker(tree.getNextElement(XML_PKG_DEP_ROOT_NAME));
+      var pkgDepElem = pkgDepTree.getNextElement(XML_PKG_DEP_EL_NAME);
+      while (pkgDepElem != null) {
+         var pkgDepMap = Map.of(
+            XML_PKG_DEP_NAME, pkgDepElem.getAttribute(XML_PKG_DEP_NAME),
+            XML_PKG_DEP_VERSION, pkgDepElem.getAttribute(XML_PKG_DEP_VERSION),
+            XML_PKG_DEP_IMPLIED, pkgDepElem.getAttribute(XML_PKG_DEP_IMPLIED)
+         );
          m_pkgDepList.add(pkgDepMap);
-         
          pkgDepElem = pkgDepTree.getNextElement(XML_PKG_DEP_EL_NAME);
       }
-
-      
    }
 
    // see IPSDeployComponent interface

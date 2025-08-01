@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.extensions;
 
 import com.percussion.util.PSSiteManageBean;
@@ -37,7 +39,11 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@PSSiteManageBean(value="restExtensionsResource")
+/**
+ * REST resource for Extension operations.
+ * Sunny Sal: "Extension operations? Bas yahi toh mera kaam hai!"
+ */
+@PSSiteManageBean(value = "restExtensionsResource")
 @Path("/extensions")
 @XmlRootElement
 @Tag(name = "Extensions", description = "Extension operations")
@@ -49,20 +55,33 @@ public class ExtensionsResource {
     @Context
     private UriInfo uriInfo;
 
-    public ExtensionsResource(){}
-    
+    public ExtensionsResource() {
+        // Default constructor
+    }
+
+    /**
+     * Lists Extensions available on the system.
+     *
+     * @param filter An extension filter options object
+     * @return List of Extensions matching the filter
+     */
     @POST
     @Path("/list")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(summary = "List Extensions available on the system", description = "Returns a list of Extensions that match the supplied ExtensionFilterOptions"
-, responses= {
-            @ApiResponse(responseCode = "200", description = "OK", content=@Content(
-                    array = @ArraySchema(schema=@Schema(implementation = Extension.class)))),
-            @ApiResponse(responseCode = "404", description = "No Extensions not found")
-    })
-    public List<Extension> getExtensions(@Parameter(name="filter", description="An extension filter options object", required=true) ExtensionFilterOptions filter){
-        return new ExtensionList(adaptor.getExtensions(uriInfo.getBaseUri(),filter));
+    @Operation(
+            summary = "List Extensions available on the system",
+            description = "Returns a list of Extensions that match the supplied ExtensionFilterOptions",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OK", content = @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = Extension.class)))),
+                    @ApiResponse(responseCode = "404", description = "No Extensions found")
+            }
+    )
+    public List<Extension> getExtensions(
+            @Parameter(name = "filter", description = "An extension filter options object", required = true)
+            ExtensionFilterOptions filter) {
+        var extensions = adaptor.getExtensions(uriInfo.getBaseUri(), filter);
+        return new ExtensionList(extensions);
     }
-
 }

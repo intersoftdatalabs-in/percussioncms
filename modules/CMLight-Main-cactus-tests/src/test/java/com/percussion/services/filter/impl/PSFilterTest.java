@@ -63,13 +63,13 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testCleanup() throws Exception
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      
+      var fsvc = PSFilterServiceLocator.getFilterService();
+
       try
       {
          while(true)
          {
-            IPSItemFilter filter = fsvc.findFilterByName(TEST_FILTER_NAME);
+            var filter = fsvc.findFilterByName(TEST_FILTER_NAME);
             fsvc.deleteFilter(filter);
          }
       }
@@ -78,7 +78,7 @@ public class PSFilterTest extends ServletTestCase
          // Ignore
       }
    }
-   
+
    /**
     * This test creates and mutates an item filter instance. It makes sure to
     * cover the following cases:
@@ -92,69 +92,60 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testFolderSavesAndMerges() throws Exception
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.createFilter(TEST_FILTER_NAME,
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.createFilter(TEST_FILTER_NAME,
             "Item filter just to test");
-      Map<String, String> params = new HashMap<String, String>();
+      var params = new HashMap<String, String>();
       params.put("a", "1");
-      IPSItemFilterRuleDef def = fsvc.createRuleDef("mytestrule1", params);
+      var def = fsvc.createRuleDef("mytestrule1", params);
       filter.addRuleDef(def);
       fsvc.saveFilter(filter);
 
       Thread.sleep(200);
-      
-      // Add a new rule and add a new rule def
+
       filter = fsvc.findFilterByName(TEST_FILTER_NAME);
-      params = new HashMap<String, String>();
+      params = new HashMap<>();
       params.put("b", "2");
       params.put("c", "3");
       def = fsvc.createRuleDef("mytestrule2", params);
       filter.addRuleDef(def);
       fsvc.saveFilter(filter);
 
-      // Remove the first rule and save
       filter = fsvc.findFilterByName(TEST_FILTER_NAME);
-      Map<String, IPSItemFilterRuleDef> defs = 
-         new HashMap<String, IPSItemFilterRuleDef>();
-      for (IPSItemFilterRuleDef frdef : filter.getRuleDefs())
+      var defs = new HashMap<String, IPSItemFilterRuleDef>();
+      for (var frdef : filter.getRuleDefs())
       {
          defs.put(frdef.getRuleName(), frdef);
       }
-      // Do some testing
       assertNotNull(defs.get("mytestrule1"));
       assertNotNull(defs.get("mytestrule2"));
-      IPSItemFilterRuleDef deftoTest = defs.get("mytestrule1");
+      var deftoTest = defs.get("mytestrule1");
       assertEquals("1", deftoTest.getParam("a"));
       deftoTest = defs.get("mytestrule2");
       assertEquals("2", deftoTest.getParam("b"));
       assertEquals("3", deftoTest.getParam("c"));
       filter.removeRuleDef(deftoTest);
       fsvc.saveFilter(filter);
-      
-      // Check that the rule is now missing, modify a parameter and save
+
       filter = fsvc.findFilterByName(TEST_FILTER_NAME);
-      defs = new HashMap<String, IPSItemFilterRuleDef>();
-      for (IPSItemFilterRuleDef frdef : filter.getRuleDefs())
+      defs = new HashMap<>();
+      for (var frdef : filter.getRuleDefs())
       {
          defs.put(frdef.getRuleName(), frdef);
       }
       assertNull(defs.get("mytestrule2"));
       deftoTest = defs.get("mytestrule1");
-      // Modify parameter
       deftoTest.setParam("a", "5");
       fsvc.saveFilter(filter);
-      
-      // Remove existing parameter and add a new parameter
+
       filter = fsvc.findFilterByName(TEST_FILTER_NAME);
-      defs = new HashMap<String, IPSItemFilterRuleDef>();
-      for (IPSItemFilterRuleDef frdef : filter.getRuleDefs())
+      defs = new HashMap<>();
+      for (var frdef : filter.getRuleDefs())
       {
          defs.put(frdef.getRuleName(), frdef);
       }
       deftoTest = defs.get("mytestrule1");
-      // Check modified parameter
       assertEquals("5", deftoTest.getParam("a"));
-      // Modify parameter
       deftoTest.setParam("d", "6");
       deftoTest.removeParam("a");
       fsvc.saveFilter(filter);
@@ -167,45 +158,42 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testPreviewFilter() throws Exception
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      PSStopwatch w = new PSStopwatch();
-      List<IPSFilterItem> items = new ArrayList<IPSFilterItem>();
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var w = new PSStopwatch();
+      var items = new ArrayList<IPSFilterItem>();
       items.addAll(getFolderItems("//Sites/EnterpriseInvestments", 1));
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices", 1));
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices/Funds", 1));
 
-      IPSItemFilter filter = fsvc.findFilterByName("preview");
+      var filter = fsvc.findFilterByName("preview");
 
-      Map<String, String> params = new HashMap<String, String>();
+      var params = new HashMap<String, String>();
       params.put(IPSHtmlParameters.SYS_USER, "doug");
       w.start();
-      List<IPSFilterItem> results = filter.filter(items, params);
+      var results = filter.filter(items, params);
       w.stop();
       assertNotNull(results);
       assertTrue(results.size() > 0);
       System.out.println("Preview filtering " + results.size() + " took " + w);
 
-      // Make a map of the current revisions of all the items
-      Map<Integer, Integer> currentmap = new HashMap<Integer, Integer>();
-      for (IPSFilterItem item : results)
+      var currentmap = new HashMap<Integer, Integer>();
+      for (var item : results)
       {
-         PSLegacyGuid lg = (PSLegacyGuid) item.getItemId();
+         var lg = (PSLegacyGuid) item.getItemId();
          currentmap.put(lg.getContentId(), lg.getRevision());
       }
-      // Now get the same information directly
       items.clear();
       items.addAll(getFolderItems("//Sites/EnterpriseInvestments", 0));
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices", 0));
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices/Funds", 0));
-      // Make a map of the results and check some revisions
-      Map<Integer, Integer> revisionmap = new HashMap<Integer, Integer>();
-      for (IPSFilterItem item : results)
+      var revisionmap = new HashMap<Integer, Integer>();
+      for (var item : results)
       {
-         PSLegacyGuid lg = (PSLegacyGuid) item.getItemId();
+         var lg = (PSLegacyGuid) item.getItemId();
          revisionmap.put(lg.getContentId(), lg.getRevision());
       }
       assertEquals(currentmap, revisionmap);
@@ -218,15 +206,15 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testFolderFilter1() throws Exception
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.findFilterByName("sitefolder");
-      List<IPSFilterItem> items = new ArrayList<IPSFilterItem>();
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.findFilterByName("sitefolder");
+      var items = new ArrayList<IPSFilterItem>();
       items.addAll(getFolderItems("//Sites/EnterpriseInvestments", 0));
       items.addAll(getFolderItems("//Sites/CorporateInvestments", 0));
 
-      Map<String, String> params = new HashMap<String, String>();
+      var params = new HashMap<String, String>();
       params.put(IPSHtmlParameters.SYS_SITEID, "301");
-      List<IPSFilterItem> results = filter.filter(items, params);
+      var results = filter.filter(items, params);
       assertNotNull(results);
       assertTrue(results.size() > 0);
    }
@@ -239,18 +227,18 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testFolderFilter2() throws Exception
    {
-      PSStopwatch w = new PSStopwatch();
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.findFilterByName("sitefolder");
-      List<IPSFilterItem> items = new ArrayList<IPSFilterItem>();
+      var w = new PSStopwatch();
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.findFilterByName("sitefolder");
+      var items = new ArrayList<IPSFilterItem>();
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices", 0));
       items.addAll(getFolderItems("//Sites/", 0));
 
-      Map<String, String> params = new HashMap<String, String>();
+      var params = new HashMap<String, String>();
       params.put(IPSHtmlParameters.SYS_SITEID, "301");
       w.start();
-      List<IPSFilterItem> results = filter.filter(items, params);
+      var results = filter.filter(items, params);
       w.stop();
       assertNotNull(results);
       assertTrue(results.size() > 0);
@@ -264,62 +252,60 @@ public class PSFilterTest extends ServletTestCase
     */
    public void testPublishableFilter() throws Exception
    {
-      PSStopwatch w = new PSStopwatch();
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.findFilterByName("public");
-      
-      List<IPSFilterItem> items = new ArrayList<IPSFilterItem>();
+      var w = new PSStopwatch();
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.findFilterByName("public");
+
+      var items = new ArrayList<IPSFilterItem>();
       items.addAll(getFolderItems(
             "//Sites/EnterpriseInvestments/ProductsAndServices", 0));
 
       w.start();
-      List<IPSFilterItem> results = filter.filter(items, null);
+      var results = filter.filter(items, null);
       w.stop();
       assertNotNull(results);
       assertTrue(results.size() > 0);
-      //System.out.println("State filtering " + results.size() + " took " + w);
    }
-   
+
    public void testSetLegacyAuthtypeId() throws Exception
    {
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.findFilterByName("public");
-      
-      String xmlString = ((PSItemFilter) filter).toXML();
-      PSItemFilter pubFilter = new PSItemFilter();
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.findFilterByName("public");
+
+      var xmlString = ((PSItemFilter) filter).toXML();
+      var pubFilter = new PSItemFilter();
       pubFilter.fromXML(xmlString);
       assertTrue(pubFilter.getLegacyAuthtypeId() != null);
-      
+
       pubFilter.setLegacyAuthtypeId(null);
       xmlString = pubFilter.toXML();
-      PSItemFilter pubFilter_2 = new PSItemFilter();
+      var pubFilter_2 = new PSItemFilter();
       pubFilter_2.fromXML(xmlString);
       assertTrue(pubFilter_2.getLegacyAuthtypeId() == null);
    }
-   
+
    /**
     * Test Find methods
     * @throws Exception
     */
    public void testFindFilter() throws Exception
    {
-      String filterName = "junitTestFilterForFinder";
-      IPSFilterService fsvc = PSFilterServiceLocator.getFilterService();
-      IPSItemFilter filter = fsvc.createFilter(filterName,
+      var filterName = "junitTestFilterForFinder";
+      var fsvc = PSFilterServiceLocator.getFilterService();
+      var filter = fsvc.createFilter(filterName,
             "Item filter just to test");
-      Map<String, String> params = new HashMap<String, String>();
+      var params = new HashMap<String, String>();
       params.put("a", "1");
-      IPSItemFilterRuleDef def = fsvc.createRuleDef("mytestrule1", params);
+      var def = fsvc.createRuleDef("mytestrule1", params);
       filter.addRuleDef(def);
       fsvc.saveFilter(filter);
 
       Thread.sleep(200);
-      
+
       filter = fsvc.findFilterByName(filterName);
       assertNotNull(filter);
       filter = fsvc.findFilterByID(filter.getGUID());
       assertNotNull(filter);
-      //clean up
       fsvc.deleteFilter(filter);
    }
 
@@ -335,23 +321,23 @@ public class PSFilterTest extends ServletTestCase
    private List<IPSFilterItem> getFolderItems(String folderPath, int rev)
          throws PSCmsException
    {
-      PSRequest req = PSRequest.getContextForRequest();
-      PSServerFolderProcessor proc = PSServerFolderProcessor.getInstance();
-      PSComponentSummary folder = proc.getSummary(folderPath);
+      var req = PSRequest.getContextForRequest();
+      var proc = PSServerFolderProcessor.getInstance();
+      var folder = proc.getSummary(folderPath);
       if (folder == null)
       {
          throw new RuntimeException("Couldn't find folder " + folderPath);
       }
-      PSLocator folderLocator = folder.getCurrentLocator();
-      PSComponentSummary children[] = proc.getChildSummaries(folderLocator);
-      List<IPSFilterItem> rval = new ArrayList<IPSFilterItem>();
-      for (PSComponentSummary child : children)
+      var folderLocator = folder.getCurrentLocator();
+      var children = proc.getChildSummaries(folderLocator);
+      var rval = new ArrayList<IPSFilterItem>();
+      for (var child : children)
       {
-         int contentid = child.getContentId();
-         int revision = rev == 0
+         var contentid = child.getContentId();
+         var revision = rev == 0
                ? child.getCurrentLocator().getRevision()
                : rev;
-         PSFilterItem item = new PSFilterItem(new PSLegacyGuid(contentid,
+         var item = new PSFilterItem(new PSLegacyGuid(contentid,
                revision), new PSLegacyGuid(folderLocator), null);
          rval.add(item);
       }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.feeds.tasks.impl;
 
 import com.percussion.extension.IPSExtensionDef;
@@ -33,58 +34,34 @@ import java.util.Map;
 /**
  * A post edition task that calls the CMS Feed info service to have it push feed
  * descriptors for the publishing site to the feeds service on the delivery tier.
- * @author erikserating
- *
+ * Sunny Sal says: "PushFeedDescriptorsTask, now Java 11 and Google-styled!"
  */
-public class PSPushFeedDescriptorsTask implements IPSEditionTask
-{
+public class PSPushFeedDescriptorsTask implements IPSEditionTask {
 
     private IPSFeedsInfoService infoService;
-    
-    /* (non-Javadoc)
-     * @see com.percussion.rx.publisher.IPSEditionTask#getType()
-     */
-    public TaskType getType()
-    {
+
+    @Override
+    public TaskType getType() {
         return TaskType.POSTEDITION;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.rx.publisher.IPSEditionTask#perform(com.percussion.services.publisher.IPSEdition, com.percussion.services.sitemgr.IPSSite, java.util.Date, java.util.Date, long, long, boolean, java.util.Map, com.percussion.rx.publisher.IPSEditionTaskStatusCallback)
-     */
-    @SuppressWarnings("unused")
-    public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobid, long duration,
-                    boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception
-    {
-    	PSPubServer server = PSPubServerDaoLocator.getPubServerManager().loadPubServer(edition.getPubServerId());
+    @Override
+    public void perform(IPSEdition edition, IPSSite site, Date startTime, Date endTime, long jobId, long duration,
+                       boolean success, Map<String, String> params, IPSEditionTaskStatusCallback status) throws Exception {
+        var server = PSPubServerDaoLocator.getPubServerManager().loadPubServer(edition.getPubServerId());
         infoService.pushFeeds(site, server);
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-     */
-    public void init(@SuppressWarnings("unused") IPSExtensionDef def, @SuppressWarnings("unused") File file)
-    {
+    @Override
+    public void init(IPSExtensionDef def, File file) {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
-
     }
 
-    /**
-     * @return the infoService
-     */
-    public IPSFeedsInfoService getInfoService()
-    {
+    public IPSFeedsInfoService getInfoService() {
         return infoService;
     }
 
-    /**
-     * @param infoService the infoService to set
-     */
-    public void setInfoService(IPSFeedsInfoService infoService)
-    {
+    public void setInfoService(IPSFeedsInfoService infoService) {
         this.infoService = infoService;
     }
-    
-    
-
 }

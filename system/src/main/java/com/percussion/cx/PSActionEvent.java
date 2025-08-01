@@ -17,31 +17,36 @@
 package com.percussion.cx;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * The class that describes the action to take upon execution of an action.
  */
-public class PSActionEvent
+public final class PSActionEvent
 {
    /**
     * Constructs the event with the hint that needs to be refreshed.
     *
-    * @param refreshHint the hint, may not be <code>null</code> or empty.
+    * @param refreshHint the hint, may not be {@code null} or empty.
+    * @throws IllegalArgumentException if refreshHint is {@code null} or empty
     */
    public PSActionEvent(String refreshHint)
    {
-      if(refreshHint == null || refreshHint.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "refreshHint may not be null or empty.");
+      Objects.requireNonNull(refreshHint, "refreshHint cannot be null");
 
-      m_refreshHint = refreshHint;
+      var trimmedHint = refreshHint.trim();
+      if (trimmedHint.isEmpty()) {
+         throw new IllegalArgumentException("refreshHint cannot be empty");
+      }
+
+      m_refreshHint = trimmedHint;
    }
 
    /**
-    * Gets the refresh hint that describes the action to take by the reciever
+    * Gets the refresh hint that describes the action to take by the receiver
     * of this event object.
     *
-    * @return the hint, never <code>null</code> or empty, may be one of the
+    * @return the hint, never {@code null} or empty, may be one of the
     * REFRESH_xxx values.
     */
    public String getRefreshHint()
@@ -51,18 +56,21 @@ public class PSActionEvent
    
    /**
     * Sets the nodes to refresh, these should be existing nodes in the tree.
-    * Should be called if the refresh hint is <code>REFRESH_NODES</code>. The
+    * Should be called if the refresh hint is {@code REFRESH_NODES}. The
     * first one in the list is the default selection for the listener.
     * 
-    * @param nodes the nodes to refresh, may not be <code>null</code> or empty.
-    * 
+    * @param nodes the nodes to refresh, may not be {@code null} or empty.
+    *
     * @throws IllegalArgumentException if nodes is not valid.
     */
-   public void setRefreshNodes(Iterator nodes)
+   public void setRefreshNodes(Iterator<?> nodes)
    {
-      if(nodes == null || !nodes.hasNext())
-         throw new IllegalArgumentException("nodes may not be null or empty.");
-         
+      Objects.requireNonNull(nodes, "nodes cannot be null");
+
+      if (!nodes.hasNext()) {
+         throw new IllegalArgumentException("nodes cannot be empty");
+      }
+
       m_nodes = nodes;      
    }   
    
@@ -70,10 +78,10 @@ public class PSActionEvent
     * Gets the list of nodes to refresh in UI, should be called by the listener.
     * The first one in the list should be selected in the tree.
     * 
-    * @return the nodes, may be <code>null</code> if the refresh hint is not
-    * <code>REFRESH_NODES</code>.
+    * @return the nodes, may be {@code null} if the refresh hint is not
+    * {@code REFRESH_NODES}.
     */
-   public Iterator getRefreshNodes()
+   public Iterator<?> getRefreshNodes()
    {
       return m_nodes;
    }
@@ -81,8 +89,8 @@ public class PSActionEvent
    /**
     * Set if a full vs partial refresh is required.  
     * 
-    * @param isFull <code>true</code> if a full refresh is to be performed, 
-    * <code>false</code> if a refresh of only dirty nodes is to be performed.
+    * @param isFull {@code true} if a full refresh is to be performed,
+    * {@code false} if a refresh of only dirty nodes is to be performed.
     */
    public void setIsFullRefresh(boolean isFull)
    {
@@ -93,8 +101,8 @@ public class PSActionEvent
     * Determine if a full vs partial refresh is required.  See 
     * {@link #setIsFullRefresh(boolean)} for more info.
     * 
-    * @return <code>true</code> if a full refresh is to be performed, 
-    * <code>false</code> if not.
+    * @return {@code true} if a full refresh is to be performed,
+    * {@code false} if not.
     */
    public boolean isFullRefresh()
    {
@@ -103,19 +111,20 @@ public class PSActionEvent
 
    /**
     * The hint that describes the action that needs to be performed by the
-    * reciever, initialized in the ctor and never <code>null</code>, empty or
+    * receiver, initialized in the ctor and never {@code null}, empty or
     * modified after that.
     */
-   private String m_refreshHint;
-   
+   private final String m_refreshHint;
+
    /**
-    * The list of nodes to refresh in UI, <code>null</code> until call to <code>
-    * setRefreshNodes(Iterator)</code>.
+    * The list of nodes to refresh in UI, {@code null} until call to {@code
+    * setRefreshNodes(Iterator)}.
     */
-   private Iterator m_nodes;
+   private Iterator<?> m_nodes;
+
    /**
-    * Determines if a full vs partial refresh is required.  Is <code>true</code>
-    * if a full refresh is to be performed, <code>false</code> if a refresh of
+    * Determines if a full vs partial refresh is required. Is {@code true}
+    * if a full refresh is to be performed, {@code false} if a refresh of
     * only dirty nodes is to be performed.
     */
    private boolean m_fullRefresh = false;

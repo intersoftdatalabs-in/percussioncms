@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,10 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.recent.service;
 
 import static java.util.Arrays.asList;
-
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.apache.commons.lang.StringUtils.startsWith;
 import static org.apache.commons.lang.Validate.isTrue;
@@ -63,9 +64,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PSRecentServiceFixture
-{
-    
+/**
+ * Test fixture for Recent Service integration tests.
+ * Sunny Sal: "Fixture ka hero, test data ka zero!"
+ */
+public class PSRecentServiceFixture {
+
     private IPSSiteTemplateService siteTemplateService;
     private IPSSiteDataService siteDataService;
     private IPSTemplateService templateService;
@@ -93,53 +97,52 @@ public class PSRecentServiceFixture
     private HttpServletRequest request;
     private HttpServletResponse response;
     
-    public PSRecentServiceFixture()
-    {
+    public PSRecentServiceFixture() {
         super();
     }
-    public PSRecentServiceFixture(HttpServletRequest request, HttpServletResponse response)
-    {
+
+    public PSRecentServiceFixture(HttpServletRequest request, HttpServletResponse response) {
         super();
         this.request = request;
         this.response = response;
     }
+
     @SuppressWarnings("unchecked")
     public void init() throws Exception {
         init("admin1", "demo", "Enterprise_Investments_Admin");
     }
-    
+
     public void setUp() throws Exception {
         setUp("admin1", "demo", "Enterprise_Investments_Admin");
     }
-    
+
     @SuppressWarnings("unchecked")
     public void init(String uid, String pwd, String community) throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         PSRequestInfo.resetRequestInfo();
-        PSRequest req = PSRequest.getContextForRequest();
+        var req = PSRequest.getContextForRequest();
         PSRequestInfo.initRequestInfo((Map) null);
         PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, req);
         setSecurityWs(PSSecurityWsLocator.getSecurityWebservice());
         securityWs.login(request, response, uid, pwd, null, community, null);
     }
-    
-    public void setUp(String uid, String pwd, String community) throws Exception
-    {
+
+    public void setUp(String uid, String pwd, String community) throws Exception {
         notNull(request);
         notNull(response);
 
         init(uid, pwd, community);
         templateCleanUp(prefix);
         baseTemplateId = idMapper.getString(createBasePageTemplate(prefix + "BaseTemplate"));
-        templateCleaner.add(prefix+"Template1");
+        templateCleaner.add(prefix + "Template1");
         baseTemplate = getTemplateService().find(baseTemplateId);
         site1 = createSite(prefix, "Site");
-        templateCleaner.add(prefix+"Template1");
-        template1 = createTemplate(prefix+"Template1");
+        templateCleaner.add(prefix + "Template1");
+        template1 = createTemplate(prefix + "Template1");
     }
-    
+
     public PSSiteSummary createSite(String prefix, String name) throws PSDataServiceException {
-        PSSite site = new PSSite();
+        var site = new PSSite();
         site.setName(prefix + name);
         site.setLabel("My test site - " + prefix);
         site.setHomePageTitle("homePageTitle");
@@ -148,9 +151,8 @@ public class PSRecentServiceFixture
         site.setTemplateName(prefix + "SiteTemplate");
         site.setBaseUrl("http://" + site.getName() + ".com/");
         siteCleaner.add(site.getName());
-        PSSiteSummary siteSummary = getSiteDataService().save(site);
+        var siteSummary = getSiteDataService().save(site);
         notNull(site);
-        
         return siteSummary;
     }
 
@@ -158,46 +160,44 @@ public class PSRecentServiceFixture
         notEmpty(templateName);
         notEmpty(siteId);
         templateCleaner.add(templateName);
-        PSSiteTemplates siteTemplates = new PSSiteTemplates();
-        CreateTemplate createTemplate = new CreateTemplate();
+        var siteTemplates = new PSSiteTemplates();
+        var createTemplate = new CreateTemplate();
         createTemplate.setName(templateName);
         createTemplate.setSourceTemplateId(baseTemplate.getId());
         createTemplate.setSiteIds(asList(siteId));
         siteTemplates.setCreateTemplates(asList(createTemplate));
         return getSiteTemplateService().save(siteTemplates).get(0);
     }
-    
+
     public PSTemplateSummary createTemplateFromTemplate(String templateName, String templateId) {
         notEmpty(templateName);
         notEmpty(templateId);
         templateCleaner.add(templateName);
-        String siteId = getSiteTemplateService().findSitesByTemplate(templateId).get(0).getId();
-        PSSiteTemplates siteTemplates = new PSSiteTemplates();
-        CreateTemplate createTemplate = new CreateTemplate();
+        var siteId = getSiteTemplateService().findSitesByTemplate(templateId).get(0).getId();
+        var siteTemplates = new PSSiteTemplates();
+        var createTemplate = new CreateTemplate();
         createTemplate.setName(templateName);
         createTemplate.setSourceTemplateId(templateId);
         createTemplate.setSiteIds(asList(siteId));
         siteTemplates.setCreateTemplates(asList(createTemplate));
         return getSiteTemplateService().save(siteTemplates).get(0);
     }
-    
+
     public PSPage createPage(PSPage page) throws PSDataServiceException {
-        String fullPath = page.getFolderPath() + "/" + page.getName();
+        var fullPath = page.getFolderPath() + "/" + page.getName();
         pageCleaner.add(fullPath);
         return getPageService().save(page);
     }
-    
 
     /**
-     * Creates and saves a page uses template1 as the template and site1 as folder
-     * 
+     * Creates and saves a page using template1 as the template and site1 as folder.
+     *
      * @param name must not be <code>null</code>. name is used for title, linktitle and description
-     * 
      * @return the created page, never null.
      */
     public PSPage createPage(String name) throws PSDataServiceException {
         notEmpty(name);
-        PSPage page = new PSPage();
+        var page = new PSPage();
         page.setFolderPath(site1.getFolderPath());
         page.setName(name);
         page.setTitle(name);
@@ -205,23 +205,21 @@ public class PSRecentServiceFixture
         page.setLinkTitle(name);
         page.setDescription(name);
 
-        String fullPath = page.getFolderPath() + "/" + page.getName();
+        var fullPath = page.getFolderPath() + "/" + page.getName();
         pageCleaner.add(fullPath);
         return createPage(page);
     }
-    
-    
+
     public PSTemplateSummary createTemplate(String templateName) {
         return createTemplateWithSite(templateName, site1.getId());
     }
-    
+
     public PSAsset saveAsset(PSAsset asset) throws PSDataServiceException {
         asset = getAssetService().save(asset);
         assetCleaner.add(asset.getId());
         return asset;
     }
-    
-    
+
     public void tearDown() throws Exception {
         pageCatalogCleaner.clean();
         pageCleaner.clean();
@@ -233,76 +231,64 @@ public class PSRecentServiceFixture
         PSTestDataCleaner.validateCleaners(pageCleaner, templateCleaner, siteCleaner, assetCleaner);
     }
 
-    public String createSiteFolder(String folderName) throws Exception
-    {
-        String path = "/Sites/"+site1.getName()+"/"+folderName;
-        String internalFolderPath = PSPathUtils.getFolderPath(path);
+    public String createSiteFolder(String folderName) throws Exception {
+        var path = "/Sites/" + site1.getName() + "/" + folderName;
+        var internalFolderPath = PSPathUtils.getFolderPath(path);
         folderHelper.createFolder(internalFolderPath);
         folderCleaner.add(path);
         return path;
     }
 
-    public String createAssetFolder(String folderName) throws Exception
-    {
-        String path = "/Assets/"+site1.getName()+"/"+folderName;
-        String internalFolderPath = PSPathUtils.getFolderPath(path);
+    public String createAssetFolder(String folderName) throws Exception {
+        var path = "/Assets/" + site1.getName() + "/" + folderName;
+        var internalFolderPath = PSPathUtils.getFolderPath(path);
         folderHelper.createFolder(internalFolderPath);
         folderCleaner.add(path);
         return path;
     }
+
     /**
      * Removes all templates and template items created by test.
-     * 
+     *
      * @param prefix the read only template name prefix. All read only templates
-     *            whose name begins with this prefix will be deleted. May not be
-     *            blank.
-     * 
+     *               whose name begins with this prefix will be deleted. May not be blank.
      * @throws Exception if an error occurs.
      */
-    public void templateCleanUp(String prefix) throws Exception
-    {
+    public void templateCleanUp(String prefix) throws Exception {
         isTrue(isNotBlank(prefix), "prefix may not be blank");
 
-        List<IPSAssemblyTemplate> templates = getAssemblyService().findTemplates(prefix + '%', null, null, null, null, null,
+        var templates = getAssemblyService().findTemplates(prefix + '%', null, null, null, null, null,
                 PSTemplateDao.PAGE_ASSEMBLER);
-        for (IPSAssemblyTemplate t : templates)
+        for (var t : templates)
             getAssemblyService().deleteTemplate(t.getGUID());
 
-        List<PSTemplateSummary> summaries = getTemplateService().findAllUserTemplates();
-        for (PSTemplateSummary summary : summaries)
-        {
-            try
-            {
+        var summaries = getTemplateService().findAllUserTemplates();
+        for (var summary : summaries) {
+            try {
                 if (startsWith(summary.getName(), prefix))
                     getTemplateService().delete(summary.getId());
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 log.warn("Failed to delete template: " + summary.getId());
             }
         }
     }
-    
+
     public static void templateCleanUp(String prefix, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        PSRecentServiceFixture fixture = new PSRecentServiceFixture(request, response);
+        var fixture = new PSRecentServiceFixture(request, response);
         fixture.init();
         fixture.templateCleanUp(prefix);
     }
-    
-    
+
     /**
      * Creates a read-only or system template for testing purpose.
-     * 
+     *
      * @param name the name of the created template, never blank.
-     * 
      * @return the created template, never <code>null</code>.
-     * 
      * @throws Exception if an error occurs.
      */
-    public IPSGuid createBasePageTemplate(String name) throws Exception
-    {
-        IPSAssemblyService asmSrv = PSAssemblyServiceLocator.getAssemblyService();
-        IPSAssemblyTemplate template = asmSrv.createTemplate();
+    public IPSGuid createBasePageTemplate(String name) throws Exception {
+        var asmSrv = PSAssemblyServiceLocator.getAssemblyService();
+        var template = asmSrv.createTemplate();
         template.setName(name);
         template.setLabel(name);
         template.setDescription("This is description of " + name);
@@ -310,23 +296,23 @@ public class PSRecentServiceFixture
         template.setAssembler(PSTemplateDao.PAGE_ASSEMBLER);
 
         // add default binding
-        LinkedHashMap<String, String> bindings = new LinkedHashMap<String, String>();
+        var bindings = new LinkedHashMap<String, String>();
         bindings.put("$perc_cssRegion", "#container{margin:0 auto; width: 960px;}");
         template.setBindings(asmSrv.createBindings(bindings, 1));
 
         // set global template
-        IPSAssemblyTemplate gTmp = asmSrv.findTemplateByName("perc.page");
+        var gTmp = asmSrv.findTemplateByName("perc.page");
         template.setGlobalTemplate(gTmp.getGUID());
 
         asmSrv.saveTemplate(template);
 
         return template.getGUID();
     }
-    
+
     public List<PSWidgetContentType> getWidgetTypes() throws PSDataServiceException {
         return assetService.getAssetTypes("yes");
     }
-    
+
     public class PSTemplateCleaner extends PSTestDataCleaner<String> {
 
         @Override

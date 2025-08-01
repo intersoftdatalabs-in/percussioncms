@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -26,28 +27,34 @@ import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.user.service.IPSUserService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-@Component(value="searchPathItemService")
-public class PSSearchPathItemService extends PSPathItemService
-{
+/**
+ * Path item service for search functionality.
+ */
+@Component(value = "searchPathItemService")
+public class PSSearchPathItemService extends PSPathItemService {
 
     @Autowired
-    public PSSearchPathItemService(IPSFolderHelper folderHelper, IPSIdMapper idMapper,
-            IPSItemWorkflowService itemWorkflowService, IPSAssetService assetService,
-            IPSWidgetAssetRelationshipService widgetAssetRelationshipService, IPSContentMgr contentMgr,
-            IPSWorkflowService workflowService, IPSPageService pageService,  @Qualifier("cm1ListViewHelper")IPSListViewHelper listViewHelper,
-            IPSUserService userService)
-    {
+    public PSSearchPathItemService(
+            IPSFolderHelper folderHelper,
+            IPSIdMapper idMapper,
+            IPSItemWorkflowService itemWorkflowService,
+            IPSAssetService assetService,
+            IPSWidgetAssetRelationshipService widgetAssetRelationshipService,
+            IPSContentMgr contentMgr,
+            IPSWorkflowService workflowService,
+            IPSPageService pageService,
+            @Qualifier("cm1ListViewHelper") IPSListViewHelper listViewHelper,
+            IPSUserService userService) {
         super(folderHelper, idMapper, itemWorkflowService, assetService, widgetAssetRelationshipService, contentMgr,
                 workflowService, pageService, listViewHelper, userService);
         this.setRootName("Search");
     }
 
-    //TODO: Implement me.
+    // Not implemented: search path service does not support folder root operations.
     @Override
     protected String getFolderRoot() throws PSPathServiceException {
         throw new PSPathServiceException("Not implemented");
@@ -56,38 +63,32 @@ public class PSSearchPathItemService extends PSPathItemService
     @Override
     protected String getFullFolderPath(String path) throws PSPathNotFoundServiceException {
         PSPathUtils.validatePath(path);
-        
-        String fullFolderPath = SEARCH_ROOT;
-        if (!path.equals("/"))
-        {
+        var fullFolderPath = SEARCH_ROOT;
+        if (!"/".equals(path)) {
             fullFolderPath = folderHelper.concatPath(fullFolderPath, path);
         }
-        
         return fullFolderPath;
     }
 
-    //TODO: Implement me.
+    // Not implemented: search path service does not support in-use pages result.
     @Override
     protected String getInUsePagesResult() throws PSPathServiceException {
         throw new PSPathServiceException("Not implemented");
     }
 
-    //TODO: Implement me.
+    // Not implemented: search path service does not support in-use templates result.
     @Override
     protected String getInUseTemplatesResult() throws PSPathServiceException {
         throw new PSPathServiceException("Not implemented");
     }
 
-    //TODO: Implement me.
+    // Not implemented: search path service does not support not-authorized result.
     @Override
     protected String getNotAuthorizedResult() throws PSPathServiceException {
         throw new PSPathServiceException("Not implemented");
     }
-    
 
-    /**
-     * Constant for the site root folder path.
-     */
+    /** Constant for the search root folder path. */
     public static final String SEARCH_ROOT_SUB = "/Search";
     public static final String SEARCH_ROOT = "/" + SEARCH_ROOT_SUB;
 }

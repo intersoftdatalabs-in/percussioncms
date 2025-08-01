@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,424 +25,305 @@ import com.percussion.server.PSUserSession;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSRoleManager}. Requires the mock role and subject
  * cataloger registrations found in the
  * UnitTestResources\com\percussion\security\cataloger-beans.xml to be added to
- * the cataloger-beans.xmlused by the running server, and also requires that the
+ * the cataloger-beans.xml used by the running server, and also requires that the
  * PSRoleManagerTest.class file be manually deployed to the
  * WEB-INF/classes/com/percussion/security directory and the
  * IPSCustomJunitTest.class file be manually deployed to the
  * WEB-INF/classes/com/percussion/testing directory (requires server restart).
+ *
+ * <p>This test class has been updated for Java 11 compatibility with proper
+ * generic type usage and modern Java practices.</p>
  */
-@SuppressWarnings(value={"unchecked"})
-@Category(IntegrationTest.class)
-public class PSRoleManagerTest extends ServletTestCase
-{
-   /**
-    * Class under test for List getRoles()
-    */
-   public void testGetRoles()
-   {
-      List roles = PSRoleManager.getInstance().getRoles();
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Admin"));
-      assertTrue(roles.contains("Editor"));
-   }
+@Tag("IntegrationTest")
+public class PSRoleManagerTest {
 
-   /**
-    * Class under test for List getRoles(String, int)
-    */
-   public void testGetRolesStringint()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      List roles;
-      roles = mgr.getRoles("admin1", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Admin"));
-      assertEquals(roles, mgr.getRoles("admin1", 0));
+    @Test
+    public void testGetRoles() {
+        var roles = PSRoleManager.getInstance().getRoles();
+        assertFalse(roles.isEmpty(), "Roles list should not be empty");
+        assertTrue(roles.contains("Admin"), "Should contain Admin role");
+        assertTrue(roles.contains("Editor"), "Should contain Editor role");
+    }
 
-      roles = mgr.getRoles("subCatUser1_1", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(!roles.isEmpty());
-      assertTrue(roles.contains("Author"));
-      assertEquals(roles, mgr.getRoles("subCatUser1_1", 0));
+    @Test
+    public void testGetRolesStringint() {
+        var mgr = PSRoleManager.getInstance();
+        List<String> roles;
 
-      roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(roles.isEmpty());
-      roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_GROUP);
-      assertTrue(roles.contains("QA"));
-      assertEquals(roles, mgr.getRoles("subCatGroup2", 0));
-      
-      assertEquals(mgr.getRoles(null, 0), mgr.getRoles());
-      
-      roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_GROUP);
-      assertTrue(roles.contains("QA"));
-      assertFalse(roles.contains("Author"));
-      assertFalse(roles.contains("Editor"));
+        roles = mgr.getRoles("admin1", PSSubject.SUBJECT_TYPE_USER);
+        assertFalse(roles.isEmpty(), "Admin1 roles should not be empty");
+        assertTrue(roles.contains("Admin"), "Admin1 should have Admin role");
+        assertEquals(roles, mgr.getRoles("admin1", 0), "getRoles with type should match getRoles with 0");
 
-      assertEquals(mgr.getRoles(null, 0), mgr.getRoles());
-      roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_USER);
-      assertTrue(roles.contains("Admin"));
-      assertTrue(roles.contains("Author"));
-   }
+        roles = mgr.getRoles("subCatUser1_1", PSSubject.SUBJECT_TYPE_USER);
+        assertFalse(roles.isEmpty(), "SubCatUser1_1 roles should not be empty");
+        assertTrue(roles.contains("Author"), "SubCatUser1_1 should have Author role");
+        assertEquals(roles, mgr.getRoles("subCatUser1_1", 0), "getRoles with type should match getRoles with 0");
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testIsMemberOfRole()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      assertTrue(mgr.isMemberOfRole("admin1", "Admin"));
-      assertTrue(mgr.isMemberOfRole("editor1", "Editor"));
-      assertFalse(mgr.isMemberOfRole("editor1", "Admin"));
-      assertTrue(mgr.isMemberOfRole("subCatUser1_1", "Author"));
-      assertFalse(mgr.isMemberOfRole("subCatUser1_1", "Editor"));
-      assertTrue(mgr.isMemberOfRole("subCatGroup1", "QA")); 
-      assertFalse(mgr.isMemberOfRole("subCatGroup1", "Editor"));
-   }
+        roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_USER);
+        assertTrue(roles.isEmpty(), "SubCatGroup2 user roles should be empty");
 
-   /**
-    * Class under test for List memberRoleList(PSUserSession, String)
-    * 
-    * @throws Exception if there are any errors or the test fails.
-    */
-   public void testMemberRoleList() throws Exception
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      // login to create a session
-      PSSecurityFilter.authenticate(request, 
-         response, "admin1", "demo");
-      
-      PSRequest psreq = (PSRequest) PSRequestInfo.getRequestInfo(
-         PSRequestInfo.KEY_PSREQUEST);
-      PSUserSession userSession = psreq.getUserSession();
-      
-      List roles;
-      roles = mgr.memberRoleList(userSession, "author1");
-      assertTrue(roles.contains("Author"));
-      assertTrue(!roles.contains("Admin"));
-      assertEquals(roles, mgr.memberRoleList(userSession, 
-         new PSGlobalSubject("author1", PSSubject.SUBJECT_TYPE_USER, null)));
-      
-      roles = mgr.memberRoleList(userSession, "subCatUser1_1");
-      assertTrue(roles.contains("Author"));
-      assertTrue(!roles.contains("Admin"));
-      assertEquals(roles, mgr.memberRoleList(userSession, 
-         new PSGlobalSubject("subCatUser1_1", PSSubject.SUBJECT_TYPE_USER, 
-            null)));
-      
-      roles = mgr.memberRoleList(userSession, new PSGlobalSubject(
-         "subCatGroup1", PSSubject.SUBJECT_TYPE_GROUP, null));
-      assertTrue(roles.contains("QA"));
-   }
+        roles = mgr.getRoles("subCatGroup2", PSSubject.SUBJECT_TYPE_GROUP);
+        assertTrue(roles.contains("QA"), "SubCatGroup2 should have QA role");
+        assertEquals(roles, mgr.getRoles("subCatGroup2", 0), "getRoles with type should match getRoles with 0");
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testExpandGroups()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      Set<PSSubject> groups = new HashSet<PSSubject>();
-      PSSubject foo = new PSGlobalSubject("foo", PSSubject.SUBJECT_TYPE_GROUP, 
-         null);
-      PSSubject editor = new PSGlobalSubject("editor",
-         PSSubject.SUBJECT_TYPE_USER, null);
-      PSSubject group1 = new PSGlobalSubject("subCatGroup1", 
-         PSSubject.SUBJECT_TYPE_GROUP, null);
-      PSSubject group2 = new PSGlobalSubject("subCatGroup2", 
-         PSSubject.SUBJECT_TYPE_GROUP, null);
-      
-      groups.add(foo);
-      groups.add(editor);
-      groups.add(group1);
-      groups.add(group2);
-      Set<PSSubject> expanded = mgr.expandGroups(groups);
+        assertEquals(mgr.getRoles(null, 0), mgr.getRoles(), "Null subject should return all roles");
 
-      assertTrue(expanded.contains(foo));
-      assertTrue(expanded.contains(editor));
-      assertTrue(!expanded.contains(group1));
-      assertTrue(!expanded.contains(group2));
+        roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_GROUP);
+        assertTrue(roles.contains("QA"), "Group roles should contain QA");
+        assertFalse(roles.contains("Author"), "Group roles should not contain Author");
+        assertFalse(roles.contains("Editor"), "Group roles should not contain Editor");
 
-      Set<String> users = new HashSet<String>();
-      
-      for (PSSubject subject : expanded)
-      {
-         if (subject.getType() == PSSubject.SUBJECT_TYPE_USER)
-            users.add(subject.getName());
-      }
-      assertTrue(users.contains("subCatUser1_1"));
-      assertTrue(users.contains("subCatUser1_1"));
-      assertTrue(users.contains("subCatUser2_1"));
-      assertTrue(users.contains("subCatUser1_2"));
-   }
+        assertEquals(mgr.getRoles(null, 0), mgr.getRoles(), "Null subject with type 0 should match getRoles()");
 
-   /**
-    * Class under test for List roleMembers(String, int)
-    */
-   public void testRoleMembersStringint()
-   {
+        roles = mgr.getRoles(null, PSSubject.SUBJECT_TYPE_USER);
+        assertTrue(roles.contains("Admin"), "User roles should contain Admin");
+        assertTrue(roles.contains("Author"), "User roles should contain Author");
+    }
 
-   }
+    @Test
+    public void testIsMemberOfRole() {
+        var mgr = PSRoleManager.getInstance();
 
-   /**
-    * Class under test for List roleMembers(String, int, String)
-    */
-   public void testRoleMembersStringintString()
-   {
-      Set<String> userNames = new HashSet<String>();
-      Set<String> groupNames = new HashSet<String>();
-      
-      getRoleMembers("Editor", 0, null, userNames, groupNames);
-      assertTrue(userNames.contains("editor1"));
-      assertTrue(userNames.contains("editor2"));
-      assertTrue(userNames.contains("subCatUser2_1"));
-      assertTrue(userNames.contains("subCatUser2_2"));
+        assertTrue(mgr.isMemberOfRole("admin1", "Admin", PSSubject.SUBJECT_TYPE_USER),
+                "admin1 should be member of Admin role");
 
-      getRoleMembers("QA", PSSubject.SUBJECT_TYPE_USER | 
-         PSSubject.SUBJECT_TYPE_GROUP, null, userNames, groupNames);
-      assertTrue(userNames.contains("qa1"));
-      assertTrue(!userNames.contains("editor1"));
-      assertTrue(!userNames.contains("subCatGroup1"));
-      assertTrue(groupNames.contains("subCatGroup1"));
-      assertTrue(!groupNames.contains("qa1"));
-      
-      Set<String> savedUsers = new HashSet<String>(userNames);
-      Set<String> savedGroups = new HashSet<String>(groupNames);
-      getRoleMembers("QA", 0, null, userNames, groupNames);
-      assertEquals(userNames, savedUsers);
-      assertEquals(groupNames, savedGroups);
-      
-      getRoleMembers("QA", PSSubject.SUBJECT_TYPE_USER, null, userNames, 
-         groupNames);
-      assertTrue(userNames.contains("qa1"));
-      assertTrue(!userNames.contains("editor1"));
-      assertTrue(!userNames.contains("subCatGroup1"));
-      assertTrue(groupNames.isEmpty());
-      
-      getRoleMembers("QA", PSSubject.SUBJECT_TYPE_GROUP, null, userNames, 
-         groupNames);
-      assertTrue(userNames.isEmpty());
-      assertTrue(groupNames.contains("subCatGroup1"));
-      assertTrue(groupNames.contains("subCatGroup2"));
-      
-      getRoleMembers("QA", 0, "qa%", userNames, groupNames);
-      assertTrue(userNames.contains("qa1"));
-      assertTrue(userNames.contains("qa2"));
-      assertTrue(groupNames.isEmpty());
-      
-      getRoleMembers("QA", 0, "sub%", userNames, groupNames);
-      assertTrue(groupNames.contains("subCatGroup1"));
-      assertTrue(groupNames.contains("subCatGroup2"));
-      assertTrue(userNames.isEmpty());
-   }
+        assertTrue(mgr.isMemberOfRole("editor1", "Editor", PSSubject.SUBJECT_TYPE_USER),
+                "editor1 should be member of Editor role");
 
-   /**
-    * Calls {@link PSRoleManager#roleMembers(String, int, String) 
-    * PSRoleManager.roleMembers(name, typeFlags, filter)} and filters the 
-    * resulting subject names into the two supplied lists.
-    *  
-    * @param name The name, may be <code>null</code> or empty.
-    * @param typeFlags The type flags, see method doc for details.
-    * @param filter The subject name filter, may be <code>null</code> or empty.
-    * @param userNames Set to which user names are added, current contents are
-    * replaced, assumed not <code>null</code>.
-    * @param groupNames Set to which group names are added, current contents are
-    * replaced, assumed not <code>null</code>.
-    */
-   private void getRoleMembers(String name, int typeFlags, String filter,
-      Set<String> userNames, Set<String> groupNames)
-   {
-      filterSubjectNames(
-         PSRoleManager.getInstance().roleMembers(name, typeFlags, filter),
-         userNames, groupNames);
-   }
+        assertFalse(mgr.isMemberOfRole("editor1", "Admin", PSSubject.SUBJECT_TYPE_USER),
+                "editor1 should not be member of Admin role");
 
-   /**
-    * Filter the supplied list of subjects into two sets of names.
-    * 
-    * @param members list of subjects, assumed not <code>null</code>.
-    * @param userNames Set to which user names are added, current contents are
-    * replaced, assumed not <code>null</code>.
-    * @param groupNames Set to which group names are added, current contents are
-    * replaced, assumed not <code>null</code>.
-    */
-   private void filterSubjectNames(Collection<PSSubject> members, 
-      Set<String> userNames, Set<String> groupNames)
-   {
-      userNames.clear();
-      groupNames.clear();
-      for (PSSubject sub : members)
-      {
-         if (sub.getType() == PSSubject.SUBJECT_TYPE_USER)
-            userNames.add(sub.getName());
-         else
-            groupNames.add(sub.getName());
-      }
-   }
+        assertTrue(mgr.isMemberOfRole("subCatUser1_1", "Author", PSSubject.SUBJECT_TYPE_USER),
+                "subCatUser1_1 should be member of Author role");
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testGetRoleAttributes()
-   {
-   }
+        assertFalse(mgr.isMemberOfRole("subCatUser1_1", "Editor", PSSubject.SUBJECT_TYPE_USER),
+                "subCatUser1_1 should not be member of Editor role");
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testGetSubjectAttributes()
-   {
-   }
+        assertTrue(mgr.isMemberOfRole("subCatGroup1", "QA", PSSubject.SUBJECT_TYPE_GROUP),
+                "subCatGroup1 should be member of QA role");
 
-   /**
-    * Class under test for List getSubjectGlobalAttributes(String, int, String, 
-    * String)
-    */
-   public void testGetSubjectGlobalAttributesStringintStringString()
-   {
-   }
+        assertFalse(mgr.isMemberOfRole("subCatGroup1", "Editor", PSSubject.SUBJECT_TYPE_GROUP),
+                "subCatGroup1 should not be member of Editor role");
+    }
 
-   /**
-    * Class under test for List getSubjectGlobalAttributes(String, int, String, 
-    * String, boolean)
-    */
-   public void testGetSubjectGlobalAttributesStringintStringStringboolean()
-   {
-   }
+    @Test
+    public void testMemberRoleList() throws Exception {
+        var mgr = PSRoleManager.getInstance();
+        // login to create a session
+        PSSecurityFilter.authenticate(request, response, "admin1", "demo");
 
-   /**
-    * Class under test for List getSubjectGlobalAttributes(String, int, String, 
-    * String, boolean, String)
-    */
-   public void testGetSubjectGlobalAttributesStringintStringStringbooleanString()
-   {
-   }
+        var psreq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+        var userSession = psreq.getUserSession();
 
-   /**
-    * Class under test for Set getSubjects(String, String)
-    */
-   public void testGetSubjectsStringString()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      Set<String> userNames = new HashSet<String>();
-      Set<String> groupNames = new HashSet<String>();
-      Collection<PSSubject> subjects;
-      
-      subjects = mgr.getSubjects("Editor", null);
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(groupNames.isEmpty());
-      assertTrue(userNames.contains("editor1"));
-      assertTrue(userNames.contains("subCatUser2_1"));
-      
-      subjects = mgr.getSubjects("Editor", "ed%");
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(groupNames.isEmpty());
-      assertTrue(userNames.contains("editor1"));
-      assertTrue(!userNames.contains("subCatUser2_1"));
-      
-      subjects = mgr.getSubjects(null, "ed%");
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(groupNames.isEmpty());
-      assertTrue(userNames.size() == 2);
-      assertTrue(userNames.contains("editor1"));
-      assertTrue(userNames.contains("editor2"));
-      
-      subjects = mgr.getSubjects(null, "subCatUser2%");
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(groupNames.isEmpty());
-      assertTrue(userNames.size() == 2);
-      assertTrue(userNames.contains("subCatUser2_1"));
-      assertTrue(userNames.contains("subCatUser2_2"));
-      
-      subjects = mgr.getSubjects(null, "subCatGroup%");
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(userNames.isEmpty());
-      assertTrue(groupNames.size() == 2);
-      assertTrue(groupNames.contains("subCatGroup1"));
-      assertTrue(groupNames.contains("subCatGroup2"));      
-      
-      subjects = mgr.getSubjects("", "");
-      filterSubjectNames(subjects, userNames, groupNames);
-      assertTrue(!groupNames.isEmpty());
-      assertTrue(userNames.contains("editor1"));
-      assertTrue(userNames.contains("editor2"));
-      assertTrue(userNames.contains("subCatUser2_1"));
-      assertTrue(userNames.contains("subCatUser2_2"));
-      assertTrue(groupNames.contains("subCatGroup1"));
-      assertTrue(groupNames.contains("subCatGroup2"));
-   }
+        List<String> roles;
+        roles = mgr.memberRoleList(userSession, "author1");
+        assertTrue(roles.contains("Author"));
+        assertFalse(roles.contains("Admin"));
+        assertEquals(roles, mgr.memberRoleList(userSession,
+                new PSGlobalSubject("author1", PSSubject.SUBJECT_TYPE_USER, null)));
 
-   /**
-    * Class under test for Set getSubjects(String, String, int, String, String, boolean)
-    */
-   public void testGetSubjectsStringStringintStringStringboolean()
-   {
-   }
+        roles = mgr.memberRoleList(userSession, "subCatUser1_1");
+        assertTrue(roles.contains("Author"));
+        assertFalse(roles.contains("Admin"));
+        assertEquals(roles, mgr.memberRoleList(userSession,
+                new PSGlobalSubject("subCatUser1_1", PSSubject.SUBJECT_TYPE_USER, null)));
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testGetSubjectRoleAttributes()
-   {
-   }
+        roles = mgr.memberRoleList(userSession, new PSGlobalSubject(
+                "subCatGroup1", PSSubject.SUBJECT_TYPE_GROUP, null));
+        assertTrue(roles.contains("QA"));
+    }
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testGetRoleEmailAddresses()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      Set noMailSet = new HashSet();
-      Set<PSNotificationEmailAddress> mailSet = new HashSet<>();
-      
-      mailSet = mgr.getRoleEmailAddresses("Editor", null, null, noMailSet);
-      assertTrue(mailSet.contains("subCatUser2_1@test.percussion.com"));
-      assertTrue(mailSet.contains("subCatUser2_2@test.percussion.com"));
-      assertEquals(mailSet, mgr.getRoleEmailAddresses("Editor", null, null, 
-         null));
-      Set<String> users = new HashSet<String>();
-      Set<String> groups = new HashSet<String>();
-      filterSubjectNames(noMailSet, users, groups);
-      assertTrue(users.contains("editor1"));
-      assertTrue(users.contains("editor2"));
-      
-      mailSet = mgr.getRoleEmailAddresses("Editor", "mail", "Default", null);
-      assertTrue(mailSet.isEmpty());
-      
-      mailSet = mgr.getRoleEmailAddresses("foo", null, null, null);
-      assertTrue(mailSet.isEmpty());
-   }
+    @Test
+    public void testExpandGroups() {
+        var mgr = PSRoleManager.getInstance();
+        Set<PSSubject> groups = new HashSet<>();
+        var foo = new PSGlobalSubject("foo", PSSubject.SUBJECT_TYPE_GROUP, null);
+        var editor = new PSGlobalSubject("editor", PSSubject.SUBJECT_TYPE_USER, null);
+        var group1 = new PSGlobalSubject("subCatGroup1", PSSubject.SUBJECT_TYPE_GROUP, null);
+        var group2 = new PSGlobalSubject("subCatGroup2", PSSubject.SUBJECT_TYPE_GROUP, null);
 
-   /**
-    * Tests functionality provided by the {@link PSRoleManager} method specified
-    * by this method's name.
-    */
-   public void testGetSubjectEmailAddresses()
-   {
-      PSRoleManager mgr = PSRoleManager.getInstance();
-      
-      Set mailSet = mgr.getSubjectEmailAddresses("subCatUser2_1", null, null);
-      assertTrue(mailSet.size() == 1);
-      assertTrue(mailSet.contains("subCatUser2_1@test.percussion.com"));
-      assertEquals(mailSet, mgr.getSubjectEmailAddresses("subCatUser2_1", "foo", 
-         null));
-      mailSet = mgr.getSubjectEmailAddresses("subCatUser2_1", null, 
-         "Default");
-      assertTrue(mailSet.isEmpty());
-   }
+        groups.add(foo);
+        groups.add(editor);
+        groups.add(group1);
+        groups.add(group2);
+        var expanded = mgr.expandGroups(groups);
+
+        assertTrue(expanded.contains(foo));
+        assertTrue(expanded.contains(editor));
+        assertFalse(expanded.contains(group1));
+        assertFalse(expanded.contains(group2));
+
+        Set<String> users = new HashSet<>();
+
+        for (var subject : expanded) {
+            if (subject.getType() == PSSubject.SUBJECT_TYPE_USER)
+                users.add(subject.getName());
+        }
+        assertTrue(users.contains("subCatUser1_1"));
+        assertTrue(users.contains("subCatUser2_1"));
+        assertTrue(users.contains("subCatUser1_2"));
+    }
+
+    @Test
+    public void testRoleMembersStringintString() {
+        Set<String> userNames = new HashSet<>();
+        Set<String> groupNames = new HashSet<>();
+
+        getRoleMembers("Editor", 0, null, userNames, groupNames);
+        assertTrue(userNames.contains("editor1"));
+        assertTrue(userNames.contains("editor2"));
+        assertTrue(userNames.contains("subCatUser2_1"));
+        assertTrue(userNames.contains("subCatUser2_2"));
+
+        getRoleMembers("QA", PSSubject.SUBJECT_TYPE_USER | PSSubject.SUBJECT_TYPE_GROUP, null, userNames, groupNames);
+        assertTrue(userNames.contains("qa1"));
+        assertFalse(userNames.contains("editor1"));
+        assertFalse(userNames.contains("subCatGroup1"));
+        assertTrue(groupNames.contains("subCatGroup1"));
+        assertFalse(groupNames.contains("qa1"));
+
+        Set<String> savedUsers = new HashSet<>(userNames);
+        Set<String> savedGroups = new HashSet<>(groupNames);
+        getRoleMembers("QA", 0, null, userNames, groupNames);
+        assertEquals(userNames, savedUsers);
+        assertEquals(groupNames, savedGroups);
+
+        getRoleMembers("QA", PSSubject.SUBJECT_TYPE_USER, null, userNames, groupNames);
+        assertTrue(userNames.contains("qa1"));
+        assertFalse(userNames.contains("editor1"));
+        assertFalse(userNames.contains("subCatGroup1"));
+        assertTrue(groupNames.isEmpty());
+
+        getRoleMembers("QA", PSSubject.SUBJECT_TYPE_GROUP, null, userNames, groupNames);
+        assertTrue(userNames.isEmpty());
+        assertTrue(groupNames.contains("subCatGroup1"));
+        assertTrue(groupNames.contains("subCatGroup2"));
+
+        getRoleMembers("QA", 0, "qa%", userNames, groupNames);
+        assertTrue(userNames.contains("qa1"));
+        assertTrue(userNames.contains("qa2"));
+        assertTrue(groupNames.isEmpty());
+
+        getRoleMembers("QA", 0, "sub%", userNames, groupNames);
+        assertTrue(groupNames.contains("subCatGroup1"));
+        assertTrue(groupNames.contains("subCatGroup2"));
+        assertTrue(userNames.isEmpty());
+    }
+
+    private void getRoleMembers(String name, int typeFlags, String filter,
+                                Set<String> userNames, Set<String> groupNames) {
+        filterSubjectNames(
+                PSRoleManager.getInstance().roleMembers(name, typeFlags, filter),
+                userNames, groupNames);
+    }
+
+    private void filterSubjectNames(Collection<PSSubject> members,
+                                    Set<String> userNames, Set<String> groupNames) {
+        userNames.clear();
+        groupNames.clear();
+        for (var sub : members) {
+            if (sub.getType() == PSSubject.SUBJECT_TYPE_USER)
+                userNames.add(sub.getName());
+            else
+                groupNames.add(sub.getName());
+        }
+    }
+
+    @Test
+    public void testGetSubjectsStringString() {
+        var mgr = PSRoleManager.getInstance();
+        Set<String> userNames = new HashSet<>();
+        Set<String> groupNames = new HashSet<>();
+        Collection<PSSubject> subjects;
+
+        subjects = mgr.getSubjects("Editor", null);
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertTrue(groupNames.isEmpty());
+        assertTrue(userNames.contains("editor1"));
+        assertTrue(userNames.contains("subCatUser2_1"));
+
+        subjects = mgr.getSubjects("Editor", "ed%");
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertTrue(groupNames.isEmpty());
+        assertTrue(userNames.contains("editor1"));
+        assertFalse(userNames.contains("subCatUser2_1"));
+
+        subjects = mgr.getSubjects(null, "ed%");
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertTrue(groupNames.isEmpty());
+        assertEquals(2, userNames.size());
+        assertTrue(userNames.contains("editor1"));
+        assertTrue(userNames.contains("editor2"));
+
+        subjects = mgr.getSubjects(null, "subCatUser2%");
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertTrue(groupNames.isEmpty());
+        assertEquals(2, userNames.size());
+        assertTrue(userNames.contains("subCatUser2_1"));
+        assertTrue(userNames.contains("subCatUser2_2"));
+
+        subjects = mgr.getSubjects(null, "subCatGroup%");
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertTrue(userNames.isEmpty());
+        assertEquals(2, groupNames.size());
+        assertTrue(groupNames.contains("subCatGroup1"));
+        assertTrue(groupNames.contains("subCatGroup2"));
+
+        subjects = mgr.getSubjects("", "");
+        filterSubjectNames(subjects, userNames, groupNames);
+        assertFalse(groupNames.isEmpty());
+        assertTrue(userNames.contains("editor1"));
+        assertTrue(userNames.contains("editor2"));
+        assertTrue(userNames.contains("subCatUser2_1"));
+        assertTrue(userNames.contains("subCatUser2_2"));
+        assertTrue(groupNames.contains("subCatGroup1"));
+        assertTrue(groupNames.contains("subCatGroup2"));
+    }
+
+    @Test
+    public void testGetRoleEmailAddresses() {
+        var mgr = PSRoleManager.getInstance();
+        Set<?> noMailSet = new HashSet<>();
+        Set<String> mailSet;
+
+        mailSet = mgr.getRoleEmailAddresses("Editor", null, null, noMailSet);
+        assertTrue(mailSet.contains("subCatUser2_1@test.percussion.com"));
+        assertTrue(mailSet.contains("subCatUser2_2@test.percussion.com"));
+        assertEquals(mailSet, mgr.getRoleEmailAddresses("Editor", null, null, null));
+        Set<String> users = new HashSet<>();
+        Set<String> groups = new HashSet<>();
+        filterSubjectNames(noMailSet, users, groups);
+        assertTrue(users.contains("editor1"));
+        assertTrue(users.contains("editor2"));
+
+        mailSet = mgr.getRoleEmailAddresses("Editor", "mail", "Default", null);
+        assertTrue(mailSet.isEmpty());
+
+        mailSet = mgr.getRoleEmailAddresses("foo", null, null, null);
+        assertTrue(mailSet.isEmpty());
+    }
+
+    @Test
+    public void testGetSubjectEmailAddresses() {
+        var mgr = PSRoleManager.getInstance();
+
+        Set<?> mailSet = mgr.getSubjectEmailAddresses("subCatUser2_1", null, null);
+        assertEquals(1, mailSet.size());
+        assertTrue(mailSet.contains("subCatUser2_1@test.percussion.com"));
+        assertEquals(mailSet, mgr.getSubjectEmailAddresses("subCatUser2_1", "foo", null));
+        mailSet = mgr.getSubjectEmailAddresses("subCatUser2_1", null, "Default");
+        assertTrue(mailSet.isEmpty());
+    }
 }
-

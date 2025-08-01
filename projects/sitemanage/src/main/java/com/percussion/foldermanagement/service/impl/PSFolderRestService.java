@@ -52,173 +52,143 @@ import java.util.List;
 /**
  * Exposes the services provided by {@link PSFolderService} through a REST API,
  * and handles exceptions and HTTP error codes accordingly.
- * 
- * @author miltonpividori
- *
+ * <p>
+ * Sunny Sal says: "Folders, workflows, and Java 11 - what a combo!"
  */
 @Path("/folders")
 @Component("folderRestService")
-public class PSFolderRestService
-{
+public class PSFolderRestService {
     private static final Logger log = LogManager.getLogger(PSFolderRestService.class);
-    
-    private IPSFolderService folderService;
-    
+
+    private final IPSFolderService folderService;
+
     @Autowired
-    public PSFolderRestService(IPSFolderService folderService)
-    {
+    public PSFolderRestService(IPSFolderService folderService) {
         this.folderService = folderService;
     }
-    
+
     /**
      * Start the async job to get associated folders.
-     * 
-     * @param workflowName The name of the workflow to get folders for, not <code>null<code/> or empty, must be a valid workflow name.
-     * @param path The root path to get folders from, not <code>null</code>.
-     * 
+     *
+     * @param workflowName The name of the workflow to get folders for, not {@code null} or empty, must be a valid workflow name.
+     * @param path The root path to get folders from, not {@code null}.
      * @return The job id to use to get the status/result.
      */
     @GET
     @Path("/GetAssociatedFoldersJob/start/{workflowName}/{path:.*}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String startGetAssociatedFoldersJob(@PathParam("workflowName") String workflowName,
+    public String startGetAssociatedFoldersJob(
+            @PathParam("workflowName") String workflowName,
             @PathParam("path") String path,
-            @QueryParam("includeFoldersWithDifferentWorkflow") @DefaultValue("false") Boolean includeFoldersWithDifferentWorkflow)
-    {
+            @QueryParam("includeFoldersWithDifferentWorkflow") @DefaultValue("false") Boolean includeFoldersWithDifferentWorkflow) {
         try {
             return folderService.startGetAssignedFoldersJob(workflowName, path, includeFoldersWithDifferentWorkflow);
         } catch (PSWorkflowNotFoundException e) {
             throw new WebApplicationException(e.getMessage());
         }
     }
-    
+
     /**
      * Get the status/result for a running async job to get associated folders.
-     * 
-     * @param jobId The id of the job, must be a valid job.  
-     * @return The status, {@link PSGetAssignedFoldersJobStatus#getStatus()} will return the resulting folder items once the job is complete, 
-     * otherwise it will be <code>null</code>.  
-     * If the job has failed, {@link PSGetAssignedFoldersJobStatus#getStatus()} 
-     * will return -1, if completed it will return 100, and if running it will return 1.     * 
+     *
+     * @param jobId The id of the job, must be a valid job.
+     * @return The status, {@link PSGetAssignedFoldersJobStatus#getStatus()} will return the resulting folder items once the job is complete,
+     * otherwise it will be {@code null}.
+     * If the job has failed, {@link PSGetAssignedFoldersJobStatus#getStatus()}
+     * will return -1, if completed it will return 100, and if running it will return 1.
      */
     @GET
     @Path("/GetAssociatedFoldersJob/status/{jobId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSGetAssignedFoldersJobStatus getAssociatedFoldersJobStatus(@PathParam("jobId") String jobId)
-    {
+    public PSGetAssignedFoldersJobStatus getAssociatedFoldersJobStatus(@PathParam("jobId") String jobId) {
         return folderService.getAssignedFoldersJobStatus(jobId);
     }
-    
+
     /**
-     * Cancel a running async job to get associated folders.  Method will block util the job 
+     * Cancel a running async job to get associated folders. Method will block until the job
      * is actually stopped.
-     * 
-     * @param jobId The id of the job, must be a valid job.  
-     * 
+     *
+     * @param jobId The id of the job, must be a valid job.
      * @return The status, indicating the job has been aborted.
      */
     @GET
     @Path("/GetAssociatedFoldersJob/cancel/{jobId}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public PSGetAssignedFoldersJobStatus cancelAssociatedFoldersJob(@PathParam("jobId") String jobId)
-    {
+    public PSGetAssignedFoldersJobStatus cancelAssociatedFoldersJob(@PathParam("jobId") String jobId) {
         return folderService.cancelAssignedFoldersJob(jobId);
     }
-    
-    
+
     @GET
     @Path("/{workflowName}/{path:.*}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response getAssociatedFolders(@PathParam("workflowName") String workflowName,
+    public Response getAssociatedFolders(
+            @PathParam("workflowName") String workflowName,
             @PathParam("path") String path,
-            @QueryParam("includeFoldersWithDifferentWorkflow") @DefaultValue("false") Boolean includeFoldersWithDifferentWorkflow)
-    {
-        String message = "There was an error getting the assosiated folders to workflow '" + workflowName
+            @QueryParam("includeFoldersWithDifferentWorkflow") @DefaultValue("false") Boolean includeFoldersWithDifferentWorkflow) {
+        var message = "There was an error getting the associated folders to workflow '" + workflowName
                 + "', from the path '" + path + "'. ";
-        try
-        {
-            GenericEntity<List<PSFolderItem>> folderItems =
-                    new GenericEntity<List<PSFolderItem>>(folderService.getAssignedFolders(workflowName, "/" + path, includeFoldersWithDifferentWorkflow)) {}; 
+        try {
+            var folderItems = new GenericEntity<List<PSFolderItem>>(
+                    folderService.getAssignedFolders(workflowName, "/" + path, includeFoldersWithDifferentWorkflow)) {};
             return Response.ok(folderItems).build();
-        }
-        catch(PSWorkflowNotFoundException e)
-        {
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (PSWorkflowNotFoundException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
-        }
-        catch(IllegalArgumentException e)
-        {   
-            // This means that either the workflow name or the path are empty.
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (IllegalArgumentException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
-        }
-        catch(PSPathNotFoundServiceException | LoadException e)
-        {
-            // This means that the required path could not be found.
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (PSPathNotFoundServiceException | LoadException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.NOT_FOUND).entity(message + e.getLocalizedMessage()).build();
-        } catch (Exception e)
-        {
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.serverError().entity(message + e.getLocalizedMessage()).build();
         }
     }
-    
+
     @GET
     @Path("/workflowassignment/isInProgress")
     @Produces(MediaType.TEXT_PLAIN)
-    public Boolean isContentWorkflowAssignmentInProgress()
-    {
+    public Boolean isContentWorkflowAssignmentInProgress() {
         return folderService.isContentWorkflowAssignmentInProgress();
     }
-    
+
     @POST
     @Path("/workflowassignment")
     @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-    public Response assignFoldersToWorkflow(PSWorkflowAssignment workflowAssignment)
-    {
-        String message = "There was an error associating the workflow '" + workflowAssignment.getWorkflowName()
-        + "' to the folders: [" + StringUtils.join(workflowAssignment.getAssignedFolders(), ",") + "]. ";
-        try
-        {
+    public Response assignFoldersToWorkflow(PSWorkflowAssignment workflowAssignment) {
+        var message = "There was an error associating the workflow '" + workflowAssignment.getWorkflowName()
+                + "' to the folders: [" + StringUtils.join(workflowAssignment.getAssignedFolders(), ",") + "]. ";
+        try {
             folderService.assignFoldersToWorkflow(workflowAssignment);
             return Response.noContent().build();
-        }
-        catch(PSWorkflowNotFoundException e)
-        {
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (PSWorkflowNotFoundException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.NOT_FOUND).entity(message + e.getMessage()).build();
-        }
-        catch (PSWorkflowAssignmentInProgressException e)
-        {
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (PSWorkflowAssignmentInProgressException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.CONFLICT).entity(e.getLocalizedMessage()).build();
-        }
-        catch(IllegalArgumentException e)
-        {   
-            // This means that is empty or does not exists.
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (IllegalArgumentException e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.status(Status.BAD_REQUEST).entity(message + e.getLocalizedMessage()).build();
-        }
-        catch (Exception e)
-        {
-            log.error("{}, Error: {}", message,PSExceptionUtils.getMessageForLog(e));
+        } catch (Exception e) {
+            log.error("{}, Error: {}", message, PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return Response.serverError().entity(message + e.getLocalizedMessage()).build();
         }
     }
-    
+
     @GET
     @Path("/folderpages/id/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    public List<PSLightWeightObject> getFolderPagesById(@PathParam("id") String id){
+    public List<PSLightWeightObject> getFolderPagesById(@PathParam("id") String id) {
         try {
             return new PSLightWeightObjectList(folderService.getPagesFromFolder(id));
         } catch (IPSFolderService.PSFolderNotFoundException | IPSFolderService.PSPagesNotFoundException | PSValidationException e) {
@@ -227,5 +197,4 @@ public class PSFolderRestService
             throw new WebApplicationException(e.getMessage());
         }
     }
-    
 }

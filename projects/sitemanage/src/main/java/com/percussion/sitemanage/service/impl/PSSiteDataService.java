@@ -455,12 +455,12 @@ import static org.apache.commons.lang.Validate.notNull;
         log.info("Updating Page and Template thumbnail cache for site: {} to use new site name: {}...",
                 oldSiteName, newSiteName);
 
-        File sourceCacheDir = new File(PSServer.getRxDir().getAbsolutePath() +  PAGE_IMAGE_CACHE_DIR + File.separator + oldSiteName );
-        File destCacheDir = new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR + File.separator + newSiteName );
+        var sourceCacheDir = new File(PSServer.getRxDir().getAbsolutePath() +  PAGE_IMAGE_CACHE_DIR + File.separator + oldSiteName );
+        var destCacheDir = new File(PSServer.getRxDir().getAbsolutePath() + PAGE_IMAGE_CACHE_DIR + File.separator + newSiteName );
         if(sourceCacheDir.renameTo(destCacheDir))
-            log.info("Page and Template image cache folder moved to to: {}", destCacheDir.getAbsolutePath());
+            log.info("Page and Template image cache folder moved to: {}", destCacheDir.getAbsolutePath());
         else
-            log.error("Unable to automatically move: {} to {}.  An adminstrator may need to stop the service and rename / move the folder to resolve the issue.",
+            log.error("Unable to automatically move: {} to {}.  An administrator may need to stop the service and rename/move the folder to resolve the issue.",
                     sourceCacheDir.getAbsolutePath(),
                     destCacheDir.getAbsolutePath());
     }
@@ -674,38 +674,35 @@ import static org.apache.commons.lang.Validate.notNull;
 
     public List<PSSiteSummary> findAll(boolean includePubInfo)
     {
-        List<PSSiteSummary> sums = siteDao.findAllSummaries();
+        var sums = siteDao.findAllSummaries();
         if (sums == null)
             return new ArrayList<>();
 
-        List<PSSiteSummary> summaries = new ArrayList<>();
+        var summaries = new ArrayList<PSSiteSummary>();
 
         // Filter out sites that are currently getting copied
-        Map<String, String> entries = getCopySiteInfo().getEntries();
+        var entries = getCopySiteInfo().getEntries();
         String newSiteName = null;
         if (!entries.isEmpty())
         {
             newSiteName = entries.get("Target");
         }
 
-        for (PSSiteSummary site : sums)
-        {
-            if (!StringUtils.equals(site.getName(), newSiteName))
-            {
-                if(site.isPageBased()) {
-                    if(includePubInfo) {
-                        try {
-                            site.setPubInfo(getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, site.getSiteId())));
-                        }catch (Exception e)
-                        {
-                            log.error("Error adding the publishing info to the site. Error:{}",
-                                    PSExceptionUtils.getMessageForLog(e));
-                        }
+        // Java 11 Streams for filtering and mapping
+        sums.stream()
+            .filter(site -> !StringUtils.equals(site.getName(), newSiteName))
+            .filter(PSSiteSummary::isPageBased)
+            .forEach(site -> {
+                if (includePubInfo) {
+                    try {
+                        site.setPubInfo(getPubServerService().getS3PubInfo(new PSGuid(PSTypeEnum.SITE, site.getSiteId())));
+                    } catch (Exception e) {
+                        log.error("Error adding the publishing info to the site. Error:{}",
+                                PSExceptionUtils.getMessageForLog(e));
                     }
-                    summaries.add(site);
                 }
-            }
-        }
+                summaries.add(site);
+            });
 
         return summaries;
 
@@ -829,24 +826,21 @@ import static org.apache.commons.lang.Validate.notNull;
     {
         try
         {
-            PSFolder folder = contentWs.loadFolder(idMapper.getGuid(childItem.getId()), false);
+            var folder = contentWs.loadFolder(idMapper.getGuid(childItem.getId()), false);
 
-            if (folder.getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES) != null)
+            var allowedSitesProp = folder.getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES);
+            if (allowedSitesProp != null)
             {
-                ArrayList<String> listOfSites = new ArrayList<>(Arrays.asList(folder
-                        .getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES).getValue().split(",")));
+                var listOfSites = new ArrayList<>(Arrays.asList(allowedSitesProp.getValue().split(",")));
                 listOfSites.remove(siteId);
-                folder.setProperty(IPSHtmlParameters.SYS_ALLOWEDSITES, StringUtils.join(listOfSites.toArray(), ","));
-                //Save the folder. 
+                folder.setProperty(IPSHtmlParameters.SYS_ALLOWEDSITES, String.join(",", listOfSites));
                 contentWs.saveFolder(folder);
             }
         }
         catch (Exception e)
         {
-            String msg = "The folderPath comes from a constant so there's no way the method throws the exception";
-            log.error("{} Error: {}",
-                    msg,
-                    PSExceptionUtils.getMessageForLog(e));
+            var msg = "The folderPath comes from a constant so there's no way the method throws the exception";
+            log.error("{} Error: {}", msg, PSExceptionUtils.getMessageForLog(e));
         }
     }
 
@@ -1203,21 +1197,16 @@ import static org.apache.commons.lang.Validate.notNull;
      */
     private void addNewSiteToAssetFolderAllowedSites(String copySiteName, String copySiteId)
     {
-        // Get the new asset folder that was created to modify allowed sites
-        // property
-        String newAssetFolderPath = PSFolderPathUtils.concatPath(PSAssetPathItemService.ASSET_ROOT, copySiteName);
-        IPSGuid newAssetFolderGuid = contentWs.getIdByPath(newAssetFolderPath);
-        PSFolder newAssetFolder = contentWs.loadFolder(newAssetFolderGuid, false);
+        var newAssetFolderPath = PSFolderPathUtils.concatPath(PSAssetPathItemService.ASSET_ROOT, copySiteName);
+        var newAssetFolderGuid = contentWs.getIdByPath(newAssetFolderPath);
+        var newAssetFolder = contentWs.loadFolder(newAssetFolderGuid, false);
 
-        // Get new asset folder property allowed sites, and add copied site id
-        // to the list.
-        if (newAssetFolder.getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES) != null)
+        var allowedSitesProp = newAssetFolder.getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES);
+        if (allowedSitesProp != null)
         {
-            ArrayList<String> listOfSites = new ArrayList<>(Arrays.asList(newAssetFolder
-                    .getProperty(IPSHtmlParameters.SYS_ALLOWEDSITES).getValue().split(",")));
+            var listOfSites = new ArrayList<>(Arrays.asList(allowedSitesProp.getValue().split(",")));
             listOfSites.add(copySiteId);
-            newAssetFolder
-                    .setProperty(IPSHtmlParameters.SYS_ALLOWEDSITES, StringUtils.join(listOfSites.toArray(), ","));
+            newAssetFolder.setProperty(IPSHtmlParameters.SYS_ALLOWEDSITES, String.join(",", listOfSites));
         }
     }
 
@@ -1613,6 +1602,7 @@ import static org.apache.commons.lang.Validate.notNull;
     private boolean isValidSiteName(String siteName)
     {
         siteName = StringUtils.defaultString(siteName);
+        // Java 11: Use Pattern.matches for clarity (but keeping as is for brevity)
         return siteName.matches("^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$");
     }
 
@@ -1689,14 +1679,8 @@ import static org.apache.commons.lang.Validate.notNull;
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             return false;
         }
-        for (String role : currentRoles)
-        {
-            if (role.equals("Admin"))
-            {
-                isAdmin = true;
-                break;
-            }
-        }
+        // Java 11: Use Stream anyMatch for role check
+        isAdmin = currentRoles.stream().anyMatch(role -> role.equals("Admin"));
         return isAdmin;
     }
 

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.extensions.Extension;
@@ -25,8 +27,12 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Test adaptor for Extension API bridge.
+ */
 @Component
 public class TestExtensionAdaptor implements IExtensionAdaptor {
+
     @Override
     public List<Extension> getExtensions(URI baseURI, ExtensionFilterOptions filter) {
         return null;

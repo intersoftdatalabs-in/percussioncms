@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.test.xml;
 
 import com.percussion.error.PSExceptionUtils;
@@ -59,7 +60,7 @@ public class PSXhtmlValidator {
     private static final Logger log = LogManager.getLogger(PSXhtmlValidator.class);
 
     private DocumentBuilder parser;
-    private PSXhtmlErrorHandler handler = new PSXhtmlErrorHandler();
+    private final PSXhtmlErrorHandler handler = new PSXhtmlErrorHandler();
 
     public PSXhtmlValidator() {
         initializeParser();
@@ -72,9 +73,9 @@ public class PSXhtmlValidator {
      */
     public boolean isValid(final InputStream in) {
         validate(in);
-        return (handler.getErrors().size() == 0);
+        return handler.getErrors().isEmpty();
     }
-    
+
     public Collection<SAXParseException> getErrors() {
         return unmodifiableCollection(handler.getErrors());
     }
@@ -84,7 +85,7 @@ public class PSXhtmlValidator {
         try {
             parser.parse(in);
         } catch (SAXException e) {
-            //Ignore - Let error handler handle it
+            // Ignore - Let error handler handle it
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -92,7 +93,7 @@ public class PSXhtmlValidator {
 
     private void initializeParser() {
         try {
-            DocumentBuilderFactory factory = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+            var factory = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
                     new PSXmlSecurityOptions(
                             true,
                             true,
@@ -111,40 +112,42 @@ public class PSXhtmlValidator {
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
     }
-    
-    
-    public static class PSXhtmlErrorHandler implements ErrorHandler {
-        private Collection<SAXParseException> errors = new ArrayList<SAXParseException>();
 
+    public static class PSXhtmlErrorHandler implements ErrorHandler {
+        private final Collection<SAXParseException> errors = new ArrayList<>();
+
+        @Override
         public void warning(SAXParseException e) {
             errors.add(e);
         }
 
+        @Override
         public void error(SAXParseException e) {
             errors.add(e);
         }
 
+        @Override
         public void fatalError(SAXParseException e) {
             errors.add(e);
         }
 
-        public Collection<SAXParseException> getErrors()
-        {
+        public Collection<SAXParseException> getErrors() {
             return errors;
         }
-        
     }
-    
+
     public static class PSXhtmlEntityResolver implements EntityResolver {
 
-        private static final String DTD_ROOT = 
-            "/" + PSXhtmlValidator.class.getPackage().getName().replaceAll("\\.", "/") + "/dtds";
+        private static final String DTD_ROOT =
+                "/" + PSXhtmlValidator.class.getPackage().getName().replaceAll("\\.", "/") + "/dtds";
 
+        @Override
         public InputSource resolveEntity(String publicId, String systemId)
                 throws SAXException, IOException {
             final String dtd = pathToDtd(systemId);
-            final InputStream stream = PSXhtmlValidator.class.getResourceAsStream(dtd);
-            return new InputSource(new InputStreamReader(stream));
+            try (var stream = PSXhtmlValidator.class.getResourceAsStream(dtd)) {
+                return new InputSource(new InputStreamReader(stream));
+            }
         }
 
         private String pathToDtd(final String systemId) {

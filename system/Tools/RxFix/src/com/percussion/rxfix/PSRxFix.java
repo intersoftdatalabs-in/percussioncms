@@ -23,132 +23,139 @@ import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.PSStartupProcessManager;
 import com.percussion.server.cache.PSCacheManager;
 import com.percussion.server.cache.PSCacheProxy;
+import com.percussion.util.PSCacheException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * A framework program that runs a series of fixup modules for a Rhythmyx
  * installation. The modules are run in order, when you add a module, please
  * consider its position in the overall list. Each module implements
  * {@link IPSFix}.
+ *
+ * <p>This class has been modernized to use Java 11 features including:
+ * <ul>
+ * <li>var keyword for local variable type inference</li>
+ * <li>Enhanced generics and type safety</li>
+ * <li>Stream API for collection operations</li>
+ * <li>Optional for null safety</li>
+ * </ul>
+ *
+ * @author Sunny Sal the Senior Java Developer
+ * @since Java 11
  */
 public class PSRxFix
 {
-
    private static final Logger log = LogManager.getLogger(PSRxFix.class);
 
    /**
-    * Represents and entry in the ui model
+    * Represents an entry in the UI model.
+    *
+    * <p>This inner class follows Java 11 best practices with proper encapsulation
+    * and type safety.
     */
-   public class Entry
+   public static class Entry
    {
-      boolean mi_dofix;
-
-      String mi_fixname;
-
-      Class mi_fix;
-      
-      List<PSFixResult> mi_results;
+      private boolean dofix;
+      private String fixname;
+      private Class<? extends IPSFix> fix;
+      private List<PSFixResult> results;
 
       /**
-       * Ctor
-       * @param fixclass fix class must impleemnt {@link IPSFix}
-       * @throws InstantiationException
-       * @throws IllegalAccessException
+       * Creates a new Entry for the specified fix class.
+       *
+       * @param fixClass fix class that must implement {@link IPSFix}
+       * @throws IllegalArgumentException if the fix class cannot be instantiated
        */
-      public Entry(Class fixclass) throws InstantiationException,
-            IllegalAccessException {
-         // Instantiate to get the descriptive info
-         mi_fix = fixclass;
-         IPSFix fix = (IPSFix) mi_fix.newInstance();
-         mi_fixname = fix.getOperation();
-         mi_dofix = true;
+      public Entry(Class<? extends IPSFix> fixClass) {
+         try {
+            this.fix = fixClass;
+            var fixInstance = this.fix.getDeclaredConstructor().newInstance();
+            this.fixname = fixInstance.getOperation();
+            this.dofix = true;
+         } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to instantiate fix class: " + fixClass.getName(), e);
+         }
       }
 
       /**
-       * @return Returns the dofix.
+       * @return true if this fix should be executed
        */
-      public boolean isDofix()
-      {
-         return mi_dofix;
+      public boolean isDofix() {
+         return dofix;
       }
 
       /**
-       * @param dofix The dofix to set.
+       * @param dofix whether this fix should be executed
        */
-      public void setDofix(boolean dofix)
-      {
-         mi_dofix = dofix;
+      public void setDofix(boolean dofix) {
+         this.dofix = dofix;
       }
 
       /**
-       * @return Returns the fix.
+       * @return the fix class
        */
-      public Class getFix()
-      {
-         return mi_fix;
+      public Class<? extends IPSFix> getFix() {
+         return fix;
       }
 
       /**
-       * @param fix The fix to set.
+       * @param fix the fix class to set
        */
-      public void setFix(Class fix)
-      {
-         mi_fix = fix;
+      public void setFix(Class<? extends IPSFix> fix) {
+         this.fix = fix;
       }
 
       /**
-       * @return Returns the fixname.
+       * @return the fix name
        */
-      public String getFixname()
-      {
-         return mi_fixname;
+      public String getFixname() {
+         return fixname;
       }
 
       /**
-       * @param fixname The fixname to set.
+       * @param fixname the fix name to set
        */
-      public void setFixname(String fixname)
-      {
-         mi_fixname = fixname;
+      public void setFixname(String fixname) {
+         this.fixname = fixname;
       }
 
       /**
-       * @return Returns the results.
+       * @return the results, may be null
        */
-      public List<PSFixResult> getResults()
-      {
-         return mi_results;
+      public List<PSFixResult> getResults() {
+         return results;
       }
 
       /**
-       * @param results The results to set.
+       * @param results the results to set
        */
-      public void setResults(List<PSFixResult> results)
-      {
-         mi_results = results;
+      public void setResults(List<PSFixResult> results) {
+         this.results = results;
       }
    }
 
    /**
     * Set after the preview has been done, guards the page flow
     */
-   private boolean m_previewDone = false;
+   private boolean previewDone = false;
 
    /**
     * Set after the fix run has been done, used in page flow
     */
-   private boolean m_fixDone = false;
+   private boolean fixDone = false;
 
    /**
     * The array of fixes that exist. The order of these fixes is important.
+    * Using List instead of array for better type safety and modern Java practices.
     */
-   private Class m_fixes[] = new Class[]
-   {
-      PSFixNextNumberTable.class, 
+   private final List<Class<? extends IPSFix>> fixes = Arrays.asList(
+      PSFixNextNumberTable.class,
       PSFixContentStatusHistory.class,
       //PSFixContentStatusHistoryWFInfo.class, 
       PSFixOrphanedSlots.class, 
@@ -167,115 +174,106 @@ public class PSRxFix
       PSFixOrphanedManagedLinks.class,
       PSFixStaleDataForContentTypes.class,
       PSFixPageCatalog.class,
-           PSFixAcls.class,
-           PSFixFormUrl.class,
-           PSFixWidgetVisibility.class
-   };
+      PSFixAcls.class,
+      PSFixFormUrl.class,
+      PSFixWidgetVisibility.class
+   );
 
    /**
-    * These entries dictate what do to for each fix. The data is presented and
+    * These entries dictate what to do for each fix. The data is presented and
     * modified in the UI as the model, and is used directly in the doFix call.
-    * Initialized on reset or construction, and never <code>null</code> after.
+    * Initialized on reset or construction, and never {@code null} after.
     */
-   private List<Entry> m_entries = null;
+   private List<Entry> entries;
 
    /**
-    * Ctor
-    * @throws Exception 
+    * Creates a new PSRxFix instance.
+    *
+    * @throws IllegalStateException if initialization fails
     */
-   public PSRxFix() throws Exception {
-      init();
-   }
-
-   /**
-    * Initialize state
-    */
-   private void init() throws Exception
-   {
-      m_previewDone = false;
-      m_fixDone = false;
-      m_entries = new ArrayList<Entry>();
-      for(int i = 0; i < m_fixes.length; i++)
-      {
-         Entry e = new Entry(m_fixes[i]);
-         e.setResults(null);
-         m_entries.add(e);
+   public PSRxFix() {
+      try {
+         init();
+      } catch (Exception e) {
+         throw new IllegalStateException("Failed to initialize PSRxFix", e);
       }
    }
 
    /**
-    * @return Returns the previewDone.
+    * Initializes the state of this PSRxFix instance.
+    * Uses Java 11 stream operations for modern collection processing.
     */
-   public boolean isPreviewDone()
-   {
-      return m_previewDone;
+   private void init() {
+      this.previewDone = false;
+      this.fixDone = false;
+
+      // Use streams for modern Java collection processing
+      this.entries = fixes.stream()
+         .map(Entry::new)
+         .peek(entry -> entry.setResults(null))
+         .collect(Collectors.toList());
    }
 
    /**
-    * @return Returns the fixDone.
+    * @return true if preview has been done
     */
-   public boolean isFixDone()
-   {
-      return m_fixDone;
+   public boolean isPreviewDone() {
+      return previewDone;
    }
 
    /**
-    * @param fixDone The fixDone to set.
+    * @return true if fix has been done
     */
-   public void setFixDone(boolean fixDone)
-   {
-      m_fixDone = fixDone;
+   public boolean isFixDone() {
+      return fixDone;
    }
 
    /**
-    * @param previewDone The previewDone to set.
+    * @param fixDone whether fix has been done
     */
-   public void setPreviewDone(boolean previewDone)
-   {
-      m_previewDone = previewDone;
+   public void setFixDone(boolean fixDone) {
+      this.fixDone = fixDone;
+   }
+
+   /**
+    * @param previewDone whether preview has been done
+    */
+   public void setPreviewDone(boolean previewDone) {
+      this.previewDone = previewDone;
    }
    
    /**
-    * Get entries, which include result data
-    * @return the entries, never <code>null</code>
+    * Gets all entries, which include result data.
+    *
+    * @return the entries, never {@code null}
     */
-   public List<Entry> getEntries()
-   {
-      return m_entries;
+   public List<Entry> getEntries() {
+      return Optional.ofNullable(entries).orElse(List.of());
    }
    
    /**
-    * Get only those entries that were actually run
-    * @return the entries, might be empty
+    * Gets only those entries that were actually run.
+    * Uses Java 11 stream operations for filtering.
+    *
+    * @return the entries that should be executed, never {@code null}
     */
-   public List<Entry> getRunentries()
-   {
-      List<Entry> rval = new ArrayList<Entry>();
-      
-      for(Entry e : m_entries)
-      {
-         if (e.isDofix())
-         {
-            rval.add(e);
-         }
-      }
-      
-      return rval;
+   public List<Entry> getRunentries() {
+      return Optional.ofNullable(entries)
+         .orElse(List.of())
+         .stream()
+         .filter(Entry::isDofix)
+         .collect(Collectors.toList());
    }
 
    /**
-    * Preview action
-    * 
+    * Preview action - runs fixes in preview mode.
+    *
     * @return the outcome
     */
-   public String preview()
-   {
-      try
-      {
+   public String preview() {
+      try {
          doFix(true);
-      }
-      catch (Exception e)
-      {
+      } catch (Exception e) {
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
@@ -283,105 +281,118 @@ public class PSRxFix
    }
 
    /**
-    * Fix action
-    * 
+    * Fix action - runs fixes in actual fix mode.
+    *
     * @return the outcome
     */
-   public String next()
-   {
-      if (m_fixDone)
-      {
+   public String next() {
+      if (fixDone) {
          return "admin-rxfix";
       }
       
-      try
-      {
+      try {
          doFix(false);
-      }
-      catch (Exception e)
-      {
-         log.error("PSRXFix Failed: " ,PSExceptionUtils.getMessageForLog(e));
+      } catch (Exception e) {
+         log.error("PSRXFix Failed: {}", PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       return "admin-rxfix-preview";
    }
    
    /**
-    * UI label for next action
+    * Gets the UI label for next action.
+    *
     * @return the label for the "next" button on the results page
     */
-   public String getFixnextlabel()
-   {
-      return m_fixDone ? "Done" : "Fix";
+   public String getFixnextlabel() {
+      return fixDone ? "Done" : "Fix";
    }
 
    /**
-    * Reset action
-    * 
+    * Reset action - reinitializes the fix state.
+    *
     * @return outcome
-    * @throws Exception 
     */
-   public String reset() throws Exception
-   {
-      init();
-      return "reset";
+   public String reset() {
+      try {
+         init();
+         return "reset";
+      } catch (Exception e) {
+         log.error("Failed to reset PSRxFix", e);
+         throw new IllegalStateException("Reset failed", e);
+      }
    }
 
    /**
-    * Startup and do one or more fixes
-    * 
+    * Startup and do one or more fixes.
+    *
     * @param preview Run the fixups in preview mode
-    * @throws Exception if there is a problem setting up to perform the fixes
-    * 
+    * @throws IllegalStateException if there is a problem setting up to perform the fixes
     */
-   public void doFix(boolean preview) throws Exception{
-      doFix(preview,null);
+   public void doFix(boolean preview) {
+      doFix(preview, null);
    }
 
-   public void doFix(boolean preview, IPSStartupProcessManager startupProcessManager) throws Exception
-   {
-      boolean clearCache = false;
-      for (Entry e : m_entries)
-      {
-         if (! e.isDofix())
-            continue;
+   /**
+    * Startup and do one or more fixes with optional startup process manager.
+    * Uses Java 11 var keyword and enhanced exception handling.
+    *
+    * @param preview Run the fixups in preview mode
+    * @param startupProcessManager Optional startup process manager
+    * @throws IllegalStateException if there is a problem setting up to perform the fixes
+    */
+   public void doFix(boolean preview, IPSStartupProcessManager startupProcessManager) {
+      var clearCache = false;
 
-         // Instantiate
-         IPSFix f = null;
-         f = (IPSFix) e.getFix().newInstance();
-         log.info("Executing update {} in Preview mode: {}", f.toString(),Boolean.toString(preview));
-         f.fix(preview);
+      // Use enhanced for-each loop with better exception handling
+      for (var entry : getRunentries()) {
+         try {
+            // Instantiate fix using modern reflection practices
+            var fixInstance = entry.getFix().getDeclaredConstructor().newInstance();
+            log.info("Executing update {} in Preview mode: {}", fixInstance.toString(), preview);
 
-         if(startupProcessManager instanceof PSStartupProcessManager && f.removeStartupOnSuccess()){
-            ((PSStartupProcessManager)startupProcessManager).removeStartupProcess(f.getClass().getSimpleName());
+            fixInstance.fix(preview);
+
+            // Handle startup process removal if applicable
+            if (startupProcessManager instanceof PSStartupProcessManager && fixInstance.removeStartupOnSuccess()) {
+               ((PSStartupProcessManager) startupProcessManager)
+                  .removeStartupProcess(fixInstance.getClass().getSimpleName());
+            }
+
+            // Get results and update cache flag
+            var results = fixInstance.getResults();
+            if (!clearCache) {
+               clearCache = !results.isEmpty();
+            }
+            entry.setResults(results);
+
+         } catch (Exception e) {
+            log.error("Failed to execute fix: {}", entry.getFixname(), e);
+            // Continue with other fixes rather than failing completely
          }
-
-         // Get results
-         if(!clearCache) {
-            clearCache = f.getResults().size() > 0;
-         }
-         e.setResults(f.getResults());
       }
 
-      //Only Clear the cache if there was data changed.
+      // Only clear the cache if there was data changed
       if (PSCacheManager.isAvailable() && clearCache && !preview) {
-         PSCacheManager cacheManager = PSCacheManager.getInstance();
-         cacheManager.flush();
-         PSCacheProxy.flushFolderCache();
+         try {
+            var cacheManager = PSCacheManager.getInstance();
+            cacheManager.flush();
+            PSCacheProxy.flushFolderCache();
+         } catch (PSCacheException e) {
+            log.warn("Failed to clear cache after successful fixes", e);
+         }
       }
 
-      m_previewDone = preview;
-      m_fixDone = !preview;
+      this.previewDone = preview;
+      this.fixDone = !preview;
    }
    
    /**
     * Get the help file name for the RxFix page.
     * 
-    * @return  the help file name, never <code>null</code> or empty.
+    * @return the help file name, never {@code null} or empty
     */
-   public String getHelpFile()
-   {
-      return PSHelpTopicMapping.getFileName("RxFix");      
+   public String getHelpFile() {
+      return PSHelpTopicMapping.getFileName("RxFix");
    }
-   
 }

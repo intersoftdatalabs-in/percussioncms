@@ -34,3 +34,5 @@ public class ObjectSummaryList  extends ArrayList<ObjectSummary> {
     }
     public ObjectSummaryList(){}
 }
+
+// REFACTORED: CP-JAVA11

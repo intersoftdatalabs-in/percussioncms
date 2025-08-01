@@ -19,6 +19,8 @@ package com.percussion.deployer.client;
 
 import com.percussion.error.PSDeployException;
 
+import java.util.Optional;
+
 /**
  * Interface returned when a deployment job is started. Provides ability to 
  * query the job for status and cancel the job.
@@ -56,14 +58,14 @@ public interface IPSDeployJobControl
     * Get the status message generated with the last call to 
     * {@link #getStatus()}.
     * 
-    * @return The status message, may be <code>null</code> or empty.  If 
-    * {@link #getStatus()} has not been called, this will return 
-    * <code>null</code>.
-    * 
+    * @return The status message, wrapped in an Optional. If
+    * {@link #getStatus()} has not been called, this will return
+    * <code>Optional.empty()</code>.
+    *
     * @throws PSDeployException if there are any errors.
     */
-   public String getStatusMessage() throws PSDeployException;
-   
+   Optional<String> getStatusMessage() throws PSDeployException;
+
    /**
     * Gets the id of the job this controller is handling.
     * 

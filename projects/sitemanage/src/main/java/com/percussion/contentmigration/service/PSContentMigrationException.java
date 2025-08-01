@@ -20,29 +20,24 @@ package com.percussion.contentmigration.service;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSContentMigrationException extends Exception
-{
+public class PSContentMigrationException extends Exception {
     private Map<String, String> failedItems = new HashMap<>();
-    
-    public PSContentMigrationException()
-    {
+
+    public PSContentMigrationException() {
         super();
     }
-    public PSContentMigrationException(String message)
-    {
+
+    public PSContentMigrationException(String message) {
         super(message);
     }
-    
-    public Map<String, String> getFailedItems()
-    {
+
+    public Map<String, String> getFailedItems() {
         return failedItems;
     }
 
-    public void setFailedItems(Map<String, String> failedItems)
-    {
-        if(failedItems == null) {
-            return;
+    public void setFailedItems(Map<String, String> failedItems) {
+        if (failedItems != null) {
+            this.failedItems = failedItems;
         }
-        this.failedItems = failedItems;
     }
 }

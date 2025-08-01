@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,47 +28,9 @@ package com.percussion.content.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.XmlValue;
+import java.util.Optional;
+import javax.xml.bind.annotation.*;
 
-
-/**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
- * <pre>
- * &lt;complexType>
- *   &lt;complexContent>
- *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element name="Field" maxOccurs="unbounded">
- *           &lt;complexType>
- *             &lt;simpleContent>
- *               &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>anySimpleType">
- *                 &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *                 &lt;attribute name="href" type="{http://www.w3.org/2001/XMLSchema}string" />
- *               &lt;/extension>
- *             &lt;/simpleContent>
- *           &lt;/complexType>
- *         &lt;/element>
- *       &lt;/sequence>
- *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="contentType" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="targetStateName" type="{http://www.w3.org/2001/XMLSchema}string" default="Draft" />
- *     &lt;/restriction>
- *   &lt;/complexContent>
- * &lt;/complexType>
- * </pre>
- * 
- * 
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "field"
@@ -86,128 +49,51 @@ public class AssetDef {
 
     /**
      * Gets the value of the field property.
-     * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the field property.
-     * 
+     * This is why there is not a set method for the field property.
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getField().add(newItem);
      * </pre>
-     * 
-     * 
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link AssetDef.Field }
-     * 
-     * 
      */
     public List<AssetDef.Field> getField() {
         if (field == null) {
-            field = new ArrayList<AssetDef.Field>();
+            field = new ArrayList<>();
         }
-        return this.field;
+        return field;
     }
 
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setName(String value) {
         this.name = value;
     }
 
-    /**
-     * Gets the value of the contentType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getContentType() {
         return contentType;
     }
 
-    /**
-     * Sets the value of the contentType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setContentType(String value) {
         this.contentType = value;
     }
 
-    /**
-     * Gets the value of the targetStateName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
     public String getTargetStateName() {
-        if (targetStateName == null) {
-            return "Draft";
-        } else {
-            return targetStateName;
-        }
+        return Optional.ofNullable(targetStateName).orElse("Draft");
     }
 
-    /**
-     * Sets the value of the targetStateName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
     public void setTargetStateName(String value) {
         this.targetStateName = value;
     }
 
-
-    /**
-     * <p>Java class for anonymous complex type.
-     * 
-     * <p>The following schema fragment specifies the expected content contained within this class.
-     * 
-     * <pre>
-     * &lt;complexType>
-     *   &lt;simpleContent>
-     *     &lt;extension base="&lt;http://www.w3.org/2001/XMLSchema>anySimpleType">
-     *       &lt;attribute name="name" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *       &lt;attribute name="href" type="{http://www.w3.org/2001/XMLSchema}string" />
-     *     &lt;/extension>
-     *   &lt;/simpleContent>
-     * &lt;/complexType>
-     * </pre>
-     * 
-     * 
-     */
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "", propOrder = {
         "value"
@@ -222,78 +108,28 @@ public class AssetDef {
         @XmlAttribute
         protected String href;
 
-        /**
-         * Gets the value of the value property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link Object }
-         *     
-         */
         public Object getValue() {
             return value;
         }
 
-        /**
-         * Sets the value of the value property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link Object }
-         *     
-         */
         public void setValue(Object value) {
             this.value = value;
         }
 
-        /**
-         * Gets the value of the name property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
         public String getName() {
             return name;
         }
 
-        /**
-         * Sets the value of the name property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
         public void setName(String value) {
             this.name = value;
         }
 
-        /**
-         * Gets the value of the href property.
-         * 
-         * @return
-         *     possible object is
-         *     {@link String }
-         *     
-         */
         public String getHref() {
             return href;
         }
 
-        /**
-         * Sets the value of the href property.
-         * 
-         * @param value
-         *     allowed object is
-         *     {@link String }
-         *     
-         */
         public void setHref(String value) {
             this.href = value;
         }
-
     }
-
 }

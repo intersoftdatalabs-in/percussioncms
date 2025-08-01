@@ -31,66 +31,59 @@ import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSDeliveryType;
 import com.percussion.util.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Adaptor for managing Delivery Types in Percussion CMS.
+ */
 @PSSiteManageBean
 public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
 
-    private IPSPublisherService pubService;
-    private IPSGuidManager guidMgr;
+    private final IPSPublisherService pubService;
+    private final IPSGuidManager guidMgr;
 
-    public DeliveryTypeAdaptor(){
+    public DeliveryTypeAdaptor() {
         pubService = PSPublisherServiceLocator.getPublisherService();
         guidMgr = PSGuidManagerLocator.getGuidMgr();
     }
-    /***
-     * Gets a delivery type by id
-     * @param baseURI
-     * @param id
-     * @return
+
+    /**
+     * Gets a delivery type by id.
      */
     @Override
     public DeliveryType getDeliveryTypeById(URI baseURI, String id) throws BackendException {
         try {
-            PSGuid guid = new PSGuid(PSTypeEnum.DELIVERY_TYPE, id);
-            IPSDeliveryType type = pubService.loadDeliveryType(guid);
+            var guid = new PSGuid(PSTypeEnum.DELIVERY_TYPE, id);
+            var type = pubService.loadDeliveryType(guid);
             return copyDeliveryType(type);
         } catch (PSNotFoundException e) {
             throw new BackendException(e);
         }
     }
 
-    /***
-     * Creates or updates a delivery type
-     * @param baseURI
-     * @param type
-     * @return
+    /**
+     * Creates or updates a delivery type.
      */
     @Override
     public DeliveryType updateDeliveryType(URI baseURI, DeliveryType type) throws BackendException {
         try {
             if (type.getId() == null || StringUtils.isBlank(type.getId().getStringValue())) {
-                //Create
-                IPSDeliveryType create = pubService.createDeliveryType();
-
+                // Create new delivery type
+                var create = pubService.createDeliveryType();
                 create.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
                 create.setName(type.getName());
                 create.setDescription(type.getDescription());
                 create.setBeanName(type.getBeanName());
                 pubService.saveDeliveryType(create);
                 return copyDeliveryType(create);
-
             } else {
-                IPSDeliveryType update = copyDeliveryType(type);
-
-                //Update the type
+                var update = copyDeliveryType(type);
                 pubService.saveDeliveryType(update);
-
-                //Load after save
+                // Load after save
                 return copyDeliveryType(pubService.loadDeliveryType(update.getGUID()));
             }
         } catch (PSNotFoundException e) {
@@ -98,41 +91,33 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
         }
     }
 
-    /***
-     * Deletes a delivery type
-     * @param baseURI
-     * @param id
-     * @return
+    /**
+     * Deletes a delivery type by id.
      */
     @Override
     public void deleteDeliveryTypeById(URI baseURI, String id) throws BackendException {
         try {
-            IPSGuid guid = guidMgr.makeGuid(id, PSTypeEnum.DELIVERY_TYPE);
-            IPSDeliveryType type = pubService.loadDeliveryType(guid);
+            var guid = guidMgr.makeGuid(id, PSTypeEnum.DELIVERY_TYPE);
+            var type = pubService.loadDeliveryType(guid);
             pubService.deleteDeliveryType(type);
         } catch (PSNotFoundException e) {
             throw new BackendException(e);
         }
     }
 
-    /***
-     * Get the list of DeliveryTypes available on the system.
-     * @param baseURI
-     * @return A list of available Delivery Types.
+    /**
+     * Gets the list of DeliveryTypes available on the system.
      */
     @Override
     public List<DeliveryType> getDeliveryTypes(URI baseURI) {
-       List<IPSDeliveryType> types  = pubService.findAllDeliveryTypes();
-       List<DeliveryType> response = new ArrayList<>();
-       for(IPSDeliveryType t : types){
-           response.add(copyDeliveryType(t));
-       }
-       return response;
+        return pubService.findAllDeliveryTypes()
+                .stream()
+                .map(this::copyDeliveryType)
+                .collect(Collectors.toList());
     }
 
     private DeliveryType copyDeliveryType(IPSDeliveryType t) {
-        DeliveryType ret = new DeliveryType();
-
+        var ret = new DeliveryType();
         ret.setBeanName(t.getBeanName());
         ret.setName(t.getName());
         ret.setDescription(t.getDescription());
@@ -141,14 +126,12 @@ public class DeliveryTypeAdaptor implements IDeliveryTypeAdaptor {
         return ret;
     }
 
-    private IPSDeliveryType copyDeliveryType(DeliveryType type){
-        IPSDeliveryType ret = new PSDeliveryType();
-
+    private IPSDeliveryType copyDeliveryType(DeliveryType type) {
+        var ret = new PSDeliveryType();
         ret.setBeanName(type.getBeanName());
         ret.setDescription(type.getDescription());
         ret.setName(type.getName());
         ret.setUnpublishingRequiresAssembly(type.getUnpublishingRequiresAssembly());
-
         ret.setGUID(ApiUtils.convertGuid(type.getId()));
         return ret;
     }

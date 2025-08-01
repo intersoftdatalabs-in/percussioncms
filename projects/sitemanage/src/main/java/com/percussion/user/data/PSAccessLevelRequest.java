@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,56 +28,45 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "AccessLevelRequest")
 @JsonRootName("AccessLevelRequest")
-public class PSAccessLevelRequest
-{
+public class PSAccessLevelRequest {
     private static final long serialVersionUID = 1L;
 
     @NotEmpty
     private String type;
 
     private int workflowId;
-    
     private String itemId;
-    
     private String parentFolderPath;
-    
-    public String getType()
-    {
+
+    public String getType() {
         return type;
     }
 
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
-    
-    public int getWorkflowId()
-    {
+
+    public int getWorkflowId() {
         return workflowId;
     }
 
-    public void setWorkflowId(int workflowId)
-    {
+    public void setWorkflowId(int workflowId) {
         this.workflowId = workflowId;
     }
-    
-    public String getItemId()
-    {
+
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(String itemId)
-    {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 
-    public String getParentFolderPath()
-    {
+    public String getParentFolderPath() {
         return parentFolderPath;
     }
 
-    public void setParentFolderPath(String parentFolderPath)
-    {
+    public void setParentFolderPath(String parentFolderPath) {
         this.parentFolderPath = parentFolderPath;
     }
 }

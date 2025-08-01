@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,12 +19,12 @@
 package com.percussion.activity.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List of PSTrafficDetails objects.
+ */
 @JsonRootName(value = "TrafficDetails")
 public class PSTrafficDetailsList extends ArrayList<PSTrafficDetails> {
     public PSTrafficDetailsList(Collection<? extends PSTrafficDetails> c) {

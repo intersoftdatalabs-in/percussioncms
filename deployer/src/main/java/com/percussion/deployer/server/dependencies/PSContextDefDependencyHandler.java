@@ -45,6 +45,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class to handle packaging and deploying a context definition.
@@ -72,55 +73,37 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
 
    // see base class
    @Override
-   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
-           throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List<PSDependency> childDeps = getLocationSchemeDependencies(tok, dep);
-
-      return childDeps.iterator();         
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
+      return getLocationSchemeDependencies(tok, dep).iterator();
     }
 
    // see base class
    @Override
    public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSNotFoundException {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-      
-      List<IPSPublishingContext> contexts = m_siteMgr.findAllContexts();
-      for (IPSPublishingContext context : contexts)
-      {
-         IPSGuid cId = context.getGUID();
-         deps.add(createDependency(m_def, String.valueOf(cId.longValue()),
-               context.getName()));
       }
-      
-      return deps.iterator();
+
+      var contexts = m_siteMgr.findAllContexts();
+      return contexts.stream()
+         .map(context -> createDependency(m_def, String.valueOf(context.getGUID().longValue()), context.getName()))
+         .iterator();
    }
 
    // see base class
    @Override
    public PSDependency getDependency(PSSecurityToken tok, String id) throws PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      PSDependency dep = null;
-      
-      IPSPublishingContext context = findPublishingContext(id);
-      if (context != null)
-         dep = createDependency(m_def, id, context.getName());
-           
-      return dep;      
+      var context = findPublishingContext(id);
+      return Optional.ofNullable(context)
+         .map(ctxt -> createDependency(m_def, id, ctxt.getName()))
+         .orElse(null);
    }
 
    /**
@@ -347,41 +330,19 @@ public class PSContextDefDependencyHandler extends PSDataObjectDependencyHandler
     * may be empty
     * @throws PSDeployException
     */
-   private List<PSDependency> getLocationSchemeDependencies(
-         PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
-      List<PSDependency> childDeps = new ArrayList<>();
-      List<String> ids = new ArrayList<>();
-
-      IPSPublishingContext context = findPublishingContext(
-            dep.getDependencyId());
+   private List<PSDependency> getLocationSchemeDependencies(PSSecurityToken tok, PSDependency dep) throws PSDeployException, PSNotFoundException {
+      var context = findPublishingContext(dep.getDependencyId());
       if (context == null)
       {
-         Object[] args = {dep.getDependencyId(), dep.getObjectTypeName(),
-               dep.getDisplayName()};
-         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND,
-               args);
+         throw new PSDeployException(IPSDeploymentErrors.DEP_OBJECT_NOT_FOUND, new Object[]{dep.getDependencyId(), dep.getObjectTypeName(), dep.getDisplayName()});
       }
 
-      List<IPSLocationScheme> schemes = m_siteMgr.findSchemesByContextId(
-            context.getGUID());
-      for (IPSLocationScheme scheme : schemes)
-         ids.add(String.valueOf(scheme.getGUID().longValue()));
-
-      Iterator<String> it = ids.iterator();
-      PSDependencyHandler lsHandler =
-         getDependencyHandler(
-               PSLocSchemeDefDependencyHandler.DEPENDENCY_TYPE);
-
-      PSDependency tmpDep = null;
-      while (it.hasNext())
-      {
-         String depId = it.next();
-         tmpDep = lsHandler.getDependency(tok, depId);
-         if ( tmpDep != null )
-            childDeps.add(tmpDep);
-      }
-
-      return childDeps;
+      var schemes = m_siteMgr.findSchemesByContextId(context.getGUID());
+      var handler = getDependencyHandler(PSLocSchemeDefDependencyHandler.DEPENDENCY_TYPE);
+      return schemes.stream()
+         .map(scheme -> handler.getDependency(tok, String.valueOf(scheme.getGUID().longValue())))
+         .filter(java.util.Objects::nonNull)
+         .toList();
    }
 
    /**

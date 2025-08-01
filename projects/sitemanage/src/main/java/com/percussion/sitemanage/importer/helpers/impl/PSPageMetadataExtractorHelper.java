@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -43,86 +44,58 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
  * Helper used to extract the metadata and save it into the page.
- * 
- * @author Santiago M. Murchio
- * 
+ * Sunny Sal says: "Metadata is like vitamins—don't skip it!"
  */
 @Component("pageMetadataExtractorHelper")
 @Lazy
-public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHelper
-{
-    private IPSPageService pageService;
+public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHelper {
 
-    private IPSPageCatalogService catalogService;
+    private final IPSPageService pageService;
+    private final IPSPageCatalogService catalogService;
+    private final IPSItemWorkflowService itemWorkflowService;
 
-    private IPSItemWorkflowService itemWorkflowService;
-
-    private static HashMap<String, PSTemplate> unassignedTemplateCache = new HashMap<>();
+    private static final HashMap<String, PSTemplate> unassignedTemplateCache = new HashMap<>();
 
     @Autowired
     public PSPageMetadataExtractorHelper(IPSTemplateService templateService, IPSPageService pageService,
-            IPSPageCatalogService catalogService, IPSItemWorkflowService itemWorkflowService)
-    {
+                                         IPSPageCatalogService catalogService, IPSItemWorkflowService itemWorkflowService) {
         super(templateService);
         this.pageService = pageService;
         this.catalogService = catalogService;
         this.itemWorkflowService = itemWorkflowService;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.sitemanage.importer.helpers.impl.
-     * PSGenericMetadataExtractorHelper
-     * #saveTargetItem(com.percussion.pagemanagement.data.IPSHtmlMetadata)
-     */
     @Override
     protected void saveTargetItem(IPSHtmlMetadata targetItem) throws IPSItemWorkflowService.PSItemWorkflowServiceException, PSDataServiceException {
-        PSPage page = (PSPage) targetItem;
-        // the target Item in this case is a PSPage
-        
-        long workflowTimer = System.nanoTime();
-                
+        var page = (PSPage) targetItem;
+        // The target Item in this case is a PSPage
+        var workflowTimer = System.nanoTime();
         itemWorkflowService.checkOut(page.getId());
         pageService.save(page);
         itemWorkflowService.checkIn(page.getId());
-        
-        PSHelperPerformanceMonitor.updateStats("PSPageMetaDataExtractor:PageWorkflow", ((System.nanoTime() - workflowTimer)/1000000));
+        PSHelperPerformanceMonitor.updateStats("PSPageMetaDataExtractor:PageWorkflow", ((System.nanoTime() - workflowTimer) / 1_000_000));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.sitemanage.importer.helpers.impl.
-     * PSGenericMetadataExtractorHelper
-     * #addHtmlWidgetToTemplate(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
     @Override
     protected void addHtmlWidgetToTemplate(PSSiteImportCtx context) throws PSDataServiceException, PSSiteImportException {
-        PSTemplate template = unassignedTemplateCache.get(context.getSite().getName());
+        var template = unassignedTemplateCache.get(context.getSite().getName());
 
-        if (template == null)
-        {
-            if (unassignedTemplateCache.size() > 5)
-            {
+        if (template == null) {
+            if (unassignedTemplateCache.size() > 5) {
                 unassignedTemplateCache.clear();
             }
-            
+
             // Load site's home page template
-            template = templateService.load(catalogService.getCatalogTemplateIdBySite(context.getSite()
-                    .getName()));
+            template = templateService.load(catalogService.getCatalogTemplateIdBySite(context.getSite().getName()));
             // Set Theme (Only first time)
-            if (isBlank(template.getTheme()))
-            {
+            if (isBlank(template.getTheme())) {
                 template.setTheme(context.getThemeSummary().getName());
             }
-            
 
-            // add the widget only if it is not already created
-            if (isEmpty(template.getWidgets()))
-            {
+            // Add the widget only if it is not already created
+            if (isEmpty(template.getWidgets())) {
                 // Create Raw HTML widget and add the widget to the template
-                PSWidgetItem rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
+                var rawHtmlWidget = PSPageManagementUtils.createRawHtmlWidgetItem("1");
                 template.getRegionTree().setRegionWidgets(REGION_CONTENT, asList(rawHtmlWidget));
 
                 context.getLogger().appendLogMessage(PSLogEntryType.STATUS, ADD_HTML_WIDGET,
@@ -138,27 +111,13 @@ public class PSPageMetadataExtractorHelper extends PSGenericMetadataExtractorHel
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.sitemanage.importer.helpers.impl.
-     * PSGenericMetadataExtractorHelper
-     * #getTargetItem(com.percussion.sitemanage.data.PSSiteImportCtx)
-     */
     @Override
     protected IPSHtmlMetadata getTargetItem(PSSiteImportCtx context) throws IPSDataService.DataServiceLoadException, PSValidationException, IPSDataService.DataServiceNotFoundException {
         return pageService.find(context.getCatalogedPageId());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.percussion.sitemanage.importer.helpers.impl.PSImportHelper#
-     * getHelperMessage()
-     */
     @Override
-    public String getHelperMessage()
-    {
+    public String getHelperMessage() {
         return "changing cataloged page information";
     }
 }

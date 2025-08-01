@@ -25,7 +25,7 @@ import com.percussion.auditlog.util.AuditPropertyLoader;
 import com.percussion.auditlog.util.FileCreator;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.utils.io.PathUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

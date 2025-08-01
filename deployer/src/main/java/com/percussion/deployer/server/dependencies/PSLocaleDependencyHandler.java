@@ -22,6 +22,7 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.utils.collections.PSIteratorUtils;
 
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Class to handle packaging and deploying a Locale.
@@ -57,9 +58,9 @@ public class PSLocaleDependencyHandler extends PSElementDependencyHandler
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
-   {
-      return PSIteratorUtils.iterator(CHILD_TYPE);
+   @Override
+   public Iterator<String> getChildTypes() {
+      return List.of(CHILD_TYPE).iterator();
    }
 
    // see base class
@@ -69,12 +70,11 @@ public class PSLocaleDependencyHandler extends PSElementDependencyHandler
    }
 
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSLocaleDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSLocaleDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
 

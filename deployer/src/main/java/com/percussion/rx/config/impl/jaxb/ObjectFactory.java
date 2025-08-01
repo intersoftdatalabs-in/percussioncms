@@ -47,88 +47,50 @@ import javax.xml.namespace.QName;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _Description_QNAME = new QName("", "description");
-    private final static QName _Pvalue_QNAME = new QName("", "pvalue");
+    private static final QName _Description_QNAME = new QName("", "description");
+    private static final QName _Pvalue_QNAME = new QName("", "pvalue");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: com.percussion.rx.config.impl.jaxb
-     * 
      */
     public ObjectFactory() {
     }
 
-    /**
-     * Create an instance of {@link Entry }
-     * 
-     */
     public Entry createEntry() {
         return new Entry();
     }
 
-    /**
-     * Create an instance of {@link Property }
-     * 
-     */
     public Property createProperty() {
         return new Property();
     }
 
-    /**
-     * Create an instance of {@link Pair }
-     * 
-     */
     public Pair createPair() {
         return new Pair();
     }
 
-    /**
-     * Create an instance of {@link PropertySet }
-     * 
-     */
     public PropertySet createPropertySet() {
         return new PropertySet();
     }
 
-    /**
-     * Create an instance of {@link Property.Pvalues }
-     * 
-     */
     public Property.Pvalues createPropertyPvalues() {
         return new Property.Pvalues();
     }
 
-    /**
-     * Create an instance of {@link SolutionConfigurations }
-     * 
-     */
     public SolutionConfigurations createSolutionConfigurations() {
         return new SolutionConfigurations();
     }
 
-    /**
-     * Create an instance of {@link SolutionConfig }
-     * 
-     */
     public SolutionConfig createSolutionConfig() {
         return new SolutionConfig();
     }
 
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
     @XmlElementDecl(namespace = "", name = "description")
     public JAXBElement<String> createDescription(String value) {
         return new JAXBElement<>(_Description_QNAME, String.class, null, value);
     }
 
-    /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link String }{@code >}}
-     * 
-     */
     @XmlElementDecl(namespace = "", name = "pvalue")
     public JAXBElement<String> createPvalue(String value) {
         return new JAXBElement<>(_Pvalue_QNAME, String.class, null, value);
     }
-
 }

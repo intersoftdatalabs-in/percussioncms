@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Optional;
 
 @XmlRootElement(name = "LinkRef")
 @Schema(description="LinkRef")
@@ -33,23 +34,18 @@ public class LinkRef
     @Schema(required=false,description="href to section or external source")
     private String href;
 
-    public LinkRef()
-    {
-
-    }
+    public LinkRef() {}
 
     @JsonCreator
-    public LinkRef(@JsonProperty("name")
-    String name, @JsonProperty("href")
-    String href)
+    public LinkRef(@JsonProperty("name") String name, @JsonProperty("href") String href)
     {
         this.name = name;
         this.href = href;
     }
 
-    public String getName()
+    public Optional<String> getName()
     {
-        return name;
+        return Optional.ofNullable(name);
     }
 
     public void setName(String name)
@@ -57,9 +53,9 @@ public class LinkRef
         this.name = name;
     }
 
-    public String getHref()
+    public Optional<String> getHref()
     {
-        return href;
+        return Optional.ofNullable(href);
     }
 
     public void setHref(String href)

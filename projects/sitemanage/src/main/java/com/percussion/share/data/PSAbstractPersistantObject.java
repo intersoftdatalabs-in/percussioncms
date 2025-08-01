@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,30 +18,29 @@
 
 package com.percussion.share.data;
 
-import com.percussion.pagemanagement.data.PSPage;
-
 import java.io.Serializable;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlSeeAlso;
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 /**
- * Classes can extend this class to be persistant.
- * All the proper methods that are needed for hibernate have been extended.
- * 
- * @author adamgent
+ * Classes can extend this class to be persistent.
+ * All the proper methods that are needed for Hibernate have been extended.
  *
+ * @author adamgent
  */
 public abstract class PSAbstractPersistantObject extends PSAbstractDataObject implements Serializable {
 
-    public abstract String getId();
-    
-    public abstract void setId(String id);
-
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Gets the unique identifier for this object.
+     *
+     * @return the id
+     */
+    public abstract String getId();
+
+    /**
+     * Sets the unique identifier for this object.
+     *
+     * @param id the id to set
+     */
+    public abstract void setId(String id);
 }

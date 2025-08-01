@@ -21,28 +21,27 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.common.ConnectorTypes;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSConnectorTypesConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSConnectorTypesConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSWSSearchField.PSConnectorEnum source = 
-         PSWSSearchField.PSConnectorEnum.OR;
-      
-      PSWSSearchField.PSConnectorEnum target = 
-         (PSWSSearchField.PSConnectorEnum) roundTripConversion(
-            PSWSSearchField.PSConnectorEnum.class, 
-            ConnectorTypes.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+public class PSConnectorTypesConverterTest extends PSConverterTestBase {
+
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // create the source object
+        var source = PSWSSearchField.PSConnectorEnum.OR;
+
+        var target = (PSWSSearchField.PSConnectorEnum) roundTripConversion(
+                PSWSSearchField.PSConnectorEnum.class,
+                ConnectorTypes.class,
+                source);
+
+        // verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
 }

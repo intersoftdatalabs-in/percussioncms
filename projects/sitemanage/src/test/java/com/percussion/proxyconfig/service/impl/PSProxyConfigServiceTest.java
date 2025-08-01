@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.proxyconfig.service.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.proxyconfig.data.PSProxyConfig;
 import com.percussion.proxyconfig.service.IPSProxyConfigService;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,68 +30,41 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
-import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
 /**
- * @author LucasPiccoli
+ * Tests for {@link PSProxyConfigService}.
+ * Sunny Sal: "Proxy config service, ready for action!"
  */
-@Category(IntegrationTest.class)
-public class PSProxyConfigServiceTest
-{
-
-    @Ignore("Ignore until config file gets installed on the server.")
-    @Test
-    public void testFileAvailableOnServer()
-    {
-        // Reading default file from server
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService();
-        assertTrue(proxyConfigService.configFileExists());
-    }
+public class PSProxyConfigServiceTest {
 
     @Test
-    public void testFindAll() throws Exception
-    {
-        // Reading custom local file
-        File tempProxyConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_ValidMultipleConfigs.xml"));
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
-        List<PSProxyConfig> configurations = proxyConfigService.findAll();
+    void testFindAll() throws Exception {
+        var tempProxyConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_ValidMultipleConfigs.xml"));
+        var proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
+        var configurations = proxyConfigService.findAll();
         assertNotNull(configurations);
     }
 
     @Test
-    public void testFindByProtocol() throws Exception
-    {
-        // Reading custom local file
-        File tempProxyConfigFile = createTempConfigFileBasedOn(this.getClass().getResourceAsStream(
-                "ProxyConfigTest_ValidMultipleConfigs.xml"));
-        IPSProxyConfigService proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
+    void testFindByProtocol() throws Exception {
+        var tempProxyConfigFile = createTempConfigFileBasedOn(getClass().getResourceAsStream("ProxyConfigTest_ValidMultipleConfigs.xml"));
+        var proxyConfigService = new PSProxyConfigService(tempProxyConfigFile);
         // Test finding an existing configuration value, case insensitive.
-        PSProxyConfig proxyConfig = proxyConfigService.findByProtocol("HTTP");
-        PSProxyConfig proxyConfig2 = proxyConfigService.findByProtocol("http");
+        var proxyConfig = proxyConfigService.findByProtocol("HTTP");
+        var proxyConfig2 = proxyConfigService.findByProtocol("http");
         assertNotNull(proxyConfig);
         assertNotNull(proxyConfig2);
-        assertTrue(proxyConfig.equals(proxyConfig2));
-        // Test that for an inexistent protocol in the config file, no config is
-        // found.
-        PSProxyConfig proxyConfig3 = proxyConfigService.findByProtocol("another protocol");
+        assertEquals(proxyConfig, proxyConfig2);
+        // Test that for a nonexistent protocol in the config file, no config is found.
+        var proxyConfig3 = proxyConfigService.findByProtocol("another protocol");
         assertNull(proxyConfig3);
     }
 
-    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception
-    {
-        File tempConfigFile = File.createTempFile("proxyconfig", ".xml");
+    private File createTempConfigFileBasedOn(InputStream baseConfigFile) throws Exception {
+        var tempConfigFile = File.createTempFile("proxyconfig", ".xml");
         tempConfigFile.deleteOnExit();
-
-        OutputStream out = new FileOutputStream(tempConfigFile);
-        InputStream in = baseConfigFile;
-
-        IOUtils.copy(in, out);
-
+        try (OutputStream out = new FileOutputStream(tempConfigFile); InputStream in = baseConfigFile) {
+            IOUtils.copy(in, out);
+        }
         return tempConfigFile;
     }
 }

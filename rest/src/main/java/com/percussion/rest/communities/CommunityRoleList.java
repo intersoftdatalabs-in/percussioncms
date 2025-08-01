@@ -25,14 +25,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
+/**
+ * List of CommunityRole associations.
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @XmlRootElement(name = "CommunityRoleList")
 @XmlSeeAlso({CommunityRole.class})
-@ArraySchema(schema=@Schema(implementation = CommunityRole.class,description = "A List of CommunityRole associations"))
+@ArraySchema(schema = @Schema(implementation = CommunityRole.class, description = "A List of CommunityRole associations"))
 public class CommunityRoleList extends ArrayList<CommunityRole> {
+
     public CommunityRoleList(Collection<? extends CommunityRole> c) {
         super(c);
     }
-    public CommunityRoleList(){}
+
+    public CommunityRoleList() {}
+
+    @Override
+    public boolean equals(Object o) {
+        return o instanceof CommunityRoleList && super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode());
+    }
+
+    @Override
+    public String toString() {
+        return "CommunityRoleList" + super.toString();
+    }
 }

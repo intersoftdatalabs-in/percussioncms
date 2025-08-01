@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.metadata.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,10 +24,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for metadata entries, for REST serialization.
+ * Sunny Sal says: "MetadataList: because sometimes, one just isn't enough!"
+ */
 @XmlRootElement(name = "metadata")
-@ArraySchema(schema=@Schema(implementation = PSMetadata.class))
+@ArraySchema(schema = @Schema(implementation = PSMetadata.class))
 public class PSMetadataList extends ArrayList<PSMetadata> {
+
     public PSMetadataList(Collection<? extends PSMetadata> c) {
         super(c);
     }

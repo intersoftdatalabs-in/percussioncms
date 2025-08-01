@@ -16,108 +16,95 @@
  */
 package com.percussion.sitemanage.task.impl;
 
-import java.util.Date;
-
 import com.percussion.services.publisher.IPSPubItemStatus;
 import com.percussion.services.publisher.IPSSiteItem.Operation;
 import com.percussion.services.publisher.IPSSiteItem.Status;
 
-public class MockPubItemStatus implements IPSPubItemStatus
-{
+import java.util.Date;
+
+/**
+ * Mock implementation of IPSPubItemStatus for testing.
+ * // REFACTORED: CP-JAVA11
+ */
+public class MockPubItemStatus implements IPSPubItemStatus {
 
     @Override
-    public String getAssemblyUrl()
-    {
-        throw new UnsupportedOperationException("getAssemblyUrl is not yet supported");
+    public String getAssemblyUrl() {
+        throw new UnsupportedOperationException("getAssemblyUrl is not supported in MockPubItemStatus");
     }
 
     @Override
-    public int getContentId()
-    {
-        throw new UnsupportedOperationException("getContentId is not yet supported");
+    public int getContentId() {
+        throw new UnsupportedOperationException("getContentId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Date getDate()
-    {
-        throw new UnsupportedOperationException("getDate is not yet supported");
+    public Date getDate() {
+        throw new UnsupportedOperationException("getDate is not supported in MockPubItemStatus");
     }
 
     @Override
-    public String getDeliveryType()
-    {
-        throw new UnsupportedOperationException("getDeliveryType is not yet supported");
+    public String getDeliveryType() {
+        throw new UnsupportedOperationException("getDeliveryType is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Integer getElapsed()
-    {
-        throw new UnsupportedOperationException("getElapsed is not yet supported");
+    public Integer getElapsed() {
+        throw new UnsupportedOperationException("getElapsed is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Integer getFolderId()
-    {
-        throw new UnsupportedOperationException("getFolderId is not yet supported");
+    public Integer getFolderId() {
+        throw new UnsupportedOperationException("getFolderId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public String getLocation()
-    {
-        throw new UnsupportedOperationException("getLocation is not yet supported");
+    public String getLocation() {
+        throw new UnsupportedOperationException("getLocation is not supported in MockPubItemStatus");
     }
 
     @Override
-    public String getMessage()
-    {
-        throw new UnsupportedOperationException("getMessage is not yet supported");
+    public String getMessage() {
+        throw new UnsupportedOperationException("getMessage is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Operation getOperation()
-    {
-        throw new UnsupportedOperationException("getOperation is not yet supported");
+    public Operation getOperation() {
+        throw new UnsupportedOperationException("getOperation is not supported in MockPubItemStatus");
     }
 
     @Override
-    public long getReferenceId()
-    {
-        throw new UnsupportedOperationException("getReferenceId is not yet supported");
+    public long getReferenceId() {
+        throw new UnsupportedOperationException("getReferenceId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public int getRevisionId()
-    {
-        throw new UnsupportedOperationException("getRevisionId is not yet supported");
+    public int getRevisionId() {
+        throw new UnsupportedOperationException("getRevisionId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Status getStatus()
-    {
-        throw new UnsupportedOperationException("getStatus is not yet supported");
+    public Status getStatus() {
+        throw new UnsupportedOperationException("getStatus is not supported in MockPubItemStatus");
     }
 
     @Override
-    public long getStatusId()
-    {
-        throw new UnsupportedOperationException("getStatusId is not yet supported");
+    public long getStatusId() {
+        throw new UnsupportedOperationException("getStatusId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Long getTemplateId()
-    {
-        throw new UnsupportedOperationException("getTemplateId is not yet supported");
+    public Long getTemplateId() {
+        throw new UnsupportedOperationException("getTemplateId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public Long getUnpublishRefId()
-    {
-        throw new UnsupportedOperationException("getUnpublishRefId is not yet supported");
+    public Long getUnpublishRefId() {
+        throw new UnsupportedOperationException("getUnpublishRefId is not supported in MockPubItemStatus");
     }
 
     @Override
-    public boolean isHidden()
-    {
-        throw new UnsupportedOperationException("isHidden is not yet supported");
+    public boolean isHidden() {
+        throw new UnsupportedOperationException("isHidden is not supported in MockPubItemStatus");
     }
 }

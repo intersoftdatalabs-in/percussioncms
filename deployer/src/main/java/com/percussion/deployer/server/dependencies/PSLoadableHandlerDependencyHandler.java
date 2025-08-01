@@ -77,18 +77,10 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
 
-      List<PSDependency> deps = new ArrayList<>();
-      
-      Iterator defs = getReqHandlerCfg().getHandlerDefs();
-      while (defs.hasNext())
-      {
-         PSRequestHandlerDef def = (PSRequestHandlerDef)defs.next();
-         String handlerName = def.getHandlerName();
-         PSDependency dep = createDependency(m_def, handlerName, handlerName);
-         deps.add(dep);
-      }
-      
-      return deps.iterator();
+      var defs = getReqHandlerCfg().getHandlerDefs();
+      return defs.stream()
+         .map(def -> createDependency(m_def, def.getHandlerName(), def.getHandlerName()))
+         .iterator();
    }
 
    // see base class

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.apibridge;
 
 import com.percussion.cms.objectstore.PSCoreItem;
@@ -43,78 +45,69 @@ import javax.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Adaptor for managing templates in Percussion CMS.
+ */
 @PSSiteManageBean
 public class TemplateAdaptor implements ITemplatesAdaptor {
 
-    private IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
-    private IPSContentWs contentwsService = PSContentWsLocator.getContentWebservice();
+    private final IPSAssemblyService asmSvc = PSAssemblyServiceLocator.getAssemblyService();
+    private final IPSContentWs contentwsService = PSContentWsLocator.getContentWebservice();
 
-    public TemplateAdaptor(){
-        //NOOP
+    public TemplateAdaptor() {
+        // No-op constructor for dependency injection.
     }
 
-
-    public List<TemplateSummary> listAllTemplateSummaries(URI baseUri){
-
-        List<TemplateSummary> ret =  new ArrayList<>();
+    @Override
+    public List<TemplateSummary> listAllTemplateSummaries(URI baseUri) {
         try {
-            List<IPSCatalogSummary> summaries = asmSvc.getSummaries(PSTypeEnum.TEMPLATE);
-            for(IPSCatalogSummary sum : summaries){
-                ret.add(ApiUtils.convertTemplateSummary(sum));
-            }
-
-            return ret;
-
+            var summaries = asmSvc.getSummaries(PSTypeEnum.TEMPLATE);
+            return summaries.stream()
+                    .map(ApiUtils::convertTemplateSummary)
+                    .collect(Collectors.toList());
         } catch (PSCatalogException e) {
-            throw new WebApplicationException(e.getMessage(),500);
+            throw new WebApplicationException(e.getMessage(), 500);
         } catch (PSNotFoundException e) {
-            throw new WebApplicationException("Not Found",404);
+            throw new WebApplicationException("Not Found", 404);
         }
     }
 
     /**
      * Returns all template summaries that match the supplied filter.
-     * NOTE: Currently only contentid is implemented.
-     * TODO: Implement for all filter options
-     * @param baseUri
-     * @param filter
-     * @return
+     * NOTE: Currently only contentId is implemented.
+     * TODO: Implement for all filter options.
      */
     @Override
     public List<TemplateSummary> listTemplateSummaries(URI baseUri, TemplateFilter filter) {
-
-        if(filter==null){
+        if (filter == null) {
             throw new IllegalArgumentException("TemplateFilter cannot be null");
         }
-
-        List<TemplateSummary> ret =  new ArrayList<>();
+        var ret = new ArrayList<TemplateSummary>();
         int contentID = filter.getContentId();
 
         try {
-            List<IPSGuid> guids = new ArrayList<>();
+            var guids = new ArrayList<IPSGuid>();
             guids.add(PSGuidManagerLocator.getGuidMgr().makeGuid(contentID, PSTypeEnum.LEGACY_CONTENT));
-            List<PSCoreItem> items = contentwsService.loadItems(guids,false,false,false,false);
-            if(items!=null && !items.isEmpty()) {
-                PSCoreItem item = items.get(0);
+            var items = contentwsService.loadItems(guids, false, false, false, false);
+            if (items != null && !items.isEmpty()) {
+                var item = items.get(0);
                 long contentTypeId = item.getContentTypeId();
-                IPSGuid ctypeGuid  = PSGuidManagerLocator.getGuidMgr().makeGuid(contentTypeId,
-                        PSTypeEnum.NODEDEF);
-                List<IPSAssemblyTemplate> templates = asmSvc.findTemplatesByContentType(ctypeGuid);
+                var ctypeGuid = PSGuidManagerLocator.getGuidMgr().makeGuid(contentTypeId, PSTypeEnum.NODEDEF);
+                var templates = asmSvc.findTemplatesByContentType(ctypeGuid);
 
-                for (IPSAssemblyTemplate t : templates) {
-                    ret.add(ApiUtils.convertTemplateSummary(t));
-                }
-
+                ret.addAll(templates.stream()
+                        .map(ApiUtils::convertTemplateSummary)
+                        .collect(Collectors.toList()));
                 return ret;
-            }else{
-                throw new PSNotFoundException("Content Id: " +  contentID + " not found.");
+            } else {
+                throw new PSNotFoundException("Content Id: " + contentID + " not found.");
             }
-
         } catch (PSAssemblyException | PSErrorResultsException e) {
-            throw new WebApplicationException(e.getMessage(),500);
+            throw new WebApplicationException(e.getMessage(), 500);
         } catch (PSNotFoundException e) {
-            throw new WebApplicationException("Not Found",404);
+            throw new WebApplicationException("Not Found", 404);
         }
     }
 }

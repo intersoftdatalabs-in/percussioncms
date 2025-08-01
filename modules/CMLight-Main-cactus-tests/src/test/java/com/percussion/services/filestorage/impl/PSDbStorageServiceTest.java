@@ -44,6 +44,7 @@ import org.apache.cactus.ServletTestCase;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+// REFACTORED: CP-JAVA11
 @Category(IntegrationTest.class)
 public class PSDbStorageServiceTest extends ServletTestCase
 {
@@ -69,15 +70,15 @@ public class PSDbStorageServiceTest extends ServletTestCase
          noFilenameTxt = createFile("This is a test txt file no filename", null, null, null);
          // Delete all PSHashedFile and PSHashedMeta objects in
          // the database
-         IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+         var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
          if (hashesToRemove == null)
          {
-            hashesToRemove = new ArrayList<String>();
+            hashesToRemove = new ArrayList<>();
          }
          else
          {
-            for (String hash : hashesToRemove)
+            for (var hash : hashesToRemove)
                fssvc.delete(hash);
 
             hashesToRemove.clear();
@@ -96,11 +97,11 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testStore_HugeFile() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String hugeFilePath = PSServer.getRxFile("InstallableApps/RxApp/rxapp.ear");
+      var hugeFilePath = PSServer.getRxFile("InstallableApps/RxApp/rxapp.ear");
 
-      String hugeFileHash = fssvc.store(new File(hugeFilePath));
+      var hugeFileHash = fssvc.store(new File(hugeFilePath));
       assertNotNull(hugeFileHash);
       assertTrue(fssvc.fileExists(hugeFileHash));
       hashesToRemove.add(hugeFileHash);
@@ -114,9 +115,9 @@ public class PSDbStorageServiceTest extends ServletTestCase
    @Test
    public void testStore_NoFilename() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      PSMeta xmlMeta = new PSMeta();
+      var xmlMeta = new PSMeta();
       assertTrue(xmlMeta.isEmpty());
 
       try
@@ -136,15 +137,15 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testStore() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
+      var xmlHash = fssvc.store(testXml);
       assertNotNull(xmlHash);
 
       assertTrue(fssvc.fileExists(xmlHash));
       hashesToRemove.add(xmlHash);
 
-      String txtHash = fssvc.store(testTxt);
+      var txtHash = fssvc.store(testTxt);
       assertNotNull(txtHash);
       assertTrue(fssvc.fileExists(txtHash));
       hashesToRemove.add(txtHash);
@@ -157,16 +158,16 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testStore_HashAlreadyExists() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
+      var xmlHash = fssvc.store(testXml);
       assertNotNull(xmlHash);
 
       assertTrue(fssvc.fileExists(xmlHash));
       hashesToRemove.add(xmlHash);
 
       // Save the same file again
-      String xmlHash2 = fssvc.store(testXml);
+      var xmlHash2 = fssvc.store(testXml);
       assertNotNull(xmlHash2);
 
       assertTrue(fssvc.fileExists(xmlHash2));
@@ -180,10 +181,9 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testDelete() throws Exception
    {
-      // Arrange
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
+      var xmlHash = fssvc.store(testXml);
       assertNotNull(xmlHash);
 
       assertTrue(fssvc.fileExists(xmlHash));
@@ -194,7 +194,7 @@ public class PSDbStorageServiceTest extends ServletTestCase
       // Assert
       assertFalse(fssvc.fileExists(xmlHash));
 
-      IPSFileMeta meta = fssvc.getMeta(xmlHash);
+      var meta = fssvc.getMeta(xmlHash);
       assertNotNull(meta);
       assertTrue(meta.isEmpty());
    }
@@ -205,13 +205,8 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testDelete_ObjectDoesNotExist() throws Exception
    {
-      // If the object to delete does not exist, then quitting
-      // silently is expected.
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      // Arrange
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
-
-      // Act
       fssvc.delete("NonExistantHash");
    }
 
@@ -220,9 +215,9 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testFileExists() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
+      var xmlHash = fssvc.store(testXml);
       assertTrue(fssvc.fileExists(xmlHash));
       assertFalse(fssvc.fileExists("foo"));
       hashesToRemove.add(xmlHash);
@@ -233,15 +228,15 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testGetStream() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
-      InputStream xmlIn = fssvc.getStream(xmlHash);
+      var xmlHash = fssvc.store(testXml);
+      var xmlIn = fssvc.getStream(xmlHash);
       assertNotNull(xmlIn);
       assertTrue(IOTools.compareStreams(new FileInputStream(testXml), xmlIn));
       hashesToRemove.add(xmlHash);
 
-      String txtHash = fssvc.store(testTxt);
+      var txtHash = fssvc.store(testTxt);
       assertFalse(IOTools.compareStreams(fssvc.getStream(xmlHash), fssvc.getStream(txtHash)));
       hashesToRemove.add(txtHash);
 
@@ -253,16 +248,16 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testGetMeta() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
-      String xmlHash = fssvc.store(testXml);
-      IPSFileMeta xmlMeta = fssvc.getMeta(xmlHash);
+      var xmlHash = fssvc.store(testXml);
+      var xmlMeta = fssvc.getMeta(xmlHash);
       assertFalse(xmlMeta.isEmpty());
       assertEquals(xmlMeta.entrySet(), fssvc.getMeta(xmlHash).entrySet());
       hashesToRemove.add(xmlHash);
 
-      String txtHash = fssvc.store(testTxt);
-      IPSFileMeta txtMeta = fssvc.getMeta(txtHash);
+      var txtHash = fssvc.store(testTxt);
+      var txtMeta = fssvc.getMeta(txtHash);
       assertFalse(txtMeta.isEmpty());
       assertEquals(txtMeta.entrySet(), fssvc.getMeta(txtHash).entrySet());
       assertFalse(txtMeta.equals(xmlMeta));
@@ -274,7 +269,7 @@ public class PSDbStorageServiceTest extends ServletTestCase
     */
    public void testGetAlgorithm() throws Exception
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
 
       assertNotNull(fssvc.getAlgorithm());
    }
@@ -282,11 +277,11 @@ public class PSDbStorageServiceTest extends ServletTestCase
    private PSPurgableTempFile createFile(String content, String sourceFile, String contentType, String encType)
          throws IOException
    {
-      PSPurgableTempFile f = new PSPurgableTempFile("tmp", "tmp", null, sourceFile, contentType, encType);
+      var f = new PSPurgableTempFile("tmp", "tmp", null, sourceFile, contentType, encType);
 
-      FileWriter fw = new FileWriter(f);
-      fw.write(content);
-      fw.close();
+      try (var fw = new FileWriter(f)) {
+         fw.write(content);
+      }
 
       return f;
    }
@@ -294,15 +289,14 @@ public class PSDbStorageServiceTest extends ServletTestCase
    @Test
    public void testCountOld()
    {
-      // Need to set some to older time and test
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
       assertEquals(0, fssvc.countOlderThan(1));
    }
 
    @Test
    public void testDeleteOld()
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
       fssvc.deleteOlderThan(1);
       assertEquals(0, fssvc.countOlderThan(1));
    }
@@ -310,30 +304,30 @@ public class PSDbStorageServiceTest extends ServletTestCase
    @Test
    public void testTouchHashes()
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
-      IPSHashedFieldCataloger service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
-      Set<PSHashedColumn> columns = service.validateColumns();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var service = PSHashedFieldCatalogerLocator.getHashedFileCatalogerService();
+      var columns = service.validateColumns();
       fssvc.touchAllHashes(columns);
    }
 
    @Test
    public void testExportAll()
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
       fssvc.exportAllBinary("exportTest");
    }
 
    @Test
    public void testExportAllLegacy()
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
       fssvc.exportAllLegacyBinary("exportTest");
    }
 
    @Test
    public void testImportAll()
    {
-      IPSFileStorageService fssvc = PSFileStorageServiceLocator.getFileStorageService();
+      var fssvc = PSFileStorageServiceLocator.getFileStorageService();
       fssvc.importAllBinary("exportTest");
    }
 

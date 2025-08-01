@@ -22,36 +22,38 @@ import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils; // Modernized: Use lang3
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.util.Optional; // Java 11 Optional
 
 /**
- * @author DavidBenua
+ * Default password encryption bean for user passwords.
+ * Provides encryption and legacy encryption for backward compatibility.
  *
+ * @author DavidBenua
  */
 @Component("defaultPasswordEncryptionBean")
 @Lazy
 public class PSDefaultPasswordEncryptionBean implements IPSPasswordFilter
 {
-
-    /* (non-Javadoc)
-     * @see com.percussion.security.IPSPasswordFilter#encrypt(java.lang.String)
-     */
     @Override
     public String encrypt(String password)
     {
-        if(StringUtils.isBlank(password))
-        {
-           return StringUtils.EMPTY; 
-        }
-        try {
-            return  PSPasswordHandler.getHashedPassword(password.trim());
-        } catch (PSEncryptionException e) {
-            throw new IllegalArgumentException(e);
-        }
+        // Use Optional and Java 11 features for clarity and null safety
+        return Optional.ofNullable(password)
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .map(pw -> {
+                    try {
+                        return PSPasswordHandler.getHashedPassword(pw);
+                    } catch (PSEncryptionException e) {
+                        throw new IllegalArgumentException(e);
+                    }
+                })
+                .orElse(StringUtils.EMPTY);
     }
 
     @Override
@@ -59,34 +61,29 @@ public class PSDefaultPasswordEncryptionBean implements IPSPasswordFilter
         return PSPasswordHandler.ALGORITHM;
     }
 
-    /* (non-Javadoc)
-     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)
-     */
     @Override
     public void init(@SuppressWarnings("unused") IPSExtensionDef def, @SuppressWarnings("unused") File codeRoot)
-    {  //does nothing.
-
+    {
+        // No initialization required.
     }
 
-    /***
-     * Will encrypt the password using the hashing / encryption
-     * routine used in the previous version of the software.
+    /**
+     * Encrypts the password using the legacy hashing routine.
+     * Allows security providers to re-encrypt passwords on login after a security update.
      *
-     * This is to allow Security Providers to re-encrypt passwords
-     * on login after a security update.
-     *
-     * @param password
-     * @return
+     * @param password the password to encrypt
+     * @return the legacy-encrypted password
      */
     @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
     @Override
     @Deprecated
     public String legacyEncrypt(String password) {
-        if(StringUtils.isBlank(password))
-        {
-            return StringUtils.EMPTY;
-        }
-        return DigestUtils.shaHex(password.trim());
+        // Use Optional for null/blank handling
+        return Optional.ofNullable(password)
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .map(DigestUtils::shaHex)
+                .orElse(StringUtils.EMPTY);
     }
 
     @Override

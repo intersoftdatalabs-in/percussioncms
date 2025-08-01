@@ -14,176 +14,124 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.sitemanage.importer.theme;
 
 import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.IPSContentWs;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.InputStream;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Ignacio Erro
- * 
+ * Integration tests for {@link PSAssetCreator}.
+ * Sunny Sal says: "Testing asset creation like a boss!"
  */
-@Category(IntegrationTest.class)
-public class PSAssetCreatorTest extends PSServletTestCase
-{
-    private static final String tempPrefix = "TemplateTest";
+@IntegrationTest
+@ExtendWith(SpringExtension.class)
+class PSAssetCreatorTest {
+
+    private static final String TEMP_PREFIX = "TemplateTest";
 
     private PSSiteDataServletTestCaseFixture fixture;
-
     private IPSAssetService assetService;
-
     private IPSContentWs contentWs;
+    private final PSAssetCreator assetCreator = new PSAssetCreator();
 
-    private PSAssetCreator assetCreator = new PSAssetCreator();
-
-    @Override
-    @Before
-    public void setUp() throws Exception
-    {
+    @BeforeEach
+    void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp("Admin", "demo", "Default");
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
-        super.setUp();
     }
 
-    @Override
-    @After
-    public void tearDown() throws Exception
-    {
+    @AfterEach
+    void tearDown() throws Exception {
         fixture.tearDown();
-        fixture.templateCleanUp(tempPrefix);
+        fixture.templateCleanUp(TEMP_PREFIX);
     }
 
     @Test
-    public void testCreateAssetForImage()
-    {
-        String folderPath = "/Assets/uploads/www.percussion.com/image.JPG";
-
-        try
-        {
-            InputStream in = getClass().getResourceAsStream("image.JPG");
-
-            PSAsset newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
-
+    void testCreateAssetForImage() {
+        var folderPath = "/Assets/uploads/www.percussion.com/image.JPG";
+        try (InputStream in = getClass().getResourceAsStream("image.JPG")) {
+            var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
             assertNotNull(newAsset);
             assertEquals("image.JPG", newAsset.getName());
-        }
-        catch (Exception e)
-        {
-            fail("Error creating the Asset.");
+        } catch (Exception e) {
+            fail("Error creating the Asset.", e);
         }
     }
-    
+
     @Test
-    public void testCreateAssetForGifImage()
-    {
-        String folderPath = "/Assets/uploads/www.percussion.com/widgetIconPreviewPageOver.gif";
-
-        try
-        {
-            InputStream in = getClass().getResourceAsStream("widgetIconPreviewPageOver.gif");
-
-            PSAsset newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
-
+    void testCreateAssetForGifImage() {
+        var folderPath = "/Assets/uploads/www.percussion.com/widgetIconPreviewPageOver.gif";
+        try (InputStream in = getClass().getResourceAsStream("widgetIconPreviewPageOver.gif")) {
+            var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
             assertNotNull(newAsset);
             assertEquals("widgetIconPreviewPageOver.gif", newAsset.getName());
-        }
-        catch (Exception e)
-        {
-            fail("Error creating the Asset.");
+        } catch (Exception e) {
+            fail("Error creating the Asset.", e);
         }
     }
-    
+
     @Test
-    public void testCreateAssetForFlash()
-    {
-        String folderPath = "/Assets/uploads/www.percussion.com/flash.swf";
-
-        try
-        {
-            InputStream in = getClass().getResourceAsStream("flash.swf");
-
-            PSAsset newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
-
+    void testCreateAssetForFlash() {
+        var folderPath = "/Assets/uploads/www.percussion.com/flash.swf";
+        try (InputStream in = getClass().getResourceAsStream("flash.swf")) {
+            var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
             assertNotNull(newAsset);
             assertEquals("flash.swf", newAsset.getName());
-        }
-        catch (Exception e)
-        {
-            fail("Error creating the Asset.");
+        } catch (Exception e) {
+            fail("Error creating the Asset.", e);
         }
     }
-    
+
     @Test
-    public void testCreateAssetForWord()
-    {
-        String folderPath = "/Assets/uploads/www.percussion.com/testWordDoc.doc";
-
-        try
-        {
-            InputStream in = getClass().getResourceAsStream("testWordDoc.doc");
-
-            PSAsset newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
-
+    void testCreateAssetForWord() {
+        var folderPath = "/Assets/uploads/www.percussion.com/testWordDoc.doc";
+        try (InputStream in = getClass().getResourceAsStream("testWordDoc.doc")) {
+            var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
             assertNotNull(newAsset);
             assertEquals("testWordDoc.doc", newAsset.getName());
-        }
-        catch (Exception e)
-        {
-            fail("Error creating the Asset.");
+        } catch (Exception e) {
+            fail("Error creating the Asset.", e);
         }
     }
-    
+
     @Test
-    public void testCreateAssetForPdf()
-    {
-        String folderPath = "/Assets/uploads/www.percussion.com/testPdf.pdf";
-
-        try
-        {
-            InputStream in = getClass().getResourceAsStream("testPdf.pdf");
-
-            PSAsset newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
-
+    void testCreateAssetForPdf() {
+        var folderPath = "/Assets/uploads/www.percussion.com/testPdf.pdf";
+        try (InputStream in = getClass().getResourceAsStream("testPdf.pdf")) {
+            var newAsset = assetCreator.createAssetIfNeeded(in, folderPath);
             assertNotNull(newAsset);
             assertEquals("testPdf.pdf", newAsset.getName());
-        }
-        catch (Exception e)
-        {
-            fail("Error creating the Asset.");
+        } catch (Exception e) {
+            fail("Error creating the Asset.", e);
         }
     }
-    
-    public IPSAssetService getAssetService()
-    {
+
+    public IPSAssetService getAssetService() {
         return assetService;
     }
 
-    public void setAssetService(IPSAssetService assetService)
-    {
+    public void setAssetService(IPSAssetService assetService) {
         this.assetService = assetService;
     }
 
-    public IPSContentWs getContentWs()
-    {
+    public IPSContentWs getContentWs() {
         return contentWs;
     }
 
-    public void setContentWs(IPSContentWs contentWs)
-    {
+    public void setContentWs(IPSContentWs contentWs) {
         this.contentWs = contentWs;
     }
 }

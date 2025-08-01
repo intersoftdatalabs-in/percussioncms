@@ -45,8 +45,7 @@ public class PSInputStreamCounter extends FilterInputStream
    public int read() throws IOException 
    {
       int result = super.read();
-      m_count++; 
-      
+      if (result != -1) m_count++;
       return result;
    }
 
@@ -60,14 +59,13 @@ public class PSInputStreamCounter extends FilterInputStream
    public int read(byte b[], int off, int len) throws IOException
    {
       int count = super.read(b, off, len);
-      m_count += count; 
-      
+      if (count > 0) m_count += count;
       return count;
    }
    
    
    // see IPSStreamCounter
-   public int getByteCount()
+   public long getByteCount()
    {
       return m_count;
    }
@@ -91,6 +89,6 @@ public class PSInputStreamCounter extends FilterInputStream
     * Count of bytes read so far, incremented each time a <code>read()</code>
     * method is called, initially zero.
     */
-   private int m_count = 0;
+   private long m_count = 0;
 
 }

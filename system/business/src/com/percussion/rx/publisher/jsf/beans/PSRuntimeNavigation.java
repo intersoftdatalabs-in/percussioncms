@@ -1,19 +1,4 @@
-/*
- * Copyright 1999-2023 Percussion Software, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// REFACTORED: CP-JAVA11
 package com.percussion.rx.publisher.jsf.beans;
 
 import com.percussion.error.PSExceptionUtils;
@@ -36,7 +21,8 @@ import com.percussion.services.publisher.IPSEditionTaskDef;
 import com.percussion.services.publisher.IPSEditionTaskLog;
 import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.publisher.IPSPublisherService;
-import com.percussion.services.publisher.PSPublisherServiceLocator;
+import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
+import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
 import com.percussion.util.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
@@ -53,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The runtime execution tree for publishing.
+ * Java 11 refactored: The runtime execution tree for publishing.
  * 
  * @author dougrand
  */
@@ -190,33 +176,26 @@ public class PSRuntimeNavigation extends PSNavigation
       public List<Map<String, Object>> getTasks()
       {
          List<Map<String, Object>> rval = new ArrayList<>();
-         IPSPublisherService pubsvc = PSPublisherServiceLocator.
-            getPublisherService();
-         List<IPSEditionTaskLog> entries =
-            pubsvc.findEditionTaskLogEntriesByJobId(getJobId());
-         for(IPSEditionTaskLog entry : entries)
-         {
-            Map<String,Object> rec = new HashMap<>();
+         IPSRxPublisherServiceInternal pubsvc = PSRxPubServiceInternalLocator.getRxPublisherService();
+         List<IPSEditionTaskLog> entries = pubsvc.findEditionTaskLogEntriesByJobId(getJobId());
+         for (IPSEditionTaskLog entry : entries) {
+            Map<String, Object> rec = new HashMap<>();
             rec.put("statusid", entry.getJobId());
             double elapsed = entry.getElapsed() / 1000.0;
             rec.put("elapsed", elapsed + "s");
             rec.put("referenceid", entry.getReferenceId());
-            
-            IPSEditionTaskDef task=null;
 
+            IPSEditionTaskDef task = null;
             try {
-               task = pubsvc
-                       .findEditionTaskById(entry.getTaskId());
+                task = pubsvc.findEditionTaskById(entry.getTaskId());
             } catch (PSNotFoundException e) {
-               log.error(PSExceptionUtils.getMessageForLog(e));
-               log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                log.error(PSExceptionUtils.getMessageForLog(e));
+                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
             }
-
             if (task != null)
-               rec.put("taskname", task.getExtensionName());
+                rec.put("taskname", task.getExtensionName());
             else
-               rec.put("taskname", entry.getTaskId());
-            
+                rec.put("taskname", entry.getTaskId());
             rec.put("message", entry.getMessage());
             rec.put("status", entry.getStatus() ? "Success" : "Failure");
             rval.add(rec);
@@ -315,12 +294,10 @@ public class PSRuntimeNavigation extends PSNavigation
    public Map<String,Object> getJobEditionData()
    {
       DateFormat fmt = DateFormat.getDateTimeInstance();
-      IPSPublisherService pubsvc = PSPublisherServiceLocator.
-         getPublisherService();
-      Map<String,Object> rval = new HashMap<>();
+      IPSRxPublisherServiceInternal pubsvc = PSRxPubServiceInternalLocator.getRxPublisherService();
+      Map<String, Object> rval = new HashMap<>();
       IPSGuid edid = pubsvc.findEditionIdForJob(getJobId());
-      if (edid != null)
-      {
+      if (edid != null) {
          try {
             IPSEdition edition = pubsvc.loadEdition(edid);
             rval.put("name", edition.getDisplayTitle());
@@ -330,8 +307,7 @@ public class PSRuntimeNavigation extends PSNavigation
          }
       }
       IPSPubStatus stat = pubsvc.findPubStatusForJob(getJobId());
-      if (stat != null)
-      {
+      if (stat != null) {
          rval.put("start", fmt.format(stat.getStartDate()));
          String elapsed = PSPublishingStatusHelper.getElapseTime(
                stat.getStartDate(), stat.getEndDate());

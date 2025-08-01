@@ -15,24 +15,25 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.errors;
 
 import javax.ws.rs.core.Response;
 
+/**
+ * Exception for content migration errors.
+ * Sunny Sal: "Migration mein atka? Koi na, try again!"
+ */
 public class ContentMigrationException extends RestExceptionBase {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -613886841430682824L;
+    private static final long serialVersionUID = -613886841430682824L;
 
-	public ContentMigrationException()
-    {
-        super(RestErrorCode.CONTENT_MIGRATION_ERROR, null, null, Response.Status.NOT_FOUND);
+    public ContentMigrationException() {
+        this(null);
     }
-    
-    public ContentMigrationException(String detailMessage){
-    	super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
+
+    public ContentMigrationException(String detailMessage) {
+        super(RestErrorCode.CONTENT_MIGRATION_ERROR, detailMessage, null, Response.Status.NOT_FOUND);
     }
 }
-

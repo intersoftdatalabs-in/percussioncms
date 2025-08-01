@@ -78,144 +78,87 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
    // see base class
    @Override
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
+      var childDeps = new HashSet<PSDependency>();
+      var edition = findEditionByDependencyID(dep.getDependencyId());
+      if (edition != null) {
+         var edtnGuid = edition.getGUID();
+         var clHandler = getDependencyHandler(PSContentListDefDependencyHandler.DEPENDENCY_TYPE);
+         var ctxtHandler = getDependencyHandler(PSContextDefDependencyHandler.DEPENDENCY_TYPE);
+         var atHandler = getDependencyHandler(PSAuthTypeDependencyHandler.DEPENDENCY_TYPE);
 
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      Set<PSDependency> childDeps = new HashSet<>();
-      
-      String edId = dep.getDependencyId();
-      IPSEdition edition = findEditionByDependencyID(edId);
-      if (edition != null)
-      {
-         IPSGuid edtnGuid = edition.getGUID();
-         PSDependencyHandler clHandler = getDependencyHandler(
-               PSContentListDefDependencyHandler.DEPENDENCY_TYPE);
-         PSDependencyHandler ctxtHandler = getDependencyHandler(
-               PSContextDefDependencyHandler.DEPENDENCY_TYPE);
-         PSDependencyHandler atHandler = getDependencyHandler(
-               PSAuthTypeDependencyHandler.DEPENDENCY_TYPE); 
-         
-         List<IPSEditionContentList> ecls =
-            m_pubSvc.loadEditionContentLists(edtnGuid);
-         for (IPSEditionContentList ecl : ecls)
-         {
-            // add ContentList def child dependency
-            long clId = ecl.getContentListId().longValue();
-            PSDependency clDep = 
-               clHandler.getDependency(tok, String.valueOf(clId));
-            if (clDep != null)
-            {
-               if (clDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  clDep.setIsAssociation(false);
-               childDeps.add(clDep);               
+         var ecls = m_pubSvc.loadEditionContentLists(edtnGuid);
+         ecls.forEach(ecl -> {
+            var clDep = clHandler.getDependency(tok, String.valueOf(ecl.getContentListId().longValue()));
+            if (clDep != null && clDep.getDependencyType() == PSDependency.TYPE_SHARED) {
+               clDep.setIsAssociation(false);
+               childDeps.add(clDep);
             }
-            
-            // add delivery Context def child dependency
-            IPSGuid dcId = ecl.getDeliveryContextId();
-            PSDependency dcDep =
-               ctxtHandler.getDependency(tok, String.valueOf(dcId.longValue()));
-            if (dcDep != null)
-            {
-               if (dcDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  dcDep.setIsAssociation(false);
+
+            var dcDep = ctxtHandler.getDependency(tok, String.valueOf(ecl.getDeliveryContextId().longValue()));
+            if (dcDep != null && dcDep.getDependencyType() == PSDependency.TYPE_SHARED) {
+               dcDep.setIsAssociation(false);
                childDeps.add(dcDep);
             }
-            
-            // add assembly Context def child dependency
-            IPSGuid acId = ecl.getAssemblyContextId();
-            if (acId != null)
-            {
-               PSDependency acDep =
-                  ctxtHandler.getDependency(tok, 
-                        String.valueOf(acId.longValue()));
-               if (acDep != null)
-               {
-                  if (acDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                     acDep.setIsAssociation(false);
-                  childDeps.add(acDep);       
+
+            var acId = ecl.getAssemblyContextId();
+            if (acId != null) {
+               var acDep = ctxtHandler.getDependency(tok, String.valueOf(acId.longValue()));
+               if (acDep != null && acDep.getDependencyType() == PSDependency.TYPE_SHARED) {
+                  acDep.setIsAssociation(false);
+                  childDeps.add(acDep);
                }
             }
-            
-            // add authtype dependency
-            Integer atId = ecl.getAuthtype();
-            PSDependency atDep =
-               atHandler.getDependency(tok, String.valueOf(atId));
-            if (atDep != null)
-            {
-               if (atDep.getDependencyType() == PSDependency.TYPE_SHARED)
-                  atDep.setIsAssociation(false);               
+
+            var atDep = atHandler.getDependency(tok, String.valueOf(ecl.getAuthtype()));
+            if (atDep != null && atDep.getDependencyType() == PSDependency.TYPE_SHARED) {
+               atDep.setIsAssociation(false);
                childDeps.add(atDep);
             }
-         }
-         
-         // add Edition Task def child dependencies
-         PSDependencyHandler tHandler = getDependencyHandler(
-               PSEditionTaskDefDependencyHandler.DEPENDENCY_TYPE);
-         List<IPSEditionTaskDef> tasks = 
-            m_pubSvc.loadEditionTasks(edtnGuid);
-         for (IPSEditionTaskDef task : tasks)
-         {
-            IPSGuid tId = task.getTaskId();
-            PSDependency tDep =
-               tHandler.getDependency(tok, String.valueOf(tId.longValue()));
-            if (tDep != null)
-            {
+         });
+
+         var tHandler = getDependencyHandler(PSEditionTaskDefDependencyHandler.DEPENDENCY_TYPE);
+         var tasks = m_pubSvc.loadEditionTasks(edtnGuid);
+         tasks.forEach(task -> {
+            var tDep = tHandler.getDependency(tok, String.valueOf(task.getTaskId().longValue()));
+            if (tDep != null) {
                tDep.setDependencyType(PSDependency.TYPE_LOCAL);
                childDeps.add(tDep);
             }
-         }
+         });
       }
-      
+
       return childDeps.iterator();
     }
 
    // see base class
    @Override
-   @SuppressWarnings("unchecked")
-   public Iterator getDependencies(PSSecurityToken tok)
-   {
-      if (tok == null)
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List<PSDependency> deps = new ArrayList<>();
-
-      List<IPSEdition> editions = m_pubSvc.findAllEditions("");
-      for (IPSEdition edition : editions)
-      {
-         PSDependency dep = createDependency(m_def, 
-               String.valueOf(((PSEdition) edition).getId()),
-                  edition.getName());
-         deps.add(dep);            
       }
-      
+
+      var deps = m_pubSvc.findAllEditions("").stream()
+         .map(edition -> createDependency(m_def, String.valueOf(((PSEdition) edition).getId()), edition.getName()))
+         .toList();
+
       return deps.iterator();
    }
 
    // see base class
    @Override
-   public PSDependency getDependency(PSSecurityToken tok, String id)
-   {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+   public PSDependency getDependency(PSSecurityToken tok, String id) {
+      if (tok == null || id == null || id.isBlank()) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
-
-      PSDependency edDep = null;
-      
-      IPSEdition edition = findEditionByDependencyID(id);
-      if (edition != null)
-         edDep = createDependency(m_def, id, edition.getName());
-        
-      return edDep;
+      var edition = findEditionByDependencyID(id);
+      return edition != null ? createDependency(m_def, id, edition.getName()) : null;
    }
 
    /**
@@ -559,24 +502,15 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
     * @param depId the id, assumed not <code>null</code>.
     * @return <code>null</code> if Edition is not found.
     */
-   private IPSEdition findEditionByDependencyID(String depId)
-   {
-      if (Integer.parseInt(depId) <= 0)
+   private IPSEdition findEditionByDependencyID(String depId) {
+      if (Integer.parseInt(depId) <= 0) {
          return null;
-
-      IPSEdition edtn = null;
-
-      List<IPSEdition> editions = m_pubSvc.findAllEditions("");
-      for (IPSEdition edition : editions)
-      {
-         if (String.valueOf(edition.getGUID().longValue()).equals(depId))
-         {
-            edtn = edition;
-            break;
-         }
       }
-   
-      return edtn;
+
+      return m_pubSvc.findAllEditions("").stream()
+         .filter(edition -> String.valueOf(edition.getGUID().longValue()).equals(depId))
+         .findFirst()
+         .orElse(null);
    }
    
    /**

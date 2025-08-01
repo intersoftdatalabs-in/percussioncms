@@ -24,9 +24,10 @@ import java.io.OutputStream;
  * A set of static methods useful for managing HTTP connections.
  * Eureka always sends data to the Rhythmyx server with the
  * <code>multipart/form-data</code> form type.
- **/
-class PSHttpUtils
-{
+ *
+ * // REFACTORED: CP-JAVA11
+ */
+class PSHttpUtils {
   /**
    * This class is never constructed, it contains only static methods.
    */
@@ -43,24 +44,15 @@ class PSHttpUtils
     * @throws IOException if an error occurs reading or writing the streams.
     */
    public static synchronized void copyStream(InputStream in, OutputStream out)
-      throws IOException
-   {
-      byte[] buffer = new byte[1024];
-      int bytesRead = 0;
-
-      synchronized (in)
-      {
-         synchronized (out)
-         {
-            while (true)
-            {
-               if ((bytesRead = in.read(buffer)) == -1)
-               {
-                  out.flush();
-                  break;
-               }
+         throws IOException {
+      var buffer = new byte[1024];
+      int bytesRead;
+      synchronized (in) {
+         synchronized (out) {
+            while ((bytesRead = in.read(buffer)) != -1) {
                out.write(buffer, 0, bytesRead);
             }
+            out.flush();
          }
       }
    }

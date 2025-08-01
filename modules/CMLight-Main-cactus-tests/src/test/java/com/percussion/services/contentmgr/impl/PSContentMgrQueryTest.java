@@ -42,15 +42,15 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    public void testCreateXmlQuery() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      String q = "//foo/bar[@rx:a > 3]";
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var q = "//foo/bar[@rx:a > 3]";
 
-      Query xpathq = mgr.createQuery(q, Query.XPATH);
+      var xpathq = mgr.createQuery(q, Query.XPATH);
 
-      String q2 = "select * from nt:base where jcr:path like '//foo/bar/%' "
+      var q2 = "select * from nt:base where jcr:path like '//foo/bar/%' "
             + "and rx:a > 3";
 
-      Query sqlq = mgr.createQuery(q2, Query.SQL);
+      var sqlq = mgr.createQuery(q2, Query.SQL);
 
       assertNotNull(xpathq);
       assertNotNull(sqlq);
@@ -61,8 +61,8 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    public void testInvalidQuery() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      String q = "//foo/bar[@rx:a & 3]";
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var q = "//foo/bar[@rx:a & 3]";
 
       try
       {
@@ -76,7 +76,7 @@ public class PSContentMgrQueryTest extends ServletTestCase
 
       try
       {
-         String q2 = "select * from nt:base where jcr:path ^ '//foo/bar/%' "
+         var q2 = "select * from nt:base where jcr:path ^ '//foo/bar/%' "
                + "and rx:a > 3";
          mgr.createQuery(q2, Query.SQL);
          assertTrue("No exception was thrown", false);
@@ -92,21 +92,21 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    public void testBothStyles() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      String xpathq = "element(*,rx:rffgeneric)(@rx:sys_title)";
-      String sqlq = "select rx:sys_title from rx:rffgeneric";
-      
-      Query xpathquery = mgr.createQuery(xpathq, Query.XPATH);
-      Query sqlquery = mgr.createQuery(sqlq, Query.SQL);
-      
-      QueryResult xpathres = xpathquery.execute();
-      QueryResult sqlres = sqlquery.execute();
-      
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var xpathq = "element(*,rx:rffgeneric)(@rx:sys_title)";
+      var sqlq = "select rx:sys_title from rx:rffgeneric";
+
+      var xpathquery = mgr.createQuery(xpathq, Query.XPATH);
+      var sqlquery = mgr.createQuery(sqlq, Query.SQL);
+
+      var xpathres = xpathquery.execute();
+      var sqlres = sqlquery.execute();
+
       assertTrue(xpathres.getRows().getSize() > 1);
       assertEquals(xpathres.getRows().getSize(), sqlres.getRows().getSize());
       
-      Row r = xpathres.getRows().nextRow();
-      
+      var r = xpathres.getRows().nextRow();
+
       assertEquals(r.getValues().length, 1);
    }
    
@@ -117,11 +117,11 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    public void testSimpleChildQuery() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      String sqlq = "select rx:sys_contentid from rx:rffevent " +
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var sqlq = "select rx:sys_contentid from rx:rffevent " +
             "where rx:event_type = 1";
-      Query sqlquery = mgr.createQuery(sqlq, Query.SQL);
-      QueryResult result = sqlquery.execute();
+      var sqlquery = mgr.createQuery(sqlq, Query.SQL);
+      var result = sqlquery.execute();
       assertTrue(result.getRows().getSize() > 0);
    }
    
@@ -132,11 +132,11 @@ public class PSContentMgrQueryTest extends ServletTestCase
     */
    public void testContentIdQuery() throws Exception
    {
-      IPSContentMgr mgr = PSContentMgrLocator.getContentMgr();
-      String sqlq = "select rx:sys_contentid from rx:rffevent " +
+      var mgr = PSContentMgrLocator.getContentMgr();
+      var sqlq = "select rx:sys_contentid from rx:rffevent " +
             "where rx:sys_contentid = 519";
-      Query sqlquery = mgr.createQuery(sqlq, Query.SQL);
-      QueryResult result = sqlquery.execute();
+      var sqlquery = mgr.createQuery(sqlq, Query.SQL);
+      var result = sqlquery.execute();
       assertTrue(result.getRows().getSize() > 0);
    }
 }

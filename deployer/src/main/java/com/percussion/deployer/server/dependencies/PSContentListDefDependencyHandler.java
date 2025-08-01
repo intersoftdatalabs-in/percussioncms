@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -89,10 +90,10 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler imple
     * 1. find and load all the contentlists
     * 2. generate a map of named contentlists, contentlistbyguid 
     */
-   private void init()
-   {
-      if ( m_publisherHelper == null )
+   private void init() {
+      if (m_publisherHelper == null) {
          m_publisherHelper   = new PSPublisherServiceHelper();
+      }
    }
 
 
@@ -117,20 +118,14 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler imple
    // id is a PSGuid for a template def
    @Override
    public PSDependency getDependency(PSSecurityToken tok, String id) throws PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null) throw new IllegalArgumentException("tok may not be null");
+      if (id == null || id.isBlank()) throw new IllegalArgumentException("id may not be null or empty");
 
-      if (id == null || id.trim().length() == 0)
-         throw new IllegalArgumentException("id may not be null or empty");
       init();
-      
-      // ContentList ids are GUIDs, make sure the id is a guid.
-      IPSContentList cList = findContentListByDependencyID(id);
-      PSDependency dep = null;
-      if ( cList != null)
-         dep = createDependency(m_def, 
-               String.valueOf(cList.getGUID().longValue()), cList.getName());
-      return dep;
+      var cList = findContentListByDependencyID(id);
+      return Optional.ofNullable(cList)
+         .map(cl -> createDependency(m_def, String.valueOf(cl.getGUID().longValue()), cl.getName()))
+         .orElse(null);
    }
 
    /**
@@ -321,23 +316,15 @@ public class PSContentListDefDependencyHandler extends PSDependencyHandler imple
    // see base class
    // Load all the content lists and return dependencies
    @Override
-   public Iterator<PSDependency> getDependencies(@SuppressWarnings("unused")
-         PSSecurityToken tok)
-         throws PSDeployException
-   {
-      init();   
-      List<PSDependency> deps = new ArrayList<>();
-      PSDependency dep;
-      IterableMap namedCList = m_publisherHelper.getNamedContentListMap();
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
+      init();
+      var deps = new ArrayList<PSDependency>();
 
-      MapIterator it = namedCList.mapIterator();
-      while (it.hasNext()) {
-         String key = (String)it.next();
-        IPSContentList cList = (IPSContentList)namedCList.get(key);
-        dep = createDeployableElement(m_def, ""
-              + cList.getGUID().longValue(), cList.getName());
-        deps.add(dep);
-      }
+      m_publisherHelper.getNamedContentListMap().forEach((key, value) -> {
+         var cList = (IPSContentList) value;
+         deps.add(createDeployableElement(m_def, String.valueOf(cList.getGUID().longValue()), cList.getName()));
+      });
+
       return deps.iterator();
    }
 

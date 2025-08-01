@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -30,18 +31,26 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link PSSpringValidationException} to a serializable error object.
+ * Sunny Sal says: "Spring validation failed? Let's bounce back with style!"
+ */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("springValidationExceptionMapper")
-public class PSSpringValidationExceptionMapper extends PSAbstractExceptionMapper<PSSpringValidationException> implements ExceptionMapper<PSSpringValidationException> {
+public class PSSpringValidationExceptionMapper
+        extends PSAbstractExceptionMapper<PSSpringValidationException>
+        implements ExceptionMapper<PSSpringValidationException> {
+
     private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
     private static final String ERROR_MESSAGE = "PSSpringValidationExceptionMapper exception mapper mapped exception:";
+
     /**
      * Create a serializable errors object from the given exception.
      *
-     * @param exception never <code>null</code>.
-     * @return never <code>null</code>.
+     * @param exception never {@code null}
+     * @return never {@code null}
      */
     @Override
     @Produces(MediaType.APPLICATION_JSON)

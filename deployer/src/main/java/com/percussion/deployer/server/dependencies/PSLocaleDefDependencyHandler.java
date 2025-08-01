@@ -188,30 +188,21 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler
 
    // see base class
    @Override
-   public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException
+   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException
    {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      List deps = new ArrayList();
-      
-      try 
-      {
-         Iterator<PSLocale> locales = m_localeMgr.getLocales();
-         while (locales.hasNext())
-         {
-            PSLocale locale = locales.next();
-            deps.add(createDependency(m_def, String.valueOf(locale.getLanguageString()), 
-                  locale.getDisplayName()));
-
-         }
       }
-      catch (PSLocaleException e) 
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-            e.getLocalizedMessage());
+
+      var deps = new ArrayList<PSDependency>();
+      try {
+         var locales = m_localeMgr.getLocales();
+         locales.forEachRemaining(locale -> deps.add(createDependency(
+            m_def, locale.getLanguageString(), locale.getDisplayName())));
+      } catch (PSLocaleException e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
-      
+
       return deps.iterator();
    }
 
@@ -288,64 +279,35 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler
 
    // see base class
    @Override
-   public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+   public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException
    {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided.");
+      }
 
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-
-      if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
-
-      List files = new ArrayList();
-      
-      try 
-      {
-         PSLocale locale = findLocaleByLanguageString(dep.getDependencyId());
-         if (locale != null)
-         {
-            // save the locale to a file
-            Document doc = PSXmlDocumentBuilder.createXmlDocument();
+      var files = new ArrayList<PSDependencyFile>();
+      try {
+         var locale = findLocaleByLanguageString(dep.getDependencyId());
+         if (locale != null) {
+            var doc = PSXmlDocumentBuilder.createXmlDocument();
             PSXmlDocumentBuilder.replaceRoot(doc, locale.toXml(doc));
-            File localeFile = createXmlFile(doc);
-            files.add(new PSDependencyFile(
-               PSDependencyFile.TYPE_SUPPORT_FILE, localeFile));
-            
-            // save a tmx file with this languages entries
-            IPSTmxDocument langTmxDoc;
-            IPSTmxDocument masterTmxDoc = new PSTmxDocument(
-               PSTmxResourceBundle.getMasterResourceDoc(m_rxRoot));
-            langTmxDoc = masterTmxDoc.extract(
-               dep.getDependencyId());
-            
-            File tmxFile = createXmlFile(langTmxDoc.getDOMDocument());
-            files.add(new PSDependencyFile(
-               PSDependencyFile.TYPE_SUPPORT_FILE, tmxFile));
-               
-            // save the entire rxlookup table so we can transform keyword tmx
-            // entries on the target
-            PSKeywordDependencyHandler keyHandler = 
-               (PSKeywordDependencyHandler)getDependencyHandler(
-                  PSKeywordDependencyHandler.DEPENDENCY_TYPE);
-            PSJdbcTableData keyData = keyHandler.getKeywordTableData();
-            Document keyDoc = PSXmlDocumentBuilder.createXmlDocument();
+            files.add(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, createXmlFile(doc)));
+
+            var masterTmxDoc = new PSTmxDocument(PSTmxResourceBundle.getMasterResourceDoc(m_rxRoot));
+            var langTmxDoc = masterTmxDoc.extract(dep.getDependencyId());
+            files.add(new PSDependencyFile(PSDependencyFile.TYPE_SUPPORT_FILE, createXmlFile(langTmxDoc.getDOMDocument())));
+
+            var keyHandler = (PSKeywordDependencyHandler) getDependencyHandler(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
+            var keyData = keyHandler.getKeywordTableData();
+            var keyDoc = PSXmlDocumentBuilder.createXmlDocument();
             PSXmlDocumentBuilder.replaceRoot(keyDoc, keyData.toXml(keyDoc));
-            files.add(new PSDependencyFile(PSDependencyFile.TYPE_DBMS_DATA, 
-               createXmlFile(keyDoc)));
-         }   
+            files.add(new PSDependencyFile(PSDependencyFile.TYPE_DBMS_DATA, createXmlFile(keyDoc)));
+         }
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
-      catch (Exception e) 
-      {
-         if (e instanceof PSDeployException)
-            throw (PSDeployException)e;
-            
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, 
-            e.getLocalizedMessage());
-      }
-      
+
       return files.iterator();
    }
 

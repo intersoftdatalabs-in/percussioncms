@@ -51,22 +51,23 @@ public class PSContentListDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
          m_childHandler = getDependencyHandler(
             PSContentListDefDependencyHandler.DEPENDENCY_TYPE);
-
+      }
       return m_childHandler;
    }
 
    // see base class
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;   

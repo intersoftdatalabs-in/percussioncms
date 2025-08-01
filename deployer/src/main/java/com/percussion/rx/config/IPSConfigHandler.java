@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,266 +28,167 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Configure handler represents a bean from configure definition file
- * instantiated by spring framework<br>
- * The following is an example of a typical bean. See configDef schema for more
- * details.
- * 
- * <pre>
- * &lt;bean id=&quot;SnipTemplate&quot; class=&quot;com.percussion.rx.config.impl.PSObjectConfigHandler&quot;&gt;
- *  &lt;property name=&quot;name&quot; value=&quot;rffSnCallout&quot;/&gt;
- *  &lt;property name=&quot;type&quot; value=&quot;TEMPLATE&quot;/&gt;
- *  &lt;property name=&quot;propertySetters&quot;&gt;
- *  &lt;bean class=&quot;com.percussion.rx.config.impl.PSSimplePropertySetter&quot;&gt;
- *  &lt;property name=&quot;properties&quot;&gt;
- *  &lt;map&gt;
- *  &lt;entry key=&quot;label&quot; value=&quot;${com.percussion.RSS.templateLabel}&quot;/&gt;
- *  &lt;/map&gt;
- *  &lt;/property&gt;
- *  &lt;/bean&gt;
- *  &lt;/property&gt;
- * &lt;/bean&gt;
- * </pre>
- * 
- * It consists of design object info properties and property setters to set the
- * property values on to the design objects. This class is responsible for
- * applying the properties on the design objects through the property setters.
- * 
+ * Configure handler represents a bean from configure definition file instantiated by Spring.
+ * Responsible for applying properties on design objects through property setters.
+ *
  * @author bjoginipally
- * 
  */
-public interface IPSConfigHandler
-{
-   /**
-    * The state of a design object.
-    */
-   public enum ObjectState
-   {
-      /**
-       * The design object is defined in current configuration only.
-       */
-      CURRENT,
+public interface IPSConfigHandler {
 
-      /**
-       * The design object is defined in previous configuration only.
-       */
-      PREVIOUS,
+  /**
+   * The state of a design object.
+   */
+  enum ObjectState {
+    /** The design object is defined in current configuration only. */
+    CURRENT,
+    /** The design object is defined in previous configuration only. */
+    PREVIOUS,
+    /** The design object is defined in both current and previous configurations. */
+    BOTH
+  }
 
-      /**
-       * The design object is defined both current and previous configurations.
-       */
-      BOTH
-   }
+  /**
+   * Processes the properties for the design object.
+   *
+   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not provided.
+   * @param state the state of the specified design object, may be {@code null} if obj is {@code null}.
+   * @param associationSets list of association sets, may be {@code null}.
+   * @return {@code true} if the design object has been modified.
+   */
+  boolean process(Object obj, ObjectState state, List<IPSAssociationSet> associationSets);
 
-   /**
-    * This method responsible to process the properties. If name and type
-    * properties exist on the handler then the service calls this method with
-    * the design object otherwise <code>null</code>. This method is
-    * responsible for calling walking through the property setters and apply the
-    * properties on the design objects.
-    * 
-    * @param obj the (single) design object. It may be <code>null</code> if
-    * the "type" and "name"/"names" are not provided.
-    * 
-    * @param state the state of the specified design object. It may be
-    * <code>null</code> if the design object is <code>null</code>, but it
-    * is not <code>null</code> if the design object is not <code>null</code>.
-    * 
-    * @param associationSets list of association sets, may be <code>null</code>.
-    * 
-    * @return <code>true</code> if the design object has been modified.
-    */
-   boolean process(Object obj, ObjectState state,
-         List<IPSAssociationSet> associationSets);
+  /**
+   * De-configures the properties previously applied. Called during uninstall.
+   *
+   * @param obj the (single) design object, may be {@code null} if "type" and "name"/"names" are not provided.
+   * @param associationSets list of association sets, may be {@code null}.
+   * @return {@code true} if the design object has been modified.
+   */
+  boolean unprocess(Object obj, List<IPSAssociationSet> associationSets);
 
-   /**
-    * This is the opposite operation as
-    * {@link #process(Object, ObjectState, List)}. It de-configures the
-    * properties which were applied previously. This is called during un-install
-    * process.
-    * 
-    * @param obj the (single) design object. It may be <code>null</code> if
-    * the "type" and "name"/"names" are not provided.
-    * 
-    * @param associationSets list of association sets, may be <code>null</code>.
-    */
-   boolean unprocess(Object obj, List<IPSAssociationSet> associationSets);
+  /**
+   * Returns the property setters of the handler, may be {@code null} or empty.
+   *
+   * @return list of property setters.
+   */
+  List<IPSPropertySetter> getPropertySetters();
 
-   /**
-    * Returns the property setters of the handler, may be <code>null</code> or
-    * empty.
-    * 
-    * @return list of property setters.
-    */
-   List<IPSPropertySetter> getPropertySetters();
+  /**
+   * Sets property setters for this handler.
+   *
+   * @param setters property setters.
+   */
+  void setPropertySetters(List<IPSPropertySetter> setters);
 
-   /**
-    * Set properties for this handler this may be wired by spring framework. The
-    * properties that needs to be applied on the design object.
-    * 
-    * @param setters property setters
-    */
-   void setPropertySetters(List<IPSPropertySetter> setters);
+  /**
+   * Gets the type enum of the design object, may be {@code null} if not provided.
+   *
+   * @return the type enum, may be {@code null}.
+   */
+  PSTypeEnum getType();
 
-   /**
-    * The type enum of the design object wired by spring, may be
-    * <code>null</code> if the property with name as "type" is not provided.
-    * 
-    * @return the type enum, may be <code>null</code>.
-    */
-   PSTypeEnum getType();
+  /**
+   * Gets the name of the design object.
+   *
+   * @return the name, may be {@code null} if not defined.
+   */
+  String getName();
 
-   /**
-    * Gets name of the design object.
-    * 
-    * @return The name of the design object, it may be <code>null</code> if
-    * the name is not defined.
-    */
-   String getName();
+  /**
+   * Sets the name of the design object.
+   *
+   * @param name the name, may not be {@code null} or empty.
+   */
+  void setName(String name);
 
-   /**
-    * Sets the name of the design object.
-    * 
-    * @param name the name of the design object. It may not be <code>null</code>
-    * or empty.
-    */
-   void setName(String name);
+  /**
+   * Gets the Design Objects loaded, created, or found from the cache.
+   * Must maintain the cache for loaded/created objects.
+   *
+   * @param cachedObjs the cached Design Objects, maps name to object.
+   * @return the Design Objects (with their state), never {@code null}, may be empty.
+   * @throws PSNotFoundException if a referenced object is not found.
+   */
+  List<PSPair<Object, ObjectState>> getDesignObjects(Map<String, Object> cachedObjs) throws PSNotFoundException;
 
-   /**
-    * Gets the Design Objects that are loaded, created or find from the cached
-    * Design Objects (which are managed by the system). The handler must look
-    * for the Design Objects from the given cache first before load or create a
-    * new ones for the returned Design Objects.
-    * <p>
-    * Note, the {@link #isGetDesignObjects()} must be <code>true</code>;
-    * otherwise this method must not be called.
-    * 
-    * @param cachedObjs the cached Design Objects. It maps name to its object.
-    * The Design Objects are loaded or created by other handlers or the system.
-    * This method must maintain this cache, that is to set the loaded or created
-    * Design Objects into this cache, so that it can be used by other handlers.
-    * 
-    * @return the Design Objects (with their state) that are loaded, created or
-    * find from the cached Design Objects. It never <code>null</code>, but
-    * may be empty if there is no loaded or created object from the handler.
-    */
-   List<PSPair<Object, ObjectState>> getDesignObjects(
-         Map<String, Object> cachedObjs) throws PSNotFoundException;
+  /**
+   * Gets the Design Object names along with their related state.
+   *
+   * @return the list of name/state pairs, never {@code null}, may be empty.
+   */
+  List<PSPair<String, ObjectState>> getObjectNames();
 
-   /**
-    * Gets the Design Object names along with its related state. This is similar
-    * with {@link #getDesignObjects(Map)}, except this returns names of the
-    * object, but not the design objects themself.
-    * 
-    * @return the list of name/state pairs. It never <code>null</code>, but
-    * may be empty if there is no loaded or created object from the handler.
-    */
-   public List<PSPair<String, ObjectState>> getObjectNames();
+  /**
+   * Determines if the handler provides the configured Design Objects.
+   *
+   * @return {@code true} if the Design Objects will be provided by the handler.
+   */
+  boolean isGetDesignObjects();
 
-   /**
-    * Determines if the handler provides the configured Design Objects.
-    * 
-    * @return <code>true</code> if the Design Objects will be provided by the
-    * handler.
-    */
-   boolean isGetDesignObjects();
+  /**
+   * Returns additional properties specific for this handler.
+   *
+   * @return the additional properties, never {@code null}, may be empty.
+   */
+  Map<String, Object> getExtraProperties();
 
-   /**
-    * Returns additional properties that are specific for this handler.
-    * 
-    * @return the additional properties if there is any. It may not be
-    * <code>null</code>, but may be empty if there is no additional
-    * properties for this handler. In case there are handler specific
-    * properties, then it must not be empty, the map key is the name of the
-    * property, which maps to its value. The map value may be <code>null</code>.
-    */
-   Map<String, Object> getExtraProperties();
+  /**
+   * Sets the handler-specific properties.
+   *
+   * @param props the handler-specific properties, never {@code null}, may be empty.
+   */
+  void setExtraProperties(Map<String, Object> props);
 
-   /**
-    * Sets the handler specific properties.
-    * 
-    * @param props the handler specific properties, never <code>null</code>,
-    * but may be empty. The map key is the name of the property, which maps to
-    * its value.
-    */
-   void setExtraProperties(Map<String, Object> props);
+  /**
+   * Gets the extra properties used in previous configuration.
+   *
+   * @return the previous properties, may be {@code null} or empty.
+   */
+  Map<String, Object> getPrevExtraProperties();
 
-   /**
-    * Gets the extra properties used in previous configuration.
-    * 
-    * @return the previous properties, it may be <code>null</code> or empty if
-    * there is no previous properties.
-    */
-   Map<String, Object> getPrevExtraProperties();
+  /**
+   * Sets the extra properties used in previous configuration.
+   *
+   * @param props the extra properties, may be {@code null} or empty.
+   */
+  void setPrevExtraProperties(Map<String, Object> props);
 
-   /**
-    * Sets the extra properties used in previous configuration.
-    * 
-    * @param props the extra properties used in previous configuration, it may
-    * be <code>null</code> or empty.
-    */
-   void setPrevExtraProperties(Map<String, Object> props);
+  /**
+   * Saves the processed result.
+   *
+   * @param model the model of the design object, never {@code null}.
+   * @param obj the design object processed, never {@code null}.
+   * @param state the state of the specified design object, may be {@code null} if obj is {@code null}.
+   * @param assocList the associations processed, may be {@code null} or empty.
+   * @return the guid of the updated object.
+   * @throws PSNotFoundException if a referenced object is not found.
+   */
+  IPSGuid saveResult(IPSDesignModel model, Object obj, ObjectState state, List<IPSAssociationSet> assocList)
+      throws PSNotFoundException;
 
-   /**
-    * Saves the processed result. This is typically called after
-    * .
-    * 
-    * @param model the model of the design object, never <code>null</code>.
-    * @param obj the design object that has been processed by
-    * , never <code>null</code>.
-    * @param state the state of the specified design object. It may be
-    * <code>null</code> if the design object is <code>null</code>, but it
-    * is not <code>null</code> if the design object is not <code>null</code>.
-    * @param assocList the associations that has been processed by
-    * , it may be <code>null</code> or empty if
-    * there is no associations to be processed.
-    * @return the guid of the updated object.
-    */
-   IPSGuid saveResult(IPSDesignModel model, Object obj, ObjectState state,
-         List<IPSAssociationSet> assocList) throws PSNotFoundException;
+  /**
+   * Validates the design objects specified in current config against another handler.
+   *
+   * @param other the handler to validate against, not {@code null}.
+   * @return a list of validation results, may be empty.
+   */
+  List<PSConfigValidation> validate(IPSConfigHandler other);
 
-   /**
-    * Validates the design objects specified in current configure against the
-    * objects specified in another handler, which may exist in different
-    * configure (or package).
-    * 
-    * @param other the handler to validate against with, it is not
-    * <code>null</code>.
-    * 
-    * @return a list of validation results. It may be empty if there is no error
-    * or warnings.
-    */
-   List<PSConfigValidation> validate(IPSConfigHandler other);
+  /**
+   * Returns the property defs of all the setters the handler consists of.
+   *
+   * @param obj the design object from which the values of properties are obtained, may be {@code null}.
+   * @return a map of replacement name of the property and the value, never {@code null}, may be empty.
+   * @throws PSNotFoundException if a referenced object is not found.
+   */
+  Map<String, Object> getPropertyDefs(Object obj) throws PSNotFoundException;
 
-   /**
-    * Returns the property defs of all the setters the handler consists of. It
-    * is a map of property replacement names and values. The value is an Object
-    * and could be a String, List or Map.
-    * 
-    * @param obj The design object from which the values of properties are
-    * obtained. This may be <code>null</code>, its is implementations should
-    * take care of it.
-    * @return A map of replacement name of the property and the value of the
-    * property, never <code>null</code>, may be empty.
-    */
-   Map<String, Object> getPropertyDefs(Object obj) throws PSNotFoundException;
-
-   /**
-    * Gets the first available design object that is either loaded, created or
-    * find from the cached Design Objects (which are managed by the system). The
-    * handler must look for the Design Objects from the given cache first before
-    * load or create a new ones for the returned Design Objects.
-    * <p>
-    * Note, the {@link #isGetDesignObjects()} must be <code>true</code>;
-    * otherwise this method must not be called.
-    * 
-    * @param cachedObjs the cached Design Objects. It maps name to its object.
-    * The Design Objects are loaded or created by other handlers or the system.
-    * This method must maintain this cache, that is to set the loaded or created
-    * Design Objects into this cache, so that it can be used by other handlers.
-    * 
-    * @return the Design Object that is either loaded, created or find from the
-    * cached Design Objects. It may be <code>null</code>, if not found.
-    */
-   Object getDefaultDesignObject(Map<String, Object> cachedObjs) throws PSNotFoundException;
+  /**
+   * Gets the first available design object loaded, created, or found from the cache.
+   *
+   * @param cachedObjs the cached Design Objects, maps name to object.
+   * @return the Design Object, may be {@code null} if not found.
+   * @throws PSNotFoundException if a referenced object is not found.
+   */
+  Object getDefaultDesignObject(Map<String, Object> cachedObjs) throws PSNotFoundException;
 }

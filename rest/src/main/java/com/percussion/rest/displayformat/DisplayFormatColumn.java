@@ -17,73 +17,64 @@
 
 package com.percussion.rest.displayformat;
 
-
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Represents a column configured in a Display Format.
+ */
 @XmlRootElement(name = "DisplayFormatColumn")
-@Schema(description="Represents a column configured in a Display Format")
+@Schema(description = "Represents a column configured in a Display Format")
 public class DisplayFormatColumn {
 
-    @Schema(description="This value allows the UI engine to determine how the associated data\n" +
-            "should be displayed.",allowableValues=DATATYPE_TEXT + "," + DATATYPE_DATE +"," + DATATYPE_IMAGE +"," +DATATYPE_IMAGE)
+    @Schema(description = "This value allows the UI engine to determine how the associated data should be displayed.",
+            allowableValues = DATATYPE_TEXT + "," + DATATYPE_DATE + "," + DATATYPE_IMAGE + "," + DATATYPE_IMAGE)
     private String renderType;
-    @Schema(description="Is the column type text?")
+    @Schema(description = "Is the column type text?")
     private boolean textType;
-    @Schema(description="Is the column type number?")
+    @Schema(description = "Is the column type number?")
     private boolean numberType;
-    @Schema(description="Is the column type date?")
+    @Schema(description = "Is the column type date?")
     private boolean dateType;
-    @Schema(description="Is the column type image?")
+    @Schema(description = "Is the column type image?")
     private boolean imageType;
-    @Schema(description="Gets the display id that is a parent of this column.")
+    @Schema(description = "Gets the display id that is a parent of this column.")
     private String displayId;
-    @Schema(description="Get the source id attribute of this object.")
+    @Schema(description = "Get the source id attribute of this object.")
     private String source;
-    @Schema(description="Gets the display name of column.")
+    @Schema(description = "Gets the display name of column.")
     private String displayName;
-    @Schema(description="Get the description attribute of this object")
+    @Schema(description = "Get the description attribute of this object")
     private String description;
-    @Schema(description="A column can either be 'flat' or categorized. A categorized column allows\n" +
-            "rows w/ the same value for this property to be grouped together. This\n" +
-            "is usually represented by a 'virtual' folder in a UI. Non-categorized\n" +
-            "columns are used in the list view of the UI. If this column has been defined to be\n" +
-            "displayed as a category, false if defined to be displayed as a list header")
+    @Schema(description = "A column can either be 'flat' or categorized. A categorized column allows rows with the same value for this property to be grouped together. This is usually represented by a 'virtual' folder in a UI. Non-categorized columns are used in the list view of the UI. If this column has been defined to be displayed as a category, false if defined to be displayed as a list header")
     private boolean categorized;
-
-    @Schema(description="Each column has 0 or more rows associated with it. This value specifies\n" +
-            "what the default ordering should be. Defaults to true")
+    @Schema(description = "Each column has 0 or more rows associated with it. This value specifies what the default ordering should be. Defaults to true")
     private boolean ascendingSort;
-    @Schema(description="Opposite of ascendingSort.")
+    @Schema(description = "Opposite of ascendingSort.")
     private boolean descendingSort;
-    @Schema(description="The position of this column relative to other columns being\n" +
-            "displayed. Columns are sequenced from left to right, with the first\n" +
-            "index being 0. Defaults to 0. The order of columns that have the same\n" +
-            "sequence value is implementation dependent. Must be a value > 0.")
+    @Schema(description = "The position of this column relative to other columns being displayed. Columns are sequenced from left to right, with the first index being 0. Defaults to 0. The order of columns that have the same sequence value is implementation dependent. Must be a value > 0.")
     private int position;
-    @Schema(description="See categorized for details. Determines whether this col\n" +
-            "is categorized or flat.")
+    @Schema(description = "See categorized for details. Determines whether this col is categorized or flat.")
     private int groupingType;
-    @Schema(description="See ascendingSort for details.\n" +
-            "set to true if you wish the default sorting to be ascending,\n" +
-            "false will set the default to descending.")
+    @Schema(description = "See ascendingSort for details. Set to true if you wish the default sorting to be ascending, false will set the default to descending.")
     private boolean sortOrder;
-    @Schema(description="Get the width to use to when this column is displayed.\n" +
-            "Returns the width, greater than zero if specified, -1 if no width has\n" +
-            "been specified.")
+    @Schema(description = "Get the width to use to when this column is displayed. Returns the width, greater than zero if specified, -1 if no width has been specified.")
     private int width;
 
-
     // Data Types
-    public  static final String DATATYPE_TEXT = PSDisplayColumn.DATATYPE_TEXT;
-    public  static final String DATATYPE_NUMBER = PSDisplayColumn.DATATYPE_NUMBER;
-    public  static final String DATATYPE_DATE = PSDisplayColumn.DATATYPE_DATE;
-    public  static final String DATATYPE_IMAGE = PSDisplayColumn.DATATYPE_IMAGE;
+    public static final String DATATYPE_TEXT = PSDisplayColumn.DATATYPE_TEXT;
+    public static final String DATATYPE_NUMBER = PSDisplayColumn.DATATYPE_NUMBER;
+    public static final String DATATYPE_DATE = PSDisplayColumn.DATATYPE_DATE;
+    public static final String DATATYPE_IMAGE = PSDisplayColumn.DATATYPE_IMAGE;
 
-    public String getRenderType() {
-        return renderType;
+    public DisplayFormatColumn() {}
+
+    public Optional<String> getRenderType() {
+        return Optional.ofNullable(renderType);
     }
 
     public void setRenderType(String renderType) {
@@ -122,32 +113,32 @@ public class DisplayFormatColumn {
         this.imageType = imageType;
     }
 
-    public String getDisplayId() {
-        return displayId;
+    public Optional<String> getDisplayId() {
+        return Optional.ofNullable(displayId);
     }
 
     public void setDisplayId(String displayId) {
         this.displayId = displayId;
     }
 
-    public String getSource() {
-        return source;
+    public Optional<String> getSource() {
+        return Optional.ofNullable(source);
     }
 
     public void setSource(String source) {
         this.source = source;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public Optional<String> getDisplayName() {
+        return Optional.ofNullable(displayName);
     }
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
     public void setDescription(String description) {
@@ -210,7 +201,54 @@ public class DisplayFormatColumn {
         this.width = width;
     }
 
-    public DisplayFormatColumn(){
-        //default ctor
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DisplayFormatColumn)) return false;
+        var that = (DisplayFormatColumn) o;
+        return textType == that.textType &&
+                numberType == that.numberType &&
+                dateType == that.dateType &&
+                imageType == that.imageType &&
+                categorized == that.categorized &&
+                ascendingSort == that.ascendingSort &&
+                descendingSort == that.descendingSort &&
+                position == that.position &&
+                groupingType == that.groupingType &&
+                sortOrder == that.sortOrder &&
+                width == that.width &&
+                Objects.equals(renderType, that.renderType) &&
+                Objects.equals(displayId, that.displayId) &&
+                Objects.equals(source, that.source) &&
+                Objects.equals(displayName, that.displayName) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(renderType, textType, numberType, dateType, imageType, displayId, source, displayName,
+                description, categorized, ascendingSort, descendingSort, position, groupingType, sortOrder, width);
+    }
+
+    @Override
+    public String toString() {
+        return "DisplayFormatColumn{" +
+                "renderType='" + renderType + '\'' +
+                ", textType=" + textType +
+                ", numberType=" + numberType +
+                ", dateType=" + dateType +
+                ", imageType=" + imageType +
+                ", displayId='" + displayId + '\'' +
+                ", source='" + source + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", description='" + description + '\'' +
+                ", categorized=" + categorized +
+                ", ascendingSort=" + ascendingSort +
+                ", descendingSort=" + descendingSort +
+                ", position=" + position +
+                ", groupingType=" + groupingType +
+                ", sortOrder=" + sortOrder +
+                ", width=" + width +
+                '}';
     }
 }

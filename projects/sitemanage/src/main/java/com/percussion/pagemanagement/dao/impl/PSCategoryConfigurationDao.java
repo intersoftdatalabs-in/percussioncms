@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -14,7 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.pagemanagement.dao.impl;
 
 import com.percussion.pagemanagement.data.PSCategoryConfiguration;
@@ -27,12 +27,14 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * DAO for category configuration, backed by XML files.
+ */
 @Component("categoryConfigurationDao")
 @Lazy
-public class PSCategoryConfigurationDao extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration>
-{
-    public PSCategoryConfigurationDao()
-    {
+public class PSCategoryConfigurationDao extends PSXmlFileDataRepository<PSCategoryConfiguration, PSCategoryConfiguration> {
+
+    public PSCategoryConfigurationDao() {
         super(PSCategoryConfiguration.class);
     }
 
@@ -42,18 +44,13 @@ public class PSCategoryConfigurationDao extends PSXmlFileDataRepository<PSCatego
         if (files.isEmpty()) {
             return new PSCategoryConfiguration();
         }
-        PSFileEntry fe = files.iterator().next();
+        var fe = files.iterator().next();
         return fileToObject(fe);
     }
 
     @Override
     @Value("${rxdeploydir}/rxconfig/Categories")
-    public void setRepositoryDirectory(String widgetsRepositoryDirectory)
-    {
-        // TODO Auto-generated method stub
+    public void setRepositoryDirectory(String widgetsRepositoryDirectory) {
         super.setRepositoryDirectory(widgetsRepositoryDirectory);
     }
-    
-    
-
 }

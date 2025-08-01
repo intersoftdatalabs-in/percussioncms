@@ -130,8 +130,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static com.percussion.share.service.exception.PSParameterValidationUtils.rejectIfBlank;
 import static com.percussion.share.service.exception.PSParameterValidationUtils.validateParameters;
@@ -231,61 +232,45 @@ public class PSItemService implements IPSItemService
     @Path("revisions/{id}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public PSRevisionsSummary getRevisions(@PathParam("id") String id) throws PSItemServiceException {
-
         try {
             rejectIfBlank("getRevisions", "id", id);
-            String guid = PSLegacyExtensionUtils.getGUID(id);
-            PSRevisionsSummary revSummary = new PSRevisionsSummary();
+            var guid = PSLegacyExtensionUtils.getGUID(id);
+            var revSummary = new PSRevisionsSummary();
             try {
                 validateItemRestorable(guid);
                 revSummary.setRestorable(true);
             } catch (PSValidationException | PSNotFoundException e) {
                 revSummary.setRestorable(false);
             }
-            // revisions for the client side
-            List<PSRevision> revisions = new ArrayList<>();
-            // get the history details (revisions) for the page or asset from Rhythmyx
-            List<PSContentStatusHistory> _revisions = systemService.findContentStatusHistory(idMapper.getGuid(guid));
-            List<PSComment> comments = createCommentsFromHistory(_revisions);
+            var revisions = new ArrayList<PSRevision>();
+            var _revisions = systemService.findContentStatusHistory(idMapper.getGuid(guid));
+            var comments = createCommentsFromHistory(_revisions);
             PSComponentSummary sum = null;
             try {
                 sum = workflowHelper.getComponentSummary(guid);
             } catch (Exception e) {
                 throw new PSItemServiceException("The page you are trying to act on no longer exists in the system.", e);
             }
-
             if (_revisions.isEmpty()) {
                 if (sum.getCurrentLocator().getRevision() == 1) {
-                    // item has been created, but not checked in, so create a revision from the summary
                     revisions.add(getRevision(sum));
                 }
             } else {
-                List<PSRevision> revs = getRevisions(_revisions);
+                var revs = getRevisions(_revisions);
                 revisions.addAll(revs);
-                // When user edits an item there is no entry for the edit revision in history table.
-                //until he checks in the item.
-                //The following code adds an entry from the item summary if the item is checked out to the current user
-                //and the head revision is not in the revisions.
                 int headRev = sum.getHeadLocator().getRevision();
                 if (workflowHelper.isCheckedOutToCurrentUser(guid)) {
-                    boolean found = false;
-                    for (PSRevision rev : revs) {
-                        if (rev.getRevId() == headRev) {
-                            found = true;
-                            break;
-                        }
-                    }
+                    boolean found = revs.stream().anyMatch(rev -> rev.getRevId() == headRev);
                     if (!found) {
-						revisions.add(getRevision(sum));
-					}
+                        revisions.add(getRevision(sum));
+                    }
                 }
             }
             revSummary.setRevisions(revisions);
             revSummary.setComments(comments);
-            // return the revisions to the client
             return revSummary;
         } catch (PSValidationException e) {
-           throw new WebApplicationException(e);
+            throw new WebApplicationException(e);
         }
     }
 
@@ -332,21 +317,15 @@ public class PSItemService implements IPSItemService
      * @return List of PSComment objects never <code>null</code> may be empty.
      */
     private List<PSComment> createCommentsFromHistory(List<PSContentStatusHistory> historyEntries) {
-    	List<PSComment> comments = new ArrayList<>();
-    	for (PSContentStatusHistory entry : historyEntries) {
-			if(StringUtils.isNotBlank(entry.getTransitionComment())){
-				comments.add(new PSComment(entry.getTransitionComment(), entry.getActor(), entry.getTransitionLabel(), entry.getEventTime()));
-			}
-		}
-    	class CommentComparator implements Comparator<PSComment> {
-    	    @Override
-    	    public int compare(PSComment o1, PSComment o2) {
-    	        return o2.getCommentDate().compareTo(o1.getCommentDate());
-    	    }
-    	}
-    	Collections.sort(comments,new CommentComparator());
-    	return comments;
-	}
+        var comments = new ArrayList<PSComment>();
+        for (var entry : historyEntries) {
+            if(StringUtils.isNotBlank(entry.getTransitionComment())){
+                comments.add(new PSComment(entry.getTransitionComment(), entry.getActor(), entry.getTransitionLabel(), entry.getEventTime()));
+            }
+        }
+        comments.sort((o1, o2) -> o2.getCommentDate().compareTo(o1.getCommentDate()));
+        return comments;
+    }
 
 	@GET
     @Path("restoreRevision/{id}")
@@ -612,11 +591,9 @@ public class PSItemService implements IPSItemService
      */
     private Map<Integer, Map<Long, PSContentStatusHistory>> buildRevisionMap(List<PSContentStatusHistory> history)
     {
-        Map<Integer, Map<Long, PSContentStatusHistory>> revMap =
-            new HashMap<>();
-
-        HistoryIdComparator hComp = new HistoryIdComparator();
-        for (PSContentStatusHistory h : history)
+        var revMap = new HashMap<Integer, Map<Long, PSContentStatusHistory>>();
+        var hComp = new HistoryIdComparator();
+        for (var h : history)
         {
             Map<Long, PSContentStatusHistory> rMap;
             int hRev = h.getRevision();
@@ -629,10 +606,8 @@ public class PSItemService implements IPSItemService
             {
                 rMap = revMap.get(hRev);
             }
-
             rMap.put(h.getId(), h);
         }
-
         return revMap;
     }
 
@@ -646,18 +621,16 @@ public class PSItemService implements IPSItemService
      */
     private List<PSRevision> getRevisions(List<PSContentStatusHistory> history)
     {
-        List<PSRevision> revisions = new ArrayList<>();
-
-        Map<Integer, Map<Long, PSContentStatusHistory>> revMap = buildRevisionMap(history);
-        for (Integer rev : revMap.keySet())
+        var revisions = new ArrayList<PSRevision>();
+        var revMap = buildRevisionMap(history);
+        for (var rev : revMap.keySet())
         {
             PSRevision psRevision = null;
             String prevStateName = "";
-
-            Map<Long, PSContentStatusHistory> rMap = revMap.get(rev);
-            for (Long historyId : rMap.keySet())
+            var rMap = revMap.get(rev);
+            for (var historyId : rMap.keySet())
             {
-                PSContentStatusHistory hist = rMap.get(historyId);
+                var hist = rMap.get(historyId);
                 String currentStateName = hist.getStateName();
                 if (prevStateName.equalsIgnoreCase("Quick Edit") &&  currentStateName.equalsIgnoreCase("Quick Edit"))
                 {
@@ -701,22 +674,19 @@ public class PSItemService implements IPSItemService
     private String getLastModifierFromCheckOut(Map<Long, PSContentStatusHistory> rMap, Long startId)
     {
         String lastCheckOutUser = "";
-
-        for (Long historyId : rMap.keySet())
+        for (var historyId : rMap.keySet())
         {
             if (historyId >= startId)
             {
                 continue;
             }
-
-            PSContentStatusHistory hist = rMap.get(historyId);
+            var hist = rMap.get(historyId);
             if (hist.getTransitionLabel().equalsIgnoreCase("CheckOut"))
             {
                 lastCheckOutUser = hist.getLastModifierName();
                 break;
             }
         }
-
         return lastCheckOutUser;
     }
 
@@ -729,9 +699,8 @@ public class PSItemService implements IPSItemService
      */
     private PSRevision getRevision(PSComponentSummary sum)
     {
-        PSWorkflow wf = getWorkflow(sum.getWorkflowAppId());
-        String stateName = getStateById(wf, sum.getContentStateId()).getName();
-
+        var wf = getWorkflow(sum.getWorkflowAppId());
+        var stateName = getStateById(wf, sum.getContentStateId()).getName();
         return new PSRevision(sum.getHeadLocator().getRevision(), PSDateUtils.getDateToString(sum.getContentLastModifiedDate()),
                 sum.getContentLastModifier(), stateName);
     }
@@ -746,18 +715,7 @@ public class PSItemService implements IPSItemService
     {
         public int compare(Object id1, Object id2)
         {
-            if ((Long) id1 < (Long) id2)
-            {
-                return 1;
-            }
-            else if ((Long) id1 > (Long) id2)
-            {
-                return -1;
-            }
-            else
-            {
-                return 0;
-            }
+            return Long.compare((Long) id2, (Long) id1);
         }
     }
 

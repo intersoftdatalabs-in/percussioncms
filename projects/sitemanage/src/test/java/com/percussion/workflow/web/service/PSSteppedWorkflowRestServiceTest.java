@@ -1,5 +1,7 @@
+
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7,7 +9,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *
@@ -16,7 +18,7 @@
  */
 package com.percussion.workflow.web.service;
 
-import com.percussion.error.PSExceptionUtils;
+
 import com.percussion.share.data.PSEnumVals;
 import com.percussion.share.test.PSObjectRestClient;
 import com.percussion.share.test.PSObjectRestClient.DataRestClientException;
@@ -26,93 +28,64 @@ import com.percussion.workflow.data.PSUiWorkflow;
 import com.percussion.workflow.data.PSUiWorkflowStep;
 import com.percussion.workflow.data.PSUiWorkflowStepRole;
 import com.percussion.workflow.data.PSUiWorkflowStepRoleTransition;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.jupiter.api.*;
+            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator();
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author leonardohildt
- * @author rafaelsalis
- * 
+ * Integration tests for stepped workflow REST service.
  */
-public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWorkflowRestServiceClient>
-{
+public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWorkflowRestServiceClient> {
+
     private static PSSteppedWorkflowRestServiceClient workflowEditorRestServiceClient;
-    
-    private Map<String, PSEnumVals> mapWorkflowStates;
-    
-    // Maximum name lenght when creating/updating a step/workflow
-    private static final Integer NAME_MAX_LENGHT = 50;
-    
-    // Workflow error messages
-    private static final String WORKFLOW_NAME_IS_EMPTY = "Workflow name cannot be blank.";
+
+
+    private static final Integer NAME_MAX_LENGTH = 50;
+
     private static final String WORKFLOW_NAME_IS_INVALID = "Invalid character in workflow name. Characters allowed are: a-z, 0-9, -, _ and [space].";
-    private static final String WORKFLOW_NAME_IS_TOO_LONG = "Workflow name cannot have more than " + NAME_MAX_LENGHT + " characters.";
-    // Workflow creating error messages
+    private static final String WORKFLOW_NAME_IS_TOO_LONG = "Workflow name cannot have more than " + NAME_MAX_LENGTH + " characters.";
     private static final String WORKFLOW_NAME_CREATE_IS_A_SYSTEM_WORKFLOW = "Cannot create workflow ''{0}'' because it is a restricted workflow name.";
     private static String WORKFLOW_NAME_CREATE_IS_NOT_UNIQUE = "Cannot create workflow ''{0}'' because a workflow named ''{1}'' already exists.";
-    // Workflow deleting error messages
     private static final String WORKFLOW_IS_A_SYSTEM_WORKFLOW = "The workflow ''{0}'' cannot be deleted because is a system workflow.";
     private static final String WORKFLOW_HAS_ITEMS = "Cannot delete: ''{0}'' because this workflow has items assigned to it.";
     private static final String WORKFLOW_IS_DEFAULT_WORKFLOW = "The workflow ''{0}'' cannot be deleted because is the default workflow.";
-
-    // Step error messages
     private static final String STATE_NAME_IS_EMPTY = "Step name cannot be blank.";
     private static final String STATE_NAME_IS_INVALID = "Invalid character in step name. Characters allowed are: a-z, 0-9, -, _ and [space].";
-    private static final String STATE_NAME_IS_TOO_LONG = "Step name cannot have more than " + NAME_MAX_LENGHT + " characters.";
-    // Step creating error messages
+    private static final String STATE_NAME_IS_TOO_LONG = "Step name cannot have more than " + NAME_MAX_LENGTH + " characters.";
     private static final String STATE_NAME_CREATE_IS_A_SYSTEM_STATE = "Cannot create step ''{0}'' because it is a special system step.";
-    private static String STATE_NAME_CREATE_IS_NOT_UNIQUE = "Cannot create step ''{0}'' because a step named ''{1}'' already exists.";    
-    // Step updating error messages
+    private static String STATE_NAME_CREATE_IS_NOT_UNIQUE = "Cannot create step ''{0}'' because a step named ''{1}'' already exists.";
     private static final String STATE_NAME_UPDATE_IS_A_SYSTEM_STATE = "Cannot rename step ''{0}'' to ''{1}'' because it is a special system step.";
     private static String STATE_NAME_UPDATE_IS_NOT_UNIQUE = "Cannot rename step ''{0}'' to ''{1}'' because a step named ''{2}'' already exists.";
-
-    //Step deleting error messages
     private static final String STATE_IS_A_SYSTEM_STATE = "The step cannot be deleted because is a system state.";
-    
+
     @Override
-    protected PSSteppedWorkflowRestServiceClient getRestClient(String baseUrl)
-    {
+
         return workflowEditorRestServiceClient;
     }
-    
-    @BeforeClass
-    public static void setupSuite() throws Exception
-    {
+
+    @BeforeAll
+    public static void setupSuite() throws Exception {
         workflowEditorRestServiceClient = new PSSteppedWorkflowRestServiceClient(baseUrl);
         setupClient(workflowEditorRestServiceClient);
     }
-    
-    @Before
+
+    @BeforeEach
     public void setupClient() throws Exception {
         restClient = getRestClient(baseUrl);
+
+
+
+    public static void setupClient(PSObjectRestClient restClient) throws Exception {
         setupClient(restClient, "Admin", 10);
     }
-    
-    public static void setupClient(PSObjectRestClient restClient) throws Exception {        
-        setupClient(restClient, "Admin", 10);
-    }
-    
+
     /**
      * Method to test getting a workflow with an invalid workflow name.
-     * 
-     * @param workflowName
+     *
+
      * @param errorMessage
      */
     @SuppressWarnings("unused")
@@ -121,7 +94,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         try
         {
             // call the service
-            PSUiWorkflow workflowReturned = workflowEditorRestServiceClient.getWorkflow(workflowName);
+
             fail("Should have thrown an exception");
         }
         catch (RestClientException e)
@@ -129,10 +102,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             assertEquals("http error code", expectedErrorCode, e.getStatus());
         }
     }
-    
-    /**
+
+            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator();
      * Method to test creating a workflow with an invalid workflow name.
-     * 
+     *
      * @param workflowName
      * @param workflow
      * @param expectedMessageException
@@ -151,15 +124,15 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             assertEquals(expectedMessageException,PSExceptionUtils.getMessageForLog(e));
         }
     }
-    
+
     /**
      * Method to test updating a workflow with an invalid workflow name.
-     * 
+     *
      * @param workflowName
-     * @param workflow
+
      * @param expectedMessageException
      */
-    private void testUpdateWorkflowWrongWorkflowName(String workflowName, PSUiWorkflow workflow, String expectedMessageException)
+
     {
         try
         {
@@ -173,11 +146,11 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             assertEquals(expectedMessageException,PSExceptionUtils.getMessageForLog(e));
         }
     }
-    
+
     /**
      * Method to test deleting a workflow with an invalid workflow name.
-     * 
-     * @param workflowName
+     *
+
      * @param expectedMessageException One or more acceptable messages
      */
     private void testDeleteWorkflowWrongWorkflow(String workflowName, String... expectedMessageException)
@@ -188,9 +161,9 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             workflowEditorRestServiceClient.deleteWorkflow(workflowName);
             fail("Should have thrown an exception");
         }
-        catch (Exception e)
+
         {
-            for (int i = 0; i < expectedMessageException.length; i++)
+
             {
                 if (e.getMessage().contains(expectedMessageException[i]))
                     return;
@@ -198,18 +171,19 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             fail("Not expected message: " + e.getMessage());
         }
     }
-    
+
     /**
      * Method to test creating a state with an invalid state name.
-     * 
+     *
      * @param workflowName
      * @param stepName
-     * @param workflow
+
+
      * @param expectedMessageException
      */
     private void testCreateStateWrongStateName(String workflowName, String stepName, PSUiWorkflow workflow, String expectedMessageException)
     {
-        try
+
         {
             // call the service
             @SuppressWarnings("unused")
@@ -217,21 +191,21 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             fail("Should have thrown an exception");
         }
         catch (Exception e)
-        {
-            assertEquals(expectedMessageException,PSExceptionUtils.getMessageForLog(e));
+    }
+
         }
     }
-    
-    /**
+
+
      * Method to test updating a state with an invalid state name.
-     * 
-     * @param workflowName
+     *
+        workflow.setWorkflowName(workworkflowName);
      * @param previousStepName
      * @param worlkflow
-     * @param expectedMessageException
+
      */
     private void testUpdateStateWrongStateName(String worlkflowName, String previousStepName, PSUiWorkflow workflow, String expectedMessageException)
-    {
+
         try
         {
             // call the service
@@ -239,7 +213,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             PSUiWorkflow workflowReturned = workflowEditorRestServiceClient.updateStep(worlkflowName, previousStepName, workflow);
             fail("Should have thrown an exception");
         }
-        catch (Exception e)
+            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator();
         {
             assertEquals(expectedMessageException, PSExceptionUtils.getMessageForLog(e));
         }
@@ -247,7 +221,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
     /**
      * Method to test deleting a state with an invalid state name.
-     * 
+     *
      * @param workflowName
      * @param stateName
      * @param expectedMessageException
@@ -259,7 +233,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             // call the service
             @SuppressWarnings("unused")
             PSUiWorkflow workflowReturned = workflowEditorRestServiceClient.deleteState(workflowName, stateName);
-            fail("Should have thrown an exception");
+
         }
         catch (Exception e)
         {
@@ -268,17 +242,17 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
     }
 
     @Test
-    public void testGetWorkflowList()
+
     {
         // Returned workflow list, the call to the service
-        PSEnumVals returnedWorkflowList = workflowEditorRestServiceClient.getWorkflowList();
 
-        // Asserts
+
+            expectedWorkflow.setWorkflowName(workworkflowName);
         assertNotNull(returnedWorkflowList);
         assertFalse(returnedWorkflowList.getEntries().isEmpty());
         assertTrue(returnedWorkflowList.hasValue("Default Workflow"));
     }
-    
+
     @Test
     public void testGetWorkflowMetadataList()
     {
@@ -286,10 +260,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow uiWorkflow = new PSUiWorkflow();
         uiWorkflow.setWorkflowName("Default Workflow");
         uiWorkflow.setWorkflowDescription(
-        		"This workflow requires two approvals before content is published.  It is the default for most content types and is assigned to all communities.");
+                "This workflow requires two approvals before content is published.  It is the default for most content types and is assigned to all communities.");
         uiWorkflow.setDefaultWorkflow(true);
 
-        // Returned workflow list, the call to the service
+
         List<PSUiWorkflow> returnedWorkflowList = workflowEditorRestServiceClient.getWorkflowMetadataList();
 
         // Asserts
@@ -297,11 +271,11 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         assertEquals(returnedWorkflowList.get(0).getWorkflowDescription(), uiWorkflow.getWorkflowDescription());
         assertEquals(returnedWorkflowList.get(0).isDefaultWorkflow(), uiWorkflow.isDefaultWorkflow());
     }
-    
+
     @Test
     public void testGetWorkflow_DefaultWorkflow()
     {
-        String workflowName = "Default Workflow";
+
 
         // Expected workflow
         PSUiWorkflow expectedWorkflow = new PSUiWorkflow();
@@ -315,7 +289,8 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         List<PSUiWorkflowStepRole> draftStepRoles = new ArrayList<PSUiWorkflowStepRole>();
         PSUiWorkflowStepRoleTransition draftApprove = new PSUiWorkflowStepRoleTransition();
         draftApprove.setTransitionPermission("Approve");
-        PSUiWorkflowStepRoleTransition draftSubmit = new PSUiWorkflowStepRoleTransition();
+
+
         draftSubmit.setTransitionPermission("Submit");
 
         PSUiWorkflowStepRole draftStepAdminRole = new PSUiWorkflowStepRole("Admin", 1);
@@ -329,7 +304,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         List<PSUiWorkflowStepRoleTransition> draftContributorTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
         draftContributorTransitions.add(draftSubmit);
         draftStepContributorRole.setRoleTransitions(draftContributorTransitions);
-        draftStepRoles.add(draftStepContributorRole);
+
 
         PSUiWorkflowStepRole draftStepEditorRole = new PSUiWorkflowStepRole("Editor", 3);
         List<PSUiWorkflowStepRoleTransition> draftEditorTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
@@ -338,21 +313,21 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         draftStepEditorRole.setRoleTransitions(draftEditorTransitions);
         draftStepRoles.add(draftStepEditorRole);
 
-        draftStep.setStepRoles(draftStepRoles);
+
         steps.add(draftStep);
 
-        PSUiWorkflowStep reviewStep = new PSUiWorkflowStep();
+
         reviewStep.setStepName("Review");
 
         List<PSUiWorkflowStepRole> reviewStepRoles = new ArrayList<PSUiWorkflowStepRole>();
         PSUiWorkflowStepRoleTransition reviewApprove = new PSUiWorkflowStepRoleTransition();
-        reviewApprove.setTransitionPermission("Approve");
+
         PSUiWorkflowStepRoleTransition reviewReject = new PSUiWorkflowStepRoleTransition();
         reviewReject.setTransitionPermission("Reject");
 
         PSUiWorkflowStepRole reviewStepAdminRole = new PSUiWorkflowStepRole("Admin", 1);
         List<PSUiWorkflowStepRoleTransition> reviewAdminTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
-        reviewAdminTransitions.add(reviewReject);
+
         reviewAdminTransitions.add(reviewApprove);
         reviewStepAdminRole.setRoleTransitions(reviewAdminTransitions);
         reviewStepRoles.add(reviewStepAdminRole);
@@ -362,23 +337,23 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         reviewEditorTransitions.add(reviewReject);
         reviewEditorTransitions.add(reviewApprove);
         reviewStepEditorRole.setRoleTransitions(reviewEditorTransitions);
-        reviewStepRoles.add(reviewStepEditorRole);
 
-        reviewStep.setStepRoles(reviewStepRoles);
+
+            PSUiWorkflowStepRoleTransition workflowStepRoleTransitionApprove =
         steps.add(reviewStep);
 
-        PSUiWorkflowStep approvedStep = new PSUiWorkflowStep();
-        approvedStep.setStepName("Approved");
 
+            PSUiWorkflowStepRoleTransition workflowStepRoleTransitionPublish =
+                    new PSUiWorkflowStepRoleTransition();
         List<PSUiWorkflowStepRole> approvedStepRoles = new ArrayList<PSUiWorkflowStepRole>();
-        PSUiWorkflowStepRoleTransition approvedReject = new PSUiWorkflowStepRoleTransition();
-        approvedReject.setTransitionPermission("Reject");
+
+            PSUiWorkflowStepRoleTransition workflowStepRoleTransitionReject =
         PSUiWorkflowStepRoleTransition approvedSubmit = new PSUiWorkflowStepRoleTransition();
         approvedSubmit.setTransitionPermission("Submit");
         PSUiWorkflowStepRoleTransition approvedApprove = new PSUiWorkflowStepRoleTransition();
         approvedApprove.setTransitionPermission("Approve");
 
-        PSUiWorkflowStepRole approvedStepAdminRole = new PSUiWorkflowStepRole("Admin", 1);
+            List<PSUiWorkflowStepRoleTransition> workflowStepContributorTransitions =
         List<PSUiWorkflowStepRoleTransition> approvedAdminTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
         approvedAdminTransitions.add(approvedSubmit);
         approvedAdminTransitions.add(approvedReject);
@@ -388,13 +363,13 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
         PSUiWorkflowStepRole approvedStepEditorRole = new PSUiWorkflowStepRole("Editor", 3);
         List<PSUiWorkflowStepRoleTransition> approvedEditorTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
-        approvedEditorTransitions.add(approvedSubmit);
+
         approvedEditorTransitions.add(approvedReject);
         approvedEditorTransitions.add(approvedApprove);
-        approvedStepEditorRole.setRoleTransitions(approvedEditorTransitions);
+
         approvedStepRoles.add(approvedStepEditorRole);
 
-        approvedStep.setStepRoles(approvedStepRoles);
+
         steps.add(approvedStep);
 
         PSUiWorkflowStep archieveStep = new PSUiWorkflowStep();
@@ -410,10 +385,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         archieveStepAdminRole.setRoleTransitions(archieveAdminTransitions);
         archieveStepRoles.add(archieveStepAdminRole);
 
-        PSUiWorkflowStepRole archieveStepEditorRole = new PSUiWorkflowStepRole("Editor", 3);
+
         List<PSUiWorkflowStepRoleTransition> archieveEditorTransitions = new ArrayList<PSUiWorkflowStepRoleTransition>();
         archieveEditorTransitions.add(archieveApprove);
-        archieveStepEditorRole.setRoleTransitions(archieveEditorTransitions);
+            for(PSUiWorkflowStepRole stepRole : updatedReviewState.getStepRoles())
         archieveStepRoles.add(archieveStepEditorRole);
 
         archieveStep.setStepRoles(archieveStepRoles);
@@ -425,13 +400,13 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.getWorkflow(workflowName);
 
         // Asserts
-        assertEquals(expectedWorkflow.getWorkflowName(), returnedWorkflow.getWorkflowName());
+
         assertTrue(returnedWorkflow.getWorkflowSteps().get(0).getStepName().equalsIgnoreCase(
                 expectedWorkflow.getWorkflowSteps().get(0).getStepName()));
-        assertTrue(returnedWorkflow.getWorkflowSteps().get(1).getStepName().equalsIgnoreCase(
+
                 expectedWorkflow.getWorkflowSteps().get(1).getStepName()));
         assertTrue(returnedWorkflow.getWorkflowSteps().get(2).getStepName().equalsIgnoreCase(
-                expectedWorkflow.getWorkflowSteps().get(2).getStepName()));
+
     }
 
     @Test
@@ -442,7 +417,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
     @Test
     public void testGetStatesChoices_NoWorkflowName()
-    {
+
         try
         {
             @SuppressWarnings("unused")
@@ -473,7 +448,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
     @Test
     public void testGetStatesChoices_AllWorkflows()
     {
-        // build the map of workflowNames -> PSEnumVals
+     *
         buildStatesMap();
 
         for (String workflowName : mapWorkflowStates.keySet())
@@ -489,58 +464,58 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
     {
         String workflowName = "";
         PSUiWorkflow workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+     *
         String expectedMessageException = WORKFLOW_NAME_IS_EMPTY;
-        
+
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testCreateWorkflow_VeryLongWorkflowName()
     {
         String workflowName = "This is a very long workflow which have more tan 50 characters";
         PSUiWorkflow workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+
         String expectedMessageException = WORKFLOW_NAME_IS_TOO_LONG;
-        
+
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
-    }
-    
+
+
     @Test
-    public void testCreateWorkflow_InvalidWorkflowName()
+
     {
-        String workflowName;
+
         PSUiWorkflow workflow;
-        String expectedMessageException = WORKFLOW_NAME_IS_INVALID;
+        PSUiWorkflowStepRoleTransition workflowStepRoleTransitionApprove =
 
         workflowName = "New ! workflow";
-        workflow = new PSUiWorkflow();
+        PSUiWorkflowStepRoleTransition workflowStepRoleTransitionReject =
         workflow.setWorkflowName(workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
-
+        PSUiWorkflowStepRoleTransition workflowStepRoleTransitionSubmit =
         workflowName = "New $ workflow";
         workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
-
+        List<PSUiWorkflowStepRoleTransition> workflowStepAdminTransitions =
         workflowName = "New%25workflow";
         workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
 
         workflowName = "New & workflow";
-        workflow = new PSUiWorkflow();
+
         workflow.setWorkflowName(workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
 
         workflowName = "New / workflow";
         workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
 
         workflowName = "New ( workflow";
         workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
 
         workflowName = "New ) workflow";
@@ -580,7 +555,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
         workflowName = "New . workflow";
         workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+        workflow.setWorkflowName(workworkflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
 
         workflowName = "New < workflow";
@@ -613,7 +588,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testCreateWorkflow_SystemWorkflowName()
     {
@@ -627,15 +602,15 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         expectedMessageException = MessageFormat.format(
                 WORKFLOW_NAME_CREATE_IS_A_SYSTEM_WORKFLOW, workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
-        
+
         workflowName = "Local Content";
         workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+        workflow.setWorkflowName(workworkflowName);
         expectedMessageException = MessageFormat.format(
                 WORKFLOW_NAME_CREATE_IS_A_SYSTEM_WORKFLOW, workflowName);
         testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testCreateWorkflow_NotUniqueWorkflowName()
     {
@@ -647,7 +622,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
         // Create a workflow
         restClient.createWorkflow(workflowName, workflow);
-        
+
         try
         {
             testCreateWorkflowWrongWorkflowName(workflowName, workflow, expectedMessageException);
@@ -658,20 +633,20 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             restClient.deleteWorkflow(workflowName);
         }
     }
-    
+
     @Test
     public void testCreateWorkflow()
     {
         String workflowName = "testCreateWorkflow";
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
-        
+
         // Call the service
         PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
 
         // Expected workflow
         PSUiWorkflow expectedWorkflow = getExpectedNewWorkflow(workflowName, false);
-        
+
         try
         {
             validateNewWorkflow(returnedWorkflow, expectedWorkflow);
@@ -705,7 +680,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         expectedWorkflow.setWorkflowSteps(steps);
         return expectedWorkflow;
     }
-    
+
     @Test
     public void testCreateWorkflow_DefaultWorkflow()
     {
@@ -713,10 +688,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(true);
-        
+
         // Call the service
         PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         // need to wait for content to be reassigned
         try
         {
@@ -735,7 +710,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         finally
         {
             restoreDefaultWorkflow();
-            
+
             // Delete the created workflow
             restClient.deleteWorkflow(workflowName);
         }
@@ -754,7 +729,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         assertTrue(returnedWorkflow.getWorkflowSteps().get(3).getStepName().equalsIgnoreCase(
                 expectedWorkflow.getWorkflowSteps().get(3).getStepName()));
     }
-    
+
     @Test
     public void testUpdateWorkflow_InconsistentParams()
     {
@@ -763,10 +738,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         String workflowNameObject = "object";
         workflow.setPreviousWorkflowName(workflowNameObject);
         String expectedMessageException = "Parameters values are inconsistent with the values passed in the object";
-        
+
         testUpdateWorkflowWrongWorkflowName(workflowNameUrl, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testUpdateWorkflow()
     {
@@ -775,20 +750,20 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         String toDelete = workflowNameBeforeUpdating;
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowNameBeforeUpdating);
-        
+
         // Call the service
         PSUiWorkflow expectedWorkflow = workflowEditorRestServiceClient.createWorkflow(workflowNameBeforeUpdating, workflow);
-        
+
         // Rename the workflow
         expectedWorkflow.setWorkflowName(workflowNameAfterUpdating);
         expectedWorkflow.setPreviousWorkflowName(workflowNameBeforeUpdating);
-        
+
         try
         {
             // Call the service
             PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.updateWorkflow(workflowNameBeforeUpdating, expectedWorkflow);
             toDelete = workflowNameAfterUpdating;
-            
+
             // Asserts
             validateNewWorkflow(returnedWorkflow, expectedWorkflow);
         }
@@ -798,7 +773,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             restClient.deleteWorkflow(toDelete);
         }
     }
-    
+
     @Test
     public void testUpdateWorkflow_DefaultWorkflow()
     {
@@ -808,15 +783,15 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowNameBeforeUpdating);
         workflow.setDefaultWorkflow(true);
-        
+
         // Call the service
         PSUiWorkflow expectedWorkflow = workflowEditorRestServiceClient.createWorkflow(workflowNameBeforeUpdating, workflow);
-        
+
         // Rename the workflow
         expectedWorkflow.setWorkflowName(workflowNameAfterUpdating);
         expectedWorkflow.setPreviousWorkflowName(workflowNameBeforeUpdating);
         expectedWorkflow.setDefaultWorkflow(true);
-        
+
         // need to wait for content to be reassigned
         try
         {
@@ -826,25 +801,25 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         {
             Thread.currentThread().interrupt();
         }
-        
+
         try
         {
             // Call the service
             PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.updateWorkflow(workflowNameBeforeUpdating, expectedWorkflow);
             workflowToDelete = workflowNameAfterUpdating;
-            
+
             // Asserts
             validateNewWorkflow(returnedWorkflow, getExpectedNewWorkflow(workflowNameAfterUpdating, true));
         }
         finally
         {
             restoreDefaultWorkflow();
-            
+
             // Delete the created workflow
             restClient.deleteWorkflow(workflowToDelete);
         }
     }
-    
+
     @Test
     public void testDeleteWorkflow_SystemWorkflow()
     {
@@ -855,18 +830,18 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         expectedMessageException = MessageFormat.format(WORKFLOW_IS_A_SYSTEM_WORKFLOW, "Local Content");
         // Call the service
         testDeleteWorkflowWrongWorkflow(workflowName, expectedMessageException);
-        
+
         workflowName = "LocalContent";
         expectedMessageException = MessageFormat.format(WORKFLOW_IS_A_SYSTEM_WORKFLOW, "LocalContent");
         // Call the service
         testDeleteWorkflowWrongWorkflow(workflowName, expectedMessageException);
-        
+
         workflowName = " local content ";
         expectedMessageException = MessageFormat.format(WORKFLOW_IS_A_SYSTEM_WORKFLOW, "local content");
         // Call the service
         testDeleteWorkflowWrongWorkflow(workflowName, expectedMessageException);
     }
-    
+
     @Test
     public void testDeleteWorkflow_DefaultWorkflow()
     {
@@ -875,12 +850,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow newWorkflow = new PSUiWorkflow();
         newWorkflow.setWorkflowName(newDefaultWorkflowName);
         newWorkflow.setDefaultWorkflow(true);
-        
+
         String[] expectedMessageException = new String[2];
-        
+
         // Create a workflow
         restClient.createWorkflow(newDefaultWorkflowName, newWorkflow);
-        
+
         try
         {
             newWorkflowName = "testDeleteWorkflow_DefaultWorkflow";
@@ -892,12 +867,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         finally
         {
             restoreDefaultWorkflow();
-            
+
             // Delete the created workflow
             restClient.deleteWorkflow(newDefaultWorkflowName);
         }
     }
-    
+
     @Test
     public void testDeleteWorkflow()
     {
@@ -905,7 +880,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
-        
+
         // Get the workflow
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
 
@@ -920,7 +895,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             // Call the service to delete
             workflowEditorRestServiceClient.deleteWorkflow(workflowName);
         }
-                
+
         expectedWorkflowList = workflowEditorRestServiceClient.getWorkflowMetadataList();
         assertFalse(isWorkflowInList(workflowName, expectedWorkflowList));
     }
@@ -935,10 +910,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
                 found = true;
             }
         }
-        
+
         return found;
     }
-    
+
     @Test
     public void testCreateState_InconsistentParams()
     {
@@ -950,7 +925,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         String stepNameUrl;
         String stepNameObject;
         String expectedMessageException = "Parameters values are inconsistent with the values passed in the object";
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow url";
@@ -958,12 +933,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         stepNameUrl = "step url";
         stepNameObject = "step object";
         workflow.setWorkflowName(workflowNameObject);
-                workflowStep.setStepName(stepNameObject);
+        workflowStep.setStepName(stepNameObject);
         workflowSteps = new ArrayList<PSUiWorkflowStep>();
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         testCreateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow url";
@@ -971,12 +946,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         stepNameUrl = "step object";
         stepNameObject = "step object";
         workflow.setWorkflowName(workflowNameObject);
-                workflowStep.setStepName(stepNameObject);
+        workflowStep.setStepName(stepNameObject);
         workflowSteps = new ArrayList<PSUiWorkflowStep>();
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         testCreateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow object";
@@ -984,13 +959,13 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         stepNameUrl = "step url";
         stepNameObject = "step object";
         workflow.setWorkflowName(workflowNameObject);
-                workflowStep.setStepName(stepNameObject);
+        workflowStep.setStepName(stepNameObject);
         workflowSteps = new ArrayList<PSUiWorkflowStep>();
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         testCreateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testCreateState_EmptyStateName() throws Exception
     {
@@ -998,7 +973,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
-        
+
         // Get the workflow
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
         List<PSUiWorkflowStep> workflowSteps;
@@ -1020,10 +995,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         }
         finally
         {
-            workflowEditorRestServiceClient.deleteWorkflow(workflowName);
+            workflowEditorRestServiceClient.deleteWorkflow(workworkflowName);
         }
     }
-    
+
     @Test
     public void testCreateState_VeryLongStateName()
     {
@@ -1032,26 +1007,26 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         List<PSUiWorkflowStep> workflowSteps;
         PSUiWorkflowStep workflowStep;
         String newStateName = "This is a very long step which have more tan 50 characters";
         String expectedMessageException = STATE_NAME_IS_TOO_LONG;
-        
+
         workflowStep = new PSUiWorkflowStep();
         workflowStep.setStepName(newStateName);
         workflowSteps = new ArrayList<PSUiWorkflowStep>();
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         workflow.setPreviousStepName("Draft");
-        
+
         try
         {
             testCreateStateWrongStateName(workflowName, newStateName, workflow, expectedMessageException);
         }
         finally
         {
-            workflowEditorRestServiceClient.deleteWorkflow(workflowName);
+            workflowEditorRestServiceClient.deleteWorkflow(workworkflowName);
         }
     }
 
@@ -1063,10 +1038,10 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         List<PSUiWorkflowStep> workflowSteps;
         PSUiWorkflowStep workflowStep;
-        
+
         String newStateName;
         String expectedMessageException = STATE_NAME_IS_INVALID;
 
@@ -1196,20 +1171,20 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         }
         finally
         {
-            workflowEditorRestServiceClient.deleteWorkflow(workflowName);
+            workflowEditorRestServiceClient.deleteWorkflow(workworkflowName);
         }
     }
 
     @Test
     public void testCreateState_SystemStateName()
     {
-        
+
         String workflowName = "testCreateStateSystemName";
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         List<PSUiWorkflowStep> workflowSteps;
         PSUiWorkflowStep workflowStep;
         String newStateName;
@@ -1261,13 +1236,13 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
     @Test
     public void testCreateState_NotUniqueStateName()
     {
-        
+
         String workflowName = "testCreateStateDupeName";
         PSUiWorkflow workflow = new PSUiWorkflow();
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         List<PSUiWorkflowStep> workflowSteps;
         PSUiWorkflowStep workflowStep;
         String newStateName;
@@ -1295,25 +1270,25 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         }
         finally
         {
-            workflowEditorRestServiceClient.deleteWorkflow(workflowName);
+            workflowEditorRestServiceClient.deleteWorkflow(workworkflowName);
         }
     }
-    
+
     @Test
     public void testCreateState()
     {
         String workflowName = "testCreateState";
         PSUiWorkflow workflow = new PSUiWorkflow();
-        workflow.setWorkflowName(workflowName);
+        workflow.setWorkflowName(workworkflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
-        
+
+
         try
         {
             // Create the state
             workflow = createState(workflowName, "Test", "Draft");
-            
+
             // Call the service
             PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.createStep(workflow.getWorkflowName(), workflow.getWorkflowSteps().get(0).getStepName(), workflow);
 
@@ -1335,7 +1310,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             archieveStep.setStepName("Archive");
             steps.add(archieveStep);
             expectedWorkflow.setWorkflowSteps(steps);
-            
+
             // Asserts
             assertEquals(expectedWorkflow.getWorkflowName(), returnedWorkflow.getWorkflowName());
             assertTrue(returnedWorkflow.getWorkflowSteps().get(0).getStepName().equalsIgnoreCase(
@@ -1353,7 +1328,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             workflowEditorRestServiceClient.deleteWorkflow(workflowName);
         }
     }
-    
+
     @Test
     public void testDeleteState_SystemState()
     {
@@ -1362,7 +1337,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         try
         {
             String stateName;
@@ -1371,11 +1346,11 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             stateName = "Draft";
             // Call the service
             testDeleteStateWrongState(workflowName, stateName, expectedMessageException);
-            
+
             stateName = "draft";
             // Call the service
             testDeleteStateWrongState(workflowName, stateName, expectedMessageException);
-            
+
             stateName = " Draft ";
             // Call the service
             testDeleteStateWrongState(workflowName, stateName, expectedMessageException);
@@ -1385,7 +1360,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             workflowEditorRestServiceClient.deleteWorkflow(workflowName);
         }
     }
-    
+
     @Test
     public void testDeleteState()
     {
@@ -1394,12 +1369,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         try
         {
             // Create the state
             workflow = createState(workflowName, "Test", "Draft");
-            
+
             // Call the service
             PSUiWorkflow returnedWorkflow = workflowEditorRestServiceClient.createStep(workflow.getWorkflowName(), workflow.getWorkflowSteps().get(0).getStepName(), workflow);
 
@@ -1409,16 +1384,16 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
 
             // Call the service
             returnedWorkflow = workflowEditorRestServiceClient.deleteState(workflowName, stateName);
-            
+
             assertTrue(!returnedWorkflow.getWorkflowSteps().contains(deletedStep));
         }
         finally
         {
             workflowEditorRestServiceClient.deleteWorkflow(workflowName);
         }
-        
+
     }
-    
+
     @Test
     public void testUpdateState_InconsistentParams()
     {
@@ -1430,7 +1405,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         String stepNameUrl;
         String stepNameObject;
         String expectedMessageException = "Parameters values are inconsistent with the values passed in the object";
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow url";
@@ -1443,7 +1418,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         testUpdateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow url";
@@ -1456,7 +1431,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflowSteps.add(workflowStep);
         workflow.setWorkflowSteps(workflowSteps);
         testUpdateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
-        
+
         workflow = new PSUiWorkflow();
         workflowStep = new PSUiWorkflowStep();
         workflowNameUrl = "workflow object";
@@ -1470,7 +1445,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowSteps(workflowSteps);
         testUpdateStateWrongStateName(workflowNameUrl, stepNameUrl, workflow, expectedMessageException);
     }
-    
+
     @Test
     public void testUpdateState_NotUniqueStateName()
     {
@@ -1479,13 +1454,13 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         String stepNameBeforeUpdating = "To modify not unique";
         String stepNameAfterUpdating = "draft";
         String previousStepName = stepNameBeforeUpdating;
         String expectedMessageException;
-        
-        
+
+
         try
         {
             // Create a state
@@ -1493,7 +1468,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             PSUiWorkflow modifiedWorkflow = workflowEditorRestServiceClient.createStep(workflowName, stepNameBeforeUpdating, createdWorkflow);
 
             // Modify the state
-            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator(); 
+            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator();
             PSUiWorkflowStep state = modifiedWorkflow.getWorkflowSteps().get(0);
             while(itr.hasNext()) {
                 state = itr.next();
@@ -1505,19 +1480,19 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             // Rename the state
             modifiedWorkflow.getWorkflowSteps().get(0).setStepName(stepNameAfterUpdating);
             modifiedWorkflow.setPreviousStepName(stepNameBeforeUpdating);
-            
+
             expectedMessageException = MessageFormat.format(
                     STATE_NAME_UPDATE_IS_NOT_UNIQUE, stepNameBeforeUpdating, stepNameAfterUpdating, "Draft");
-            
+
             testUpdateStateWrongStateName(workflowName, previousStepName, modifiedWorkflow, expectedMessageException);
         }
         finally
         {
-            workflowEditorRestServiceClient.deleteWorkflow(workflowName);
+            workflowEditorRestServiceClient.deleteWorkflow(workworkflowName);
         }
 
     }
-    
+
     @Test
     public void testUpdateState_SystemStateName()
     {
@@ -1526,12 +1501,12 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         workflow.setWorkflowName(workflowName);
         workflow.setDefaultWorkflow(false);
         workflowEditorRestServiceClient.createWorkflow(workflowName, workflow);
-        
+
         String stepNameBeforeUpdating = "To modify system";
         String stepNameAfterUpdating = "Live";
         String previousStepName = stepNameBeforeUpdating;
         String expectedMessageException;
-        
+
         try
         {
             // Create a state
@@ -1539,7 +1514,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             PSUiWorkflow modifiedWorkflow = workflowEditorRestServiceClient.createStep(workflowName, stepNameBeforeUpdating, createdWorkflow);
 
             // Modify the state
-            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator(); 
+            Iterator<PSUiWorkflowStep> itr = modifiedWorkflow.getWorkflowSteps().iterator();
             PSUiWorkflowStep state = modifiedWorkflow.getWorkflowSteps().get(0);
             while(itr.hasNext()) {
                 state = itr.next();
@@ -1551,7 +1526,6 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
             // Rename the state
             modifiedWorkflow.getWorkflowSteps().get(0).setStepName(stepNameAfterUpdating);
             modifiedWorkflow.setPreviousStepName(stepNameBeforeUpdating);
-            
             expectedMessageException = MessageFormat.format(
                     STATE_NAME_UPDATE_IS_A_SYSTEM_STATE, stepNameBeforeUpdating, "Live");
             

@@ -17,12 +17,17 @@
 
 package com.percussion.rest.actions;
 
-
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
+/**
+ * Request object for allowed content type menus.
+ */
 @XmlRootElement
 @Schema
 public class AllowedContentTypeMenusRequest {
@@ -30,13 +35,33 @@ public class AllowedContentTypeMenusRequest {
     @ArraySchema
     private int[] contentIds;
 
-    public int[] getContentIds() {
-        return contentIds;
+    public AllowedContentTypeMenusRequest() {}
+
+    public Optional<int[]> getContentIds() {
+        return Optional.ofNullable(contentIds);
     }
 
     public void setContentIds(int[] contentIds) {
         this.contentIds = contentIds;
     }
 
-    public AllowedContentTypeMenusRequest(){}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AllowedContentTypeMenusRequest)) return false;
+        var that = (AllowedContentTypeMenusRequest) o;
+        return Arrays.equals(contentIds, that.contentIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(contentIds);
+    }
+
+    @Override
+    public String toString() {
+        return "AllowedContentTypeMenusRequest{" +
+                "contentIds=" + Arrays.toString(contentIds) +
+                '}';
+    }
 }

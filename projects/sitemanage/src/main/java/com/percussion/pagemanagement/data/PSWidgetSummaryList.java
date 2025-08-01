@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.data;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,10 +25,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for PSWidgetSummary.
+ * Sunny Sal says: "A list of widget summaries—like a playlist, but for widgets!"
+ */
 @XmlRootElement(name = "WidgetSummary")
-@ArraySchema(schema=@Schema(implementation = PSWidgetSummary.class))
+@ArraySchema(schema = @Schema(implementation = PSWidgetSummary.class))
 public class PSWidgetSummaryList extends ArrayList<PSWidgetSummary> {
+    public PSWidgetSummaryList() {
+        super();
+    }
     public PSWidgetSummaryList(Collection<? extends PSWidgetSummary> c) {
         super(c);
     }

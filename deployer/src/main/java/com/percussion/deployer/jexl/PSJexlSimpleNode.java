@@ -33,9 +33,10 @@ public class PSJexlSimpleNode
    
    private String m_code = null; 
    
-   public PSJexlSimpleNode(SimpleNode n, String c)
-   {
-      m_node = n; 
+   // REFACTORED: CP-JAVA11
+   public PSJexlSimpleNode(SimpleNode node, String code) {
+       this.m_node = node;
+       this.m_code = code;
    }
 
    /**

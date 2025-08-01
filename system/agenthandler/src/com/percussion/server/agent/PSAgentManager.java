@@ -19,232 +19,190 @@ package com.percussion.server.agent;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This class implements the interface <code>IPSAgentManager</code> and does the
- * following:
+ * This class implements the interface {@code IPSAgentManager} and provides:
  * <ul>
- * <li>Instantiates and initializes all the agents from the configurtion XML
- * document. If instantiation fails for any agent that agent will be ignored
- * and initialization proceeds with the next in the document. Any request that
- * comes for the services from the uninitialized agent shall be handled as
- * though there is no such agent exists.
- * <li>The request handler always forwards the actions from a specified agent
- * to the Agent Manager (i.e. object of this class) via the method
- * <code>handleAction()</code>. The Agent Manager then requests the action from
- * the appropriate agent.
- * <li>Can close all agents initialized by calling the <code>terminate</code>
+ * <li>Instantiation and initialization of all agents from the configuration XML
+ * document. If instantiation fails for any agent, that agent will be ignored
+ * and initialization proceeds with the next in the document. Requests for
+ * services from uninitialized agents are handled as though no such agent exists.
+ * <li>The request handler forwards actions from a specified agent
+ * to the Agent Manager via the method {@code handleAction()}. The Agent Manager
+ * then requests the action from the appropriate agent.
+ * <li>Can close all agents initialized by calling the {@code terminate}
  * method of the agents.
  * </ul>
+ *
+ * @since Java 11
  */
-public class PSAgentManager implements IPSAgentManager
-{
+public class PSAgentManager implements IPSAgentManager {
+
    /**
-    * Default constructor. Make it private to avoid instantiation in this form.
+    * Thread-safe map to store initialized agents.
     */
-   private PSAgentManager()
-   {
-   }
+   private final Map<String, IPSAgent> agents = new ConcurrentHashMap<>();
 
    /**
     * Constructor. All agents registered in the configuration document are
     * created, initialized and stored in a hashmap. Any agent that fails to be
     * initialized is ignored.
-    * @param configDoc - the configuration XML document, must not be
-    * <code>null</code>.
+    *
+    * @param configDoc the configuration XML document, must not be {@code null}.
+    * @throws IllegalArgumentException if configDoc is {@code null}
     */
-   PSAgentManager(Document configDoc)
-   {
-      if(configDoc == null)
-      {
+   PSAgentManager(Document configDoc) {
+      if (configDoc == null) {
          throw new IllegalArgumentException(
-            "Configuration document for the agents must not be empty in " +
-            "the constructor of Agent Manager");
+            "Configuration document for the agents must not be null");
       }
 
-      NodeList nl =
-         configDoc.getElementsByTagName(IPSDTDAgentManagerConfig.ELEM_AGENT);
+      var nodeList = configDoc.getElementsByTagName(IPSDTDAgentManagerConfig.ELEM_AGENT);
 
-      //No agents are configured. That is fine!
-      if(nl == null || nl.getLength() < 1)
+      // No agents are configured. That is fine!
+      if (nodeList == null || nodeList.getLength() < 1) {
          return;
+      }
 
-      Element elemAgent = null;
-      for(int i=0; i<nl.getLength(); i++)
-      {
-         elemAgent = (Element)nl.item(i);
-         try
-         {
+      for (int i = 0; i < nodeList.getLength(); i++) {
+         var elemAgent = (Element) nodeList.item(i);
+         try {
             createAgent(elemAgent);
-         }
-         catch(Exception e) //for any exception
-         {
+         } catch (Exception e) {
             PSConsole.printMsg(PSAgentRequestHandler.HANDLER, PSExceptionUtils.getMessageForLog(e));
          }
       }
    }
 
    /**
-    * Helper function that creates the agent object and puts in the hashmap.
-    * @param elemAgent the configuration data element for the agent to be
-    * created
-    * @throws ClassNotFoundException if the agent implementation class is not
-    * found in the classpath
-    * @throws InstantiationException if the object is not instantiated from the
-    * class
-    * @throws IllegalAccessException if the object fails to be instantiated for
-    * security reasons
+    * Helper function that creates the agent object and puts it in the map.
+    *
+    * @param elemAgent the configuration data element for the agent to be created
+    * @throws ClassNotFoundException if the agent implementation class is not found in the classpath
+    * @throws InstantiationException if the object is not instantiated from the class
+    * @throws IllegalAccessException if the object fails to be instantiated for security reasons
     * @throws PSAgentException if Agent creation fails for any other reason
-    * @throws IllegalArgumentException if the  argument is <code>null</code>
+    * @throws IllegalArgumentException if the argument is {@code null}
+    * @throws InvocationTargetException if the underlying constructor throws an exception
+    * @throws NoSuchMethodException if a matching method is not found
     */
    private void createAgent(Element elemAgent)
-      throws   ClassNotFoundException,
-               IllegalAccessException,
-               InstantiationException,
-               PSAgentException
-   {
-      if(elemAgent == null)
-      {
-         throw new IllegalArgumentException(
-            "elemAgent object must not be empty in createAgent() method " +
-            "of Agent Manager");
-      }
-      String name =
-         elemAgent.getAttribute(IPSDTDAgentManagerConfig.ATTRIB_NAME);
-      if(name == null || name.trim().length() < 1)
-      {
-         throw new PSAgentException(
-            "Agent name attribute in its configuration data element must " +
-            "have a valid value createAgent() method of Agent Manager");
-      }
-      String classs =
-         PSUtils.getElemValue(elemAgent, IPSDTDAgentManagerConfig.ELEM_CLASS);
-      if(classs == null || classs.trim().length() < 1)
-      {
-         throw new PSAgentException(
-            "Implementing class name for the agent '" + name +
-            "' must not be empty in createAgent() method " +
-            "of Agent Manager");
-      }
-      IPSAgent agent =
-            (IPSAgent)Class.forName(classs).newInstance();
+      throws ClassNotFoundException, IllegalAccessException, InstantiationException,
+             PSAgentException, InvocationTargetException, NoSuchMethodException {
 
-      if(agent == null)
-      {
-         throw new PSAgentException(
-            "Agent object for the agent '" + name +
-            "' must not be empty in createAgent() method " +
-            "of Agent Manager");
+      if (elemAgent == null) {
+         throw new IllegalArgumentException("elemAgent object must not be null");
       }
+
+      var name = elemAgent.getAttribute(IPSDTDAgentManagerConfig.ATTRIB_NAME);
+      if (StringUtils.isBlank(name)) {
+         throw new PSAgentException(
+            "Agent name attribute in its configuration data element must have a valid value");
+      }
+
+      var className = PSUtils.getElemValue(elemAgent, IPSDTDAgentManagerConfig.ELEM_CLASS);
+      if (StringUtils.isBlank(className)) {
+         throw new PSAgentException(
+            "Implementing class name for the agent '" + name + "' must not be empty");
+      }
+
+      // Use modern reflection with proper exception handling
+      var agentClass = Class.forName(className);
+      var constructor = agentClass.getDeclaredConstructor();
+      var agent = (IPSAgent) constructor.newInstance();
+
       agent.init(elemAgent);
-
-      m_Agents.put(name, agent);
+      agents.put(name, agent);
    }
 
-   /*
-    * Implementation of the methods from the interface
-    * <code>IPSAgentManager</code>
-    */
-   public void handleAction(Map params, IPSAgentHandlerResponse response)
-   {
-      if(response == null)
-      {
-         throw new IllegalArgumentException(
-            "response object must not be empty in handleAction() method " +
-            "of Agent Manager");
+   @Override
+   public void handleAction(Map<String, Object> params, IPSAgentHandlerResponse response) {
+      if (response == null) {
+         throw new IllegalArgumentException("response object must not be null");
       }
-      String msg = null;
-      if(params == null)
-      {
-         msg = "Agent name must not be empty for Agent Manager to " +
-            "request an action from an agent";
-         response.setResponse(response.RESPONSE_TYPE_ERROR, msg);
-      }
-      String agentname = null;
-      if(params.containsKey(IPSDTDAgentHandlerResponse.HANDLER_PARAM_AGENT_NAME))
-      {
-         agentname = params.get(
-            IPSDTDAgentHandlerResponse.HANDLER_PARAM_AGENT_NAME).toString();
-      }
-      if(agentname == null)
-      {
-         msg = "Agent name must not be empty for Agent Manager to " +
-            "request an action from an agent";
-         response.setResponse(response.RESPONSE_TYPE_ERROR, msg);
-      }
-      IPSAgent agent = getAgentByName(agentname);
 
-      if(agent == null)
-      {
-         msg = "Agent '" + agentname +
-            "' is not registered by the Agent Manager";
-         response.setResponse(response.RESPONSE_TYPE_ERROR, msg);
+      if (params == null) {
+         var msg = "Agent name must not be empty for Agent Manager to request an action from an agent";
+         response.setResponse(IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR, msg);
+         return;
       }
-      String agentaction = null;
-      if(params.containsKey(IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION))
-      {
-         agentaction = params.get(
-            IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION).toString();
-      }
-      if(agentaction == null)
-      {
-         msg = "Agent action name must not be empty for Agent Manager to " +
-            "request an action from an agent";
-         response.setResponse(response.RESPONSE_TYPE_ERROR, msg);
-      }
-      agent.executeAction(agentaction, params, response);
-   }
 
-   /*
-    * Implementation of the methods from the interface
-    * <code>IPSAgentManager</code>
-    */
-   public void close()
-   {
-      Collection coll = m_Agents.values();
-      Iterator iter = coll.iterator();
-      while(iter.hasNext())
-      {
-         IPSAgent agent = (IPSAgent)iter.next();
-         agent.terminate();
-         agent = null;
+      var agentName = getParameterAsString(params, IPSDTDAgentHandlerResponse.HANDLER_PARAM_AGENT_NAME);
+      if (StringUtils.isBlank(agentName)) {
+         var msg = "Agent name must not be empty for Agent Manager to request an action from an agent";
+         response.setResponse(IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR, msg);
+         return;
       }
-      m_Agents.clear();
-      m_Agents = null;
+
+      var agent = getAgentByName(agentName);
+      if (agent == null) {
+         var msg = "Agent '" + agentName + "' is not registered by the Agent Manager";
+         response.setResponse(IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR, msg);
+         return;
+      }
+
+      var agentAction = getParameterAsString(params, IPSDTDAgentHandlerResponse.HANDLER_PARAM_ACTION);
+      if (StringUtils.isBlank(agentAction)) {
+         var msg = "Agent action name must not be empty for Agent Manager to request an action from an agent";
+         response.setResponse(IPSAgentHandlerResponse.RESPONSE_TYPE_ERROR, msg);
+         return;
+      }
+
+      // Execute the agent action
+      agent.executeAction(agentAction, params, response);
    }
 
    /**
-    * Search for the agent by name in the HashMap and return.
-    * @param name of the agent to earch in the map
-    * @return <code>IPSAgent</code> that corresponds to the key value of the
-    * agent name. Shall be <code>null</code> if no agent exists by this name.
+    * Helper method to safely extract string parameters from the parameter map.
+    *
+    * @param params the parameter map
+    * @param key the parameter key
+    * @return the parameter value as string, or {@code null} if not found
     */
-   public IPSAgent getAgentByName(String agentname)
-   {
-      if(agentname == null)
-      {
-         throw new IllegalArgumentException(
-            "Agent name must not be empty in getAgentByName() method " +
-            "of Agent Manager");
-      }
-      if(m_Agents.containsKey(agentname))
-         return(IPSAgent)m_Agents.get(agentname);
-
-      return null;
+   private String getParameterAsString(Map<String, Object> params, String key) {
+      var value = params.get(key);
+      return value != null ? value.toString() : null;
    }
 
    /**
-    * Hashmap of the all agents that are successfully initialized. The key for
-    * the map shall be the agent name and the value shall be the
-    * <code>IPSAgent</code> object
+    * Gets an agent by its name.
+    *
+    * @param agentName the name of the agent
+    * @return the agent instance, or {@code null} if not found
     */
-   protected HashMap m_Agents = new HashMap();
+   private IPSAgent getAgentByName(String agentName) {
+      return agents.get(agentName);
+   }
+
+   @Override
+   public void close() {
+      var agentCollection = agents.values();
+      for (var agent : agentCollection) {
+         try {
+            agent.terminate();
+         } catch (Exception e) {
+            PSConsole.printMsg(PSAgentRequestHandler.HANDLER,
+               "Error terminating agent: " + PSExceptionUtils.getMessageForLog(e));
+         }
+      }
+      agents.clear();
+   }
+
+   @Override
+   public Collection<IPSAgent> getAllAgents() {
+      return agents.values();
+   }
+
+   @Override
+   public int getAgentCount() {
+      return agents.size();
+   }
 }

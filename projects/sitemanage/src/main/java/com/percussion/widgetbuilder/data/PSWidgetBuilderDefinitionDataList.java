@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,10 +25,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-
+/**
+ * List wrapper for WidgetBuilderDefinitionData.
+ */
 @XmlRootElement(name = "WidgetBuilderDefinitionData")
-@ArraySchema(schema=@Schema(implementation = PSWidgetBuilderDefinitionData.class))
+@ArraySchema(schema = @Schema(implementation = PSWidgetBuilderDefinitionData.class))
 public class PSWidgetBuilderDefinitionDataList extends ArrayList<PSWidgetBuilderDefinitionData> {
+    private static final long serialVersionUID = 1L;
+
     public PSWidgetBuilderDefinitionDataList(Collection<? extends PSWidgetBuilderDefinitionData> c) {
         super(c);
     }

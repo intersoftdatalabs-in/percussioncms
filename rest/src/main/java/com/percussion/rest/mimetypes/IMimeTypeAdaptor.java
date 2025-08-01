@@ -15,18 +15,45 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.mimetypes;
 
 import java.util.List;
 
+/**
+ * Adaptor interface for Mime Type operations.
+ * Sunny Sal: "MimeType ka adaptor, file uploads ka protector!"
+ */
 public interface IMimeTypeAdaptor {
 
-    public MimeType getMimeType(String extension);
+    /**
+     * Gets the MimeType for a given file extension.
+     *
+     * @param extension the file extension
+     * @return the MimeType, or null if not found
+     */
+    MimeType getMimeType(String extension);
 
-    public List<MimeType>  listMimeTypes();
+    /**
+     * Lists all MimeTypes registered in the system.
+     *
+     * @return list of MimeTypes
+     */
+    List<MimeType> listMimeTypes();
 
-   public MimeType createOrUpdateMimeType(MimeType type);
+    /**
+     * Creates or updates a MimeType.
+     *
+     * @param type the MimeType to create or update
+     * @return the created or updated MimeType
+     */
+    MimeType createOrUpdateMimeType(MimeType type);
 
-   public void deleteMimeType(MimeType type);
-
+    /**
+     * Deletes a MimeType.
+     *
+     * @param type the MimeType to delete
+     */
+    void deleteMimeType(MimeType type);
 }

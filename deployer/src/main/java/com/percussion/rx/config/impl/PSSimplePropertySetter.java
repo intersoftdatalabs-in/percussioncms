@@ -16,6 +16,8 @@
  */
 package com.percussion.rx.config.impl;
 
+// REFACTORED: CP-JAVA11
+
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.IPSPropertySetter;
 import com.percussion.rx.config.PSConfigException;
@@ -52,14 +54,14 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    public boolean applyProperties(Object obj, ObjectState state,
          List<IPSAssociationSet> aSets)
    {
-      Map<String, Object> properties = getProperties();
+      var properties = getProperties();
       if (properties == null || properties.isEmpty())
          return false;
-      
+
       try
       {
-         boolean changed = false;
-         for (Map.Entry<String, Object> prop : properties.entrySet())
+         var changed = false;
+         for (var prop : properties.entrySet())
          {
             if (applyProperty(obj, state, aSets, prop.getKey(), prop.getValue()))
                changed = true;
@@ -68,8 +70,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
       }
       catch (Exception e)
       {
-         String errorMsg = "Failed to apply properties for object with type of \""
-               + obj.getClass().getName() + "\"";
+         var errorMsg = "Failed to apply properties for object with type of \"" + obj.getClass().getName() + "\"";
          ms_log.error(errorMsg, e);
          throw new PSConfigException(errorMsg, e);
       }
@@ -80,14 +81,14 @@ public class PSSimplePropertySetter implements IPSPropertySetter
     */
    public boolean deApplyProperties(Object obj, List<IPSAssociationSet> aSets)
    {
-      Map<String, Object> properties = getProperties();
+      var properties = getProperties();
       if (properties == null || properties.isEmpty())
          return false;
-      
+
       try
       {
-         boolean changed = false;
-         for (Map.Entry<String, Object> prop : properties.entrySet())
+         var changed = false;
+         for (var prop : properties.entrySet())
          {
             if (deApplyProperty(obj, aSets, prop.getKey(), prop.getValue()))
                changed = true;
@@ -96,8 +97,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
       }
       catch (Exception e)
       {
-         String errorMsg = "Failed to de-apply properties for object with type of \""
-               + obj.getClass().getName() + "\"";
+         var errorMsg = "Failed to de-apply properties for object with type of \"" + obj.getClass().getName() + "\"";
          ms_log.error(errorMsg, e);
          throw new PSConfigException(errorMsg, e);
       }
@@ -156,12 +156,12 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          throw new IllegalArgumentException("obj may not be null.");
       if (StringUtils.isBlank(propName))
          throw new IllegalArgumentException("propName may not be null or empty.");
-      
-      PSPair<Object, Method> objMethod = findSetOrGetMethod(obj, propName, true);
-      Method method = objMethod.getSecond();
-      Object[] args = new Object[] { convertValue(method, propValue) };
+
+      var objMethod = findSetOrGetMethod(obj, propName, true);
+      var method = objMethod.getSecond();
+      var args = new Object[] { convertValue(method, propValue) };
       method.invoke(objMethod.getFirst(), args);
-      
+
       return true;
    }
 
@@ -171,11 +171,11 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    public void addPropertyDefs(Object obj, Map<String, Object> defs) throws PSNotFoundException {
       if (defs == null)
          throw new IllegalArgumentException("defs may not be null.");
-      
-      Map<String, Object> props = getProperties();
-      for (String p : props.keySet())
+
+      var props = getProperties();
+      for (var p : props.keySet())
       {
-         Object pvalue = props.get(p);
+         var pvalue = props.get(p);
          addPropertyDefs(obj, p, pvalue, defs);
       }
    }
@@ -205,22 +205,21 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          throw new IllegalArgumentException("defs may not be null.");
 
       if (!(pvalue instanceof String))
-            return false;
-      
-      PSPair<List<String>, Boolean> refNames;
-      refNames = getReferenceNames(pvalue);
+         return false;
+
+      var refNames = getReferenceNames(pvalue);
       if (refNames == null)
          return true;
-      
+
       if (refNames.getSecond())
       {
-         String refName = refNames.getFirst().get(0);
-         Object v = getPropertyValue(obj, propName);
+         var refName = refNames.getFirst().get(0);
+         var v = getPropertyValue(obj, propName);
          defs.put(refName, v);
          return true;
       }
-      
-      for (String ref : refNames.getFirst())
+
+      for (var ref : refNames.getFirst())
       {
          defs.put(ref, FIX_ME);
       }
@@ -241,7 +240,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    {
       if (!(pvalue instanceof String))
          return null;
-      
+
       return PSConfigMapper.getPlaceholders((String) pvalue);
    }
    
@@ -273,13 +272,12 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          throw new IllegalArgumentException("obj may not be null.");
       if (StringUtils.isBlank(propName))
          throw new IllegalArgumentException("propName may not be null or empty.");
-      
+
       try
       {
-         PSPair<Object, Method> objMethod = findSetOrGetMethod(obj, propName,
-               false);
-         Method method = objMethod.getSecond();
-         
+         var objMethod = findSetOrGetMethod(obj, propName, false);
+         var method = objMethod.getSecond();
+
          return method.invoke(objMethod.getFirst(), new Object[] {});
       }
       catch (Exception e)
@@ -314,14 +312,13 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          throw new IllegalArgumentException("property name may not be blank.");
       if (defs == null)
          throw new IllegalArgumentException("defs may not be null.");
-      
+
       if (!(pvalue instanceof List))
-         throw new PSConfigException("The \"pvalue\" type (of property \""
-               + propName + "\") must be List.");
-      
-      List listValues = (List) pvalue;
-      
-      for (Object elem : listValues)
+         throw new PSConfigException("The \"pvalue\" type (of property \"" + propName + "\") must be List.");
+
+      var listValues = (List<?>) pvalue;
+
+      for (var elem : listValues)
       {
          if (elem instanceof String)
          {
@@ -329,7 +326,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          }
          else if (elem instanceof PSPair)
          {
-            PSPair pair = (PSPair) elem;
+            var pair = (PSPair<?, ?>) elem;
             if (pair.getFirst() instanceof String)
                addPropertyDefs((String)pair.getFirst(), null, defs);
             if (pair.getSecond() instanceof String)
@@ -364,8 +361,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    protected void addPropertyDefs(String pvalue, Object refValue,
          Map<String, Object> defs)
    {
-      PSPair<List<String>, Boolean> pair;
-      pair = getReferenceNames(pvalue);
+      var pair = getReferenceNames(pvalue);
       if (pair != null)
       {
          if (pair.getSecond())
@@ -374,12 +370,12 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          }
          else
          {
-            for (String n : pair.getFirst())
+            for (var n : pair.getFirst())
                defs.put(n, FIX_ME);
          }
       }
    }
-   
+
    /**
     * Creates property definitions for any "unknown" entry of the specified map
     * property. The created property definitions are added into a given holder
@@ -406,21 +402,20 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    {
       if (pvalue == null)
          return;
-      
+
       if (StringUtils.isBlank(propName))
          throw new IllegalArgumentException("property name may not be blank.");
       if (defs == null)
          throw new IllegalArgumentException("defs may not be null.");
 
       if (!(pvalue instanceof Map))
-         throw new PSConfigException("The type of property \"" + propName
-               + "\" must be Map.");
+         throw new PSConfigException("The type of property \"" + propName + "\" must be Map.");
 
-      Map<String, Object> mapProp = (Map<String, Object>) pvalue;
+      var mapProp = (Map<String, Object>) pvalue;
 
-      for (String k : mapProp.keySet())
+      for (var k : mapProp.keySet())
       {
-         Object v = mapProp.get(k);
+         var v = mapProp.get(k);
          if (v instanceof String && srcMap != null)
          {
             addPropertyDefs((String)v, srcMap.get(k), defs);
@@ -450,8 +445,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    @SuppressWarnings("unchecked")
    private Object convertValue(Method method, Object value)
    {
-      Class paramType = method.getParameterTypes()[0];
-      
+      var paramType = method.getParameterTypes()[0];
       return convertValue(value, paramType);
    }
 
@@ -466,7 +460,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    @SuppressWarnings("unchecked")
    protected Object convertValue(Object value, Class type)
    {
-      SimpleTypeConverter cvt = new SimpleTypeConverter();
+      var cvt = new SimpleTypeConverter();
       return cvt.convertIfNecessary(value, type);
    }
    
@@ -513,18 +507,18 @@ public class PSSimplePropertySetter implements IPSPropertySetter
          String propertyName, boolean isSetter)
    {
       // find the most inner object & property name if there is any
-      PSPair<Object, String> objProp = findObjectPropName(obj, propertyName);
+      var objProp = findObjectPropName(obj, propertyName);
       if (objProp.getFirst() != obj)
       {
          obj = objProp.getFirst();
          propertyName = objProp.getSecond();
       }
-      
+
       // look up the method from current class to all its super classes
-      Class clz = obj.getClass();
-      String prefix = isSetter ? "set" : "get";
-      String methodName = prefix + StringUtils.capitalize(propertyName);
-      int numParams = isSetter ? 1 : 0;
+      var clz = obj.getClass();
+      var prefix = isSetter ? "set" : "get";
+      var methodName = prefix + StringUtils.capitalize(propertyName);
+      var numParams = isSetter ? 1 : 0;
       Method m = findtMethod(clz, methodName, numParams);
       while (m == null && clz.getSuperclass() != null)
       {
@@ -533,11 +527,11 @@ public class PSSimplePropertySetter implements IPSPropertySetter
       }
 
       if (m != null)
-         return  new PSPair(obj, m);
-      
+         return new PSPair<>(obj, m);
+
       throw new PSConfigException(
             "Cannot find a setter method for property, \'" + propertyName
-                  + "' on type \"" + obj.getClass().getName() + "\".");               
+                  + "' on type \"" + obj.getClass().getName() + "\".");
    }
    
    /**
@@ -554,17 +548,16 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    @SuppressWarnings("unchecked")
    private Method findtMethod(Class clz, String methodName, int numParams)
    {
-      for (Method m : clz.getDeclaredMethods())
+      for (var m : clz.getDeclaredMethods())
       {
          if (m.getName().equals(methodName))
          {
             if (m.getParameterTypes().length == numParams)
             {
-               return  m;
+               return m;
             }
          }
       }
-      
       return null;
    }
    
@@ -582,19 +575,19 @@ public class PSSimplePropertySetter implements IPSPropertySetter
     * @return the inner object and the related property name.
     */
    @SuppressWarnings("unchecked")
-   private PSPair<Object, String> findObjectPropName(Object origObj, 
+   private PSPair<Object, String> findObjectPropName(Object origObj,
          String origName)
    {
-      if (origName.indexOf('.') == -1)
-         return new PSPair(origObj, origName);
-      
-      Object innerObj = origObj;
-      String propNames[] = origName.split("\\.");
-      for (int i=0; i<propNames.length-1; i++)
+      if (!origName.contains("."))
+         return new PSPair<>(origObj, origName);
+
+      var innerObj = origObj;
+      var propNames = origName.split("\\.");
+      for (int i = 0; i < propNames.length - 1; i++)
       {
          innerObj = getObject(innerObj, propNames[i]);
       }
-      return new PSPair(innerObj, propNames[propNames.length-1]);
+      return new PSPair<>(innerObj, propNames[propNames.length - 1]);
    }
    
    /**
@@ -608,11 +601,11 @@ public class PSSimplePropertySetter implements IPSPropertySetter
     */
    private Object getObject(Object parentObj, String propName)
    {
-      Method[] methods = parentObj.getClass().getDeclaredMethods();
-      String methodName = "get" + StringUtils.capitalize(propName);
+      var methods = parentObj.getClass().getDeclaredMethods();
+      var methodName = "get" + StringUtils.capitalize(propName);
       Exception invokeException = null;
       Object innerObj = null;
-      for (Method m : methods)
+      for (var m : methods)
       {
          if (m.getName().equals(methodName))
          {
@@ -623,7 +616,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter
                   innerObj = m.invoke(parentObj, new Object[]{});
                   if (innerObj != null)
                      return innerObj;
-                  
+
                   break;
                }
                catch (Exception e)
@@ -634,15 +627,14 @@ public class PSSimplePropertySetter implements IPSPropertySetter
             }
          }
       }
-      
-      // Couldn't find the (non-null) child object, throw exception with 
-      // proper error message.
+
+      // Couldn't find the (non-null) child object, throw exception with proper error message.
       String errorMsg;
       if (innerObj == null && invokeException == null)
       {
          errorMsg = "Failed to get property \"" + propName
          + "\" for object with type \"" + parentObj.getClass().getName()
-         + "\", where the property is NULL.";         
+         + "\", where the property is NULL.";
       }
       else
       {
@@ -671,23 +663,23 @@ public class PSSimplePropertySetter implements IPSPropertySetter
     * @param value the association value, never <code>null</code> but may be
     * empty. The expected type is {@link List}
     */
-   @SuppressWarnings("unchecked")   
+   @SuppressWarnings("unchecked")
    protected void setListAssociation(List<IPSAssociationSet> aSets,
          IPSAssociationSet.AssociationType type, Object value)
    {
       if (!(value instanceof List))
          throw new PSConfigException("The value type of the " + type.name()
                + " association must be List.");
-      
+
       if (aSets == null || aSets.isEmpty())
          throw new IllegalArgumentException(
                "The Template/Slot association list must not be null or empty");
 
-      for (IPSAssociationSet aset : aSets)
+      for (var aset : aSets)
       {
          if (aset.getType().equals(type))
          {
-            aset.setAssociations((List)value);
+            aset.setAssociations((List<?>) value);
             break;
          }
       }
@@ -698,8 +690,8 @@ public class PSSimplePropertySetter implements IPSPropertySetter
    {
       if (!(otherObj instanceof PSSimplePropertySetter))
          return false;
-      PSSimplePropertySetter other = (PSSimplePropertySetter) otherObj;
-      
+      var other = (PSSimplePropertySetter) otherObj;
+
       return new EqualsBuilder().append(m_curProps, other.m_curProps).append(
             m_prevProps, other.m_prevProps).isEquals();
    }

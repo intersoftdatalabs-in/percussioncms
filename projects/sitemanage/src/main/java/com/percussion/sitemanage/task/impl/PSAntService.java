@@ -42,127 +42,115 @@ import static org.springframework.util.CollectionUtils.isEmpty;
  * Executes ant scripts in the servers running JVM.
  * @author adamgent
  */
+// REFACTORED: CP-JAVA11
 @Component("antService")
 public class PSAntService implements IPSAntService {
 
-    private  Vector<String> runningFiles = new Vector<>();
-    
+    private Vector<String> runningFiles = new Vector<>();
+
     /**
      * The log instance to use for this class, never <code>null</code>.
      */
     public static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
 
-    
-    
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean isRunning(String file) {
         log.debug("RunningFiles: {}", runningFiles);
         return runningFiles.contains(new File(file).getAbsolutePath());
     }
-    
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public String runAnt(AntScript script) {
         notNull(script, "script");
-        String file = script.getFile();
-        List<String> targets = script.getTargets();
-        List<? extends BuildListener> listeners = script.getListeners();
-        Map<String, String> properties = script.getProperties();
-        boolean blocking = script.isBlocking();
-        
+        var file = script.getFile();
+        var targets = script.getTargets();
+        var listeners = script.getListeners();
+        var properties = script.getProperties();
+        var blocking = script.isBlocking();
+
         notEmpty(file);
         if (targets == null) {
             targets = new ArrayList<>();
-        }
-        else {
+        } else {
             noNullElements(targets);
         }
-        
+
         if (listeners == null) {
             listeners = new ArrayList<>();
-        }
-        else {
+        } else {
             noNullElements(listeners);
         }
-        
-        
-        final File buildFile = new File(file); 
+
+        final var buildFile = new File(file);
         if (isRunning(file)) return buildFile.getAbsolutePath();
-        final Project project = new Project();
-        ProjectHelper helper = ProjectHelper.getProjectHelper();
+        final var project = new Project();
+        var helper = ProjectHelper.getProjectHelper();
         project.init();
-        //project.setUserProperty("ant.version", getAntVersion());
         project.setUserProperty("ant.file", buildFile.getAbsolutePath());
         helper.parse(project, buildFile);
-        String defaultTarget = project.getDefaultTarget();
+        var defaultTarget = project.getDefaultTarget();
         if (targets.isEmpty())
             targets.add(defaultTarget);
-        final Vector<String> targetList = new Vector<>(targets);
-        
-        for (BuildListener bl : listeners) {
+        final var targetList = new Vector<>(targets);
+
+        for (var bl : listeners) {
             project.addBuildListener(bl);
         }
-        
+
         project.addBuildListener(getLogListener(script));
-         
-        for(Map.Entry<String, String> e : properties.entrySet()) {
-            project.setNewProperty(e.getKey(), e.getValue());    
+
+        for (var e : properties.entrySet()) {
+            project.setNewProperty(e.getKey(), e.getValue());
         }
 
-        Runnable r = new Runnable() {
-            public void run() {
-                project.fireBuildStarted();
-                Exception error = null;
-                try {
-                    project.executeTargets(targetList);
-                } catch (Exception e) {
-                    error = e;
-                } finally {
-                    project.fireBuildFinished(error);
-                    runningFiles.remove(buildFile.getAbsolutePath());
-                }
+        Runnable r = () -> {
+            project.fireBuildStarted();
+            Exception error = null;
+            try {
+                project.executeTargets(targetList);
+            } catch (Exception e) {
+                error = e;
+            } finally {
+                project.fireBuildFinished(error);
+                runningFiles.remove(buildFile.getAbsolutePath());
             }
-
         };
-        
+
         runningFiles.add(buildFile.getAbsolutePath());
         if (blocking) {
             r.run();
         } else {
-            Thread t = new Thread(r);
+            var t = new Thread(r);
             t.start();
         }
         return buildFile.getAbsolutePath();
-        
     }
 
     /**
      * If the script has a listener, use that one. If not, create an instance of
      * {@link CommonsLoggingListener} and use that one.
-     * 
+     *
      * @param script the {@link AntScript} to get the listener from.
      * @return the listener that the script has, or a new instance of
      *         {@link CommonsLoggingListener} if the script does not have
      *         listeners.
      */
-    private BuildListener getLogListener(AntScript script)
-    {
-        if(!isEmpty(script.getListeners()))
-        {
+    private BuildListener getLogListener(AntScript script) {
+        if (!isEmpty(script.getListeners())) {
             return script.getListeners().get(0);
-        }
-        else
-        {
-            CommonsLoggingListener logListener = new CommonsLoggingListener();
+        } else {
+            var logListener = new CommonsLoggingListener();
             logListener.setMessageOutputLevel(getLogLevel());
             return logListener;
         }
     }
-    
+
     private int getLogLevel() {
         /*
          * Add a logging listener to log the build to the server console.
@@ -175,7 +163,5 @@ public class PSAntService implements IPSAntService {
         logLevel = log.isDebugEnabled() ? Project.MSG_DEBUG : logLevel;
         logLevel = log.isTraceEnabled() ? Project.MSG_DEBUG : logLevel;
         return logLevel;
-        
     }
 }
-

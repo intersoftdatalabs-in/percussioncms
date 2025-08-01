@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,43 +20,45 @@ package com.percussion.share.spring;
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.*;
 
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
-@Category(IntegrationTest.class)
-public class PSSpringWebApplicationContextUtilsTest extends ServletTestCase
-{
-    
-    public void testGetWebApplicationContext() 
-    {
-        assertNotNull(getWebApplicationContext());
-        assertNotNull(getWebApplicationContext()
-                .getBean("springWebApplicationContextSetter"));
-    }
-    
+import static org.junit.jupiter.api.Assertions.*;
 
-    public void testInjectDependencies() throws Exception 
-    {
-        ToBeAutoWired a = new ToBeAutoWired();
-        injectDependencies(a);
-        assertNotNull(a.getSpringWebApplicationContextSetter());
+/**
+ * Tests for {@link PSSpringWebApplicationContextUtils}.
+ * Sunny Sal: "Spring context utils, Java 11, and dependency injection ka hero!"
+ */
+@Category(IntegrationTest.class)
+@Tag("integration")
+public class PSSpringWebApplicationContextUtilsTest {
+
+    @Test
+    void testGetWebApplicationContext() {
+        var ctx = getWebApplicationContext();
+        assertNotNull(ctx, "WebApplicationContext should not be null");
+        assertNotNull(ctx.getBean("springWebApplicationContextSetter"),
+                "springWebApplicationContextSetter bean should be present");
     }
-    
-    
+
+    @Test
+    void testInjectDependencies() throws Exception {
+        var a = new ToBeAutoWired();
+        injectDependencies(a);
+        assertNotNull(a.getSpringWebApplicationContextSetter(),
+                "Dependency should be injected by Spring");
+    }
+
     public static class ToBeAutoWired {
         private PSSpringWebApplicationContextSetter springWebApplicationContextSetter;
 
-        public PSSpringWebApplicationContextSetter getSpringWebApplicationContextSetter()
-        {
+        public PSSpringWebApplicationContextSetter getSpringWebApplicationContextSetter() {
             return springWebApplicationContextSetter;
         }
 
-        public void setSpringWebApplicationContextSetter(PSSpringWebApplicationContextSetter springWebApplicationContextSetter)
-        {
-            this.springWebApplicationContextSetter = springWebApplicationContextSetter;
+        public void setSpringWebApplicationContextSetter(PSSpringWebApplicationContextSetter setter) {
+            this.springWebApplicationContextSetter = setter;
         }
-        
-        
     }
-
 }

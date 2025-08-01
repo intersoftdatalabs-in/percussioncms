@@ -14,222 +14,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.share.dao;
 
+import com.percussion.share.service.exception.PSDataServiceException;
 import java.io.Serializable;
 import java.util.List;
 
-import com.percussion.share.service.exception.PSDataServiceException;
-
 /**
- * Generic DAO (Data Access Object) with common methods to CRUD POJOs.
- * 
- * <p>
- * Extend this interface if you want typesafe (no casting necessary) DAO's for
- * your domain objects.
- * 
+ * Java 11 refactored: Generic DAO (Data Access Object) with common methods to CRUD POJOs.
+ *
+ * <p>Extend this interface for typesafe (no casting necessary) DAOs for your domain objects.
+ *
+ * <p>All returned lists must be non-null (may be empty). Implementations must be thread-safe.
+ *
  * @author <a href="mailto:bwnoll@gmail.com">Bryan Noll</a>
  * @param <T> a type variable
  * @param <PK> the primary key for that type
  */
-public interface IPSGenericDao<T, PK extends Serializable>
-{
-
+public interface IPSGenericDao<T, PK extends Serializable> {
     /**
-     * Generic method used to get all objects of a particular type. This is the
-     * same as lookup up all rows in a table.
-     * 
-     * @return List of populated objects
-     * @throws PSDataServiceException
+     * Gets all objects of a particular type (all rows in a table).
+     *
+     * @return List of populated objects, never null
+     * @throws PSDataServiceException if retrieval fails
      */
     List<T> findAll() throws PSDataServiceException;
 
     /**
-     * Generic method to get an object based on class and identifier. An
-     * ObjectRetrievalFailureException Runtime Exception is thrown if nothing is
-     * found.
-     * 
+     * Gets an object based on class and identifier. Throws
+     * ObjectRetrievalFailureException if not found.
+     *
      * @param id the identifier (primary key) of the object to get
-     * @return a populated object. It may be <code>null</code> if the object does not exist.
-     * @throws LoadException 
-     * @see org.springframework.orm.ObjectRetrievalFailureException
+     * @return a populated object, or null if not found
+     * @throws PSDataServiceException if retrieval fails
      */
     T find(PK id) throws PSDataServiceException;
 
     /**
-     * Generic method to save an object - handles both update and insert.
-     * 
+     * Saves an object (handles both update and insert).
+     *
      * @param object the object to save
      * @return the persisted object
-     * @throws SaveException 
+     * @throws PSDataServiceException if save fails
      */
     T save(T object) throws PSDataServiceException;
 
     /**
-     * Generic method to delete an object based on class and id
-     * 
-     * @param id the identifier (primary key) of the object to remove
-     * @throws DeleteException 
+     * Removes an object from persistent storage.
+     *
+     * @param object the object to remove
+     * @throws PSDataServiceException if removal fails
      */
-    void delete(PK id) throws PSDataServiceException;
+    void remove(T object) throws PSDataServiceException;
 
     /**
-     * DataServiceSaveException is thrown when a site cannot be saved
-     * successfully.
+     * Removes an object by its primary key.
+     *
+     * @param id the primary key of the object to remove
+     * @throws PSDataServiceException if removal fails
      */
-    public static class SaveException extends PSDataServiceException
-    {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Default constructor.
-         */
-        public SaveException()
-        {
-            super();
-        }
-
-        /**
-         * Constructs an exception with the specified detail message and the
-         * cause.
-         * 
-         * @param message the specified detail message.
-         * @param cause the cause of the exception.
-         */
-        public SaveException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-
-        /**
-         * Constructs an exception with the specified detail message.
-         * 
-         * @param message the specified detail message.
-         */
-        public SaveException(String message)
-        {
-            super(message);
-        }
-
-        /**
-         * Constructs an exception with the specified cause.
-         * 
-         * @param cause the cause of the exception.
-         */
-        public SaveException(Throwable cause)
-        {
-            super(cause);
-        }
-    }
-
-    /**
-     * DataServiceDeleteException is thrown when a site cannot be deleted
-     * successfully.
-     */
-    public static class DeleteException extends PSDataServiceException
-    {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Default constructor.
-         */
-        public DeleteException()
-        {
-            super();
-        }
-
-        /**
-         * Constructs an exception with the specified detail message and the
-         * cause.
-         * 
-         * @param message the specified detail message.
-         * @param cause the cause of the exception.
-         */
-        public DeleteException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-
-        /**
-         * Constructs an exception with the specified detail message.
-         * 
-         * @param message the specified detail message.
-         */
-        public DeleteException(String message)
-        {
-            super(message);
-        }
-
-        /**
-         * Constructs an exception with the specified cause.
-         * 
-         * @param cause the cause of the exception.
-         */
-        public DeleteException(Throwable cause)
-        {
-            super(cause);
-        }
-    }
-
-    /**
-     * DataServiceLoadException is thrown when a site cannot be loaded
-     * successfully.
-     */
-    public static class LoadException extends PSDataServiceException
-    {
-
-        /**
-         * 
-         */
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Default constructor.
-         */
-        public LoadException()
-        {
-            super();
-        }
-
-        /**
-         * Constructs an exception with the specified detail message and the
-         * cause.
-         * 
-         * @param message the specified detail message.
-         * @param cause the cause of the exception.
-         */
-        public LoadException(String message, Throwable cause)
-        {
-            super(message, cause);
-        }
-
-        /**
-         * Constructs an exception with the specified detail message.
-         * 
-         * @param message the specified detail message.
-         */
-        public LoadException(String message)
-        {
-            super(message);
-        }
-
-        /**
-         * Constructs an exception with the specified cause.
-         * 
-         * @param cause the cause of the exception.
-         */
-        public LoadException(Throwable cause)
-        {
-            super(cause);
-        }
-    }
-
+    void remove(PK id) throws PSDataServiceException;
 }

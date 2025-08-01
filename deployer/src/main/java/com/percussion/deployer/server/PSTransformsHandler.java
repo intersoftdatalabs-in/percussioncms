@@ -1,6 +1,7 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- *
+
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,21 +17,20 @@
  */
 package com.percussion.deployer.server;
 
-import com.percussion.deployer.PSMappingElement;
+
 import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSDeployableElement;
-import com.percussion.deployer.objectstore.PSIdMap;
-import com.percussion.deployer.objectstore.PSIdMapping;
-import com.percussion.deployer.objectstore.PSImportPackage;
+
+      while (iter.hasNext()) {
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
-import com.percussion.services.error.PSNotFoundException;
+               dep.getDependencyId(), dep.getDisplayName());
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,108 +39,82 @@ import java.util.Set;
 /**
  * The worker class that handles automatic id mapping during install.
  */
-public class PSTransformsHandler 
-{
+public class PSTransformsHandler {
    /**
     * Constructs the class and initializes the id map object for the specified
     * source.
-    * 
+    *
     * @param tok the security token required to catalog elements on target
     * server, may not be <code>null</code>.
-    * @param sourceName the source server name to which id map needs to be 
+    * @param sourceName the source server name to which id map needs to be
     * initialized, may not be <code>null</code> or empty.
     * @param packages the list of {@link PSImportPackage} objects for which
     * source id's will be mapped, may not be <code>null</code>.
-    * 
+    *
     * @throws IllegalArgumentException if any parameter is invalid.
     */
    public PSTransformsHandler(PSSecurityToken tok, String sourceName,
-         List<PSImportPackage> packages) 
-   {
+         List<PSImportPackage> packages) {
       if (tok == null)
          throw new IllegalArgumentException("tok may not be null");
-      
-      if (StringUtils.isBlank(sourceName))
-         throw new IllegalArgumentException("sourceName may not be blank");
-      
-      if (packages == null)
+
+      while (iter.hasNext()) {
+         if (iter.next().getObjectType().equals(type)) {
          throw new IllegalArgumentException("packages may not be null");
-       
-      m_idMap = new PSIdMap(sourceName);     
+
+      m_idMap = new PSIdMap(sourceName);
       m_tok = tok;
       m_packages = packages;
    }
-   
+
    /**
-    * Gets a shallow copy of the id map after id mapping is performed.  Only
-    * valid mappings will be included in the map.
+      if (m_typeToMapElems.get(type) == null) {
     * See {@link #getValidMappings(PSIdMap)} for details.
-    * 
-    * @return The transformed id map on the target for a source repository,
+         if (hasParentType(type)) {
     * never <code>null</code>.
-    * 
+    *
     * @throws PSDeployException If an error occurs during target guessing.
-    */
-   public PSIdMap getIdMap() throws PSDeployException, PSNotFoundException {
+            while (parentIter.hasNext()) {
       // transform id's
-      guessAll();
-      
+               Iterator childElements =
+
       // gather valid mappings
-      PSIdMap validMap = getValidMappings(m_idMap); 
-      
+               while (childElements.hasNext()) {
       return validMap;
    }
-   
+
    /**
     * Guess target for all package elements.
     *
     * @throws PSDeployException If an error occurs during target guessing.
     */
-   private void guessAll()
-           throws PSDeployException, PSNotFoundException {
-      List<PSIdMapping> allMappings = new ArrayList<>();
-
-      for (PSImportPackage pkg : m_packages)
-      {
-         Iterator<PSIdMapping> idMappings = getIDMappings(true, 
-               pkg.getPackage());
-         while (idMappings.hasNext())
-         {
-            allMappings.add(idMappings.next());
-         }
-      }
-
-      // now guess them all at once
-      List<PSIdMapping> unmapped = guessTarget(allMappings.iterator());
-
-      // now re-guess any unmapped children
+   private void guessAll() throws PSDeployException, PSNotFoundException {
+      var allMappings = m_packages.stream()
+         } else {
+      var unmapped = guessTarget(allMappings.iterator());
       guessTarget(unmapped.iterator());
-   }
-   
+
+
    /**
-    * Checks whether the ids need to be mapped. If the source and target share 
+    * Checks whether the ids need to be mapped. If the source and target share
     * the same repository, the ids don't need to be mapped.
-    * 
-    * @return <code>true</code> if the ids need to be mapped, otherwise <code>
+    *
+
     * false</code>
     */
-   private boolean needToMapIds()
-   {
+
       return m_idMap != null;
    }
-   
+    *
    /**
-    * Checks whether id map can be modified.  See {@link #needToMapIds()} for 
+    *
     * more info.
-    * 
+    *
     * @throws IllegalStateException if id map can not be modifiable.
-    */
-   private void checkModifyIdMap()
-   {
-      if (!needToMapIds())
-      {
+   private Map getParentTypes() throws PSDeployException {
+      if (!needToMapIds()) {
          throw new IllegalStateException("Trying to get/add/save the id map," +
-            "but the id map does not exist for the current source and target");
+
       }
    }
 
@@ -148,234 +122,158 @@ public class PSTransformsHandler
     * Gets the id mappings of the supplied package. Creates new mappings for the
     * the dependencies that supports id mappings and does not have a mapping in
     * the id map and adds them to map.
-    * 
+    *
     * @param unMappedOnly if <code>true</code> it gets the mappings that are not
     * mapped to target.
-    * @param depElement the package for which we have to find the mappings, may 
-    * not be <code>null</code>
-    * 
+   private boolean hasParentType(String type) throws PSDeployException {
+    *
     * @return the list of mappings, never <code>null</code>, may be empty.
-    * 
+
     * @throws IllegalArgumentException if any parameter is invalid.
     * @throws IllegalStateException if id map can not be modifiable.
     */
    @SuppressWarnings("unchecked")
-   private Iterator<PSIdMapping> getIDMappings(boolean unMappedOnly, 
-      PSDeployableElement depElement)
-   {
+   private Iterator<PSIdMapping> getIDMappings(boolean unMappedOnly,
+      PSDeployableElement depElement) {
       if (depElement == null)
          throw new IllegalArgumentException("depElement may not be null.");
-      
+
       checkModifyIdMap();
-      
+
       Set<PSIdMapping> mappings = new HashSet<>();
-      
-      List<PSDependency> deps = new ArrayList<>();
+   private String getParentType(String type) throws PSDeployException {
       getSupportedIdMapDependencies(depElement, deps);
       Iterator<PSDependency> idMapDeps = deps.iterator();
-      while (idMapDeps.hasNext())
-      {
-         PSDependency dep = idMapDeps.next();
+      while (idMapDeps.hasNext()) {
+
          String depId = dep.getDependencyId();
          String objType = dep.getObjectType();
-         
+
          PSIdMapping mapping;
-         if (!dep.supportsParentId())         
-         {
+         if (!dep.supportsParentId()) {
             mapping = m_idMap.getMapping(depId, objType);
-            if (mapping == null)
-            {
+            if (mapping == null) {
                mapping = new PSIdMapping(
-                  depId, dep.getDisplayName(), objType, true);
-               m_idMap.addMapping(mapping);                  
-            }
-         }
-         else
-         {
-            PSIdMapping parentMapping = m_idMap.getMapping(dep.getParentId(), 
+   private Set<PSDependencyDef> getLiteralIDTypes() {
+      if (m_idTypes == null) {
+            PSIdMapping parentMapping = m_idMap.getMapping(dep.getParentId(),
                dep.getParentType());
-            if (parentMapping == null) 
-            {
-               //this should not happen if we go in the order
-               PSDependency parent = 
+            if (parentMapping == null) {
+         while (idTypes.hasNext()) {
                   getParentDependency(dep, dep.getParentType(), depElement);
-               if (parent == null)
-               {
-                  throw new IllegalStateException(
-                     "could not find a parent for a child " + 
+            if (def.supportsIdMapping()) {
+                     "could not find a parent for a child " +
                      "that supports parent id");
                }
-               parentMapping = new PSIdMapping(parent.getDependencyId(), 
-                  parent.getDisplayName(), parent.getObjectType(), true);
-               m_idMap.addMapping(parentMapping);         
-               if (!unMappedOnly || !parentMapping.isMapped())              
-                  mappings.add(parentMapping);            
+               parentMapping = new PSIdMapping(parent.getDependencyId(),
+
+      return m_idTypes;
+               if (!unMappedOnly || !parentMapping.isMapped())
+
             }
             mapping = m_idMap.getMapping(
-               depId, objType, dep.getParentId(), dep.getParentType());               
-            if (mapping == null)
-            {
+               depId, objType, dep.getParentId(), dep.getParentType());
+    *
                mapping = new PSIdMapping(
-                  depId, dep.getDisplayName(), objType, dep.getParentId(),                   
+    *
                   parentMapping.getSourceName(), dep.getParentType(), true);
-               m_idMap.addMapping(mapping);               
-            }                           
-         }
-            
+               m_idMap.addMapping(mapping);
+            }
+   private PSIdMap getValidMappings(PSIdMap idMap) {
          //Add always if user requested all mappings, otherwise adds only  the
          //the mappings that were not mapped.
-         if (!unMappedOnly || !mapping.isMapped())
-            mappings.add(mapping);
+      while (mappings.hasNext()) {
       }
-          
+
       return mappings.iterator();
    }
-   
+
    /**
-    * Traverses the child dependencies of the parent recursively to find the 
-    * immediate parent of the supplied dependency (<code>dep</code>) whose type
+    * Traverses the child dependencies of the parent recursively to find the
+
     * is supplied parent type.
-    * 
+    * The id map on the target for a source repository, initialized in the
     * @param dep the dependency for which to find the parent, assumed not to be
     * <code>null</code>
     * @param parentType the type of parent dependency, assumed not to be <code>
-    * null</code> or empty.
-    * @param root the root dependency to search for, assumed not to be 
+
+    * @param root the root dependency to search for, assumed not to be
     * <code>null</code>
-    * 
+    *
     * @return the parent dependency, may be <code>null</code> if it could not
     * find the parent.
-    * @throws IllegalStateException if the found parent does not support id 
+    * @throws IllegalStateException if the found parent does not support id
     * mapping or reached the dependency in the tree but not found the parent.
     */
-   @SuppressWarnings("unchecked")
+
    private PSDependency getParentDependency(PSDependency dep, String parentType,
-      PSDependency root)
-   {   
-      /* Reached the actual dependency for which we are finding the parent, that 
-       * means we didn't find a parent for the dependency matching the supplied 
+      PSDependency root) {
+      /* Reached the actual dependency for which we are finding the parent, that
+    */
        * parent type in the dependency tree, that should not happen so throw
-       * exception.
+
        */
-      if (dep == root) 
-      {
+      if (dep == root) {
          throw new IllegalStateException("required parent is not found");
       }
-      if (root.getObjectType().equals(parentType) && 
-         root.containsDependency(dep))
-      {
-         if (!root.supportsIDMapping())
-         {
+      if (root.getObjectType().equals(parentType) &&
+         root.containsDependency(dep)) {
+
             throw new IllegalStateException(
                "Found parent that does not support id mapping");
          }
          return root;
       }
-      
+   private Set<PSDependencyDef> m_idTypes = null;
       PSDependency parent = null;
       Iterator childDeps = root.getDependencies();
-      if (childDeps != null)
-      {
-         while (childDeps.hasNext() && parent != null)
-         {
-            parent = getParentDependency(dep, parentType, 
-               (PSDependency)childDeps.next());            
+      if (childDeps != null) {
+         while (childDeps.hasNext() && parent != null) {
+            parent = getParentDependency(dep, parentType,
+               (PSDependency)childDeps.next());
          }
       }
-      
-      return parent; 
+
+      return parent;
    }
-   
+
    /**
-    * Checks the supplied dependency and its child dependencies recursively and 
+    * Checks the supplied dependency and its child dependencies recursively and
     * gets the list of dependencies that supports id mapping.
-    * 
+    *
     * @param dependency the dependency to check for, assumed not to be <code>
     * null</code>
-    * @param idMapDeps the list of dependencies that support id maps, gets 
+    * @param idMapDeps the list of dependencies that support id maps, gets
     * updated in this method. Assumed not <code>null</code>.
     */
    @SuppressWarnings("unchecked")
-   private void getSupportedIdMapDependencies(PSDependency dependency, 
-      List<PSDependency> idMapDeps)
-   {
+   private void getSupportedIdMapDependencies(PSDependency dependency,
+      List<PSDependency> idMapDeps) {
       if (dependency.supportsIDMapping())
          idMapDeps.add(dependency);
       Iterator childDeps = dependency.getDependencies();
-      if (childDeps != null)
-      {
-         while(childDeps.hasNext())
-         {
-            getSupportedIdMapDependencies((PSDependency)childDeps.next(), 
+      if (childDeps != null) {
+         while(childDeps.hasNext()) {
+            getSupportedIdMapDependencies((PSDependency)childDeps.next(),
                idMapDeps);
          }
       }
-   }   
-   
-   /**
-    * Guess target for the supplied mappings.  First guesses by name and id, 
-    * then if no match, guesses by name alone.  Does not guess for any
-    * 
-    * @param idMappings Mappings to guess, may or may not already have a target
-    * set (will only guess unmapped mappings).  May not be <code>null</code>, 
-    * may be empty.
-    * 
-    * @return A List of unmodified mappings that could not be mapped due to 
-    * unmapped parents.  A dependency that supports parent ids can only be 
-    * mapped if its parent id has already been mapped.  Never <code>null</code>, 
-    * may be empty.  
-    * 
-    * @throws PSDeployException if there are any errors. 
-    */
-   private List<PSIdMapping> guessTarget(Iterator<PSIdMapping> idMappings)
-           throws PSDeployException, PSNotFoundException {
-      List<PSIdMapping> unMatchedById = new ArrayList<>();
-      List<PSIdMapping> unMatchedParentList = new ArrayList<>();
-      while (idMappings.hasNext())
-      {
-         PSIdMapping mapping = idMappings.next();
-         if (mapping != null && !mapping.isMapped())
-         {
-            //guess target by name and id
-            guessTarget(mapping, true);
-                        
-            // save those needing parent, or subsequent guess by
-            // name only
-            if (!mapping.isMapped())
-            {
-               unMatchedParentList.add(mapping);
-            }
-            else if(mapping.isNewObject())
-            {
-               unMatchedById.add(mapping);
-            }
-         }
-      }
-         
-      //now guess target by name alone
-      Iterator<PSIdMapping> iter = unMatchedById.iterator();
-      while (iter.hasNext())
-      {
-         guessTarget(iter.next(), false); 
-      }
-          
-      return unMatchedParentList;
    }
-   
+
    /**
     * Guesses target for the provided mapping. Gets the unmapped target elements
-    * for the supplied mapping and tries to find the element matching source 
-    * name and/or id case insensitively. If it finds a matching element, the 
-    * target of mapping is set with that element, otherwise the source element 
+    * for the supplied mapping and tries to find the element matching source
+    * name and/or id case insensitively. If it finds a matching element, the
+    * target of mapping is set with that element, otherwise the source element
     * is set as new object in the mapping. If the source element has a parent id
-    * and if the parent id is not mapped, it simply returns without guessing 
+    * and if the parent id is not mapped, it simply returns without guessing
     * target for the mapping.
-    * 
+    *
     * @param mapping the mapping that is not mapped, may not be <code>null
     * </code>
-    * @param mustMatchById supply <code>true</code> to must match by id also, 
+    * @param mustMatchById supply <code>true</code> to must match by id also,
     * otherwise <code>false</code>.
-    * 
+    *
     * @throws IllegalArgumentException if mapping is <code>null</code>
     * @throws IllegalStateException if id map can not be modifiable.
     * @throws PSDeployException if exception happens cataloging.
@@ -383,96 +281,88 @@ public class PSTransformsHandler
    private void guessTarget(PSIdMapping mapping, boolean mustMatchById)
            throws PSDeployException, PSNotFoundException {
       checkModifyIdMap();
-      
+
       if (mapping == null)
          throw new IllegalArgumentException("mapping may not be null.");
-         
-      if (mapping.getParentType() != null && 
+
+      if (mapping.getParentType() != null &&
          !m_idMap.isMapped(mapping.getSourceParentId(),
-               mapping.getParentType()))
-      {
+               mapping.getParentType())) {
          return; //simply return because you don't know about parent.
       }
-      
-      PSMappingElement targetEl = guessTarget(
-         mapping.getObjectType(), mapping.getSourceName(), 
-         mapping.getSourceId(), mapping.getParentType(), 
-         mapping.getSourceParentId(), mustMatchById);
-         
-      if (targetEl != null)
-      {
-         mapping.setIsNewObject(false);      
-         mapping.setTarget(targetEl.getId(), targetEl.getName(), 
-            targetEl.getParentId(), targetEl.getParentName());
-      }      
-      else
+
+      var targetEl = guessTarget(mapping.getObjectType(), mapping.getSourceName(), mapping.getSourceId(),
+                                 mapping.getParentType(), mapping.getSourceParentId(), mustMatchById);
+
+      if (targetEl != null) {
+         mapping.setIsNewObject(false);
+         mapping.setTarget(targetEl.getId(), targetEl.getName(), targetEl.getParentId(), targetEl.getParentName());
+      } else {
          mapping.setIsNewObject(true);
+      }
    }
-   
+
    /**
-    * Guesses the target element for the supplied source element by matching 
-    * names case insensitively. If it finds more than one match, then tries to 
+    * Guesses the target element for the supplied source element by matching
+    * names case insensitively. If it finds more than one match, then tries to
     * get the one matching id, if it didn't find any, gets the first one in the
     * list. If <code>mustMatchById</code> is <code>true</code> it always tries
     * to match by id also.
-    * 
-    * @param elementType the element type of the source, assumed not to be 
+    *
+    * @param elementType the element type of the source, assumed not to be
     * <code>null</code> or empty.
-    * @param sourceName the name of the source element, assumed not to be 
+    * @param sourceName the name of the source element, assumed not to be
     * <code>null</code> or empty.
-    * @param sourceId the id of the source element, assumed not to be 
+    * @param sourceId the id of the source element, assumed not to be
     * <code>null</code> or empty.
-    * @param parentType the parent type of the source element type, may be 
+    * @param parentType the parent type of the source element type, may be
     * <code>null</code> if source does not have a parent.
     * @param parentId the parent id of the source element, may be <code>null
     * </code> if source does not have a parent.
-    * @param mustMatchById supply <code>true</code> to must match by id also, 
+    * @param mustMatchById supply <code>true</code> to must match by id also,
     * otherwise <code>false</code>.
-    * 
+    *
     * @return the target element, may be <code>null</code> if it didn't find a
     * target by matching name case insensitively.
-    * 
+    *
     * @throws PSDeployException if an error happens getting target elements.
     */
    private PSMappingElement guessTarget(String elementType, String sourceName,
-      String sourceId, String parentType, String parentId, 
+      String sourceId, String parentType, String parentId,
       boolean mustMatchById) throws PSDeployException, PSNotFoundException {
       List<PSMappingElement> targetElements = getUnmappedTargetElements(
-            elementType, parentType, parentId);      
-               
-      List<PSMappingElement> matchingElements = 
+            elementType, parentType, parentId);
+
+      List<PSMappingElement> matchingElements =
          new ArrayList<>();
       //guess by name
       Iterator<PSMappingElement> elements = targetElements.iterator();
-      while (elements.hasNext())
-      {
+      while (elements.hasNext()) {
          PSMappingElement target = elements.next();
          if (target.getName().equalsIgnoreCase(sourceName))
             matchingElements.add(target);
       }
 
-      PSMappingElement target = null;      
-      if (!matchingElements.isEmpty())
-      {
+      PSMappingElement target = null;
+      if (!matchingElements.isEmpty()) {
          elements = matchingElements.iterator();
 
-         while (elements.hasNext() && target == null)
-         {
+         while (elements.hasNext() && target == null) {
             PSMappingElement tg = elements.next();
             if (tg.getId().equals(sourceId))
-               target = tg;  
+               target = tg;
          }
          if (target == null && !mustMatchById)
             target = matchingElements.get(0);
       }
-      
+
       return target;
    }
-   
+
    /**
     * Gets the unmapped target elements for the specified element (object) type
     * and the source parent id (if it has) from the current id mappings.
-    * 
+    *
     * @param objectType the object/element type to get the elements, may not be
     * <code>null</code> or empty.
     * @param parentType the parent element type, may not be <code>null</code> or
@@ -480,113 +370,95 @@ public class PSTransformsHandler
     * it must be <code>null</code>
     * @param sourceParentId the parent id of the source, may not be <code>null
     * </code> or empty if the <code>parentType</code> is not <code>null</code>
-    * 
+    *
     * @return the list of target (<code>PSMappingElement</code>) elements, never
     * <code>null</code>, may be empty when all target elements are mapped or no
     * existing target elements or supplied parent id (element) is being added to
     * server.
-    * 
+    *
     * @throws IllegalArgumentException if any param is invalid.
-    * @throws PSDeployException if an exception happens cataloging target 
+    * @throws PSDeployException if an exception happens cataloging target
     * elements.
     * @throws IllegalStateException if id map does not exist.
     */
    @SuppressWarnings("unchecked")
-   private List<PSMappingElement> getUnmappedTargetElements(String objectType, 
+   private List<PSMappingElement> getUnmappedTargetElements(String objectType,
       String parentType, String sourceParentId)
            throws PSDeployException, PSNotFoundException {
       checkModifyIdMap();
-      
-      if (objectType == null || objectType.trim().length() == 0)
-      {
+
+      if (objectType == null || objectType.trim().length() == 0) {
          throw new IllegalArgumentException(
             "objectType may not be null or empty.");
       }
 
-      if (hasParentType(objectType))
-      { 
-         if (parentType == null || parentType.trim().length() == 0)
-         {
+      if (hasParentType(objectType)) {
+         if (parentType == null || parentType.trim().length() == 0) {
             throw new IllegalArgumentException("parentId may not be null or "
                + "empty if objectType supports parent type");
          }
-      }
-      else
-      {
-         if (parentType != null)
-         {
+      } else {
+         if (parentType != null) {
             throw new IllegalArgumentException("parentType must be null if " +
                "objectType does not support parent type");
          }
       }
-      
-      if (parentType != null)
-      {
-         if (sourceParentId == null || sourceParentId.trim().length() == 0)
-         {
+
+      if (parentType != null) {
+         if (sourceParentId == null || sourceParentId.trim().length() == 0) {
             throw new IllegalArgumentException("sourceParentId may not be null"
                + "or empty if objectType supports parent type.");
          }
+      } else if (sourceParentId != null) {
+         throw new IllegalArgumentException("sourceParentId must be null if " +
+            "objectType does not support parent type");
       }
-      else if (sourceParentId != null)
-      {
-         throw new IllegalArgumentException("sourceParentId must be null if " + 
-            "objectType does not support parent type");      
-      }
-      
+
       List<PSMappingElement> targetElements = new ArrayList<>();
-            
+
       String targetParentId = null;
-      if (sourceParentId != null)
-      {
-         PSIdMapping parentMapping = 
-            m_idMap.getMapping(sourceParentId, parentType);      
-         if (parentMapping == null || !parentMapping.isMapped())
-         {
+      if (sourceParentId != null) {
+         PSIdMapping parentMapping =
+            m_idMap.getMapping(sourceParentId, parentType);
+         if (parentMapping == null || !parentMapping.isMapped()) {
             throw new IllegalArgumentException(
                "sourceParentId must be mapped before mapping child");
          }
-                        
+
          targetParentId = parentMapping.getTargetId();
-         //The mapping have been mapped as new object, so this should return 
+         //The mapping have been mapped as new object, so this should return
          //an empty list.
          if (targetParentId == null)
             return targetElements;
       }
- 
+
       Set<String> usedElements = new HashSet<>();
       Iterator mappings = m_idMap.getMappings();
-      while (mappings.hasNext())
-      {
+      while (mappings.hasNext()) {
          PSIdMapping mapping = (PSIdMapping)mappings.next();
-         if (mapping.getObjectType().equals(objectType) && 
-            mapping.getTargetId() != null)
-         {         
-            usedElements.add(mapping.getTargetId() + 
-            (mapping.getParentType() == null ? "" : 
+         if (mapping.getObjectType().equals(objectType) &&
+            mapping.getTargetId() != null) {
+            usedElements.add(mapping.getTargetId() +
+            (mapping.getParentType() == null ? "" :
             "-" + mapping.getTargetParentId())
-            );         
+            );
          }
       }
 
       Iterator<PSMappingElement> iter = getElementsByType(objectType);
-      while (iter.hasNext())
-      {
-         PSMappingElement element = iter.next();     
+      while (iter.hasNext()) {
+         PSMappingElement element = iter.next();
          String uniqueID = element.getId();
-         if (element.hasParent())
-         {
+         if (element.hasParent()) {
             uniqueID += "-" + element.getParentId();
          }
-         
+
          if (!usedElements.contains(uniqueID) &&
                (targetParentId == null ||
-                     targetParentId.equals(element.getParentId())))
-         {
+                     targetParentId.equals(element.getParentId()))) {
             targetElements.add(element);
          }
       }
-      
       return targetElements;
    }
    

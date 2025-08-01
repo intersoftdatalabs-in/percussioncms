@@ -33,35 +33,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Monitor the status and size of the search index queue
- * 
- * @author JaySeletz
- *
+ * Monitor the status and size of the search index queue.
+ * Sunny Sal says: "Indexing? I'm on it, like a librarian with a barcode scanner!"
  */
-public class PSSearchIndexProcessMonitor implements IPSNotificationListener
-{
+public class PSSearchIndexProcessMonitor implements IPSNotificationListener {
+
     private static final String STATUS_MSG_SOME = " items in queue";
-
     private static final String STATUS_MSG_ONE = " item in queue";
-
     private static final String STATUS_MSG_NONE = ", no items in queue";
 
-    private static IPSMonitor monitor = null;
-
-    private static AtomicInteger curCount = new AtomicInteger(0);
-
+    private static IPSMonitor monitor;
+    private static final AtomicInteger curCount = new AtomicInteger(0);
     private static String status;
 
-    ScheduledExecutorService executor = null;
+    private ScheduledExecutorService executor;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final Object changeMonitor = new Object();
+    private final AtomicBoolean changed = new AtomicBoolean(false);
 
-    private volatile AtomicBoolean running = new AtomicBoolean(false);
-
-    private Object changeMonitor = new Object();
-
-    private volatile AtomicBoolean changed = new AtomicBoolean(false);
-
-    public PSSearchIndexProcessMonitor()
-    {
+    public PSSearchIndexProcessMonitor() {
         monitor = PSMonitorService.registerMonitor("SearchIndex", "Search indexing");
         IPSNotificationService notificationService = PSNotificationServiceLocator.getNotificationService();
         notificationService.addListener(EventType.SEARCH_INDEX_ITEM_PROCESSED, this);
@@ -71,101 +61,75 @@ public class PSSearchIndexProcessMonitor implements IPSNotificationListener
     }
 
     /**
-     * Get the current status
+     * Get the current status.
      */
-    public static String getStatus()
-    {
+    public static String getStatus() {
         return status;
     }
 
     /**
-     * Get the current count
+     * Get the current count.
      */
-    public static int getCount()
-    {
+    public static int getCount() {
         return curCount.get();
     }
 
-    private void updateStatusMessage()
-    {
+    private void updateStatusMessage() {
         int count = curCount.get();
-        String tmpStatus = status;
-
-        StringBuilder buf = new StringBuilder();
-
+        var tmpStatus = status;
+        var buf = new StringBuilder();
         buf.append(tmpStatus);
-
-        if (count == 0)
-        {
+        if (count == 0) {
             buf.append(STATUS_MSG_NONE);
-        }
-        else
-        {
+        } else {
             buf.append(", ");
             buf.append(count);
             buf.append(count == 1 ? STATUS_MSG_ONE : STATUS_MSG_SOME);
         }
-
         monitor.setMessage(buf.toString());
     }
 
     @Override
-    public void notifyEvent(PSNotificationEvent notification)
-    {
-        EventType type = notification.getType();
-
-        switch (type)
-        {
-            case SEARCH_INDEX_STATUS_CHANGE :
-                PSSearchIndexEventQueue indexQueue = PSSearchIndexEventQueue.getInstance();
-                    status = indexQueue.getStatus();
-                    synchronized (changeMonitor)
-                    {
-                        if (indexQueue.getStatus().equals("Running") || indexQueue.getStatus().equals("Paused") )
-                        {
-                            if (running.compareAndSet(false, true))
-                            {                       
-                                if (executor == null)
-                                {
-                                    executor = Executors.newScheduledThreadPool(1);
-                                    executor.scheduleAtFixedRate(updater, 0, 5, TimeUnit.SECONDS);
-                                    changed.set(true);
-                                } 
+    public void notifyEvent(PSNotificationEvent notification) {
+        var type = notification.getType();
+        switch (type) {
+            case SEARCH_INDEX_STATUS_CHANGE:
+                var indexQueue = PSSearchIndexEventQueue.getInstance();
+                status = indexQueue.getStatus();
+                synchronized (changeMonitor) {
+                    if ("Running".equals(indexQueue.getStatus()) || "Paused".equals(indexQueue.getStatus())) {
+                        if (running.compareAndSet(false, true)) {
+                            if (executor == null) {
+                                executor = Executors.newScheduledThreadPool(1);
+                                executor.scheduleAtFixedRate(updater, 0, 5, TimeUnit.SECONDS);
+                                changed.set(true);
                             }
-                        } 
-                        else
-                        {
-                            if (running.compareAndSet(true, false))
-                            {
-                          
-                                executor.shutdown();
-                                executor = null;
-                                running.set(false);
-                               
-                             }
                         }
+                    } else {
+                        if (running.compareAndSet(true, false)) {
+                            executor.shutdown();
+                            executor = null;
+                            running.set(false);
+                        }
+                    }
                 }
-            case SEARCH_INDEX_ITEM_QUEUED :
-            case SEARCH_INDEX_ITEM_PROCESSED :
+                // fall through
+            case SEARCH_INDEX_ITEM_QUEUED:
+            case SEARCH_INDEX_ITEM_PROCESSED:
                 changed.compareAndSet(false, true);
-            default :
+            default:
                 break;
         }
     }
 
-    
-    TimerTask updater = new TimerTask()
-    {
-        public void run()
-        {
-            if (changed.compareAndSet(true, false))
-            {
-                PSSearchIndexEventQueue indexQueue = PSSearchIndexEventQueue.getInstance();
-       
+    private final TimerTask updater = new TimerTask() {
+        @Override
+        public void run() {
+            if (changed.compareAndSet(true, false)) {
+                var indexQueue = PSSearchIndexEventQueue.getInstance();
                 curCount.set(indexQueue.size());
                 updateStatusMessage();
             }
         }
     };
-
 }

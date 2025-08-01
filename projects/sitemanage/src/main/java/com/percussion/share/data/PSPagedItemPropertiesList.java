@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,50 +18,43 @@
 package com.percussion.share.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Generic class to return information about a page of data. For example, it's
- * used to return a page of children items of a PSPathItem and it's children
- * count, or to paginate through a list of content IDs (Integer).
- * 
+ * Generic class to return information about a page of data.
+ * Used to return a page of children items of a PSPathItem and its children count,
+ * or to paginate through a list of content IDs (Integer).
+ *
  * @author miltonpividori
- * 
  */
 @JsonRootName(value = "PagedItemPropertiesList")
-public class PSPagedItemPropertiesList extends PSPagedList 
-{
+public class PSPagedItemPropertiesList extends PSPagedList {
     /**
      * Children of the item in a particular page.
      */
     private List<PSItemProperties> childrenInPage;
-    
-    public PSPagedItemPropertiesList()
-    {
+
+    public PSPagedItemPropertiesList() {
         this(new ArrayList<>(), null, null);
     }
-    
-    public PSPagedItemPropertiesList(List<PSItemProperties> childrenInPage, Integer childrenCount, Integer startIndex)
-    {
+
+    public PSPagedItemPropertiesList(List<PSItemProperties> childrenInPage, Integer childrenCount, Integer startIndex) {
         super(childrenCount, startIndex);
         this.childrenInPage = childrenInPage;
     }
 
     /**
-     * @return the children
+     * @return the children in this page
      */
-    public List<PSItemProperties> getChildrenInPage()
-    {
+    public List<PSItemProperties> getChildrenInPage() {
         return childrenInPage;
     }
 
     /**
      * @param children the children to set
      */
-    public void setChildrenInPage(List<PSItemProperties> children)
-    {
+    public void setChildrenInPage(List<PSItemProperties> children) {
         this.childrenInPage = children;
     }
 }

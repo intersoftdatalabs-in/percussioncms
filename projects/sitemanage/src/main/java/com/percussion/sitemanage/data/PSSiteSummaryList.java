@@ -23,16 +23,19 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.DEFAULT)
-//TODO: Fix this to be a List..  SiteSummary is the object type in the list.  All the JavaScript seems look for SiteSummary
+/**
+ * List wrapper for site summaries.
+ */
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.DEFAULT)
 @JsonRootName("SiteSummary")
 public class PSSiteSummaryList extends ArrayList<PSSiteSummary> {
+    private static final long serialVersionUID = 1L;
+
     public PSSiteSummaryList(Collection<? extends PSSiteSummary> c) {
         super(c);
     }
 
-    public PSSiteSummaryList(){
+    public PSSiteSummaryList() {
         super();
     }
 }
-

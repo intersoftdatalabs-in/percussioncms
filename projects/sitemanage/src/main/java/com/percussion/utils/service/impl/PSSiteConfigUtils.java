@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -63,9 +64,9 @@ import java.util.TreeSet;
 import static com.percussion.pathmanagement.service.impl.PSSitePathItemService.SITE_ROOT;
 import static com.percussion.xml.PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN;
 import static com.percussion.xml.PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS;
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
-import static org.apache.commons.lang.StringUtils.isBlank;
-import static org.apache.commons.lang.StringUtils.splitByWholeSeparator;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.splitByWholeSeparator;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 /**
@@ -347,33 +348,16 @@ public class PSSiteConfigUtils
      * @param serverId the id of the server we want to remove the entry for. It may or may not exist
      * @+-throws IOException
      */
-    public static void removeServerEntry(String sitename, long serverId) throws IOException
-    {
-        FileOutputStream fos = null;
-
-        File tchFile = getTouchedFile(sitename);
-        if(!tchFile.exists())
-        {
+    public static void removeServerEntry(String sitename, long serverId) throws IOException {
+        var tchFile = getTouchedFile(sitename);
+        if (!tchFile.exists()) {
             return;
         }
-
-        try
-        {
-            // remove the pair
-            PSProperties siteProperties = loadTchFile(tchFile.getPath());
-            siteProperties.remove(Long.toString(serverId));
-
-            // save the changes
-            fos = new FileOutputStream(tchFile);
+        var siteProperties = loadTchFile(tchFile.getPath());
+        siteProperties.remove(Long.toString(serverId));
+        try (var fos = new FileOutputStream(tchFile)) {
             siteProperties.store(fos, "");
             fos.flush();
-        }
-        finally
-        {
-            if (fos != null)
-            {
-                fos.close();
-            }
         }
     }
 
@@ -629,19 +613,15 @@ public class PSSiteConfigUtils
      *         empty if the file does not exist.
      * @throws IOException if an error occurs dealing with files.
      */
-    private static PSProperties loadTchFile(String path) throws IOException
-    {
-        PSProperties properties = new PSProperties();
-
-        File props = new File(path);
-        if(!props.exists())
-        {
+    private static PSProperties loadTchFile(String path) throws IOException {
+        var properties = new PSProperties();
+        var props = new File(path);
+        if (!props.exists()) {
             return properties;
         }
-
-        FileInputStream fis = new FileInputStream(props);
-        properties.load(fis);
-        fis.close();
+        try (var fis = new FileInputStream(props)) {
+            properties.load(fis);
+        }
         return properties;
     }
 

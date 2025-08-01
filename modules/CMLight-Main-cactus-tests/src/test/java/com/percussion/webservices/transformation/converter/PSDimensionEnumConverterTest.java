@@ -21,27 +21,25 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.PSFieldDimension;
 import org.junit.experimental.categories.Category;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for the {@link PSDimensionEnumConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSDimensionEnumConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      PSField.PSDimensionEnum source = PSField.PSDimensionEnum.REQUIRED;
-      
-      PSField.PSDimensionEnum target = 
-         (PSField.PSDimensionEnum) roundTripConversion(
-            PSField.PSDimensionEnum.class, 
-            PSFieldDimension.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+public class PSDimensionEnumConverterTest extends PSConverterTestBase {
+
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        var source = PSField.PSDimensionEnum.REQUIRED;
+
+        var target = (PSField.PSDimensionEnum) roundTripConversion(
+                PSField.PSDimensionEnum.class,
+                PSFieldDimension.class,
+                source);
+
+        assertEquals(source, target);
+    }
 }

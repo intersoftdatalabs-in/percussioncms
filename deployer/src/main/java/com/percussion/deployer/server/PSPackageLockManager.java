@@ -128,8 +128,7 @@ public class PSPackageLockManager
     * @throws IOException If there is an error reading from a file.
     * @throws PSDeployException If there is an archive error.
     */
-   @SuppressWarnings("unchecked")
-   public void update(File packageFile, boolean lock) 
+   public void update(File packageFile, boolean lock)
       throws IOException, SAXException, PSDeployException,
       PSUnknownNodeTypeException
    {
@@ -137,13 +136,13 @@ public class PSPackageLockManager
       {
          throw new IllegalArgumentException("packageFile may not be null");
       }
-      
+
       if (packageFile.isDirectory())
       {
-         File[] files = packageFile.listFiles();
-         for (File file : files)
-         {         
-             update(file, lock);
+         var files = packageFile.listFiles();
+         for (var file : files)
+         {
+            update(file, lock);
          }
       }
       else
@@ -154,119 +153,57 @@ public class PSPackageLockManager
             return;
          }
          
-         String action = lock ? "Locking" : "Unlocking";
-                   
+         var action = lock ? "Locking" : "Unlocking";
+
          System.out.println(action + " package file: " + packageFile.getName());
          
-         File tmpFile = null;
-         PSArchive oldArchive = null;
-         PSArchive newArchive = null;
-         PSArchiveHandler oldHandler = null;
-         InputStream in = null;
-         ZipFile zip = null;
-         File tmp = null;
-         FileOutputStream out = null;
-         File tmpArchive = null;
-                 
-         try
+         try (var zip = new ZipFile(packageFile))
          {
-            // load archive manifest, info
-            oldArchive = new PSArchive(packageFile);
-            oldHandler = new PSArchiveHandler(oldArchive);
-            PSArchiveManifest manifest = oldArchive.getArchiveManifest(); 
-            PSArchiveInfo info = oldArchive.getArchiveInfo(true);
-                       
-            // update archive info (lock/unlock)
-            zip = new ZipFile(packageFile);
-            in = PSArchiveFiles.getFile(zip, PSArchive.ARCHIVE_INFO_PATH);
-            Document doc = PSXmlDocumentBuilder.createXmlDocument(in,
-                  false);
-            in.close();
-            info = new PSArchiveInfo(doc.getDocumentElement());
-            info.setEditable(!lock);
-            
-            // create new archive
-            tmpArchive = File.createTempFile("tmp", null);
-            newArchive = new PSArchive(tmpArchive, info);
+            var oldArchive = new PSArchive(packageFile);
+            var oldHandler = new PSArchiveHandler(oldArchive);
+            var manifest = oldArchive.getArchiveManifest();
+            var info = oldArchive.getArchiveInfo(true);
+
+            try (var in = PSArchiveFiles.getFile(zip, PSArchive.ARCHIVE_INFO_PATH))
+            {
+               var doc = PSXmlDocumentBuilder.createXmlDocument(in,
+                     false);
+               info = new PSArchiveInfo(doc.getDocumentElement());
+               info.setEditable(!lock);
+            }
+
+            var tmpArchive = File.createTempFile("tmp", null);
+            var newArchive = new PSArchive(tmpArchive, info);
             newArchive.storeArchiveManifest(manifest);
             
-            // add dependency files
-            Iterator files = manifest.getFiles();
-            while (files.hasNext())
-            {
-               PSDependencyFile depFile =
-                  (PSDependencyFile) files.next();
-               in = oldHandler.getFileData(depFile);
-               addFile(in, depFile.getArchiveLocation().getPath().replace(
-                     '\\', '/'), newArchive);
-               in.close();
-            }
-            
-            // add configuration files
-            PSArchiveDetail detail = info.getArchiveDetail();
-            PSDescriptor descriptor = detail.getExportDescriptor();
-            String configDef = descriptor.getConfigDefFile();
-            if (configDef.trim().length() > 0)
+            manifest.getFiles().forEachRemaining(depFile -> {
+               try (var in = oldHandler.getFileData(depFile))
+               {
+                  addFile(in, depFile.getArchiveLocation().getPath().replace(
+                        '\\', '/'), newArchive);
+               }
+               catch (IOException | PSDeployException e)
+               {
+                  throw new RuntimeException(e);
+               }
+            });
+
+            var detail = info.getArchiveDetail();
+            var descriptor = detail.getExportDescriptor();
+            if (!descriptor.getConfigDefFile().isBlank())
             {
                copyConfigFile("configurations/impl_config.xml", oldArchive,
                      newArchive);
             }
-            
-            String localConfig = descriptor.getLocalConfigFile();
-            if (localConfig.trim().length() > 0)
+            if (!descriptor.getLocalConfigFile().isBlank())
             {
                copyConfigFile("configurations/local_config.xml", oldArchive,
                      newArchive);
             }
-                        
+
             oldHandler.close();
             newArchive.close();
-            zip.close();
-            
-            // update original package
             IOTools.copyFileStreams(tmpArchive, packageFile);
-         }
-         finally
-         {
-            if (in != null)
-            {
-               in.close();
-            }
-            
-            if (out != null)
-            {
-               out.close();
-            }
-            
-            if (oldHandler != null)
-            {
-               oldHandler.close();
-            }
-            
-            if (newArchive != null)
-            {
-               newArchive.close();
-            }
-            
-            if (zip != null)
-            {
-               zip.close();
-            }
-            
-            if (tmp != null)
-            {
-               tmp.delete();
-            }
-            
-            if (tmpArchive != null)
-            {
-               tmpArchive.delete();
-            }
-            
-            if (tmpFile != null)
-            {
-               IOTools.deleteFile(tmpFile);
-            }
          }
       }
    }
@@ -302,29 +239,15 @@ public class PSPackageLockManager
       throws IOException, PSDeployException
     
    {
-      File tmp = null;
-      FileOutputStream out = null;
-      
-      try
+      var tmp = File.createTempFile("tmp", null);
+      try (var out = new FileOutputStream(tmp))
       {
-         tmp = File.createTempFile("tmp", null);
-         out = new FileOutputStream(tmp);
          IOTools.copyStream(in, out);
-         out.close();
          archive.storeFile(tmp, entryPath);
-         tmp.delete();
       }
       finally
       {
-         if (tmp != null)
-         {
-            tmp.delete();
-         }
-         
-         if (out != null)
-         {
-            out.close();
-         }
+         tmp.delete();
       }
    }
    
@@ -343,19 +266,9 @@ public class PSPackageLockManager
       PSArchive srcArchive, PSArchive tgtArchive) throws PSDeployException,
       IOException
    {
-      InputStream in = null;
-      
-      try
-      {      
-         in = srcArchive.getFile(entryPath);
-         addFile(in, entryPath, tgtArchive);
-      }
-      finally
+      try (var in = srcArchive.getFile(entryPath))
       {
-         if (in != null)
-         {
-            in.close();
-         }
+         addFile(in, entryPath, tgtArchive);
       }
    }
    

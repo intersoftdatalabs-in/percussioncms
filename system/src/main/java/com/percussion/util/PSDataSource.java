@@ -25,7 +25,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.Properties;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 /**
@@ -36,6 +36,19 @@ import java.util.logging.Logger;
  */
 public class PSDataSource implements DataSource
 {
+   private static final int DEFAULT_LOGIN_TIMEOUT = 300;
+
+   private final String url;
+   private final String database;
+   private final String username;
+   private final String password;
+   private final String driverClass;
+   private final String driverLocation;
+
+   private Driver driver;
+   private int loginTimeout = DEFAULT_LOGIN_TIMEOUT;
+   private PrintWriter logWriter = new PrintWriter(System.out);
+
    /**
     * Creates a datasource object.
     * 
@@ -50,96 +63,70 @@ public class PSDataSource implements DataSource
    public PSDataSource(String url, String database, String username,
          String password, String driverClass, String driverLocation)
    {
-      if (StringUtils.isBlank(url))
-      {
-         throw new IllegalArgumentException("url may not be blank");
-      }
-      
-      if (StringUtils.isBlank(username))
-      {
-         throw new IllegalArgumentException("username may not be blank");
-      }
-      
-      if (StringUtils.isBlank(password))
-      {
-         throw new IllegalArgumentException("password may not be blank");
-      }
-      
-      if (StringUtils.isBlank(driverClass))
-      {
-         throw new IllegalArgumentException("driverClass may not be blank");
-      }
-      
-      if (StringUtils.isBlank(driverLocation))
-      {
-         throw new IllegalArgumentException("driverLocation may not be blank");
-      }
-      
-      m_url = url;
-      m_database = database;
-      m_username = username;
-      m_password = password;
-      m_driverClass = driverClass;
-      m_driverLocation = driverLocation;
+      this.url = Objects.requireNonNull(StringUtils.trimToNull(url), "url may not be blank");
+      this.database = Objects.requireNonNull(StringUtils.trimToNull(database), "database may not be blank");
+      this.username = Objects.requireNonNull(StringUtils.trimToNull(username), "username may not be blank");
+      this.password = Objects.requireNonNull(StringUtils.trimToNull(password), "password may not be blank");
+      this.driverClass = Objects.requireNonNull(StringUtils.trimToNull(driverClass), "driverClass may not be blank");
+      this.driverLocation = Objects.requireNonNull(StringUtils.trimToNull(driverLocation), "driverLocation may not be blank");
    }
 
-   public <T> T unwrap(java.lang.Class<T> t)
+   @Override
+   public <T> T unwrap(Class<T> iface) throws SQLException
    {
-      throw new UnsupportedOperationException("This method is not yet implemented");
+      Objects.requireNonNull(iface, "Interface class cannot be null");
+      if (isWrapperFor(iface)) {
+         return iface.cast(this);
+      }
+      throw new SQLException("Cannot unwrap to " + iface.getName());
+   }
+
+   @Override
+   public boolean isWrapperFor(Class<?> iface)
+   {
+      return iface != null && iface.isAssignableFrom(getClass());
    }
    
-   public boolean isWrapperFor(java.lang.Class<?> c)
-   {
-      return false;
-   }
-   
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#getConnection()
-    */
+   @Override
    public Connection getConnection() throws SQLException
    {
       return createConnection(null, null);
    }
 
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#getConnection(java.lang.String, java.lang.String)
-    */
-   public Connection getConnection(String username, String password)
-         throws SQLException
+   @Override
+   public Connection getConnection(String username, String password) throws SQLException
    {
       return createConnection(username, password);
    }
 
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#getLogWriter()
-    */
-   public PrintWriter getLogWriter() throws SQLException
+   @Override
+   public PrintWriter getLogWriter()
    {
-      return m_logWriter;
+      return logWriter;
    }
 
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#getLoginTimeout()
-    */
-   public int getLoginTimeout() throws SQLException
+   @Override
+   public int getLoginTimeout()
    {
-      return m_loginTimeout;
+      return loginTimeout;
    }
 
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#setLogWriter(java.io.PrintWriter)
-    */
-   public void setLogWriter(PrintWriter out) throws SQLException
+   @Override
+   public void setLogWriter(PrintWriter out)
    {
-      m_logWriter = out;      
+      this.logWriter = out;
    }
 
-   /* (non-Javadoc)
-    * @see javax.sql.DataSource#setLoginTimeout(int)
-    */
-   public void setLoginTimeout(int seconds) throws SQLException
+   @Override
+   public void setLoginTimeout(int seconds)
    {
-      m_loginTimeout = seconds;
+      this.loginTimeout = seconds;
+   }
+
+   @Override
+   public Logger getParentLogger() throws SQLFeatureNotSupportedException
+   {
+      throw new SQLFeatureNotSupportedException("getParentLogger is not supported");
    }
 
    /**
@@ -155,90 +142,63 @@ public class PSDataSource implements DataSource
     * 
     * @throws SQLException if an error occurs.
     */
-   private Connection createConnection(String user, String pwd)
-      throws SQLException
+   private Connection createConnection(String user, String pwd) throws SQLException
    {
-      String username = (user != null) ? user : m_username;
-      String password = (pwd != null) ? pwd : m_password;
-      
-      Properties props = PSSqlHelper.makeConnectProperties(
-            m_url,
-            m_database,
-            username,
-            password);
-      
-      Connection conn = null;
-      try
-      {
-         if (m_driver == null)
-         {
-            m_driver = PSDriverHelper.getDriver(m_driverClass, m_driverLocation);
+      var effectiveUsername = user != null ? user : this.username;
+      var effectivePassword = pwd != null ? pwd : this.password;
+
+      var props = PSSqlHelper.makeConnectProperties(
+            this.url,
+            this.database,
+            effectiveUsername,
+            effectivePassword);
+
+      try {
+         if (this.driver == null) {
+            this.driver = PSDriverHelper.getDriver(this.driverClass, this.driverLocation);
          }
          
-         conn = m_driver.connect(m_url, props);
+         var conn = this.driver.connect(this.url, props);
+         if (conn == null) {
+            throw new SQLException("Driver returned null connection for URL: " + this.url);
+         }
+         return conn;
+      } catch (Exception e) {
+         throw new SQLException("Failed to create connection: " + e.getMessage(), e);
       }
-      catch (Exception e)
-      {
-         e.printStackTrace();
-         throw new SQLException(e.getMessage());
-      }
-      
-      return conn;
    }
-   
-   /**
-    * Database connection url.  Initialized in constructor, never
-    * <code>null</code> after that.
-    */
-   private String m_url;
-   
-   /**
-    * Database name.  Initialized in constructor, never
-    * <code>null</code> after that.
-    */
-   private String m_database;
-   
-   /**
-    * Database user name.  Initialized in constructor, never
-    * <code>null</code> after that.
-    */
-   private String m_username;
-   
-   /**
-    * Database driver class.  Initialized in constructor, never
-    * <code>null</code> after that.
-    */
-   private String m_driverClass;
-   
-   /**
-    * See constructor.
-    */
-   private String m_driverLocation;
-   
-   /**
-    * The currently loaded driver used for creating connections.
-    * Set in {@link #createConnection(String, String)}.
-    */
-   private Driver m_driver;
-   
-   /**
-    * Database user password.  Initialized in constructor, never
-    * <code>null</code> after that.
-    */
-   private String m_password;
-      
-   /** See {@link #getLoginTimeout()}, {@link #setLoginTimeout(int)}.
-    */
-   private int m_loginTimeout = 300;
-   
-   /**
-    * See {@link #getLogWriter()}, {@link #setLogWriter(PrintWriter)}.
-    */
-   private PrintWriter m_logWriter = new PrintWriter(System.out);
 
-   public Logger getParentLogger() throws SQLFeatureNotSupportedException
-   {
-      throw new SQLFeatureNotSupportedException("This method is not yet implemented");
-   }   
-   
+   // Getters for immutable fields
+   public String getUrl() {
+      return url;
+   }
+
+   public String getDatabase() {
+      return database;
+   }
+
+   public String getUsername() {
+      return username;
+   }
+
+   @SuppressWarnings("unused") // May be used by reflection or future code
+   public String getDriverClass() {
+      return driverClass;
+   }
+
+   @SuppressWarnings("unused") // May be used by reflection or future code
+   public String getDriverLocation() {
+      return driverLocation;
+   }
+
+   @Override
+   public String toString() {
+      return "PSDataSource{" +
+             "url='" + url + '\'' +
+             ", database='" + database + '\'' +
+             ", username='" + username + '\'' +
+             ", driverClass='" + driverClass + '\'' +
+             ", driverLocation='" + driverLocation + '\'' +
+             '}';
+   }
 }

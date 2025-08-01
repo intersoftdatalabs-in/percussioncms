@@ -33,12 +33,13 @@ public class PSDashboard extends PSAbstractPersistantObject {
     @NotNull
     @NotBlank
     private List<PSGadget> gadgets;
+
     private PSDashboardConfiguration config;
-    
+
     @NotNull
     @NotBlank
     private String id;
-    
+
     public List<PSGadget> getGadgets() {
         return gadgets;
     }
@@ -48,25 +49,22 @@ public class PSDashboard extends PSAbstractPersistantObject {
     }
 
     public PSDashboardConfiguration getDashboardConfiguration() {
-    	return this.config;
+        return config;
     }
-    
+
     public void setDashboardConfiguration(PSDashboardConfiguration config) {
-    	this.config = config;
+        this.config = config;
     }
-    
-	@Override
+
+    @Override
     public String getId() {
-		return id;
-	}
+        return id;
+    }
 
-	@Override
+    @Override
     public void setId(String id) {
-		this.id = id;
-	}
-    
+        this.id = id;
+    }
+
     private static final long serialVersionUID = -6627409151209959037L;
-
-
-    
 }

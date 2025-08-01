@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,207 +18,171 @@
 package com.percussion.pubserver.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
+ * Represents publishing server information for Percussion CMS.
+ * Immutable except for properties list, which is defensively copied.
  * @author ignacioerro
- *
  */
 @XmlRootElement(name = "serverInfo")
-public class PSPublishServerInfo
-{
+public class PSPublishServerInfo {
     private static final long serialVersionUID = 1L;
-    
-    private Long serverId;
-    
-    private String serverName;
-    
-    private Boolean isDefault;
-    
-    private String description;
-    
-    private String type;
-    
-    private String serverType;
-    
-    private List<PSPublishServerProperty> properties = new ArrayList<>();
 
+    private Long serverId;
+    private String serverName;
+    private Boolean isDefault;
+    private String description;
+    private String type;
+    private String serverType;
+    private List<PSPublishServerProperty> properties = new ArrayList<>();
     private Boolean isModified;
-    
     private Boolean canIncrementalPublish;
-    
     private Boolean isFullPublishRequired;
-    
     private Date lastFullPublishDate;
-    
     private Date lastIncrementalPublishDate;
-    
-    
-    /**
-     * @return the serverId
-     */
-    public Long getServerId()
-    {
+
+    /** Returns the server ID. */
+    public Long getServerId() {
         return serverId;
     }
 
-    /**
-     * @param serverId the serverId to set
-     */
-    public void setServerId(Long serverId)
-    {
+    /** Sets the server ID. */
+    public void setServerId(Long serverId) {
         this.serverId = serverId;
     }
 
-    /**
-     * @return the serverName
-     */
-    public String getServerName()
-    {
+    /** Returns the server name. */
+    public String getServerName() {
         return serverName;
     }
 
-    /**
-     * @param serverName the serverName to set
-     */
-    public void setServerName(String serverName)
-    {
+    /** Sets the server name. */
+    public void setServerName(String serverName) {
         this.serverName = serverName;
     }
 
-    /**
-     * @return the isDefault
-     */
-    public Boolean getIsDefault()
-    {
+    /** Returns whether this is the default server. */
+    public Boolean getIsDefault() {
         return isDefault;
     }
 
-    /**
-     * @param isDefault the isDefault to set
-     */
-    public void setIsDefault(Boolean isDefault)
-    {
+    /** Sets whether this is the default server. */
+    public void setIsDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
 
-    /**
-     * @return the description
-     */
-    public String getDescription()
-    {
+    /** Returns the server description. */
+    public String getDescription() {
         return description;
     }
 
-    /**
-     * @param description the description to set
-     */
-    public void setDescription(String description)
-    {
+    /** Sets the server description. */
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    /**
-     * @return the type
-     */
-    public String getType()
-    {
+    /** Returns the server type (e.g., File, Database). */
+    public String getType() {
         return type;
     }
 
-    /**
-     * @param type the type to set
-     */
-    public void setType(String type)
-    {
+    /** Sets the server type (e.g., File, Database). */
+    public void setType(String type) {
         this.type = type;
     }
 
-    /**
-     * @return the properties
-     */
-    public List<PSPublishServerProperty> getProperties()
-    {
-        return properties;
+    /** Returns the server type (e.g., PRODUCTION, STAGING). */
+    public String getServerType() {
+        return serverType;
+    }
+
+    /** Sets the server type (e.g., PRODUCTION, STAGING). */
+    public void setServerType(String serverType) {
+        this.serverType = serverType;
     }
 
     /**
-     * @param properties the properties to set
+     * Returns an unmodifiable list of server properties.
      */
-    public void setProperties(List<PSPublishServerProperty> properties)
-    {
-        this.properties = properties;
+    public List<PSPublishServerProperty> getProperties() {
+        return Collections.unmodifiableList(properties);
     }
 
-    public void setIsModified(Boolean isModified)
-    {
+    /**
+     * Sets the server properties. Defensive copy is made.
+     */
+    public void setProperties(List<PSPublishServerProperty> properties) {
+        this.properties = properties == null ? new ArrayList<>() : new ArrayList<>(properties);
+    }
+
+    /** Sets whether the server is modified. */
+    public void setIsModified(Boolean isModified) {
         this.isModified = isModified;
     }
 
-    public Boolean getIsModified()
-    {
+    /** Returns whether the server is modified. */
+    public Boolean getIsModified() {
         return isModified;
     }
-    
-    public String findProperty(String key)
-    {
-        for (PSPublishServerProperty property : properties)
-        {
-            if (property.getKey().equalsIgnoreCase(key))
-                return property.getValue();
+
+    /**
+     * Finds a property value by key (case-insensitive).
+     * @param key the property key
+     * @return the property value, or null if not found
+     */
+    public String findProperty(String key) {
+        if (key == null) {
+            return null;
         }
-        return null;
+        return properties.stream()
+                .filter(p -> key.equalsIgnoreCase(p.getKey()))
+                .map(PSPublishServerProperty::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
-    public String getServerType() {
-	return serverType;
-    }
-
-    public void setServerType(String serverType) {
-	this.serverType = serverType;
-    }
-
-    public Boolean getCanIncrementalPublish()
-    {
+    /** Returns whether incremental publishing is supported. */
+    public Boolean getCanIncrementalPublish() {
         return canIncrementalPublish;
     }
 
-    public void setCanIncrementalPublish(Boolean canIncrementalPublish)
-    {
+    /** Sets whether incremental publishing is supported. */
+    public void setCanIncrementalPublish(Boolean canIncrementalPublish) {
         this.canIncrementalPublish = canIncrementalPublish;
     }
 
-    public Boolean getIsFullPublishRequired()
-    {
+    /** Returns whether a full publish is required. */
+    public Boolean getIsFullPublishRequired() {
         return isFullPublishRequired;
     }
 
-    public void setIsFullPublishRequired(Boolean isFullPublishRequired)
-    {
+    /** Sets whether a full publish is required. */
+    public void setIsFullPublishRequired(Boolean isFullPublishRequired) {
         this.isFullPublishRequired = isFullPublishRequired;
     }
 
-    public Date getLastFullPublishDate()
-    {
-        return lastFullPublishDate;
+    /** Returns the date of the last full publish (defensive copy). */
+    public Date getLastFullPublishDate() {
+        return lastFullPublishDate == null ? null : new Date(lastFullPublishDate.getTime());
     }
 
-    public void setLastFullPublishDate(Date lastFullPublishDate)
-    {
-        this.lastFullPublishDate = lastFullPublishDate;
+    /** Sets the date of the last full publish (defensive copy). */
+    public void setLastFullPublishDate(Date lastFullPublishDate) {
+        this.lastFullPublishDate = lastFullPublishDate == null ? null : new Date(lastFullPublishDate.getTime());
     }
 
-    public Date getLastIncrementalPublishDate()
-    {
-        return lastIncrementalPublishDate;
+    /** Returns the date of the last incremental publish (defensive copy). */
+    public Date getLastIncrementalPublishDate() {
+        return lastIncrementalPublishDate == null ? null : new Date(lastIncrementalPublishDate.getTime());
     }
 
-    public void setLastIncrementalPublishDate(Date lastIncrementalPublishDate)
-    {
-        this.lastIncrementalPublishDate = lastIncrementalPublishDate;
+    /** Sets the date of the last incremental publish (defensive copy). */
+    public void setLastIncrementalPublishDate(Date lastIncrementalPublishDate) {
+        this.lastIncrementalPublishDate = lastIncrementalPublishDate == null ? null : new Date(lastIncrementalPublishDate.getTime());
     }
-
 }

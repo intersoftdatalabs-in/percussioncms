@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.integritymanagement.service;
 
 import com.percussion.integritymanagement.data.PSIntegrityStatus;
@@ -23,16 +24,43 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * DAO interface for integrity checker persistence operations.
+ */
 public interface IPSIntegrityCheckerDao {
+
+    /**
+     * Finds an integrity status by token.
+     *
+     * @param token the unique token
+     * @return the integrity status, or null if not found
+     */
     @Transactional
     PSIntegrityStatus find(String token);
 
+    /**
+     * Finds all integrity statuses by status.
+     *
+     * @param status the status to filter by
+     * @return list of matching integrity statuses
+     */
     @Transactional
     List<PSIntegrityStatus> find(PSIntegrityStatus.Status status);
 
+    /**
+     * Deletes the given integrity status.
+     *
+     * @param intStatus the status to delete
+     */
     @Transactional
     void delete(PSIntegrityStatus intStatus);
 
+    /**
+     * Saves or updates the given integrity status.
+     *
+     * @param status the status to save
+     * @throws IPSGenericDao.SaveException if persistence fails
+     */
     @Transactional
     void save(PSIntegrityStatus status) throws IPSGenericDao.SaveException;
 }

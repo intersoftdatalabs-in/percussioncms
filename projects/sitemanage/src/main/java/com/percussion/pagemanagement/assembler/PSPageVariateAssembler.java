@@ -46,57 +46,55 @@ public class PSPageVariateAssembler extends PSPageAssembler
     /**
      * This calls {@link PSPageAssemblyContextFactory#createContext(IPSAssemblyItem, TemplateAndPage, boolean) PSPageAssemblyContextFactory.createContext(IPSAssemblyItem, TemplateAndPage, false)}
      */
+    @Override
     protected PSPageAssemblyContext createContext(IPSAssemblyItem assemblyItem, TemplateAndPage templateAndPage) throws Exception
     {
         return getPageAssemblyContextFactory().createContext(assemblyItem, templateAndPage, false);
     }
-    
 
     @Override
     protected String getTemplateSource(IPSAssemblyItem assemblyItem)
     {
-        IPSAssemblyTemplate template = getAssemblyTemplate(assemblyItem);
+        final var template = getAssemblyTemplate(assemblyItem);
         if (template != null) {
             return template.getTemplate();
-        }
-        else {
+        } else {
             return super.getTemplateSource(assemblyItem);
         }
     }
 
     /**
      * Gets the specified template {@link com.percussion.util.IPSHtmlParameters#SYS_VARIANTID}
-     * 
+     *
      * @param assemblyItem the item, assumed not <code>null</code>.
-     * 
+     *
      * @return the template, it may be <code>null</code> if cannot find the specified template.
      */
     private IPSAssemblyTemplate getAssemblyTemplate(IPSAssemblyItem assemblyItem)
     {
-        String variantid = assemblyItem.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);        
-        String sys_template = assemblyItem.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
+        final var variantid = assemblyItem.getParameterValue(IPSHtmlParameters.SYS_VARIANTID, null);
+        final var sys_template = assemblyItem.getParameterValue(IPSHtmlParameters.SYS_TEMPLATE, null);
         if (isBlank(variantid) && isBlank(sys_template))
         {
             throw new IllegalStateException("Cannot find template ID from the parameter of \"" 
                     + IPSHtmlParameters.SYS_VARIANTID + "\" or \"" + IPSHtmlParameters.SYS_TEMPLATE + "\"");
         }
-        
+
         try
         {
-            IPSAssemblyService service = PSAssemblyServiceLocator.getAssemblyService();
-            int id = variantid != null ? Integer.parseInt(variantid) : Integer.parseInt(sys_template);
-            IPSGuid guid = new PSGuid(PSTypeEnum.TEMPLATE, id);
+            final var service = PSAssemblyServiceLocator.getAssemblyService();
+            final int id = variantid != null ? Integer.parseInt(variantid) : Integer.parseInt(sys_template);
+            final var guid = new PSGuid(PSTypeEnum.TEMPLATE, id);
             return service.findTemplate(guid);
         }
         catch (Exception e)
         {
-            String errorMsg = "Failed to find template, variantid = " + variantid;
+            final var errorMsg = "Failed to find template, variantid = " + variantid;
             log.error(errorMsg, e);
-            
+
             return null;
         }
     }
-    
 
     private static final Logger log = LogManager.getLogger(PSPageVariateAssembler.class);
 }

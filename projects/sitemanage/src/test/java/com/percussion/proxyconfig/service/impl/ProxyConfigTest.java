@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.proxyconfig.service.impl;
 
 import com.percussion.delivery.service.impl.PSDeliveryInfoLoader;
@@ -21,180 +22,134 @@ import com.percussion.proxyconfig.service.impl.ProxyConfig.Password;
 import com.percussion.server.PSServer;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.security.PSEncryptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.xml.bind.UnmarshalException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ProxyConfigTest
-{
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+/**
+ * Tests for {@link ProxyConfig}.
+ * Sunny Sal: "Encrypting passwords like a boss!"
+ */
+public class ProxyConfigTest {
+
+    @TempDir
+    Path tempDir;
 
     private String rxdeploydir;
 
-
-    private PSDeliveryInfoLoader loader;
-
-    @Before
-    public void setUp()
-    {
+    @BeforeEach
+    void setUp() {
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", tempDir.toFile().getAbsolutePath());
     }
 
-    @After
-    public void teardown(){
-        //Reset the deploy dir property if it was set prior to test
-        if(rxdeploydir != null)
-            System.setProperty("rxdeploydir",rxdeploydir);
+    @AfterEach
+    void teardown() {
+        if (rxdeploydir != null) {
+            System.setProperty("rxdeploydir", rxdeploydir);
+        }
     }
-
 
     @Test
-    public void testLoadXml() throws Exception
-    {
-        List<ProxyConfig> configs = getConfigsFromFile("ProxyConfigTest_Empty.xml");
-        assertTrue(configs.size() == 0);
+    void testLoadXml() throws Exception {
+        var configs = getConfigsFromFile("ProxyConfigTest_Empty.xml");
+        assertEquals(0, configs.size());
 
         configs = getConfigsFromFile("ProxyConfigTest.xml");
-        assertTrue(configs.size() == 3);
+        assertEquals(3, configs.size());
 
-        List<ProxyConfig> configs_2 = getConfigsFromFile("ProxyConfigTest.xml");
-        assertTrue(compareConfigs(configs, configs_2));
+        var configs2 = getConfigsFromFile("ProxyConfigTest.xml");
+        assertTrue(compareConfigs(configs, configs2));
 
-        // Read a commented sample config file, like the one created on a fresh
-        // install.
-        List<ProxyConfig> configs_3 = getConfigsFromFile("ProxyConfigTest_Commented.xml");
-        assertTrue(configs_3.size() == 0);
+        // Read a commented sample config file, like the one created on a fresh install.
+        var configs3 = getConfigsFromFile("ProxyConfigTest_Commented.xml");
+        assertEquals(0, configs3.size());
 
         // Read an invalid file (root element commented out)
-        try
-        {
-            getConfigsFromFile("ProxyConfigTest_Empty_Invalid.xml");
-            fail();
-        }
-        catch (UnmarshalException e)
-        {
-        }
+        assertThrows(UnmarshalException.class, () -> getConfigsFromFile("ProxyConfigTest_Empty_Invalid.xml"));
     }
 
     @Test
-    public void testLoadOnlyHostPort() throws Exception
-    {
-        List<ProxyConfig> configs = getConfigsFromFile("ProxyConfigTestHostPort.xml");
-        assertTrue(configs.size() == 1);
+    void testLoadOnlyHostPort() throws Exception {
+        var configs = getConfigsFromFile("ProxyConfigTestHostPort.xml");
+        assertEquals(1, configs.size());
         assertNotNull(configs.get(0).getHost());
         assertNotNull(configs.get(0).getPort());
         assertNull(configs.get(0).getUser());
         assertNull(configs.get(0).getPassword());
-   
     }
-    
+
     @Test
-    public void testConvertToEncryptedPassword() throws Exception
-    {
-        String fileContent = encryptPassword("ProxyConfigTest.xml");
-        List<ProxyConfig> servers = getConfigs(new ByteArrayInputStream(fileContent.getBytes()));
-        List<ProxyConfig> servers_2 = getConfigsFromFile("ProxyConfigTest_EncryptedPassword.xml");
-        assertTrue(compareConfigs(servers, servers_2));
+    void testConvertToEncryptedPassword() throws Exception {
+        var fileContent = encryptPassword("ProxyConfigTest.xml");
+        var servers = getConfigs(new ByteArrayInputStream(fileContent.getBytes()));
+        var servers2 = getConfigsFromFile("ProxyConfigTest_EncryptedPassword.xml");
+        assertTrue(compareConfigs(servers, servers2));
     }
-    
+
     /**
-     * Simulate encrypt the password of the specified file
-     * 
-     * @param file the file name, assumed not <code>null</code>.
-     * 
+     * Simulate encrypting the password of the specified file.
+     *
+     * @param file the file name, assumed not null.
      * @return the file content with the encrypted password and proper flag.
-     * 
-     * @throws Exception if an error occurs.
      */
-    
-    private String encryptPassword(String file) throws Exception
-    {
-        InputStream in = this.getClass().getResourceAsStream(file);
-        ProxyConfigurations config = PSSerializerUtils.unmarshalWithValidation(in, ProxyConfigurations.class);
-        String encrypterKey = PSServer.getPartOneKey();
-        
-        for (ProxyConfig s : config.getConfigs())
-        {
-            Password origPw = s.getPassword();
-            String origPwVal = s.getPassword().getValue();
-
-            origPw.setEncrypted(Boolean.TRUE);
-            String enc = PSEncryptor.encryptString(rxdeploydir, origPwVal);
-            origPw.setValue(enc);
-
-            // make sure password can be decrypted  
-            String pw = PSEncryptor.decryptString(rxdeploydir,enc);
-            assertTrue(origPwVal.equals(pw));
+    private String encryptPassword(String file) throws Exception {
+        try (InputStream in = getClass().getResourceAsStream(file)) {
+            var config = PSSerializerUtils.unmarshalWithValidation(in, ProxyConfigurations.class);
+            for (var s : config.getConfigs()) {
+                var origPw = s.getPassword();
+                var origPwVal = origPw.getValue();
+                origPw.setEncrypted(Boolean.TRUE);
+                var enc = PSEncryptor.encryptString(rxdeploydir, origPwVal);
+                origPw.setValue(enc);
+                // make sure password can be decrypted
+                var pw = PSEncryptor.decryptString(rxdeploydir, enc);
+                assertEquals(origPwVal, pw);
+            }
+            return PSSerializerUtils.marshal(config);
         }
-        
-        return PSSerializerUtils.marshal(config);    
     }
-    
-    private List<ProxyConfig> getConfigs(InputStream in) throws Exception
-    {
-        ProxyConfigurations config = PSSerializerUtils.unmarshalWithValidation(in, ProxyConfigurations.class);
-        
+
+    private List<ProxyConfig> getConfigs(InputStream in) throws Exception {
+        var config = PSSerializerUtils.unmarshalWithValidation(in, ProxyConfigurations.class);
         return config.getConfigs();
     }
 
-    private List<ProxyConfig> getConfigsFromFile(String file) throws Exception
-    {
-        InputStream in = this.getClass().getResourceAsStream(file);
-        return getConfigs(in);
+    private List<ProxyConfig> getConfigsFromFile(String file) throws Exception {
+        try (InputStream in = getClass().getResourceAsStream(file)) {
+            return getConfigs(in);
+        }
     }
-    
+
     /**
      * Compares two lists of configs for equality.
-     * 
-     * @param config1
-     * @param config2
-     * 
-     * @return <code>true</code> if the lists are equal, <code>false</code> otherwise.
+     *
+     * @param config1 first list
+     * @param config2 second list
+     * @return true if the lists are equal, false otherwise.
      */
-    
-    private boolean compareConfigs(List<ProxyConfig> config1, List<ProxyConfig> config2)
-    {
-        if (config1.size() != config2.size())
-        {
+    private boolean compareConfigs(List<ProxyConfig> config1, List<ProxyConfig> config2) {
+        if (config1.size() != config2.size()) {
             return false;
         }
-        
-        for (ProxyConfig ds1 : config1)
-        {
-            boolean match = false;
-            
-            for (ProxyConfig ds2 : config2)
-            {
-                if (ds2.getHost().equals(ds1.getHost()) &&
-                        ds2.getPort().equals(ds1.getPort()) &&
-                        ds2.getUser().equals(ds1.getUser()))
-                {
-                    match = true;
-                    break;
-                }
-            }
-            
-            if (!match)
-            {
+        for (var ds1 : config1) {
+            boolean match = config2.stream().anyMatch(ds2 ->
+                ds2.getHost().equals(ds1.getHost()) &&
+                ds2.getPort().equals(ds1.getPort()) &&
+                ((ds2.getUser() == null && ds1.getUser() == null) ||
+                 (ds2.getUser() != null && ds2.getUser().equals(ds1.getUser())))
+            );
+            if (!match) {
                 return false;
             }
         }
-        
         return true;
     }
-    
 }

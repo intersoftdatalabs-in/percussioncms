@@ -21,7 +21,6 @@ import com.percussion.cms.objectstore.PSFolderPermissions;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.error.PSRuntimeException;
-import com.percussion.server.PSRequest;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import org.apache.commons.lang.StringUtils;
 
@@ -65,7 +64,7 @@ public class PSFolderPermissionsDataFilter implements IPSResultSetDataFilter
       
       int contentId = Integer.parseInt((String) vals[0]);
       
-      PSRequest request = data.getRequest();
+      // Removed unused variable 'request' (was: PSRequest request = data.getRequest();)
       PSServerFolderProcessor processor = PSServerFolderProcessor.getInstance();
       try
       {
@@ -105,7 +104,7 @@ public class PSFolderPermissionsDataFilter implements IPSResultSetDataFilter
    }
 
    // see interface
-   public List getColumns()
+   public List<String> getColumns()
    {
       List<String> cols = new ArrayList<>();
       cols.add(m_folderIdColName);

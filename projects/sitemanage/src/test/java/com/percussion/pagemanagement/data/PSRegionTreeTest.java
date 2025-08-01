@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,89 +18,70 @@
 
 package com.percussion.pagemanagement.data;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.pagemanagement.parser.PSParsedRegionTree;
 import com.percussion.pagemanagement.parser.PSTemplateRegionParser;
 import com.percussion.share.test.PSTestUtils;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class PSRegionTreeTest
-{
+public class PSRegionTreeTest {
+
     @Test
-    public void testInvalidTree()
-    {
-        PSRegion root = createInvalidRegionRoot();
-        
-        PSRegionTree tree = new PSRegionTree();
+    public void testInvalidTree() {
+        var root = createInvalidRegionRoot();
+
+        var tree = new PSRegionTree();
         tree.setRootRegion(root);
-        
-        try
-        {
-            tree.getDescendentRegions();
-            fail("Invalid tree root");
-        }
-        catch (IllegalStateException e)
-        {
-        }
+
+        assertThrows(IllegalStateException.class, tree::getDescendentRegions);
     }
 
-    private PSRegion createInvalidRegionRoot()
-    {
-        List<PSRegionNode> children = new ArrayList<PSRegionNode>();
-        
-        PSRegion region = new PSRegion();
-        region.setRegionId("region-1");
-        children.add(region);
-        
-        region = new PSRegion();
-        region.setRegionId("region-2");
-        children.add(region);
-        
-        PSRegion root = new PSRegion();
+    private PSRegion createInvalidRegionRoot() {
+        var children = new ArrayList<PSRegionNode>();
+
+        var region1 = new PSRegion();
+        region1.setRegionId("region-1");
+        children.add(region1);
+
+        var region2 = new PSRegion();
+        region2.setRegionId("region-2");
+        children.add(region2);
+
+        var root = new PSRegion();
         root.setRegionId("percRoot");
         root.setChildren(children);
-        
+
         return root;
     }
 
     @Test
-    public void testEmptyTree() 
-    {
-        PSRegionTree tree = new PSRegionTree();
+    public void testEmptyTree() {
+        var tree = new PSRegionTree();
 
         assertNull(tree.getRootRegion());
         assertNotNull(tree.getDescendentRegions());
         assertTrue(tree.getDescendentRegions().isEmpty());
-        
+
         tree.setRootRegion(new PSRegion());
-        
+
         assertNotNull(tree.getRootRegion());
         assertNotNull(tree.getDescendentRegions());
         assertTrue(tree.getDescendentRegions().isEmpty());
     }
-    
+
     @Test
-    public void testNonEmptyTree() throws Exception
-    {
-        PSRegionTree tree = loadRegionTree();
-        PSRegion root = tree.getRootRegion();
-        
-        List<String> names = new ArrayList<String>();
+    public void testNonEmptyTree() {
+        var tree = loadRegionTree();
+        var root = tree.getRootRegion();
+
+        var names = new ArrayList<String>();
         names.add("percRoot");
         names.addAll(Arrays.asList(nameChildren));
-        List<String> regionNames = getRegionIds(root.getAllRegions());
+        var regionNames = getRegionIds(root.getAllRegions());
         assertEquals(names, regionNames);
 
         names = Arrays.asList(nameChildren);
@@ -107,36 +89,31 @@ public class PSRegionTreeTest
         assertEquals(names, regionNames);
     }
 
-    private String[] nameChildren = new String[]{"container", "header", "middle", "leftsidebar", "content", "rightsidebar", "footer"};
-    
-    public static List<String> getRegionIds(List<PSRegion> regions)
-    {
-        List<String> result = new ArrayList<String>();
-        for (PSRegion r : regions)
-        {
+    private final String[] nameChildren = new String[]{"container", "header", "middle", "leftsidebar", "content", "rightsidebar", "footer"};
+
+    public static List<String> getRegionIds(List<PSRegion> regions) {
+        var result = new ArrayList<String>();
+        for (var r : regions) {
             result.add(r.getRegionId());
         }
         return result;
     }
-    
-    public static PSRegionTree loadRegionTree()
-    {
-        PSRegionTree tree = new PSRegionTree();
-        String markup = getMarkupText("PlainTemplateMarkup.vm");
-        PSTemplateRegionParser parser = createRegionParser();
+
+    public static PSRegionTree loadRegionTree() {
+        var tree = new PSRegionTree();
+        var markup = getMarkupText("PlainTemplateMarkup.vm");
+        var parser = createRegionParser();
         PSParsedRegionTree<PSRegion, PSRegionCode> pt = parser.parse(markup);
         tree.setRootRegion(pt.getRootNode());
         return tree;
     }
-    
-    private static PSTemplateRegionParser createRegionParser()
-    {
-        Map<String, PSRegion> regions = new HashMap<String, PSRegion>();
-        return new PSTemplateRegionParser(regions);        
+
+    private static PSTemplateRegionParser createRegionParser() {
+        Map<String, PSRegion> regions = new HashMap<>();
+        return new PSTemplateRegionParser(regions);
     }
-        
-    private static String getMarkupText(String name) 
-    {
+
+    private static String getMarkupText(String name) {
         return PSTestUtils.resourceToString(PSRegionTreeTest.class, name);
     }
 }

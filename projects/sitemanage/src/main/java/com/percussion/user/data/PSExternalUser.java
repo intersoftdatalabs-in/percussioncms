@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,25 +23,22 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * 
- * An external user usually returned from a directory service.
- * 
+ * Represents an external user, usually returned from a directory service.
  * @author adamgent
  */
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@XmlRootElement(name="ExternalUser")
+@XmlRootElement(name = "ExternalUser")
 @JsonRootName("ExternalUser")
-public class PSExternalUser extends PSAbstractUser
-{
+public class PSExternalUser extends PSAbstractUser {
+
     private static final long serialVersionUID = 1L;
-    
-    public PSExternalUser(){
-    	super();
+
+    public PSExternalUser() {
+        super();
     }
-    
-    public PSExternalUser(String userName){
-    	super();
-    	setName(userName);
+
+    public PSExternalUser(String userName) {
+        super();
+        setName(userName);
     }
 }
-

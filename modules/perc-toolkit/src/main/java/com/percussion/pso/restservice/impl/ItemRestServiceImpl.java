@@ -18,6 +18,9 @@ package com.percussion.pso.restservice.impl;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSFieldValue;
+
+// NOTE: JAX-RS Jakarta imports reverted to javax.ws.rs due to missing Jakarta dependencies in this module.
+// For future migration, ensure jakarta.ws.rs-api is available and compatible. See README.md for details.
 import com.percussion.cms.objectstore.PSBinaryValue;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSCoreItem;
@@ -650,7 +653,7 @@ public class ItemRestServiceImpl implements IItemRestService {
 						
 					}
 				}
-				    log.debug("Before cws Save psItems");
+					log.debug("Before cws Save psItems");
 					guids = cws.saveItems(psItems, false, false);
 					log.debug("cws psItems Saved");
 					
@@ -665,18 +668,18 @@ public class ItemRestServiceImpl implements IItemRestService {
 								false);
 					}	
 					
-			    log.debug("Before Content is released from Edit");
-			    
-			     
+				log.debug("Before Content is released from Edit");
+				
+				 
 				if (status != null) {
 					boolean checkInOnly = item.getCheckInOnly() != null && item.getCheckInOnly();
 					PSItemStatus ps = status.get(0);	
 					if(ps.getToState() != null){
-					    if (ps.getToState().equals("Quick Edit")){
-					 	      ps.setFromState("Review");
-						      ps.setFromStateId(2L);
-						      status.set(0, ps);
-					     }
+						if (ps.getToState().equals("Quick Edit")){
+							  ps.setFromState("Review");
+							  ps.setFromStateId(2L);
+							  status.set(0, ps);
+						 }
 					}
 					else{
 						ps.setFromState("Review");
@@ -1272,17 +1275,17 @@ public class ItemRestServiceImpl implements IItemRestService {
 				
 				 
 			} else if (keyField.equals("nav")) {
-			    List<String> paths = item.getFolders();
-			    if (paths.size()>1) {
-			    	throw new ItemRestException("Navigation items should never be in more than one folder :"+paths);
-			    } else if (paths.size()==0){
-			    	throw new ItemRestException("Navigation items need to be in one folder :"+paths);	  
-			    } else {
-			    	int navonId = findNavIdForFolderPath(paths.get(0));
-			    	log.debug("located nav item for folder "+paths.get(0)+" : "+navonId);
-			    	 item.setContentId(navonId);
-			    }
-			    if (foundId==-1) {
+				List<String> paths = item.getFolders();
+				if (paths.size()>1) {
+					throw new ItemRestException("Navigation items should never be in more than one folder :"+paths);
+				} else if (paths.size()==0){
+					throw new ItemRestException("Navigation items need to be in one folder :"+paths);	  
+				} else {
+					int navonId = findNavIdForFolderPath(paths.get(0));
+					log.debug("located nav item for folder "+paths.get(0)+" : "+navonId);
+					 item.setContentId(navonId);
+				}
+				if (foundId==-1) {
 					 log.debug("Cannot locate item create?");
 						if (item.getUpdateType() != null
 								&& item.getUpdateType().equals("ref")) {
@@ -1345,7 +1348,7 @@ public class ItemRestServiceImpl implements IItemRestService {
 			}
 
 		}
-	    
+		
 	}
 
 	/**
@@ -1828,7 +1831,7 @@ public class ItemRestServiceImpl implements IItemRestService {
 						ref = new URI(binValue.getHref());
 					} catch (URISyntaxException e1) {
 						log.debug(e1,e1);
-				        throw new ItemRestException("Error processing " + binValue.getHref() , e1);
+						throw new ItemRestException("Error processing " + binValue.getHref() , e1);
 					}
 					
 					if(ref.isAbsolute()){
@@ -1863,18 +1866,18 @@ public class ItemRestServiceImpl implements IItemRestService {
 	
 							get = new GetMethod(ref.toURL().toString());
 
-   						   int  code = client.executeMethod(get);
+						   int  code = client.executeMethod(get);
 
-					      if(code != HttpStatus.SC_OK) {
-					        log.error("Unable to fetch remote resource, status code: {}" , code);
-					        throw new ItemRestException("Error processing " + binValue.getHref() + " HTTP request failed.");
-					      }
+						  if(code != HttpStatus.SC_OK) {
+							log.error("Unable to fetch remote resource, status code: {}" , code);
+							throw new ItemRestException("Error processing " + binValue.getHref() + " HTTP request failed.");
+						  }
 
-					      tmp = new PSPurgableTempFile("pso", null, null);
-					      MessageDigest md = MessageDigest.getInstance("SHA-256");
-					      byte[] buffer = new byte[1024];
-					      int count = -1;
-					      try(FileOutputStream out = new FileOutputStream((File) tmp)) {
+						  tmp = new PSPurgableTempFile("pso", null, null);
+						  MessageDigest md = MessageDigest.getInstance("SHA-256");
+						  byte[] buffer = new byte[1024];
+						  int count = -1;
+						  try(FileOutputStream out = new FileOutputStream((File) tmp)) {
 
 
 							  try(DigestInputStream in = new DigestInputStream(get.getResponseBodyAsStream(), md)) {
@@ -2383,7 +2386,7 @@ public class ItemRestServiceImpl implements IItemRestService {
 		.getRequestInfo(KEY_PSREQUEST);
 		PSServerFolderProcessor folderproc =  PSServerFolderProcessor.getInstance();
 		int folderid=-1;
-	    int navonId = -1;
+		int navonId = -1;
 		try {
 			folderid = folderproc.getIdByPath(path);
 		} catch (PSCmsException e) {
@@ -2391,15 +2394,15 @@ public class ItemRestServiceImpl implements IItemRestService {
 			throw new ItemRestException("cannot get folderid for path "+path);
 		}
 		if (folderid>0) {
-	      filter.setOwner(new PSLocator(folderid, 0)); 
-	      filter.setName(PSRelationshipFilter.FILTER_NAME_FOLDER_CONTENT);
-	      Set<Long> typeIds = new HashSet<>();
-	      PSNavConfig navConfig = PSNavConfig.getInstance(); 
-	      typeIds.addAll( navConfig.getNavonTypeIds());
-	      typeIds.addAll(navConfig.getNavTreeTypeIds());
-	      filter.setDependentContentTypeIds(typeIds);
-	      
-	      List<PSRelationship> rels;
+		  filter.setOwner(new PSLocator(folderid, 0)); 
+		  filter.setName(PSRelationshipFilter.FILTER_NAME_FOLDER_CONTENT);
+		  Set<Long> typeIds = new HashSet<>();
+		  PSNavConfig navConfig = PSNavConfig.getInstance(); 
+		  typeIds.addAll( navConfig.getNavonTypeIds());
+		  typeIds.addAll(navConfig.getNavTreeTypeIds());
+		  filter.setDependentContentTypeIds(typeIds);
+		  
+		  List<PSRelationship> rels;
 		try {
 			rels = system.loadRelationships(filter);
 		} catch (PSErrorException e) {
@@ -2407,14 +2410,14 @@ public class ItemRestServiceImpl implements IItemRestService {
 			throw new ItemRestException("Cannot get folder relationships for path "+path);
 		}
 	 
-	      if(rels.size() > 1)
-	      {
-	         log.error("More than one Navon found in Folder. Possible invalid tree."); 
-	      } else if(rels.size() == 1)
-	      {
-	    	 navonId=rels.get(0).getOwner().getId();
-	      } 
-	     
+		  if(rels.size() > 1)
+		  {
+			 log.error("More than one Navon found in Folder. Possible invalid tree."); 
+		  } else if(rels.size() == 1)
+		  {
+			 navonId=rels.get(0).getOwner().getId();
+		  } 
+		 
 		}
 		 return navonId;
 	}
@@ -2752,7 +2755,7 @@ public class ItemRestServiceImpl implements IItemRestService {
 		try (FileInputStream fis = new FileInputStream(propFile)){
 
 		props.load(fis);
-	     
+		 
 		String from_line 	= props.getProperty("from_line");
 		if (from_line.equals(""))
 			from_line = null;

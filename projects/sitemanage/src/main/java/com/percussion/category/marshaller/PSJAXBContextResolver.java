@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.category.marshaller;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -37,12 +39,11 @@ import javax.xml.bind.JAXBException;
 @PSSiteManageBean("categoryContextResolver")
 public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
 
-    private ObjectMapper objectMapper;
-    private Class[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
-    private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class.getName());
+    private final ObjectMapper objectMapper;
+    private final Class<?>[] types = {PSCategory.class, PSCategoryNode.class, PSDateAdapter.class};
+    private static final Logger log = LogManager.getLogger(PSJAXBContextResolver.class);
 
     public PSJAXBContextResolver() throws JAXBException {
-        //this.context =  new JSONJAXBContext(JSONConfiguration.natural().build(), types);
         this.objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -50,24 +51,13 @@ public class PSJAXBContextResolver implements ContextResolver<ObjectMapper> {
                 .setAnnotationIntrospector(AnnotationIntrospector.pair(
                         new JacksonAnnotationIntrospector(),
                         new JaxbAnnotationIntrospector(TypeFactory.defaultInstance())));
-
-	     /*
-		 objectMapper.set
-		    
-		         new JAXBContext(Json
-				 .mapped()
-				 .arrays("topLevelNodes")
-				 .arrays("childNodes")
-				 .attributeAsElement("id","title","sitename","selectable","previousCategoryName","showInPgMetaData","initialViewCollapsed","createdBy","creationDate","lastModifiedBy","lastModifiedDate","publishDate","deleted")
-				 .build(), types);
-				 */
     }
 
     @Override
     public ObjectMapper getContext(Class<?> arg0) {
-        for (Class type : types) {
+        for (var type : types) {
             if (type == arg0) {
-                log.debug("Check changes to PSJaxBContextResolver");
+                log.debug("Check changes to PSJAXBContextResolver");
                 return this.objectMapper;
             }
         }

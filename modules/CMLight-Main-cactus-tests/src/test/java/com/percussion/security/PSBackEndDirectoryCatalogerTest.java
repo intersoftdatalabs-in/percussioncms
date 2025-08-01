@@ -1,3 +1,5 @@
+// REFACTORED: CP-JAVA11
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,88 +21,76 @@ package com.percussion.security;
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.utils.testing.IntegrationTest;
-import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Test case for the {@link PSBackEndDirectoryCataloger}.
  */
-@Category(IntegrationTest.class)
-public class PSBackEndDirectoryCatalogerTest extends ServletTestCase
-{
-   /**
-    * Test the cataloger
-    * 
-    * @throws Exception if the test fails
-    */
-   //Ignore for now will fix but need to debug on Python
-   public void testCataloger() throws Exception
-   {
-      PSBackEndDirectoryCataloger cat = new PSBackEndDirectoryCataloger();
+@Tag("IntegrationTest")
+public class PSBackEndDirectoryCatalogerTest {
 
-      Collection<String> attrs = new ArrayList<String>(1);
-      attrs.add("sys_defaultcommunity");
+    /**
+     * Test the cataloger.
+     *
+     * @throws Exception if the test fails
+     */
+    @Test
+    public void testCataloger() throws Exception {
+        var cat = new PSBackEndDirectoryCataloger();
 
-      PSConditional cond;
-      Collection subs;
-      // test find user with user name
-      cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin1"));
-      subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue(subs.size() == 1);
-      
-      // test find user with like
-      cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_LIKE, new PSTextLiteral("admin%"));
-      subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue(subs.size() == 2);
+        Collection<String> attrs = new ArrayList<>(1);
+        attrs.add("sys_defaultcommunity");
 
-      // test find user with equals and bad criteria
-      cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
-      subs = cat.findUsers(new PSConditional[] {cond}, attrs);
-      assertTrue(subs.isEmpty());
+        PSConditional cond;
+        Collection<?> subs;
+        // test find user with user name
+        cond = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin1"));
+        subs = cat.findUsers(new PSConditional[]{cond}, attrs);
+        assertEquals(1, subs.size());
 
-      // test find user with like and no attributes
-      cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_LIKE, new PSTextLiteral("admin%"));
-      subs = cat.findUsers(new PSConditional[] {cond}, null);
-      assertTrue(subs.size() > 1);
-      
-      // test find user with bad criteria and no attributes
-      cond = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
-      subs = cat.findUsers(new PSConditional[] {cond}, null);
-      assertTrue(subs.isEmpty());
-    
-      
-      // test multiple
-      PSConditional[] conds;
-      conds = new PSConditional[4];
-      conds[0] = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin1"));
-      conds[1] = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin2"));
-      conds[2] = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_LIKE, new PSTextLiteral("editor%"));
-      
-      conds[3] = new PSConditional(new PSTextLiteral(
-         cat.getObjectAttributeName()), 
-         PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
-      
-      subs = cat.findUsers(conds, attrs);
-      assertTrue(subs.size() == 4);
-   }
+        // test find user with like
+        cond = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_LIKE, new PSTextLiteral("admin%"));
+        subs = cat.findUsers(new PSConditional[]{cond}, attrs);
+        assertEquals(2, subs.size());
+
+        // test find user with equals and bad criteria
+        cond = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
+        subs = cat.findUsers(new PSConditional[]{cond}, attrs);
+        assertTrue(subs.isEmpty());
+
+        // test find user with like and no attributes
+        cond = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_LIKE, new PSTextLiteral("admin%"));
+        subs = cat.findUsers(new PSConditional[]{cond}, null);
+        assertTrue(subs.size() > 1);
+
+        // test find user with bad criteria and no attributes
+        cond = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
+        subs = cat.findUsers(new PSConditional[]{cond}, null);
+        assertTrue(subs.isEmpty());
+
+        // test multiple
+        PSConditional[] conds = new PSConditional[4];
+        conds[0] = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin1"));
+        conds[1] = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin2"));
+        conds[2] = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_LIKE, new PSTextLiteral("editor%"));
+        conds[3] = new PSConditional(new PSTextLiteral(cat.getObjectAttributeName()),
+                PSConditional.OPTYPE_EQUALS, new PSTextLiteral("admin3"));
+
+        subs = cat.findUsers(conds, attrs);
+        assertEquals(4, subs.size());
+    }
 }
-

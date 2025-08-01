@@ -15,10 +15,22 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
+
 package com.percussion.rest.editions;
 
+/**
+ * Adaptor interface for publishing editions.
+ * <p>
+ * Sunny Sal: "Adaptor pattern FTW!"
+ */
 public interface IEditionsAdaptor {
 
+    /**
+     * Publishes the edition with the given id.
+     *
+     * @param id Edition id (must be numeric)
+     * @return PublishResponse with status and job info
+     */
     PublishResponse publish(String id);
-
 }

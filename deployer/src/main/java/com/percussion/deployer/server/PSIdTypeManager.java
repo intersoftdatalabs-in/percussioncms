@@ -52,8 +52,7 @@ import java.util.Map;
  * Handles saving and restoring map to and from disk, as well as updating the
  * map to add and remove new and obsolete mappings.
  */
-public class PSIdTypeManager 
-{
+public class PSIdTypeManager {
 
    /**
     * Loads the existing map for the specified dependency key.  
@@ -68,31 +67,19 @@ public class PSIdTypeManager
     * @throws IllegalArgumentException if <code>depKey</code> is invalid.
     * @throws PSDeployException if there are any errors.
     */
-   public static PSApplicationIDTypes loadIdTypes(String depKey)
-      throws PSDeployException
-   {
-      if (depKey == null || depKey.trim().length() == 0)
+   public static PSApplicationIDTypes loadIdTypes(String depKey) throws PSDeployException {
+      if (depKey == null || depKey.isBlank()) {
          throw new IllegalArgumentException("depKey may not be null or empty");
-      
-      PSApplicationIDTypes idTypeMap = null;
-      
-      Document idTypeDoc = getIdTypesDoc(depKey);
-      
-      try
-      {
-         if (idTypeDoc != null)
-            idTypeMap = new PSApplicationIDTypes(
-               idTypeDoc.getDocumentElement());
       }
-      catch(Exception e)
-      {
-         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-            e.getLocalizedMessage());
+
+      var idTypeDoc = getIdTypesDoc(depKey);
+      try {
+         return idTypeDoc != null ? new PSApplicationIDTypes(idTypeDoc.getDocumentElement()) : null;
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
-      
-      return idTypeMap;
    }
-   
+
    /**
     * Loads id types for the supplied list of dependencies.  
     * 
@@ -108,24 +95,20 @@ public class PSIdTypeManager
     * 
     * @throws PSDeployException if there are any errors.
     */
-   public static Iterator loadIdTypes(PSSecurityToken tok, Iterator deps)
+   public static Iterator<PSApplicationIDTypes> loadIdTypes(PSSecurityToken tok, Iterator<PSDependency> deps)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-
-      if (deps == null)
-         throw new IllegalArgumentException("deps may not be null");
-
-      List typeList = new ArrayList();
-      Map filterCache = new HashMap();
-      Map extensionDefCache = new HashMap();
-      
-      while (deps.hasNext())
-      {
-         typeList.add(loadIdTypes(tok, (PSDependency)deps.next(), true, 
-            filterCache, extensionDefCache));         
       }
-      
+      if (deps == null) {
+         throw new IllegalArgumentException("deps may not be null");
+      }
+
+      var typeList = new ArrayList<PSApplicationIDTypes>();
+      var filterCache = new HashMap<String, List<String>>();
+      var extensionDefCache = new HashMap<String, IPSExtensionDef>();
+
+      deps.forEachRemaining(dep -> typeList.add(loadIdTypes(tok, dep, true, filterCache, extensionDefCache)));
       return typeList.iterator();
    }
 
@@ -134,8 +117,8 @@ public class PSIdTypeManager
     * PSDependency, boolean, Map, Map) 
     * loadIdTypes(tok, dep, false, null, null)}.
     */
-   public static PSApplicationIDTypes loadIdTypes(PSSecurityToken tok, 
-      PSDependency dep) throws PSDeployException, PSNotFoundException {
+   public static PSApplicationIDTypes loadIdTypes(PSSecurityToken tok, PSDependency dep)
+           throws PSDeployException, PSNotFoundException {
       return loadIdTypes(tok, dep, false, null, null);
    }
    
@@ -172,33 +155,30 @@ public class PSIdTypeManager
     * @throws PSDeployException if there are any errors.
     */
    public static PSApplicationIDTypes loadIdTypes(PSSecurityToken tok, 
-      PSDependency dep, boolean addDynamicData, Map filterCache, 
-      Map extensionCache) throws PSDeployException, PSNotFoundException {
-      if (tok == null)
+      PSDependency dep, boolean addDynamicData, Map<String, List<String>> filterCache,
+      Map<String, IPSExtensionDef> extensionCache) throws PSDeployException, PSNotFoundException {
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)   
+      }
+      if (dep == null) {
          throw new IllegalArgumentException("dep may not be null");
-      if (!dep.supportsIdTypes())
+      }
+      if (!dep.supportsIdTypes()) {
          throw new IllegalArgumentException("dep must support id types");
-         
+      }
+
       PSApplicationIDTypes idTypes = null;
       String depKey = dep.getKey();
       Document doc = getIdTypesDoc(depKey);
-      if (doc != null)
-      {
-         try
-         {
+      if (doc != null) {
+         try {
             idTypes = new PSApplicationIDTypes(doc.getDocumentElement());
-         }
-         catch (PSUnknownNodeTypeException e)
-         {
+         } catch (PSUnknownNodeTypeException e) {
             Object[] args = {depKey, e.getLocalizedMessage()};
             throw new PSDeployException(IPSDeploymentErrors.ID_TYPE_MAP_LOAD, 
                args);
          }
-      }
-      else
-      {
+      } else {
          // if new map, create
          idTypes = new PSApplicationIDTypes(dep);
       }  
@@ -216,8 +196,7 @@ public class PSIdTypeManager
       saveIdTypes(idTypes);
       
       // now add choice filters
-      if (addDynamicData)
-      {
+      if (addDynamicData) {
          addChoiceFilters(tok, idTypes, filterCache);
          addExtensionParamNames(idTypes, extensionCache);
       }
@@ -235,31 +214,25 @@ public class PSIdTypeManager
     * <code>null</code>.
     * @throws PSDeployException if there are any errors.
     */
-   public static void saveIdTypes(PSApplicationIDTypes idTypes)
-      throws PSDeployException
-   {
-      if (idTypes == null)
-        return;
-      
+   public static void saveIdTypes(PSApplicationIDTypes idTypes) throws PSDeployException {
+      if (idTypes == null) {
+         return;
+      }
+
       idTypes.setChoiceFilters(null);
+      var doc = PSXmlDocumentBuilder.createXmlDocument();
+      var mapEl = idTypes.toXml(doc);
+      PSXmlDocumentBuilder.replaceRoot(doc, mapEl);
 
-        Document doc = PSXmlDocumentBuilder.createXmlDocument();
-         Element mapEl = idTypes.toXml(doc);
-         PSXmlDocumentBuilder.replaceRoot(doc, mapEl);
+      PSDeploymentHandler.IDTYPE_DIR.mkdirs();
+      var depKey = idTypes.getDependency().getKey();
+      var mapFile = new File(PSDeploymentHandler.IDTYPE_DIR, depKey + ".xml");
 
-         PSDeploymentHandler.IDTYPE_DIR.mkdirs();
-         String depKey = idTypes.getDependency().getKey();
-
-         File mapFile = new File(PSDeploymentHandler.IDTYPE_DIR,
-            depKey + ".xml");
-
-         try(FileOutputStream out = new FileOutputStream(mapFile)){
-            PSXmlDocumentBuilder.write(doc, out);
-         }catch (Exception e){
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               e.getLocalizedMessage());
-         }
-
+      try (var out = new FileOutputStream(mapFile)) {
+         PSXmlDocumentBuilder.write(doc, out);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
    }
    
    /**
@@ -278,39 +251,37 @@ public class PSIdTypeManager
     * @throws PSDeployException if any idType mapping found for the specified
     * application is incomplete.
     */
-   public static Iterator getIdTypeDependencies(PSSecurityToken tok,
+   public static Iterator<PSApplicationIDTypeMapping> getIdTypeDependencies(PSSecurityToken tok,
       PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
+      if (tok == null) {
          throw new IllegalArgumentException("tok may not be null");
-      
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-         
-      if (!dep.supportsIdTypes())
-         throw new IllegalArgumentException("dep must support id types");
+      }
 
-      List mappingList = new ArrayList();         
+      if (dep == null) {
+         throw new IllegalArgumentException("dep may not be null");
+      }
+
+      if (!dep.supportsIdTypes()) {
+         throw new IllegalArgumentException("dep must support id types");
+      }
+
+      var mappingList = new ArrayList<PSApplicationIDTypeMapping>();
       PSApplicationIDTypes idTypes = loadIdTypes(tok, dep);
-      Iterator resources = idTypes.getResourceList(false);
-      while (resources.hasNext())
-      {
-         String resource = (String)resources.next();
-         Iterator elements = idTypes.getElementList(resource,
-            false);
-         while (elements.hasNext())
-         {
-            String element = (String)elements.next();
-            Iterator mappings = idTypes.getIdTypeMappings(resource, element,
-               false);
-            while (mappings.hasNext())
-            {
-               PSApplicationIDTypeMapping mapping =
-                  (PSApplicationIDTypeMapping)mappings.next();
+      Iterator<String> resources = idTypes.getResourceList(false);
+      while (resources.hasNext()) {
+         String resource = resources.next();
+         Iterator<String> elements = idTypes.getElementList(resource, false);
+         while (elements.hasNext()) {
+            String element = elements.next();
+            Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getIdTypeMappings(resource, element, false);
+            while (mappings.hasNext()) {
+               PSApplicationIDTypeMapping mapping = mappings.next();
 
                // add deps if the mapping specifies an id
-               if (mapping.isComplete() && mapping.isIdType())
+               if (mapping.isComplete() && mapping.isIdType()) {
                   mappingList.add(mapping);
+               }
             }
          }
       }
@@ -333,28 +304,21 @@ public class PSIdTypeManager
     * @throws PSDeployException if there is an error while getting the
     * <code>Document</code>.
     */
-   static Document getIdTypesDoc(String depKey) 
-      throws PSDeployException
-   {
-      if (depKey == null || depKey.trim().length() == 0)
+   static Document getIdTypesDoc(String depKey) throws PSDeployException {
+      if (depKey == null || depKey.isBlank()) {
          throw new IllegalArgumentException("depKey may not be null or empty");
-      
-      File mapFile = new File(PSDeploymentHandler.IDTYPE_DIR, depKey +
-         ".xml");
-      
-      Document resultDoc = null;
-      if (mapFile.exists())
-      {
-        try(FileInputStream in = new FileInputStream(mapFile)){
-            resultDoc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-         }
-         catch (Exception e)
-         {
-            throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR,
-               e.getLocalizedMessage());
-         }
       }
-      return resultDoc;
+
+      var mapFile = new File(PSDeploymentHandler.IDTYPE_DIR, depKey + ".xml");
+      if (!mapFile.exists()) {
+         return null;
+      }
+
+      try (var in = new FileInputStream(mapFile)) {
+         return PSXmlDocumentBuilder.createXmlDocument(in, false);
+      } catch (Exception e) {
+         throw new PSDeployException(IPSDeploymentErrors.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
    }
    
    /**
@@ -374,15 +338,15 @@ public class PSIdTypeManager
       PSApplicationIDTypes usedTypes = new PSApplicationIDTypes(
          newTypes.getDependency());
       
-      Iterator resources = newTypes.getResourceList(false);
+      Iterator<String> resources = newTypes.getResourceList(false);
       while (resources.hasNext())
       {
-         String resource = (String)resources.next();
-         Iterator elements = newTypes.getElementList(resource, false);
+         String resource = resources.next();
+         Iterator<String> elements = newTypes.getElementList(resource, false);
          while (elements.hasNext())
          {
-            String element = (String)elements.next();
-            Iterator mappings = newTypes.getIdTypeMappings(resource, element, 
+            String element = elements.next();
+            Iterator<PSApplicationIDTypeMapping> mappings = newTypes.getIdTypeMappings(resource, element,
                false);
             addMappings(mappings, resource, element, curTypes, usedTypes);
          }
@@ -409,18 +373,18 @@ public class PSIdTypeManager
     * types for an id
     */   
    private static void addChoiceFilters(PSSecurityToken tok, 
-      PSApplicationIDTypes idTypes, Map filterCache) throws PSDeployException, PSNotFoundException {
-      Map choiceFilters = new HashMap();
+      PSApplicationIDTypes idTypes, Map<String, List<String>> filterCache) throws PSDeployException, PSNotFoundException {
+      Map<String, List<String>> choiceFilters = new HashMap<>();
       PSDependencyManager depMgr = PSDependencyManager.getInstance();
-      Iterator ids = idTypes.getIds().iterator();
-      while (ids.hasNext())      
+      Iterator<String> ids = idTypes.getIds().iterator();
+      while (ids.hasNext())
       {
-         String id = ids.next().toString();
-         
+         String id = ids.next();
+
          // first check the cache if we have one
-         List typeList = null;
+         List<String> typeList = null;
          if (filterCache != null)
-            typeList = (List)filterCache.get(id);
+            typeList = filterCache.get(id);
          if (typeList == null)
          {
             // not cached, look it up
@@ -457,15 +421,15 @@ public class PSIdTypeManager
     * this method.
     */
    private static void addExtensionParamNames(PSApplicationIDTypes idTypes, 
-      Map extensionCache)
+      Map<String, IPSExtensionDef> extensionCache)
    {
-      Iterator mappings = idTypes.getAllMappings(false);
+      Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getAllMappings(false);
       while (mappings.hasNext())
       {
          PSApplicationIDTypeMapping mapping = 
             (PSApplicationIDTypeMapping) mappings.next();
          
-         Iterator contexts = mapping.getContext().getAllContexts();
+         Iterator<PSApplicationIdContext> contexts = mapping.getContext().getAllContexts();
          while (contexts.hasNext())
          {
             PSApplicationIdContext ctx = 
@@ -541,8 +505,8 @@ public class PSIdTypeManager
     * to contain any mappings either added to the supplied <code>idTypes</code>
     * or skipped because they are already defined. May not be <code>null</code>.
     */
-   private static void addMappings(Iterator mappings, String resourceName, 
-      String elementName, PSApplicationIDTypes idTypes, 
+   private static void addMappings(Iterator<PSApplicationIDTypeMapping> mappings, String resourceName,
+      String elementName, PSApplicationIDTypes idTypes,
          PSApplicationIDTypes usedMappings)
    {
       if (mappings == null)
@@ -604,15 +568,15 @@ public class PSIdTypeManager
       if (usedMappings == null)
          throw new IllegalArgumentException("usedMappings may not be null");
       
-      Iterator resources = idTypes.getResourceList(false);
+      Iterator<String> resources = idTypes.getResourceList(false);
       while (resources.hasNext())
       {
-         String resource = (String)resources.next();
-         Iterator elements = idTypes.getElementList(resource, false);
+         String resource = resources.next();
+         Iterator<String> elements = idTypes.getElementList(resource, false);
          while (elements.hasNext())
          {
-            String element = (String)elements.next();
-            Iterator mappings = idTypes.getIdTypeMappings(resource, element, 
+            String element = elements.next();
+            Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getIdTypeMappings(resource, element,
                false);
             while (mappings.hasNext())
             {

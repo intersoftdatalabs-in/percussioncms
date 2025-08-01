@@ -71,25 +71,12 @@ public class SolutionConfigurations {
 
     /**
      * Gets the value of the solutionConfig property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
+     *
+     * <p>This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the solutionConfig property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSolutionConfig().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SolutionConfig }
-     * 
-     * 
+     *
+     * @return the list of SolutionConfig objects
      */
     public List<SolutionConfig> getSolutionConfig() {
         if (solutionConfig == null) {
@@ -100,11 +87,8 @@ public class SolutionConfigurations {
 
     /**
      * Gets the value of the publisherPrefix property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the publisherPrefix, may be null
      */
     public String getPublisherPrefix() {
         return publisherPrefix;
@@ -112,11 +96,8 @@ public class SolutionConfigurations {
 
     /**
      * Sets the value of the publisherPrefix property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the publisherPrefix to set, may be null
      */
     public void setPublisherPrefix(String value) {
         this.publisherPrefix = value;
@@ -124,11 +105,8 @@ public class SolutionConfigurations {
 
     /**
      * Gets the value of the publisherName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return the publisherName, may be null
      */
     public String getPublisherName() {
         return publisherName;
@@ -136,14 +114,10 @@ public class SolutionConfigurations {
 
     /**
      * Sets the value of the publisherName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value the publisherName to set, may be null
      */
     public void setPublisherName(String value) {
         this.publisherName = value;
     }
-
 }

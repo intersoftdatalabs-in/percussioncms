@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.pagemanagement.service.impl;
 
 import com.percussion.error.PSExceptionUtils;
@@ -45,10 +46,10 @@ import static java.util.Collections.sort;
 import static org.apache.commons.lang.Validate.notNull;
 
 /**
- * Validates widget properties using the {@link UserPref} 
- * into a plain java object.
+ * Validates widget properties using the {@link UserPref}
+ * into a plain Java object.
  * <p>
- * The converted java object is one of the following:
+ * The converted Java object is one of the following:
  * <ul>
  * <li>string - {@link String}</li>
  * <li>number - {@link Number}</li>
@@ -61,49 +62,38 @@ import static org.apache.commons.lang.Validate.notNull;
  *
  * @author adamgent
  * @param <T> There are different types of widget properties for example user and css properties.
- *
  */
-public abstract class PSWidgetPropertiesValidator<T extends AbstractUserPref> extends PSAbstractPropertiesValidator<PSWidgetItem>
-{
+public abstract class PSWidgetPropertiesValidator<T extends AbstractUserPref> extends PSAbstractPropertiesValidator<PSWidgetItem> {
 
-    
-    private IPSWidgetService widgetService;
-    
-    public PSWidgetPropertiesValidator(IPSWidgetService widgetService)
-    {
+    private final IPSWidgetService widgetService;
+
+    public PSWidgetPropertiesValidator(IPSWidgetService widgetService) {
         super();
         this.widgetService = widgetService;
     }
-    
+
     protected abstract Map<String, Object> getProperties(PSWidgetItem widgetItem);
-    
+
     protected abstract Map<String, T> getPropertyDefinitions(PSWidgetDefinition definition);
-    
 
     @Override
-    protected void doValidation(PSWidgetItem widgetItem, PSPropertiesValidationException e)
-    {
+    protected void doValidation(PSWidgetItem widgetItem, PSPropertiesValidationException e) {
         try {
-            PSWidgetDefinition definition = getDefinition(widgetItem);
-            Map<String, Object> properties = getProperties(widgetItem);
+            var definition = getDefinition(widgetItem);
+            var properties = getProperties(widgetItem);
             e.getProperties().putAll(properties);
 
-            List<String> names = new ArrayList<>(properties.keySet());
+            var names = new ArrayList<>(properties.keySet());
             sort(names);
 
-            Map<String, T> prefs = getPropertyDefinitions(definition);
+            var prefs = getPropertyDefinitions(definition);
 
-            for (String name : names) {
-
-                Object object = properties.get(name);
-
-                T p = prefs.get(name);
+            for (var name : names) {
+                var object = properties.get(name);
+                var p = prefs.get(name);
                 if (p == null) {
                     // The widget contains a preference which has been removed from the definition and is no longer used.
-                    log.warn("Field '{}' does not exist in widget '{}'.",
-                            name,
-                            definition.getId() );
-
+                    log.warn("Field '{}' does not exist in widget '{}'.", name, definition.getId());
                 } else {
                     validate(name, object, p, properties, e);
                 }
@@ -114,21 +104,19 @@ public abstract class PSWidgetPropertiesValidator<T extends AbstractUserPref> ex
     }
 
     @Override
-    protected Class<PSWidgetItem> getType()
-    {
+    protected Class<PSWidgetItem> getType() {
         return PSWidgetItem.class;
     }
-    
+
     private PSWidgetDefinition getDefinition(PSWidgetItem widgetItem) throws PSDataServiceException {
         PSBeanValidationUtils.validate(widgetItem).throwIfInvalid();
         return widgetService.load(widgetItem.getDefinitionId());
     }
-    
-    
+
     /**
-     * Will convert the {@link PSWidgetProperty} to an object based on the {@link UserPref#getDatatype()}.
+     * Converts the {@link PSWidgetProperty} to an object based on the {@link UserPref#getDatatype()}.
      * <p>
-     * The abstract implementation will dispatch to <code>getXXX</code> where <code>XXX</code> is the 
+     * The abstract implementation will dispatch to <code>getXXX</code> where <code>XXX</code> is the
      * datatype.
      * @param name never <code>null</code> or empty.
      * @param object never <code>null</code>.
@@ -138,55 +126,45 @@ public abstract class PSWidgetPropertiesValidator<T extends AbstractUserPref> ex
      */
     public void validate(String name, Object object, T userPref, Map<String, Object> properties, Errors errors) {
         notNull(name, "name");
-        Class<?> klass = PSWidgetUtils.getJavaType(userPref);
-        try
-        {
+        var klass = PSWidgetUtils.getJavaType(userPref);
+        try {
             object = coerceProperty(name, object, klass);
             properties.put(name, object);
-        }
-        catch (PSWidgetPropertyBlankStringCoercionException e)
-        {
-            log.debug("Failed to coerce blank widget property:{}  Is is not a string and since its blank we will skip it. Error: {} "
-                    , name
-                    , PSExceptionUtils.getMessageForLog(e));
+        } catch (PSWidgetPropertyBlankStringCoercionException e) {
+            log.debug("Failed to coerce blank widget property:{}  It is not a string and since it's blank we will skip it. Error: {}",
+                    name, PSExceptionUtils.getMessageForLog(e));
             return;
+        } catch (PSWidgetPropertyCoercionException e) {
+            log.warn("Failed to coerce widget property: Error: {}", PSExceptionUtils.getMessageForLog(e));
         }
-        catch (PSWidgetPropertyCoercionException e)
-        {
-            log.warn("Failed coerce widget property: Error: {}", PSExceptionUtils.getMessageForLog(e));
-        }
-        boolean valid = validateType(klass, userPref.getDisplayName(), object, errors);
-        if (valid &&  isEnum(userPref)) {
+        var valid = validateType(klass, userPref.getDisplayName(), object, errors);
+        if (valid && isEnum(userPref)) {
             valid = getEnums(userPref).contains(object);
-            if ( ! valid ) {
-                //If the enum value is invalid - this is probably an upgrade issue - just use the default value instead of erroring.
-                Object obj = userPref.getDefaultValue();
+            if (!valid) {
+                // If the enum value is invalid - this is probably an upgrade issue - just use the default value instead of erroring.
+                var obj = userPref.getDefaultValue();
                 valid = getEnums(userPref).contains(obj);
-                if ( ! valid ) {
-                    //default value on the property is no good.
+                if (!valid) {
+                    // Default value on the property is no good.
                     errors.rejectValue(name, "widgetItem.badEnumValue", "Bad enum value");
-                }else{
-                    properties.put(name,String.valueOf(obj));
+                } else {
+                    properties.put(name, String.valueOf(obj));
                 }
             }
         }
     }
-    
 
-    
     protected boolean validateType(final Class<?> klass, String name, Object data, Errors errors) {
-        if ( ! klass.isInstance(data) ) {
-            
+        if (!klass.isInstance(data)) {
             errors.rejectValue(name, "widgetItem.invalidDataType", "Data is invalid for the property: " + name);
             log.debug("Wrong data type is entered for the property : {}", name);
             return false;
         }
         return true;
     }
-    
+
     /**
      * The log instance to use for this class, never <code>null</code>.
      */
     private static final Logger log = LogManager.getLogger(PSWidgetPropertiesValidator.class);
-
 }

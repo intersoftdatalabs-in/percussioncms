@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -67,112 +68,76 @@ import com.percussion.webservices.system.IPSSystemWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
-import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
-import static java.util.Arrays.asList;
-
-@Category(IntegrationTest.class)
-public class PSAssetServiceTest extends PSServletTestCase
-{
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class PSAssetServiceTest extends PSServletTestCase {
 
     private static final Logger log = LogManager.getLogger(PSAssetServiceTest.class);
-
     private static final String tempPrefix = "TemplateTest";
     private PSSiteDataServletTestCaseFixture fixture;
     private String templateId;
-    
-    @Override
-    public void setUp() throws Exception
-    {
+
+    @BeforeEach
+    public void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);
         fixture.setUp("Admin", "demo", "Default");
-        // create a template owner
         templateId = fixture.template1.getId();
-        //FB:IJU_SETUP_NO_SUPER NC 1-16-16
         super.setUp();
-                    
     }
-        
-    @Override
-    protected void tearDown() throws Exception
-    {
+
+    @AfterEach
+    protected void tearDown() throws Exception {
         fixture.tearDown();
         fixture.templateCleanUp(tempPrefix);
     }
 
-    public void testNonCompliantImageAssetsReport(){
-    	try {
-			List<PSImageAssetReportLine> report = assetService.findNonCompliantImageAssets();
-			
-		} catch (PSReportFailedToRunException e) {
-			// TODO Auto-generated catch block
+    @Test
+    void testNonCompliantImageAssetsReport() {
+        try {
+            var report = assetService.findNonCompliantImageAssets();
+            assertNotNull(report);
+        } catch (PSReportFailedToRunException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-		}
+        }
     }
-    
-    public void testCreateAssetWidgetRelationship() throws Exception
-    {
+
+    @Test
+    void testCreateAssetWidgetRelationship() throws Exception {
         String assetId = null;
         String awRelId = null;
-
-        try
-        {
-            
-            // create an asset
-            PSAsset asset = createAsset("testAsset", "//Folders");
+        try {
+            var asset = createAsset("testAsset", "//Folders");
             assetId = asset.getId();
             assertNotNull(assetId);
-            
-            // asset widget relationship should not be there
             assertTrue(widgetAssetRelationshipService.getRelationshipOwners(assetId).isEmpty());
-            
-            // create an asset-widget relationship
-            PSAssetWidgetRelationship awRel = new PSAssetWidgetRelationship(templateId, 5, "widget5", assetId, 1);
+            var awRel = new PSAssetWidgetRelationship(templateId, 5, "widget5", assetId, 1);
             awRelId = assetService.createAssetWidgetRelationship(awRel);
             assertNotNull(awRelId);
-            
-            // make sure it was saved correctly
-            PSRelationship rel = getLocalRelationship(awRel.getOwnerId(), awRel.getWidgetId(), awRel.getAssetId());
+            var rel = getLocalRelationship(awRel.getOwnerId(), awRel.getWidgetId(), awRel.getAssetId());
             assertNotNull(rel);
-            assertTrue(rel.getProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP) == null);
-            assertEquals(rel.getProperty(PSWidgetAssetRelationshipService.ASSET_ORDER_PROP_NAME), 
-                    String.valueOf(awRel.getAssetOrder()));
-            
-            // test get asset widget relationship owners
-            Set<String> relOwners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
+            assertNull(rel.getProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP));
+            assertEquals(String.valueOf(awRel.getAssetOrder()), rel.getProperty(PSWidgetAssetRelationshipService.ASSET_ORDER_PROP_NAME));
+            var relOwners = widgetAssetRelationshipService.getRelationshipOwners(assetId);
             assertEquals(1, relOwners.size());
-            IPSGuid ownerGuid = idMapper.getGuid(awRel.getOwnerId());
+            var ownerGuid = idMapper.getGuid(awRel.getOwnerId());
             ownerGuid = contentDesignWs.getItemGuid(ownerGuid);
             assertTrue(relOwners.contains(idMapper.getString(ownerGuid)));
-        }
-        finally
-        {
-            if (awRelId != null)
-            {
-                systemWs.deleteRelationships(asList(idMapper.getGuid(awRelId)));
-            }
-            
-            if (assetId != null)
-            {                
-                assetDao.delete(assetId);
-            }
-            
+        } finally {
+            if (awRelId != null) systemWs.deleteRelationships(List.of(idMapper.getGuid(awRelId)));
+            if (assetId != null) assetDao.delete(assetId);
         }
     }
-    
-    public void testShareLocalAsset() throws Exception
-    {
+
+    @Test
+    void testShareLocalAsset() throws Exception {
         String assetId = null;
         String awRelId = null;
         String sharedAssetId = null;
@@ -290,7 +255,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
 
-    public void testClearAssetWidgetRelationship() throws Exception
+    @Test
+    void testClearAssetWidgetRelationship() throws Exception
     {
 
         String assetId = null;
@@ -376,7 +342,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
        
-    public void testAddAssetToFolder() throws Exception
+    @Test
+    void testAddAssetToFolder() throws Exception
     {
 
         String assetId = null;
@@ -426,7 +393,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testRemoveAssetFromFolder() throws Exception
+    @Test
+    void testRemoveAssetFromFolder() throws Exception
     {
         String assetId = null;
         String folderPath;
@@ -491,7 +459,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testDeleteLocalAssets() throws Exception
+    @Test
+    void testDeleteLocalAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -586,7 +555,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testCopyAssetWidgetRelationships() throws Exception
+    @Test
+    void testCopyAssetWidgetRelationships() throws Exception
     {
 
         List<String> assetIds = new ArrayList<String>();
@@ -675,7 +645,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testRemoveAssetWidgetRelationships() throws Exception
+    @Test
+    void testRemoveAssetWidgetRelationships() throws Exception
     {
 
         List<String> assetIds = new ArrayList<String>();
@@ -790,7 +761,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testGetLocalAssets() throws Exception
+    @Test
+    void testGetLocalAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -860,7 +832,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testGetSharedAssets() throws Exception
+    @Test
+    void testGetSharedAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -932,7 +905,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testGetLinkedAssets() throws Exception
+    @Test
+    void testGetLinkedAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -1014,7 +988,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testGetLinkedAssetsForAsset() throws Exception
+    @Test
+    void testGetLinkedAssetsForAsset() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         String pageId = null;
@@ -1119,7 +1094,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testGetResourceAssets() throws Exception
+    @Test
+    void testGetResourceAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -1220,7 +1196,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testIsUsedByTemplate() throws Exception
+    @Test
+    void testIsUsedByTemplate() throws Exception
     {
         String assetId = null;
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -1279,7 +1256,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testUpdateLocalRelationship() throws Exception
+    @Test
+    void testUpdateLocalRelationship() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> awRelIds = new ArrayList<IPSGuid>();
@@ -1348,7 +1326,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testCreateBinaryAssets() throws Exception
+    @Test
+    void testCreateBinaryAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> folderIds = new ArrayList<IPSGuid>();
@@ -1466,7 +1445,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testUpdateBinaryAssets() throws Exception
+    @Test
+    void testUpdateBinaryAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> folderIds = new ArrayList<IPSGuid>();
@@ -1520,7 +1500,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testCreateExtractedAssets() throws Exception
+    @Test
+    void testCreateExtractedAssets() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         List<IPSGuid> folderIds = new ArrayList<IPSGuid>();
@@ -1638,7 +1619,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testFindByTypeAndWf() throws Exception
+    @Test
+    void testFindByTypeAndWf() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         String defaultWf = "Default Workflow";        
@@ -1689,7 +1671,8 @@ public class PSAssetServiceTest extends PSServletTestCase
         }
     }
     
-    public void testFindByTypeAndName() throws Exception
+    @Test
+    void testFindByTypeAndName() throws Exception
     {
         List<String> assetIds = new ArrayList<String>();
         

@@ -39,23 +39,17 @@ import org.junit.experimental.categories.Category;
  * Unit Test for  File Monitor Notification service {@link PSFileMonitorService}
  */
 @Category(IntegrationTest.class)
-public class PSFileMonitorServiceTest extends ServletTestCase 
+public class PSFileMonitorServiceTest extends ServletTestCase
       implements IPSNotificationListener
 {
-   private int NUM_FILE = 5;
-   
+   private final int NUM_FILE = 5;
+
    private boolean m_isSuccess = false;
 
-   private File[] m_testFile = new File[NUM_FILE];
-   private Boolean[] m_eventReceived = new Boolean[] {false, false, false, false, false};
-   private Thread m_testThread = new Thread (new Runnable()
-   {
-      public void run()
-      {
-         doTest();
-      }
-   });
-   
+   private final File[] m_testFile = new File[NUM_FILE];
+   private final Boolean[] m_eventReceived = new Boolean[] {false, false, false, false, false};
+   private final Thread m_testThread = new Thread(() -> doTest());
+
    public void testMonitorFile()
    {
       m_testThread.start();
@@ -64,15 +58,13 @@ public class PSFileMonitorServiceTest extends ServletTestCase
       {
          try
          {
-            Thread.currentThread().sleep(1000);
+            Thread.sleep(1000);
          }
          catch (InterruptedException e)
          {
-            // should not be here
             assertTrue("Unexpected thread exception", false);
          }
       }
-      // assertTrue(m_isSuccess);
       if (m_isSuccess)
          System.out.println("testMonitorFile() ran successful.");
       else
@@ -81,95 +73,80 @@ public class PSFileMonitorServiceTest extends ServletTestCase
 
    public void doTest()
    {
-      // Register with Rx Notification service. 
-      //   This class will receive notification (callback to 
-      //   "notifyEvent()"whenever a file change event occurs.
-      IPSNotificationService notifyService = PSNotificationServiceLocator
-         .getNotificationService();
+      var notifyService = PSNotificationServiceLocator.getNotificationService();
       notifyService.addListener(EventType.FILE, this);
 
       try
       {
-         // Get the file notification service and 
-         PSFileMonitorService fileMonitorService = (PSFileMonitorService) PSFileMonitorServiceLocator
-               .getFileMonitorService();
+         var fileMonitorService = (PSFileMonitorService) PSFileMonitorServiceLocator.getFileMonitorService();
          int curDirWatcherCount = fileMonitorService.getDirWatcherCount();
-   
-         // Create NUM_FILE files.
-         for (int i=0; i<NUM_FILE; i++)
+
+         for (int i = 0; i < NUM_FILE; i++)
          {
             m_testFile[i] = createTestFile();
-            // Start monitoring the file.
-            fileMonitorService.monitorFile( m_testFile[i]);
+            fileMonitorService.monitorFile(m_testFile[i]);
          }
-         // give enough time to start & setup the dirWatcher thread
-         m_testThread.sleep(10*1000);
+         Thread.sleep(10 * 1000);
 
          assertTrue(fileMonitorService.getDirWatcherCount() == 1 + curDirWatcherCount);
-   
-         // Change the files
-         for (int i=0; i<NUM_FILE; i++)
+
+         for (int i = 0; i < NUM_FILE; i++)
          {
-            //m_testThread.sleep(1000);
             writeToTestFile(m_testFile[i], "This is an update test.");
          }
-     
-         // Sleep for X seconds. 
-         // This is to allow time the File Monitoring Service  
-         // polling delay to expire.
+
          int tries = 0;
-         while ((!recievedAll()) && tries++ < 60) 
-            m_testThread.sleep(1000);
-         
-         for (int i=0; i<NUM_FILE; i++)
+         while ((!recievedAll()) && tries++ < 60)
+            Thread.sleep(1000);
+
+         for (int i = 0; i < NUM_FILE; i++)
             assertTrue(m_eventReceived[i]);
 
-         for (int i=0; i<NUM_FILE; i++)
-            fileMonitorService.unmonitorFile( m_testFile[i]);
-         
+         for (int i = 0; i < NUM_FILE; i++)
+            fileMonitorService.unmonitorFile(m_testFile[i]);
+
          assertTrue(fileMonitorService.getDirWatcherCount() == curDirWatcherCount);
-         
+
          m_isSuccess = true;
       }
       catch (InterruptedException e)
       {
-         assertTrue(false); 
+         assertTrue(false);
       }
       finally
       {
-         // Clean up
          notifyService.removeListener(EventType.FILE, this);
-         for (int i=0; i<NUM_FILE; i++)
+         for (int i = 0; i < NUM_FILE; i++)
             m_testFile[i].delete();
       }
-      
    }
-   
+
    private boolean recievedAll()
    {
-      for (int i=0; i<NUM_FILE; i++)
+      for (int i = 0; i < NUM_FILE; i++)
       {
          if (!m_eventReceived[i])
             return false;
       }
       return true;
    }
-  
+
    /*
-    * //see IPSNotificationListener.notifyEvent() method for details
+    * see IPSNotificationListener.notifyEvent() method for details
     */
+   @Override
    public synchronized void notifyEvent(PSNotificationEvent event)
    {
       if (event == null || event.getType() != EventType.FILE
             || (!(event.getTarget() instanceof File)))
       {
          throw new IllegalArgumentException(
-               "event may not be null amd must represent a file change event");
+               "event may not be null and must represent a file change event");
       }
-      
-      File tgtFile = (File) event.getTarget();
+
+      var tgtFile = (File) event.getTarget();
       int index = -1;
-      for (int i=0; i<NUM_FILE; i++)
+      for (int i = 0; i < NUM_FILE; i++)
       {
          if (tgtFile.getAbsolutePath().equals(m_testFile[i].getAbsolutePath()))
          {
@@ -178,49 +155,38 @@ public class PSFileMonitorServiceTest extends ServletTestCase
          }
       }
       assertTrue(index >= 0);
-      
+
       m_eventReceived[index] = true;
-      //System.out.println("notifyEvent - m_eventReceived: " + index);
    }
 
-   
    private File createTestFile()
    {
-   File tmpFile = null;
-   File tmpDir = new File(PSServer.getRxDir(), "temp");
-   try 
+      File tmpFile = null;
+      var tmpDir = new File(PSServer.getRxDir(), "temp");
+      try
       {
          tmpFile = new PSPurgableTempFile("tmpFile", ".txt", tmpDir);
-//         System.out.println("create tmpFile \"" + tmpFile.getAbsolutePath()
-//               + "\".");
-
       }
       catch (IOException e)
       {
          System.out.println(
-               "PSFileMonitorServiceTest.createTestFile: Failure to create temporarty file.");
-         assertTrue(false); 
+               "PSFileMonitorServiceTest.createTestFile: Failure to create temporary file.");
+         assertTrue(false);
       }
       return tmpFile;
    }
-   
+
    private void writeToTestFile(File testFile, String theString)
    {
-      // Create file writers and output a string.
-      try
-      {
-         FileWriter testFileWriter = new FileWriter(testFile, true);
-         PrintWriter tfPrintWriter = new PrintWriter(testFileWriter);
+      try (var testFileWriter = new FileWriter(testFile, true);
+           var tfPrintWriter = new PrintWriter(testFileWriter)) {
          tfPrintWriter.println(theString);
          tfPrintWriter.flush();
       }
       catch (IOException e)
       {
          System.out.println("writeToTestFile: Failure to write to test file");
-         assertTrue(false); // TODO: isn't there a better way to do this?
+         assertTrue(false);
       }
-      return;
    }
-   
-
-} //end
+}

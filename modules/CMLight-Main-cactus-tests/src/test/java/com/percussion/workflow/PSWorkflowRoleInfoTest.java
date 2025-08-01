@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,202 +26,188 @@ import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
-import org.apache.cactus.ServletTestCase;
 import org.apache.commons.collections.CollectionUtils;
+import org.junit.jupiter.api.Test;
 import org.junit.experimental.categories.Category;
 
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * The PSWorkflowRoleInfoTest class is a test class for static methods of the
- * class PSWorkflowRoleInfo.
+ * Test class for static methods of {@link PSWorkflowRoleInfo}.
+ * Sunny Sal says: "If this test fails, blame the roles, not the coder!"
  */
-
 @Category(IntegrationTest.class)
-public class PSWorkflowRoleInfoTest extends ServletTestCase
-{
-   /**
-    * Setup additional information needed for tests.
-    * 
-    * @throws PSORMException
-    */
-   public static void setupInfo() throws PSORMException
-   {
-      PSAssignmentTypeHelperTest.setupInfo();
-   }
-   
-   /**
-    * Teardown additional information created during {@link #setupInfo()}
-    * 
-    * @throws PSORMException
-    */
-   public static void teardownInfo() throws PSORMException
-   {
-      PSAssignmentTypeHelperTest.teardownInfo();
-   }
-   
-   /**
-    * Test the {@link PSWorkflowRoleInfo} class.
-    * 
-    * @throws Exception If the test fails.
-    */
-   public void testWorkflowRoleInfo() throws Exception
-   {
-      try
-      {
-         setupInfo();
-         
-         Connection connection = PSConnectionHelper.getDbConnection();
+class PSWorkflowRoleInfoTest {
 
-         PSStateRolesContext src;
-         PSContentAdhocUsersContext cauc;
-         List stateRoleIDNotificationList = null;
-         List stateRoleNameNotificationList;
-         List stateAdhocActorNotificationList = null;
-         IPSRequestContext requestCtx;
-         List<String> actorRolesList;
+    /**
+     * Setup additional information needed for tests.
+     */
+    public static void setupInfo() throws PSORMException {
+        PSAssignmentTypeHelperTest.setupInfo();
+    }
 
-         IPSSecurityWs secWs = PSSecurityWsLocator.getSecurityWebservice();
-         requestCtx = secWs.getRequestContext();
+    /**
+     * Teardown additional information created during {@link #setupInfo()}
+     */
+    public static void teardownInfo() throws PSORMException {
+        PSAssignmentTypeHelperTest.teardownInfo();
+    }
 
-         int contentid = PSAssignmentTypeHelperTest.COMM_CIDS[0];
-         PSAssignmentTypeHelperTest.updateComponentSummary(contentid, 
-            WORKFLOW_ID, PSAssignmentTypeHelperTest.COMMTEST_STATE_ID);
+    /**
+     * Test the {@link PSWorkflowRoleInfo} class.
+     */
+    @Test
+    void testWorkflowRoleInfo() throws Exception {
+        try {
+            setupInfo();
 
-         src = new PSStateRolesContext(
-            WORKFLOW_ID,
-            connection,
-            PSAssignmentTypeHelperTest.COMMTEST_STATE_ID,
-            PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW);
+            var connection = PSConnectionHelper.getDbConnection();
 
-         assertTrue(CollectionUtils.isEqualCollection(src.getStateRoleNames(),
-                 PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(src.getStateRoleIDs(),
-               src)));
+            PSStateRolesContext src;
+            PSContentAdhocUsersContext cauc;
+            List<Integer> stateRoleIdNotificationList;
+            List<String> stateRoleNameNotificationList;
+            List<?> stateAdhocActorNotificationList;
+            IPSRequestContext requestCtx;
+            List<String> actorRolesList;
 
-         List<Integer> notifRoleIDs = new ArrayList<>();
-         notifRoleIDs.add(TestRole.EDITOR.getRoleId());
-         notifRoleIDs.add(TestRole.QA.getRoleId());
-         notifRoleIDs.add(TestRole.EI_ADMIN_MEMBERS.getRoleId());
-         notifRoleIDs.add(TestRole.EI_MEMBERS.getRoleId());
+            IPSSecurityWs secWs = PSSecurityWsLocator.getSecurityWebservice();
+            requestCtx = secWs.getRequestContext();
 
-         List<Integer> roleIDs = new ArrayList<>();
-         roleIDs.add(TestRole.AUTHOR.getRoleId());
-         roleIDs.add(TestRole.ADMIN.getRoleId());
-         roleIDs.addAll(notifRoleIDs);
+            var contentId = PSAssignmentTypeHelperTest.COMM_CIDS[0];
+            PSAssignmentTypeHelperTest.updateComponentSummary(contentId,
+                    WORKFLOW_ID, PSAssignmentTypeHelperTest.COMMTEST_STATE_ID);
 
-         List rolesNotificationEnabled =
-                 PSWorkflowRoleInfoStatic.filterRolesNotificationEnabled(
-               roleIDs, src);
-         assertTrue(CollectionUtils.isEqualCollection(notifRoleIDs, 
-            rolesNotificationEnabled));
-         assertFalse(CollectionUtils.isEqualCollection(roleIDs, 
-            rolesNotificationEnabled));
+            src = new PSStateRolesContext(
+                    WORKFLOW_ID,
+                    connection,
+                    PSAssignmentTypeHelperTest.COMMTEST_STATE_ID,
+                    PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW);
 
-         //used by PSExitAuthenticateUser
-         List<String> assignedRoleNames = new ArrayList<>();
-         assignedRoleNames.add(TestRole.EDITOR.name());
-         assignedRoleNames.add(TestRole.QA.name());
-         assignedRoleNames.add(TestRole.EI_ADMIN_MEMBERS.name());
-         assignedRoleNames.add(TestRole.AUTHOR.name());
-         List<String> memberRoleNames = new ArrayList<>(assignedRoleNames);
-         memberRoleNames.add(TestRole.CI_MEMBERS.name());
-         memberRoleNames.add(TestRole.ADMIN.name());
+            assertTrue(CollectionUtils.isEqualCollection(src.getStateRoleNames(),
+                    PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(src.getStateRoleIDs(), src)));
 
-         String userRoleNames = PSWorkFlowUtils.listToDelimitedString(
-            memberRoleNames, ",");
-         List<Integer> actorRoleIDList = PSWorkflowRoleInfoStatic.getActorRoles(contentid, src,
-            PSAssignmentTypeHelperTest.ADHOC_USER_ANON, userRoleNames,
-            connection, true);
-         actorRolesList = PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(
-            actorRoleIDList, src);
-         assertTrue(CollectionUtils.isEqualCollection(assignedRoleNames, 
-            actorRolesList));
+            var notifRoleIds = List.of(
+                    TestRole.EDITOR.getRoleId(),
+                    TestRole.QA.getRoleId(),
+                    TestRole.EI_ADMIN_MEMBERS.getRoleId(),
+                    TestRole.EI_MEMBERS.getRoleId()
+            );
 
-         //used by PSExitAddPossibleTransitions
-         assignedRoleNames.remove(TestRole.EI_ADMIN_MEMBERS.name());
-         actorRoleIDList = PSWorkflowRoleInfoStatic.getActorRoles(contentid, src,
-            PSAssignmentTypeHelperTest.ADHOC_USER_NORMAL, userRoleNames,
-            connection, false);
-         actorRolesList = PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(
-            actorRoleIDList, src);
-         assertTrue(CollectionUtils.isEqualCollection(assignedRoleNames, 
-            actorRolesList));
+            var roleIds = new ArrayList<Integer>();
+            roleIds.add(TestRole.AUTHOR.getRoleId());
+            roleIds.add(TestRole.ADMIN.getRoleId());
+            roleIds.addAll(notifRoleIds);
 
-         assertEquals(PSAssignmentTypeEnum.ASSIGNEE.getValue(),
-                 PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIDList));
+            var rolesNotificationEnabled =
+                    PSWorkflowRoleInfoStatic.filterRolesNotificationEnabled(roleIds, src);
+            assertTrue(CollectionUtils.isEqualCollection(notifRoleIds, rolesNotificationEnabled));
+            assertFalse(CollectionUtils.isEqualCollection(roleIds, rolesNotificationEnabled));
 
-         stateRoleIDNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateRoleIDNotificationList(src, contentid);
-         System.out.println("\nstateRoleIDNotificationList = "
-            + stateRoleIDNotificationList);
+            // used by PSExitAuthenticateUser
+            var assignedRoleNames = new ArrayList<>(List.of(
+                    TestRole.EDITOR.name(),
+                    TestRole.QA.name(),
+                    TestRole.EI_ADMIN_MEMBERS.name(),
+                    TestRole.AUTHOR.name()
+            ));
+            var memberRoleNames = new ArrayList<>(assignedRoleNames);
+            memberRoleNames.add(TestRole.CI_MEMBERS.name());
+            memberRoleNames.add(TestRole.ADMIN.name());
 
-         stateRoleNameNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(src, contentid);
-         System.out.println("stateRoleNameNotificationList = "
-            + stateRoleNameNotificationList);
+            var userRoleNames = PSWorkFlowUtils.listToDelimitedString(
+                    memberRoleNames, ",");
+            var actorRoleIdList = PSWorkflowRoleInfoStatic.getActorRoles(contentId, src,
+                    PSAssignmentTypeHelperTest.ADHOC_USER_ANON, userRoleNames,
+                    connection, true);
+            actorRolesList = PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(
+                    actorRoleIdList, src);
+            assertTrue(CollectionUtils.isEqualCollection(assignedRoleNames, actorRolesList));
 
-         cauc = new PSContentAdhocUsersContext(contentid, connection);
+            // used by PSExitAddPossibleTransitions
+            assignedRoleNames.remove(TestRole.EI_ADMIN_MEMBERS.name());
+            actorRoleIdList = PSWorkflowRoleInfoStatic.getActorRoles(contentId, src,
+                    PSAssignmentTypeHelperTest.ADHOC_USER_NORMAL, userRoleNames,
+                    connection, false);
+            actorRolesList = PSWorkflowRoleInfoStatic.roleIDListToRoleNameList(
+                    actorRoleIdList, src);
+            assertTrue(CollectionUtils.isEqualCollection(assignedRoleNames, actorRolesList));
 
-         stateAdhocActorNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateAdhocActorNotificationList(
-               cauc, src, contentid, requestCtx, false); // no role validation
-         System.out.println("\nstateAdhocActorNotificationList = " +
-            stateAdhocActorNotificationList);      
+            assertEquals(PSAssignmentTypeEnum.ASSIGNEE.getValue(),
+                    PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIdList));
 
-         contentid = PSAssignmentTypeHelperTest.COMM_CIDS[1];
-         stateRoleIDNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateRoleIDNotificationList(src, contentid);
-         System.out.println("\nstateRoleIDNotificationList = "
-            + stateRoleIDNotificationList);
+            stateRoleIdNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateRoleIDNotificationList(src, contentId);
+            System.out.println("\nstateRoleIDNotificationList = "
+                    + stateRoleIdNotificationList);
 
-         stateRoleNameNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(src, contentid);
-         System.out.println("stateRoleNameNotificationList = "
-            + stateRoleNameNotificationList);
+            stateRoleNameNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(src, contentId);
+            System.out.println("stateRoleNameNotificationList = "
+                    + stateRoleNameNotificationList);
 
-         cauc = new PSContentAdhocUsersContext(contentid, connection);
+            cauc = new PSContentAdhocUsersContext(contentId, connection);
 
-         stateAdhocActorNotificationList =
-                 PSWorkflowRoleInfoStatic.getStateAdhocActorNotificationList(
-               cauc, src, contentid, requestCtx, false); // no role validation
-         System.out.println("\nstateAdhocActorNotificationList = " +
-            stateAdhocActorNotificationList);      
+            stateAdhocActorNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateAdhocActorNotificationList(
+                            cauc, src, contentId, requestCtx, false); // no role validation
+            System.out.println("\nstateAdhocActorNotificationList = " +
+                    stateAdhocActorNotificationList);
 
-         PSAssignmentTypeHelperTest.updateComponentSummary(contentid, 
-            WORKFLOW_ID, PSAssignmentTypeHelperTest.DRAFT_STATE_ID);
-         src = new PSStateRolesContext(
-            WORKFLOW_ID,
-            connection,
-            PSAssignmentTypeHelperTest.DRAFT_STATE_ID,
-            PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW);
+            contentId = PSAssignmentTypeHelperTest.COMM_CIDS[1];
+            stateRoleIdNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateRoleIDNotificationList(src, contentId);
+            System.out.println("\nstateRoleIDNotificationList = "
+                    + stateRoleIdNotificationList);
 
-         actorRoleIDList.clear();
-         actorRoleIDList.add(TestRole.EDITOR.getRoleId());      
-         assertEquals(PSAssignmentTypeEnum.NONE.getValue(),
-                 PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIDList));
+            stateRoleNameNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateRoleNameNotificationList(src, contentId);
+            System.out.println("stateRoleNameNotificationList = "
+                    + stateRoleNameNotificationList);
 
-         actorRoleIDList.add(TestRole.QA.getRoleId());
-         assertEquals(PSAssignmentTypeEnum.READER.getValue(),
-                 PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIDList));
+            cauc = new PSContentAdhocUsersContext(contentId, connection);
 
-         actorRoleIDList.add(TestRole.AUTHOR.getRoleId());      
-         assertEquals(PSAssignmentTypeEnum.ASSIGNEE.getValue(),
-                 PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIDList));
+            stateAdhocActorNotificationList =
+                    PSWorkflowRoleInfoStatic.getStateAdhocActorNotificationList(
+                            cauc, src, contentId, requestCtx, false); // no role validation
+            System.out.println("\nstateAdhocActorNotificationList = " +
+                    stateAdhocActorNotificationList);
 
-         actorRoleIDList.add(TestRole.ADMIN.getRoleId());      
-         assertEquals(PSAssignmentTypeEnum.ADMIN.getValue(),
-                 PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIDList));
-      }
-      finally
-      {
-         teardownInfo();
-      }      
-   }
-   
-   /**
-    * Constant for the ID of the workflow used for all testing.
-    */
-   private static final int WORKFLOW_ID = PSAssignmentTypeHelperTest.TEST_WF_ID;
+            PSAssignmentTypeHelperTest.updateComponentSummary(contentId,
+                    WORKFLOW_ID, PSAssignmentTypeHelperTest.DRAFT_STATE_ID);
+            src = new PSStateRolesContext(
+                    WORKFLOW_ID,
+                    connection,
+                    PSAssignmentTypeHelperTest.DRAFT_STATE_ID,
+                    PSWorkFlowUtils.ASSIGNMENT_TYPE_NOT_IN_WORKFLOW);
+
+            actorRoleIdList.clear();
+            actorRoleIdList.add(TestRole.EDITOR.getRoleId());
+            assertEquals(PSAssignmentTypeEnum.NONE.getValue(),
+                    PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIdList));
+
+            actorRoleIdList.add(TestRole.QA.getRoleId());
+            assertEquals(PSAssignmentTypeEnum.READER.getValue(),
+                    PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIdList));
+
+            actorRoleIdList.add(TestRole.AUTHOR.getRoleId());
+            assertEquals(PSAssignmentTypeEnum.ASSIGNEE.getValue(),
+                    PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIdList));
+
+            actorRoleIdList.add(TestRole.ADMIN.getRoleId());
+            assertEquals(PSAssignmentTypeEnum.ADMIN.getValue(),
+                    PSWorkflowRoleInfoStatic.getAssignmentType(src, actorRoleIdList));
+        } finally {
+            teardownInfo();
+        }
+    }
+
+    /**
+     * Constant for the ID of the workflow used for all testing.
+     */
+    private static final int WORKFLOW_ID = PSAssignmentTypeHelperTest.TEST_WF_ID;
 }

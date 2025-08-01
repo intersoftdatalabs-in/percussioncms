@@ -19,11 +19,12 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 /**
  * The deployable element : TEMPLATE for packaging
+ *
  * @author vamsinukala
  *
  */
@@ -48,18 +49,17 @@ public class PSTemplateDependencyHandler extends PSElementDependencyHandler
    }
    
    // see base class
-   protected PSDependencyHandler getChildHandler()
-   {
-      if (m_childHandler == null)
-         m_childHandler = getDependencyHandler(
-            PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
-
+   @Override
+   protected PSDependencyHandler getChildHandler() {
+      if (m_childHandler == null) {
+         m_childHandler = getDependencyHandler(PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
+      }
       return m_childHandler;
    }
 
    // see base class
-   public Iterator getChildTypes()
-   {
+   @Override
+   public Iterator<String> getChildTypes() {
       return ms_childTypes.iterator();
    }
 
@@ -88,10 +88,5 @@ public class PSTemplateDependencyHandler extends PSElementDependencyHandler
     * List of child types supported by this handler, it will never be
     * <code>null</code> or empty.
     */
-   private static List<String> ms_childTypes = new ArrayList<>();
-
-   static
-   {
-      ms_childTypes.add(PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
-   }
+   private static final List<String> ms_childTypes = List.of(PSTemplateDefDependencyHandler.DEPENDENCY_TYPE);
 }

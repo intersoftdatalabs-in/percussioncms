@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -57,7 +58,7 @@ public class PSConditionalExtensionRunner extends PSExtensionRunner
     *    match the extension.
     */
    public PSConditionalExtensionRunner(PSExtensionCall call,
-      IPSExtension ext, Iterator conditions) throws PSNotFoundException, 
+      IPSExtension ext, Iterator<Object> conditions) throws PSNotFoundException,
          PSIllegalArgumentException, PSExtensionException
    {
       super(call);

@@ -20,6 +20,7 @@ package com.percussion.deployer.objectstore;
 import com.percussion.utils.collections.PSIteratorUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -62,18 +63,11 @@ public class PSDependencyContext
     * @return <code>true</code> if a reference to the actual instance of this 
     * dependency is found in this context, <code>false</code> if not.
     */
-   public boolean containsDependency(PSDependency dep)
-   {
-      boolean hasDep = false;
-      
-      Iterator deps = getDependencies();
-      while (deps.hasNext() && !hasDep)
-      {
-         if (dep == deps.next())
-            hasDep = true;
-      }
-      
-      return hasDep;
+   public boolean containsDependency(PSDependency dep) {
+       if (dep == null) {
+           throw new IllegalArgumentException("dep may not be null");
+       }
+       return getDependencies().stream().anyMatch(d -> d == dep);
    }
 
    /**
@@ -85,65 +79,19 @@ public class PSDependencyContext
     * @param pkg The package containing the dependency, may not be 
     * <code>null</code>.
     */
-   public void addDependency(PSDependency dep, PSDeployableElement pkg)
-   {
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      
-      if (pkg == null)
-         throw new IllegalArgumentException("pkg may not be null");
-
-      if (!dep.getKey().equals(m_depKey))
-         throw new IllegalArgumentException(
-            "dep key does not match context key");
-
-      boolean included = isIncluded();
-      boolean isMulti = isMulti();
-      
-      // select others if this dep isIncluded(), else select dep if
-      // others are included
-      if (included && !dep.isIncluded())
-      {
-         if (!dep.canBeIncludedExcluded())
-         {
-            // would be a bug
-            throw new IllegalArgumentException(
-               "ctx is selected, cannot include dep");
-         }
-         dep.setIsIncluded(true);
-      }
-      else if (!included && dep.isIncluded())
-      {
-         // if adding a local dependency, need to check if it's really included
-         boolean depIncluded = true;
-         if (!dep.canBeIncludedExcluded())
-            depIncluded = pkg.includesDependency(dep, true);
-
-         if (depIncluded)
-         {
-            if (!setIncluded(true))
-            {
-               // this would be a bug
-               throw new IllegalArgumentException(
-                  "dep is included, but ctx cannot be set as included");
-            }
-         }
-      }            
-      
-      // now add dep to map
-      String pkgKey = pkg.getKey();
-      m_pkgMap.put(pkgKey, pkg);
-      List depList = (List)m_depMap.get(pkgKey);
-      if (depList == null)
-      {
-         depList = new ArrayList();
-         m_depMap.put(pkgKey, depList);
-      }
-      depList.add(dep);
-      
-      // if switching from single to multi, counts as a change
-      if (!isMulti && isMulti())
-         m_treeCtx.notifyCtxChangeListeners(this);
+   public void addDependency(PSDependency dep, PSDeployableElement pkg) {
+       if (dep == null || pkg == null) {
+           throw new IllegalArgumentException("dep and pkg may not be null");
+       }
+       if (!dep.getKey().equals(m_depKey)) {
+           throw new IllegalArgumentException("dep key does not match context key");
+       }
+       var depList = m_depMap.computeIfAbsent(pkg.getKey(), k -> new ArrayList<>());
+       depList.add(dep);
+       m_pkgMap.put(pkg.getKey(), pkg);
+       if (!isMulti() && depList.size() > 1) {
+           m_treeCtx.notifyCtxChangeListeners(this);
+       }
    }
    
    /**
@@ -404,9 +352,10 @@ public class PSDependencyContext
     * 
     * @return The iterator, never <code>null</code>, may be empty.
     */
-   public Iterator getDependencies()
-   {
-      return getValueLists(m_depMap);
+   private Iterator<PSDependency> getDependencies() {
+       return m_depMap.values().stream()
+           .flatMap(Collection::stream)
+           .iterator();
    }
 
    

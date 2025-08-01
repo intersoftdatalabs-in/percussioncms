@@ -18,45 +18,19 @@
 package com.percussion.assetmanagement.forms.service.impl;
 
 import com.percussion.assetmanagement.forms.service.IPSFormDataService;
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * JLS: Disabled test as it is unreliable, and since there is a similar test in the Delivery tier project, this test
  * is mostly redundant, and there are no other sitemanage unit tests for rest services that pass through to the
  * DTS.
- *
  */
-//public class PSFormDataServiceTest extends PSServletTestCase
-public class PSFormDataServiceTest extends TestCase
-{
+class PSFormDataServiceTest {
 
-    private static final String SERVER_URL = "http://localhost:9980";
-
-    private static final String SERVER_SECURE_URL = "https://localhost:8443";
-
-    private static final String SERVER_USER = "ps_manager";
-
-    private static final String SERVER_PASSWORD = "newpassword";
-
-    private static final Boolean SERVER_ALLOW_CERTIFICATES = Boolean.TRUE;
-
-    private static final String TESTFORM1 = "testform1";
-
-    private static final String TESTFORM2 = "testform2";
-
-    private static final String TESTFORM3 = "testform3";
-
-    private IPSFormDataService formService;
-    
-    /**
-     * Placeholder dummy test in place while all other tests are disabled
-     * 
-     * @throws Exception
-     */
     @Test
-    public void testNothing() throws Exception
-    {
+    void testNothing() {
         assertTrue(true);
     }
 

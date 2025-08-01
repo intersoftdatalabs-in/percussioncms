@@ -41,6 +41,8 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Class to handle packaging and deploying a component definition.
@@ -73,49 +75,33 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
    }
 
    // see base class
-   public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+   @Override
+   public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
            throws PSDeployException, PSNotFoundException {
-      if (tok == null)
-         throw new IllegalArgumentException("tok may not be null");
-      if (dep == null)
-         throw new IllegalArgumentException("dep may not be null");
-      if (! dep.getObjectType().equals(DEPENDENCY_TYPE))
-         throw new IllegalArgumentException("dep wrong type");
+      if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
+         throw new IllegalArgumentException("Invalid arguments provided");
+      }
 
-      List<PSDependency> childDeps = new ArrayList<>();
+      var childDeps = new ArrayList<PSDependency>();
 
-      // get the LOCAL app child dependency
-      Iterator ids = getChildIdsFromTable(COMPONENT_TABLE, COMPONENT_URL, 
-         COMPONENT_ID, dep.getDependencyId());
-      if (ids.hasNext())
-      {
-         String url = (String) ids.next();
-         String appName = PSDeployComponentUtils.getAppName(url);
-         if (appName != null && appName.trim().length() != 0)
-         {
-            PSDependencyHandler handler = getDependencyHandler(
-               PSApplicationDependencyHandler.DEPENDENCY_TYPE);
-            PSDependency childDep = handler.getDependency(tok, appName);
-            if (childDep != null)
-            {
-               if (! PSApplicationDependencyHandler.isSystemApp(
-                  childDep.getDependencyId()))
-               {
-                  childDep.setDependencyType(PSDependency.TYPE_LOCAL);
+      var ids = getChildIdsFromTable(COMPONENT_TABLE, COMPONENT_URL, COMPONENT_ID, dep.getDependencyId());
+      if (ids.hasNext()) {
+         var url = (String) ids.next();
+         var appName = PSDeployComponentUtils.getAppName(url);
+         if (appName != null && !appName.isBlank()) {
+            var handler = getDependencyHandler(PSApplicationDependencyHandler.DEPENDENCY_TYPE);
+            var childDep = handler.getDependency(tok, appName);
+            Optional.ofNullable(childDep).ifPresent(dep -> {
+               if (!PSApplicationDependencyHandler.isSystemApp(dep.getDependencyId())) {
+                  dep.setDependencyType(PSDependency.TYPE_LOCAL);
                }
-               childDeps.add(childDep);
-            }
+               childDeps.add(dep);
+            });
          }
       }
-      
-      // get LOCAL compoment slot child dependency
-      List<PSDependency> csDeps = getChildDepsWithPairIdFromParentID(tok, COMPSLOT_TABLE, 
-         COMPSLOT_NAME, COMPONENT_ID, dep.getDependencyId(), 
-         PSComponentSlotDependencyHandler.DEPENDENCY_TYPE, 
-         PSDependency.TYPE_LOCAL);
-         
-      childDeps.addAll(csDeps);
-      
+
+      childDeps.addAll(getChildDepsWithPairIdFromParentID(tok, COMPSLOT_TABLE, COMPSLOT_NAME, COMPONENT_ID, dep.getDependencyId(), PSComponentSlotDependencyHandler.DEPENDENCY_TYPE, PSDependency.TYPE_LOCAL));
+
       return childDeps.iterator();
     }
 
@@ -155,12 +141,14 @@ public class PSComponentDefDependencyHandler extends PSDataObjectDependencyHandl
     * objects, never <code>null</code>, does not contain <code>null</code> or
     * empty entries.
     */
-   public Iterator getChildTypes()
+   @Override
+   public Iterator<String> getChildTypes()
    {
       return ms_childTypes.iterator();
    }
 
    // see base class
+   @Override
    public String getType()
    {
       return DEPENDENCY_TYPE;

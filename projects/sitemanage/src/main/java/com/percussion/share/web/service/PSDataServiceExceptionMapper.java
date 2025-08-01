@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -34,52 +35,41 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
+/**
+ * Maps {@link PSDataServiceException} to a serializable error object.
+ * Sunny Sal says: "Data service exceptions? Let's wrap them up nicely!"
+ */
 @Provider
 @Singleton
 @Produces(MediaType.APPLICATION_JSON)
 @PSSiteManageBean("dataserviceExceptionMapper")
-public class PSDataServiceExceptionMapper extends PSAbstractExceptionMapper<PSDataServiceException> implements ExceptionMapper<PSDataServiceException> {
-
+public class PSDataServiceExceptionMapper
+        extends PSAbstractExceptionMapper<PSDataServiceException>
+        implements ExceptionMapper<PSDataServiceException> {
 
     private static final String ERROR_MESSAGE = "PSDataServiceExceptionMapper exception mapper mapped exception:";
+    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     protected PSErrors createErrors(PSDataServiceException exception) {
-
-        if( exception instanceof IPSValidationException) {
+        if (exception instanceof IPSValidationException ve) {
             log.debug(ERROR_MESSAGE, exception);
-            IPSValidationException ve = (IPSValidationException) exception;
-            PSErrors errors = ve.getValidationErrors();
+            var errors = ve.getValidationErrors();
             if (errors != null) return errors;
-        }
-        else {
-
+        } else {
             log.error(ERROR_MESSAGE + PSExceptionUtils.getMessageForLog(exception));
-
             log.debug(exception);
         }
-
-        PSErrors errors = PSErrorUtils.createErrorsFromException(exception);
-
-        return errors;
+        return PSErrorUtils.createErrorsFromException(exception);
     }
-
-
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    protected Response.Status getStatus(PSDataServiceException exception)
-    {
-        if (exception instanceof IPSValidationException)
+    protected Response.Status getStatus(PSDataServiceException exception) {
+        if (exception instanceof IPSValidationException) {
             return Response.Status.BAD_REQUEST;
+        }
         return super.getStatus(exception);
     }
-
-
-
-    /**
-     * The log instance to use for this class, never <code>null</code>.
-     */
-    private static final Logger log = LogManager.getLogger(IPSConstants.SERVER_LOG);
 }

@@ -19,32 +19,29 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.assembly.data.OutputFormatType;
-import com.percussion.webservices.transformation.converter.PSConverterTestBase;
-import com.percussion.webservices.transformation.converter.PSOutputFormatConverter;
 import org.junit.experimental.categories.Category;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSOutputFormatConverter} class.
  */
 @Category(IntegrationTest.class)
-public class PSOutputFormatConverterTest extends PSConverterTestBase
-{
-   /**
-    * Tests the conversion from a server to a client object. 
-    */
-   public void testConversion() throws Exception
-   {
-      // create the source object
-      IPSAssemblyTemplate.OutputFormat source = 
-         IPSAssemblyTemplate.OutputFormat.Database;
-      
-      IPSAssemblyTemplate.OutputFormat target = 
-         (IPSAssemblyTemplate.OutputFormat) roundTripConversion(
-            IPSAssemblyTemplate.OutputFormat.class, 
-            OutputFormatType.class, 
-            source);
-      
-      // verify the the round-trip object is equal to the source object
-      assertTrue(source.equals(target));
-   }
+public class PSOutputFormatConverterTest extends PSConverterTestBase {
+
+    /**
+     * Tests the conversion from a server to a client object.
+     */
+    public void testConversion() throws Exception {
+        // Create the source object
+        var source = IPSAssemblyTemplate.OutputFormat.Database;
+
+        var target = (IPSAssemblyTemplate.OutputFormat) roundTripConversion(
+                IPSAssemblyTemplate.OutputFormat.class,
+                OutputFormatType.class,
+                source);
+
+        // Verify the round-trip object is equal to the source object
+        assertEquals(source, target);
+    }
 }

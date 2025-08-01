@@ -44,9 +44,7 @@ import java.util.regex.Pattern;
  * @author miltonpividori
  * 
  */
-public class PSTripleHandler implements TripleHandler
-{
-
+public class PSTripleHandler implements org.apache.any23.writer.TripleHandler {
     private static final Logger log = LogManager.getLogger(PSTripleHandler.class);
 
     /**
@@ -67,13 +65,13 @@ public class PSTripleHandler implements TripleHandler
      * 'http://purl.org/dc/terms/': 'dcterms' }. It used to replace the URL by
      * the declared name when filling PSMetadataProperty.name field.
      */
-    private Map<String, String> namespacesByUrl = new HashMap<>();
+    private final Map<String, String> namespacesByUrl = new HashMap<>();
 
     /**
      * All the PSMetadataProperty objects that were created from the metadata
      * properties extracted from the page being processed.
      */
-    private Set<PSMetadataProperty> properties = new HashSet<>();
+    private final Set<PSMetadataProperty> properties = new HashSet<>();
 
     /**
      * The linktext of the PSMetadataEntry.
@@ -89,7 +87,7 @@ public class PSTripleHandler implements TripleHandler
      * Regular expression to separate the URL from the property name in a
      * Triple's predicate.
      */
-    private Pattern patternForNamespaceURLExtraction = Pattern.compile("(.+[/#])([^/]+)");
+    private final Pattern patternForNamespaceURLExtraction = Pattern.compile("(.+[/#])([^/]+)");
 
     public PSTripleHandler()
     {

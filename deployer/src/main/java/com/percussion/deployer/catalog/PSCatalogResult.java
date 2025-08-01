@@ -342,7 +342,7 @@ public class PSCatalogResult implements IPSDeployComponent, Comparable
             else
                data = m_columns.get(i).toString();
                
-            Element columnEl = PSXmlDocumentBuilder.addElement(
+            var columnEl = PSXmlDocumentBuilder.addElement(
                doc, columns, XML_COLUMN_NODE, data);
             columnEl.setAttribute(XML_COL_TYPE_ATTR, 
                PSCatalogResultColumn.getTypeString(m_columns.get(i)));            

@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,15 +18,16 @@
 
 package com.percussion.services.touchitem.impl;
 
-
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <h1>REMOVE MATRIX</h1>
@@ -189,130 +191,134 @@ import java.util.List;
  * @author adamgent
  *
  */
-@Category(IntegrationTest.class)
-public class PSCrossSiteRemoveTest extends PSCrossSiteTestCase
-{
+@Tag("IntegrationTest")
+public class PSCrossSiteRemoveTest extends PSCrossSiteTestCase {
 
-   private String sourcePath;
-   private String subPath;
-   private  List<PSCoreItem> items;
-   protected List<ItemBuilder> builders = new ArrayList<ItemBuilder>();
-   
-   public void setUp() throws Exception {
-      super.setUp();
-      sourcePath = "//Sites/CorporateInvestments/Files/RemoveTest";
-      subPath = sourcePath + "/" + "sub";
-      c.addFolderTree(subPath);
-      items = c.createItems("rffBrief", 2);
-   }
-   
-   public void tearDown() throws Exception {
-      /*
-       * Wait for the touch queue to finish.
-       */
-      sleep();
-      for (ItemBuilder b : builders) {
-         b.delete();
-      }
-      String p = sourcePath;
-      deleteFolder(p);
-      super.tearDown();
-   }
+    private String sourcePath;
+    private String subPath;
+    private List<PSCoreItem> items;
+    protected List<ItemBuilder> builders = new ArrayList<>();
 
-   /*
-    * First Column (using folder instead of item)
-    */
-   public void testRemoveFolderWithDependentInOnlyOneSiteWithSiteIdAndFolderIdSet() throws Exception {
-      ItemBuilder owner = new ItemBuilder(items.get(0))
-         .fillItem("Owner").save().addToPath("//Sites/EnterpriseInvestments");
-      builders.add(owner);
-      ItemBuilder dep = new ItemBuilder(items.get(1))
-         .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
-      owner.addDependent(dep.getGuid(), 301, getFolderId(subPath));
-      builders.add(dep);
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(dep.getContentId());
-      f.setOwnerId(owner.getContentId());
-      List<PSRelationship> rs = rservice.findByFilter(f);
-      assertRel(rs, 1, 301, getFolderId(subPath));
-      
-      /*
-       * Now remove
-       */
-      assertTrue("Folder should be removed", removeFolderLikeCX(sourcePath));
-      sleep();
-      rs = rservice.findByFilter(f);
-      assertRel(rs, 1, 301, null);
-   }
-   
-   public void testRemoveFolderWithDepInOneSiteWithFolderIdSet() throws Exception {
-      ItemBuilder owner = new ItemBuilder(items.get(0))
-         .fillItem("Owner").save().addToPath("//Sites/CorporateInvestments/Files");
-      builders.add(owner);
-      ItemBuilder dep = new ItemBuilder(items.get(1))
-         .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
-      owner.addDependent(dep.getGuid(), null, getFolderId(subPath));
-      builders.add(dep);
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(dep.getContentId());
-      f.setOwnerId(owner.getContentId());
-      assertRel(f, 1, null, getFolderId(subPath));
-      
-      /*
-       * Now remove
-       */
-      assertTrue("Folder should be removed", removeFolderLikeCX(sourcePath));
-      sleep();
-      assertRel(f, 1, null, null);
-   }
-   
-   public void testRemoveFolderWithDepInOneSiteWithSiteIdSet() throws Exception {
-      ItemBuilder owner = new ItemBuilder(items.get(0))
-         .fillItem("Owner").save().addToPath("//Sites/CorporateInvestments/Files");
-      builders.add(owner);
-      ItemBuilder dep = new ItemBuilder(items.get(1))
-         .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
-      owner.addDependent(dep.getGuid(), 301, null);
-      builders.add(dep);
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(dep.getContentId());
-      f.setOwnerId(owner.getContentId());
-      assertRel(f, 1, 301, null);
-      
-      /*
-       * Now remove
-       */
-      assertTrue("Folder should be removed", removeFolderLikeCX(sourcePath));
-      sleep();
-      assertRel(f, 1, 301, null);
-   }
-   
-   /*
-    * Second Column (using item instead of folder)
-    * Second Column First Row.
-    */
-   public void testRemoveDepItemFromOneFolderButInMultipleFoldersInSiteWithSiteIdAndFolderIdSet() throws Exception {
-      ItemBuilder owner = new ItemBuilder(items.get(0))
-         .fillItem("Owner").save()
-         .addToPath("//Sites/CorporateInvestments/Files");
-      builders.add(owner);
-      ItemBuilder dep = new ItemBuilder(items.get(1))
-         .fillItem("Dep").save()
-         .addToPath(subPath)
-         .addToPath("//Sites/CorporateInvestments/Files");
-      owner.addDependent(dep.getGuid(), 301, getFolderId(subPath));
-      builders.add(dep);
-      PSRelationshipFilter f = new PSRelationshipFilter();
-      f.setDependentId(dep.getContentId());
-      f.setOwnerId(owner.getContentId());
-      assertRel(f, 1, 301, getFolderId(subPath));
-      
-      /*
-       * Now remove
-       */
-      dep.removeFromPathLikeCX(subPath);
-      sleep();
-      assertRel(f, 1, 301, null);
-   }
+    @BeforeEach
+    public void setUp() throws Exception {
+        super.setUp();
+        sourcePath = "//Sites/CorporateInvestments/Files/RemoveTest";
+        subPath = sourcePath + "/" + "sub";
+        c.addFolderTree(subPath);
+        items = c.createItems("rffBrief", 2);
+    }
 
+    @AfterEach
+    public void tearDown() throws Exception {
+        /*
+         * Wait for the touch queue to finish.
+         */
+        sleep();
+        for (var b : builders) {
+            b.delete();
+        }
+        String p = sourcePath;
+        deleteFolder(p);
+        super.tearDown();
+    }
+
+    /*
+     * First Column (using folder instead of item)
+     */
+    @Test
+    void testRemoveFolderWithDependentInOnlyOneSiteWithSiteIdAndFolderIdSet() throws Exception {
+        var owner = new ItemBuilder(items.get(0))
+                .fillItem("Owner").save().addToPath("//Sites/EnterpriseInvestments");
+        builders.add(owner);
+        var dep = new ItemBuilder(items.get(1))
+                .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
+        owner.addDependent(dep.getGuid(), 301, getFolderId(subPath));
+        builders.add(dep);
+        var f = new PSRelationshipFilter();
+        f.setDependentId(dep.getContentId());
+        f.setOwnerId(owner.getContentId());
+        var rs = rservice.findByFilter(f);
+        assertRel(rs, 1, 301, getFolderId(subPath));
+
+        /*
+         * Now remove
+         */
+        assertTrue(removeFolderLikeCX(sourcePath), "Folder should be removed");
+        sleep();
+        rs = rservice.findByFilter(f);
+        assertRel(rs, 1, 301, null);
+    }
+
+    @Test
+    void testRemoveFolderWithDepInOneSiteWithFolderIdSet() throws Exception {
+        var owner = new ItemBuilder(items.get(0))
+                .fillItem("Owner").save().addToPath("//Sites/CorporateInvestments/Files");
+        builders.add(owner);
+        var dep = new ItemBuilder(items.get(1))
+                .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
+        owner.addDependent(dep.getGuid(), null, getFolderId(subPath));
+        builders.add(dep);
+        var f = new PSRelationshipFilter();
+        f.setDependentId(dep.getContentId());
+        f.setOwnerId(owner.getContentId());
+        assertRel(f, 1, null, getFolderId(subPath));
+
+        /*
+         * Now remove
+         */
+        assertTrue(removeFolderLikeCX(sourcePath), "Folder should be removed");
+        sleep();
+        assertRel(f, 1, null, null);
+    }
+
+    @Test
+    void testRemoveFolderWithDepInOneSiteWithSiteIdSet() throws Exception {
+        var owner = new ItemBuilder(items.get(0))
+                .fillItem("Owner").save().addToPath("//Sites/CorporateInvestments/Files");
+        builders.add(owner);
+        var dep = new ItemBuilder(items.get(1))
+                .fillItem("Dep").save().addToPath(subPath).addToPath("//Folders");
+        owner.addDependent(dep.getGuid(), 301, null);
+        builders.add(dep);
+        var f = new PSRelationshipFilter();
+        f.setDependentId(dep.getContentId());
+        f.setOwnerId(owner.getContentId());
+        assertRel(f, 1, 301, null);
+
+        /*
+         * Now remove
+         */
+        assertTrue(removeFolderLikeCX(sourcePath), "Folder should be removed");
+        sleep();
+        assertRel(f, 1, 301, null);
+    }
+
+    /*
+     * Second Column (using item instead of folder)
+     * Second Column First Row.
+     */
+    @Test
+    void testRemoveDepItemFromOneFolderButInMultipleFoldersInSiteWithSiteIdAndFolderIdSet() throws Exception {
+        var owner = new ItemBuilder(items.get(0))
+                .fillItem("Owner").save()
+                .addToPath("//Sites/CorporateInvestments/Files");
+        builders.add(owner);
+        var dep = new ItemBuilder(items.get(1))
+                .fillItem("Dep").save()
+                .addToPath(subPath)
+                .addToPath("//Sites/CorporateInvestments/Files");
+        owner.addDependent(dep.getGuid(), 301, getFolderId(subPath));
+        builders.add(dep);
+        var f = new PSRelationshipFilter();
+        f.setDependentId(dep.getContentId());
+        f.setOwnerId(owner.getContentId());
+        assertRel(f, 1, 301, getFolderId(subPath));
+
+        /*
+         * Now remove
+         */
+        dep.removeFromPathLikeCX(subPath);
+        sleep();
+        assertRel(f, 1, 301, null);
+    }
 }
