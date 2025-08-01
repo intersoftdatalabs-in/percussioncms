@@ -19,9 +19,9 @@ package com.percussion.utils.beans;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeType;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;

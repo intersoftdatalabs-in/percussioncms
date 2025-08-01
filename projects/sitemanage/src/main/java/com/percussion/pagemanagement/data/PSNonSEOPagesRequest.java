@@ -19,7 +19,7 @@ package com.percussion.pagemanagement.data;
 import com.percussion.pagemanagement.data.PSSEOStatistics.SEO_SEVERITY;
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotNull;
 

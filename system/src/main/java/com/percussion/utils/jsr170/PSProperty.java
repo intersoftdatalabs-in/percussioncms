@@ -30,18 +30,18 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jcr.Item;
-import javax.jcr.ItemNotFoundException;
-import javax.jcr.ItemVisitor;
-import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.PropertyDefinition;
+import javax.jcr.Item; // TODO: JAVAX-11
+import javax.jcr.ItemNotFoundException; // TODO: JAVAX-11
+import javax.jcr.ItemVisitor; // TODO: JAVAX-11
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.PathNotFoundException; // TODO: JAVAX-11
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Session; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
+import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;

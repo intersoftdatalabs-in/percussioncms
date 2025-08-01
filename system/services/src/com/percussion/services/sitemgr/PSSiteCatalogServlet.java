@@ -31,10 +31,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.ParserConfigurationException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import java.beans.IntrospectionException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

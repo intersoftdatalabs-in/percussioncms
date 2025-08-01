@@ -21,8 +21,8 @@ import com.percussion.security.xml.PSXmlSecurityOptions;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;

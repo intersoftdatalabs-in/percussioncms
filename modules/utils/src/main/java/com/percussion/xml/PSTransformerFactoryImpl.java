@@ -20,15 +20,15 @@ package com.percussion.xml;
 import com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;
 import org.xml.sax.XMLFilter;
 
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.TemplatesHandler;
-import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.ErrorListener; // TODO: JAVAX-11
+import javax.xml.transform.Source; // TODO: JAVAX-11
+import javax.xml.transform.Templates; // TODO: JAVAX-11
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.URIResolver; // TODO: JAVAX-11
+import javax.xml.transform.sax.TemplatesHandler; // TODO: JAVAX-11
+import javax.xml.transform.sax.TransformerHandler; // TODO: JAVAX-11
 import java.net.URI;
 
 public class PSTransformerFactoryImpl extends TransformerFactoryImpl {

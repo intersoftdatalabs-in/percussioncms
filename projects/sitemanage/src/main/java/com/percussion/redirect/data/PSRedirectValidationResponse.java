@@ -20,7 +20,7 @@ package com.percussion.redirect.data;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.licensemanagement.data.PSModuleLicense;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "response")
 @JsonRootName("response")

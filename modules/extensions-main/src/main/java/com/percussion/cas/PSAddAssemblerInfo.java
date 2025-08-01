@@ -63,13 +63,13 @@ import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.OutputKeys; // TODO: JAVAX-11
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;

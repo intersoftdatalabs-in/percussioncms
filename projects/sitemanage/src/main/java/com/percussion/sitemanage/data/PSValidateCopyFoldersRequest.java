@@ -18,7 +18,7 @@ package com.percussion.sitemanage.data;
 
 import com.percussion.pathmanagement.data.PSItemByWfStateRequest;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotEmpty;
 import net.sf.oval.constraint.NotNull;

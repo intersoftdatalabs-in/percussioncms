@@ -15,7 +15,7 @@ import com.percussion.installer.model.RxPubDocsModel;
 
 import java.awt.Label;
 import java.awt.TextField;
-import javax.swing.JTextArea;
+import javax.swing.JTextArea; // TODO: JAVAX-11
 
 
 /**

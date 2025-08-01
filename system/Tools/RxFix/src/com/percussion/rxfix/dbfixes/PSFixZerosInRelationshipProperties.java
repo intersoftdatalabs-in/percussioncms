@@ -22,7 +22,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

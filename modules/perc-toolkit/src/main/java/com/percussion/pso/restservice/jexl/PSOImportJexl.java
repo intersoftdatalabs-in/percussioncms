@@ -53,12 +53,12 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.sax.SAXSource;
+import jakarta.servlet.http.HttpServletRequest;
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactory; // TODO: JAVAX-11
+import javax.xml.transform.TransformerFactoryConfigurationError; // TODO: JAVAX-11
+import javax.xml.transform.sax.SAXSource; // TODO: JAVAX-11
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

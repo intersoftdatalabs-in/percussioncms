@@ -22,8 +22,8 @@ import com.percussion.share.data.PSAbstractDataObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 /**
  * This class contains the structure of the step role information. The object is

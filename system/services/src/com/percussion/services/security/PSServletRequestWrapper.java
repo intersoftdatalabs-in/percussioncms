@@ -27,9 +27,9 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import javax.security.auth.Subject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import javax.security.auth.Subject; // TODO: JAVAX-11
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import org.apache.commons.lang.StringUtils;
 

@@ -19,9 +19,9 @@ package com.percussion.delivery.utils.security;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.TrustManager; // TODO: JAVAX-11
+import javax.net.ssl.TrustManagerFactory; // TODO: JAVAX-11
+import javax.net.ssl.X509TrustManager; // TODO: JAVAX-11
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;

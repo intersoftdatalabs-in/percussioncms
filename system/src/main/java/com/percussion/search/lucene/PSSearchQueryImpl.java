@@ -48,7 +48,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
-import javax.annotation.concurrent.ThreadSafe;
+import jakarta.annotation.concurrent.ThreadSafe;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;

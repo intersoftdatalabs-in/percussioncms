@@ -18,10 +18,10 @@ package com.percussion.data;
 
 import com.percussion.server.PSServer;
 
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.Source; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.URIResolver; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamSource; // TODO: JAVAX-11
 import java.io.IOException;
 import java.net.URL;
 

@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 /**
  * RX fix used to remove old data from content-type tables.

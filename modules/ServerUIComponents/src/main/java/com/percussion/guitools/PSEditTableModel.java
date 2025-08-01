@@ -18,9 +18,9 @@ package com.percussion.guitools;
 
 import com.percussion.util.PSCollection;
 
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
+import javax.swing.event.TableModelEvent; // TODO: JAVAX-11
+import javax.swing.event.TableModelListener; // TODO: JAVAX-11
+import javax.swing.table.TableModel; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;

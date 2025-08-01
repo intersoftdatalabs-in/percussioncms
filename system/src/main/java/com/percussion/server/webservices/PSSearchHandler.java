@@ -107,12 +107,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Result; // TODO: JAVAX-11
+import javax.xml.transform.Source; // TODO: JAVAX-11
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
+import javax.xml.transform.stream.StreamResult; // TODO: JAVAX-11
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

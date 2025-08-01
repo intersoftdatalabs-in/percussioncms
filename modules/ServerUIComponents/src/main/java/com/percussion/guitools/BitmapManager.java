@@ -17,7 +17,7 @@
 
 package com.percussion.guitools;
 
-import javax.swing.*;
+import javax.swing.*; // TODO: JAVAX-11
 import java.awt.*;
 import java.net.URL;
 import java.text.MessageFormat;

@@ -17,8 +17,8 @@
 
 package percussion.soln.jcr;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;

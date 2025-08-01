@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.services.deployer;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Date;
 
 /**

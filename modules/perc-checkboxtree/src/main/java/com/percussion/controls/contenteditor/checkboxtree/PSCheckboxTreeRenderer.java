@@ -15,8 +15,8 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.*;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.tree.DefaultTreeCellRenderer; // TODO: JAVAX-11
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;

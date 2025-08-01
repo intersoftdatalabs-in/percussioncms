@@ -17,7 +17,7 @@
 
 package com.percussion;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HttpsURLConnection; // TODO: JAVAX-11
 
 public class SecureHeaderChecker {
 

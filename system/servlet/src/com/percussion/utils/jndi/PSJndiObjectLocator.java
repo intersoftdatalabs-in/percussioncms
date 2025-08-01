@@ -18,8 +18,8 @@ package com.percussion.utils.jndi;
 
 import org.springframework.jndi.JndiObjectLocator;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.sql.DataSource; // TODO: JAVAX-11
 
 /**
  * Create an object locator that prepends an appropriate prefix on jndi lookups

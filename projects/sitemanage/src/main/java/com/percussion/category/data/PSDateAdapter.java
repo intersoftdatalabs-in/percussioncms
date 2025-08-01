@@ -17,7 +17,7 @@
 
 package com.percussion.category.data;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
 
 public class PSDateAdapter extends XmlAdapter<String, LocalDateTime> {

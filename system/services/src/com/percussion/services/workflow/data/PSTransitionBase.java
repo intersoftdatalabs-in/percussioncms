@@ -25,7 +25,7 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.Table;
+import jakarta.persistence.Table;
 
 
 /**

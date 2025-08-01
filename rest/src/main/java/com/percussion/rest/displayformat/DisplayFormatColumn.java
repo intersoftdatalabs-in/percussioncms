@@ -21,7 +21,7 @@ package com.percussion.rest.displayformat;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "DisplayFormatColumn")
 @Schema(description="Represents a column configured in a Display Format")

@@ -27,7 +27,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import java.io.File;
 import java.io.IOException;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;

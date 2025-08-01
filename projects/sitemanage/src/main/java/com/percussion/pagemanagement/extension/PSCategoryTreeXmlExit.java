@@ -35,7 +35,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.io.DOMWriter;
 import org.w3c.dom.Document;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 

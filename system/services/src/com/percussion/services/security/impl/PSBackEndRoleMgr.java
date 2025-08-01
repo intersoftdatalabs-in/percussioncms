@@ -63,10 +63,10 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.NamingException;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.security.auth.Subject;
+import javax.naming.NamingException; // TODO: JAVAX-11
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import javax.security.auth.Subject; // TODO: JAVAX-11
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;

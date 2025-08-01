@@ -16,7 +16,7 @@
  */
 package com.percussion.servlets;
 
-import javax.security.auth.login.LoginException;
+import javax.security.auth.login.LoginException; // TODO: JAVAX-11
 
 /**
  * This exception is thrown when a user who has not been assigned to a valid role attempts to login.

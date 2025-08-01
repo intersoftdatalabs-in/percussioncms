@@ -30,7 +30,7 @@ import com.percussion.util.IPSHtmlParameters;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.query.QueryResult;
+import javax.jcr.query.QueryResult; // TODO: JAVAX-11
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;

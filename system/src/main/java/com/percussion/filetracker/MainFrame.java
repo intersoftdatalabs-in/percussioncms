@@ -19,8 +19,8 @@ package com.percussion.filetracker;
 
 import com.percussion.error.PSExceptionUtils;
 
-import javax.swing.*;
-import javax.swing.event.MenuEvent;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.event.MenuEvent; // TODO: JAVAX-11
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;

@@ -41,10 +41,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import javax.naming.Context; // TODO: JAVAX-11
+import javax.naming.InitialContext; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.sql.DataSource; // TODO: JAVAX-11
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

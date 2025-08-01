@@ -21,7 +21,7 @@ import com.percussion.services.contentmgr.impl.query.visitors.PSQueryNodeVisitor
 import java.util.Collections;
 import java.util.List;
 
-import javax.jcr.query.InvalidQueryException;
+import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 

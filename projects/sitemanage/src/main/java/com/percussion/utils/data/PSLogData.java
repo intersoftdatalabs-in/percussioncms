@@ -19,7 +19,7 @@ package com.percussion.utils.data;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * Rest data class for logging information on server.

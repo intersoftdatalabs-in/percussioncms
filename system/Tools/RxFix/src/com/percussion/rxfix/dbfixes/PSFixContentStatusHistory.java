@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -24,9 +24,9 @@ import com.percussion.utils.jsr170.PSValueFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.Value;
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
 
 import junit.framework.TestCase;
 

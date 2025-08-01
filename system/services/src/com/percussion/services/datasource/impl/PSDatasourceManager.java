@@ -32,8 +32,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.sql.DataSource; // TODO: JAVAX-11
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;

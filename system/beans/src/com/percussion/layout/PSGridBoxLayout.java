@@ -27,7 +27,7 @@ import java.awt.LayoutManager2;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.SizeRequirements;
+import javax.swing.SizeRequirements; // TODO: JAVAX-11
 
 /**
  * The layout manager which combines the features of GridLayout and BoxLayout.

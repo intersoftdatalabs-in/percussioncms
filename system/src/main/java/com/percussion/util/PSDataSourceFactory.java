@@ -20,7 +20,7 @@ package com.percussion.util;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import org.apache.commons.dbcp.BasicDataSourceFactory;
 
-import javax.sql.DataSource;
+import javax.sql.DataSource; // TODO: JAVAX-11
 import java.util.Properties;
 
 

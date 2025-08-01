@@ -19,7 +19,7 @@ package com.percussion.security;
 
 import com.percussion.util.PSSqlHelper;
 
-import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
 import java.util.Properties;
 
 /**

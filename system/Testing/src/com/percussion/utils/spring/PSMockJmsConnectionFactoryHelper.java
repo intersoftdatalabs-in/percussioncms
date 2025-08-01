@@ -23,10 +23,10 @@ import com.percussion.utils.jndi.PSNamingContextHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.NamingException;
+import jakarta.jms.JMSException;
+import jakarta.jms.Queue;
+import jakarta.jms.Topic;
+import javax.naming.NamingException; // TODO: JAVAX-11
 import java.util.Map;
 
 /**

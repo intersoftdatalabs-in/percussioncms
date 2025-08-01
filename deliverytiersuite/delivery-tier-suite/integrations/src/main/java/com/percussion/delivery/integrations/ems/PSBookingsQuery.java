@@ -19,7 +19,7 @@ package com.percussion.delivery.integrations.ems;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 /***
  * A model object to hold query parameters to pass to the

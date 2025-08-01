@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.jcr.Node;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-import javax.jcr.query.RowIterator;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.query.Query; // TODO: JAVAX-11
+import javax.jcr.query.QueryResult; // TODO: JAVAX-11
+import javax.jcr.query.RowIterator; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

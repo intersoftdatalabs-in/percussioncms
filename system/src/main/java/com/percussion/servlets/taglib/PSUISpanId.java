@@ -18,9 +18,9 @@ package com.percussion.servlets.taglib;
 
 import org.apache.commons.lang.StringUtils;
 
-import javax.faces.component.UIOutput;
-import javax.faces.context.FacesContext;
-import javax.faces.context.ResponseWriter;
+import jakarta.faces.component.UIOutput;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.context.ResponseWriter;
 import java.io.IOException;
 
 /**

@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import javax.security.auth.Subject;
+import javax.security.auth.Subject; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 

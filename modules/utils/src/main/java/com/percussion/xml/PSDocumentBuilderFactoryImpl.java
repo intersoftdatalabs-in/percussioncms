@@ -17,8 +17,8 @@
 
 package com.percussion.xml;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import javax.xml.validation.Schema;
 
 public class PSDocumentBuilderFactoryImpl extends org.apache.xerces.jaxp.DocumentBuilderFactoryImpl{

@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * A multipart resolver that fixes up the encoding.  

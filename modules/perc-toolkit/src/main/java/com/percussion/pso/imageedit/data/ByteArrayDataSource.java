@@ -16,7 +16,7 @@
  */
 package com.percussion.pso.imageedit.data;
 
-import javax.activation.DataSource;
+import jakarta.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

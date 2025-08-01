@@ -36,11 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
-import javax.naming.NamingException;
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.Value; // TODO: JAVAX-11
+import javax.jcr.ValueFormatException; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.annotation.Isolation;

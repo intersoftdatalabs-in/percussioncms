@@ -24,9 +24,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.swing.JDialog; // TODO: JAVAX-11
+import javax.swing.JOptionPane; // TODO: JAVAX-11
+import javax.xml.parsers.ParserConfigurationException; // TODO: JAVAX-11
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;

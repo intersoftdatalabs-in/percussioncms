@@ -73,8 +73,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 
-import javax.annotation.concurrent.ThreadSafe;
-import javax.jcr.RepositoryException;
+import jakarta.annotation.concurrent.ThreadSafe;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;

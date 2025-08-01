@@ -21,7 +21,7 @@ import com.percussion.pathmanagement.data.PSFolderPermission;
 import com.percussion.share.data.PSAbstractDataObject;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTargetEnum;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 import net.sf.oval.constraint.NotBlank;
 import net.sf.oval.constraint.NotNull;

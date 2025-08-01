@@ -18,12 +18,12 @@ package com.percussion.delivery.utils.security;
 
 import com.percussion.security.ToDoVulnerability;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import javax.net.ssl.HostnameVerifier; // TODO: JAVAX-11
+import javax.net.ssl.SSLContext; // TODO: JAVAX-11
+import javax.net.ssl.SSLSession; // TODO: JAVAX-11
+import javax.net.ssl.TrustManager; // TODO: JAVAX-11
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 
 /**
  * Common helper class to return a HTTP client.

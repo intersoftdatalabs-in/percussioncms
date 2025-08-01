@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.jsr170;
 
-import javax.jcr.RepositoryException;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
 
 /**
  * Interface to be implemented by jcr objects that need to report a size to

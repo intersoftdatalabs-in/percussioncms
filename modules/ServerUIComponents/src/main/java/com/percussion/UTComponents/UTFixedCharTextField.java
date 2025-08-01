@@ -16,10 +16,10 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.text.AttributeSet; // TODO: JAVAX-11
+import javax.swing.text.BadLocationException; // TODO: JAVAX-11
+import javax.swing.text.PlainDocument; // TODO: JAVAX-11
 import java.awt.*;
 
 /**

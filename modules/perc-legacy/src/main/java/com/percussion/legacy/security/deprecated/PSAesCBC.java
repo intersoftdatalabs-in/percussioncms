@@ -21,12 +21,12 @@ package com.percussion.legacy.security.deprecated;
 import com.percussion.security.PSEncryptionException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.BadPaddingException; // TODO: JAVAX-11
+import javax.crypto.Cipher; // TODO: JAVAX-11
+import javax.crypto.IllegalBlockSizeException; // TODO: JAVAX-11
+import javax.crypto.NoSuchPaddingException; // TODO: JAVAX-11
+import javax.crypto.spec.IvParameterSpec; // TODO: JAVAX-11
+import javax.crypto.spec.SecretKeySpec; // TODO: JAVAX-11
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;

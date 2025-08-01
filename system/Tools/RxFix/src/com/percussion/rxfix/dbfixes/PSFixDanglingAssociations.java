@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.naming.NamingException;
+import javax.naming.NamingException; // TODO: JAVAX-11
 
 /**
  * @author peterfrontiero

@@ -15,10 +15,10 @@
  */
 package com.percussion.controls.contenteditor.checkboxtree;
 
-import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.tree.TreePath;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.event.MouseInputAdapter; // TODO: JAVAX-11
+import javax.swing.event.TreeSelectionEvent; // TODO: JAVAX-11
+import javax.swing.tree.TreePath; // TODO: JAVAX-11
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;

@@ -22,10 +22,10 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import junit.framework.TestCase;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.DocumentBuilder; // TODO: JAVAX-11
+import javax.xml.parsers.DocumentBuilderFactory; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParser; // TODO: JAVAX-11
+import javax.xml.parsers.SAXParserFactory; // TODO: JAVAX-11
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.ByteArrayInputStream;

@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.polls.data;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
 @XmlRootElement(name = "poll")

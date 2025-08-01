@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;

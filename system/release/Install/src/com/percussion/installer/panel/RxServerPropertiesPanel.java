@@ -19,7 +19,7 @@ import com.percussion.util.PSOsTool;
 import java.awt.Checkbox;
 import java.awt.Label;
 import java.awt.TextField;
-import javax.swing.JTextArea;
+import javax.swing.JTextArea; // TODO: JAVAX-11
 
 
 /**

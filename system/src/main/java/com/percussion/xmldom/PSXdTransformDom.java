@@ -35,11 +35,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.Transformer; // TODO: JAVAX-11
+import javax.xml.transform.TransformerConfigurationException; // TODO: JAVAX-11
+import javax.xml.transform.TransformerException; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMResult; // TODO: JAVAX-11
+import javax.xml.transform.dom.DOMSource; // TODO: JAVAX-11
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;

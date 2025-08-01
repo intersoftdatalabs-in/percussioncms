@@ -26,13 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeDefinition;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.PropertyDefinition;
+import javax.jcr.Node; // TODO: JAVAX-11
+import javax.jcr.Property; // TODO: JAVAX-11
+import javax.jcr.PropertyType; // TODO: JAVAX-11
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeDefinition; // TODO: JAVAX-11
+import javax.jcr.nodetype.NodeType; // TODO: JAVAX-11
+import javax.jcr.nodetype.PropertyDefinition; // TODO: JAVAX-11
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;

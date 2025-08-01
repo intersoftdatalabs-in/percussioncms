@@ -27,16 +27,16 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSRuntimeException;
 import com.percussion.server.PSServer;
 
-import javax.naming.Context;
-import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
-import javax.security.auth.callback.CallbackHandler;
+import javax.naming.Context; // TODO: JAVAX-11
+import javax.naming.Name; // TODO: JAVAX-11
+import javax.naming.NameParser; // TODO: JAVAX-11
+import javax.naming.NamingEnumeration; // TODO: JAVAX-11
+import javax.naming.NamingException; // TODO: JAVAX-11
+import javax.naming.directory.DirContext; // TODO: JAVAX-11
+import javax.naming.directory.InitialDirContext; // TODO: JAVAX-11
+import javax.naming.directory.SearchControls; // TODO: JAVAX-11
+import javax.naming.directory.SearchResult; // TODO: JAVAX-11
+import javax.security.auth.callback.CallbackHandler; // TODO: JAVAX-11
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;

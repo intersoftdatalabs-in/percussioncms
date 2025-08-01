@@ -27,10 +27,10 @@ import com.percussion.services.publisher.PSPublisherException;
 import java.io.File;
 import java.util.Map;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.query.InvalidQueryException;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
+import javax.jcr.RepositoryException; // TODO: JAVAX-11
+import javax.jcr.query.InvalidQueryException; // TODO: JAVAX-11
+import javax.jcr.query.Query; // TODO: JAVAX-11
+import javax.jcr.query.QueryResult; // TODO: JAVAX-11
 
 import org.apache.commons.lang.StringUtils;
 

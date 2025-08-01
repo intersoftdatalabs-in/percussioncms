@@ -19,8 +19,8 @@ package com.percussion.services.contentchange.data;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.IdClass;
+import jakarta.persistence.Column;
+import jakarta.persistence.IdClass;
 /**
  * Creates a compound primary key for the content change service
  * this allows for quick lookups and hibernate caching of the entry

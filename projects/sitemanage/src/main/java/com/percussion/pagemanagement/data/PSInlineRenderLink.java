@@ -19,9 +19,9 @@ package com.percussion.pagemanagement.data;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinition;
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSResourceDefinitionType;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  * Represents an inline link inside a rich text editor.

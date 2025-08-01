@@ -25,8 +25,8 @@ import com.percussion.dashboardmanagement.service.IPSGadgetService.PSGadgetServi
 
 import java.util.List;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

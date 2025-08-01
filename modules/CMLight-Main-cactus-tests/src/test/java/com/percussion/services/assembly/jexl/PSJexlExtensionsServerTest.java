@@ -37,7 +37,7 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.junit.experimental.categories.Category;
 
-import javax.jcr.Node;
+import javax.jcr.Node; // TODO: JAVAX-11
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;

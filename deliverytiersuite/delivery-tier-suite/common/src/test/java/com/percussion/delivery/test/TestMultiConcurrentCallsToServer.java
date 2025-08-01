@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
 import org.junit.Ignore;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

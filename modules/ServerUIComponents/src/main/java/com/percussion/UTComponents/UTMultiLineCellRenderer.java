@@ -16,10 +16,10 @@
  */
 package com.percussion.UTComponents;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.*; // TODO: JAVAX-11
+import javax.swing.border.Border; // TODO: JAVAX-11
+import javax.swing.border.EmptyBorder; // TODO: JAVAX-11
+import javax.swing.table.TableCellRenderer; // TODO: JAVAX-11
 import java.awt.*;
 import java.io.Serializable;
 
