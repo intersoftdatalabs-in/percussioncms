@@ -15,26 +15,16 @@
  * limitations under the License.
  */
 
-package service.web.api.ems.dea;
-
-// REFACTORED: CP-JAVA11
-
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Optional;
-import javax.xml.namespace.QName;
-
 /**
  * MCAPIServiceLocator.java
  *
- * Sunny Sal here! This locator provides access to the MasterCalendar SOAP service.
- * Refactored for Java 11 and Google Java Style.
+ * This file was auto-generated from WSDL
+ * by the Apache Axis 1.4 Apr 22, 2006 (06:55:48 PDT) WSDL2Java emitter.
  */
-public class MCAPIServiceLocator extends org.apache.axis.client.Service implements MCAPIService {
 
-    private String mcapiServiceSoapAddress = "https://dhemsdev.csudh.edu/MCAPI/MCAPIService.asmx";
-    private String mcapiServiceSoapWSDDServiceName = "MCAPIServiceSoap";
-    private HashSet<QName> ports;
+package service.web.api.ems.dea;
+
+public class MCAPIServiceLocator extends org.apache.axis.client.Service implements MCAPIService {
 
     public MCAPIServiceLocator() {
     }
@@ -44,97 +34,126 @@ public class MCAPIServiceLocator extends org.apache.axis.client.Service implemen
         super(config);
     }
 
-    public MCAPIServiceLocator(String wsdlLoc, QName sName) throws javax.xml.rpc.ServiceException {
+    public MCAPIServiceLocator(java.lang.String wsdlLoc, javax.xml.namespace.QName sName) throws javax.xml.rpc.ServiceException {
         super(wsdlLoc, sName);
     }
 
-    @Override
-    public String getMCAPIServiceSoapAddress() {
-        return mcapiServiceSoapAddress;
+    // Use to get a proxy class for MCAPIServiceSoap
+    private java.lang.String MCAPIServiceSoap_address = "https://dhemsdev.csudh.edu/MCAPI/MCAPIService.asmx";
+
+    public java.lang.String getMCAPIServiceSoapAddress() {
+        return MCAPIServiceSoap_address;
     }
 
-    public String getMCAPIServiceSoapWSDDServiceName() {
-        return mcapiServiceSoapWSDDServiceName;
+    // The WSDD service name defaults to the port name.
+    private java.lang.String MCAPIServiceSoapWSDDServiceName = "MCAPIServiceSoap";
+
+    public java.lang.String getMCAPIServiceSoapWSDDServiceName() {
+        return MCAPIServiceSoapWSDDServiceName;
     }
 
-    public void setMCAPIServiceSoapWSDDServiceName(String name) {
-        mcapiServiceSoapWSDDServiceName = name;
+    public void setMCAPIServiceSoapWSDDServiceName(java.lang.String name) {
+        MCAPIServiceSoapWSDDServiceName = name;
     }
 
-    @Override
     public MCAPIServiceSoap getMCAPIServiceSoap() throws javax.xml.rpc.ServiceException {
-        var endpoint = new java.net.URL(mcapiServiceSoapAddress);
+       java.net.URL endpoint;
+        try {
+            endpoint = new java.net.URL(MCAPIServiceSoap_address);
+        }
+        catch (java.net.MalformedURLException e) {
+            throw new javax.xml.rpc.ServiceException(e);
+        }
         return getMCAPIServiceSoap(endpoint);
     }
 
-    @Override
     public MCAPIServiceSoap getMCAPIServiceSoap(java.net.URL portAddress) throws javax.xml.rpc.ServiceException {
         try {
-            var stub = new MCAPIServiceSoapStub(portAddress, this);
-            stub.setPortName(getMCAPIServiceSoapWSDDServiceName());
-            return stub;
-        } catch (org.apache.axis.AxisFault e) {
+           MCAPIServiceSoapStub _stub = new MCAPIServiceSoapStub(portAddress, this);
+            _stub.setPortName(getMCAPIServiceSoapWSDDServiceName());
+            return _stub;
+        }
+        catch (org.apache.axis.AxisFault e) {
             return null;
         }
     }
 
-    public void setMCAPIServiceSoapEndpointAddress(String address) {
-        mcapiServiceSoapAddress = address;
+    public void setMCAPIServiceSoapEndpointAddress(java.lang.String address) {
+        MCAPIServiceSoap_address = address;
     }
 
-    @Override
+    /**
+     * For the given interface, get the stub implementation.
+     * If this service has no port for the given interface,
+     * then ServiceException is thrown.
+     */
     public java.rmi.Remote getPort(Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         try {
             if (MCAPIServiceSoap.class.isAssignableFrom(serviceEndpointInterface)) {
-                var stub = new MCAPIServiceSoapStub(new java.net.URL(mcapiServiceSoapAddress), this);
-                stub.setPortName(getMCAPIServiceSoapWSDDServiceName());
-                return stub;
+                MCAPIServiceSoapStub _stub = new MCAPIServiceSoapStub(new java.net.URL(MCAPIServiceSoap_address), this);
+                _stub.setPortName(getMCAPIServiceSoapWSDDServiceName());
+                return _stub;
             }
-        } catch (Throwable t) {
+        }
+        catch (java.lang.Throwable t) {
             throw new javax.xml.rpc.ServiceException(t);
         }
-        throw new javax.xml.rpc.ServiceException(
-            "There is no stub implementation for the interface:  "
-                + (serviceEndpointInterface == null ? "null" : serviceEndpointInterface.getName()));
+        throw new javax.xml.rpc.ServiceException("There is no stub implementation for the interface:  " + (serviceEndpointInterface == null ? "null" : serviceEndpointInterface.getName()));
     }
 
-    @Override
-    public java.rmi.Remote getPort(QName portName, Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
+    /**
+     * For the given interface, get the stub implementation.
+     * If this service has no port for the given interface,
+     * then ServiceException is thrown.
+     */
+    public java.rmi.Remote getPort(javax.xml.namespace.QName portName, Class serviceEndpointInterface) throws javax.xml.rpc.ServiceException {
         if (portName == null) {
             return getPort(serviceEndpointInterface);
         }
-        var inputPortName = portName.getLocalPart();
+        java.lang.String inputPortName = portName.getLocalPart();
         if ("MCAPIServiceSoap".equals(inputPortName)) {
             return getMCAPIServiceSoap();
-        } else {
-            var stub = getPort(serviceEndpointInterface);
-            ((org.apache.axis.client.Stub) stub).setPortName(portName);
-            return stub;
+        }
+        else  {
+            java.rmi.Remote _stub = getPort(serviceEndpointInterface);
+            ((org.apache.axis.client.Stub) _stub).setPortName(portName);
+            return _stub;
         }
     }
 
-    @Override
-    public QName getServiceName() {
-        return new QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIService");
+    public javax.xml.namespace.QName getServiceName() {
+        return new javax.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIService");
     }
 
-    public Iterator<QName> getPorts() {
+    private java.util.HashSet ports = null;
+
+    public java.util.Iterator getPorts() {
         if (ports == null) {
-            ports = new HashSet<>();
-            ports.add(new QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIServiceSoap"));
+            ports = new java.util.HashSet();
+            ports.add(new javax.xml.namespace.QName("http://DEA.Web.Service.MasterCalendar.API/", "MCAPIServiceSoap"));
         }
         return ports.iterator();
     }
 
-    public void setEndpointAddress(String portName, String address) throws javax.xml.rpc.ServiceException {
-        if ("MCAPIServiceSoap".equals(portName)) {
+    /**
+    * Set the endpoint address for the specified port name.
+    */
+    public void setEndpointAddress(java.lang.String portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
+        
+if ("MCAPIServiceSoap".equals(portName)) {
             setMCAPIServiceSoapEndpointAddress(address);
-        } else {
-            throw new javax.xml.rpc.ServiceException("Cannot set Endpoint Address for Unknown Port " + portName);
+        }
+        else 
+{ // Unknown Port Name
+            throw new javax.xml.rpc.ServiceException(" Cannot set Endpoint Address for Unknown Port" + portName);
         }
     }
 
-    public void setEndpointAddress(QName portName, String address) throws javax.xml.rpc.ServiceException {
+    /**
+    * Set the endpoint address for the specified port name.
+    */
+    public void setEndpointAddress(javax.xml.namespace.QName portName, java.lang.String address) throws javax.xml.rpc.ServiceException {
         setEndpointAddress(portName.getLocalPart(), address);
     }
+
 }

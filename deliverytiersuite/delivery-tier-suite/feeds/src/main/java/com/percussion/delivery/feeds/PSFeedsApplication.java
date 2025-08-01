@@ -1,8 +1,20 @@
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License")
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package com.percussion.delivery.feeds;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -18,56 +30,25 @@ import org.glassfish.jersey.server.spring.SpringLifecycleListener;
 import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.ws.rs.ApplicationPath;
 
-/**
- * Jersey application configuration for the Feeds service.
- * Sunny Sal: "Registering beans faster than you can say 'Spring rolls'!"
- */
+//import org.apache.cxf.feature.LoggingFeature;
+
+@ApplicationPath("/")
 public class PSFeedsApplication extends ResourceConfig {
-
     public PSFeedsApplication() {
-        // Register Jersey components using method chaining
-        registerJerseyComponents()
-            .registerSpringComponents()
-            .registerExceptionMappers()
-            .registerFeatures();
-    }
-
-    private PSFeedsApplication registerJerseyComponents() {
-        register(JacksonJaxbJsonProvider.class);
-        register(PSFeedService.class);
-        return this;
-    }
-
-    private PSFeedsApplication registerSpringComponents() {
-        register(SpringLifecycleListener.class);
-        register(SpringWebApplicationInitializer.class);
+        register(RequestContextFilter.class);
         register(SpringComponentProvider.class);
         register(AutowiredInjectResolver.class);
-        register(RequestContextFilter.class);
-        return this;
-    }
-
-    private PSFeedsApplication registerExceptionMappers() {
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSFeedService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
         register(PSJsonMappingErrorResponse.class);
         register(PSUncaughtError.class);
-        return this;
+        register(JacksonJaxbJsonProvider.class);
     }
 
-    private PSFeedsApplication registerFeatures() {
-        register(RolesAllowedDynamicFeature.class);
 
-        // Configure logging with modern fluent builder pattern
-        var loggingFeature = new LoggingFeature(
-            Logger.getLogger(LoggingFeature.DEFAULT_LOGGER_NAME),
-            Level.INFO,
-            LoggingFeature.Verbosity.PAYLOAD_ANY,
-            LoggingFeature.DEFAULT_MAX_ENTITY_SIZE
-        );
-        register(loggingFeature);
-
-        return this;
-    }
 }

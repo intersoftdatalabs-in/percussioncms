@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.membership.services;
 
-/**
- * Exception thrown when password reset fails.
- */
-public class PSResetPwdException extends Exception {
+public class PSResetPwdException extends Exception
+{
 
+    /**
+     * 
+     */
     private static final long serialVersionUID = 1L;
 
-    public PSResetPwdException(String message) {
+    public PSResetPwdException(String message)
+    {
         super(message);
     }
+
 }

@@ -17,162 +17,169 @@
 package com.percussion.membership.data;
 
 import java.util.Date;
-import java.util.Optional;
 
 /**
  * Data object representing a member managed by the membership service.
- * Sunny Sal: "Membership is like a Bollywood club - exclusive, secure, and always fun!"
+ * 
+ * @author JaySeletz
+ *
  */
-public interface IPSMembership {
-
+public interface IPSMembership
+{
     /**
      * The possible values for the status column in the table.
+     * 
+     * @author rafaelsalis
      */
-    enum PSMemberStatus {
-        BLOCKED,
-        ACTIVE,
-        UNCONFIRMED
+    public static enum PSMemberStatus {
+        Blocked,
+        Active,
+        Unconfirmed;
     }
-
+    
     /**
-     * Gets the account id of this membership.
-     *
-     * @return The account id, never null or empty, "0" if not persisted.
+     * Get the account id of this membership.
+     * 
+     * @return The account id, never <code>null</code> or empty, "0" if this 
+     * membership has not been persisted.
      */
-    String getId();
-
+    public String getId();
+    
     /**
-     * Gets the user id of this membership.
-     *
-     * @return The user id, never null or empty.
+     * Get the user id of this membership.
+     * 
+     * @return The user id, never <code>null</code> or empty.
      */
-    String getUserId();
-
+    public String getUserId();
+    
     /**
-     * Gets the email address of this membership.
-     *
-     * @return The email, never empty, may be null if not set.
+     * Get the email address of this membership.
+     * 
+     * @return The email, never empty, may be <code>null</code> if not set.
      */
-    Optional<String> getEmailAddress();
-
+    public String getEmailAddress();
+    
     /**
-     * Gets the password value stored with this membership.
-     *
-     * @return The password, never null or empty.
+     * Get the password value stored with this membership.
+     * 
+     * @return The password, never <code>null</code> or empty.
      */
-    String getPassword();
-
+    public String getPassword();
+    
     /**
-     * Gets the date and time when this membership account was last accessed.
-     * May be used for determining if a session has timed out.
-     *
-     * @return The date-time when last accessed, never null.
+     * Get the date and time when this membership account was last accessed,
+     * may be used for determining if a session has timed out.
+     *  
+     * @return The date-time when last accessed, never <code>null</code>.
      */
-    Optional<Date> getLastAccessed();
+    public Date getLastAccessed();
 
+    
     /**
-     * Gets the last session id used by this account.
-     *
-     * @return The session id, never empty, may be null if no session has been created
+     * Get the last session id used by this account.
+     * 
+     * @return The session id, never empty, may be <code>null</code> if no session has been created
      * or if the previously used session has been expired and thus cleared.
      */
-    Optional<String> getSessionId();
+    public String getSessionId();
+    
+    /**
+     * Set the account id.
+     * 
+     * @param accountId The id, may not be <code>null</code> or empty.
+     */
+    public void setId(String accountId);
+    
+    /**
+     * Set the user Id of this membership account.
+     * 
+     * @param userId The id, may not be <code>null</code> or empty.
+     */
+    public void setUserId(String userId);
+    
+    /**
+     * Set the email address of this membership account.
+     * 
+     * @param email The email address, may not be <code>null</code> or empty.
+     */
+    public void setEmailAddress(String email);
+    
+    /**
+     * Set the password for this membership account.
+     * 
+     * @param password The password to set, may not be <code>null</code> or empty.
+     */
+    public void setPassword(String password);
+    
+    /**
+     * Set the last accessed date for this membership account.
+     * 
+     * @param lastAccessed The last accessed date, may not be <code>null</code>.
+     */
+    public void setLastAccessed(Date lastAccessed);
+    
+    /**
+     * Set the session id for this membership account.
+     * 
+     * @param sessionId The session id to set, may be empty, never <code>null</code>.
+     */    
+    public void setSessionId(String sessionId);
 
     /**
-     * Sets the account id.
-     *
-     * @param accountId The id, may not be null or empty.
+     * Set the key used to identify a password reset request for this membership account.
+     * 
+     * @param pwdResetKey The key, never empty, may be <code>null</code> to clear the key.
      */
-    void setId(String accountId);
+    public void setPwdResetKey(String pwdResetKey);
 
     /**
-     * Sets the user Id of this membership account.
-     *
-     * @param userId The id, may not be null or empty.
+     * Get the key used to identify a password reset request for this membership account.
+     * 
+     * @return The key, never empty, may be <code>null</code>.
      */
-    void setUserId(String userId);
+    public String getPwdResetKey();
 
     /**
-     * Sets the email address of this membership account.
-     *
-     * @param email The email address, may not be null or empty.
+     * Set the date this membership account was created.
+     * 
+     * @param createdDate The date, never <code>null</code>.
      */
-    void setEmailAddress(String email);
+    public void setCreatedDate(Date createdDate);
 
     /**
-     * Sets the password for this membership account.
-     *
-     * @param password The password to set, may not be null or empty.
+     * Get the date this membership account was created. 
+     * 
+     * @return The date, may be <code>null</code> if never set.
      */
-    void setPassword(String password);
-
+    public Date getCreatedDate();
+    
     /**
-     * Sets the last accessed date for this membership account.
-     *
-     * @param lastAccessed The last accessed date, may not be null.
+     * Get the status of the membership account. 
+     * 
+     * @return The status, an {@link PSMemberStatus} object, 
+	 * never empty or <code>null</code>.
      */
-    void setLastAccessed(Date lastAccessed);
-
+    public PSMemberStatus getStatus();
+    
     /**
-     * Sets the session id for this membership account.
-     *
-     * @param sessionId The session id to set, may be empty, never null.
+     * Set the status of the membership account.
+     * 
+     * @param status The status, an {@link PSMemberStatus} object, 
+	 * never empty or <code>null</code>.
      */
-    void setSessionId(String sessionId);
-
+    public void setStatus(PSMemberStatus status);
+    
     /**
-     * Sets the key used to identify a password reset request for this membership account.
-     *
-     * @param pwdResetKey The key, never empty, may be null to clear the key.
-     */
-    void setPwdResetKey(String pwdResetKey);
-
+     * Get the groups of the membership account. 
+     * 
+     * @return The groups, may be empty but <code>null</code>.
+     */    
+    public String getGroups();
+    
     /**
-     * Gets the key used to identify a password reset request for this membership account.
-     *
-     * @return The key, never empty, may be null.
+     * Set the groups of the membership account.
+     * 
+     * @param groups The groups, may be empty but never <code>null</code>.
      */
-    Optional<String> getPwdResetKey();
-
-    /**
-     * Sets the date this membership account was created.
-     *
-     * @param createdDate The date, never null.
-     */
-    void setCreatedDate(Date createdDate);
-
-    /**
-     * Gets the date this membership account was created.
-     *
-     * @return The date, may be null if never set.
-     */
-    Optional<Date> getCreatedDate();
-
-    /**
-     * Gets the status of the membership account.
-     *
-     * @return The status, a PSMemberStatus object, never empty or null.
-     */
-    PSMemberStatus getStatus();
-
-    /**
-     * Sets the status of the membership account.
-     *
-     * @param status The status, a PSMemberStatus object, never empty or null.
-     */
-    void setStatus(PSMemberStatus status);
-
-    /**
-     * Gets the groups of the membership account.
-     *
-     * @return The groups, may be empty but never null.
-     */
-    Optional<String> getGroups();
-
-    /**
-     * Sets the groups of the membership account.
-     *
-     * @param groups The groups, may be empty but never null.
-     */
-    void setGroups(String groups);
+    public void setGroups(String groups);
 }

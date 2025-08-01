@@ -26,78 +26,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * DAO interface for comment persistence in Percussion CMS.
- * All methods are thread-safe and follow Google Java Style.
+ * @author erikserating
+ *
  */
-public interface IPSCommentsDao {
+public interface IPSCommentsDao
+{
 
-    /**
-     * Finds comments matching the given criteria.
-     *
-     * @param criteria comment search criteria
-     * @return list of matching comments
-     * @throws Exception if query fails
-     */
-    List<IPSComment> find(PSCommentCriteria criteria) throws Exception;
+    public List<IPSComment> find(PSCommentCriteria criteria) throws Exception;
+    
+    public List<PSPageInfo> findPagesWithComments(String site) throws Exception;
+    
+    public Set<String> findSitesForCommentIds(Collection<String> ids) throws Exception;
+    
+    public APPROVAL_STATE findDefaultModerationState(String site) throws Exception;
 
-    /**
-     * Finds pages with comments for the given site.
-     *
-     * @param site site name
-     * @return list of page info
-     * @throws Exception if query fails
-     */
-    List<PSPageInfo> findPagesWithComments(String site) throws Exception;
+    public void save(IPSComment comment) throws Exception;
+    
+    public void saveDefaultModerationState(String sitename, APPROVAL_STATE state) throws Exception;
 
-    /**
-     * Finds sites for the given comment IDs.
-     *
-     * @param ids comment IDs
-     * @return set of site names
-     * @throws Exception if query fails
-     */
-    Set<String> findSitesForCommentIds(Collection<String> ids) throws Exception;
+    public void delete(Collection<String> commentIds) throws Exception;
 
-    /**
-     * Finds the default moderation state for a site.
-     *
-     * @param site site name
-     * @return approval state
-     * @throws Exception if query fails
-     */
-    APPROVAL_STATE findDefaultModerationState(String site) throws Exception;
+    public void moderate(Collection<String> commentIds, APPROVAL_STATE newApprovalState) throws Exception;
 
-    /**
-     * Saves a comment.
-     *
-     * @param comment comment to save
-     * @throws Exception if save fails
-     */
-    void save(IPSComment comment) throws Exception;
-
-    /**
-     * Saves the default moderation state for a site.
-     *
-     * @param sitename site name
-     * @param state approval state
-     * @throws Exception if save fails
-     */
-    void saveDefaultModerationState(String sitename, APPROVAL_STATE state) throws Exception;
-
-    /**
-     * Deletes comments by IDs.
-     *
-     * @param commentIds comment IDs
-     * @throws Exception if delete fails
-     */
-    void delete(Collection<String> commentIds) throws Exception;
-
-    /**
-     * Moderates comments by IDs.
-     *
-     * @param commentIds comment IDs
-     * @param newApprovalState new approval state
-     * @throws Exception if update fails
-     */
-    void moderate(Collection<String> commentIds, APPROVAL_STATE newApprovalState) throws Exception;
 }

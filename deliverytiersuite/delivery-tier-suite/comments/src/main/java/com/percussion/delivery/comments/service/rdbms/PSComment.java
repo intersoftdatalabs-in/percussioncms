@@ -1,5 +1,6 @@
-// REFACTORED: CP-JAVA11
 /*
+ * Copyright 1999-2023 Percussion Software, Inc.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,269 +10,378 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 package com.percussion.delivery.comments.service.rdbms;
 
 import com.percussion.delivery.comments.data.IPSComment;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * JPA entity representing a comment in the system.
- * Uses Hibernate second-level cache for improved performance.
+ * @author erikserating
+ *
  */
 @Entity
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "PSComments1")
-@Table(name = "PERC_PAGE_COMMENTS", indexes = {
-    @Index(name = "idx_comment_site", columnList = "site"),
-    @Index(name = "idx_comment_path", columnList = "pagePath")
-})
-public class PSComment implements IPSComment, Serializable {
-    private static final long serialVersionUID = 1L;
-
+@Table(name = "PERC_PAGE_COMMENTS")
+public class PSComment implements IPSComment, Serializable
+{
     @TableGenerator(
-        name = "commentId",
-        table = "PERC_ID_GEN",
-        pkColumnName = "GEN_KEY",
-        valueColumnName = "GEN_VALUE",
-        pkColumnValue = "commentId",
-        allocationSize = 1
-    )
+        name="commentId", 
+        table="PERC_ID_GEN", 
+        pkColumnName="GEN_KEY", 
+        valueColumnName="GEN_VALUE", 
+        pkColumnValue="commentId", 
+        allocationSize=1)
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "commentId")
-    private Long id;
+    @GeneratedValue(strategy=GenerationType.TABLE, generator="commentId")
+    private long id;
+    
+   @Basic
+   private String approvalState = APPROVAL_STATE.APPROVED.toString();
+   
+   @Basic
+   private Date createdDate;
+   
+   @Basic
+   private String pagePath;
+   
+   @Basic
+   @Column(length = 4000)
+   private String email;
+   
+   @Basic
+   @Column(length = 4000)
+   private String username;
+   
+   @Lob
+   @Column(length = Integer.MAX_VALUE)
+   private String text;
+   
+   @Basic
+   @Column(length = 4000)
+   private String title;
+   
+   @Basic
+   private long parent;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private APPROVAL_STATE approvalState = APPROVAL_STATE.PENDING;
 
-    @NotNull
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date createdDate;
+   @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,
+           orphanRemoval=true, mappedBy="comment" , targetEntity = PSCommentTag.class)
+   @Fetch(FetchMode.SUBSELECT)
+   @OnDelete(action = OnDeleteAction.CASCADE)
+   private Set<PSCommentTag> commentTags = new HashSet<>();
+   
+   @Basic 
+   private boolean moderated;
+   
+   @Basic 
+   private boolean viewed;
+   
+   @Basic
+   private String site;
+   
+   @Basic
+   @Column(length = 2000)
+   private String url;
 
-    @NotBlank
-    @Size(max = 1000)
-    @Column(nullable = false)
-    private String pagePath;
+   @Transient
+   private String commentCreatedDate;
+   
+   public PSComment()
+   {
+       
+   }
+   
+   /**
+    * Creates a new comment with the same values as the given one,
+    * except for the id.
+    * 
+    * @param comment A comment to create a copy from.
+    */
+   public PSComment(IPSComment comment)
+   {
+       this.approvalState = comment.getApprovalState().toString();
+       this.createdDate = comment.getCreatedDate();
+       this.email = comment.getEmail();
+       this.moderated = comment.isModerated();
+       this.pagePath = comment.getPagePath();
+       this.parent = comment.getParent() == null ? 0 : Long.valueOf(comment.getParent());
+       this.site = comment.getSite();
+       setTags(comment.getTags());
+       this.text = comment.getText();
+       this.title = comment.getTitle();
+       this.url = comment.getUrl();
+       this.username = comment.getUsername();
+       this.viewed = comment.isViewed();
+       this.commentCreatedDate = comment.getCommentCreatedDate();
+   }
+   
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getApprovalState()
+    */
+   public APPROVAL_STATE getApprovalState()
+   {
+      return APPROVAL_STATE.valueOf(approvalState);
+   }
 
-    @Size(max = 4000)
-    private String email;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getCreatedDate()
+    */
+   public Date getCreatedDate()
+   {
+      return createdDate;
+   }
 
-    @Size(max = 4000)
-    private String username;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getEmail()
+    */
+   public String getEmail()
+   {
+      return email;
+   }
 
-    @NotBlank
-    @Lob
-    @Column(length = Integer.MAX_VALUE, nullable = false)
-    private String text;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getId()
+    */
+   public String getId()
+   {
+      return String.valueOf(id);
+   }
 
-    @Size(max = 4000)
-    private String title;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getPagePath()
+    */
+   public String getPagePath()
+   {
+      return pagePath;
+   }
 
-    private Long parent;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getParent()
+    */
+   public String getParent()
+   {
+      return String.valueOf(parent);
+   }
 
-    @OneToMany(
-        fetch = FetchType.EAGER,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        mappedBy = "comment"
-    )
-    @Fetch(FetchMode.SUBSELECT)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<PSCommentTag> commentTags = new HashSet<>();
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getTags()
+    */
+   public Set<String> getTags()
+   {
+      Set<String> tagsAsString = new HashSet<>();
+      
+      for (PSCommentTag tag : this.commentTags)
+          tagsAsString.add(tag.getName());
+      
+      return tagsAsString;
+   }
 
-    private boolean moderated;
-    private boolean viewed;
+   public Set<PSCommentTag> getCommentTags()
+   {
+      return commentTags;
+   }
 
-    @NotBlank
-    @Size(max = 255)
-    @Column(nullable = false)
-    private String site;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getText()
+    */
+   public String getText()
+   {
+      return text;
+   }
 
-    @Size(max = 2000)
-    private String url;
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#getUsername()
+    */
+   public String getUsername()
+   {
+      return username;
+   }
+   
+   /**
+    * @param createdDate the createdDate to set
+    */
+   public void setCreatedDate(Date createdDate)
+   {
+      this.createdDate = createdDate;
+   }
 
-    private String commentCreatedDate;
+   /**
+    * @param id the id to set
+    */
+   public void setId(String id)
+   {
+      this.id = id == null ? 0 : Long.valueOf(id);
+   }
 
-    // Required by JPA
-    protected PSComment() {}
+   /**
+    * @param pagePath the pagePath to set
+    */
+   public void setPagePath(String pagePath)
+   {
+      this.pagePath = pagePath;
+   }
 
-    /**
-     * Creates a new comment with required fields.
-     */
-    public static PSComment create(String text, String site, String pagePath) {
-        var comment = new PSComment();
-        comment.text = Objects.requireNonNull(text, "text must not be null");
-        comment.site = Objects.requireNonNull(site, "site must not be null");
-        comment.pagePath = Objects.requireNonNull(pagePath, "pagePath must not be null");
-        comment.createdDate = new Date();
-        return comment;
-    }
+   /**
+    * @param email the email to set
+    */
+   public void setEmail(String email)
+   {
+      this.email = email;
+   }
 
-    @Override
-    public String getId() {
-        return Optional.ofNullable(id)
-            .map(String::valueOf)
-            .orElse(null);
-    }
+   /**
+    * @param username the username to set
+    */
+   public void setUsername(String username)
+   {
+      this.username = username;
+   }
 
-    @Override
-    public Optional<String> getParent() {
-        return Optional.ofNullable(parent)
-            .map(String::valueOf);
-    }
+   /**
+    * @param text the text to set
+    */
+   public void setText(String text)
+   {
+      this.text = text;
+   }
 
-    public void setParent(Long parent) {
-        this.parent = parent;
-    }
+   /**
+    * @param parent the parent to set
+    */
+   public void setParent(String parent)
+   {
+      this.parent = Long.valueOf(parent);
+   }
+   
+   public void setTags(Set<String> tags)
+   {
+       if(tags == null)
+          return;
+       PSCommentTag commentTag;
+       
+       for (String aTag : tags)
+       {
+           commentTag = new PSCommentTag(aTag);
+           commentTag.setComment(this);
+           this.commentTags.add(commentTag);
+       }
+   }
+   
+   public void setCommentTags(Set<PSCommentTag> commentTags)
+   {
+       this.commentTags = commentTags;
+   }
 
-    @Override
-    public String getText() {
-        return text;
-    }
+   /**
+    * @param approvalState the approvalState to set
+    */
+   public void setApprovalState(APPROVAL_STATE approvalState)
+   {
+      this.approvalState = approvalState.toString();
+   }
 
-    public void setText(@NotBlank String text) {
-        this.text = Objects.requireNonNull(text, "text must not be null");
-    }
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#isModerated()
+    */
+   public boolean isModerated()
+   {
+      return moderated;
+   }
 
-    @Override
-    public Optional<String> getTitle() {
-        return Optional.ofNullable(title);
-    }
+   /* (non-Javadoc)
+    * @see com.percussion.comments.data.IPSComment#isViewed()
+    */
+   public boolean isViewed()
+   {
+      return viewed;
+   }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+   /**
+    * @param moderated the moderated to set
+    */
+   public void setModerated(boolean moderated)
+   {
+      this.moderated = moderated;
+   }
 
-    @Override
-    public String getSite() {
-        return site;
-    }
+   /**
+    * @param viewed the viewed to set
+    */
+   public void setViewed(boolean viewed)
+   {
+      this.viewed = viewed;
+   }
 
-    public void setSite(@NotBlank String site) {
-        this.site = Objects.requireNonNull(site, "site must not be null");
-    }
+   /**
+    * @return the site
+    */
+   public String getSite()
+   {
+      return site;
+   }
 
-    @Override
-    public String getPagePath() {
-        return pagePath;
-    }
+   /**
+    * @param site the site to set
+    */
+   public void setSite(String site)
+   {
+      this.site = site;
+   }
 
-    public void setPagePath(@NotBlank String pagePath) {
-        this.pagePath = Objects.requireNonNull(pagePath, "pagePath must not be null");
-    }
+   /**
+    * @return the url
+    */
+   public String getUrl()
+   {
+      return url;
+   }
 
-    @Override
-    public Optional<String> getUsername() {
-        return Optional.ofNullable(username);
-    }
+   /**
+    * @param url the url to set
+    */
+   public void setUrl(String url)
+   {
+      this.url = url;
+   }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+   /**
+    * @return the title
+    */
+   public String getTitle()
+   {
+      return title;
+   }
 
-    @Override
-    public Optional<String> getUrl() {
-        return Optional.ofNullable(url);
-    }
+   /**
+    * @param title the title to set
+    */
+   public void setTitle(String title)
+   {
+      this.title = title;
+   }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
 
-    @Override
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email);
-    }
+   public String getCommentCreatedDate() {
+      return commentCreatedDate;
+   }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    @Override
-    public Date getCreatedDate() {
-        return new Date(createdDate.getTime());
-    }
-
-    @Override
-    public Set<String> getTags() {
-        return commentTags.stream()
-            .map(PSCommentTag::getTag)
-            .collect(Collectors.toUnmodifiableSet());
-    }
-
-    public void setTags(Set<String> tags) {
-        this.commentTags.clear();
-        Optional.ofNullable(tags)
-            .orElse(Set.of())
-            .stream()
-            .map(tag -> PSCommentTag.create(this, tag))
-            .forEach(this.commentTags::add);
-    }
-
-    @Override
-    public APPROVAL_STATE getApprovalState() {
-        return approvalState;
-    }
-
-    public void setApprovalState(@NotNull APPROVAL_STATE state) {
-        this.approvalState = Objects.requireNonNull(state, "state must not be null");
-    }
-
-    @Override
-    public boolean isModerated() {
-        return moderated;
-    }
-
-    public void setModerated(boolean moderated) {
-        this.moderated = moderated;
-    }
-
-    public boolean isViewed() {
-        return viewed;
-    }
-
-    public void setViewed(boolean viewed) {
-        this.viewed = viewed;
-    }
-
-    public String getCommentCreatedDate() {
-        return commentCreatedDate;
-    }
-
-    public void setCommentCreatedDate(String commentCreatedDate) {
-        this.commentCreatedDate = commentCreatedDate;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSComment)) return false;
-        var that = (PSComment) o;
-        return id != null && id.equals(that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Comment{id=%d, title='%s', author='%s', state=%s}",
-            id, title, username, approvalState);
-    }
+   public void setCommentCreatedDate(String commentCreatedDate) {
+      this.commentCreatedDate = commentCreatedDate;
+   }
 }

@@ -16,43 +16,55 @@
  */
 package com.percussion.delivery.utils.properties;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 /**
- * Sunny Sal says: "Property group ka test, JSON ka best!"
+ * @author natechadwick
+ *
  */
 public class PSPropertyGroupTest {
 
-    @Test
-    public void testJSON() throws IOException {
-        var basic = new PSPropertyGroupDefinition();
-        basic.setDisplayName("Basic");
-        basic.setName("basic");
-        basic.setExpanded(true);
-        basic.setHelpText("Standard options for the Amakai Cache Manager Plugin.");
-
-        var p1 = new PSPropertyDefinition();
-        p1.setDatatype("string");
-        p1.setDefaultValue("test default");
-        p1.setDisplayName("P1 Test");
-        p1.setName("p1");
-        basic.getProperties().add(p1);
-
-        var p2 = new PSPropertyDefinition();
-        p2.setDatatype("string");
-        p2.setDefaultValue("test default");
-        p2.setDisplayName("P2 Test");
-        p2.setName("p2");
-        basic.getProperties().add(p2);
-
-        var m = new ObjectMapper();
-        var sw = new StringWriter();
-        m.writerWithDefaultPrettyPrinter().writeValue(sw, basic);
-
-        System.out.print(sw.toString());
-    }
+	@Test
+	public void testJSON() throws IOException{
+		
+		PSPropertyGroupDefinition basic = new PSPropertyGroupDefinition();
+		basic.setDisplayName("Basic");
+		basic.setName("basic");
+		basic.setExpanded(true);
+		basic.setHelpText("Standard options for the Amakai Cache Manager Plugin.");
+		
+		PSPropertyDefinition p1 = new PSPropertyDefinition();
+		p1.setDatatype("string");
+		p1.setDefaultValue("test default");
+		p1.setDisplayName("P1 Test");
+		p1.setName("p1");	
+		basic.getProperties().add(p1);
+		
+		PSPropertyDefinition p2 = new PSPropertyDefinition();
+		p2.setDatatype("string");
+		p2.setDefaultValue("test default");
+		p2.setDisplayName("P2 Test");
+		p2.setName("p2");
+		basic.getProperties().add(p2);
+		
+		ObjectMapper m = new ObjectMapper();
+	    JsonFactory jf = new JsonFactory();
+	    StringWriter sw = new StringWriter();
+        
+	  
+	    	JsonGenerator jg = jf.createJsonGenerator(sw);
+             
+            jg.useDefaultPrettyPrinter();
+            
+        	m.writeValue(jg, basic);
+        	
+        	System.out.print(sw.toString());
+		
+	}
 }

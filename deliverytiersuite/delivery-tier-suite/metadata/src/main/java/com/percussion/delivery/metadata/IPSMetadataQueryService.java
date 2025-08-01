@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.metadata;
 
 import com.percussion.delivery.metadata.data.PSMetadataQuery;
@@ -26,43 +25,55 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Service for executing metadata queries.
+ * @author erikserating
+ * 
  */
-public interface IPSMetadataQueryService {
-
+public interface IPSMetadataQueryService
+{
     /**
-     * Executes a query against the metadata service.
-     * @param query the metadata query, cannot be null.
-     * @return PSPair containing list of result objects and total count.
-     * @throws Exception on query parsing error.
+     * Executes a query against the metadata query service.
+     * 
+     * @param query the metadata query, cannot be <code>null</code>.
+     * @return PSPair which contains list of result objects, those are sorted
+     *         according to the orderby in the query and number of results also
+     *         determined by the maxresults value in the query and total count
+     *         of available objects for the passed in query criteria
+     * @throws Exception on query parsing error
      */
-    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
-    PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query) throws Exception;
 
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
+    public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query) throws Exception;
+    public List<Object[]>  executeCategoryQuery(PSMetadataQuery query) throws Exception;
     /**
-     * Executes a category query against the metadata service.
-     * @param query the metadata query.
-     * @return list of category query results.
-     * @throws Exception on query parsing error.
+     * Based on the query hibernate return type would be different Following
+     * enum is to handle the return type from the hibernate if NONE it returns
+     * List<Object> If PROPERTY it returns List<[Object[])> If METADATA it
+     * returns List<Object>
+     * 
+     * 
      */
-    List<Object[]> executeCategoryQuery(PSMetadataQuery query) throws Exception;
-
-    /**
-     * Enum for Hibernate query return types.
-     */
-    enum SORTTYPE {
+    public enum SORTTYPE
+    {
         NONE, PROPERTY, METADATA
     }
 
     // Column names in the properties table
-    String PROP_DATEVALUE_COLUMN_NAME = "datevalue";
-    String PROP_NUMBERVALUE_COLUMN_NAME = "numbervalue";
-    String PROP_STRINGVALUE_COLUMN_NAME = "stringvalue";
-    String PROP_VALUEHASH_COLUMN_NAME = "valueHash";
-    String PROP_TEXTVALUE_COLUMN_NAME = "textvalue";
-    String SORT_ORDER_ASCEND = "asc";
-    String SORT_ORDER_DESCEND = "desc";
+    public static final String PROP_DATEVALUE_COLUMN_NAME = "datevalue";
 
-    Integer getQueryLimit();
-    void setQueryLimit(Integer limit);
+    public static final String PROP_NUMBERVALUE_COLUMN_NAME = "numbervalue";
+
+    public static final String PROP_STRINGVALUE_COLUMN_NAME = "stringvalue";
+
+    public static final String PROP_VALUEHASH_COLUMN_NAME="valueHash";
+
+    public static final String PROP_TEXTVALUE_COLUMN_NAME = "textvalue";
+
+    public static final String SORT_ORDER_ASCEND = "asc";
+
+    public static final String SORT_ORDER_DESCEND = "desc";
+    
+    public Integer getQueryLimit();
+    
+    public void setQueryLimit(Integer limit);
+
 }

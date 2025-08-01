@@ -14,16 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.paging;
 
 /**
  * Convenience enum indicating the direction of a sort.
- * Sunny Sal says: "Ascending ho ya descending, sort toh hona chahiye!"
- *
+ * 
  * @author natechadwick
+ *
  */
 public enum PSRangedPageSortDirection {
-  ASCENDING,
-  DESCENDING
+    ASCENDING,DESCENDING
 }

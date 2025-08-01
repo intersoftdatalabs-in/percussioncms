@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,111 +22,147 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
- * Represents a metadata entry in the REST layer. Used to return exactly what's needed.
+ * Represents a metadata entry in the REST layer. It's used to return
+ * exactly what's needed.
+ *
  */
-public class PSMetadataRestEntry {
-
-    private static final FastDateFormat DATE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
-
+public class PSMetadataRestEntry
+{
+    /**
+     * Date format used for string serialized date. 2011-01-21T09:36:05
+     */
+    FastDateFormat dateFormat =  FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+    
     private String pagepath;
-    private String name;
-    private String folder;
-    private String linktext;
-    private String type;
-    private String site;
-    private Map<String, Object> properties = new HashMap<>();
 
-    public Optional<String> getPagepath() {
-        return Optional.ofNullable(pagepath);
+    private String name;
+
+    private String folder;
+
+    private String linktext;
+
+    private String type;
+
+    private String site;
+
+    private HashMap<String, Object> properties = new HashMap<>();
+
+    public String getPagepath()
+    {
+        return pagepath;
     }
 
-    public void setPagepath(String pagepath) {
+    public void setPagepath(String pagepath)
+    {
         this.pagepath = pagepath;
     }
 
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
+    public String getName()
+    {
+        return name;
     }
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
     }
 
-    public Optional<String> getFolder() {
-        return Optional.ofNullable(folder);
+    public String getFolder()
+    {
+        return folder;
     }
 
-    public void setFolder(String folder) {
+    public void setFolder(String folder)
+    {
         this.folder = folder;
     }
 
-    public Optional<String> getLinktext() {
-        return Optional.ofNullable(linktext);
+    public String getLinktext()
+    {
+        return linktext;
     }
 
-    public void setLinktext(String linktext) {
+    public void setLinktext(String linktext)
+    {
         this.linktext = linktext;
     }
 
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
+    public String getType()
+    {
+        return type;
     }
 
-    public void setType(String type) {
+    public void setType(String type)
+    {
         this.type = type;
     }
 
-    public Optional<String> getSite() {
-        return Optional.ofNullable(site);
+    public String getSite()
+    {
+        return site;
     }
 
-    public void setSite(String site) {
+    public void setSite(String site)
+    {
         this.site = site;
     }
 
-    public Map<String, Object> getProperties() {
+    public HashMap<String, Object> getProperties()
+    {
         return properties;
     }
 
-    public void setProperties(Map<String, Object> properties) {
+    public void setProperties(HashMap<String, Object> properties)
+    {
         this.properties = properties;
     }
 
     /**
-     * Adds a PSMetadataProperty to the properties map, converting to String as needed.
-     * If the property already exists, stores as a list of values.
-     *
-     * @param metadataProperty the property to add.
+     * Adds a PSMetadataProperty to the Map 'properties', so it's converted
+     * to String as desired with this format:
+     * <code>
+     * {
+     *      "propertyName" : "propertyValue"
+     * }
+     * </code>.
+     * @param metadataProperty A PSMetadataProperty instance that will be
+     * added to the 'properties' Map.
      */
-    public void addMetadataProperty(IPSMetadataProperty metadataProperty) {
-        var newValue = "";
-        switch (metadataProperty.getValuetype()) {
-            case NUMBER:
-                newValue = metadataProperty.getNumbervalue().toString();
-                break;
-            case DATE:
-                newValue = DATE_FORMAT.format(metadataProperty.getDatevalue());
-                break;
-            default:
-                newValue = metadataProperty.getStringvalue();
+    public void addMetadataProperty(IPSMetadataProperty metadataProperty)
+    {
+    	String newValue = "";
+        if (metadataProperty.getValuetype().equals(IPSMetadataProperty.VALUETYPE.NUMBER))
+        {
+        	newValue = metadataProperty.getNumbervalue().toString();
         }
-        properties.compute(metadataProperty.getName(), (k, v) -> {
-            if (v == null) {
-                return newValue;
-            } else if (v instanceof String) {
-                var multiValued = new ArrayList<String>();
-                multiValued.add((String) v);
-                multiValued.add(newValue);
-                return multiValued;
-            } else if (v instanceof List) {
-                ((List<String>) v).add(newValue);
-                return v;
-            }
-            return newValue;
-        });
+        else if (metadataProperty.getValuetype().equals(IPSMetadataProperty.VALUETYPE.DATE))
+        {
+        	newValue = dateFormat.format(metadataProperty.getDatevalue());
+        }
+        else
+        {
+        	newValue = metadataProperty.getStringvalue();
+        }
+        if (!this.properties.containsKey(metadataProperty.getName())){
+    		this.properties.put(metadataProperty.getName(),	newValue);	
+    	}
+    	else{
+    		Object value = this.properties.get(metadataProperty.getName());
+    		if (value instanceof String)
+    		{
+    			List<String> multiValued = new ArrayList<>();
+    			multiValued.add((String)value);
+    			multiValued.add(newValue);
+    			this.properties.put(metadataProperty.getName(), multiValued);
+    		}
+    		else
+    		{
+    			((List<String>)value).add(newValue);
+    			this.properties.put(metadataProperty.getName(), value);
+    		}
+    		
+    	}
     }
 }

@@ -14,87 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/**
- * Interface for email request operations.
- * Sunny Sal says: Email interface, Google style, Java 11 ready!
- */
 package com.percussion.delivery.email.data;
 
-public interface IPSEmailRequest {
+public interface IPSEmailRequest
+{
+    public void setToList(String toList);
 
-    /**
-     * Sets the recipient list for the email.
-     *
-     * @param toList
-     *            comma-separated list of recipients.
-     */
-    void setToList(String toList);
+    public void setCCList(String ccList);
 
-    /**
-     * Sets the CC list for the email.
-     *
-     * @param ccList
-     *            comma-separated list of CC recipients.
-     */
-    void setCCList(String ccList);
+    public void setBCCList(String bccList);
 
-    /**
-     * Sets the BCC list for the email.
-     *
-     * @param bccList
-     *            comma-separated list of BCC recipients.
-     */
-    void setBCCList(String bccList);
+    public void setBody(String bodycontent);
 
-    /**
-     * Sets the body content of the email.
-     *
-     * @param bodyContent
-     *            the email body.
-     */
-    void setBody(String bodyContent);
+    public void setSubject(String subject);
 
-    /**
-     * Sets the subject of the email.
-     *
-     * @param subject
-     *            the email subject.
-     */
-    void setSubject(String subject);
+    public String getToList();
 
-    /**
-     * Gets the recipient list for the email.
-     *
-     * @return comma-separated list of recipients.
-     */
-    String getToList();
+    public String getCCList();
 
-    /**
-     * Gets the CC list for the email.
-     *
-     * @return comma-separated list of CC recipients.
-     */
-    String getCCList();
+    public String getBCCList();
 
-    /**
-     * Gets the BCC list for the email.
-     *
-     * @return comma-separated list of BCC recipients.
-     */
-    String getBCCList();
+    public String getBody();
 
-    /**
-     * Gets the body content of the email.
-     *
-     * @return the email body.
-     */
-    String getBody();
+    public String getSubject();
 
-    /**
-     * Gets the subject of the email.
-     *
-     * @return the email subject.
-     */
-    String getSubject();
 }

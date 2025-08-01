@@ -16,30 +16,35 @@
  */
 package com.percussion.delivery.utils;
 
+import com.percussion.delivery.email.data.IPSEmailRequest;
+import com.percussion.delivery.exceptions.PSEmailException;
+import org.apache.commons.mail.EmailException;
+
 /**
- * A common helper interface to send emails.
- * // REFACTORED: CP-JAVA11
+ * A common helper class to send emails.
  */
-public interface IPSEmailHelper {
-
+public interface IPSEmailHelper
+{
     /**
-     * Sends an email with the details provided in {@link com.percussion.delivery.email.data.IPSEmailRequest}.
-     *
-     * @param emailRequest The request object that has the details of the email, must not be null.
+     * Sends an email with the details provided in {@link IPSEmailRequest}
+     * 
+     * @param emailRequest The request object that has the details of the email,
+     *            must not be <code>null</code>.
      * @return The message id of the email sent.
-     * @throws com.percussion.delivery.utils.PSEmailServiceNotInitializedException When there is an error initializing the email client.
-     * @throws com.percussion.delivery.exceptions.PSEmailException on email send failure.
+     * @throws EmailException
+     * @throws PSEmailServiceNotInitializedException When there is an error
+     *             while initializing the email client.
      */
-    String sendMail(com.percussion.delivery.email.data.IPSEmailRequest emailRequest)
-            throws PSEmailServiceNotInitializedException, com.percussion.delivery.exceptions.PSEmailException;
+    public String sendMail(IPSEmailRequest emailRequest) throws PSEmailServiceNotInitializedException, PSEmailException;
 
-    String EMAIL_PROPS_HOSTNAME = "email.hostName";
-    String EMAIL_PROPS_PORT = "email.portNumber";
-    String EMAIL_PROPS_SMTP_USERNAME = "email.userName";
-    String EMAIL_PROPS_SMTP_PASSWORD = "email.password";
-    String EMAIL_PROPS_FROM_ADDRESS = "email.fromAddress";
-    String EMAIL_PROPS_BOUNCE_ADDRESS = "email.bounceAddress";
-    String EMAIL_PROPS_TLS = "email.TLS";
-    String EMAIL_PROPS_FROMNAME = "email.fromName";
-    String EMAIL_PROPS_SSLPORT = "email.sslPort";
+    public static final String EMAIL_PROPS_HOSTNAME = "email.hostName";
+    public static final String EMAIL_PROPS_PORT = "email.portNumber";
+    public static final String EMAIL_PROPS_SMTP_USERNAME = "email.userName";
+    public static final String EMAIL_PROPS_SMTP_PASSWORD = "email.password";
+    public static final String EMAIL_PROPS_FROM_ADDRESS = "email.fromAddress";
+    public static final String EMAIL_PROPS_BOUNCE_ADDRESS = "email.bounceAddress";
+    public static final String EMAIL_PROPS_TLS = "email.TLS";
+    public static final String EMAIL_PROPS_FROMNAME = "email.fromName";
+    public static final String EMAIL_PROPS_SSLPORT = "email.sslPort";
+
 }

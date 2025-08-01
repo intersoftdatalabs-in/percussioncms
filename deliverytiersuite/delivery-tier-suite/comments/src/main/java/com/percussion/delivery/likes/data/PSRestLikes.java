@@ -16,94 +16,103 @@
  */
 package com.percussion.delivery.likes.data;
 
+import com.percussion.delivery.likes.data.IPSLikes;
+
 /**
- * Represents a REST like entity for a page, comment, or image.
+ * @author davidpardini
+ * 
  */
-public class PSRestLikes implements IPSLikes {
+public class PSRestLikes implements IPSLikes
+{
 
     private String id;
+
     private String likeId;
+
     private String type;
+
     private String site;
+
     private int total;
 
     /**
      * @return the id
      */
-    @Override
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    @Override
-    public void setId(String id) {
+    public void setId(String id)
+    {
         this.id = id;
     }
 
     /**
      * @return the likeId
      */
-    @Override
-    public String getLikeId() {
+    public String getLikeId()
+    {
         return likeId;
     }
 
     /**
-     * @param likeId the likeId to set
+     * @param likesId the likeId to set
      */
-    @Override
-    public void setLikeId(String likeId) {
+    public void setLikeId(String likeId)
+    {
         this.likeId = likeId;
     }
 
     /**
      * @return the type
      */
-    @Override
-    public String getType() {
+    public String getType()
+    {
         return type;
     }
 
     /**
      * @param type the type to set
      */
-    @Override
-    public void setType(String type) {
+    public void setType(String type)
+    {
         this.type = type;
     }
 
     /**
      * @return the site
      */
-    @Override
-    public String getSite() {
+    public String getSite()
+    {
         return site;
     }
 
     /**
      * @param site the site to set
      */
-    @Override
-    public void setSite(String site) {
+    public void setSite(String site)
+    {
         this.site = site;
     }
 
     /**
      * @return the total
      */
-    @Override
-    public int getTotal() {
+    public int getTotal()
+    {
         return total;
     }
 
     /**
      * @param total the total to set
      */
-    @Override
-    public void setTotal(int total) {
+    public void setTotal(int total)
+    {
         this.total = total;
     }
+
 }

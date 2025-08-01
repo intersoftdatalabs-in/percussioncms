@@ -14,23 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import com.percussion.delivery.utils.spring.AbstractSpringAwareJerseyTest;
-import org.junit.jupiter.api.Test;
+
 
 /**
- * Responsible for testing of the tenant authorization module.
- * Sunny Sal says: "Authorization ka test, security ka best!"
- *
+ * Responsible for testing of the tenant authorization module. 
+ * 
  * @author natechadwick
+ *
  */
-public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest {
+public class PSTenantAuthorizationTest extends AbstractSpringAwareJerseyTest{
 
-    @Test
-    public void dummyTest() {
-        // TODO: Implement actual authorization tests.
-        // This is a placeholder for future JUnit5 tests.
-    }
+	/**
+	 * @param wad
+	 */
+//	public PSTenantAuthorizationTest(WebAppDescriptor wad) {
+//		super(wad);
+//	}
+
+	
+	
 }

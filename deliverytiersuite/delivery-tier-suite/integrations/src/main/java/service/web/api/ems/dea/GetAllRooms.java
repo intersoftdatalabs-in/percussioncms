@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,12 +18,33 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Java 11+ refactored version of GetAllRooms SOAP request.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -31,81 +53,77 @@ import javax.xml.bind.annotation.*;
     "buildingID"
 })
 @XmlRootElement(name = "GetAllRooms")
-public final class GetAllRooms {
+public class GetAllRooms {
+
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "BuildingID")
-    private final int buildingID;
+    protected int buildingID;
 
-    private GetAllRooms(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.buildingID = builder.buildingID;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
-    /** @return Optional user name for authentication. */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserName(String value) {
+        this.userName = value;
     }
-    /** @return Optional password for authentication. */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
     }
-    /** @return Building ID for which rooms are requested. */
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
+    }
+
+    /**
+     * Gets the value of the buildingID property.
+     * 
+     */
     public int getBuildingID() {
         return buildingID;
     }
 
-    @Override
-    public String toString() {
-        return "GetAllRooms{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", buildingID=" + buildingID +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetAllRooms)) return false;
-        var that = (GetAllRooms) o;
-        return buildingID == that.buildingID &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, buildingID);
-    }
-
     /**
-     * Builder for GetAllRooms. Use for safe, immutable construction.
+     * Sets the value of the buildingID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int buildingID;
-
-        public Builder() {}
-
-        public Builder userName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-        public Builder buildingID(int buildingID) {
-            this.buildingID = buildingID;
-            return this;
-        }
-        public GetAllRooms build() {
-            return new GetAllRooms(this);
-        }
+    public void setBuildingID(int value) {
+        this.buildingID = value;
     }
+
 }

@@ -33,56 +33,67 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-/**
- * Filter that adds Content-Security-Policy headers to HTTP responses.
- * Sunny Sal says: "Security first, debugging second!"
- */
 @Component
 public class PSSecurityFilter extends GenericFilterBean {
 
     private static final Logger log = LogManager.getLogger(PSSecurityFilter.class);
 
-    private static final String PERC_SECURITY_PROPS_ROOT = "/conf/perc/perc-security.properties";
-    private static final String CONTENT_SECURITY_POLICY_NAME = "contentSecurityPolicy";
-    private static final String CATALINA_BASE = "catalina.base";
-    private String contentSecurityPolicyValue = "default-src 'self'";
+    private static String PERC_SECURITY_PROPS_ROOT = "/conf/perc/perc-security.properties";
+    private String CONTENT_SECURITY_POLICY_NAME= "contentSecurityPolicy";
+    private String CONTENT_SECURITY_POLICY_VALUE= "default-src 'self'";
+    private static String CATALINA_BASE = "catalina.base";
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        if (response instanceof HttpServletResponse) {
-            var httpResp = (HttpServletResponse) response;
-            httpResp.addHeader(CONTENT_SECURITY_POLICY_NAME, contentSecurityPolicyValue);
+     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+
+         if ( response instanceof HttpServletResponse) {
+             HttpServletResponse httpResp = (HttpServletResponse) response;
+
+             httpResp.addHeader(CONTENT_SECURITY_POLICY_NAME, CONTENT_SECURITY_POLICY_VALUE);
+             chain.doFilter(request, response);
+         }else{
+             chain.doFilter(request,response);
+         }
+
         }
-        chain.doFilter(request, response);
-    }
+
 
     @Override
     protected void initFilterBean() throws ServletException {
-        var props = new Properties();
-        var tomcatBase = System.getProperty(CATALINA_BASE);
-        if (tomcatBase != null) {
-            try (var in = new FileInputStream(tomcatBase + PERC_SECURITY_PROPS_ROOT)) {
-                props.load(in);
-            } catch (IOException e) {
-                log.error(PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-        }
 
-        var val = props.getProperty(CONTENT_SECURITY_POLICY_NAME);
-        if (val != null && !val.trim().isEmpty()) {
-            contentSecurityPolicyValue = val;
-        }
+            Properties props = new Properties();
+            //Find in local Webapp,
+            String tomcatBase = System.getProperty(CATALINA_BASE);
+            if (tomcatBase != null) {
+                try (
+                        InputStream in = new FileInputStream(
+                                tomcatBase + PERC_SECURITY_PROPS_ROOT)) {
+                    props.load(in);
+                } catch (IOException e) {
+                    log.error(PSExceptionUtils.getMessageForLog(e));
+                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                }
+            }
+
+            String val = props.getProperty(CONTENT_SECURITY_POLICY_NAME);
+            if (val != null && val.trim() != "") {
+                CONTENT_SECURITY_POLICY_VALUE = val;
+            }
+
     }
 
     private Properties readPropertiesFile(String fileName) throws IOException {
-        var prop = new Properties();
-        try (var fis = new FileInputStream(fileName)) {
+        Properties prop = null;
+        try(FileInputStream fis = new FileInputStream(fileName) ) {
+            prop = new Properties();
             prop.load(fis);
-        } catch (IOException e) {
+        } catch(IOException e) {
             log.error(PSExceptionUtils.getMessageForLog(e));
             log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
+
         return prop;
     }
+
 }

@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,38 +17,18 @@
 
 package com.percussion.delivery.metadata.data;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a REST entry for a page visit.
- */
 @XmlRootElement(name = "visit")
 public class PSVisitRestEntry {
+	private String pagePath;
 
-    private String pagePath;
+	public String getPagePath() {
+		return pagePath;
+	}
 
-    public PSVisitRestEntry() {}
-
-    public PSVisitRestEntry(String pagePath) {
-        this.pagePath = pagePath;
-    }
-
-    /**
-     * Returns the page path for this visit.
-     *
-     * @return the page path, may be null.
-     */
-    public Optional<String> getPagePath() {
-        return Optional.ofNullable(pagePath);
-    }
-
-    /**
-     * Sets the page path for this visit.
-     *
-     * @param pagePath the page path to set.
-     */
-    public void setPagePath(String pagePath) {
-        this.pagePath = pagePath;
-    }
+	public void setPagePath(String pagePath) {
+		this.pagePath = pagePath;
+	}
+	
 }

@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,54 +16,44 @@
  */
 package com.percussion.membership.data;
 
-import org.apache.commons.lang3.StringUtils;
-import java.util.Optional;
+import org.apache.commons.lang.Validate;
 
-/**
- * Data object for user group information.
- * Sunny Sal: "User groups - the cast and crew of your CMS blockbuster!"
- */
-public class PSUserGroup {
 
+public class PSUserGroup
+{
     private String email;
     private String groups;
-
-    /**
-     * Sets the user's email.
-     *
-     * @param email the email, must not be empty or null.
-     */
-    public void setEmail(String email) {
-        if (StringUtils.isBlank(email)) {
-            throw new IllegalArgumentException("Email must not be empty or null");
-        }
+    
+    public void setEmail(String email)
+    {
+        Validate.notEmpty(email);
         this.email = email;
     }
-
+    
     /**
-     * Gets the user's email.
-     *
-     * @return Optional containing the email, empty if not set.
+     * Get the user's email.
+     * 
+     * @return The email, not <code>null</code> or empty.
      */
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email).filter(StringUtils::isNotBlank);
+    public String getEmail()
+    {
+        return email;
     }
-
+    
     /**
-     * Sets the groups for the user.
-     *
-     * @param groups the groups to set, may be empty or null.
+     * @param groups the groups to set, may be empty or <code>null</code>.
      */
-    public void setGroups(String groups) {
+    public void setGroups(String groups)
+    {
         this.groups = groups;
     }
 
     /**
-     * Gets the groups for the user.
-     *
-     * @return Optional containing the groups, empty if not set.
+     * @return the groups, may be empty or <code>null</code>.
      */
-    public Optional<String> getGroups() {
-        return Optional.ofNullable(groups).filter(StringUtils::isNotBlank);
+    public String getGroups()
+    {
+        return groups;
     }
+
 }

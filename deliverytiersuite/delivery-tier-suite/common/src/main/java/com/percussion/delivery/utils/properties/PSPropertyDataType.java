@@ -14,72 +14,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.properties;
+
 
 import java.util.Date;
 import java.util.List;
 
-/**
+/***
  * Defines the data types that a property can represent.
- *
+ * 
  * @author natechadwick
  * @author adamgent
  */
 public enum PSPropertyDataType {
+   
+   STRING("string", String.class),
+   ENUM("enum", String.class),
+   NUMBER("number", Number.class),
+   BOOL("bool", Boolean.class),
+   HIDDEN("hidden", Object.class),
+   DATE("date", Date.class),
+   LIST("list", List.class),
+   PASSWORD("password", String.class);
+   
+   private String name;
+   private Class<?> javaType;
 
-  STRING("string", String.class),
-  ENUM("enum", String.class),
-  NUMBER("number", Number.class),
-  BOOL("bool", Boolean.class),
-  HIDDEN("hidden", Object.class),
-  DATE("date", Date.class),
-  LIST("list", List.class),
-  PASSWORD("password", String.class);
+   private PSPropertyDataType(String name, Class<?> javaType)
+   {
+       this.name = name;
+       this.javaType = javaType;
+   }
 
-  private final String name;
-  private final Class<?> javaType;
+   /**
+    * Gets the nominal value of the data type.
+    * @return never <code>null</code> or empty.
+    */
+   public String getName()
+   {
+       return name;
+   }
 
-  PSPropertyDataType(String name, Class<?> javaType) {
-    this.name = name;
-    this.javaType = javaType;
-  }
-
-  /**
-   * Gets the nominal value of the data type.
-   * @return never null or empty.
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * The java type that the widget property should be.
-   * @return never null.
-   */
-  public Class<?> getJavaType() {
-    return javaType;
-  }
-
-  /**
-   * Gets the data type from widget property definition.
-   * @param prop never null.
-   * @return never null.
-   */
-  public static PSPropertyDataType fromDefinition(PSPropertyDefinition prop) {
-    return parseType(prop.getDatatype());
-  }
-
-  /**
-   * Parse the {@link #getName()} property definition type.
-   * @param name property type name
-   * @return never null.
-   */
-  public static PSPropertyDataType parseType(String name) {
-    if (name == null) {
-      throw new IllegalArgumentException("Property type name cannot be null");
-    }
-    var n = name.trim().toUpperCase();
-    return valueOf(n);
-  }
+   /**
+    * The java type that the widget property should be.
+    * @return never <code>null</code>.
+    */
+   public Class<?> getJavaType()
+   {
+       return javaType;
+   }
+   
+   /**
+    * Gets the data type from widget property definition.
+    * @param userPref never <code>null</code>.
+    * @return never <code>null</code>.
+    */
+   public static PSPropertyDataType fromDefinition(PSPropertyDefinition prop) {
+       return parseType(prop.getDatatype());
+   }
+   
+   /**
+    * Parse the {@link #getName()} property definition type.
+    * @param name
+    * @return never <code>null</code>.
+    */
+   public static PSPropertyDataType parseType(String name) {
+       String n = name.toUpperCase();
+       return valueOf(n);
+   }
+   
 }
+

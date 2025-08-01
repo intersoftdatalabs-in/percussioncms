@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,69 +24,58 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for GetChangedBookings.
- * <p>
- * Represents the response payload for the GetChangedBookings endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Immutability is like a good cup of chai—keeps things fresh and safe!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetChangedBookingsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getChangedBookingsResult"
 })
 @XmlRootElement(name = "GetChangedBookingsResponse")
-public final class GetChangedBookingsResponse {
+public class GetChangedBookingsResponse {
 
     @XmlElement(name = "GetChangedBookingsResult")
-    private final String getChangedBookingsResult;
-
-    private GetChangedBookingsResponse(Builder builder) {
-        this.getChangedBookingsResult = builder.getChangedBookingsResult;
-    }
+    protected String getChangedBookingsResult;
 
     /**
      * Gets the value of the getChangedBookingsResult property.
-     *
-     * @return the changed bookings result, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetChangedBookingsResult() {
         return getChangedBookingsResult;
     }
 
     /**
-     * Builder for GetChangedBookingsResponse.
-     * <p>
-     * Example usage:
-     * <pre>
-     * var response = new GetChangedBookingsResponse.Builder()
-     *     .withChangedBookingsResult("result")
-     *     .build();
-     * </pre>
+     * Sets the value of the getChangedBookingsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String getChangedBookingsResult;
-
-        /**
-         * Sets the changed bookings result value.
-         *
-         * @param getChangedBookingsResult the result string
-         * @return this builder instance
-         */
-        public Builder withChangedBookingsResult(String getChangedBookingsResult) {
-            this.getChangedBookingsResult = getChangedBookingsResult;
-            return this;
-        }
-
-        /**
-         * Builds a new immutable GetChangedBookingsResponse instance.
-         *
-         * @return a new GetChangedBookingsResponse
-         */
-        public GetChangedBookingsResponse build() {
-            return new GetChangedBookingsResponse(this);
-        }
+    public void setGetChangedBookingsResult(String value) {
+        this.getChangedBookingsResult = value;
     }
+
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,52 +16,66 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package service.web.api.ems.dea;
 
-import java.util.Objects;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 modernized: AddWebUserResponse for EMS SOAP API.
- * <p>
- * Represents the response for AddWebUser SOAP operation.
- * </p>
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="AddWebUserResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "addWebUserResult"
 })
 @XmlRootElement(name = "AddWebUserResponse")
-public final class AddWebUserResponse {
-    @XmlElement(name = "AddWebUserResult")
-    private String addWebUserResult;
+public class AddWebUserResponse {
 
-    public java.util.Optional<String> getAddWebUserResult() {
-        return java.util.Optional.ofNullable(addWebUserResult);
+    @XmlElement(name = "AddWebUserResult")
+    protected String addWebUserResult;
+
+    /**
+     * Gets the value of the addWebUserResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAddWebUserResult() {
+        return addWebUserResult;
     }
+
+    /**
+     * Sets the value of the addWebUserResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setAddWebUserResult(String value) {
         this.addWebUserResult = value;
     }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddWebUserResponse that = (AddWebUserResponse) o;
-        return Objects.equals(addWebUserResult, that.addWebUserResult);
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(addWebUserResult);
-    }
-    @Override
-    public String toString() {
-        return "AddWebUserResponse{" +
-                "addWebUserResult='" + addWebUserResult + '\'' +
-                '}';
-    }
+
 }

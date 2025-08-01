@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -42,138 +41,157 @@ import java.util.regex.Pattern;
 
 /**
  * Encrypts properties in a properties file that are specified to be encrypted.
- * Sunny Sal says: "Encrypt karo, secure raho!"
- *
  * @author erikserating
+ *
  */
-public class PSSecureProperty {
+public class PSSecureProperty
+{
+   
+   private static final Logger log = LogManager.getLogger(PSSecureProperty.class);
+   
+   private PSSecureProperty(){}
+   
+   /**
+    * Encrypts all specified properties if they have not already been encrypted. The file is re-written
+    * with the encrypted values. To determine if a property is encrypted we check for the following format
+    * in the value ENC(thehashgoeshere).
+    * @param filepath the path to the properties file to be modified. Cannot be <code>null</code>.
+    * @param propnames list of properties names of properties whose values should be encrypted. Cannot be
+    * <code>null</code>, may be empty.
+    * @param k an optional key to use to encrypt the value, the default key will be used if this is
+    * <code>null</code>.
+    * @param  encryptionType Optional.  They type of encryption to use.
+    */
+   @ToDoVulnerability
+   public static void secureProperties(File filepath, Collection<String> propnames, String k, String encryptionType)
+   {
+       if(propnames == null)
+           throw new IllegalArgumentException(ERROR_PROPS);
+       if(propnames.isEmpty())
+       {
+           log.info("No property names specified, nothing to do.");
+           return;
+       }
+       if (validateFilePath(filepath)) {
 
-    private static final Logger log = LogManager.getLogger(PSSecureProperty.class);
+           Properties props = new Properties();
+           boolean modified = false;
+           String ky = k == null ? PSLegacyEncrypter.SECURE_PROPERTY_DEFAULT_KEY : k;
 
-    private PSSecureProperty() {}
 
-    /**
-     * Encrypts all specified properties if they have not already been encrypted.
-     * The file is re-written with the encrypted values.
-     * To determine if a property is encrypted, checks for ENC(thehashgoeshere).
-     *
-     * @param filepath the path to the properties file to be modified. Cannot be {@code null}.
-     * @param propnames list of property names whose values should be encrypted. Cannot be {@code null}, may be empty.
-     * @param k an optional key to use to encrypt the value, the default key will be used if this is {@code null}.
-     * @param encryptionType Optional. The type of encryption to use.
-     */
-    @ToDoVulnerability
-    public static void secureProperties(File filepath, Collection<String> propnames, String k, String encryptionType) {
-        if (propnames == null) throw new IllegalArgumentException(ERROR_PROPS);
-        if (propnames.isEmpty()) {
-            log.info("No property names specified, nothing to do.");
-            return;
-        }
-        if (!validateFilePath(filepath)) return;
+           log.debug("loading properties from file: {}" , filepath.getAbsolutePath());
+           try (FileInputStream is = new FileInputStream(filepath)) {
+               props.load(is);
+           } catch (IOException e) {
+               log.error("{}" ,PSExceptionUtils.getMessageForLog(e));
+               log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+           }
+           for (String regex : propnames) {
+               String[] expandedKeys = expandMatchingKeys(regex, props);
+               for (String key : expandedKeys) {
+                   boolean enc = isValueClouded((String) props.get(key));
+                   if (!enc) {
+                       String pwd = (String) props.get(key);
+                       String encVal = StringUtils.EMPTY;
+                       if(pwd != null){
+                           try {
+                               encVal = PSEncryptor.encryptProperty(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),filepath.getAbsolutePath(),key,pwd);
+                               encVal = getClouded(encVal);
+                               props.put(key,encVal);
+                               modified = true;
+                           } catch (PSEncryptionException e) {
+                               log.error("ERROR: {}" ,PSExceptionUtils.getMessageForLog(e));
+                               log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                           }
+                       }
 
-        var props = new Properties();
-        var modified = false;
-        var ky = k == null ? PSLegacyEncrypter.SECURE_PROPERTY_DEFAULT_KEY : k;
+                   }
+               }
+           }
+           if (modified) {
+               try (FileOutputStream os = new FileOutputStream(filepath)) {
+                   props.store(os, "");
+               } catch (IOException e) {
+                   log.error("ERROR: {}" ,PSExceptionUtils.getMessageForLog(e));
+                   log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+               }
+           }
+       }
+   }
 
-        log.debug("Loading properties from file: {}", filepath.getAbsolutePath());
-        try (var is = new FileInputStream(filepath)) {
-            props.load(is);
-        } catch (IOException e) {
-            log.error("{}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
+   private static boolean validateFilePath(File filepath){
 
-        for (var regex : propnames) {
-            var expandedKeys = expandMatchingKeys(regex, props);
-            for (var key : expandedKeys) {
-                var value = (String) props.get(key);
-                if (!isValueClouded(value) && value != null) {
-                    try {
-                        var encVal = PSEncryptor.encryptProperty(
-                                PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
-                                filepath.getAbsolutePath(), key, value);
-                        encVal = getClouded(encVal);
-                        props.put(key, encVal);
-                        modified = true;
-                    } catch (PSEncryptionException e) {
-                        log.error("ERROR: {}", PSExceptionUtils.getMessageForLog(e));
-                        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+       if (filepath == null)
+           throw new IllegalArgumentException(ERROR_FILEPATH);
+
+       if (!filepath.exists() || !filepath.isFile()) {
+           log.warn("File does not exist: {}" , filepath.getAbsolutePath());
+           return false;
+       }
+       return true;
+
+     }
+
+    public static void unsecureProperties(File filepath)
+    {
+
+        if(validateFilePath(filepath)) {
+
+            Properties props = new Properties();
+            boolean modified = false;
+                log.debug("loading properties from file: {}" , filepath.getAbsolutePath());
+                try(FileInputStream is = new FileInputStream(filepath)) {
+                    props.load(is);
+                } catch (IOException e) {
+                    log.error("ERROR : {}",PSExceptionUtils.getMessageForLog(e));
+                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+                }
+
+            for (Map.Entry entry : props.entrySet()) {
+                    String value = (String)entry.getValue();
+                    if(isValueClouded(value)){
+                         props.put(entry.getKey(), getValue(value,null));
+                         modified=true;
+
                     }
+            }
+
+            if (modified) {
+                try(FileOutputStream os = new FileOutputStream(filepath)) {
+                    props.store(os, "");
+                } catch (IOException e) {
+                    log.error("ERROR: {}" ,PSExceptionUtils.getMessageForLog(e));
+                    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
                 }
             }
         }
-        if (modified) {
-            try (var os = new FileOutputStream(filepath)) {
-                props.store(os, "");
-            } catch (IOException e) {
-                log.error("ERROR: {}", PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-        }
     }
-
-    private static boolean validateFilePath(File filepath) {
-        if (filepath == null) throw new IllegalArgumentException(ERROR_FILEPATH);
-        if (!filepath.exists() || !filepath.isFile()) {
-            log.warn("File does not exist: {}", filepath.getAbsolutePath());
-            return false;
-        }
-        return true;
-    }
-
-    public static void unsecureProperties(File filepath) {
-        if (!validateFilePath(filepath)) return;
-
-        var props = new Properties();
-        var modified = false;
-        log.debug("Loading properties from file: {}", filepath.getAbsolutePath());
-        try (var is = new FileInputStream(filepath)) {
-            props.load(is);
-        } catch (IOException e) {
-            log.error("ERROR : {}", PSExceptionUtils.getMessageForLog(e));
-            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        }
-
-        for (var entry : props.entrySet()) {
-            var value = (String) entry.getValue();
-            if (isValueClouded(value)) {
-                props.put(entry.getKey(), getValue(value, null));
-                modified = true;
-            }
-        }
-
-        if (modified) {
-            try (var os = new FileOutputStream(filepath)) {
-                props.store(os, "");
-            } catch (IOException e) {
-                log.error("ERROR: {}", PSExceptionUtils.getMessageForLog(e));
-                log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-            }
-        }
-    }
-
-    /**
-     * Determine if a value is encrypted.
-     *
-     * @param s may be {@code null} or empty.
-     * @return {@code true} if encrypted.
-     */
-    public static boolean isValueClouded(String s) {
-        if (StringUtils.isEmpty(s)) return false;
-        return ((s.startsWith(ENC_PREFIX) || s.startsWith(ENC_AES_PREFIX)) && s.endsWith(ENC_POSTFIX));
-    }
+   /**
+    * Determine if a value is encrypted.
+    * @param s may be <code>null</code> or empty.
+    * @return <code>true</code> if encrypted.
+    */
+   public static boolean isValueClouded(String s)
+   {
+      if(s == null || s.length() == 0)
+         return false;
+      return ((s.startsWith(ENC_PREFIX) || s.startsWith(ENC_AES_PREFIX)) && s.endsWith(ENC_POSTFIX));
+   }
 
     /**
      * Retrieves the decrypted value of the passed in string.
      *
-     * @param s encrypted string value. Cannot be {@code null}.
-     * @param k an optional key to use to encrypt the value, the default key will be used if this is {@code null}.
-     * @return the decrypted string, never {@code null}, may be empty.
+     * @param s encrypted string value. Cannot be <code>null</code>.
+     * @param k an optional key to use to encrypt the value, the default key will be used if this is
+     *          <code>null</code>.
+     * @return the decrypted string, never <code>null</code>, may be empty.
      */
     public static String getValue(String s, String k) {
-        if (s == null) throw new IllegalArgumentException();
-        var encryptedValue = "";
-        var decryptedValue = StringUtils.EMPTY;
+        if (s == null)
+            throw new IllegalArgumentException();
+
+        String encryptedValue = "";
+        String decryptedValue = StringUtils.EMPTY;
 
         if (s.startsWith(ENC_PREFIX) && s.endsWith(ENC_POSTFIX)) {
             encryptedValue = s.substring(ENC_PREFIX.length(), s.length() - 1);
@@ -182,20 +200,20 @@ public class PSSecureProperty {
         }
 
         try {
-            decryptedValue = PSEncryptor.decryptString(
-                    PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),
-                    encryptedValue);
+            //Attempt using the updated encryptor
+            decryptedValue = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),encryptedValue);
         } catch (PSEncryptionException e) {
             log.debug("Decrypting using legacy algorithm");
-            var ky = k == null ? PSLegacyEncrypter.SECURE_PROPERTY_DEFAULT_KEY : k;
+            String ky = k == null ? PSLegacyEncrypter.SECURE_PROPERTY_DEFAULT_KEY : k;
+
             try {
-                var textEncryptor = new BasicTextEncryptor();
+                BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
                 textEncryptor.setPassword(ky);
                 decryptedValue = textEncryptor.decrypt(encryptedValue);
             } catch (EncryptionOperationNotPossibleException | EncryptionInitializationException e1) {
                 log.debug("Decrypting using legacy AES algorithm");
                 try {
-                    var pbe = getStrongEncryptor(ky);
+                    StandardPBEStringEncryptor pbe = getStrongEncryptor(ky);
                     decryptedValue = pbe.decrypt(encryptedValue);
                 } catch (EncryptionOperationNotPossibleException | EncryptionInitializationException e2) {
                     log.error("Unable to decrypt property:{}", e2.getMessage());
@@ -208,56 +226,94 @@ public class PSSecureProperty {
     /**
      * Retrieves the encrypted value of the passed in string.
      *
-     * @param s A clear text string to encrypt.
-     * @return A clouded & encrypted string.
+     * @param s A clear text string to encrypted.
+     * @return A clouded & encrypted string
      */
     public static String getClouded(String s) {
-        if (s == null) throw new IllegalArgumentException();
-        return ENC_PREFIX + s + ENC_POSTFIX;
+        if (s == null)
+            throw new IllegalArgumentException();
+           return ENC_PREFIX + s+ ENC_POSTFIX;
     }
 
     /**
      * Helper to expand all matching keys for a regular expression.
      *
-     * @param regex assumed not {@code null} or empty.
-     * @param props assumed not {@code null}.
-     * @return An array of matching keys.
+     * @param regex assumed not <code>null</code> or empty.
+     * @param props assumed not <code>null</code>.
+     * @return An array of matching keys
      */
     private static String[] expandMatchingKeys(String regex, Properties props) {
-        var results = new ArrayList<String>();
-        var pattern = Pattern.compile(regex);
-        for (var key : props.keySet()) {
-            var current = (String) key;
-            var matcher = pattern.matcher(current);
-            if (matcher.matches()) {
-                results.add(current);
-            }
-        }
-        return results.toArray(new String[0]);
-    }
+       List<String> results = new ArrayList<>();
+       Pattern pattern = Pattern.compile(regex);
+       Matcher matcher;
+       for(Object key : props.keySet())
+       {
+           String current = (String)key;
+           matcher = pattern.matcher(current);
+           if(matcher.matches())
+           {
+               results.add(current);
+           }
+           
+       }
 
-    /**
-     * Helper to create a standard PBE encryptor.
-     *
-     * @param password the password to set, assumed not {@code null} or empty.
-     * @return A StandardPBEStringEncryptor, never {@code null} or empty.
-     */
-    private static StandardPBEStringEncryptor getStrongEncryptor(String password) {
-        var encryptor = new StandardPBEStringEncryptor();
-        encryptor.setProvider(new BouncyCastleProvider());
-        encryptor.setAlgorithm(ENC_AES_ALGORITHM);
-        encryptor.setPassword(password);
-        return encryptor;
-    }
+       return results.toArray(new String[]{});
+   }
+   
+   /**
+    * Helper to create a standard PBE encryptor.
+    * 
+    * @param password the password to set, assumed not <code>null</code> or empty.
+    * 
+    * @return A StandardPBEStringEncryptor, never <code>null</code> or empty.
+    */
+   private static StandardPBEStringEncryptor getStrongEncryptor(String password)
+   {
+       StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
+       encryptor.setProvider(new BouncyCastleProvider());
+       encryptor.setAlgorithm(ENC_AES_ALGORITHM);
+       encryptor.setPassword(password);
+       
+       return encryptor;
+   }
+   
 
-    private static final String ERROR_FILEPATH = "The filepath cannot be null!";
-    private static final String ERROR_PROPS = "Propnames cannot be null!";
-    private static final String ENC_PREFIX = "ENC(";
-    private static final String ENC_AES_PREFIX = "ENC2(";
-    private static final String ENC_POSTFIX = ")";
-    private static final String DEFAULT_ENCRYPTION = "ENC";
-    private static final String AES_ENCRYPTION = "ENC2";
-    @Deprecated
-    @ToDoVulnerability
-    private static final String ENC_AES_ALGORITHM = "PBEWITHSHA256AND128BITAES-CBC-BC";
+
+   private static final String ERROR_FILEPATH =
+      "The filepath cannot be null!!!!!";
+   
+   private static final String ERROR_PROPS = 
+      "Propnames cannot be null!!!!!";
+   
+   /**
+    * Constant for the encryption prefix string.
+    */
+   private static final String ENC_PREFIX = "ENC(";
+   
+   /**
+    * Constant for the strong encryption prefix string.
+    */
+   private static final String ENC_AES_PREFIX = "ENC2(";
+   
+   /**
+    * Constant for the encryption postfix string.
+    */
+   private static final String ENC_POSTFIX = ")";
+   
+   /**
+    * Constant for the default encryption algorithm. 
+    */
+   private static final String DEFAULT_ENCRYPTION = "ENC";
+   
+   /**
+    * Constant for the strong encryption using AES.
+    */
+   private static final String AES_ENCRYPTION = "ENC2";
+   
+   /**
+    * Constant for the encryption algorithm.
+    */
+   @Deprecated
+   @ToDoVulnerability
+   private static final String ENC_AES_ALGORITHM = "PBEWITHSHA256AND128BITAES-CBC-BC";
 }

@@ -17,42 +17,39 @@
 
 package com.percussion.delivery.comments.data;
 
-/**
- * Holds summary information for a page's comments.
- */
 public class PSPageInfo {
-    private final String pagePath;
-    private final String approvalState;
-    private final long commentCount;
-    private final boolean viewed;
+   
+	private String pagePath;
+	private String approvalState;
+	private long commentCount;
+	private boolean viewed;
+	
+	
+	public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed)
+	{
+		this.pagePath = pagePath;
+		this.approvalState = approvalState;
+		this.commentCount = commentCount;
+		this.viewed = viewed;
+	}
+	
+	public String getPagePath()
+	{
+		return pagePath;
+	}
+	public String getApprovalState()
+	{
+		return approvalState;
+	}
+	public long getCommentCount()
+	{
+		return commentCount;
+	}
 
-    /**
-     * Constructs a PSPageInfo.
-     * @param pagePath the page path
-     * @param approvalState the approval state
-     * @param commentCount the comment count
-     * @param viewed whether the page has been viewed
-     */
-    public PSPageInfo(String pagePath, String approvalState, long commentCount, boolean viewed) {
-        this.pagePath = pagePath;
-        this.approvalState = approvalState;
-        this.commentCount = commentCount;
-        this.viewed = viewed;
-    }
-
-    public String getPagePath() {
-        return pagePath;
-    }
-
-    public String getApprovalState() {
-        return approvalState;
-    }
-
-    public long getCommentCount() {
-        return commentCount;
-    }
-
-    public boolean isViewed() {
-        return viewed;
-    }
+	public boolean isViewed() {
+		return viewed;
+	}
+	
+	
+	
 }

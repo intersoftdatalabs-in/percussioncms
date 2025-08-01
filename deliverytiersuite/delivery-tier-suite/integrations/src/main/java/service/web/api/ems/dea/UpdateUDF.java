@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,121 +18,140 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: UpdateUDF SOAP request model.
- * <p>
- * Represents the request payload for the UpdateUDF endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Updating UDFs—because every function deserves a fresh start!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="UDFID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="UDFValue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "",
-    propOrder = {
-        "userName",
-        "password",
-        "udfId",
-        "newValue"
-    }
-)
+@XmlType(name = "", propOrder = {
+    "userName",
+    "password",
+    "udfid",
+    "udfValue"
+})
 @XmlRootElement(name = "UpdateUDF")
 public class UpdateUDF {
 
     @XmlElement(name = "UserName")
-    private String userName;
-
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
+    @XmlElement(name = "UDFID")
+    protected int udfid;
+    @XmlElement(name = "UDFValue")
+    protected String udfValue;
 
-    @XmlElement(name = "UDFId")
-    private int udfId;
-
-    @XmlElement(name = "NewValue")
-    private String newValue;
-
-    private UpdateUDF(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.udfId = builder.udfId;
-        this.newValue = builder.newValue;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     *
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     *
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Gets the UDF ID.
-     *
-     * @return UDF ID
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public int getUdfId() {
-        return udfId;
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * Gets the new value.
-     *
-     * @return Optional new value
+     * Gets the value of the udfid property.
+     * 
      */
-    public Optional<String> getNewValue() {
-        return Optional.ofNullable(newValue);
+    public int getUDFID() {
+        return udfid;
     }
 
     /**
-     * Builder for UpdateUDF.
+     * Sets the value of the udfid property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int udfId;
-        private String newValue;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withUdfId(int udfId) {
-            this.udfId = udfId;
-            return this;
-        }
-
-        public Builder withNewValue(String newValue) {
-            this.newValue = newValue;
-            return this;
-        }
-
-        public UpdateUDF build() {
-            return new UpdateUDF(this);
-        }
+    public void setUDFID(int value) {
+        this.udfid = value;
     }
+
+    /**
+     * Gets the value of the udfValue property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUDFValue() {
+        return udfValue;
+    }
+
+    /**
+     * Sets the value of the udfValue property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUDFValue(String value) {
+        this.udfValue = value;
+    }
+
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,9 +24,25 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Response for GetRoomsAvailable3 request.
- * Sunny Sal: "Room availability delivered, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetRoomsAvailable3Result" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -38,18 +55,27 @@ public class GetRoomsAvailable3Response {
     protected String getRoomsAvailable3Result;
 
     /**
-     * Gets the result string.
-     * @return result or null
+     * Gets the value of the getRoomsAvailable3Result property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetRoomsAvailable3Result() {
         return getRoomsAvailable3Result;
     }
 
     /**
-     * Sets the result string.
-     * @param value result
+     * Sets the value of the getRoomsAvailable3Result property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetRoomsAvailable3Result(String value) {
-        getRoomsAvailable3Result = value;
+        this.getRoomsAvailable3Result = value;
     }
+
 }

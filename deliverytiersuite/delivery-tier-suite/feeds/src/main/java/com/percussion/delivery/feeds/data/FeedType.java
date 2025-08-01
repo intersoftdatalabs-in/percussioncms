@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -19,66 +18,13 @@
 package com.percussion.delivery.feeds.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.ws.rs.core.MediaType;
-import java.util.Optional;
-import java.util.stream.Stream;
 
-/**
- * Enumeration of supported feed types with their corresponding media types.
- * Immutable and type-safe.
- */
 public enum FeedType {
     @JsonProperty("ATOM")
-    ATOM(MediaType.APPLICATION_ATOM_XML),
-
+    ATOM,
     @JsonProperty("RSS1")
-    RSS1("application/rss+xml"),
-
+    RSS1,
     @JsonProperty("RSS2")
-    RSS2("application/rss+xml");
+    RSS2
 
-    private final String mediaType;
-
-    FeedType(String mediaType) {
-        this.mediaType = mediaType;
-    }
-
-    /**
-     * Returns the media type for this feed type.
-     *
-     * @return the media type string
-     */
-    public String getMediaType() {
-        return mediaType;
-    }
-
-    /**
-     * Finds a FeedType by its name, case-insensitive.
-     *
-     * @param name the name to look up
-     * @return Optional containing the FeedType if found, empty otherwise
-     */
-    public static Optional<FeedType> fromName(String name) {
-        if (name == null) {
-            return Optional.empty();
-        }
-        return Stream.of(values())
-            .filter(type -> type.name().equalsIgnoreCase(name))
-            .findFirst();
-    }
-
-    /**
-     * Checks if the given media type is supported by any feed type.
-     *
-     * @param mediaType the media type to check
-     * @return true if supported, false otherwise
-     */
-    public static boolean isSupported(String mediaType) {
-        if (mediaType == null) {
-            return false;
-        }
-        return Stream.of(values())
-            .map(FeedType::getMediaType)
-            .anyMatch(mt -> mt.equals(mediaType));
-    }
 }

@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,29 +16,34 @@
  */
 package com.percussion.delivery.metadata.data;
 
-import java.util.Optional;
-
 /**
- * Represents a tag and the count of pages tagged with it.
+ * Represents an object with a tag name and the count of
+ * pages that are tagged with it.
+ *
  */
-public class PSMetadataRestTag {
-
+public class PSMetadataRestTag
+{
     private String tagName;
+
     private Integer tagCount;
 
-    public Optional<String> getTagName() {
-        return Optional.ofNullable(tagName);
+    public String getTagName()
+    {
+        return tagName;
     }
 
-    public void setTagName(String tagName) {
+    public void setTagName(String tagName)
+    {
         this.tagName = tagName;
     }
 
-    public Optional<Integer> getTagCount() {
-        return Optional.ofNullable(tagCount);
+    public Integer getTagCount()
+    {
+        return tagCount;
     }
 
-    public void setTagCount(Integer tagCount) {
+    public void setTagCount(Integer tagCount)
+    {
         this.tagCount = tagCount;
     }
 }

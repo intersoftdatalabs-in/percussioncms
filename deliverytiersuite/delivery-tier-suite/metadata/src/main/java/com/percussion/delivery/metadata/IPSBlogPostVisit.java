@@ -20,44 +20,17 @@ package com.percussion.delivery.metadata;
 import java.math.BigInteger;
 import java.util.Date;
 
-/**
- * Represents a blog post visit entry.
- */
-public interface IPSBlogPostVisit {
+public interface IPSBlogPostVisit
+{
+    public BigInteger getHitCount();
 
-    /**
-     * Gets the hit count for this blog post.
-     * @return the hit count.
-     */
-    BigInteger getHitCount();
+    public void setHitCount(BigInteger count);
 
-    /**
-     * Sets the hit count for this blog post.
-     * @param count the hit count.
-     */
-    void setHitCount(BigInteger count);
+    public Date getHitDate();
 
-    /**
-     * Gets the date of the hit.
-     * @return the hit date.
-     */
-    Date getHitDate();
+    public void setHitDate(Date date);
 
-    /**
-     * Sets the date of the hit.
-     * @param date the hit date.
-     */
-    void setHitDate(Date date);
+    public String getPagepath();
 
-    /**
-     * Gets the page path for this visit.
-     * @return the page path.
-     */
-    String getPagepath();
-
-    /**
-     * Sets the page path for this visit.
-     * @param path the page path.
-     */
-    void setPagepath(String path);
+    public void setPagepath(String path);
 }

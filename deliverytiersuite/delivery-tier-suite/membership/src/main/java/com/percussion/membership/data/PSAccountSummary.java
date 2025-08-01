@@ -16,61 +16,59 @@
  */
 package com.percussion.membership.data;
 
-import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.Validate;
 
 /**
- * Object to change the state of an account.
- * Sunny Sal: "Account summaries - short, sweet, and always to the point!"
+ * Object to change the state about of an account.
+ * 
+ * @author rafaelsalis
  */
-public class PSAccountSummary {
-
+public class PSAccountSummary
+{
     private String email;
     private String action;
-
-    public PSAccountSummary() {
-        // Default constructor
+    
+    public PSAccountSummary()
+    {
+        
     }
 
     /**
-     * Gets the email of the account.
-     *
-     * @return Optional containing the email, empty if not set.
+     * 
+     * @return the email of the account, never empty or <code>null</code>.
      */
-    public Optional<String> getEmail() {
-        return Optional.ofNullable(email).filter(StringUtils::isNotBlank);
+    public String getEmail()
+    {
+        return email;
     }
 
     /**
-     * Sets the email of the account.
-     *
-     * @param email the email of the account, never empty or null.
+     * 
+     * @param email the email of the account, never empty or <code>null</code>.
      */
-    public void setEmail(String email) {
-        if (StringUtils.isBlank(email)) {
-            throw new IllegalArgumentException("Email must not be empty or null");
-        }
+    public void setEmail(String email)
+    {
+        Validate.notEmpty(email);
         this.email = email;
     }
-
+    
     /**
-     * Gets the action of the account.
-     *
-     * @return Optional containing the action, empty if not set.
+     * 
+     * @return the action of the account, never empty or <code>null</code>.
      */
-    public Optional<String> getAction() {
-        return Optional.ofNullable(action).filter(StringUtils::isNotBlank);
+    public String getAction()
+    {
+        return action;
     }
-
+    
     /**
-     * Sets the action to perform over the account.
-     *
-     * @param action the action, never empty or null.
+     * 
+     * @param action set the action to perform over the account,
+     * never empty or <code>null</code>.
      */
-    public void setAction(String action) {
-        if (StringUtils.isBlank(action)) {
-            throw new IllegalArgumentException("Action must not be empty or null");
-        }
+    public void setAction(String action)
+    {
+        Validate.notEmpty(action);
         this.action = action;
     }
 }

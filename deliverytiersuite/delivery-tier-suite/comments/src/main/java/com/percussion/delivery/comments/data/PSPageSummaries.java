@@ -16,78 +16,35 @@
  */
 package com.percussion.delivery.comments.data;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Immutable container for page summaries, used for JSON/XML serialization.
+ * A simple container. Its use is just to add
+ * a root element name for Jersey to spit out when 
+ * serializing to JSON.
+ * @author erikserating
+ * 
  */
-@XmlRootElement(name = "pageSummaries")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {"summaries"})
-public final class PSPageSummaries {
-    @XmlElement(required = true)
-    private final List<PSPageSummary> summaries;
+public class PSPageSummaries
+{
+    protected List<PSPageSummary> summaries;
 
-    /**
-     * Creates a new instance with the given summaries.
-     * @param summaries the page summaries, must not be null
-     * @throws NullPointerException if summaries is null
-     */
-    public PSPageSummaries(List<PSPageSummary> summaries) {
-        this.summaries = List.copyOf(Objects.requireNonNull(summaries, "summaries must not be null"));
+    public PSPageSummaries(List<PSPageSummary> summaries)
+    {
+        this.summaries = summaries;
     }
-
-    /**
-     * Default constructor for JAXB.
-     */
-    protected PSPageSummaries() {
-        this.summaries = Collections.emptyList();
-    }
-
-    /**
-     * @return an unmodifiable view of the page summaries, never null
-     */
-    public List<PSPageSummary> getSummaries() {
+    
+    public List<PSPageSummary> getSummaries()
+    {
+        if (summaries == null)
+            summaries = new ArrayList<>();
         return summaries;
-    }
-
-    /**
-     * @return true if there are no summaries
-     */
-    public boolean isEmpty() {
-        return summaries.isEmpty();
-    }
-
-    /**
-     * @return the number of summaries
-     */
-    public int size() {
-        return summaries.size();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSPageSummaries)) return false;
-        PSPageSummaries that = (PSPageSummaries) o;
-        return summaries.equals(that.summaries);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(summaries);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("PSPageSummaries{size=%d}", summaries.size());
     }
 }

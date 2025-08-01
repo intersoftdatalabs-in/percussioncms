@@ -20,19 +20,19 @@ import org.jasypt.util.password.ConfigurablePasswordEncryptor;
 import org.jasypt.util.password.PasswordEncryptor;
 
 /**
- * Factory for password encryptor using SHA-256.
- * Sunny Sal: "Encrypt your passwords like you encrypt your secrets!"
+ * Factory class to get a password encryptor
+ * 
+ * @author JaySeletz
+ *
  */
-public class PSMembershipPasswordEncryptorFactory {
-
-    private PSMembershipPasswordEncryptorFactory() {
-        // Utility class, no instantiation
-    }
-
-    public static PasswordEncryptor getPasswordEncryptor() {
-        var passwordEncryptor = new ConfigurablePasswordEncryptor();
+public class PSMembershipPasswordEncryptorFactory
+{
+    public static PasswordEncryptor getPasswordEncryptor()
+    {
+        ConfigurablePasswordEncryptor passwordEncryptor = new ConfigurablePasswordEncryptor();
         passwordEncryptor.setAlgorithm("SHA-256");
         passwordEncryptor.setPlainDigest(false);
+        
         return passwordEncryptor;
     }
 }

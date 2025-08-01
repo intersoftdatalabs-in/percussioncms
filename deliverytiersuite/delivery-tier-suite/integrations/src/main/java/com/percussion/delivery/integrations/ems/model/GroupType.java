@@ -15,48 +15,100 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations.ems.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
- * Represents a group type entry for EMS integration.
- * <p>Refactored to use Java 11 features and Google Java Style.</p>
- *
- * @author natechadwick, refactored by Sunny Sal
+/*
+ * <GroupTypes>
+  <Data>
+    <Description>(none)</Description>
+    <ID>0</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Staff</Description>
+    <ID>60</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Campus Department</Description>
+    <ID>61</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Student Organization</Description>
+    <ID>62</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Off Campus</Description>
+    <ID>63</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>On Campus</Description>
+    <ID>64</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Student Union</Description>
+    <ID>65</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Greek Student Organization</Description>
+    <ID>66</ID>
+    <AvailableOnWeb>true</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Individual - Off Campus</Description>
+    <ID>67</ID>
+    <AvailableOnWeb>false</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Individual - CSUDH</Description>
+    <ID>68</ID>
+    <AvailableOnWeb>false</AvailableOnWeb>
+  </Data>
+  <Data>
+    <Description>Foundation</Description>
+    <ID>69</ID>
+    <AvailableOnWeb>false</AvailableOnWeb>
+  </Data>
+</GroupTypes>
+
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GroupType {
+	
+	private int id;
+	private String description;
+	private boolean availableOnWeb;
 
-    private int id;
-    private String description;
-    private boolean availableOnWeb;
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getDescription() {
+		return description;
+	}
+	
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public boolean isAvailableOnWeb() {
+		return availableOnWeb;
+	}
+	
+	public void setAvailableOnWeb(boolean availableOnWeb) {
+		this.availableOnWeb = availableOnWeb;
+	}
+	
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isAvailableOnWeb() {
-        return availableOnWeb;
-    }
-
-    public void setAvailableOnWeb(boolean availableOnWeb) {
-        this.availableOnWeb = availableOnWeb;
-    }
 }

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.integrations;
 
 import org.springframework.stereotype.Component;
@@ -26,39 +25,27 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
-import java.util.Arrays;
 
-/**
- * REST service for integrations endpoints (e.g., CSRF token support).
- * <p>
- * Modernized for Java 11 and Google Java Style.
- * </p>
- */
 @Path("/integrations")
 @Component
 public class IntegrationsRestService {
-    public IntegrationsRestService() {
-        // NOOP
+
+    public IntegrationsRestService(){
+        //NOOP
     }
 
-    /**
-     * Sets CSRF headers if XSRF-TOKEN cookie is present.
-     * @param request HTTP request
-     * @param response HTTP response
-     */
     @HEAD
     @Path("/csrf")
-    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response) {
-        var cookies = request.getCookies();
-        if (cookies == null) {
+    public void csrf(@Context HttpServletRequest request, @Context HttpServletResponse response)  {
+        Cookie[] cookies = request.getCookies();
+        if(cookies == null){
             return;
         }
-        Arrays.stream(cookies)
-                .filter(cookie -> "XSRF-TOKEN".equals(cookie.getName()))
-                .findFirst()
-                .ifPresent(cookie -> {
-                    response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
-                    response.setHeader("X-CSRF-TOKEN", cookie.getValue());
-                });
+        for(Cookie cookie: cookies){
+            if("XSRF-TOKEN".equals(cookie.getName())){
+                response.setHeader("X-CSRF-HEADER", "X-XSRF-TOKEN");
+                response.setHeader("X-CSRF-TOKEN", cookie.getValue());
+            }
+        }
     }
 }

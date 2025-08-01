@@ -1,5 +1,3 @@
-// REFACTORED: CP-JAVA11
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,56 +16,24 @@
  */
 package com.percussion.delivery.feeds.services;
 
-import java.util.Optional;
-
 /**
- * Contract for secure connection information with encrypted credentials support.
- * Implementations must ensure proper handling of sensitive data and OWASP compliance.
- * Sunny Sal: "Security first, passwords never in logs!"
+ * @author erikserating
+ *
  */
-public interface IPSConnectionInfo {
-    /**
-     * Gets the connection URL.
-     * @return Optional containing the URL, empty if not set
-     */
-    Optional<String> getUrl();
+public interface IPSConnectionInfo
+{
 
-    /**
-     * Gets the username for authentication.
-     * @return Optional containing the username, empty if not set
-     */
-    Optional<String> getUsername();
+    
+    public String getUrl();
 
-    /**
-     * Gets the encrypted password for authentication.
-     * Implementations must ensure this is never exposed in logs or toString().
-     * @return Optional containing the encrypted password, empty if not set
-     */
-    Optional<String> getPassword();
+   
+    public String getUsername();
 
-    /**
-     * Checks if the password is encrypted.
-     * @return true if password is encrypted, false otherwise
-     */
-    boolean isEncrypted();
+    
+    public String getPassword();
 
-    /**
-     * Gets the unique identifier for this connection.
-     * @return connection ID
-     */
-    long getId();
+    public String getEncrypted();
 
-    /**
-     * Creates a safe string representation without sensitive data.
-     * @return connection info without password
-     */
-    default String toSafeString() {
-        return String.format(
-            "ConnectionInfo{id=%d, url='%s', username='%s', encrypted=%b}",
-            getId(),
-            getUrl().orElse("<not set>"),
-            getUsername().orElse("<not set>"),
-            isEncrypted()
-        );
-    }
+    public long getId();
+
 }

@@ -1,5 +1,3 @@
-// REFACTORED: CP-JAVA11
-
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -35,34 +33,21 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-/**
- * Jersey application configuration for Percussion Comments REST API.
- * Registers all required providers and services.
- */
 @ApplicationPath("/")
 public class PSCommentsApplication extends ResourceConfig {
 
-    /**
-     * Initializes Jersey ResourceConfig with required providers and REST services.
-     */
     public PSCommentsApplication() {
-        // Register Jersey/Spring integration and REST endpoints
-        var providers = new Class<?>[] {
-            RequestContextFilter.class,
-            SpringComponentProvider.class,
-            AutowiredInjectResolver.class,
-            SpringLifecycleListener.class,
-            SpringWebApplicationInitializer.class,
-            PSLikesRestService.class,
-            PSCommentsRestService.class,
-            LoggingFeature.class,
-            RolesAllowedDynamicFeature.class,
-            PSJsonMappingErrorResponse.class,
-            PSUncaughtError.class,
-            JacksonJaxbJsonProvider.class
-        };
-        for (var provider : providers) {
-            register(provider);
-        }
+        register(RequestContextFilter.class);
+        register(SpringComponentProvider.class);
+        register(AutowiredInjectResolver.class);
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSLikesRestService.class);
+        register(PSCommentsRestService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
+        register(PSJsonMappingErrorResponse.class);
+        register(PSUncaughtError.class);
+        register(JacksonJaxbJsonProvider.class);
     }
 }

@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.spring;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.Test;
 
-/**
- * Sunny Sal says: "CSRF matcher ka test, security ka best!"
- */
+import static org.junit.Assert.assertTrue;
+
 public class PSCsrfSecurityRequestMatcherTest {
 
-    @Test
-    public void testExclusions() {
-        var ignorePaths = "/indexer/entry/";
-        assertTrue("/indexer/entry/test/2/test4.html".toLowerCase().contains(ignorePaths));
-    }
+
+@Test
+public void testExclusions(){
+
+    String ignorePaths = "/indexer/entry/";
+    assertTrue("/indexer/entry/test/2/test4.html".toLowerCase().contains(ignorePaths));
+
+}
+
 }

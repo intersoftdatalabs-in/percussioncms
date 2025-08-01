@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,11 +18,33 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Request for fetching group details.
- * Sunny Sal: "Group details, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="GroupID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -40,50 +63,67 @@ public class GetGroupDetails {
     protected int groupID;
 
     /**
-     * Gets the user name.
-     * @return user name or null
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Sets the user name.
-     * @param value user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setUserName(String value) {
-        userName = value;
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     * @return password or null
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Sets the password.
-     * @param value password
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPassword(String value) {
-        password = value;
+        this.password = value;
     }
 
     /**
-     * Gets the group ID.
-     * @return group ID
+     * Gets the value of the groupID property.
+     * 
      */
     public int getGroupID() {
         return groupID;
     }
 
     /**
-     * Sets the group ID.
-     * @param value group ID
+     * Sets the value of the groupID property.
+     * 
      */
     public void setGroupID(int value) {
-        groupID = value;
+        this.groupID = value;
     }
+
 }

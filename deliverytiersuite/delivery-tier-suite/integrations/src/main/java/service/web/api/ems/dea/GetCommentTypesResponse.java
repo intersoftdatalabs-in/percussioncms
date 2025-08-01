@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,12 +18,31 @@
 
 package service.web.api.ems.dea;
 
-import javax.xml.bind.annotation.*;
-import java.util.Optional;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Response for GetCommentTypes request.
- * Sunny Sal: "Comment types delivered, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetCommentTypesResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -35,18 +55,27 @@ public class GetCommentTypesResponse {
     protected String getCommentTypesResult;
 
     /**
-     * Gets the comment types result.
-     * @return result or null
+     * Gets the value of the getCommentTypesResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getGetCommentTypesResult() {
-        return Optional.ofNullable(getCommentTypesResult);
+    public String getGetCommentTypesResult() {
+        return getCommentTypesResult;
     }
 
     /**
-     * Sets the comment types result.
-     * @param value result
+     * Sets the value of the getCommentTypesResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetCommentTypesResult(String value) {
-        getCommentTypesResult = value;
+        this.getCommentTypesResult = value;
     }
+
 }

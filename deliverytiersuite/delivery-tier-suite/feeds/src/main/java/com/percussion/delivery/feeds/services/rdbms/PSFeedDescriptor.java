@@ -1,162 +1,285 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
- * Licensed under the Apache License, Version 2.0 (the "License")
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.percussion.delivery.feeds.services.rdbms;
 
 import com.percussion.delivery.feeds.data.FeedType;
 import com.percussion.delivery.feeds.data.IPSFeedDescriptor;
 
-import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Objects;
-import java.util.Optional;
+
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
- * JPA entity for feed descriptor.
- * Sunny Sal: "Feed descriptors are like movie scripts - keep them short, sweet, and type-safe!"
+ * @author erikserating
+ *
  */
 @Entity
 @Table(name = "PERC_FEED_DESCRIPTORS")
-public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable {
+public class PSFeedDescriptor implements IPSFeedDescriptor, Serializable
+{
 
-    private static final long serialVersionUID = 2756156009184830398L;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2756156009184830398L;
 
-    @Id
+	@Id
     @Column(length = 255)
     private String site;
-
+    
     @Id
     @Column(length = 255)
     private String name;
-
+    
     @Basic
     @Column(length = 2000)
     private String title;
-
+    
     @Basic
     @Column(length = 4000)
     private String description;
-
+    
     @Basic
     @Column(length = 2000)
     private String link;
-
+    
     @Basic
     @Column(length = 2000)
     private String type;
-
+    
     @Basic
     @Column(length = 4000)
     private String query;
-
-    public PSFeedDescriptor() {
-        // Required by JPA
+    
+    public PSFeedDescriptor()
+    {
+        
+    }
+    
+    public PSFeedDescriptor(IPSFeedDescriptor descriptor)
+    {
+        this.name = descriptor.getName();
+        this.site = descriptor.getSite();
+        this.title = descriptor.getTitle();
+        this.description = descriptor.getDescription();
+        this.link = descriptor.getLink();
+        this.type = descriptor.getType();
+        this.query = descriptor.getQuery();
+    }
+    
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getDescription()
+     */
+    public String getDescription()
+    {
+        return description;
     }
 
-    public PSFeedDescriptor(IPSFeedDescriptor descriptor) {
-        this.name = descriptor.getName().orElse(null);
-        this.site = descriptor.getSite().orElse(null);
-        this.title = descriptor.getTitle().orElse(null);
-        this.description = descriptor.getDescription().orElse(null);
-        this.link = descriptor.getLink().orElse(null);
-        this.type = descriptor.getType().orElse(null);
-        this.query = descriptor.getQuery().orElse(null);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getFeedType()
+     */
+    public FeedType getFeedType()
+    {
+        return FeedType.valueOf(type);
     }
 
-    @Override
-    public Optional<String> getDescription() {
-        return Optional.ofNullable(description);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getLink()
+     */
+    public String getLink()
+    {
+        return link;
     }
 
-    public FeedType getFeedType() {
-        return type == null ? null : FeedType.valueOf(type);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getName()
+     */
+    public String getName()
+    {
+        return name;
     }
 
-    @Override
-    public Optional<String> getLink() {
-        return Optional.ofNullable(link);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getQuery()
+     */
+    public String getQuery()
+    {
+        return query;
     }
 
-    @Override
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getSite()
+     */
+    public String getSite()
+    {
+        return site;
     }
 
-    @Override
-    public Optional<String> getQuery() {
-        return Optional.ofNullable(query);
+    /* (non-Javadoc)
+     * @see com.percussion.feeds.data.IPSFeedDescriptor#getTitle()
+     */
+    public String getTitle()
+    {
+        return title;
     }
 
-    @Override
-    public Optional<String> getSite() {
-        return Optional.ofNullable(site);
+    /**
+     * @return the type
+     */
+    public String getType()
+    {
+        return type;
     }
 
-    @Override
-    public Optional<String> getTitle() {
-        return Optional.ofNullable(title);
-    }
-
-    @Override
-    public Optional<String> getType() {
-        return Optional.ofNullable(type);
-    }
-
-    public void setType(String type) {
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type)
+    {
         this.type = type;
     }
 
-    public void setSite(String site) {
+    /**
+     * @param site the site to set
+     */
+    public void setSite(String site)
+    {
         this.site = site;
     }
 
-    public void setName(String name) {
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name)
+    {
         this.name = name;
     }
 
-    public void setTitle(String title) {
+    /**
+     * @param title the title to set
+     */
+    public void setTitle(String title)
+    {
         this.title = title;
     }
 
-    public void setDescription(String description) {
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description)
+    {
         this.description = description;
     }
 
-    public void setLink(String link) {
+    /**
+     * @param link the link to set
+     */
+    public void setLink(String link)
+    {
         this.link = link;
     }
 
-    public void setQuery(String query) {
+    /**
+     * @param query the query to set
+     */
+    public void setQuery(String query)
+    {
         this.query = query;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, site);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((site == null) ? 0 : site.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PSFeedDescriptor other = (PSFeedDescriptor) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (site == null) {
+            return other.site == null;
+		} else {
+            return site.equals(other.site);
+        }
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        PSFeedDescriptor other = (PSFeedDescriptor) obj;
-        return Objects.equals(name, other.name) && Objects.equals(site, other.site);
-    }
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PSFeedDescriptor [");
+		if (site != null) {
+			builder.append("site=");
+			builder.append(site);
+			builder.append(", ");
+		}
+		if (name != null) {
+			builder.append("name=");
+			builder.append(name);
+			builder.append(", ");
+		}
+		if (title != null) {
+			builder.append("title=");
+			builder.append(title);
+			builder.append(", ");
+		}
+		if (description != null) {
+			builder.append("description=");
+			builder.append(description);
+			builder.append(", ");
+		}
+		if (link != null) {
+			builder.append("link=");
+			builder.append(link);
+			builder.append(", ");
+		}
+		if (type != null) {
+			builder.append("type=");
+			builder.append(type);
+			builder.append(", ");
+		}
+		if (query != null) {
+			builder.append("query=");
+			builder.append(query);
+		}
+		builder.append("]");
+		return builder.toString();
+	}
 
-    @Override
-    public String toString() {
-        var builder = new StringBuilder();
-        builder.append("PSFeedDescriptor [");
-        if (site != null) builder.append("site=").append(site).append(", ");
-        if (name != null) builder.append("name=").append(name).append(", ");
-        if (title != null) builder.append("title=").append(title).append(", ");
-        if (description != null) builder.append("description=").append(description).append(", ");
-        if (link != null) builder.append("link=").append(link).append(", ");
-        if (type != null) builder.append("type=").append(type).append(", ");
-        if (query != null) builder.append("query=").append(query);
-        builder.append("]");
-        return builder.toString();
-    }
+
+    
+    
+
 }

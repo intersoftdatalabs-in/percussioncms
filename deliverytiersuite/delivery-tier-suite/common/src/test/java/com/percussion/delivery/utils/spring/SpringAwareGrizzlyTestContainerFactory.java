@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.utils.spring;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +25,7 @@ import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.spi.TestContainer;
 import org.glassfish.jersey.test.spi.TestContainerException;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+
 import javax.servlet.Servlet;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -32,24 +34,22 @@ import java.io.IOException;
 import java.net.URI;
 import org.apache.logging.log4j.Logger;
 
-/**
- * Sunny Sal says: "Grizzly test container ka factory, integration ka best!"
- */
 public class SpringAwareGrizzlyTestContainerFactory implements TestContainerFactory {
 
     private Object springTarget;
 
-    @Override
     public TestContainer create(URI baseUri, DeploymentContext deploymentContext) {
         return new SpringAwareGrizzlyWebTestContainer(baseUri, deploymentContext, springTarget);
     }
 
+
     private static class SpringAwareGrizzlyWebTestContainer implements TestContainer {
 
         private static final Logger log = LogManager.getLogger(SpringAwareGrizzlyWebTestContainer.class.getName());
-        private final URI baseUri;
-        private final HttpServer webServer;
-        private final Object springTarget;
+        private URI baseUri;
+        private HttpServer webServer;
+        private Object springTarget;
+        private Servlet servletInstance;
 
         private SpringAwareGrizzlyWebTestContainer(URI baseUri, DeploymentContext context, Object springTarget) {
             this.springTarget = springTarget;
@@ -57,13 +57,14 @@ public class SpringAwareGrizzlyTestContainerFactory implements TestContainerFact
                     .path(context.getContextPath()).path(context.getContextPath())
                     .build();
 
-            log.info("Creating Grizzly Web Container configured at the base URI {}", this.baseUri);
+            log.info("Creating Grizzly Web Container configured at the base URI " + this.baseUri);
             this.webServer = GrizzlyHttpServerFactory.createHttpServer(this.baseUri, context.getResourceConfig(), false);
         }
 
-        @Override
         public Client getClient() {
-            return ClientBuilder.newClient();
+
+            Client client = ClientBuilder.newClient();
+            return client;
         }
 
         @Override
@@ -71,41 +72,120 @@ public class SpringAwareGrizzlyTestContainerFactory implements TestContainerFact
             return null;
         }
 
-        @Override
         public URI getBaseUri() {
             return baseUri;
         }
 
-        @Override
         public void start() {
             log.info("Starting the Grizzly Web Container...");
+
             try {
                 webServer.start();
+               // autoWireSpringTarget();
             } catch (IOException ex) {
                 throw new TestContainerException(ex);
             }
+
         }
 
-        @Override
         public void stop() {
             log.info("Stopping the Grizzly Web Container...");
+
             webServer.shutdown();
         }
 
-        private boolean notEmpty(String string) {
-            return string != null && !string.isEmpty();
+//        private void instantiateGrizzlyWebServer(DeploymentContext deploymentContext, Object springTarget) {
+//            webServer = new HttpServer.createSimpleServer("",baseUri.getPort());
+//            ServletAdapter sa = new ServletAdapter();
+//            sa.setProperty("load-on-startup", 1);
+//            servletInstance = createrServletInstance(ad.getServletClass());
+//            sa.setServletInstance(servletInstance);
+//
+//            populateEventListeners(sa, deploymentContext.getListeners());
+//            populateFilterDescriptors(sa, deploymentContext.getFilters());
+//            populateContextParams(sa, ad.getContextParams());
+//            populateInitParams(sa, ad.getInitParams());
+//            setContextPath(sa, ad.getContextPath());
+//            setServletPath(sa, ad.getServletPath());
+//
+//            String[] mapping = null;
+//            webServer.addGrizzlyAdapter(sa, mapping);
+
         }
+
+//        private void setServletPath(ServletAdapter sa, String servletPath) {
+//            if ( notEmpty(servletPath)) {
+//                sa.setServletPath(servletPath);
+//            }
+//        }
+//
+//        private void setContextPath(ServletAdapter sa, String contextPath) {
+//            if (notEmpty(contextPath)) {
+//                sa.setContextPath(ensureLeadingSlash(contextPath));
+//            }
+//        }
+
+        private boolean notEmpty(String string) {
+            return string != null && string.length() > 0;
+        }
+
+//        private void populateInitParams(ServletAdapter sa, Map<String, String> initParams) {
+//            for (String initParamName : initParams.keySet()) {
+//                sa.addInitParameter(initParamName, initParams.get(initParamName));
+//            }
+//
+//        }
+//
+//        private void populateContextParams(ServletAdapter sa, Map<String, String> contextParams) {
+//            for (String contextParamName : contextParams.keySet()) {
+//                sa.addContextParameter(contextParamName, contextParams.get(contextParamName));
+//            }
+//        }
+//
+//        private void populateFilterDescriptors(ServletAdapter sa, List<FilterDescriptor> filters) {
+//            if (filters != null) {
+//                for (WebAppDescriptor.FilterDescriptor d : filters) {
+//                    sa.addFilter(instantiate(d.getFilterClass()), d.getFilterName(), d.getInitParams());
+//                }
+//            }
+//
+//        }
+//
+//        private void populateEventListeners(ServletAdapter sa, List<Class<? extends EventListener>> listeners) {
+//            for (Class<? extends EventListener> eventListener : listeners) {
+//                sa.addServletListener(eventListener.getName());
+//            }
+//        }
 
         private String ensureLeadingSlash(String string) {
-            return (string.startsWith("/") ? string : "/" + string);
+            return (string.startsWith("/") ? string : "/".concat(string));
         }
 
+//        private Servlet createrServletInstance(Class<? extends HttpServlet> servletClass) {
+//            return ( servletClass == null ? new SpringServlet() : instantiate(servletClass));
+//        }
+
         private <I> I instantiate(Class<? extends I> clazz) {
+            I instance = null;
             try {
-                return clazz.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
+                instance = clazz.newInstance();
+            } catch (InstantiationException e) {
+                throw new TestContainerException(e);
+            } catch (IllegalAccessException e) {
                 throw new TestContainerException(e);
             }
+            return instance;
         }
-    }
+//
+//        private void autoWireSpringTarget() {
+//            WebApplicationContext ctx = WebApplicationContextUtils
+//                    .getRequiredWebApplicationContext(servletInstance.getServletConfig()
+//                            .getServletContext());
+//            AutowireCapableBeanFactory beanFactory = ctx
+//                    .getAutowireCapableBeanFactory();
+//            beanFactory.autowireBean(springTarget);
+//        }
+
+  //  }
+
 }

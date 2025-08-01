@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,9 +24,30 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Request for fetching rooms by setup type.
- * Sunny Sal: "Rooms by setup type, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="RoomTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="FloorID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="SetupTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -53,98 +75,115 @@ public class GetRoomsBySetupType {
     protected int setupTypeID;
 
     /**
-     * Gets the user name.
-     * @return user name or null
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * Sets the user name.
-     * @param value user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setUserName(String value) {
-        userName = value;
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     * @return password or null
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPassword() {
         return password;
     }
 
     /**
-     * Sets the password.
-     * @param value password
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPassword(String value) {
-        password = value;
+        this.password = value;
     }
 
     /**
-     * Gets the building ID.
-     * @return building ID
+     * Gets the value of the buildingID property.
+     * 
      */
     public int getBuildingID() {
         return buildingID;
     }
 
     /**
-     * Sets the building ID.
-     * @param value building ID
+     * Sets the value of the buildingID property.
+     * 
      */
     public void setBuildingID(int value) {
-        buildingID = value;
+        this.buildingID = value;
     }
 
     /**
-     * Gets the room type ID.
-     * @return room type ID
+     * Gets the value of the roomTypeID property.
+     * 
      */
     public int getRoomTypeID() {
         return roomTypeID;
     }
 
     /**
-     * Sets the room type ID.
-     * @param value room type ID
+     * Sets the value of the roomTypeID property.
+     * 
      */
     public void setRoomTypeID(int value) {
-        roomTypeID = value;
+        this.roomTypeID = value;
     }
 
     /**
-     * Gets the floor ID.
-     * @return floor ID
+     * Gets the value of the floorID property.
+     * 
      */
     public int getFloorID() {
         return floorID;
     }
 
     /**
-     * Sets the floor ID.
-     * @param value floor ID
+     * Sets the value of the floorID property.
+     * 
      */
     public void setFloorID(int value) {
-        floorID = value;
+        this.floorID = value;
     }
 
     /**
-     * Gets the setup type ID.
-     * @return setup type ID
+     * Gets the value of the setupTypeID property.
+     * 
      */
     public int getSetupTypeID() {
         return setupTypeID;
     }
 
     /**
-     * Sets the setup type ID.
-     * @param value setup type ID
+     * Sets the value of the setupTypeID property.
+     * 
      */
     public void setSetupTypeID(int value) {
-        setupTypeID = value;
+        this.setupTypeID = value;
     }
+
 }

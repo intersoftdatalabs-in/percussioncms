@@ -2,24 +2,15 @@
 
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <!-- REFACTORED: CP-JAVA11 - Sunny Sal modernized for Java 11, JUnit5, and Google Java Style -->
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
         <version>8.1.6-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../pom.xml</relativePath> 
     </parent>
     <artifactId>perc-tomcat-common</artifactId>
     <packaging>jar</packaging>
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.release>11</maven.compiler.release>
-        <junit.jupiter.version>5.10.2</junit.jupiter.version>
-        <guava.version>33.1.0-jre</guava.version>
-        <commons.lang3.version>3.13.0</commons.lang3.version>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
@@ -39,6 +30,21 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-catalina</artifactId>
+        <version>${tomcat.version}</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- Servlet API (Jakarta) -->
+    <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>5.0.0</version> <!-- Required for Tomcat 10.1.x -->
+        <scope>provided</scope> 
+    </dependency>
+        
+        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
             <version>${tomcat.version}</version>
@@ -57,7 +63,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.glassfish.jersey.test-framework</groupId>
+            <groupId>org.glassfish.jersey.test-framework</groupId> 
             <artifactId>jersey-test-framework-core</artifactId>
             <version>${jersey.version}</version>
             <scope>test</scope>
@@ -100,36 +106,26 @@
             <artifactId>perc-security-utils</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!-- Add Apache Commons Lang3 for modern utility support -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons.lang3.version}</version>
-        </dependency>
-        <!-- Add Guava for modern collections and utilities -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
-        </dependency>
-        <!-- Remove legacy JUnit4, add JUnit5 Jupiter for tests -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.jupiter.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+<dependency>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-surefire-plugin</artifactId>
+    <version>3.5.2</version>
+</dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <artifactId>maven-compiler-plugin</artifactId> 
                 <configuration>
                     <source>11</source>
                     <target>11</target>
-                    <release>11</release>
                 </configuration>
             </plugin>
         </plugins>

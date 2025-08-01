@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,121 +18,112 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: UpdateBookingCheckin SOAP request model.
- * <p>
- * Represents the request payload for the UpdateBookingCheckin endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Checkin your booking, checkin your code—both make life easier!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="BookingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "",
-    propOrder = {
-        "userName",
-        "password",
-        "bookingId",
-        "checkinTime"
-    }
-)
-@XmlRootElement(name = "UpdateBookingCheckin")
-public class UpdateBookingCheckin {
+@XmlType(name = "", propOrder = {
+    "userName",
+    "password",
+    "bookingID"
+})
+@XmlRootElement(name = "UpdateBookingCheckIn")
+public class UpdateBookingCheckIn {
 
     @XmlElement(name = "UserName")
-    private String userName;
-
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
+    @XmlElement(name = "BookingID")
+    protected int bookingID;
 
-    @XmlElement(name = "BookingId")
-    private int bookingId;
-
-    @XmlElement(name = "CheckinTime")
-    private String checkinTime;
-
-    private UpdateBookingCheckin(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.bookingId = builder.bookingId;
-        this.checkinTime = builder.checkinTime;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     *
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     *
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Gets the booking ID.
-     *
-     * @return booking ID
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public int getBookingId() {
-        return bookingId;
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * Gets the check-in time.
-     *
-     * @return Optional check-in time
+     * Gets the value of the bookingID property.
+     * 
      */
-    public Optional<String> getCheckinTime() {
-        return Optional.ofNullable(checkinTime);
+    public int getBookingID() {
+        return bookingID;
     }
 
     /**
-     * Builder for UpdateBookingCheckin.
+     * Sets the value of the bookingID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int bookingId;
-        private String checkinTime;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withBookingId(int bookingId) {
-            this.bookingId = bookingId;
-            return this;
-        }
-
-        public Builder withCheckinTime(String checkinTime) {
-            this.checkinTime = checkinTime;
-            return this;
-        }
-
-        public UpdateBookingCheckin build() {
-            return new UpdateBookingCheckin(this);
-        }
+    public void setBookingID(int value) {
+        this.bookingID = value;
     }
+
 }

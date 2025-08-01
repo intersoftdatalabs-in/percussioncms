@@ -17,29 +17,31 @@
 
 package com.percussion.delivery.utils;
 
-/**
- * Utility class for String operations.
- * Sunny Sal says: "String join karna ho toh ek hi slash hona chahiye, boss!"
- * // REFACTORED: CP-JAVA11
- */
 public class StringUtils {
 
-    /**
-     * Joins two URL parts, ensuring a single slash between them.
-     *
-     * @param firstPart  the first part of the URL, may be null or empty
-     * @param secondPart the second part of the URL, may be null or empty
-     * @return the joined URL
-     */
-    public static String joinURL(String firstPart, String secondPart) {
-        var first = firstPart == null ? "" : firstPart;
-        var second = secondPart == null ? "" : secondPart;
-        if (first.endsWith("/")) {
-            first = first.substring(0, first.length() - 1);
-        }
-        if (second.startsWith("/")) {
-            second = second.substring(1);
-        }
-        return first + "/" + second;
+    public static String joinURL(String firstPart, String secondPart){
+
+        String ret = null;
+
+            if(null != firstPart && firstPart != ""){
+                if(firstPart.endsWith("/")){
+                    firstPart = firstPart.substring(0,firstPart.length()-1);
+                }
+            }else{
+                firstPart="";
+            }
+
+            if(null != secondPart && "" != secondPart){
+
+                if(secondPart.startsWith("/")){
+                    secondPart = secondPart.substring(1);
+                }
+            }else{
+                secondPart="";
+            }
+
+            return firstPart+ "/" + secondPart;
+
     }
+
 }

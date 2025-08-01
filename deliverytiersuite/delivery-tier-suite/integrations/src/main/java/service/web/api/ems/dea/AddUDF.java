@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,11 +24,30 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 modernized: AddUDF for EMS SOAP API.
- * <p>
- * Represents a request to add a UDF via the EMS web service.
- * </p>
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ParentLevelID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ParentID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="UDFDefID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="UDFValue" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -39,83 +59,139 @@ import javax.xml.bind.annotation.XmlType;
     "udfValue"
 })
 @XmlRootElement(name = "AddUDF")
-public final class AddUDF {
+public class AddUDF {
 
     @XmlElement(name = "UserName")
-    private String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
     @XmlElement(name = "ParentLevelID")
-    private int parentLevelID;
+    protected int parentLevelID;
     @XmlElement(name = "ParentID")
-    private int parentID;
+    protected int parentID;
     @XmlElement(name = "UDFDefID")
-    private int udfDefID;
+    protected int udfDefID;
     @XmlElement(name = "UDFValue")
-    private String udfValue;
+    protected String udfValue;
 
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
+
+    /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setUserName(String value) {
         this.userName = value;
     }
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
     }
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setPassword(String value) {
         this.password = value;
     }
+
+    /**
+     * Gets the value of the parentLevelID property.
+     * 
+     */
     public int getParentLevelID() {
         return parentLevelID;
     }
+
+    /**
+     * Sets the value of the parentLevelID property.
+     * 
+     */
     public void setParentLevelID(int value) {
         this.parentLevelID = value;
     }
+
+    /**
+     * Gets the value of the parentID property.
+     * 
+     */
     public int getParentID() {
         return parentID;
     }
+
+    /**
+     * Sets the value of the parentID property.
+     * 
+     */
     public void setParentID(int value) {
         this.parentID = value;
     }
+
+    /**
+     * Gets the value of the udfDefID property.
+     * 
+     */
     public int getUDFDefID() {
         return udfDefID;
     }
+
+    /**
+     * Sets the value of the udfDefID property.
+     * 
+     */
     public void setUDFDefID(int value) {
         this.udfDefID = value;
     }
-    public java.util.Optional<String> getUDFValue() {
-        return java.util.Optional.ofNullable(udfValue);
+
+    /**
+     * Gets the value of the udfValue property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUDFValue() {
+        return udfValue;
     }
+
+    /**
+     * Sets the value of the udfValue property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
     public void setUDFValue(String value) {
         this.udfValue = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddUDF addUDF = (AddUDF) o;
-        return parentLevelID == addUDF.parentLevelID &&
-                parentID == addUDF.parentID &&
-                udfDefID == addUDF.udfDefID &&
-                java.util.Objects.equals(userName, addUDF.userName) &&
-                java.util.Objects.equals(password, addUDF.password) &&
-                java.util.Objects.equals(udfValue, addUDF.udfValue);
-    }
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, parentLevelID, parentID, udfDefID, udfValue);
-    }
-    @Override
-    public String toString() {
-        return "AddUDF{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", parentLevelID=" + parentLevelID +
-                ", parentID=" + parentID +
-                ", udfDefID=" + udfDefID +
-                ", udfValue='" + udfValue + '\'' +
-                '}';
-    }
 }

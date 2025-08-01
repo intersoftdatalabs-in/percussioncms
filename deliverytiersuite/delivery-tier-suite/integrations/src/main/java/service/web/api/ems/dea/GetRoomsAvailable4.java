@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,9 +26,34 @@ import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+
 /**
- * Request for fetching available rooms (version 4).
- * Sunny Sal: "Room availability, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="BuildingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="RoomTypeID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="FloorID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="WebProcessTemplates" type="{http://DEA.EMS.API.Web.Service/}ArrayOfInt" minOccurs="0"/&gt;
+ *         &lt;element name="SetupTypeId" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="RequestedCapacity" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="StartDateTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="EndDateTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -69,162 +95,203 @@ public class GetRoomsAvailable4 {
     protected XMLGregorianCalendar endDateTime;
 
     /**
-     * Gets the user name.
-     * @return user name or null
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getUserName() {
         return userName;
     }
 
     /**
-     * Sets the user name.
-     * @param value user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setUserName(String value) {
-        userName = value;
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     * @return password or null
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getPassword() {
         return password;
     }
 
     /**
-     * Sets the password.
-     * @param value password
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setPassword(String value) {
-        password = value;
+        this.password = value;
     }
 
     /**
-     * Gets the building ID.
-     * @return building ID
+     * Gets the value of the buildingID property.
+     * 
      */
     public int getBuildingID() {
         return buildingID;
     }
 
     /**
-     * Sets the building ID.
-     * @param value building ID
+     * Sets the value of the buildingID property.
+     * 
      */
     public void setBuildingID(int value) {
-        buildingID = value;
+        this.buildingID = value;
     }
 
     /**
-     * Gets the room type ID.
-     * @return room type ID
+     * Gets the value of the roomTypeID property.
+     * 
      */
     public int getRoomTypeID() {
         return roomTypeID;
     }
 
     /**
-     * Sets the room type ID.
-     * @param value room type ID
+     * Sets the value of the roomTypeID property.
+     * 
      */
     public void setRoomTypeID(int value) {
-        roomTypeID = value;
+        this.roomTypeID = value;
     }
 
     /**
-     * Gets the floor ID.
-     * @return floor ID
+     * Gets the value of the floorID property.
+     * 
      */
     public int getFloorID() {
         return floorID;
     }
 
     /**
-     * Sets the floor ID.
-     * @param value floor ID
+     * Sets the value of the floorID property.
+     * 
      */
     public void setFloorID(int value) {
-        floorID = value;
+        this.floorID = value;
     }
 
     /**
-     * Gets the web process templates.
-     * @return web process templates or null
+     * Gets the value of the webProcessTemplates property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link ArrayOfInt }
+     *     
      */
     public ArrayOfInt getWebProcessTemplates() {
         return webProcessTemplates;
     }
 
     /**
-     * Sets the web process templates.
-     * @param value web process templates
+     * Sets the value of the webProcessTemplates property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link ArrayOfInt }
+     *     
      */
     public void setWebProcessTemplates(ArrayOfInt value) {
-        webProcessTemplates = value;
+        this.webProcessTemplates = value;
     }
 
     /**
-     * Gets the setup type ID.
-     * @return setup type ID
+     * Gets the value of the setupTypeId property.
+     * 
      */
     public int getSetupTypeId() {
         return setupTypeId;
     }
 
     /**
-     * Sets the setup type ID.
-     * @param value setup type ID
+     * Sets the value of the setupTypeId property.
+     * 
      */
     public void setSetupTypeId(int value) {
-        setupTypeId = value;
+        this.setupTypeId = value;
     }
 
     /**
-     * Gets the requested capacity.
-     * @return requested capacity
+     * Gets the value of the requestedCapacity property.
+     * 
      */
     public int getRequestedCapacity() {
         return requestedCapacity;
     }
 
     /**
-     * Sets the requested capacity.
-     * @param value requested capacity
+     * Sets the value of the requestedCapacity property.
+     * 
      */
     public void setRequestedCapacity(int value) {
-        requestedCapacity = value;
+        this.requestedCapacity = value;
     }
 
     /**
-     * Gets the start date/time.
-     * @return start date/time
+     * Gets the value of the startDateTime property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getStartDateTime() {
         return startDateTime;
     }
 
     /**
-     * Sets the start date/time.
-     * @param value start date/time
+     * Sets the value of the startDateTime property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setStartDateTime(XMLGregorianCalendar value) {
-        startDateTime = value;
+        this.startDateTime = value;
     }
 
     /**
-     * Gets the end date/time.
-     * @return end date/time
+     * Gets the value of the endDateTime property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public XMLGregorianCalendar getEndDateTime() {
         return endDateTime;
     }
 
     /**
-     * Sets the end date/time.
-     * @param value end date/time
+     * Sets the value of the endDateTime property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
     public void setEndDateTime(XMLGregorianCalendar value) {
-        endDateTime = value;
+        this.endDateTime = value;
     }
+
 }

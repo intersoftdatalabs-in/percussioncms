@@ -32,46 +32,23 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-/**
- * Jersey application configuration for the Forms service.
- * <p>
- * Uses Java 11 features and Google Java Style. All registration is done via method chaining for clarity.
- * </p>
- */
-@ApplicationPath("/")
-public class PSFormsApplication extends ResourceConfig {
-    public PSFormsApplication() {
-        registerJerseyComponents()
-            .registerSpringComponents()
-            .registerExceptionMappers()
-            .registerFeatures();
+    @ApplicationPath("/")
+    public class PSFormsApplication extends  ResourceConfig {
+        public PSFormsApplication() {
+            register(RequestContextFilter.class);
+            register(SpringComponentProvider.class);
+            register(AutowiredInjectResolver.class);
+            register(SpringLifecycleListener.class);
+            register(SpringWebApplicationInitializer.class);
+            register(PSFormRestService.class);
+            register(LoggingFeature.class);
+            register(RolesAllowedDynamicFeature.class);
+            register(PSJsonMappingErrorResponse.class);
+            register(PSUncaughtError.class);
+            register(JacksonJaxbJsonProvider.class);
+
+        }
     }
 
-    private PSFormsApplication registerJerseyComponents() {
-        register(JacksonJaxbJsonProvider.class);
-        register(PSFormRestService.class);
-        return this;
-    }
 
-    private PSFormsApplication registerSpringComponents() {
-        register(SpringLifecycleListener.class);
-        register(SpringWebApplicationInitializer.class);
-        register(SpringComponentProvider.class);
-        register(AutowiredInjectResolver.class);
-        register(RequestContextFilter.class);
-        return this;
-    }
 
-    private PSFormsApplication registerExceptionMappers() {
-        register(PSJsonMappingErrorResponse.class);
-        register(PSUncaughtError.class);
-        return this;
-    }
-
-    private PSFormsApplication registerFeatures() {
-        register(RolesAllowedDynamicFeature.class);
-        var loggingFeature = new LoggingFeature();
-        register(loggingFeature);
-        return this;
-    }
-}

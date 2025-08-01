@@ -14,65 +14,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.multitenant;
 
 import java.util.Date;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import junit.framework.Assert;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for the SimpleTenant Cache.
- * Sunny Sal says: "Cache ka test, performance ka best!"
- *
+ * Unit tests for the SimpleTenant Cache. 
+ * 
  * @author natechadwick
+ *
  */
-@SpringJUnitConfig
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:/beans.xml"})
 public class PSSimpleTenantCacheTest {
 
-    private PSSimpleTenantCache cache;
+	
+	PSSimpleTenantCache cache;
+	
+	@Before
+	public void setup(){
+		cache = new PSSimpleTenantCache();
+	}
+	
+	@After
+	public void teardown(){
+		cache = null;
+	}
+	
+	
+	/***
+	 * Tests basic cache operations. 
+	 */
+	@Test
+	public void testBasicOps(){
+		PSTenantInfo t = new PSTenantInfo();
+		
+		t.clearAPIUsage();
+		t.setAPIUsageStart(new Date());
+		t.setLastAuthorizationCheckDate(new Date());
+		t.setTenantId("007");
+		
+		cache.put(t);
+		
+		MockHttpServletRequest req = new MockHttpServletRequest();
+		
+		IPSTenantInfo u = cache.get(t.getTenantId(), req);
+			
+		Assert.assertEquals(1, u.getAPIUsage());
+		Assert.assertEquals(t.getAPIUsageStart(), u.getAPIUsageStart());
+		Assert.assertEquals(t.getLastAuthorizationCheckDate(), u.getLastAuthorizationCheckDate());
+		Assert.assertEquals(t.getTenantId(),u.getTenantId());
+		Assert.assertEquals(t, u);
+		
+		cache.clear();
+		
+		Assert.assertEquals(null, cache.get("007",null));
+	}
 
-    @BeforeEach
-    public void setup() {
-        cache = new PSSimpleTenantCache();
-    }
-
-    @AfterEach
-    public void teardown() {
-        cache = null;
-    }
-
-    /**
-     * Tests basic cache operations.
-     */
-    @Test
-    public void testBasicOps() {
-        var t = new PSTenantInfo();
-        t.clearAPIUsage();
-        t.setAPIUsageStart(new Date());
-        t.setLastAuthorizationCheckDate(new Date());
-        t.setTenantId("007");
-
-        cache.put(t);
-
-        var req = new MockHttpServletRequest();
-
-        var u = cache.get(t.getTenantId(), req);
-
-        assertEquals(1, u.getAPIUsage());
-        assertEquals(t.getAPIUsageStart(), u.getAPIUsageStart());
-        assertEquals(t.getLastAuthorizationCheckDate(), u.getLastAuthorizationCheckDate());
-        assertEquals(t.getTenantId(), u.getTenantId());
-        assertEquals(t, u);
-
-        cache.clear();
-
-        assertNull(cache.get("007", null));
-    }
+	
 }

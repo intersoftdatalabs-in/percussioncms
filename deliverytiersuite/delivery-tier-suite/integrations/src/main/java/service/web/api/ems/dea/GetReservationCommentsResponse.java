@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -22,18 +23,31 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import java.util.Objects;
-import java.util.Optional;
+
 
 /**
- * Response for GetReservationComments request.
- * Sunny Sal: "Reservation comments delivered, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetReservationCommentsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getReservationCommentsResult"
 })
-// REFACTORED: CP-JAVA11
 @XmlRootElement(name = "GetReservationCommentsResponse")
 public class GetReservationCommentsResponse {
 
@@ -41,38 +55,27 @@ public class GetReservationCommentsResponse {
     protected String getReservationCommentsResult;
 
     /**
-     * Gets the reservation comments result.
-     * @return Optional containing result string, or empty if not present.
+     * Gets the value of the getReservationCommentsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getGetReservationCommentsResult() {
-        return Optional.ofNullable(getReservationCommentsResult);
+    public String getGetReservationCommentsResult() {
+        return getReservationCommentsResult;
     }
 
     /**
-     * Sets the reservation comments result.
-     * @param value result string
+     * Sets the value of the getReservationCommentsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetReservationCommentsResult(String value) {
-        getReservationCommentsResult = value;
+        this.getReservationCommentsResult = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetReservationCommentsResponse)) return false;
-        var that = (GetReservationCommentsResponse) o;
-        return Objects.equals(getReservationCommentsResult, that.getReservationCommentsResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getReservationCommentsResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetReservationCommentsResponse{" +
-                "getReservationCommentsResult='" + getReservationCommentsResult + '\'' +
-                '}';
-    }
 }

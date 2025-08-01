@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -74,141 +75,363 @@ import javax.xml.bind.annotation.XmlType;
     "externalReference"
 })
 @XmlRootElement(name = "AddGroup")
-public final class AddGroup {
+public class AddGroup {
+
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "GroupName")
-    private final String groupName;
+    protected String groupName;
     @XmlElement(name = "GroupTypeID")
-    private final int groupTypeID;
+    protected int groupTypeID;
     @XmlElement(name = "Address1")
-    private final String address1;
+    protected String address1;
     @XmlElement(name = "Address2")
-    private final String address2;
+    protected String address2;
     @XmlElement(name = "City")
-    private final String city;
+    protected String city;
     @XmlElement(name = "State")
-    private final String state;
+    protected String state;
     @XmlElement(name = "ZipCode")
-    private final String zipCode;
+    protected String zipCode;
     @XmlElement(name = "Country")
-    private final String country;
+    protected String country;
     @XmlElement(name = "Phone")
-    private final String phone;
+    protected String phone;
     @XmlElement(name = "Fax")
-    private final String fax;
+    protected String fax;
     @XmlElement(name = "EmailAddress")
-    private final String emailAddress;
+    protected String emailAddress;
     @XmlElement(name = "ExternalReference")
-    private final String externalReference;
+    protected String externalReference;
 
-    private AddGroup(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.groupName = builder.groupName;
-        this.groupTypeID = builder.groupTypeID;
-        this.address1 = builder.address1;
-        this.address2 = builder.address2;
-        this.city = builder.city;
-        this.state = builder.state;
-        this.zipCode = builder.zipCode;
-        this.country = builder.country;
-        this.phone = builder.phone;
-        this.fax = builder.fax;
-        this.emailAddress = builder.emailAddress;
-        this.externalReference = builder.externalReference;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
-    public java.util.Optional<String> getUserName() { return java.util.Optional.ofNullable(userName); }
-    public java.util.Optional<String> getPassword() { return java.util.Optional.ofNullable(password); }
-    public java.util.Optional<String> getGroupName() { return java.util.Optional.ofNullable(groupName); }
-    public int getGroupTypeID() { return groupTypeID; }
-    public java.util.Optional<String> getAddress1() { return java.util.Optional.ofNullable(address1); }
-    public java.util.Optional<String> getAddress2() { return java.util.Optional.ofNullable(address2); }
-    public java.util.Optional<String> getCity() { return java.util.Optional.ofNullable(city); }
-    public java.util.Optional<String> getState() { return java.util.Optional.ofNullable(state); }
-    public java.util.Optional<String> getZipCode() { return java.util.Optional.ofNullable(zipCode); }
-    public java.util.Optional<String> getCountry() { return java.util.Optional.ofNullable(country); }
-    public java.util.Optional<String> getPhone() { return java.util.Optional.ofNullable(phone); }
-    public java.util.Optional<String> getFax() { return java.util.Optional.ofNullable(fax); }
-    public java.util.Optional<String> getEmailAddress() { return java.util.Optional.ofNullable(emailAddress); }
-    public java.util.Optional<String> getExternalReference() { return java.util.Optional.ofNullable(externalReference); }
-
-    public static class Builder {
-        private String userName;
-        private String password;
-        private String groupName;
-        private int groupTypeID;
-        private String address1;
-        private String address2;
-        private String city;
-        private String state;
-        private String zipCode;
-        private String country;
-        private String phone;
-        private String fax;
-        private String emailAddress;
-        private String externalReference;
-        public Builder userName(String userName) { this.userName = userName; return this; }
-        public Builder password(String password) { this.password = password; return this; }
-        public Builder groupName(String groupName) { this.groupName = groupName; return this; }
-        public Builder groupTypeID(int groupTypeID) { this.groupTypeID = groupTypeID; return this; }
-        public Builder address1(String address1) { this.address1 = address1; return this; }
-        public Builder address2(String address2) { this.address2 = address2; return this; }
-        public Builder city(String city) { this.city = city; return this; }
-        public Builder state(String state) { this.state = state; return this; }
-        public Builder zipCode(String zipCode) { this.zipCode = zipCode; return this; }
-        public Builder country(String country) { this.country = country; return this; }
-        public Builder phone(String phone) { this.phone = phone; return this; }
-        public Builder fax(String fax) { this.fax = fax; return this; }
-        public Builder emailAddress(String emailAddress) { this.emailAddress = emailAddress; return this; }
-        public Builder externalReference(String externalReference) { this.externalReference = externalReference; return this; }
-        public AddGroup build() { return new AddGroup(this); }
+    /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddGroup that = (AddGroup) o;
-        return groupTypeID == that.groupTypeID &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(groupName, that.groupName) &&
-                java.util.Objects.equals(address1, that.address1) &&
-                java.util.Objects.equals(address2, that.address2) &&
-                java.util.Objects.equals(city, that.city) &&
-                java.util.Objects.equals(state, that.state) &&
-                java.util.Objects.equals(zipCode, that.zipCode) &&
-                java.util.Objects.equals(country, that.country) &&
-                java.util.Objects.equals(phone, that.phone) &&
-                java.util.Objects.equals(fax, that.fax) &&
-                java.util.Objects.equals(emailAddress, that.emailAddress) &&
-                java.util.Objects.equals(externalReference, that.externalReference);
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
     }
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, groupName, groupTypeID, address1, address2, city, state, zipCode, country, phone, fax, emailAddress, externalReference);
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
     }
-    @Override
-    public String toString() {
-        return "AddGroup{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", groupName='" + groupName + '\'' +
-                ", groupTypeID=" + groupTypeID +
-                ", address1='" + address1 + '\'' +
-                ", address2='" + address2 + '\'' +
-                ", city='" + city + '\'' +
-                ", state='" + state + '\'' +
-                ", zipCode='" + zipCode + '\'' +
-                ", country='" + country + '\'' +
-                ", phone='" + phone + '\'' +
-                ", fax='" + fax + '\'' +
-                ", emailAddress='" + emailAddress + '\'' +
-                ", externalReference='" + externalReference + '\'' +
-                '}';
+
+    /**
+     * Gets the value of the groupName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGroupName() {
+        return groupName;
     }
+
+    /**
+     * Sets the value of the groupName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setGroupName(String value) {
+        this.groupName = value;
+    }
+
+    /**
+     * Gets the value of the groupTypeID property.
+     * 
+     */
+    public int getGroupTypeID() {
+        return groupTypeID;
+    }
+
+    /**
+     * Sets the value of the groupTypeID property.
+     * 
+     */
+    public void setGroupTypeID(int value) {
+        this.groupTypeID = value;
+    }
+
+    /**
+     * Gets the value of the address1 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAddress1() {
+        return address1;
+    }
+
+    /**
+     * Sets the value of the address1 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAddress1(String value) {
+        this.address1 = value;
+    }
+
+    /**
+     * Gets the value of the address2 property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getAddress2() {
+        return address2;
+    }
+
+    /**
+     * Sets the value of the address2 property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setAddress2(String value) {
+        this.address2 = value;
+    }
+
+    /**
+     * Gets the value of the city property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCity() {
+        return city;
+    }
+
+    /**
+     * Sets the value of the city property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCity(String value) {
+        this.city = value;
+    }
+
+    /**
+     * Gets the value of the state property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getState() {
+        return state;
+    }
+
+    /**
+     * Sets the value of the state property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setState(String value) {
+        this.state = value;
+    }
+
+    /**
+     * Gets the value of the zipCode property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    /**
+     * Sets the value of the zipCode property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setZipCode(String value) {
+        this.zipCode = value;
+    }
+
+    /**
+     * Gets the value of the country property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCountry() {
+        return country;
+    }
+
+    /**
+     * Sets the value of the country property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCountry(String value) {
+        this.country = value;
+    }
+
+    /**
+     * Gets the value of the phone property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * Sets the value of the phone property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPhone(String value) {
+        this.phone = value;
+    }
+
+    /**
+     * Gets the value of the fax property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getFax() {
+        return fax;
+    }
+
+    /**
+     * Sets the value of the fax property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setFax(String value) {
+        this.fax = value;
+    }
+
+    /**
+     * Gets the value of the emailAddress property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    /**
+     * Sets the value of the emailAddress property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setEmailAddress(String value) {
+        this.emailAddress = value;
+    }
+
+    /**
+     * Gets the value of the externalReference property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getExternalReference() {
+        return externalReference;
+    }
+
+    /**
+     * Sets the value of the externalReference property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setExternalReference(String value) {
+        this.externalReference = value;
+    }
+
 }

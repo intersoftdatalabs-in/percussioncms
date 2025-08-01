@@ -1,4 +1,3 @@
-// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,27 +16,18 @@
  */
 package com.percussion.membership.data;
 
-import java.util.Optional;
-
-/**
- * Represents the result of a get user call.
- * Sunny Sal: "Getting users - like finding stars in Bollywood!"
- */
-public class PSGetUserResult extends PSMembershipResult {
-
-    private final PSUserSummary userSummary;
-
-    public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary) {
+public class PSGetUserResult extends PSMembershipResult
+{
+    private PSUserSummary userSummary;
+    
+    public PSGetUserResult(STATUS status, String message, PSUserSummary userSummary)
+    {
         super(status, message);
         this.userSummary = userSummary;
     }
 
-    /**
-     * Gets the user summary.
-     *
-     * @return Optional containing the user summary, empty if not set.
-     */
-    public Optional<PSUserSummary> getUserSummary() {
-        return Optional.ofNullable(userSummary);
+    public PSUserSummary getUserSummary()
+    {
+        return userSummary;
     }
 }

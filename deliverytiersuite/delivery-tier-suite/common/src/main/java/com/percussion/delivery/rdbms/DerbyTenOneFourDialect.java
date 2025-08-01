@@ -14,30 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.delivery.rdbms;
 
-import java.sql.Types;
 import org.hibernate.dialect.DerbyTenSevenDialect;
 
-/**
- * Custom Hibernate dialect for Derby 10.1.4, remapping unsupported nationalized types.
- * // REFACTORED: CP-JAVA11
- */
+import java.sql.Types;
+
 public class DerbyTenOneFourDialect extends DerbyTenSevenDialect {
 
-    public DerbyTenOneFourDialect() {
+    public DerbyTenOneFourDialect(){
         super();
-        // Remap nationalized types as they are unsupported by Derby
-        registerColumnType(Types.NCHAR, "char($l)");
-        registerColumnType(Types.NVARCHAR, "varchar($l)");
-        registerColumnType(Types.LONGNVARCHAR, "long varchar($l)");
-        registerColumnType(Types.NCLOB, "clob($l)");
+
+        //re-map nationalized types as they are unsupported by derby
+        registerColumnType(Types.NCHAR,"char($l)");
+        registerColumnType(Types.NVARCHAR,"varchar($l)");
+        registerColumnType(Types.LONGNVARCHAR,"long varchar($l)");
+        registerColumnType(Types.NCLOB,"clob($l)");
     }
 
     /**
-     * Indicates whether this dialect supports nationalized types.
+     * Does this dialect support Nationalized Types
      *
-     * @return false, as Derby does not support nationalized types.
+     * @return boolean
      */
     @Override
     public boolean supportsNationalizedTypes() {

@@ -15,66 +15,74 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-
 package com.percussion.delivery.metadata;
 
 import java.util.Collection;
 import java.util.List;
+
 import com.percussion.delivery.metadata.rdbms.impl.PSDbBlogPostVisit;
 
 /**
- * Data access object for blog post visits.
+ *
  */
-public interface IPSBlogPostVisitDao {
+public interface IPSBlogPostVisitDao
+{
 
     /**
      * Deletes multiple page visit entries.
-     * @param pagepaths collection of page path strings whose visits need to be deleted.
+     * 
+     * @param pagepaths collection of page path strings whose visits needs to be deleted. 
+     * Cannot be <code>null</code> may be empty.         
      */
-    void delete(Collection<String> pagepaths);
+    public void delete(Collection<String> pagepaths);
 
     /**
      * Deletes a single page visit entry.
-     * @param pagepath the page path of the visit entry to delete.
-     * @return true if a delete operation occurred.
+     * 
+     * @param pagepath The page path of the page visit entry that should be
+     *            deleted. Cannot be <code>null</code> nor empty.
+     * @return <code>true</code> if a delete operation actually occurred.            
      */
-    boolean delete(String pagepath);
+    public boolean delete(String pagepath);
 
     /**
-     * Saves multiple page visit entries.
-     * @param visits collection of entries to be saved.
+     * Saves multiple page path entries.
+     * 
+     * @param visits collection of entries to be saved, cannot be
+     *            <code>null</code>, may be empty.
      */
-    void save(Collection<IPSBlogPostVisit> visits);
+    public void save(Collection<IPSBlogPostVisit> visits);
 
     /**
      * Saves a single page visit entry.
-     * @param visit a {@link IPSBlogPostVisit} instance to store.
+     * 
+     * @param visit A {@link IPSBlogPostVisit} instance to store in the
+     *            database. Cannot be <code>null</code>.
      */
-    void save(IPSBlogPostVisit visit);
+    public void save(IPSBlogPostVisit visit);
 
     /**
-     * Returns list of most visited pages within the supplied number of days, limited to the supplied amount.
-     * @param sectionPath the path of the section.
-     * @param days the number of days to filter.
-     * @param limit the result limit.
-     * @param sortOrder sort order ("asc" or "desc").
-     * @return a list of page paths.
+     * Returns list of most visited pages within the supplied number of days, limits to the supplied limit amount.
+     * 
+     * @param sectionPath the path of the page
+     * @param days the number of days to filter the query by
+     * @param limit the limit of items on the query
+     * @param sortOrder sort the query by asc or desc
+     * @return A list String pagepaths. Never <code>null</code>, may be empty.
      */
-    List<String> getTopVisitedPages(String sectionPath, int days, int limit, String sortOrder);
+    public List<String> getTopVisitedPages(String sectionPath, int days, int limit, String sortOrder);
 
     /**
-     * Finds page visits by page path.
-     * @param pagepath the page path to search.
-     * @return list of matching visits, or empty if none found.
+     * Finds a page visit according to the given pagepath.
+     * 
+     * @param pagepath The pagepath of the page visit entry to return. Cannot be
+     *            <code>null</code> nor empty.
+     * @return The page visit entry with the pagepath specified. If no entry is
+     *         found, null is returned.
      */
-    List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath);
+    public List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath);
 
-    /**
-     * Updates blog post visits after a site rename.
-     * @param prevSiteName previous site name.
-     * @param newSiteName new site name.
-     * @throws Exception if update fails.
-     */
-    void updatePostsAfterSiteRename(String prevSiteName, String newSiteName) throws Exception;
+    public void updatePostsAfterSiteRename(String prevSiteName,
+                                           String newSiteName) throws Exception;
+    
 }

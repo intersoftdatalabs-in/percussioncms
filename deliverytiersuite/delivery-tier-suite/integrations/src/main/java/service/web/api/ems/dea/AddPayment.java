@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -65,94 +66,208 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "notes"
 })
 @XmlRootElement(name = "AddPayment")
-public final class AddPayment {
+public class AddPayment {
+
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "TransactionDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private final XMLGregorianCalendar transactionDate;
+    protected XMLGregorianCalendar transactionDate;
     @XmlElement(name = "PaymentTypeID")
-    private final int paymentTypeID;
+    protected int paymentTypeID;
     @XmlElement(name = "CheckNo")
-    private final String checkNo;
+    protected String checkNo;
     @XmlElement(name = "PaymentAmount", required = true)
-    private final BigDecimal paymentAmount;
+    protected BigDecimal paymentAmount;
     @XmlElement(name = "InvoiceNo")
-    private final String invoiceNo;
+    protected String invoiceNo;
     @XmlElement(name = "Notes")
-    private final String notes;
+    protected String notes;
 
-    private AddPayment(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.transactionDate = builder.transactionDate;
-        this.paymentTypeID = builder.paymentTypeID;
-        this.checkNo = builder.checkNo;
-        this.paymentAmount = builder.paymentAmount;
-        this.invoiceNo = builder.invoiceNo;
-        this.notes = builder.notes;
-    }
-
-    public java.util.Optional<String> getUserName() { return java.util.Optional.ofNullable(userName); }
-    public java.util.Optional<String> getPassword() { return java.util.Optional.ofNullable(password); }
-    public XMLGregorianCalendar getTransactionDate() { return transactionDate; }
-    public int getPaymentTypeID() { return paymentTypeID; }
-    public java.util.Optional<String> getCheckNo() { return java.util.Optional.ofNullable(checkNo); }
-    public BigDecimal getPaymentAmount() { return paymentAmount; }
-    public java.util.Optional<String> getInvoiceNo() { return java.util.Optional.ofNullable(invoiceNo); }
-    public java.util.Optional<String> getNotes() { return java.util.Optional.ofNullable(notes); }
-
-    public static class Builder {
-        private String userName;
-        private String password;
-        private XMLGregorianCalendar transactionDate;
-        private int paymentTypeID;
-        private String checkNo;
-        private BigDecimal paymentAmount;
-        private String invoiceNo;
-        private String notes;
-        public Builder userName(String userName) { this.userName = userName; return this; }
-        public Builder password(String password) { this.password = password; return this; }
-        public Builder transactionDate(XMLGregorianCalendar transactionDate) { this.transactionDate = transactionDate; return this; }
-        public Builder paymentTypeID(int paymentTypeID) { this.paymentTypeID = paymentTypeID; return this; }
-        public Builder checkNo(String checkNo) { this.checkNo = checkNo; return this; }
-        public Builder paymentAmount(BigDecimal paymentAmount) { this.paymentAmount = paymentAmount; return this; }
-        public Builder invoiceNo(String invoiceNo) { this.invoiceNo = invoiceNo; return this; }
-        public Builder notes(String notes) { this.notes = notes; return this; }
-        public AddPayment build() { return new AddPayment(this); }
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AddPayment that = (AddPayment) o;
-        return paymentTypeID == that.paymentTypeID &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(transactionDate, that.transactionDate) &&
-                java.util.Objects.equals(checkNo, that.checkNo) &&
-                java.util.Objects.equals(paymentAmount, that.paymentAmount) &&
-                java.util.Objects.equals(invoiceNo, that.invoiceNo) &&
-                java.util.Objects.equals(notes, that.notes);
+    /**
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUserName(String value) {
+        this.userName = value;
     }
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, transactionDate, paymentTypeID, checkNo, paymentAmount, invoiceNo, notes);
+
+    /**
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPassword() {
+        return password;
     }
-    @Override
-    public String toString() {
-        return "AddPayment{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", transactionDate=" + transactionDate +
-                ", paymentTypeID=" + paymentTypeID +
-                ", checkNo='" + checkNo + '\'' +
-                ", paymentAmount=" + paymentAmount +
-                ", invoiceNo='" + invoiceNo + '\'' +
-                ", notes='" + notes + '\'' +
-                '}';
+
+    /**
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPassword(String value) {
+        this.password = value;
     }
+
+    /**
+     * Gets the value of the transactionDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getTransactionDate() {
+        return transactionDate;
+    }
+
+    /**
+     * Sets the value of the transactionDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setTransactionDate(XMLGregorianCalendar value) {
+        this.transactionDate = value;
+    }
+
+    /**
+     * Gets the value of the paymentTypeID property.
+     * 
+     */
+    public int getPaymentTypeID() {
+        return paymentTypeID;
+    }
+
+    /**
+     * Sets the value of the paymentTypeID property.
+     * 
+     */
+    public void setPaymentTypeID(int value) {
+        this.paymentTypeID = value;
+    }
+
+    /**
+     * Gets the value of the checkNo property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getCheckNo() {
+        return checkNo;
+    }
+
+    /**
+     * Sets the value of the checkNo property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setCheckNo(String value) {
+        this.checkNo = value;
+    }
+
+    /**
+     * Gets the value of the paymentAmount property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public BigDecimal getPaymentAmount() {
+        return paymentAmount;
+    }
+
+    /**
+     * Sets the value of the paymentAmount property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigDecimal }
+     *     
+     */
+    public void setPaymentAmount(BigDecimal value) {
+        this.paymentAmount = value;
+    }
+
+    /**
+     * Gets the value of the invoiceNo property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getInvoiceNo() {
+        return invoiceNo;
+    }
+
+    /**
+     * Sets the value of the invoiceNo property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setInvoiceNo(String value) {
+        this.invoiceNo = value;
+    }
+
+    /**
+     * Gets the value of the notes property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getNotes() {
+        return notes;
+    }
+
+    /**
+     * Sets the value of the notes property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setNotes(String value) {
+        this.notes = value;
+    }
+
 }

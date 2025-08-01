@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,64 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for UpdateBooking2.
- * <p>
- * Represents the response payload for the UpdateBooking2 endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "UpdateBooking2Response—because every update deserves a response!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UpdateBooking2Result" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateBooking2Result"
 })
 @XmlRootElement(name = "UpdateBooking2Response")
-public final class UpdateBooking2Response {
+public class UpdateBooking2Response {
 
     @XmlElement(name = "UpdateBooking2Result")
-    private final String updateBooking2Result;
+    protected String updateBooking2Result;
 
-    private UpdateBooking2Response(Builder builder) {
-        this.updateBooking2Result = builder.updateBooking2Result;
+    /**
+     * Gets the value of the updateBooking2Result property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUpdateBooking2Result() {
+        return updateBooking2Result;
     }
 
     /**
-     * Gets the update booking 2 result.
-     *
-     * @return Optional result string
+     * Sets the value of the updateBooking2Result property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUpdateBooking2Result() {
-        return Optional.ofNullable(updateBooking2Result);
+    public void setUpdateBooking2Result(String value) {
+        this.updateBooking2Result = value;
     }
 
-    /**
-     * Builder for UpdateBooking2Response.
-     */
-    public static class Builder {
-        private String updateBooking2Result;
-
-        public Builder withUpdateBooking2Result(String updateBooking2Result) {
-            this.updateBooking2Result = updateBooking2Result;
-            return this;
-        }
-
-        public UpdateBooking2Response build() {
-            return new UpdateBooking2Response(this);
-        }
-    }
 }

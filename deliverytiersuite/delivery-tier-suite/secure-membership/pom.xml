@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- REFACTORED: CP-JAVA11 - Sunny Sal modernized for Java 11, JUnit5, and Google Java Style -->
+
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>delivery-tier-suite</artifactId>
         <groupId>com.percussion.deliverytier</groupId>
+        <artifactId>delivery-tier-suite</artifactId>
         <version>8.1.6-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -72,12 +72,14 @@
             <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
-            <scope>test</scope>
-        </dependency>
+<!-- https://mvnrepository.com/artifact/junit/junit -->
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>${junit.version}</version>
+    <scope>test</scope>
+</dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -239,25 +241,8 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Add Apache Commons Lang3 for modern utility support -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.13.0</version>
-        </dependency>
-        <!-- Add Guava for modern collections and utilities -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.1.0-jre</version>
-        </dependency>
     </dependencies>
 
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <maven.compiler.release>11</maven.compiler.release>
-    </properties>
     <build>
         <resources>
             <resource>
@@ -269,13 +254,10 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
                     <source>11</source>
                     <target>11</target>
-                    <release>11</release>
                 </configuration>
             </plugin>
             <plugin>

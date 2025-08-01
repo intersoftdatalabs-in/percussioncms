@@ -17,6 +17,7 @@
 package com.percussion.delivery.utils.security;
 
 import com.percussion.security.ToDoVulnerability;
+
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
@@ -25,38 +26,49 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
 /**
- * Common helper class to return an HTTP client.
- * <p>
- * WARNING: This implementation disables SSL hostname verification and trusts all certificates.
- * This is NOT OWASP compliant and should only be used for internal, self-signed services.
- * Refactor before production use.
- *
+ * Common helper class to return a HTTP client.
+ * 
  * @author leonardohildt
+ * 
  */
 @ToDoVulnerability
 @Deprecated
-public class PSHttpClient {
-
-    public PSHttpClient() {
-        // KISS: No state, no problem.
+public class PSHttpClient
+{
+    public PSHttpClient()
+    {
     }
 
     /**
-     * Creates and returns an SSL-enabled client.
-     *
-     * @return the client, never {@code null}.
+     * Creates and returns an SSL enabled client.
+     * 
+     * @return the client, never <code>null</code>.
      * @throws Exception if any error occurs.
      */
-    public Client getSSLClient() throws Exception {
-        var ctx = SSLContext.getInstance("TLS");
-        ctx.init(null, new TrustManager[] { new PSSimpleTrustManager(null) }, null);
+    public Client getSSLClient() throws Exception
+    {
 
-        // OWASP WARNING: This disables hostname verification and trusts all SSL certificates.
-        var client = ClientBuilder.newBuilder()
+        SSLContext ctx = SSLContext.getInstance("TLS");
+
+        ctx.init(null, new TrustManager[]
+        {new PSSimpleTrustManager(null)}, null);
+
+        /* TODO: This looks like a security issue - isn't this whitelisting all ssl certificates?
+        Seems so.  This is used in PSFeedsService and PSMembershipService. I am assuming this is to
+        handle services calling each other with a self signed certificate.  Needs to be refactored.
+         */
+        Client client = ClientBuilder.newBuilder()
                 .sslContext(ctx)
-                .hostnameVerifier((String s, SSLSession sslSession) -> true)
+                .hostnameVerifier(new HostnameVerifier(){
+                    @Override
+                    public boolean verify(String s, SSLSession sslSession)
+                    {
+                        return true;
+                    }
+                })
                 .build();
 
         return client;
     }
+
 }

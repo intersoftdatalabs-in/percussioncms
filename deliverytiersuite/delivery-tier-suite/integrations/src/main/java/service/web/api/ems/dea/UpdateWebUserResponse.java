@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,64 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for UpdateWebUser.
- * <p>
- * Represents the response payload for the UpdateWebUser endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Web user updated—now your login and your code are both top-notch!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UpdateWebUserResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateWebUserResult"
 })
 @XmlRootElement(name = "UpdateWebUserResponse")
-public final class UpdateWebUserResponse {
+public class UpdateWebUserResponse {
 
     @XmlElement(name = "UpdateWebUserResult")
-    private final String updateWebUserResult;
+    protected String updateWebUserResult;
 
-    private UpdateWebUserResponse(Builder builder) {
-        this.updateWebUserResult = builder.updateWebUserResult;
+    /**
+     * Gets the value of the updateWebUserResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUpdateWebUserResult() {
+        return updateWebUserResult;
     }
 
     /**
-     * Gets the update web user result.
-     *
-     * @return Optional result string
+     * Sets the value of the updateWebUserResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUpdateWebUserResult() {
-        return Optional.ofNullable(updateWebUserResult);
+    public void setUpdateWebUserResult(String value) {
+        this.updateWebUserResult = value;
     }
 
-    /**
-     * Builder for UpdateWebUserResponse.
-     */
-    public static class Builder {
-        private String updateWebUserResult;
-
-        public Builder withUpdateWebUserResult(String updateWebUserResult) {
-            this.updateWebUserResult = updateWebUserResult;
-            return this;
-        }
-
-        public UpdateWebUserResponse build() {
-            return new UpdateWebUserResponse(this);
-        }
-    }
 }

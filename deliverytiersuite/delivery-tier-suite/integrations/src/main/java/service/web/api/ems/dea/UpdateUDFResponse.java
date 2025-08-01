@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,64 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for UpdateUDF.
- * <p>
- * Represents the response payload for the UpdateUDF endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "UDF updated—now your functions and your code are both up to date!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UpdateUDFResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateUDFResult"
 })
 @XmlRootElement(name = "UpdateUDFResponse")
-public final class UpdateUDFResponse {
+public class UpdateUDFResponse {
 
     @XmlElement(name = "UpdateUDFResult")
-    private final String updateUDFResult;
+    protected String updateUDFResult;
 
-    private UpdateUDFResponse(Builder builder) {
-        this.updateUDFResult = builder.updateUDFResult;
+    /**
+     * Gets the value of the updateUDFResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUpdateUDFResult() {
+        return updateUDFResult;
     }
 
     /**
-     * Gets the update UDF result.
-     *
-     * @return Optional result string
+     * Sets the value of the updateUDFResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUpdateUDFResult() {
-        return Optional.ofNullable(updateUDFResult);
+    public void setUpdateUDFResult(String value) {
+        this.updateUDFResult = value;
     }
 
-    /**
-     * Builder for UpdateUDFResponse.
-     */
-    public static class Builder {
-        private String updateUDFResult;
-
-        public Builder withUpdateUDFResult(String updateUDFResult) {
-            this.updateUDFResult = updateUDFResult;
-            return this;
-        }
-
-        public UpdateUDFResponse build() {
-            return new UpdateUDFResponse(this);
-        }
-    }
 }

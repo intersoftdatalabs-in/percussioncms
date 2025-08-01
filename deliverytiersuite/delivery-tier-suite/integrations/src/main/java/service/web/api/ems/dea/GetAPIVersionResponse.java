@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -25,67 +26,56 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * Java 11+ refactored version of GetAPIVersionResponse SOAP response.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
- * <p>
- * // REFACTORED: CP-JAVA11
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetAPIVersionResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getAPIVersionResult"
 })
 @XmlRootElement(name = "GetAPIVersionResponse")
-public final class GetAPIVersionResponse {
+public class GetAPIVersionResponse {
+
     @XmlElement(name = "GetAPIVersionResult")
-    private final String getAPIVersionResult;
+    protected String getAPIVersionResult;
 
-    private GetAPIVersionResponse(Builder builder) {
-        this.getAPIVersionResult = builder.getAPIVersionResult;
+    /**
+     * Gets the value of the getAPIVersionResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetAPIVersionResult() {
+        return getAPIVersionResult;
     }
 
     /**
-     * @return Optional API version result string.
+     * Sets the value of the getAPIVersionResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getAPIVersionResult() {
-        return java.util.Optional.ofNullable(getAPIVersionResult);
+    public void setGetAPIVersionResult(String value) {
+        this.getAPIVersionResult = value;
     }
 
-    @Override
-    public String toString() {
-        return "GetAPIVersionResponse{" +
-                "getAPIVersionResult='" + getAPIVersionResult + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAPIVersionResponse that = (GetAPIVersionResponse) o;
-        return java.util.Objects.equals(getAPIVersionResult, that.getAPIVersionResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(getAPIVersionResult);
-    }
-
-    /**
-     * Builder for GetAPIVersionResponse. Use for safe, immutable construction.
-     */
-    public static class Builder {
-        private String getAPIVersionResult;
-
-        public Builder() {}
-
-        public Builder getAPIVersionResult(String getAPIVersionResult) {
-            this.getAPIVersionResult = getAPIVersionResult;
-            return this;
-        }
-
-        public GetAPIVersionResponse build() {
-            return new GetAPIVersionResponse(this);
-        }
-    }
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,58 +18,64 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: Immutable SOAP response for UpdateServiceOrderDetail.
- * <p>
- * Represents the response payload for the UpdateServiceOrderDetail endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Service order detail updated—now your code and your chai are both extra detailed!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UpdateServiceOrderDetailResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "updateServiceOrderDetailResult"
 })
 @XmlRootElement(name = "UpdateServiceOrderDetailResponse")
-public final class UpdateServiceOrderDetailResponse {
+public class UpdateServiceOrderDetailResponse {
 
     @XmlElement(name = "UpdateServiceOrderDetailResult")
-    private final String updateServiceOrderDetailResult;
+    protected String updateServiceOrderDetailResult;
 
-    private UpdateServiceOrderDetailResponse(Builder builder) {
-        this.updateServiceOrderDetailResult = builder.updateServiceOrderDetailResult;
+    /**
+     * Gets the value of the updateServiceOrderDetailResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUpdateServiceOrderDetailResult() {
+        return updateServiceOrderDetailResult;
     }
 
     /**
-     * Gets the update service order detail result.
-     *
-     * @return Optional result string
+     * Sets the value of the updateServiceOrderDetailResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUpdateServiceOrderDetailResult() {
-        return Optional.ofNullable(updateServiceOrderDetailResult);
+    public void setUpdateServiceOrderDetailResult(String value) {
+        this.updateServiceOrderDetailResult = value;
     }
 
-    /**
-     * Builder for UpdateServiceOrderDetailResponse.
-     */
-    public static class Builder {
-        private String updateServiceOrderDetailResult;
-
-        public Builder withUpdateServiceOrderDetailResult(String updateServiceOrderDetailResult) {
-            this.updateServiceOrderDetailResult = updateServiceOrderDetailResult;
-            return this;
-        }
-
-        public UpdateServiceOrderDetailResponse build() {
-            return new UpdateServiceOrderDetailResponse(this);
-        }
-    }
 }

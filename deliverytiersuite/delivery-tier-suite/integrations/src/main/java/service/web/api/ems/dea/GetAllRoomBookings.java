@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -27,11 +28,28 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 
 /**
- * Java 11+ refactored version of GetAllRoomBookings SOAP request.
- * <p>
- * Immutable, thread-safe, and OWASP-compliant. Use builder for instantiation.
- * <p>
- * // REFACTORED: CP-JAVA11
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="StartDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="EndDate" type="{http://www.w3.org/2001/XMLSchema}dateTime"/&gt;
+ *         &lt;element name="RoomID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ViewComboRoomComponents" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -43,154 +61,149 @@ import javax.xml.datatype.XMLGregorianCalendar;
     "viewComboRoomComponents"
 })
 @XmlRootElement(name = "GetAllRoomBookings")
-public final class GetAllRoomBookings {
+public class GetAllRoomBookings {
+
     @XmlElement(name = "UserName")
-    private final String userName;
+    protected String userName;
     @XmlElement(name = "Password")
-    private final String password;
+    protected String password;
     @XmlElement(name = "StartDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private final XMLGregorianCalendar startDate;
+    protected XMLGregorianCalendar startDate;
     @XmlElement(name = "EndDate", required = true)
     @XmlSchemaType(name = "dateTime")
-    private final XMLGregorianCalendar endDate;
+    protected XMLGregorianCalendar endDate;
     @XmlElement(name = "RoomID")
-    private final int roomID;
+    protected int roomID;
     @XmlElement(name = "ViewComboRoomComponents")
-    private final boolean viewComboRoomComponents;
+    protected boolean viewComboRoomComponents;
 
     /**
-     * Private constructor for builder usage only.
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    private GetAllRoomBookings(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.startDate = builder.startDate;
-        this.endDate = builder.endDate;
-        this.roomID = builder.roomID;
-        this.viewComboRoomComponents = builder.viewComboRoomComponents;
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * @return Optional user name for authentication.
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getUserName() {
-        return java.util.Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * @return Optional password for authentication.
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<String> getPassword() {
-        return java.util.Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * @return Optional start date for room bookings.
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public java.util.Optional<XMLGregorianCalendar> getStartDate() {
-        return java.util.Optional.ofNullable(startDate);
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * @return Optional end date for room bookings.
+     * Gets the value of the startDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
      */
-    public java.util.Optional<XMLGregorianCalendar> getEndDate() {
-        return java.util.Optional.ofNullable(endDate);
+    public XMLGregorianCalendar getStartDate() {
+        return startDate;
     }
 
     /**
-     * @return Room ID for which bookings are requested.
+     * Sets the value of the startDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setStartDate(XMLGregorianCalendar value) {
+        this.startDate = value;
+    }
+
+    /**
+     * Gets the value of the endDate property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public XMLGregorianCalendar getEndDate() {
+        return endDate;
+    }
+
+    /**
+     * Sets the value of the endDate property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link XMLGregorianCalendar }
+     *     
+     */
+    public void setEndDate(XMLGregorianCalendar value) {
+        this.endDate = value;
+    }
+
+    /**
+     * Gets the value of the roomID property.
+     * 
      */
     public int getRoomID() {
         return roomID;
     }
 
     /**
-     * @return true if combo room components should be viewed.
+     * Sets the value of the roomID property.
+     * 
+     */
+    public void setRoomID(int value) {
+        this.roomID = value;
+    }
+
+    /**
+     * Gets the value of the viewComboRoomComponents property.
+     * 
      */
     public boolean isViewComboRoomComponents() {
         return viewComboRoomComponents;
     }
 
-    @Override
-    public String toString() {
-        return "GetAllRoomBookings{" +
-                "userName='" + userName + '\'' +
-                ", password='[PROTECTED]'" +
-                ", startDate=" + startDate +
-                ", endDate=" + endDate +
-                ", roomID=" + roomID +
-                ", viewComboRoomComponents=" + viewComboRoomComponents +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GetAllRoomBookings that = (GetAllRoomBookings) o;
-        return roomID == that.roomID &&
-                viewComboRoomComponents == that.viewComboRoomComponents &&
-                java.util.Objects.equals(userName, that.userName) &&
-                java.util.Objects.equals(password, that.password) &&
-                java.util.Objects.equals(startDate, that.startDate) &&
-                java.util.Objects.equals(endDate, that.endDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return java.util.Objects.hash(userName, password, startDate, endDate, roomID, viewComboRoomComponents);
-    }
-
     /**
-     * Builder for GetAllRoomBookings. Use for safe, immutable construction.
+     * Sets the value of the viewComboRoomComponents property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private XMLGregorianCalendar startDate;
-        private XMLGregorianCalendar endDate;
-        private int roomID;
-        private boolean viewComboRoomComponents;
-
-        public Builder() {}
-
-        public Builder userName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder startDate(XMLGregorianCalendar startDate) {
-            this.startDate = startDate;
-            return this;
-        }
-
-        public Builder endDate(XMLGregorianCalendar endDate) {
-            this.endDate = endDate;
-            return this;
-        }
-
-        public Builder roomID(int roomID) {
-            this.roomID = roomID;
-            return this;
-        }
-
-        public Builder viewComboRoomComponents(boolean viewComboRoomComponents) {
-            this.viewComboRoomComponents = viewComboRoomComponents;
-            return this;
-        }
-
-        public GetAllRoomBookings build() {
-            // Defensive validation
-            if (startDate == null) throw new IllegalArgumentException("StartDate is required");
-            if (endDate == null) throw new IllegalArgumentException("EndDate is required");
-            return new GetAllRoomBookings(this);
-        }
+    public void setViewComboRoomComponents(boolean value) {
+        this.viewComboRoomComponents = value;
     }
+
 }

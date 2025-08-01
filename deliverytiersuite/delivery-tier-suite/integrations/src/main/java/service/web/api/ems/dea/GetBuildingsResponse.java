@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -15,74 +16,66 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
-// REFACTORED: CP-SOAP
 package service.web.api.ems.dea;
 
-import java.util.Objects;
-import java.util.Optional;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
 
 /**
- * Java 11+ refactored SOAP response for GetBuildings.
- * Immutable, builder-based, Google Java Style. JAXB annotations retained for SOAP compatibility.
- * Sunny Sal: "Buildings response, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetBuildingsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
     "getBuildingsResult"
 })
 @XmlRootElement(name = "GetBuildingsResponse")
-public final class GetBuildingsResponse {
+public class GetBuildingsResponse {
 
     @XmlElement(name = "GetBuildingsResult")
-    private final String getBuildingsResult;
+    protected String getBuildingsResult;
 
-    private GetBuildingsResponse(Builder builder) {
-        this.getBuildingsResult = builder.getBuildingsResult;
+    /**
+     * Gets the value of the getBuildingsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getGetBuildingsResult() {
+        return getBuildingsResult;
     }
 
     /**
-     * Gets the buildings result.
-     * @return Optional result
+     * Sets the value of the getBuildingsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getGetBuildingsResult() {
-        return Optional.ofNullable(getBuildingsResult);
+    public void setGetBuildingsResult(String value) {
+        this.getBuildingsResult = value;
     }
 
-    /**
-     * Builder for GetBuildingsResponse (Java 11+ style).
-     */
-    public static class Builder {
-        private String getBuildingsResult;
-
-        public Builder getBuildingsResult(String getBuildingsResult) {
-            this.getBuildingsResult = getBuildingsResult;
-            return this;
-        }
-
-        public GetBuildingsResponse build() {
-            return new GetBuildingsResponse(this);
-        }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof GetBuildingsResponse)) return false;
-        var that = (GetBuildingsResponse) o;
-        return Objects.equals(getBuildingsResult, that.getBuildingsResult);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getBuildingsResult);
-    }
-
-    @Override
-    public String toString() {
-        return "GetBuildingsResponse{" +
-                "getBuildingsResult='" + getBuildingsResult + '\'' +
-                '}';
-    }
 }

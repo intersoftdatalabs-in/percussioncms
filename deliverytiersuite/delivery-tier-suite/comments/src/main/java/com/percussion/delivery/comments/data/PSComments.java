@@ -16,42 +16,52 @@
  */
 package com.percussion.delivery.comments.data;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Container for a list of comments, used for JSON/XML serialization.
+ * A simple container. Its use is just to add
+ * a root element name for Jersey to spit out when 
+ * serializing to JSON.
+ * @author erikserating
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder = {"comments"})
+@XmlType(name = "", propOrder = {
+    "comments"
+})
 @XmlRootElement(name = "comments")
-public class PSComments {
-    private final List<IPSComment> comments;
-
-    /**
-     * Default constructor for JAXB.
-     * Initializes with an empty list.
-     */
-    public PSComments() {
-        this.comments = Collections.emptyList();
-    }
-
-    /**
-     * Constructs a PSComments object.
-     * @param comments the list of comments, never null
-     */
-    public PSComments(List<IPSComment> comments) {
-        this.comments = comments == null ? Collections.emptyList() : List.copyOf(comments);
-    }
-
-    /**
-     * @return unmodifiable list of comments, never null
-     */
-    public List<IPSComment> getComments() {
-        return comments;
-    }
+public class PSComments
+{
+   private List<IPSComment> comments;
+   
+   public PSComments()
+   {
+       comments = new ArrayList<>();
+   }
+   
+   /**
+    * Constructor for the {@link PSComments} object.
+    * 
+    * @param comments. Never <code>null</code>. 
+    */
+   public PSComments(List<IPSComment> comments)
+   {
+       this.comments = comments != null ? comments : new ArrayList<>();
+   }
+   
+   /**
+    * 
+    * @return the list of comments. Never <code>null</code>. 
+    */
+   public List<IPSComment> getComments()
+   {
+      return comments;
+   }
 }

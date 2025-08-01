@@ -22,96 +22,107 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * Thread-safe profanity filter that checks text for forbidden words.
- * Words are loaded from a configuration file in the following order:
- * 1. /conf/perc/profanity.txt
- * 2. /webapps/profanity.txt
- * 3. /profanity.txt (classpath)
+ * Profanity filter to find if text contains profanity.
  */
-public final class PSProfanityFilter {
+public class PSProfanityFilter 
+{
+
     private static final Logger log = LogManager.getLogger(PSProfanityFilter.class);
 
-    private static final String PROFANITY_FILE_CONF = "/conf/perc/profanity.txt";
-    private static final String PROFANITY_FILE_WEBAPPS = "/webapps/profanity.txt";
-    private static final String PROFANITY_FILE_CP = "/profanity.txt";
-
-    private final Set<Pattern> profanityPatterns;
-
-    /**
-     * Creates a profanity filter using the default configuration file locations.
-     * @throws IllegalStateException if no profanity file could be loaded
+    /*
+     * Comma separated word list of profanity words.
      */
-    public PSProfanityFilter() {
-        this.profanityPatterns = loadDefaultProfanityFile()
-            .map(this::compileProfanityPatterns)
-            .orElseThrow(() -> new IllegalStateException("No profanity file could be loaded"));
-    }
-
-    /**
-     * Creates a profanity filter using the specified configuration file.
-     * @param profanityFile the file containing profanity words, must not be null
-     * @throws IllegalArgumentException if the file cannot be read
+    private File profanityFile = null;
+    
+    /*
+     * List of profanity
      */
-    public PSProfanityFilter(Path profanityFile) {
-        Objects.requireNonNull(profanityFile, "profanityFile must not be null");
-        try {
-            this.profanityPatterns = compileProfanityPatterns(profanityFile);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Could not read profanity file: " + profanityFile, e);
+    static List<String> profanity;
+
+    
+    private static String PROFANITY_FILE_CONF = "/conf/perc/profanity.txt";
+    private static String PROFANITY_FILE_WEBAPPS = "/webapps/profanity.txt";
+    private static String PROFANITY_FILE_CP = "/profanity.txt";
+    
+    /***
+     * Initializes the Profanity filter from a file.  Will first try to load it from conf/perc.
+     * If it is not found, will load it from the old webapps location.  If that is not found,
+     * will load it from the class path resource.
+     */
+    public PSProfanityFilter()
+    {
+    	
+    	profanityFile = new File(System.getProperty("catalina.base") + PROFANITY_FILE_CONF);
+        if(!profanityFile.exists()){
+        	profanityFile = new File(System.getProperty("catalina.base") + PROFANITY_FILE_WEBAPPS);
         }
+        
+        setProfanity();
     }
-
+    
+    public PSProfanityFilter(File fileSample)
+    {
+        profanityFile = fileSample;
+        setProfanity();
+    }
+    
     /**
-     * Checks if the given text contains any profanity words.
-     * @param text the text to check, must not be null
-     * @return true if profanity is found, false otherwise
+     * Check to see if any of the words in the profanity list exist in given text.
+     * Once a match result returns true.  If a match is never found returns false.
+     * 
+     * @param text - test to check for profanity.
+     * 
+     * @return true if profanity is found else false
      */
-    public boolean containsProfanity(String text) {
-        Objects.requireNonNull(text, "text must not be null");
-        return profanityPatterns.stream()
-            .anyMatch(pattern -> pattern.matcher(text.toLowerCase()).find());
-    }
-
-    private Optional<Path> loadDefaultProfanityFile() {
-        var catalinaBase = System.getProperty("catalina.base");
-        if (catalinaBase != null) {
-            var confPath = Paths.get(catalinaBase, PROFANITY_FILE_CONF);
-            if (Files.isRegularFile(confPath)) {
-                return Optional.of(confPath);
+    public boolean containsProfanity(String text)
+    {
+        for(String word:profanity)
+        {
+            Pattern p = Pattern.compile("(?i)\\b" + word.toLowerCase().trim() + "\\b");
+            Matcher m = p.matcher(text.toLowerCase());
+            
+            if (m.find())
+            {
+                return true;
             }
-            var webappsPath = Paths.get(catalinaBase, PROFANITY_FILE_WEBAPPS);
-            if (Files.isRegularFile(webappsPath)) {
-                return Optional.of(webappsPath);
-            }
         }
-        var cpPath = getClass().getResource(PROFANITY_FILE_CP);
-        return Optional.ofNullable(cpPath)
-            .map(url -> Paths.get(url.getFile()));
+        return false;
     }
+    
+    /**
+     * Read in profanityFile and create array list of profanity.
+     */
+    private synchronized void setProfanity()
+    {
+        String profanityWords = "";
+        try
+        {
+        	if(profanityFile.exists()){
+        		log.info("Initializing the Comment Profanity Filter from file: {}",profanityFile.getAbsolutePath());
+        		profanityWords = FileUtils.readFileToString(profanityFile, StandardCharsets.UTF_8);
+	        }else{
+	        	log.info("Initializing the Comment Profanity Filter from default resource file.");        		
+	        	profanityWords = new Scanner(PSProfanityFilter.class.getResourceAsStream(PROFANITY_FILE_CP)).useDelimiter("\\A").next();
+	        }
+        }
+        catch (IOException e)
+        {
+            log.error("Error initializing the Comment Profanity Filter. Error: {}",
+                    PSExceptionUtils.getMessageForLog(e));
+            log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        }
 
-    private Set<Pattern> compileProfanityPatterns(Path file) throws IOException {
-        try (Stream<String> lines = Files.lines(file)) {
-            return lines
-                .filter(StringUtils::isNotBlank)
-                .map(String::toLowerCase)
-                .map(String::trim)
-                .map(word -> Pattern.compile("(?i)\\b" + Pattern.quote(word) + "\\b"))
-                .collect(Collectors.toCollection(ConcurrentHashMap::newKeySet));
-        }
+        PSProfanityFilter.profanity = Arrays.asList(StringUtils.split(profanityWords, ","));
     }
+    
 }

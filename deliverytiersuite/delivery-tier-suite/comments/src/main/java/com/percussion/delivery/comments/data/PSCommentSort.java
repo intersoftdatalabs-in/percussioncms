@@ -16,88 +16,61 @@
  */
 package com.percussion.delivery.comments.data;
 
-import java.util.Objects;
-
 /**
- * Immutable class representing sort configuration for comment queries.
+ * A small data class to hold sortby info for a comment result set.
+ * @author erikserating
  */
-public final class PSCommentSort {
-    private final SORTBY sortby;
-    private final boolean ascending;
-
-    /**
-     * Creates a new sort configuration.
-     *
-     * @param sortby sort by option, must not be null
-     * @param ascending true for ascending sort order, false for descending
-     * @throws NullPointerException if sortby is null
-     */
-    public PSCommentSort(SORTBY sortby, boolean ascending) {
-        this.sortby = Objects.requireNonNull(sortby, "sortby cannot be null");
-        this.ascending = ascending;
-    }
-
-    /**
-     * Creates a new ascending sort configuration.
-     *
-     * @param sortby sort by option, must not be null
-     * @throws NullPointerException if sortby is null
-     */
-    public static PSCommentSort ascending(SORTBY sortby) {
-        return new PSCommentSort(sortby, true);
-    }
-
-    /**
-     * Creates a new descending sort configuration.
-     *
-     * @param sortby sort by option, must not be null
-     * @throws NullPointerException if sortby is null
-     */
-    public static PSCommentSort descending(SORTBY sortby) {
-        return new PSCommentSort(sortby, false);
-    }
-
-    /**
-     * @return the sort by field, never null
-     */
-    public SORTBY getSortby() {
-        return sortby;
-    }
-
-    /**
-     * @return true if ascending order, false if descending
-     */
-    public boolean isAscending() {
-        return ascending;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PSCommentSort)) return false;
-        PSCommentSort that = (PSCommentSort) o;
-        return ascending == that.ascending && sortby == that.sortby;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sortby, ascending);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("PSCommentSort{sortby=%s, %s}",
-            sortby, ascending ? "ascending" : "descending");
-    }
-
-    /**
-     * Enumeration of sort field options.
-     */
-    public enum SORTBY
-    {
-        CREATEDDATE,
-        EMAIL,
-        USERNAME
-    }
-
+public class PSCommentSort
+{
+   
+   /**
+    * The sort by field value. Initialized in the ctor.
+    */
+   private SORTBY sortby;
+   
+   /**
+    * Indicates an ascending sort direction if set to <code>true</code>.
+    * Initialized in the ctor.
+    */
+   private boolean ascending = true;
+   
+   /**
+    * Ctor
+    * @param sortby sort by option, cannot be <code>null</code>.
+    * @param isAscending <code>true</code> indicates an ascending sort order.
+    */
+   public PSCommentSort(SORTBY sortby, boolean isAscending)
+   {
+      if(sortby == null)
+         throw new IllegalArgumentException("sortby cannot be null.");
+      this.sortby = sortby;
+      this.ascending = isAscending;
+   }
+   
+   /**
+    * @return the sortby field, never <code>null</code>.
+    */
+   public SORTBY getSortBy()
+   {
+      return sortby;
+   }
+   
+   /**
+    * @return <code>true</code> indicates an ascending sort direction.
+    */
+   public boolean isAscending()
+   {
+      return ascending;
+   }
+   
+   /**
+    * Enumeration of sort field options.
+    */
+   public enum SORTBY
+   {
+      CREATEDDATE,
+      EMAIL,
+      USERNAME
+   }
+   
 }

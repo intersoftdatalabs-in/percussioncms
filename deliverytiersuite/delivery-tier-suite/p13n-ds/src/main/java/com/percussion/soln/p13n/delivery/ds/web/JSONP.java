@@ -17,34 +17,34 @@
 
 package com.percussion.soln.p13n.delivery.ds.web;
 
+
 /**
- * JSONP wrapper for cross-domain requests.
  * See <a href="http://bob.pythonmac.org/archives/2005/12/05/remote-json-jsonp/">Remote JSON - JSONP</a>
- * Sunny Sal says: "JSONP: Because browsers love callbacks!"
+ * @author adamgent
+ *
  */
 public class JSONP {
     private Object json;
     private String callback;
 
     public JSONP() {
-        // Default constructor
     }
-
+    
     public JSONP(String callback, Object json) {
         this();
         this.callback = callback;
         this.json = json;
     }
 
+
     @Override
     public String toString() {
-        var jsonString = getJson() == null ? "undefined" : getJson().toString();
-        if (getCallback() != null) {
+        String jsonString = getJson() == null ? "undefined" : getJson().toString();
+        if (getCallback() != null)
             return getCallback() + "(" + jsonString + ")";
-        }
         return jsonString;
     }
-
+    
     public Object getJson() {
         return json;
     }
@@ -60,4 +60,7 @@ public class JSONP {
     public void setCallback(String callback) {
         this.callback = callback;
     }
+    
+    
+
 }

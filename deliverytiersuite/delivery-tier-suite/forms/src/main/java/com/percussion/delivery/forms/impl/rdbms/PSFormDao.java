@@ -36,108 +36,104 @@ import java.util.List;
 import java.util.Map;
 
 @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
-public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
-    /**
-     * Creates a new form data object.
-     * Uses Java 11 features and Google Java Style.
-     *
-     * @param formName the name of the form
-     * @param formData the form data map
-     * @return a new IPSFormData instance
+public class PSFormDao extends HibernateDaoSupport implements IPSFormDao
+{
+
+
+    /*
+     * (non-Javadoc)
+     * @see com.percussion.delivery.forms.IPSFormDao#createFormData(java.lang.String, java.util.Map)
      */
-    @Override
-    public IPSFormData createFormData(String formName, Map<String, String[]> formData) {
-        if (StringUtils.isBlank(formName)) {
-            throw new IllegalArgumentException("formName cannot be blank.");
-        }
-        if (formData == null) {
-            throw new IllegalArgumentException("formData cannot be null");
-        }
-        return new PSFormData(formName, formData);
+    public IPSFormData createFormData(String formname, Map<String, String[]> formdata)
+    {
+        if(StringUtils.isBlank(formname))
+            throw new IllegalArgumentException("formname cannnot be blank.");
+        if(formdata == null)
+            throw new IllegalArgumentException("formdata cannot be null");
+        return new PSFormData(formname, formdata);
     }
 
-    /**
-     * Saves or updates the given form data.
-     *
-     * @param form the form data to save
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#save(com.percussion.delivery.forms.data.IPSFormData)
      */
-    @Override
-    public void save(IPSFormData form) {
-        if (form == null) {
-            throw new IllegalArgumentException("form may not be null");
+    public void save(IPSFormData form)
+    {
+        if (form == null)
+        {
+            throw new IllegalArgumentException("clist may not be null");
         }
+
         getHibernateTemplate().saveOrUpdate(form);
     }
 
-    /**
-     * Deletes the given form data.
-     *
-     * @param form the form data to delete
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#delete(com.percussion.delivery.forms.data.IPSFormData)
      */
-    @Override
-    public void delete(IPSFormData form) {
+    public void delete(IPSFormData form)
+    {
         getHibernateTemplate().delete(form);
     }
 
-    /**
-     * Gets the count of exported forms by name.
-     *
-     * @param name the form name
-     * @return the exported form count
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#getExportedFormCount(java.lang.String)
      */
-    @Override
-    public long getExportedFormCount(String name) {
-        var query = new StringBuilder("select count(*) from PSFormData formData where formData.isExported = 'y'");
-        if (name != null && !name.isBlank()) {
-            query.append(" and lower(formData.name) = lower('").append(name).append("')");
-        }
-        return ((Long) getHibernateTemplate().find(query.toString()).iterator().next()).intValue();
+    public long getExportedFormCount(String name)
+    {
+        String query = "select count(*) from PSFormData formData where formData.isExported = 'y'";
+        if (name != null && name.trim().length() > 0)
+            query += " and lower(formData.name) = lower('" + name + "')";
+        return ((Long) getHibernateTemplate().find(query).iterator().next())
+                .intValue();
     }
 
-    /**
-     * Gets the total count of forms by name.
-     *
-     * @param name the form name
-     * @return the total form count
+    /* (non-Javadoc)
+     * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#getTotalFormCount(java.lang.String)
      */
-    @Override
-    public long getTotalFormCount(String name) {
-        var query = new StringBuilder("select count(*) from PSFormData formData");
-        if (name != null && !name.isBlank()) {
-            query.append(" where lower(formData.name) = lower('").append(name).append("')");
-        }
-        return ((Long) getHibernateTemplate().find(query.toString()).iterator().next()).intValue();
+    public long getTotalFormCount(String name)
+    {
+        String query = "select count(*) from PSFormData formData";
+        if (name != null && name.trim().length() > 0)
+            query += " where lower(formData.name) = lower('" + name + "')";
+        return ((Long) getHibernateTemplate().find(query).iterator().next())
+                .intValue();
     }
 
     // rather than saving all the forms, we just change the exported property
     /* (non-Javadoc)
      * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#markAsExported(java.util.Collection)
      */
-    public void markAsExported(Collection<IPSFormData> forms) {
+    public void markAsExported(Collection<IPSFormData> forms)
+    {
         Session session = getSession();
-        try {
+        try
+        {
             // because of limitations in JDBC/hibernate, we have to keep IN
             // clauses less than 1k elements
             String query = "update PSFormData set isExported = 'y' where id in (:ids)";
             Collection<Long> values = new ArrayList<>();
-            for (IPSFormData form : forms) {
+            for (IPSFormData form : forms)
+            {
                 values.add(Long.valueOf(form.getId()));
-                if (values.size() > 950 || values.size() == forms.size()) {
+                if (values.size() > 950 || values.size() == forms.size())
+                {
                     session.createQuery(query).setParameterList("ids", values)
                             .executeUpdate();
                     session.flush();
                     values.clear();
                 }
             }
-        } finally {
-            // releaseSession(session);
+        }
+        finally
+        {
+           // releaseSession(session);
         }
     }
 
     /* (non-Javadoc)
      * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#deleteExportedForms(java.lang.String)
      */
-    public void deleteExportedForms(String formName) {
+    public void deleteExportedForms(String formName)
+    {
         List<IPSFormData> forms = findExportedForms(formName);
         if (!forms.isEmpty())
             getHibernateTemplate().deleteAll(forms);
@@ -145,11 +141,15 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
     }
 
     @SuppressWarnings("unchecked")
-    private List<IPSFormData> findExportedForms(String formName) {
+    private List<IPSFormData> findExportedForms(String formName)
+    {
         String sqlString = "";
-        if (StringUtils.isEmpty(formName)) {
+        if (StringUtils.isEmpty(formName))
+        {
             sqlString = "from PSFormData where isExported = 'y' order by name asc, created asc";
-        } else {
+        }
+        else
+        {
             sqlString = "from PSFormData formData where formData.isExported = 'y' and lower(formData.name) = "
                     + "lower('" + formName + "')";
         }
@@ -160,7 +160,8 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
      * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findFormsByName(java.lang.String)
      */
     @SuppressWarnings("unchecked")
-    public List<IPSFormData> findFormsByName(String name) {
+    public List<IPSFormData> findFormsByName(String name)
+    {
         Validate.notNull(name);
 
         return (List<IPSFormData>) getHibernateTemplate().findByNamedParam(
@@ -174,7 +175,8 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
      * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findAllForms()
      */
     @SuppressWarnings("unchecked")
-    public List<IPSFormData> findAllForms() {
+    public List<IPSFormData> findAllForms()
+    {
         return (List<IPSFormData>) getHibernateTemplate().find(
                 "from PSFormData order by name asc, created asc");
     }
@@ -183,16 +185,21 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
      * @see com.percussion.delivery.forms.impl.rdbms.IPSFormDao#findDistinctFormNames()
      */
     @SuppressWarnings("unchecked")
-    public List<String> findDistinctFormNames() {
+    public List<String> findDistinctFormNames()
+    {
         List<String> lowerNames = new ArrayList<>();
         List<String> distinctNames = (List<String>) getHibernateTemplate().find(
                 "select distinct name from PSFormData order by name asc");
         Iterator<String> iter = distinctNames.iterator();
-        while (iter.hasNext()) {
+        while (iter.hasNext())
+        {
             String name = iter.next().toLowerCase();
-            if (!lowerNames.contains(name)) {
+            if (!lowerNames.contains(name))
+            {
                 lowerNames.add(name);
-            } else {
+            }
+            else
+            {
                 iter.remove();
             }
         }
@@ -200,7 +207,7 @@ public class PSFormDao extends HibernateDaoSupport implements IPSFormDao {
         return distinctNames;
     }
 
-    private Session getSession() {
+    private Session getSession(){
 
         return getSessionFactory().getCurrentSession();
 

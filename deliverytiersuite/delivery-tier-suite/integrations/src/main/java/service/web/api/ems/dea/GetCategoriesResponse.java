@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -48,36 +49,33 @@ import javax.xml.bind.annotation.XmlType;
     "getCategoriesResult"
 })
 @XmlRootElement(name = "GetCategoriesResponse")
-public final class GetCategoriesResponse {
+public class GetCategoriesResponse {
 
     @XmlElement(name = "GetCategoriesResult")
-    private final String getCategoriesResult;
-
-    private GetCategoriesResponse(Builder builder) {
-        this.getCategoriesResult = builder.getCategoriesResult;
-    }
+    protected String getCategoriesResult;
 
     /**
      * Gets the value of the getCategoriesResult property.
-     * @return the categories result, or null if not set
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetCategoriesResult() {
         return getCategoriesResult;
     }
 
     /**
-     * Builder for GetCategoriesResponse.
+     * Sets the value of the getCategoriesResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String getCategoriesResult;
-
-        public Builder withCategoriesResult(String getCategoriesResult) {
-            this.getCategoriesResult = getCategoriesResult;
-            return this;
-        }
-
-        public GetCategoriesResponse build() {
-            return new GetCategoriesResponse(this);
-        }
+    public void setGetCategoriesResult(String value) {
+        this.getCategoriesResult = value;
     }
+
 }

@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -23,9 +24,25 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Response for GetUDFDefinitions request.
- * Sunny Sal: "UDF definitions delivered, Java 11 style!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="GetUDFDefinitionsResult" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
@@ -38,18 +55,27 @@ public class GetUDFDefinitionsResponse {
     protected String getUDFDefinitionsResult;
 
     /**
-     * Gets the result string.
-     * @return result or null
+     * Gets the value of the getUDFDefinitionsResult property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
     public String getGetUDFDefinitionsResult() {
         return getUDFDefinitionsResult;
     }
 
     /**
-     * Sets the result string.
-     * @param value result
+     * Sets the value of the getUDFDefinitionsResult property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
     public void setGetUDFDefinitionsResult(String value) {
-        getUDFDefinitionsResult = value;
+        this.getUDFDefinitionsResult = value;
     }
+
 }

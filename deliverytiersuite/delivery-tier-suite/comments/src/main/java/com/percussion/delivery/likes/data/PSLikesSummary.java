@@ -17,51 +17,61 @@
 package com.percussion.delivery.likes.data;
 
 /**
- * Holds summary information for likes on a page.
+ * A simple bean class to hold basic page/likes summary info.
+ * 
+ * @author davidpardini
+ * 
  */
-public class PSLikesSummary {
+public class PSLikesSummary
+{
 
     /**
-     * Total number of likes.
+     * total number of likes
      */
     private int total;
 
     private String likeId;
 
-    public PSLikesSummary() {
-        // Default constructor
+    public PSLikesSummary()
+    {
+
     }
 
-    public PSLikesSummary(int total, String likeId) {
+    public PSLikesSummary(int total, String likeId)
+    {
         this.total = total;
         this.likeId = likeId;
     }
 
     /**
-     * @return the total number of likes
+     * @return the total
      */
-    public int getTotal() {
+    public int getTotal()
+    {
         return total;
     }
 
     /**
      * @param total the total to set
      */
-    public void setTotal(int total) {
+    public void setTotal(int total)
+    {
         this.total = total;
     }
 
     /**
      * @return the likeId
      */
-    public String getLikeId() {
+    public String getLikeId()
+    {
         return likeId;
     }
 
     /**
      * @param likeId the likeId to set
      */
-    public void setLikeId(String likeId) {
+    public void setLikeId(String likeId)
+    {
         this.likeId = likeId;
     }
 }

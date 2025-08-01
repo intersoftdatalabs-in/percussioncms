@@ -16,18 +16,56 @@
  */
 package com.percussion.delivery.feeds.data;
 
-import java.util.Optional;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Contract for feed descriptors.
- * All methods return Optional for null safety.
+ * A feed descriptor contains meta data needed to create a feed.
  */
-public interface IPSFeedDescriptor {
-    Optional<String> getName();
-    Optional<String> getSite();
-    Optional<String> getDescription();
-    Optional<String> getLink();
-    Optional<String> getTitle();
-    Optional<String> getType();
-    Optional<String> getQuery();
+@JsonDeserialize(as = PSFeedDescriptor.class)
+public interface IPSFeedDescriptor
+{
+    /**
+     * 
+     * @return the name of the feed.
+     */
+    public String getName();
+    
+    /**
+     * 
+     * @return the name of the site the feed belongs to.
+     */
+    public String getSite();
+    
+    /**
+     * 
+     * @return the feed title.
+     */
+    public String getTitle();
+    
+    /**
+     * 
+     * @return the feed description.
+     */
+    public String getDescription();
+    
+    /**
+     * 
+     * @return the link to the page the feed represents.
+     */
+    public String getLink();
+    
+    /**
+     * 
+     * @return the query to get the feed data from the meta-data service.
+     */
+    public String getQuery();
+    
+    /**
+     * 
+     * @return the feed output type. Never <code>null</code>.
+     */
+    public String getType();
+
+
+
 }

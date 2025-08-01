@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,141 +18,220 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: UpdateReservation SOAP request model.
- * <p>
- * Represents the request payload for the UpdateReservation endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Updating reservations—because plans change, but code should stay clean!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ReservationID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="BookingID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="WebUserID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="WebTemplateID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="ReservationSourceID" type="{http://www.w3.org/2001/XMLSchema}int"/&gt;
+ *         &lt;element name="BillingReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "",
-    propOrder = {
-        "userName",
-        "password",
-        "reservationId",
-        "newDate",
-        "newStatus"
-    }
-)
+@XmlType(name = "", propOrder = {
+    "userName",
+    "password",
+    "reservationID",
+    "bookingID",
+    "webUserID",
+    "webTemplateID",
+    "reservationSourceID",
+    "billingReference"
+})
 @XmlRootElement(name = "UpdateReservation")
 public class UpdateReservation {
 
     @XmlElement(name = "UserName")
-    private String userName;
-
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
+    @XmlElement(name = "ReservationID")
+    protected int reservationID;
+    @XmlElement(name = "BookingID")
+    protected int bookingID;
+    @XmlElement(name = "WebUserID")
+    protected int webUserID;
+    @XmlElement(name = "WebTemplateID")
+    protected int webTemplateID;
+    @XmlElement(name = "ReservationSourceID")
+    protected int reservationSourceID;
+    @XmlElement(name = "BillingReference")
+    protected String billingReference;
 
-    @XmlElement(name = "ReservationId")
-    private int reservationId;
-
-    @XmlElement(name = "NewDate")
-    private String newDate;
-
-    @XmlElement(name = "NewStatus")
-    private String newStatus;
-
-    private UpdateReservation(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.reservationId = builder.reservationId;
-        this.newDate = builder.newDate;
-        this.newStatus = builder.newStatus;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     *
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     *
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Gets the reservation ID.
-     *
-     * @return reservation ID
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public int getReservationId() {
-        return reservationId;
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * Gets the new date.
-     *
-     * @return Optional new date
+     * Gets the value of the reservationID property.
+     * 
      */
-    public Optional<String> getNewDate() {
-        return Optional.ofNullable(newDate);
+    public int getReservationID() {
+        return reservationID;
     }
 
     /**
-     * Gets the new status.
-     *
-     * @return Optional new status
+     * Sets the value of the reservationID property.
+     * 
      */
-    public Optional<String> getNewStatus() {
-        return Optional.ofNullable(newStatus);
+    public void setReservationID(int value) {
+        this.reservationID = value;
     }
 
     /**
-     * Builder for UpdateReservation.
+     * Gets the value of the bookingID property.
+     * 
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int reservationId;
-        private String newDate;
-        private String newStatus;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withReservationId(int reservationId) {
-            this.reservationId = reservationId;
-            return this;
-        }
-
-        public Builder withNewDate(String newDate) {
-            this.newDate = newDate;
-            return this;
-        }
-
-        public Builder withNewStatus(String newStatus) {
-            this.newStatus = newStatus;
-            return this;
-        }
-
-        public UpdateReservation build() {
-            return new UpdateReservation(this);
-        }
+    public int getBookingID() {
+        return bookingID;
     }
+
+    /**
+     * Sets the value of the bookingID property.
+     * 
+     */
+    public void setBookingID(int value) {
+        this.bookingID = value;
+    }
+
+    /**
+     * Gets the value of the webUserID property.
+     * 
+     */
+    public int getWebUserID() {
+        return webUserID;
+    }
+
+    /**
+     * Sets the value of the webUserID property.
+     * 
+     */
+    public void setWebUserID(int value) {
+        this.webUserID = value;
+    }
+
+    /**
+     * Gets the value of the webTemplateID property.
+     * 
+     */
+    public int getWebTemplateID() {
+        return webTemplateID;
+    }
+
+    /**
+     * Sets the value of the webTemplateID property.
+     * 
+     */
+    public void setWebTemplateID(int value) {
+        this.webTemplateID = value;
+    }
+
+    /**
+     * Gets the value of the reservationSourceID property.
+     * 
+     */
+    public int getReservationSourceID() {
+        return reservationSourceID;
+    }
+
+    /**
+     * Sets the value of the reservationSourceID property.
+     * 
+     */
+    public void setReservationSourceID(int value) {
+        this.reservationSourceID = value;
+    }
+
+    /**
+     * Gets the value of the billingReference property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getBillingReference() {
+        return billingReference;
+    }
+
+    /**
+     * Sets the value of the billingReference property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setBillingReference(String value) {
+        this.billingReference = value;
+    }
+
 }

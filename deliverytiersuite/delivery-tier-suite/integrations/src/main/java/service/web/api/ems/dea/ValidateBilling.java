@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,121 +18,148 @@
 
 package service.web.api.ems.dea;
 
-import java.util.Optional;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+
 /**
- * Java 11 Modernized: ValidateBilling SOAP request model.
- * <p>
- * Represents the request payload for the ValidateBilling endpoint.
- * <p>
- * // REFACTORED: CP-JAVA11
- * <p>
- * Sunny Sal says: "Validating billing—because paisa vasool is important!"
+ * <p>Java class for anonymous complex type.
+ * 
+ * <p>The following schema fragment specifies the expected content contained within this class.
+ * 
+ * <pre>
+ * &lt;complexType&gt;
+ *   &lt;complexContent&gt;
+ *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="UserName" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="Password" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="BillingReference" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="PONumber" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *       &lt;/sequence&gt;
+ *     &lt;/restriction&gt;
+ *   &lt;/complexContent&gt;
+ * &lt;/complexType&gt;
+ * </pre>
+ * 
+ * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(
-    name = "",
-    propOrder = {
-        "userName",
-        "password",
-        "billingId",
-        "amount"
-    }
-)
+@XmlType(name = "", propOrder = {
+    "userName",
+    "password",
+    "billingReference",
+    "poNumber"
+})
 @XmlRootElement(name = "ValidateBilling")
 public class ValidateBilling {
 
     @XmlElement(name = "UserName")
-    private String userName;
-
+    protected String userName;
     @XmlElement(name = "Password")
-    private String password;
+    protected String password;
+    @XmlElement(name = "BillingReference")
+    protected String billingReference;
+    @XmlElement(name = "PONumber")
+    protected String poNumber;
 
-    @XmlElement(name = "BillingId")
-    private int billingId;
-
-    @XmlElement(name = "Amount")
-    private double amount;
-
-    private ValidateBilling(Builder builder) {
-        this.userName = builder.userName;
-        this.password = builder.password;
-        this.billingId = builder.billingId;
-        this.amount = builder.amount;
+    /**
+     * Gets the value of the userName property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUserName() {
+        return userName;
     }
 
     /**
-     * Gets the user name.
-     *
-     * @return Optional user name
+     * Sets the value of the userName property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getUserName() {
-        return Optional.ofNullable(userName);
+    public void setUserName(String value) {
+        this.userName = value;
     }
 
     /**
-     * Gets the password.
-     *
-     * @return Optional password
+     * Gets the value of the password property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public Optional<String> getPassword() {
-        return Optional.ofNullable(password);
+    public String getPassword() {
+        return password;
     }
 
     /**
-     * Gets the billing ID.
-     *
-     * @return billing ID
+     * Sets the value of the password property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public int getBillingId() {
-        return billingId;
+    public void setPassword(String value) {
+        this.password = value;
     }
 
     /**
-     * Gets the amount.
-     *
-     * @return amount
+     * Gets the value of the billingReference property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
      */
-    public double getAmount() {
-        return amount;
+    public String getBillingReference() {
+        return billingReference;
     }
 
     /**
-     * Builder for ValidateBilling.
+     * Sets the value of the billingReference property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
      */
-    public static class Builder {
-        private String userName;
-        private String password;
-        private int billingId;
-        private double amount;
-
-        public Builder withUserName(String userName) {
-            this.userName = userName;
-            return this;
-        }
-
-        public Builder withPassword(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder withBillingId(int billingId) {
-            this.billingId = billingId;
-            return this;
-        }
-
-        public Builder withAmount(double amount) {
-            this.amount = amount;
-            return this;
-        }
-
-        public ValidateBilling build() {
-            return new ValidateBilling(this);
-        }
+    public void setBillingReference(String value) {
+        this.billingReference = value;
     }
+
+    /**
+     * Gets the value of the poNumber property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getPONumber() {
+        return poNumber;
+    }
+
+    /**
+     * Sets the value of the poNumber property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setPONumber(String value) {
+        this.poNumber = value;
+    }
+
 }

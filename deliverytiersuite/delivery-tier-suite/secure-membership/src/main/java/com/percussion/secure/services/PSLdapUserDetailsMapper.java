@@ -1,3 +1,4 @@
+
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -45,89 +46,111 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Handles User Details Mapping for authorization.
- * Sunny Sal says: "Map your users, not your problems!"
- */
-public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper {
+* Class to handle User Details Mapping for authorization.
+* 
+* @author Shweta Patel
+*
+*/
+public class PSLdapUserDetailsMapper extends LdapUserDetailsMapper
+{
+   private static final String ROLE_TEST = "role_test";
+   private static final String ROLE_ADMIN = "Domain Admins";
+   private String accessGroupFileName;
+   
+@Override
+   public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authority) 
+   {
+       List<String> groups = getAccessGroupsFromXML();
+       UserDetails originalUser = super.mapUserFromContext( ctx, username, authority );
 
-    private static final String ROLE_TEST = "role_test";
-    private static final String ROLE_ADMIN = "Domain Admins";
-    private String accessGroupFileName;
+       originalUser.getAuthorities();
 
-    @Override
-    public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authority) {
-        var groups = getAccessGroupsFromXML();
-        var originalUser = super.mapUserFromContext(ctx, username, authority);
+       List<SimpleGrantedAuthority> allAuthorities = new ArrayList<>();
 
-        var allAuthorities = new ArrayList<SimpleGrantedAuthority>();
-        for (var auth : authority) {
-            if (auth != null && !auth.getAuthority().isEmpty()) {
-                if (groups != null && !groups.isEmpty() && groups.contains("'" + auth.getAuthority().toUpperCase() + "'")) {
-                    allAuthorities.add((SimpleGrantedAuthority) auth);
-                }
+       for (GrantedAuthority auth : authority) {
+           if (auth != null && !auth.getAuthority().isEmpty()) {
+               if(groups != null && !groups.isEmpty() && groups.contains("'"+(auth.getAuthority()).toUpperCase()+"'"))
+                  allAuthorities.add((SimpleGrantedAuthority)auth);
             }
-        }
+       }
 
-        return new User(
-                originalUser.getUsername(),
-                originalUser.getPassword() != null ? originalUser.getPassword() : "",
-                originalUser.isEnabled(),
-                originalUser.isAccountNonExpired(),
-                originalUser.isCredentialsNonExpired(),
-                originalUser.isAccountNonLocked(),
-                allAuthorities
+       return new User(
+               originalUser.getUsername(), 
+               originalUser.getPassword() != null? originalUser.getPassword():"", 
+               originalUser.isEnabled(), 
+               originalUser.isAccountNonExpired(), 
+               originalUser.isCredentialsNonExpired(), 
+               originalUser.isAccountNonLocked(), 
+               allAuthorities );
+
+   }
+   
+   public List<String> getAccessGroupsFromXML() {
+       
+       List<String> groups = new ArrayList<>();
+       String accessString;
+       
+       WebApplicationContext context = ContextLoader.getCurrentWebApplicationContext();
+       ServletContext ctx = context.getServletContext();
+       String filePath = ctx.getRealPath(accessGroupFileName);
+       
+       try
+    {
+        File accessGroupFile = new File(filePath);
+        
+        DocumentBuilderFactory dbFactory = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
+                new PSXmlSecurityOptions(
+                        true,
+                        true,
+                        true,
+                        false,
+                        true,
+                        false
+                )
         );
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(accessGroupFile);
+        
+      // String accessString =  doc.getDocumentElement().getAttribute("access");
+        Element root = doc.getDocumentElement();
+
+        NodeList nodeList = root.getElementsByTagName("security:intercept-url");
+       
+       for (int temp = 0; temp < nodeList.getLength(); temp++) {
+           Node node = nodeList.item(temp);
+           if(!((Element) node).getAttribute("access").isEmpty() && ((Element) node).getAttribute("access") != null) {
+               accessString = ((Element) node).getAttribute("access");
+               groups.addAll(Arrays.asList(accessString.split("\\s*,\\s*")));
+           }
+       }
     }
-
-    public List<String> getAccessGroupsFromXML() {
-        var groups = new ArrayList<String>();
-        String accessString;
-        var context = ContextLoader.getCurrentWebApplicationContext();
-        var ctx = context.getServletContext();
-        var filePath = ctx.getRealPath(accessGroupFileName);
-
-        try {
-            var accessGroupFile = new File(filePath);
-            var dbFactory = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
-                    new PSXmlSecurityOptions(
-                            true,
-                            true,
-                            true,
-                            false,
-                            true,
-                            false
-                    )
-            );
-            var dBuilder = dbFactory.newDocumentBuilder();
-            var doc = dBuilder.parse(accessGroupFile);
-            var root = doc.getDocumentElement();
-            var nodeList = root.getElementsByTagName("security:intercept-url");
-
-            for (int temp = 0; temp < nodeList.getLength(); temp++) {
-                var node = nodeList.item(temp);
-                var element = (Element) node;
-                accessString = element.getAttribute("access");
-                if (accessString != null && !accessString.isEmpty()) {
-                    groups.addAll(Arrays.asList(accessString.split("\\s*,\\s*")));
-                }
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("FileNotFoundException in PSLdapUserDetailsMapper..... " + e);
-        } catch (ParserConfigurationException e) {
-            System.out.println("ParserConfigurationException in PSLdapUserDetailsMapper..... " + e);
-        } catch (IOException e) {
-            System.out.println("IOException in PSLdapUserDetailsMapper..... " + e);
-        } catch (SAXException e) {
-            System.out.println("SAXException in PSLdapUserDetailsMapper..... " + e);
-        }
-        return groups;
+    catch (FileNotFoundException e)
+    {
+        System.out.println("FileNotFoundException in PSLdapUserDetailsMapper..... " + e);
     }
-
-    public String getAccessGroupFileName() {
+   catch (ParserConfigurationException e)
+   {
+       System.out.println("ParserConfigurationException in PSLdapUserDetailsMapper..... " + e);
+   }
+       catch (IOException e)
+       {
+           System.out.println("IOException in PSLdapUserDetailsMapper..... " + e);
+       }
+       catch (SAXException e)
+       {
+           System.out.println("SAXException in PSLdapUserDetailsMapper..... " + e);
+       }
+       
+       return groups;
+   }
+   
+   public String getAccessGroupFileName()
+    {
         return accessGroupFileName;
     }
-
-    public void setAccessGroupFileName(String accessGroupFileName) {
+    
+    public void setAccessGroupFileName(String accessGroupFileName)
+    {
         this.accessGroupFileName = accessGroupFileName;
     }
 }

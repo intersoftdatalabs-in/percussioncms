@@ -18,61 +18,46 @@ package com.percussion.delivery.forms.data;
 
 /**
  * Class to hold form summary info.
- * <p>
- * Uses Java 11 features and Google Java Style. Immutable fields, builder pattern, and Optional for null safety.
- * </p>
- *
+ * 
  * @author leonardohildt
+ * 
  */
-public class PSFormSummary {
-  private final String name;
-  private final Long totalForms;
-  private final Long exportedForms;
-
-  private PSFormSummary(Builder builder) {
-    this.name = builder.name;
-    this.totalForms = builder.totalForms;
-    this.exportedForms = builder.exportedForms;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Long getTotalForms() {
-    return totalForms;
-  }
-
-  public Long getExportedForms() {
-    return exportedForms;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static class Builder {
+public class PSFormSummary
+{
     private String name;
+
     private Long totalForms;
+    
     private Long exportedForms;
 
-    public Builder name(String name) {
-      this.name = name;
-      return this;
+    public String getName()
+    {
+        return name;
+    }
+   
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
-    public Builder totalForms(Long totalForms) {
-      this.totalForms = totalForms;
-      return this;
+    public Long getTotalForms()
+    {
+        return totalForms;
     }
 
-    public Builder exportedForms(Long exportedForms) {
-      this.exportedForms = exportedForms;
-      return this;
+    public void setTotalForms(Long totalForms)
+    {
+        this.totalForms = totalForms;
+    }
+    
+    public Long getExportedForms()
+    {
+        return exportedForms;
     }
 
-    public PSFormSummary build() {
-      return new PSFormSummary(this);
+    public void setExportedforms(Long exportedForms)
+    {
+        this.exportedForms = exportedForms;
     }
-  }
+
 }

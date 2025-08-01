@@ -15,35 +15,42 @@
  * limitations under the License.
  */
 
-// REFACTORED: CP-JAVA11
 package com.percussion.delivery.utils.lookup;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-/**
- * Represents a single entry in a lookup list for Rhythmyx controls.
- * Sunny Sal says: "Entry mil gaya, ab code bhi mil jayega!"
- */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PSXEntry {
 
-    @XmlElement(name = "PSXDisplayText")
-    private String label;
+	@XmlElement(name="PSXDisplayText")
+	private String label;
+	
+	@XmlElement(name="Value")
+	private String value;
+	
+	public PSXEntry(){}
 
-    @XmlElement(name = "Value")
-    private String value;
+	public PSXEntry(String value, String label){
+		this.label = label;
+		this.value = value;
+	}
+	public String getValue() {
+		return value;
+	}
 
-    public PSXEntry() {}
+	public void setValue(String value) {
+		this.value = value;
+	}
 
-    public PSXEntry(String value, String label) {
-        this.label = label;
-        this.value = value;
-    }
+	public String getLabel() {
+		return label;
+	}
 
-    public String getValue() { return value; }
-    public void setValue(String value) { this.value = value; }
-    public String getLabel() { return label; }
-    public void setLabel(String label) { this.label = label; }
+	public void setLabel(String label) {
+		this.label = label;
+	};
+	
+	
 }
