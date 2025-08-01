@@ -17,7 +17,8 @@
 package com.percussion.cx;
 
 import com.percussion.util.IOTools;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -30,7 +31,7 @@ import java.io.InputStream;
   */
 public class PSImageIconLoader extends UIManager
 {
-   static Logger log = Logger.getLogger(PSImageIconLoader.class);
+   static Logger log = LogManager.getLogger(PSImageIconLoader.class);
    private static String rootPath = "../../../";
    /**
     * Cannot instantiate!!!

@@ -58,7 +58,7 @@
         <module>modules/servletutils</module>
         <module>modules/perc-rxapps</module>
         <module>modules/perc-checkboxtree</module>
-        <!-- <module>modules/DesktopContentExplorer</module>-->
+        <module>modules/DesktopContentExplorer</module>
         <module>modules/perc-jetty</module>
 		<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
@@ -912,19 +912,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <extensions>
-       <!-- Not released yet     <extension>
-                <groupId>org.apache.maven.extensions</groupId>
-                <artifactId>maven-build-cache-extension</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
-            </extension>
-            -->
-            <extension>
-                <groupId>fi.yle.tools</groupId>
-                <artifactId>aws-maven</artifactId>
-                <version>1.4.1</version>
-            </extension>
-        </extensions>
     </build>
     <reporting>
         <plugins>
@@ -1068,12 +1055,6 @@
         <pluginRepository>
             <id>maven-central</id>
             <url>https://repo1.maven.org/maven2</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>yle-public</id>
-            <name>Yle public repository</name>
-            <url>https://maven.yle.fi/release</url>
-            <layout>default</layout>
         </pluginRepository>
     </pluginRepositories>
 

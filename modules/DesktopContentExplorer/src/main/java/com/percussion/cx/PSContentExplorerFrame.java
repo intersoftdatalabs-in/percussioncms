@@ -29,7 +29,8 @@ import com.percussion.webservices.security.data.PSLogin;
 import javafx.application.Platform;
 import javafx.scene.web.WebEngine;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -64,7 +65,7 @@ public class PSContentExplorerFrame extends PSDesktopExplorerWindow implements A
 
    private static final long serialVersionUID = 1L;
 
-   static Logger log = Logger.getLogger(PSContentExplorerFrame.class);
+   static Logger log = LogManager.getLogger(PSContentExplorerFrame.class);
   
    private PSContentExplorerHelper helper = new PSContentExplorerHelper();
 
