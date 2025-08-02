@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -307,13 +306,8 @@ public class PSModernHttpClient {
     
     private HttpClient createHttpClient() {
         try {
-            // Create a trust-all SSL context for compatibility
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[]{new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() { return null; }
-                public void checkClientTrusted(X509Certificate[] certs, String authType) { }
-                public void checkServerTrusted(X509Certificate[] certs, String authType) { }
-            }}, new java.security.SecureRandom());
+            // Use the default SSL context for secure connections
+            SSLContext sslContext = SSLContext.getDefault();
             
             return HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
