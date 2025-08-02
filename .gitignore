@@ -15,6 +15,9 @@ derby.log
 modules/jcadf-master/audit_events.csv
 modules/jcadf-master/audit_events.json
 
+# Compiled class files
+**/*.class
+
 # os
 **/.DS_Store
 **/dependency-reduced-pom.xml

@@ -17,7 +17,7 @@
 
 package com.percussion.sitemanage.importer.utils;
 
-import com.percussion.HTTPClient.URI;
+import java.net.URI;
 import com.percussion.pathmanagement.service.impl.PSPathUtils;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogEntryType;
