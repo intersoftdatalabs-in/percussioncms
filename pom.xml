@@ -130,11 +130,11 @@
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
-       <java.version>1.8.0</java.version>
+       <java.version>11</java.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <activemq.version>5.16.8</activemq.version><!-- 5.17.x and up require Java 11 -->
@@ -198,6 +198,7 @@
        <hikari.version>4.0.3</hikari.version>
        <snakeyaml.version>2.0</snakeyaml.version>
        <commons-email.version>1.5</commons-email.version>
+       <jakarta.mail.version>2.0.1</jakarta.mail.version>
        <commons.codec.version>1.15</commons.codec.version>
        <tinymce.version>5.10.3</tinymce.version>
        <jfx.version>11.0.2</jfx.version>
@@ -615,8 +616,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.plugin.version}</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>11</source>
+                        <target>11</target>
                         <fork>true</fork>
                          <debug>true</debug>
                         <debuglevel>lines,vars,source</debuglevel> 

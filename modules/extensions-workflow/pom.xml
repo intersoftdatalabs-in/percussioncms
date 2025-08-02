@@ -84,6 +84,7 @@
        <dependency>
            <groupId>jakarta.mail</groupId>
            <artifactId>jakarta.mail</artifactId>
+           <version>${jakarta.mail.version}</version>
            <scope>provided</scope>
        </dependency>
        <dependency>
