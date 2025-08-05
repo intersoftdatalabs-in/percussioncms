@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -17,16 +18,15 @@
 package com.percussion.delivery.likes.data;
 
 /**
- * A simple bean class to hold basic page/likes summary info.
- * 
+ * Bean class to hold basic page/likes summary info.
+ *
  * @author davidpardini
- * 
  */
 public class PSLikesSummary
 {
 
     /**
-     * total number of likes
+     * Total number of likes.
      */
     private int total;
 
@@ -34,7 +34,7 @@ public class PSLikesSummary
 
     public PSLikesSummary()
     {
-
+        // Default constructor
     }
 
     public PSLikesSummary(int total, String likeId)
@@ -44,7 +44,9 @@ public class PSLikesSummary
     }
 
     /**
-     * @return the total
+     * Gets the total number of likes.
+     *
+     * @return the total count.
      */
     public int getTotal()
     {
@@ -52,7 +54,9 @@ public class PSLikesSummary
     }
 
     /**
-     * @param total the total to set
+     * Sets the total number of likes.
+     *
+     * @param total the total count.
      */
     public void setTotal(int total)
     {
@@ -60,7 +64,9 @@ public class PSLikesSummary
     }
 
     /**
-     * @return the likeId
+     * Gets the like identifier.
+     *
+     * @return the like ID.
      */
     public String getLikeId()
     {
@@ -68,7 +74,9 @@ public class PSLikesSummary
     }
 
     /**
-     * @param likeId the likeId to set
+     * Sets the like identifier.
+     *
+     * @param likeId the like ID.
      */
     public void setLikeId(String likeId)
     {

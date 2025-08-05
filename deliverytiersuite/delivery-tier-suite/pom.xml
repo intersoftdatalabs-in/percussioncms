@@ -14,6 +14,8 @@
         <timestamp>${maven.build.timestamp}</timestamp>
         <maven.source.jar.plugin.version>3.2.0</maven.source.jar.plugin.version>
         <build.profile.id>dev</build.profile.id>
+        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
+        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
         <jdk.version>11</jdk.version>
         <java.source.version>11</java.source.version>
         <maven.version>[3.6.0,)</maven.version>
@@ -32,7 +34,7 @@
         <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
         <maven.site.plugin.version>3.8.2</maven.site.plugin.version>
         <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-        <maven.failsafe.plugin.version>3.0.0-M4</maven.failsafe.plugin.version>
+        <maven.failsafe.plugin.version>3.1.2</maven.failsafe.plugin.version>
         <maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
         <maven.execmaven.plugin.version>1.6.0</maven.execmaven.plugin.version>
         <maven.pmd.plugin.version>3.13.0</maven.pmd.plugin.version>
@@ -40,7 +42,7 @@
         <plexus.component.metadata.version>2.1.0</plexus.component.metadata.version>
         <jetty.maven.plugin.version>9.4.26.v20200117</jetty.maven.plugin.version>
         <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
-        
+        <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
         <java.version>11</java.version>
         <!-- Only unit tests are run by default. -->
         <skip.integration.tests>true</skip.integration.tests>
@@ -49,7 +51,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>6.1.21</spring.version>
+        <spring.version>5.3.23</spring.version>
         <hibernate.version>5.6.14.Final</hibernate.version>
         <ehcache.version>2.10.6</ehcache.version>
         <spring.security.version>5.6.9</spring.security.version>
@@ -64,6 +66,7 @@
         <owl.version>5.1.3</owl.version>
         <awssdk.version>1.11.731</awssdk.version>
         <bc.version>1.74</bc.version>
+        <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
         <jackson.version>2.15.0</jackson.version>
         <jackson.data.version>2.14.2</jackson.data.version>
         <jsoup.version>1.15.3</jsoup.version>
@@ -73,7 +76,7 @@
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
         <cactus.contextURL>http://localhost:9992/Rhythmyx</cactus.contextURL>
         <trinidad.version>1.0.2</trinidad.version>
-        <derby.version>10.17.1.0</derby.version>
+        <derby.version>10.14.2.0</derby.version>
         <oracle.version>12.1.0.1</oracle.version>
         <jrds.version>1.3.1</jrds.version>
         <install.jre.version>8.222.10.1</install.jre.version>
@@ -96,8 +99,9 @@
         <tinymce.version>4.9.10</tinymce.version>
         <jfx.version>11.0.2</jfx.version>
         <eclipse-manifest-location>META-INF</eclipse-manifest-location>
-        <tomcat.version>10.1.43</tomcat.version>
-        <derby.version>10.17.1.0</derby.version>
+        <tomcat.version>9.0.95</tomcat.version>
+        <install.jre.version>8.222.10.1</install.jre.version>
+        <derby.version>10.14.2.0</derby.version>
         <jtds.version>1.3.1</jtds.version>
         <mariadb.version>2.6.0</mariadb.version>
         <oracle.version>12.1.0.1</oracle.version>
@@ -140,7 +144,7 @@
                 <!-- Used to locate the profile specific configuration file. -->
                 <build.profile.id>integration-test</build.profile.id>
                 <!-- Only integration tests are run. -->
-                <skip.integration.tests>true</skip.integration.tests>
+                <skip.integration.tests>false</skip.integration.tests>
                 <skip.unit.tests>true</skip.unit.tests>
             </properties>
         </profile>
@@ -226,6 +230,11 @@
 <build>
     <plugins>
         <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>${spotbugs.plugin.version}</version>
+        </plugin>
+        <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-enforcer-plugin</artifactId>
             <version>${maven.enforcer.plugin.version}</version>
@@ -260,7 +269,7 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-toolchains-plugin</artifactId>
-            <version>${maven.toolchains.plugin.version}</version> 
+            <version>${maven.toolchains.plugin.version}</version>
             <executions>
                 <execution>
                     <goals>
@@ -293,18 +302,63 @@
                 </execution>
             </executions>
         </plugin>
-        
+        <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.7.5.201505241946</version>
+            <executions>
+                <!--
+                    Prepares the property pointing to the JaCoCo runtime agent which
+                    is passed as VM argument when Maven the Surefire plugin is executed.
+                -->
+                <execution>
+                    <id>pre-unit-test</id>
+                    <goals>
+                        <goal>prepare-agent</goal>
+                    </goals>
+                    <configuration>
+                        <!-- Sets the path to the file which contains the execution data. -->
+                        <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
+                        <!--
+                            Sets the name of the property containing the settings
+                            for JaCoCo runtime agent.
+                        -->
+                        <propertyName>surefireArgLine</propertyName>
+                    </configuration>
+                </execution>
+                <!--
+                    Ensures that the code coverage report for unit tests is created after
+                    unit tests have been run.
+                -->
+                <execution>
+                    <id>post-unit-test</id>
+                    <phase>test</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                    <configuration>
+                        <!-- Sets the path to the file which contains the execution data. -->
+                        <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
+                        <!-- Sets the output directory for the code coverage report. -->
+                        <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
         <!-- Used for Unit Tests -->
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <version>3.1.2</version>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.maven.surefire</groupId>
+                    <artifactId>common-junit48</artifactId>
+                    <version>3.1.2</version>
+                </dependency>
+            </dependencies>
             <configuration>
                 <skipTests>${skip.unit.tests}</skipTests>
-                <argLine>-Xmx1024m</argLine>
-                <forkCount>1</forkCount>
-                 <reuseForks>true</reuseForks>
-                    <parallel>none</parallel>
                 <!--suppress UnresolvedMavenProperty -->
                 <argLine>${surefireArgLine}</argLine>
                 <systemProperties>
@@ -314,50 +368,85 @@
                     </property>
                 </systemProperties>
                 <excludedGroups>com.percussion.utils.testing.IntegrationTest</excludedGroups>
-                <testFailureIgnore>true</testFailureIgnore>
+                <testFailureIgnore>false</testFailureIgnore>
             </configuration>
         </plugin>
         <!-- Used for integration tests -->
         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>2.18.1</version>
-            
-            <executions>
-                <!--
-                    Ensures that both integration-test and verify goals of the Failsafe Maven
-                    plugin are executed.
-                -->
-                <execution>
-                    <id>integration-tests</id>
-                    <goals>
-                        <goal>integration-test</goal>
-                        <goal>verify</goal>
-                    </goals>
-                    <configuration>
-                        <!--
-                            Skips integration tests if the value of skip.integration.tests property
-                            is true
-                        -->
-                        <skipTests>${skip.integration.tests}</skipTests>
-                        <testFailureIgnore>true</testFailureIgnore>
-                    </configuration>
-                </execution>
-            </executions> 
-        </plugin>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <version>3.1.2</version>
+  <configuration>
+    <argLine>-Xmx512m -XX:MaxPermSize=256m</argLine>
+  </configuration>
+</plugin>
     </plugins>
     <pluginManagement>
         <plugins>
-            
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.percussion</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.percussion</groupId>
+                        <artifactId>perc-security-utils</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>com.h3xstream.findsecbugs</groupId>
+                        <artifactId>findsecbugs-plugin</artifactId>
+                        <version>LATEST</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mebigfatguy.fb-contrib</groupId>
+                        <artifactId>fb-contrib</artifactId>
+                        <version>7.4.7</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <fork>false</fork>
+                    <spotbugsXmlOutputDirectory>target/site</spotbugsXmlOutputDirectory>
+                    <skipEmptyReport>false</skipEmptyReport>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <includeTests>true</includeTests>
+                    <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
+                    <xmlOutput>true</xmlOutput>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <failOnError>false</failOnError>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.h3xstream.findsecbugs</groupId>
+                            <artifactId>findsecbugs-plugin</artifactId>
+                            <version>LATEST</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scan</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         <plugin>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-maven-plugin</artifactId>
-            <version>4.23.1</version>
+            <version>4.10.0</version>
             <dependencies>
                 <dependency>
                     <groupId>org.liquibase.ext</groupId>
                     <artifactId>liquibase-hibernate5</artifactId>
-                    <version>4.0.0</version>
+                    <version>4.10.0</version>
                 </dependency>
                 <dependency>
                     <groupId>org.springframework</groupId>
@@ -367,14 +456,14 @@
                 <dependency>
                     <groupId>org.springframework.data</groupId>
                     <artifactId>spring-data-jpa</artifactId>
-                    <version>2.3.2.RELEASE</version>
+                    <version>3.0.0.RELEASE</version>
                 </dependency>
             </dependencies>
         </plugin>
             <plugin>
                 <groupId>org.codehaus.cargo</groupId>
                 <artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.9.0</version>
+                <version>1.6.11</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -428,7 +517,7 @@
                                     <artifactId>
                                         maven-clean-plugin
                                     </artifactId>
-                                    <version>3.2.0</version>
+                                    <version>3.1.0</version>
                                     <goals>
                                         <goal>clean</goal>
                                     </goals>

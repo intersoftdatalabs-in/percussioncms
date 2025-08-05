@@ -38,19 +38,10 @@
         </dependency>
 
         <dependency>
-        <groupId>org.apache.tomcat</groupId>
-        <artifactId>tomcat-catalina</artifactId>
-        <version>${tomcat.version}</version>
-        <scope>provided</scope>
-    </dependency>
-
-    <!-- Servlet API (Jakarta) -->
-    <dependency>
-        <groupId>jakarta.servlet</groupId>
-        <artifactId>jakarta.servlet-api</artifactId>
-        <version>5.0.0</version> <!-- Required for Tomcat 10.1.x -->
-        <scope>provided</scope>
-    </dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-security-utils</artifactId>

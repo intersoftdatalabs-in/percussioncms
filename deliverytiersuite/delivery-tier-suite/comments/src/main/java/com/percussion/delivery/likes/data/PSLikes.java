@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -18,30 +19,27 @@ package com.percussion.delivery.likes.data;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A simple container. Its use is just to add a root element name for Jersey to
- * spit out when serializing to JSON.
- * 
+ * Container for a list of likes, used for serialization.
+ *
  * @author davidpardini
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder =
-{"likes"})
+@XmlType(name = "", propOrder = {"likes"})
 @XmlRootElement(name = "likes")
 public class PSLikes
 {
+
     private List<IPSLikes> likes;
 
     public PSLikes()
     {
-
+        // Default constructor
     }
 
     public PSLikes(List<IPSLikes> likes)
@@ -52,8 +50,9 @@ public class PSLikes
     public List<IPSLikes> getLikes()
     {
         if (likes == null)
+        {
             likes = new ArrayList<>();
+        }
         return likes;
     }
-
 }
