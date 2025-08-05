@@ -17,6 +17,8 @@
 
 package com.percussion;
 
+import org.apache.catalina.users.MemoryRole;
+import org.apache.catalina.users.MemoryUser;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +28,11 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticatedProcessingFilter  {
+
 
     public PSPreAuthenticatedProcessingFilter() {
         setAuthenticationDetailsSource(new PSAuthenticationDetailsSource());
@@ -37,50 +40,42 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
 
     @Override
     protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        if (principal != null) {
-            return principal.getName();
-        }
-        String userName = request.getHeader("tomcat-user");
-        return userName != null ? userName : "ANONYMOUS";
+        return "ANONYMOUS";
     }
 
     @Override
     protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
-        String password = request.getHeader("tomcat-password");
-        return password != null ? password : "N/A";
+        return "N/A";
     }
 
     public static class PSAuthenticationDetailsSource implements
             AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedAuthenticationToken> {
         @Override
         public PreAuthenticatedAuthenticationToken buildDetails(HttpServletRequest request) {
+            // create container for pre-auth data
             Principal principal = request.getUserPrincipal();
-            String userName = principal != null ? principal.getName() : request.getHeader("tomcat-user");
-            String password = request.getHeader("tomcat-password");
-            List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-
-            // Get roles from a header, e.g., "tomcat-roles: admin,user"
-            String rolesHeader = request.getHeader("tomcat-roles");
-            if (rolesHeader != null && !rolesHeader.isEmpty()) {
-                List<String> roles = Arrays.asList(rolesHeader.split(","));
-                for (String role : roles) {
-                    grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.trim()));
+            if(principal == null || !principal.getClass().isAssignableFrom( MemoryUser.class)) {
+                String userName = request.getHeader("tomcat-user");
+                String password = request.getHeader("tomcat-password");
+                if(userName != null && userName.equalsIgnoreCase("ps_manager")){
+                    List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+                    grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_deliverymanager"));
+                    return new PreAuthenticatedAuthenticationToken(userName,password,grantedAuthorities);
+                }else{
+                    return new PreAuthenticatedAuthenticationToken("ANONYMOUS","N/A");
                 }
-            } else if (userName != null && userName.equalsIgnoreCase("ps_manager")) {
-                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_deliverymanager"));
-            } else {
-                grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ANONYMOUS"));
+            }else{
+                MemoryUser memoryUser = (MemoryUser) principal;
+                List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+                Iterator roles = memoryUser.getRoles();
+                while (roles.hasNext()){
+                    MemoryRole role = (MemoryRole) roles.next();
+                    String roleName = "ROLE_" + role.getName();
+                    grantedAuthorities.add(new SimpleGrantedAuthority(roleName));
+                }
+                return new PreAuthenticatedAuthenticationToken(memoryUser.getName(),memoryUser.getPassword(),grantedAuthorities);
             }
-
-            if (userName == null) {
-                userName = "ANONYMOUS";
-            }
-            if (password == null) {
-                password = "N/A";
-            }
-
-            return new PreAuthenticatedAuthenticationToken(userName, password, grantedAuthorities);
         }
     }
+
 }

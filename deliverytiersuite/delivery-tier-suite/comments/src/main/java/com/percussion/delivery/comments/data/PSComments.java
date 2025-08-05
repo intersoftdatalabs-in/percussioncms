@@ -17,7 +17,6 @@
 package com.percussion.delivery.comments.data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -53,7 +52,14 @@ public class PSComments
     */
    public PSComments(List<IPSComment> comments)
    {
-       this.comments = comments != null ? comments : new ArrayList<>();
+       if(comments == null)
+       {
+           this.comments = new ArrayList<>();
+       }
+       else
+       {
+           this.comments = comments;
+       }
    }
    
    /**

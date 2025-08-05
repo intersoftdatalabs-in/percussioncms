@@ -56,13 +56,13 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
             }else{
                 List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
                 String[] roles = principal.getRoles();
-            for (String role: roles){
+                for (String role: roles){
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-                    }
-                String password = null;
+                }
+                String password = principal.getPassword();
                 if(password == null)
                     password = "NO_PASSWORD";
-return new PreAuthenticatedAuthenticationToken(principal.getName(), "N/A", grantedAuthorities);
+                return new PreAuthenticatedAuthenticationToken(principal.getName(),password,grantedAuthorities);
             }
         }
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.comments.services;
 
 import com.percussion.delivery.comments.data.IPSComment;
@@ -35,8 +36,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -47,14 +46,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
+ * Service implementation for comment operations.
  * @author erikserating
- * 
  */
-public class PSCommentsService implements IPSCommentsService
-{
+public class PSCommentsService implements IPSCommentsService {
     /**
      * Logger for this class
      */
@@ -74,11 +71,14 @@ public class PSCommentsService implements IPSCommentsService
 	/**
      * Map to get the PSComment fields given a SORTBY value.
      */
-    public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = Map.of(
-        SORTBY.CREATEDDATE, "createdDate",
-        SORTBY.EMAIL, "email",
-        SORTBY.USERNAME, "username"
-    );
+    public static final Map<SORTBY, String> SORTBY_FIELD_MAPPING = new HashMap<PSCommentSort.SORTBY, String>()
+    {
+        {
+            put(SORTBY.CREATEDDATE, "createdDate");
+            put(SORTBY.EMAIL, "email");
+            put(SORTBY.USERNAME, "username");
+        }
+    };
 
     /**
      * The amount of minutes during the ones a comment recently made will remain
@@ -98,7 +98,8 @@ public class PSCommentsService implements IPSCommentsService
     public IPSComment addComment(IPSComment comment)
     {
         String siteName = comment.getSite();
-        var siteSet = Set.of(siteName);
+        HashSet<String> siteSet = new HashSet<>(1);
+        siteSet.add(siteName);
         this.fireDataChangeRequestedEvent(siteSet);
         
         if (StringUtils.isBlank(comment.getPagePath()) || StringUtils.isBlank(comment.getSite()))

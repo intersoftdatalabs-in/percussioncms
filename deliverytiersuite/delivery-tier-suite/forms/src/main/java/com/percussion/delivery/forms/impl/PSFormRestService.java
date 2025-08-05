@@ -284,7 +284,7 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
             {
                 try {
                     emailNotifTo = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),emailNotifToVals[0]);
-                }catch(PSEncryptionException | java.lang.IllegalArgumentException e){
+                }catch(PSEncryptionException | IllegalArgumentException e){
                     emailNotifTo = PSLegacyEncrypter.getInstance(
                             PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
 
@@ -309,7 +309,7 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
             {
                 try {
                     emailNotifSubject = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),emailNotifSubjectVals[0]);
-                }catch(PSEncryptionException | java.lang.IllegalArgumentException e){
+                }catch(PSEncryptionException | IllegalArgumentException e){
                     emailNotifSubject = PSLegacyEncrypter.getInstance(
                             PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
                     ).decrypt(emailNotifSubjectVals[0],
