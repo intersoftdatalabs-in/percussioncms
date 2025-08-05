@@ -21,7 +21,6 @@ import com.percussion.generickey.services.IPSGenericKeyDao;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
 import junit.framework.TestCase;
 import org.apache.commons.lang.time.DateUtils;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;

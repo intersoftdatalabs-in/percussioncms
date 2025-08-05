@@ -18,7 +18,6 @@ package com.percussion.membership.services.rdbms;
 
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.PSBaseMembershipServiceTest;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;

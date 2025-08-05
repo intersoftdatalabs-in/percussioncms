@@ -19,7 +19,6 @@ package com.percussion.generickey.utils.services;
 import com.percussion.generickey.services.IPSGenericKeyService;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
 import junit.framework.TestCase;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.After;

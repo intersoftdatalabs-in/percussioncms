@@ -325,7 +325,7 @@ public class PSMembershipService implements IPSMembershipService
 
     /**
      * (non-Javadoc)
-     * @see com.percussion.membership.services.IPSMembershipService#resetPwd(java.lang.String, java.lang.String, java.lang.String)
+     * @see IPSMembershipService#resetPwd(String, String, String)
      */
     @Override
     public String resetPwd(String resetKey, String email, String password) throws PSResetPwdException,

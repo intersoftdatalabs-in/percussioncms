@@ -77,7 +77,7 @@ public class PSProfanityFilter {
      * Once a match result returns true. If a match is never found returns false.
      *
      * @param text - test to check for profanity.
-     * 
+     *
      * @return true if profanity is found else false
      */
     public boolean containsProfanity(String text) {
