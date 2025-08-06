@@ -23,7 +23,7 @@ import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSMemberExistsException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.AfterEach;

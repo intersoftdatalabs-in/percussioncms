@@ -19,7 +19,7 @@ package com.percussion.search.lucene.textconverter;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.StringUtils;
 

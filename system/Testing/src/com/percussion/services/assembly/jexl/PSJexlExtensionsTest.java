@@ -19,7 +19,7 @@ package com.percussion.services.assembly.jexl;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import com.percussion.services.contentmgr.data.PSContentNode;
-import com.percussion.utils.jsr170.PSProperty;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

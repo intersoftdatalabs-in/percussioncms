@@ -19,7 +19,7 @@ package com.percussion.workflow.actions;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSWorkflowAction;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit Tests for PSWFActionService which is used by the workflow transition
  * action dispatcher extension.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSWFActionServiceTest {
 
     @Test

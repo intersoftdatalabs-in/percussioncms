@@ -34,12 +34,12 @@ import com.percussion.share.test.PSTestUtils;
 
 import java.io.InputStream;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSRenderLinkServiceTest {
 

@@ -19,7 +19,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.server.PSServer;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.PSContentEditorDefinition;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSContentEditorDefinitionConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentEditorDefinitionConverterTest extends PSConverterTestBase {
 
     /**

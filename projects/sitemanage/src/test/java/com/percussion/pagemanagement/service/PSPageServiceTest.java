@@ -53,7 +53,7 @@ import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
@@ -75,7 +75,7 @@ import java.util.Set;
 import java.util.Optional;
 
 @TestMethodOrder(MethodName.class)
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPageServiceTest extends PSServletTestCase
 {
 

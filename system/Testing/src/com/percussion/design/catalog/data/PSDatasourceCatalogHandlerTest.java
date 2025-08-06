@@ -21,7 +21,7 @@ import com.percussion.design.catalog.PSCataloger;
 import com.percussion.design.objectstore.PSObjectStore;
 import com.percussion.design.objectstore.PSObjectStoreTest;
 import com.percussion.utils.jdbc.PSConnectionDetail;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlTreeWalker;
 
 import java.util.Properties;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test class for the {@link PSDatasourceCatalogHandler} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDatasourceCatalogHandlerTest extends PSObjectStoreTest
 {
    // see base class

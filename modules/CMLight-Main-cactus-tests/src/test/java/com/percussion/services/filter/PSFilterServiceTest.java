@@ -29,7 +29,7 @@ import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSContentListItem;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.StringUtils;
@@ -50,7 +50,7 @@ import java.util.Set;
  * @author dougrand
  * 
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFilterServiceTest extends ServletTestCase
 {
    private static final Logger log = LogManager.getLogger(PSFilterServiceTest.class);

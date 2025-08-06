@@ -19,7 +19,7 @@ package com.percussion.design.objectstore;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.w3c.dom.Document;

@@ -18,7 +18,7 @@
 package com.percussion.services.utils.jspel;
 
 import com.percussion.security.PSThreadRequestUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

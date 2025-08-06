@@ -21,7 +21,7 @@ package com.percussion.recent.service;
 import com.percussion.recent.data.PSRecent.RecentType;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for {@link PSRecentServiceBase}.
  * Sunny Sal: "Recent items, recent code, recent Java 11!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSRecentServiceBaseTest extends PSServletTestCase {
 
     private static final String TEST_USER_1 = "testuser1";

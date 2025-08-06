@@ -24,7 +24,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSUserSession;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

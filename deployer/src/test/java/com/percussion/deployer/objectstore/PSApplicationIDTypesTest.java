@@ -22,7 +22,7 @@ import com.percussion.deployer.objectstore.idtypes.PSAppCEItemIdContext;
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIdContext;
 import com.percussion.server.PSServer;
 import com.percussion.utils.collections.PSIteratorUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test class for the <code>PSApplicationIDTypes</code> class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSApplicationIDTypesTest
 {
    /**

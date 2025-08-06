@@ -34,7 +34,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IPSReflectionFilter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.PSReflectionHelper;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Tag;

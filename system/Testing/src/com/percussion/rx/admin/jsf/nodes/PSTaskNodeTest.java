@@ -21,7 +21,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSNotifyWhen;
 import com.percussion.services.schedule.data.PSScheduledTask;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

@@ -15,8 +15,8 @@ import com.percussion.services.content.data.PSItemSummary.ObjectTypeEnum;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.apache.cactus.ServletTestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +32,7 @@ import static com.percussion.content.ui.browse.PSContentBrowser.COLUMN_TYPE;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentBrowserTest extends ServletTestCase
 {
    @Override

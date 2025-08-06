@@ -26,7 +26,7 @@ import com.percussion.rx.design.impl.PSEditionWrapper;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.publisher.IPSEdition;
 import com.percussion.services.publisher.IPSEditionTaskDef;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Tag;
 
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author YuBingChen
  */
 @SuppressWarnings("unchecked")
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSEditionSetterTest extends PSConfigurationTest
 {
    /**

@@ -30,14 +30,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSchedulingServiceTest
 {
    @Test

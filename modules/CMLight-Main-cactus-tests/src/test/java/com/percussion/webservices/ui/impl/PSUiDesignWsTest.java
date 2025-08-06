@@ -18,7 +18,7 @@ package com.percussion.webservices.ui.impl;
 
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import com.percussion.webservices.ui.PSUiWsLocator;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Integration test for UI Design Web Service.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSUiDesignWsTest {
 
     @Test

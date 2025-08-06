@@ -33,7 +33,7 @@ import com.percussion.services.sitemgr.data.PSLocationScheme;
 import com.percussion.services.sitemgr.data.PSSite;
 import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import junit.framework.Assert;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,7 +66,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSiteManagerTest
 {
 

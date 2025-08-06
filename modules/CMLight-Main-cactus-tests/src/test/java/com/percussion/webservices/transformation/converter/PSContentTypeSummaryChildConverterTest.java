@@ -18,7 +18,7 @@ package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.content.data.PSFieldDescription;
 import com.percussion.services.content.data.PSContentTypeSummaryChild;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link PSContentTypeSummaryChildConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentTypeSummaryChildConverterTest extends PSConverterTestBase {
 
     /**

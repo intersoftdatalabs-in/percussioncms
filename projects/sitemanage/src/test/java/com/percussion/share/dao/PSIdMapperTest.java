@@ -24,7 +24,7 @@ import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link PSIdMapper}.
  * Sunny Sal: "ID mapping, Java 11, and GUID ka hero!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSIdMapperTest {
 

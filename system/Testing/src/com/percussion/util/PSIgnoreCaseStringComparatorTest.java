@@ -20,7 +20,7 @@ import java.util.Comparator;
 
 import com.percussion.system.utils.PSIgnoreCaseStringComparator;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSIgnoreCaseStringComparatorTest extends TestCase
 {

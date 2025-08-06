@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Test PSStringTemplate

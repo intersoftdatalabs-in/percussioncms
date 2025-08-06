@@ -26,7 +26,7 @@ import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestDataCleaner;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
@@ -38,7 +38,7 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "Testing templates is like checking your pizza base before adding toppings—crucial!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient> {
 

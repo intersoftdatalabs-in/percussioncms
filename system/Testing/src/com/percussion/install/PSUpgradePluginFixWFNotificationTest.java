@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  * @author JaySeletz
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSUpgradePluginFixWFNotificationTest
 {
 

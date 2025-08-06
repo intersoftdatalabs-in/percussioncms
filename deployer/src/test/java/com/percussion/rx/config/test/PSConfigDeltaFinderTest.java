@@ -17,7 +17,7 @@
 package com.percussion.rx.config.test;
 
 import com.percussion.rx.config.impl.PSConfigDeltaFinder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;

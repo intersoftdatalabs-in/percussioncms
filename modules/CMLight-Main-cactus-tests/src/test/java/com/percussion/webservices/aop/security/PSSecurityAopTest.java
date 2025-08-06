@@ -45,7 +45,7 @@
     private static IPSGuid ms_slotTemplate = new PSGuid(PSTypeEnum.SLOT, 123);
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -64,7 +64,7 @@ import java.util.Set;
  * Test case for the AOP implementation used to enforce web service security.
  * Uses mock service interfaces to test correct behavior by classes extending {@link PSSecurityStrategy}.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSecurityAopTest extends ServletTestCase {
     /**
      * Gets the test ACLs created during {@link #setUp()}.

@@ -23,7 +23,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.services.security.PSJaasUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;

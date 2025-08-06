@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.services.content.data.PSItemStatus;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.data.PSItemEntry;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.security.IPSSecurityWs;
@@ -39,7 +39,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * Testing PSCmsObjectMgr in the context of the server
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSCmsObjectMgrServletTest extends ServletTestCase
 {
    /**

@@ -20,7 +20,7 @@ package com.percussion.workflow;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
@@ -34,7 +34,7 @@ import java.util.Calendar;
  * The PSContentStatusHistoryContextTest class is a test class for the class
  *  PSContentStatusHistoryContext
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentStatusHistoryContextTest extends PSAbstractWorkflowTest 
 {
 

@@ -21,7 +21,7 @@ import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSLoginWebPageTest extends TestCase
 {

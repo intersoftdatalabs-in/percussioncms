@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.publisher.data;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

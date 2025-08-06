@@ -16,10 +16,10 @@
  */
 package com.percussion.rx.config.test;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSystemPackageTest extends PSConfigurationTest
 {
    /**

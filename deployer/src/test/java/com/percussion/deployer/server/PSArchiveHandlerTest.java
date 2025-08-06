@@ -27,7 +27,7 @@ import com.percussion.deployer.objectstore.PSDependency;
 import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSDeployableElement;
 import com.percussion.server.PSServer;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the <code>PSArchivHander</code> object.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSArchiveHandlerTest
 {
    /**

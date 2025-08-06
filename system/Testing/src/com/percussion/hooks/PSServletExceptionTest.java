@@ -17,9 +17,9 @@
 
 package com.percussion.hooks;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit test class for testing <code>PSServletException</code>

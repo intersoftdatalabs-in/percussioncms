@@ -24,7 +24,7 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageActionStatus;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageCategory;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -34,7 +34,7 @@ import java.util.Date;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSConvertToSourceTest
 {
 

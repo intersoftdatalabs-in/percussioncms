@@ -19,7 +19,7 @@ package com.percussion.services.assembly.jexl;
 import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import java.io.IOException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

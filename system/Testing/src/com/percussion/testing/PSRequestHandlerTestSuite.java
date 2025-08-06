@@ -21,9 +21,9 @@ import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.xml.PSXmlTreeWalker;
 import junit.framework.AssertionFailedError;
-import junit.framework.Test;
+
 import junit.framework.TestResult;
-import junit.framework.TestSuite;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

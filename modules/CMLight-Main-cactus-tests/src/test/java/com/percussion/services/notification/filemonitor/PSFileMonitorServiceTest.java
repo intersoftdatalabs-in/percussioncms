@@ -16,7 +16,7 @@
  */
 package com.percussion.services.notification.filemonitor;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import java.io.File;
 import java.io.FileWriter;
@@ -38,7 +38,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * Unit Test for  File Monitor Notification service {@link PSFileMonitorService}
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFileMonitorServiceTest extends ServletTestCase
       implements IPSNotificationListener
 {

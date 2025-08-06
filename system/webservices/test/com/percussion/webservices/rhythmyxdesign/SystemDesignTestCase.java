@@ -26,7 +26,7 @@ import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.util.PSBase64Decoder;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSSystemTestBase;
@@ -88,7 +88,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test system design web service functionality.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SystemDesignTestCase extends PSSystemTestBase
 {
    @Test

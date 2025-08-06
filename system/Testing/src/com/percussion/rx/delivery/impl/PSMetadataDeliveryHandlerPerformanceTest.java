@@ -29,7 +29,7 @@ import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOCase;

@@ -24,7 +24,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSiteTemplateVisibilitySetterTest extends PSConfigurationTest
 {
 

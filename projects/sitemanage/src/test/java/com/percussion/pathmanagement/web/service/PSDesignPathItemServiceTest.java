@@ -24,7 +24,7 @@ import com.percussion.pathmanagement.service.impl.PSPathService;
 import com.percussion.server.PSServer;
 import com.percussion.share.data.IPSItemSummary.Category;
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSWebserviceUtils;
 
 import org.apache.commons.io.FileUtils;

@@ -18,8 +18,8 @@ package com.percussion.install;
 
 import com.percussion.services.security.data.PSCatalogerConfig;
 import com.percussion.services.security.data.PSCatalogerConfig.ConfigTypes;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.services.security.data.PSCatalogerConfigurations;
-import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.utils.spring.PSSpringBeanUtils;
 import com.percussion.utils.spring.PSSpringConfiguration;
 import com.percussion.utils.xml.PSInvalidXmlException;

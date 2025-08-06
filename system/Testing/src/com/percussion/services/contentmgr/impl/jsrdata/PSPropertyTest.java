@@ -17,8 +17,8 @@
 package com.percussion.services.contentmgr.impl.jsrdata;
 
 import com.percussion.services.contentmgr.data.PSContentNode;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSMultiProperty;
-import com.percussion.utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSValueFactory;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the property objects used to implement JSR-170

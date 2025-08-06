@@ -18,7 +18,7 @@ package com.percussion.rx.config.test;
 
 import com.percussion.rx.config.impl.PSConfigNormalizer;
 import com.percussion.utils.types.PSPair;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
 
 import java.io.InputStream;

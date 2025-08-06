@@ -17,23 +17,18 @@
 package com.percussion.utils;
 
 import com.percussion.utils.jsr170.PSValueConverter;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-public class PSValueConverterTest extends TestCase
+public class PSValueConverterTest
 {
-   public PSValueConverterTest(String name) {
-      super(name);
+   public PSValueConverterTest() {
+   
    }
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSValueConverterTest.class);
-   }
-
+   @Test
    public void testConversionMillis() throws Exception
    {
       long now = System.currentTimeMillis();
@@ -43,6 +38,7 @@ public class PSValueConverterTest extends TestCase
       assertEquals(cal, cval);
    }
    
+   @Test
    public void testConversionDateString() throws Exception
    {
       Calendar cal = PSValueConverter.convertToCalendar("2001/08/31");
@@ -59,6 +55,7 @@ public class PSValueConverterTest extends TestCase
       assertEquals(23, cal.get(Calendar.SECOND));
    }
    
+   @Test
    public void testConversion() throws Exception
    {
       Calendar cal = new GregorianCalendar(1985,11,22);

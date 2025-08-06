@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSObjectAcl;
 import com.percussion.cms.objectstore.PSObjectAclEntry;
 import com.percussion.cms.objectstore.PSObjectPermissions;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Tag;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSActionConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFolderConverterTest extends PSConverterTestBase {
 
     /**

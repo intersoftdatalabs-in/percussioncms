@@ -22,7 +22,7 @@ import com.percussion.cms.objectstore.PSMenuMode;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.PSUiTestBase;
 import com.percussion.webservices.common.PSObjectSummary;
@@ -81,7 +81,7 @@ import java.rmi.RemoteException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class UiDesignTestCase extends PSUiTestBase
 {
    /**

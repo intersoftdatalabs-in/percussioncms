@@ -32,7 +32,7 @@ import com.percussion.services.pkginfo.data.PSPkgElement;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
@@ -43,7 +43,7 @@ import java.util.Set;
 /**
  * Test id-name helper
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPkgHelperTest extends ServletTestCase
 {
    /**

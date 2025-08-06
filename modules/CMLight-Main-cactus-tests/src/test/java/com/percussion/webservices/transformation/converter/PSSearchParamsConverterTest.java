@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.search.objectstore.PSWSSearchField;
 import com.percussion.search.objectstore.PSWSSearchParams;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSSearchParamsConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchParamsConverterTest extends PSConverterTestBase {
 
     /**

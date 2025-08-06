@@ -39,7 +39,7 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
 import com.percussion.sitemanage.importer.helpers.impl.PSTemplateCreationHelper;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;

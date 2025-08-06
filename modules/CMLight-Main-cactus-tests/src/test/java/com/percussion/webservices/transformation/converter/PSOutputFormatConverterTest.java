@@ -17,7 +17,7 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.assembly.IPSAssemblyTemplate;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.assembly.data.OutputFormatType;
 import org.junit.jupiter.api.Tag;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSOutputFormatConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSOutputFormatConverterTest extends PSConverterTestBase {
 
     /**

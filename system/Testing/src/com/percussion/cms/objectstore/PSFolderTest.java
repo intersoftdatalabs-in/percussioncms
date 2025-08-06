@@ -20,7 +20,7 @@ package com.percussion.cms.objectstore;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

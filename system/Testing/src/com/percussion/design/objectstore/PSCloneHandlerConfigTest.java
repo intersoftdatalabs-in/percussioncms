@@ -18,9 +18,9 @@ package com.percussion.design.objectstore;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;

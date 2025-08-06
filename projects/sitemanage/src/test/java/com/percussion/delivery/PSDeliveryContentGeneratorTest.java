@@ -41,9 +41,9 @@ import java.util.regex.Pattern;
 
 import javax.ws.rs.WebApplicationException;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import junit.framework.JUnit4TestAdapter;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.StringUtils;
 import org.jmock.Mockery;
@@ -66,7 +66,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //@Disabled("There are no Tomcat running in the continuos machine. If you want to " +
 //        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
 //        "server. Be sure build and install the latest delivery services code.")
-//@Tag(IntegrationTest.class)
+//@Tag("IntegrationTest")
 public class PSDeliveryContentGeneratorTest
 {
     private static final String SERVER_URL = "http://localhost:9970";

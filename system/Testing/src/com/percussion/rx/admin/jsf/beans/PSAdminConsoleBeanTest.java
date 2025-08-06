@@ -20,7 +20,7 @@ import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.EXIT_CMD;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.QUIT_CMD;
 import static com.percussion.rx.admin.jsf.beans.PSAdminConsoleBean.STOP_SERVER_CMD;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

@@ -24,7 +24,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 

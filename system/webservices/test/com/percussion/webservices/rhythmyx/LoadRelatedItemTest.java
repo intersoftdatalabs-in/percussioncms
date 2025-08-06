@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.content.ContentSOAPStub;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for loading related items
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class LoadRelatedItemTest extends PSTestBase
 {
    /**

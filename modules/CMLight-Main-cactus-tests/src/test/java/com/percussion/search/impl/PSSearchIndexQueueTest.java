@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author BillLanglais
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchIndexQueueTest extends ServletTestCase
 {
    @Override

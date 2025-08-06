@@ -33,7 +33,7 @@ import com.percussion.deployer.server.dependencies.PSSlotDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSTemplateDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSUserDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSWorkflowDependencyHandler;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the PSDependencyMap and PSDependencyDef classes
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDependencyManagerTest
 {
    /**

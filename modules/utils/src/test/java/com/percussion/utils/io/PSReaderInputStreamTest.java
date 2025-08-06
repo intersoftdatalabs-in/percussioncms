@@ -16,7 +16,7 @@
  */
 package com.percussion.utils.io;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;

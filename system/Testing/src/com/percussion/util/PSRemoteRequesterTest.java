@@ -22,7 +22,7 @@ import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.server.PSRequest;
 import com.percussion.system.utils.IPSRemoteRequesterEx;
 import com.percussion.system.utils.PSRemoteRequester;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -43,7 +43,7 @@ import java.util.Properties;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSRemoteRequesterTest
 {
 

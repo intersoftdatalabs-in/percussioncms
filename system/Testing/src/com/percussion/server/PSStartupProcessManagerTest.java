@@ -27,7 +27,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Tag;
  * @author JaySeletz
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSStartupProcessManagerTest
 {
    private static final String YES = "yes";

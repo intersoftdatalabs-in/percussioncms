@@ -19,7 +19,7 @@ package com.percussion.extension;
 import java.io.File;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for class <code>PSExtensionHandlerConfiguration</code>.

@@ -27,7 +27,7 @@ import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.util.IPSRemoteRequester;
 import com.percussion.util.servlet.PSServletRequester;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.method.PSWebdavUtils;
 
@@ -50,7 +50,7 @@ import java.util.List;
 /**
  * This is used to test PSServletRequester class
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSServletRequesterTest extends PSWebdavServlet
 {
 

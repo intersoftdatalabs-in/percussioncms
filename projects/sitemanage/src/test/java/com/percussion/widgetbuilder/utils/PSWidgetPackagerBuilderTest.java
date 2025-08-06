@@ -17,7 +17,7 @@
 package com.percussion.widgetbuilder.utils;
 
 import com.percussion.server.PSServer;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.widgetbuilder.utils.xform.PSContentTypeFileTransformerTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;

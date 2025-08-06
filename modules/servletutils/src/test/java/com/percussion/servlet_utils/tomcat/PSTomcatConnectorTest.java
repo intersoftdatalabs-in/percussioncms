@@ -14,20 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.tomcat;
+package com.percussion.servlet_utils.tomcat;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.util.FunctionalUtils;
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
-
-import junit.framework.TestCase;
+import com.percussion.utils.tomcat.PSTomcatConnector;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Element;
 
 import javax.xml.parsers.DocumentBuilder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,14 +43,16 @@ import java.util.stream.Collectors;
  * Test case for the {@link PSTomcatConnector} class
  */
 @Tag("UnitTest")
-public class PSTomcatConnectorTest extends TestCase
+public class PSTomcatConnectorTest
 {
     public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384";
-   /**
+   
+    /**
     * Test the constructors and accessors for an http connector
     * 
     * @throws Exception if there are any errors.
     */
+    @Test
    public void testHttpConnector() throws Exception
    {
       int port = 9992;
@@ -68,6 +76,7 @@ public class PSTomcatConnectorTest extends TestCase
     * 
     * @throws Exception if there are any errors.
     */
+    @Test
    public void testHttpsConnector() throws Exception
    {
       int port = 9980;
@@ -111,6 +120,7 @@ public class PSTomcatConnectorTest extends TestCase
     * 
     * @throws Exception if there are any errors.
     */
+    @Test
    public void testXml() throws Exception
    {
       int port = 9992;
@@ -167,6 +177,7 @@ public class PSTomcatConnectorTest extends TestCase
     * 
     * @throws Exception If there are any errors or failures.
     */
+    @Test
    private void doTestHttpConnector(IPSConnector tc, int port)
       throws Exception
    {

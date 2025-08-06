@@ -18,7 +18,7 @@
 package com.percussion.thumbnail;
 
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +33,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSScreenCaptureTest {
 
     protected static final Logger log = LogManager.getLogger();

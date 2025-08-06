@@ -36,7 +36,7 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.sitemanage.data.PSSitePublishItem;
 import com.percussion.sitemanage.data.PSSitePublishJob;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
@@ -52,7 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 // REFACTORED: CP-JAVA11
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSSitePublishStatusServiceTest {
 
     private static final Logger log = LogManager.getLogger(PSSitePublishStatusServiceTest.class);

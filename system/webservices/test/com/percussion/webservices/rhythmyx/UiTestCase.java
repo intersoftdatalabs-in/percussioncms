@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.PSUiTestBase;
 import com.percussion.webservices.ui.LoadActionsRequest;
@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class UiTestCase extends PSUiTestBase
 {
    /**

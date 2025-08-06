@@ -18,7 +18,7 @@ package com.percussion.webservices.transformation.converter;
 
 import com.percussion.cms.objectstore.*;
 import com.percussion.design.objectstore.PSRelationshipConfigTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Tag;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSActionConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSActionConverterTest extends PSConverterTestBase {
 
     /**

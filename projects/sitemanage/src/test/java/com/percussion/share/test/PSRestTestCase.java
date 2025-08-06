@@ -20,12 +20,12 @@ package com.percussion.share.test;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
     public static String baseUrl;
     protected REST_CLIENT restClient;

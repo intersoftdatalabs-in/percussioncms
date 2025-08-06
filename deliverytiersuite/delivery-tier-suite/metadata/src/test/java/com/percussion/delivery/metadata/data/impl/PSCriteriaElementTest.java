@@ -17,7 +17,7 @@
 package com.percussion.delivery.metadata.data.impl;
 
 import com.percussion.delivery.metadata.error.PSMalformedMetadataQueryException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author erikserating

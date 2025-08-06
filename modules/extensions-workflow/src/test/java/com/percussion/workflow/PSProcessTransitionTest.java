@@ -17,7 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.server.PSRequestContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +31,7 @@ import java.util.Calendar;
  * The PSProcessTransitionTest class is a test class for the method
  * processTransition. See  {@link #HelpMessage} for command line options.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSProcessTransitionTest extends PSAbstractWorkflowTest 
 {
 

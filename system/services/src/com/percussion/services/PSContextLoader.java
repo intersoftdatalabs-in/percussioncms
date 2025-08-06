@@ -18,10 +18,10 @@
 package com.percussion.services;
 
 import com.percussion.server.PSServer;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.servlets.PSContextLoaderListener;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
-import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.utils.xml.PSEntityResolver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

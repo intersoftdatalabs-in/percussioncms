@@ -21,7 +21,7 @@ import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for the {@link PSAclEntryImplConverter}.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAclEntryImplConverterTest extends PSConverterTestBase {
 
     /**

@@ -17,7 +17,7 @@
 package com.percussion.ant;
 
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.tools.ant.BuildException;
 import org.junit.jupiter.api.Tag;
 

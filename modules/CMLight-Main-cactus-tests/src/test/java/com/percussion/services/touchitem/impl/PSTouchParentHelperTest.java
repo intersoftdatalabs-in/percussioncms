@@ -25,7 +25,7 @@ import com.percussion.server.PSRequestContext;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.PSRelationshipServiceLocator;
 import com.percussion.servlets.PSSecurityFilter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSWebserviceUtils;
 import org.junit.jupiter.api.*;
 

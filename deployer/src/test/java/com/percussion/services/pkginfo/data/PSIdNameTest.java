@@ -18,7 +18,7 @@ package com.percussion.services.pkginfo.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 /**
  * Test case for the {@link PSIdName} class
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSIdNameTest
 {
    /**

@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.impl;
 
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;

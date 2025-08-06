@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSSubject;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for the {@link PSBackEndTableDirectoryCataloger}.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSBackEndTableDirectoryCatalogerTest
 {
    private static final String DEFAULT_PASSWORD = "89e495e7941cf9e40e6980d14a16bf023ccd4c91";

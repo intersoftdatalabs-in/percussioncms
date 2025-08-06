@@ -22,7 +22,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCharSetsConstants;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.tools.PSTestUtils;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

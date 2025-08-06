@@ -18,9 +18,9 @@ package com.percussion.xml;
 
 import java.util.Arrays;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit tests for the PSDtdTree class.

@@ -19,7 +19,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.data.PSContentTemplateDesc;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for the {@link PSContentTemplateDescConverter}
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentTemplateDescConverterTest extends PSConverterTestBase {
 
     /**

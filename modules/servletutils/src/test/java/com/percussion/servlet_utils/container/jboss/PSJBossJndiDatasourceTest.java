@@ -14,125 +14,101 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.jboss;
 
-import com.percussion.utils.tools.PSTestUtils;
-import com.percussion.xml.PSXmlDocumentBuilder;
+package com.percussion.servlet_utils.container.jboss;
+import org.junit.jupiter.api.Disabled;
+import com.percussion.utils.container.jboss.PSJBossJndiDatasource;
 
-import junit.framework.TestCase;
-
-import org.w3c.dom.Document;
 
 /**
- * Test case for the {@link PSJndiDatasource} class.
+ * Test case for the {@link PSJBossJndiDatasource} class.
  */
-public class PSJndiDatasourceTest extends TestCase
+@Disabled
+public class PSJBossJndiDatasourceTest 
 {
-   /**
+/***
+   
     * Tests the constructor that takes the datasource props.
     * 
     * @throws Exception if the test fails
-    */
+    -/
    public void testCtor() throws Exception
    {
-     /*
       Class[] params = new Class[7];
-
       for (int i = 0; i < params.length; i++)
       {
          params[i] = String.class;
       }
       
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "mapping", "server", "uid", "pwd"},
          false);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"", "driverName", "classname", "mapping", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {null, "driverName", "classname", "mapping", "server", "uid", "pwd"},
          true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "", "classname", "mapping", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", null, "classname", "mapping", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "", "mapping", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", null, "mapping", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "", "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", null, "server", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "mapping", "", "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "mapping", null, "uid", "pwd"}, true);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "mapping", "server", "", ""}, false);
-      PSTestUtils.testCtor(PSJndiDatasource.class, params, new Object[]
+      PSTestUtils.testCtor(PSJBossJndiDatasource.class, params, new Object[]
       {"name", "driverName", "classname", "mapping", "server", null, null},
          false);
-   */
    }
 
    /**
     * Tests the ctor that takes an element, and the toXml() method.
     * 
     * @throws Exception if the test fails
-    */
+    -/
    public void testXml() throws Exception
    {
-   /*   PSJndiDatasource ds = new PSJndiDatasource("name", "jtds:sqlserver",
+      PSJBossJndiDatasource ds = PSServer.getContainerUtils().getNewJndiDatasource("name", "jtds:sqlserver",
          "classname", "mapping", "server", "uid", "pwd");
       
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-      assertTrue(ds.equals(new PSJndiDatasource(ds.toXml(doc))));
-      PSJndiDatasource ds2 = new PSJndiDatasource("name", "jtds:sqlserver",
+      assertTrue(ds.equals(PSServer.getContainerUtils().getNewJndiDatasource(ds.toXml(doc))));
+      PSJBossJndiDatasource ds2 = PSServer.getContainerUtils().getNewJndiDatasource("name", "jtds:sqlserver",
          "classname", "mapping", "server", null, null);
-      assertTrue(ds2.equals(new PSJndiDatasource(ds2.toXml(doc))));
+      assertTrue(ds2.equals(PSServer.getContainerUtils().getNewJndiDatasource(ds2.toXml(doc))));
       
       // test security domain setting
       ds.setSecurityDomain("myDomain");
-      ds2 = new PSJndiDatasource(ds.toXml(doc));
+      ds2 = PSServer.getContainerUtils().getNewJndiDatasource(ds.toXml(doc));
       assertTrue(!ds.equals(ds2));
       assertNull(ds2.getUserId());
       assertNull(ds2.getPassword());
-      assertTrue(ds2.equals(new PSJndiDatasource(ds2.toXml(doc))));
+      assertTrue(ds2.equals(PSServer.getContainerUtils().getNewJndiDatasource(ds2.toXml(doc))));
       
       // test conn checker/exception sorter
-      ds = new PSJndiDatasource("name", "oracle:thin", "classname", "mapping",
+      ds = PSServer.getContainerUtils().getNewJndiDatasource("name", "oracle:thin", "classname", "mapping",
          "server", "uid", "pwd");
-      assertTrue(ds.equals(new PSJndiDatasource(ds.toXml(doc))));
-      */
+      assertTrue(ds.equals(PSServer.getContainerUtils().getNewJndiDatasource(ds.toXml(doc))));
    }
 
-   /**
-    * Test copyFrom
-    * 
-    * @throws Exception
-    */
-   public void testCopyFrom() throws Exception
-   {
-     /* PSJndiDatasource ds = new PSJndiDatasource("name", "jtds:sqlserver", "classname", "mapping", "server", "uid", "pwd");
-      ds.setSecurityDomain("myDomain");
-      
-      PSJndiDatasource ds_2 = new PSJndiDatasource("name2", "jtds:sqlserver", "classname2", "mapping2", "server2", "uid2", "pwd2");
-      assertFalse(ds.equals(ds_2));
-      
-      ds_2.copyFrom(ds);
-      assertTrue(ds.equals(ds_2));
-      */
-   }
-   
    /**
     * Tests all set and get methdos
     * 
     * @throws Exception if the test fails
-    */
+    -/
    public void testAccessors() throws Exception
    {
-      /*
-      PSJndiDatasource ds = new PSJndiDatasource("name", "jtds:sqlserver",
+      PSJBossJndiDatasource ds = PSServer.getContainerUtils().getNewJndiDatasource("name", "jtds:sqlserver",
          "classname", "mapping", "server", "uid", "pwd");
       assertEquals("name", ds.getName());
       assertEquals("jtds:sqlserver", ds.getDriverName());
@@ -169,8 +145,10 @@ public class PSJndiDatasourceTest extends TestCase
       PSTestUtils.testSetter(ds, "SecurityDomain", null, false);
       PSTestUtils.testSetter(ds, "SecurityDomain", "test", false);
       PSTestUtils.testSetter(ds, "SecurityDomain", "", true);
-   */
-   }
+  
+   } 
+   **/
 }
+
 
 

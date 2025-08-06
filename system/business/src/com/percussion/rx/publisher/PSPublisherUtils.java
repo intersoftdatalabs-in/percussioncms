@@ -28,11 +28,11 @@ import com.percussion.services.publisher.IPSEditionContentList;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBaseHttpUtils;
 import com.percussion.utils.container.PSContainerUtilsFactory;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.utils.types.PSPair;
 
 import java.io.File;

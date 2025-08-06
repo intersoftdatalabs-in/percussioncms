@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Tag;
  * @author JaySeletz
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentChangeServiceTest
 {
 

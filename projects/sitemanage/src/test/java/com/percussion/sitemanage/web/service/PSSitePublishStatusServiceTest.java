@@ -24,7 +24,7 @@ import com.percussion.sitemanage.data.PSSitePublishJob;
 import com.percussion.sitemanage.data.PSSitePublishLogDetailsRequest;
 import com.percussion.sitemanage.data.PSSitePublishLogRequest;
 import com.percussion.sitemanage.data.PSSitePublishPurgeRequest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;

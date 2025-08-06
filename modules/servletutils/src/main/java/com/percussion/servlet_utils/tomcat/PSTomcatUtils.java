@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package com.percussion.utils.tomcat;
+package com.percussion.servlet_utils.tomcat;
 
 import com.percussion.utils.container.IPSConnector;
+import com.percussion.utils.tomcat.PSTomcatConnector;
 import com.percussion.utils.xml.IPSXmlErrors;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.utils.xml.PSXmlUtils;

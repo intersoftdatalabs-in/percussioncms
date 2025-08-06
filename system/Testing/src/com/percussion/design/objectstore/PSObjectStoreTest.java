@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 
 
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests for the object store. These tests require the server to be running.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSObjectStoreTest extends PSClientTestCase
 {
 

@@ -24,7 +24,7 @@ import com.percussion.services.system.data.PSConfigurationTypes;
 import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.services.system.data.PSMimeContentAdapter;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;

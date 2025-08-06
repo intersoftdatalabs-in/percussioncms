@@ -21,7 +21,7 @@ import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgInfo;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.jupiter.api.Tag;
@@ -34,7 +34,7 @@ import java.util.Date;
  * @author JaySeletz
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLocalDeployerClientTest extends ServletTestCase
 {
     

@@ -16,18 +16,20 @@
  */
 package com.percussion.utils.codec;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tester for xml codecs
  * 
  * @author dougrand
  */
-public class PSXmlCodecTest extends TestCase
+public class PSXmlCodecTest
 {
    /**
     * @throws Exception
     */
+    @Test
    public void testDecode() throws Exception
    {
       PSXmlDecoder dec = new PSXmlDecoder();

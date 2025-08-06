@@ -17,7 +17,7 @@
 package com.percussion.services.assembly.ui;
 
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSVariantMigrationBeanTest
 {
    /**

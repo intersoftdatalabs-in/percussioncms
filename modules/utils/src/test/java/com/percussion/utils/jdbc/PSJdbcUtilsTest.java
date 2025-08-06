@@ -16,11 +16,15 @@
  */
 package com.percussion.utils.jdbc;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.Test;
 
-public class PSJdbcUtilsTest extends TestCase
+public class PSJdbcUtilsTest
 {
 
+   @Test
    public void testGetDriverFromUrl()
    {
       assertEquals("oracle:thin", PSJdbcUtils.getDriverFromUrl(
@@ -32,6 +36,7 @@ public class PSJdbcUtilsTest extends TestCase
          "jdbc:sqlserver://bender"));
    }
 
+   @Test
    public void testGetServerFromUrl()
    {
       assertEquals("serverName", PSJdbcUtils.getServerFromUrl(
@@ -44,12 +49,14 @@ public class PSJdbcUtilsTest extends TestCase
     	         "jdbc:sqlserver://bender"));
    }
 
+   @Test
    public void testGetJdbcUrl()
    {
       assertEquals("jdbc:oracle:thin:serverName", 
          PSJdbcUtils.getJdbcUrl("oracle:thin", "serverName"));
    }
    
+   @Test
    public void testGetDBBackendForDriver()
    {
       assertEquals(PSJdbcUtils.SPRINTA_DB_BACKEND,
@@ -62,6 +69,7 @@ public class PSJdbcUtilsTest extends TestCase
             PSJdbcUtils.getDBBackendForDriver(PSJdbcUtils.ORACLE));
    }
 
+   @Test
    public void testGetDatabaseFromUrl()
    {
       String DB_NAME = "myDatabase";

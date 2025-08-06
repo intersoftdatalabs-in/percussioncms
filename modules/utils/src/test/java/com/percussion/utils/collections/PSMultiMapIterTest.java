@@ -16,26 +16,22 @@
  */
 package com.percussion.utils.collections;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PSMultiMapIterTest extends TestCase
+public class PSMultiMapIterTest
 {
-   public PSMultiMapIterTest(String name) {
-      super(name);
+   public PSMultiMapIterTest() {
    }
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSMultiMapIterTest.class);
-   }
-
+   @Test
    public void test1() throws Exception
    {
       MultiValuedMap map = new ArrayListValuedHashMap<>();
@@ -67,6 +63,7 @@ public class PSMultiMapIterTest extends TestCase
 
    }
 
+   @Test
    public void test2() throws Exception
    {
       MultiValuedMap map = new ArrayListValuedHashMap<>();

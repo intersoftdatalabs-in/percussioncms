@@ -18,7 +18,7 @@ package com.percussion.monitor.process;
 
 import com.percussion.monitor.service.PSMonitor;
 import com.percussion.monitor.service.PSMonitorService;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 

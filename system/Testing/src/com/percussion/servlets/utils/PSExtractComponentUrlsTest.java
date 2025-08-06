@@ -20,7 +20,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.StringReader;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;

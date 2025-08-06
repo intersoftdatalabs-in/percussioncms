@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.percussion.sitemanage.data.PSSectionNode;
 import com.percussion.utils.service.impl.PSSiteConfigUtils;
 import com.percussion.utils.service.impl.PSSiteConfigUtils.SecureXmlData;
-import com.percussion.utils.testing.IntegrationTest;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Tag;
  * Test cases for the {@link PSSiteConfigUtils} class.
  * Refactored for Java 11 and JUnit5.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSiteConfigUtilsTest {
 
     private File secureSiteDefaultConfigFolder;

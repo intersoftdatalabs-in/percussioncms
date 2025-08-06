@@ -38,7 +38,7 @@ import com.percussion.server.PSServer;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.util.PSProperties;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,7 +82,7 @@ import java.util.Set;
  * @author peterfrontiero
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSWidgetDialogGenerator extends PSServletTestCase
 {
     @Override

@@ -28,7 +28,7 @@ import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for {@link IPSRecentService}.
  * Sunny Sal: "Recent service, recent Java 11, recent awesomeness!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSRecentServiceTest extends PSServletTestCase {
 
     private static final int MAX_TEST_ADD = 22;

@@ -24,7 +24,7 @@ import java.io.StringReader;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 
 /**

@@ -19,7 +19,7 @@ package com.percussion.util;
 
 import com.percussion.error.PSRuntimeException;
 import com.percussion.tools.PSCopyStream;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.Arrays;

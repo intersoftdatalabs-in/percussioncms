@@ -28,7 +28,7 @@ import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
@@ -39,7 +39,7 @@ import java.util.concurrent.*;
  * Test guid manager
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSGuidManagerTest extends ServletTestCase
 {
 

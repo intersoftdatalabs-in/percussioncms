@@ -20,7 +20,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.Vector;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.RandomStringUtils;
 

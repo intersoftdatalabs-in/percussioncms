@@ -26,14 +26,14 @@ import com.percussion.rx.design.IPSDesignModelFactory;
 import com.percussion.rx.design.PSDesignModelFactoryLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSRelationshipConfigSetterTest extends PSConfigurationTest
 {
    public void testConfigFiles() throws Exception

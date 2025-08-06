@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.axis.MessageContext;
 import org.apache.axis.transport.http.HTTPConstants;
 
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * maintain multiple sessions when involves multiple stubs. 
  * Refer to http://wiki.apache.org/ws/FrontPage/Axis/SessionSupport for detail
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class MaintainSessionTestCase extends PSTestBase
 {
    /**

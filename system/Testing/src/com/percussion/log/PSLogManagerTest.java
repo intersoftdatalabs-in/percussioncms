@@ -18,7 +18,7 @@ package com.percussion.log;
 
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit tests for the PSLogManager class. These are private and
  * are not to be shipped with the product.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLogManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {

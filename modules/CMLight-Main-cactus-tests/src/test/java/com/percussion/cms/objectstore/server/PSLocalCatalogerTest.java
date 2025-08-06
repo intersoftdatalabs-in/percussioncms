@@ -23,7 +23,7 @@ import com.percussion.cms.objectstore.IPSFieldCataloger;
 import com.percussion.cms.objectstore.client.PSContentEditorFieldCataloger;
 import com.percussion.cms.objectstore.client.PSLightWeightField;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

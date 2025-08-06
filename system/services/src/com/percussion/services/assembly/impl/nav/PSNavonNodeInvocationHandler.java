@@ -26,9 +26,9 @@ import com.percussion.services.assembly.impl.nav.PSNavHelper.PSSectionTypeEnum;
 import com.percussion.services.contentmgr.IPSNode;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.servlet_utils.jsr170.PSProperty;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jsr170.PSNodeIterator;
-import com.percussion.utils.jsr170.PSProperty;
 import com.percussion.utils.jsr170.PSPropertyIterator;
 
 import java.lang.reflect.InvocationHandler;

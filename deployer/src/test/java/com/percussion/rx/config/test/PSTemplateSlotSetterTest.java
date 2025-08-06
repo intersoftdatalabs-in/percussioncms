@@ -27,7 +27,7 @@ import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Tag;
 
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author YuBingChen
  */
 @SuppressWarnings("unchecked")
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTemplateSlotSetterTest extends PSConfigurationTest // TestCase
 {
    public void testSlotProperties() throws Exception

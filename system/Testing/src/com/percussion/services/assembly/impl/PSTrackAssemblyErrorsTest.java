@@ -18,7 +18,7 @@ package com.percussion.services.assembly.impl;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.TestMethodOrder;

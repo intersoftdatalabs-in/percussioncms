@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.percussion.utils.container.jboss;
+package com.percussion.servlet_utils.container.jboss;
 
 import java.io.File;
 

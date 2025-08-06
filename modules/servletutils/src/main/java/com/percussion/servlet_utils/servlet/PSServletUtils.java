@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.percussion.utils.servlet;
+package com.percussion.servlet_utils.servlet;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.mock.web.MockHttpServletResponse;

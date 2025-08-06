@@ -17,8 +17,8 @@
 
 package com.percussion.services.assembly.jexl;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.apache.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Tag;
 
 import java.util.concurrent.TimeUnit;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSCacheUtilsTest extends TestCase {
 	
 	private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());

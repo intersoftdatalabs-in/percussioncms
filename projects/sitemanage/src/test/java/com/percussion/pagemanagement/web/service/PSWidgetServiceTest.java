@@ -29,7 +29,7 @@ import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSObjectRestClient.DataValidationRestClientException;
 import com.percussion.share.validation.PSValidationErrors;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
@@ -42,7 +42,7 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "Widgets are like toppings—test them all, and your pizza (app) will be delicious!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSWidgetServiceTest extends PSRestTestCase<PSWidgetServiceTest.PSWidgetRestClient> {
 

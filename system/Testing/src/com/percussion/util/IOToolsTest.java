@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class IOToolsTest extends TestCase
 {

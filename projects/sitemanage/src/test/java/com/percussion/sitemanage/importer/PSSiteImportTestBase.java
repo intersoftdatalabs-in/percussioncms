@@ -25,7 +25,7 @@ import com.percussion.queue.impl.IPSPerformPageImport;
 import com.percussion.queue.impl.PSPageImportQueue;
 import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInstance;
 

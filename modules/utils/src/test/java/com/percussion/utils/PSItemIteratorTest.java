@@ -17,7 +17,7 @@
 package com.percussion.utils;
 
 import com.percussion.utils.jsr170.PSItemIterator;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
@@ -35,6 +35,8 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -46,7 +48,7 @@ import java.util.Set;
  * 
  * @author dougrand
  */
-public class PSItemIteratorTest extends TestCase
+public class PSItemIteratorTest
 {
    /**
     * Test class to test the base class of item iterator
@@ -210,6 +212,7 @@ public class PSItemIteratorTest extends TestCase
     * Test multi map iteration behavior for the item iterator.
     */
    @SuppressWarnings("unchecked")
+   @Test
    public void testMultiMap()
    {
       TestItemIterator ti = new TestItemIterator(ms_mm.asMap(), "a*");
@@ -257,6 +260,7 @@ public class PSItemIteratorTest extends TestCase
     * Test regular maps
     * @throws RepositoryException 
     */
+    @Test
    public void testMapIteration() throws RepositoryException
    {
       Map<String,Item> test = new HashMap<String,Item>();

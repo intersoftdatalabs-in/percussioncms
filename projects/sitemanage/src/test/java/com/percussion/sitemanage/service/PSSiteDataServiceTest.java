@@ -38,7 +38,7 @@ import com.percussion.sitemanage.importer.dao.IPSImportLogDao;
 import com.percussion.sitemanage.service.impl.PSSiteDataService;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.user.service.IPSUserService;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 

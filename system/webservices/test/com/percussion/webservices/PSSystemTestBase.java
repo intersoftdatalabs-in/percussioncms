@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSObjectStore;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
 import com.percussion.util.PSCollection;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.assembly.data.PSTemplateSlot;
 import com.percussion.webservices.common.PSObjectSummary;
 import com.percussion.webservices.rhythmyxdesign.SystemDesignLocator;
@@ -69,7 +69,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Implements utilities used by all system test cases.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSystemTestBase extends PSTestBase
 {
    /**

@@ -36,7 +36,7 @@ import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.relationship.data.PSRelationshipConfigName;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.utils.types.PSPair;
 import com.percussion.workflow.IPSStatesContext;
@@ -69,7 +69,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dougrand
  */
 @TestMethodOrder(MethodName.class)
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSCmsObjectMgrTest
 {
    /**

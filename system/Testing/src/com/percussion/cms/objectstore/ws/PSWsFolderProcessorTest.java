@@ -38,7 +38,7 @@ import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.testing.IPSClientBasedJunitTest;
 import com.percussion.testing.PSClientTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test class for the <code>PSWsFolderProcessor</code> class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSWsFolderProcessorTest extends PSClientTestCase
 {
    private static final Logger ms_log = LogManager.getLogger(PSWsFolderProcessorTest.class);

@@ -16,7 +16,7 @@
  */
 package com.percussion.tools.simple;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.xml.PSEntityResolver;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.io.FileUtils;
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * root of the development tree. Also note that the referenced xml file
  * should be replaced if necessary.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSXmlExtractorTest
 {
    private static final String TEST_EDITOR_DTD = 

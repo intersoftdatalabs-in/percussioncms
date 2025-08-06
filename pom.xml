@@ -26,10 +26,9 @@
         <module>modules/perc-security-acl-shim</module>
         <module>modules/perc-xml-security</module>
         <module>modules/perc-exceptions-spring</module>
-        <module>modules/shindig-uber</module>
-        <module>modules/perc-tinymce</module>
         <module>modules/utils</module>
         <module>modules/perc-legacy</module>
+        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
         <!-- <module>modules/webservices</module> -->
@@ -37,6 +36,7 @@
         <module>modules/TableFactory</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
+        <module>modules/perc-tinymce</module> 
         <module>system</module>
         <module>deployer</module>
         <module>modules/Help</module>
@@ -52,6 +52,7 @@
         <module>PCM-PkgMgtUI</module>
         <module>WebUI</module>
         <module>delivery</module>
+        <module>modules/shindig-uber</module>
         <module>projects/sitemanage</module>
         <module>modules/servletutils</module>
         <module>modules/perc-rxapps</module>
@@ -60,7 +61,7 @@
         <module>modules/perc-jetty</module>
 		<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
-        <module>deliverytiersuite/delivery-tier-suite</module>
+     
         <module>modules/perc-packages</module>
         <module>modules/perc-ant</module>
         <module>modules/perc-thumbnail</module>

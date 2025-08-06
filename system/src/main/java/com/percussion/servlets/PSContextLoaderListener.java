@@ -19,8 +19,9 @@ package com.percussion.servlets;
 
 import com.percussion.server.PSServer;
 import com.percussion.services.PSBaseServiceLocator;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
-import com.percussion.utils.servlet.PSServletUtils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;

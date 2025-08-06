@@ -28,7 +28,7 @@ import com.percussion.services.content.data.PSKeywordChoice;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Tag;
 
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSKeywordSetterTest extends PSConfigurationTest
 {
    @SuppressWarnings("unchecked")

@@ -17,7 +17,7 @@
 
 package com.percussion.servlets;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -26,7 +26,7 @@ import javax.servlet.ServletException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSecurityFilterIntegrationTest {
 
 

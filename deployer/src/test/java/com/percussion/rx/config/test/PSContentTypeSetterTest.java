@@ -44,7 +44,7 @@ import com.percussion.rx.design.impl.PSAssociationSet;
 import com.percussion.rx.utils.PSContentTypeUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -61,7 +61,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentTypeSetterTest extends PSConfigurationTest
 {
    @SuppressWarnings("unchecked")

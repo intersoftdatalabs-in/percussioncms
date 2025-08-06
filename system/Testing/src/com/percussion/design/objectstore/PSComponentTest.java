@@ -19,9 +19,9 @@ package com.percussion.design.objectstore;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit tests for all PSComponent derived objects

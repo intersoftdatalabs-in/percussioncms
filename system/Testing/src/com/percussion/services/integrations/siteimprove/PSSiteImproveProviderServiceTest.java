@@ -19,7 +19,7 @@ package com.percussion.services.integrations.siteimprove;
 
 import com.percussion.services.integrations.IPSIntegrationProviderService;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestMethodOrder;

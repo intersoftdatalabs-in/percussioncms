@@ -21,9 +21,9 @@ import com.percussion.design.objectstore.PSDateLiteral;
 import com.percussion.design.objectstore.PSLiteralSet;
 import com.percussion.design.objectstore.PSNumericLiteral;
 import com.percussion.design.objectstore.PSTextLiteral;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.ArrayList;

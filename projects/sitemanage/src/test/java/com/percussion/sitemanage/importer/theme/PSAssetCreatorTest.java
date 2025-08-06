@@ -21,7 +21,7 @@ import com.percussion.assetmanagement.data.PSAsset;
 import com.percussion.assetmanagement.service.IPSAssetService;
 import com.percussion.pagemanagement.service.PSSiteDataServletTestCaseFixture;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;

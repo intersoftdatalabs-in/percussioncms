@@ -21,7 +21,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.schedule.data.PSNotificationTemplate.ByLabelComparator;
 import com.percussion.utils.guid.IPSGuid;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

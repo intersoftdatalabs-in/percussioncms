@@ -20,7 +20,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.cactus.ServletTestCase;
@@ -33,7 +33,7 @@ import java.util.List;
  * The converter base test provides generic test functionality and should
  * be extended by all converter tests.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public abstract class PSConverterTestBase extends ServletTestCase {
 
     /**

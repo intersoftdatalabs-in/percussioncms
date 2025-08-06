@@ -21,8 +21,8 @@ import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
 import com.percussion.testing.PSRequestHandlerTestSuite;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.Test;
+
+
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the {@link PSRelationshipConfigurationCache} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSConfigManagerTest extends PSConfigHelperTestCase 
    implements IPSServerBasedJunitTest
 

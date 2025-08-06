@@ -31,7 +31,7 @@ import com.percussion.services.security.data.PSLogin;
 import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.services.system.data.PSDependency;
 import com.percussion.services.system.data.PSDependent;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateBindingsBinding;
 import org.junit.jupiter.api.Tag;
 
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSConverterTest extends PSConverterTestBase {
 
     public void testPSLoginConversion() throws Exception {

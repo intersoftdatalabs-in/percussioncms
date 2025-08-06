@@ -26,7 +26,7 @@ import com.percussion.rx.design.impl.PSLocationSchemeModel;
 import com.percussion.server.PSServer;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLocationSchemeSetterTest extends PSConfigurationTest
 {
 

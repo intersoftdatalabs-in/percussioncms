@@ -20,7 +20,7 @@ package com.percussion.webservices.rhythmyx;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSSecurityTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for all public security web services
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SecurityTestCase extends PSSecurityTestBase
 {
    /**

@@ -19,7 +19,7 @@ package com.percussion.services.security.data;
 import com.percussion.services.security.data.PSCatalogerConfig.ConfigTypes;
 import com.percussion.utils.tools.PSTestUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import java.util.HashMap;

@@ -20,7 +20,7 @@ import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.system.data.PSMimeContentAdapter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSMimeContentAdapterConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSMimeContentAdapterConverterTest extends PSConverterTestBase {
 
     /**

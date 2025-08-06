@@ -16,7 +16,7 @@
  */
 
 package com.percussion.design.objectstore;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
 

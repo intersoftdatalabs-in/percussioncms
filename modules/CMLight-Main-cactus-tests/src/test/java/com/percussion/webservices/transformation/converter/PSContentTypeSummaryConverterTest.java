@@ -21,7 +21,7 @@ import com.percussion.services.content.data.PSContentTypeSummary;
 import com.percussion.services.content.data.PSFieldDescription;
 import com.percussion.services.content.data.PSContentTypeSummaryChild;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link PSContentTypeSummaryConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentTypeSummaryConverterTest extends PSConverterTestBase {
 
     /**

@@ -17,7 +17,7 @@
 package com.percussion.i18n.rxlt;
 
 import com.percussion.i18n.tmxdom.IPSTmxDocument;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.junit.jupiter.api.Test;

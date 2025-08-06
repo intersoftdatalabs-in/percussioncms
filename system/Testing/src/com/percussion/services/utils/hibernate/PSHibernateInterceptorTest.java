@@ -29,7 +29,7 @@ import com.percussion.services.memory.IPSCacheAccess;
 import com.percussion.services.memory.PSCacheAccessLocator;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
@@ -50,7 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSHibernateInterceptorTest
 {
 

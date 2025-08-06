@@ -24,13 +24,13 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.sitemgr.IPSLocationScheme;
 import com.percussion.services.sitemgr.IPSPublishingContext;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContextSetterTest extends PSConfigurationTest
 {
    public void testConfigFiles() throws Exception

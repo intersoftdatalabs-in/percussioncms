@@ -25,7 +25,7 @@ import com.percussion.design.objectstore.PSContentEditorPipe;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSUISet;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSFieldConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFieldConverterTest extends PSConverterTestBase {
 
     /**

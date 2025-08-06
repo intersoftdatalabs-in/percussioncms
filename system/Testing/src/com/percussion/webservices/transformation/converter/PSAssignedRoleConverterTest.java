@@ -23,7 +23,7 @@ import com.percussion.services.workflow.data.PSAssignedRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.beanutils.Converter;
 

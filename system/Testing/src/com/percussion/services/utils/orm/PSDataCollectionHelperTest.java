@@ -18,7 +18,7 @@ package com.percussion.services.utils.orm;
 
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.utils.orm.data.PSTempId;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDataCollectionHelperTest
 {
    /**

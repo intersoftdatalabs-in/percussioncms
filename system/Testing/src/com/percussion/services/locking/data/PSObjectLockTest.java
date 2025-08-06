@@ -24,7 +24,7 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit tests for the {@link PSObjectLock} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSObjectLockTest
 {
    /**

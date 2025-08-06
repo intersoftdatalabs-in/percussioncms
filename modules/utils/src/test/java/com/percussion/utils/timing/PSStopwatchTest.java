@@ -17,28 +17,18 @@
 package com.percussion.utils.timing;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * @author dougrand
  *
  * Unit tests for stopwatch class
  */
-public class PSStopwatchTest extends TestCase
+public class PSStopwatchTest
 {   
-   /**
-    * @param arg0
-    */
-   public PSStopwatchTest(String arg0)
-   {
-      super(arg0);
-   }
 
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSStopwatchTest.class);
-   }
    
    /**
     * Checks to see if the two times are within some milliseconds. 
@@ -61,7 +51,8 @@ public class PSStopwatchTest extends TestCase
             "real variance was " + delta + " millis");
       }
    }
-   
+
+   @Test
    public synchronized void testSimple() throws Exception
    {
       PSStopwatch w = new PSStopwatch();
@@ -72,7 +63,8 @@ public class PSStopwatchTest extends TestCase
       
       checkReasonable(400, w.elapsed());
    }
-   
+
+   @Test
    public synchronized void testPause() throws Exception
    {
       PSStopwatch w = new PSStopwatch();
@@ -87,7 +79,8 @@ public class PSStopwatchTest extends TestCase
       
       checkReasonable(700, w.elapsed());
    }
-   
+
+   @Test
    public void testStatechecks() throws Exception
    {
       PSStopwatch w = new PSStopwatch();
@@ -95,8 +88,8 @@ public class PSStopwatchTest extends TestCase
       try
       {
          w.stop(); // Should throw an exception
-         assertTrue("Failed to throw expected exception on stopping a non" +
-            " started stopwatch", true);
+         assertTrue( true,"Failed to throw expected exception on stopping a non" +
+            " started stopwatch");
       }
       catch(Exception e)
       {
@@ -108,8 +101,8 @@ public class PSStopwatchTest extends TestCase
       try
       {
          w.start(); // Should throw an exception
-         assertTrue("Failed to throw expected exception on starting a " +
-            " started stopwatch", true);
+         assertTrue(true,"Failed to throw expected exception on starting a " +
+            " started stopwatch");
       }
       catch(Exception e)
       {
@@ -123,6 +116,7 @@ public class PSStopwatchTest extends TestCase
       
    }
    
+   @Test
    public synchronized void testOutput() throws InterruptedException
    {
       PSStopwatch w = new PSStopwatch();

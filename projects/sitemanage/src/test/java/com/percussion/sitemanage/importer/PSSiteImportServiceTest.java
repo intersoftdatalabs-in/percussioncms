@@ -38,7 +38,7 @@ import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.sitemanage.importer.helpers.impl.PSImportHelper;
 import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
 import com.percussion.sitemanage.service.IPSSiteImportService;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.junit.jupiter.api.*;
 

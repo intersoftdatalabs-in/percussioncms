@@ -23,12 +23,12 @@ import com.percussion.design.objectstore.PSTraceInfo;
 import com.percussion.server.PSRequest;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.FileInputStream;
 
-import junit.framework.TestSuite;
+
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  *   Unit tests for the PSDebugLogHandler class
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDebugLogHandlerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {

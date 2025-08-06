@@ -23,7 +23,7 @@ import com.percussion.deployer.server.PSDependencyManager;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

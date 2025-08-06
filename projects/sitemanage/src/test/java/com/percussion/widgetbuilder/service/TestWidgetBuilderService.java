@@ -22,7 +22,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.widgetbuilder.data.PSWidgetBuilderDefinitionData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData;
 import com.percussion.widgetbuilder.data.PSWidgetBuilderFieldData.FieldType;

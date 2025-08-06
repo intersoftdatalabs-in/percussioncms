@@ -49,7 +49,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author miltonpividori
  *
  */
-@RunWith(SpringRunner.class)
 @WebAppConfiguration(value = "src/test/webapp" )
 @ActiveProfiles({"dev", "integration"})
 @ContextHierarchy({
@@ -102,29 +101,29 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         List<IPSFormData> allForms = formService.findAllForms();
 
-        assertEquals("form count", 1, allForms.size());
-        assertEquals("form name", "testform1", allForms.get(0).getName());
+        assertEquals(1, allForms.size());
+        assertEquals(allForms.get(0).getName());
 
 
-        assertEquals("form fields count", 3, allForms.get(0).getFields().size());
+        assertEquals(3, allForms.get(0).getFields().size());
         for (String fieldName : allForms.get(0).getFields().keySet())
         {
             String value = allForms.get(0).getFields().get(fieldName);
             value = value.replace(FIELD_VALUES_SEPARATOR,"");
             if (fieldName.equals(fieldValue1[0]))
             {
-                assertEquals("field 1 value", fieldValue1[1], value);
+                assertEquals( fieldValue1[1], value);
             }
             else if (fieldName.equals(fieldValue2[0]))
             {
-                assertEquals("field 2 value", fieldValue2[1], value);
+                assertEquals(fieldValue2[1], value);
             }
             else if (fieldName.equals(multipleValuesField[0]))
             {
                 String mValue = multipleValuesField[1];
                 value = value.replace("\\",FIELD_VALUES_SEPARATOR);
 
-                assertEquals("multiple values field - count", mValue, value);
+                assertEquals(mValue, value);
 
             }
             else
@@ -213,11 +212,11 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         formService.save(formData);
         List<IPSFormData> allForms = formService.findAllForms();
-        assertEquals("form count", 1, allForms.size());
+        assertEquals(1, allForms.size());
 
         formService.delete(allForms.get(0));
 
-        assertEquals("form count", 0, getAllForms().size());
+        assertEquals(0, getAllForms().size());
     }
 
     @Test
@@ -242,20 +241,20 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         allForms = formService.findAllForms();
-        assertEquals("form count", 10,allForms.size());
+        assertEquals(10,allForms.size());
 
         for (int i = 0; i < 5; i++)
         {
             IPSFormData form = allForms.get(i);
 
-            assertTrue("is exported", form.isExported() == 'y');
+            assertTrue(form.isExported() == 'y');
         }
 
         for (int i = 5; i < 10; i++)
         {
             IPSFormData form = allForms.get(i);
 
-            assertTrue("is exported", form.isExported() == 'n');
+            assertTrue(form.isExported() == 'n');
         }
     }
 
@@ -301,10 +300,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
         String testFormName = "testform2";
 
         long count = formService.getExportedFormCount(testFormName);
-        assertEquals("exported forms count", 2, count);
+        assertEquals( 2, count);
 
         count = formService.getExportedFormCount(testFormName.toUpperCase());
-        assertEquals("exported forms count", 2, count);
+        assertEquals( 2, count);
     }
 
     @Test
@@ -327,7 +326,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         long count = formService.getExportedFormCount("testform_");
-        assertEquals("exported forms count", 0, count);
+        assertEquals(0, count);
     }
 
     @Test
@@ -350,10 +349,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         long count = formService.getExportedFormCount(null);
-        assertEquals("exported forms count", 4, count);
+        assertEquals( 4, count);
 
         count = formService.getExportedFormCount(StringUtils.EMPTY);
-        assertEquals("exported forms count", 4, count);
+        assertEquals(4, count);
     }
 
     @Test
@@ -376,10 +375,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         long count = formService.getTotalFormCount(testFormName);
-        assertEquals("forms count", 2, count);
+        assertEquals( 2, count);
 
         count = formService.getTotalFormCount(testFormName.toUpperCase());
-        assertEquals("forms count", 2, count);
+        assertEquals(2, count);
     }
 
     @Test
@@ -400,7 +399,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         long count = formService.getTotalFormCount("testform_");
-        assertEquals("forms count", 0, count);
+        assertEquals(0, count);
     }
 
     @AfterEach
@@ -433,10 +432,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         long count = formService.getTotalFormCount(null);
-        assertEquals("forms count", 10, count);
+        assertEquals(10, count);
 
         count = formService.getTotalFormCount(StringUtils.EMPTY);
-        assertEquals("forms count", 10, count);
+        assertEquals(10, count);
     }
 
     @Test
@@ -465,7 +464,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<IPSFormData> forms = formService.findAllForms();
-        assertEquals("forms count", 10, forms.size());
+        assertEquals( 10, forms.size());
     }
 
     @Test
@@ -491,10 +490,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<IPSFormData> forms = formService.findAllForms();
-        assertEquals("forms count", 9, forms.size());
+        assertEquals(9, forms.size());
         for (IPSFormData f : forms)
         {
-            assertFalse("form name is not the removed one", f.getName().equals(deletedForm));
+            assertFalse( f.getName().equals(deletedForm));
         }
     }
 
@@ -521,10 +520,10 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<IPSFormData> forms = formService.findAllForms();
-        assertEquals("forms count", 9, forms.size());
+        assertEquals( 9, forms.size());
         for (IPSFormData f : forms)
         {
-            assertFalse("form name is not the removed one", f.getName().equals(deletedForm));
+            assertFalse(f.getName().equals(deletedForm));
         }
     }
 
@@ -551,7 +550,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<IPSFormData> forms = formService.findAllForms();
-        assertEquals("forms count", 10, forms.size());
+        assertEquals(10, forms.size());
     }
 
     @Test
@@ -586,8 +585,8 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
     private void checkFindFormsByNameResult(String[] fieldValue1, String[] fieldValue2,
                                             String testFormName, List<IPSFormData> forms)
     {
-        assertNotNull("forms not null", forms);
-        assertEquals("forms count", 3, forms.size());
+        assertNotNull( forms);
+        assertEquals(3, forms.size());
 
         Calendar cal = Calendar.getInstance();
         cal.clear();
@@ -598,18 +597,18 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         for (IPSFormData aForm : forms)
         {
-            assertEquals("forms name", testFormName, aForm.getName());
-            assertEquals("forms fields count", 2, aForm.getFields().size());
-            assertTrue("form field 1", aForm.getFields().containsKey(fieldValue1[0]));
+            assertEquals( testFormName, aForm.getName());
+            assertEquals( 2, aForm.getFields().size());
+            assertTrue( aForm.getFields().containsKey(fieldValue1[0]));
             String filedValue1 = aForm.getFields().get(fieldValue1[0]);
-            assertEquals("form field 1 value", fieldValue1[1], filedValue1.replace(FIELD_VALUES_SEPARATOR,"") );
-            assertTrue("form field 2", aForm.getFields().containsKey(fieldValue1[0]));
+            assertEquals( fieldValue1[1], filedValue1.replace(FIELD_VALUES_SEPARATOR,"") );
+            assertTrue(aForm.getFields().containsKey(fieldValue1[0]));
             String filedValue2 = aForm.getFields().get(fieldValue2[0]);
-            assertEquals("form field 2 value", fieldValue2[1], filedValue2.replace(FIELD_VALUES_SEPARATOR,""));
+            assertEquals( fieldValue2[1], filedValue2.replace(FIELD_VALUES_SEPARATOR,""));
 
             // Make sure the comments are ascending sorted
             currentDate.setTime(aForm.getCreated());
-            assertTrue("form created order", previousDate.compareTo(currentDate) < 0);
+            assertTrue( previousDate.compareTo(currentDate) < 0);
             previousDate.setTime(aForm.getCreated());
         }
     }
@@ -634,8 +633,8 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
         String testFormName = "testform_";
 
         List<IPSFormData> forms = formService.findFormsByName(testFormName);
-        assertNotNull("forms not null", forms);
-        assertEquals("forms count", 0, forms.size());
+        assertNotNull( forms);
+        assertEquals(0, forms.size());
     }
 
     @Test
@@ -665,8 +664,8 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         }
         List<IPSFormData> forms = formService.findFormsByName(StringUtils.EMPTY);
-        assertNotNull("forms not null", forms);
-        assertEquals("forms count", 0, forms.size());
+        assertNotNull(forms);
+        assertEquals(0, forms.size());
     }
 
     @Test
@@ -687,8 +686,8 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<IPSFormData> forms = formService.findAllForms();
-        assertNotNull("forms not null", forms);
-        assertEquals("forms count", 10, forms.size());
+        assertNotNull(forms);
+        assertEquals(10, forms.size());
     }
 
     @Test
@@ -717,8 +716,8 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
 
         // Assert
         List<String> distinctFormNames = formService.findDistinctFormNames();
-        assertNotNull("forms not null", distinctFormNames);
-        assertEquals("forms count", 3, distinctFormNames.size());
+        assertNotNull( distinctFormNames);
+        assertEquals(3, distinctFormNames.size());
     }
 
     @Test

@@ -20,9 +20,9 @@ package com.percussion.data;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndJoin;
 import com.percussion.design.objectstore.PSBackEndTable;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.io.OutputStream;

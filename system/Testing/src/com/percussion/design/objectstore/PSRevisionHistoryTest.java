@@ -18,9 +18,9 @@ package com.percussion.design.objectstore;
 
 import java.util.Date;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.w3c.dom.Document;

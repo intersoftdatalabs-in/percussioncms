@@ -22,7 +22,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.ArrayUtils;
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSJdbcDriverConfig} class.

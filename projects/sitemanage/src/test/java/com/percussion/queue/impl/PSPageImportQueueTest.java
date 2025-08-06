@@ -26,7 +26,7 @@ import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.sitemanage.data.PSSite;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for {@link PSPageImportQueue}.
  * Sunny Sal: "Queue it up! Importing pages like a boss."
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPageImportQueueTest extends PSServletTestCase {
 
     private IPSPageImportQueue importQueue;

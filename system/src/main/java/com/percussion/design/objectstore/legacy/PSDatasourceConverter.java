@@ -24,7 +24,7 @@ import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.design.objectstore.PSUnknownDocTypeException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.server.PSServer;
-import com.percussion.utils.servlet.PSServletUtils;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.PropertyConfigurator;

@@ -24,9 +24,9 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
 
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for system service calls that don't require a running server.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSystemServiceLocalTest
 {
    /**

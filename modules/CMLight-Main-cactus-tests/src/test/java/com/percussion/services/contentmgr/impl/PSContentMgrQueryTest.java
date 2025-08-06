@@ -24,7 +24,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Tag;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentMgrQueryTest extends ServletTestCase
 {
    /**

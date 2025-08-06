@@ -18,9 +18,9 @@ package com.percussion.data;
 
 import java.math.BigDecimal;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 public class PSDataComparisonTest extends TestCase
 {

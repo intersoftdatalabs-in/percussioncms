@@ -20,7 +20,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the <code>PSParamStringListToMultiParams</code> exit.

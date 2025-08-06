@@ -18,11 +18,11 @@ package com.percussion.install;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.PSBaseServiceLocator;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.system.utils.PSDataSourceFactory;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

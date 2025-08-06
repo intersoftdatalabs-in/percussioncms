@@ -19,7 +19,7 @@ package com.percussion.rest.assets;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.rest.MainTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;

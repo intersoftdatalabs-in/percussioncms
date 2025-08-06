@@ -21,7 +21,7 @@ import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.data.PSCommunityVisibility;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSCommunityVisibilityConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSCommunityVisibilityConverterTest extends PSConverterTestBase {
 
     /**

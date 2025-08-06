@@ -36,7 +36,7 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.share.test.PSTestDataCleaner;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Tag;
 
 import java.util.Collections;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSItemWorkflowServiceTestBase extends PSServletTestCase
 {
     protected PSSiteDataServletTestCaseFixture fixture;

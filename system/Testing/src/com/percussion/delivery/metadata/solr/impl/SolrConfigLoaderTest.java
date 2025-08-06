@@ -18,7 +18,7 @@
 package com.percussion.delivery.metadata.solr.impl;
 
 import com.percussion.share.dao.PSSerializerUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -29,7 +29,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SolrConfigLoaderTest
 {
    @Test

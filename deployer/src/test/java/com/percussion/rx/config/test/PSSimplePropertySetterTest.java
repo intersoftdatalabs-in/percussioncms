@@ -21,7 +21,7 @@ import com.percussion.rx.config.IPSPropertySetter;
 import com.percussion.rx.config.impl.PSObjectConfigHandler;
 import com.percussion.rx.config.impl.PSSimplePropertySetter;
 import com.percussion.services.catalog.PSTypeEnum;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.net.URL;
 import java.util.ArrayList;

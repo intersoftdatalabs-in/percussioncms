@@ -16,7 +16,9 @@
  */
 package com.percussion.utils.beans;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -26,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
  * @author dougrand
  * 
  */
-public class PSPropertyWrapperTest extends TestCase
+public class PSPropertyWrapperTest
 {
    final static int COUNT = 50000;
 
@@ -34,28 +36,18 @@ public class PSPropertyWrapperTest extends TestCase
 
    TestPropClass testObj = null;
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
+  
+   @BeforeEach
    protected void setUp() throws Exception
    {
-      super.setUp();
-
+  
       // Create instance and wrapper
       testObj = new TestPropClass("otter", 123, 3.14159);
       testWrapper = new PSPropertyWrapper(testObj);
    }
 
-   /**
-    * Required ctor for JUnit
-    * 
-    * @param arg0 name argument
-    */
-   public PSPropertyWrapperTest(String arg0) {
-      super(arg0);
+  
+   public PSPropertyWrapperTest() {
    }
 
    /**
@@ -166,6 +158,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testStringAccess() throws Exception
    {
       Object rval = testWrapper.getPropertyValue("aaa");
@@ -180,6 +173,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testLongAccess() throws Exception
    {
       Object rval = testWrapper.getPropertyValue("bbb");
@@ -194,6 +188,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testDoubleAccess() throws Exception
    {
       Object rval = testWrapper.getPropertyValue("ccc");
@@ -207,6 +202,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testAccessTime() throws Exception
    {
       testWrapper.getPropertyValue("aaa");
@@ -232,6 +228,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testConsOverheadTime() throws Exception
    {
       long start = System.nanoTime();
@@ -250,6 +247,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testPropTime() throws Exception
    {
       long start = System.nanoTime();
@@ -271,6 +269,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testStringSetter() throws Exception
    {
       testWrapper.setProperty("aaa", "newvalue");
@@ -284,6 +283,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testLongSetter() throws Exception
    {
       testWrapper.setProperty("bbb", 159);
@@ -297,6 +297,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testDoubleSetter() throws Exception
    {
       testWrapper.setProperty("ccc", 2.71828);
@@ -308,6 +309,7 @@ public class PSPropertyWrapperTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testLazyLoad() throws Exception
    {
       IPSPropertyLoader loader = new IPSPropertyLoader()

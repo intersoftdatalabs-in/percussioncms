@@ -19,7 +19,7 @@ package com.percussion.testing;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Testing {@link PSTidyUtils}. This test has to be run within server environment
  * because it is rely on PSServer.getRxDir() to load tidy property file.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTidyUtilsTest
 {
 

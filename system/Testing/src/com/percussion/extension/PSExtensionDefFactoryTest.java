@@ -19,7 +19,7 @@ package com.percussion.extension;
 import com.percussion.design.objectstore.PSExtensionParamDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

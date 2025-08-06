@@ -25,7 +25,7 @@ import com.percussion.server.PSRequestTest;
 
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Tests the functionality of <code>PSActionSetRequestHandler</code>.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSActionSetRequestHandlerTest
 {
    /**

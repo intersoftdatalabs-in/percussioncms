@@ -17,7 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.server.IPSRequestContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
@@ -28,7 +28,7 @@ import java.sql.Connection;
  * PSSendNotificationsTest is a test class for the method
  * PSExitNotifyAssignees.sendNotifications.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSendNotificationsTest extends PSAbstractWorkflowTest 
 {
 

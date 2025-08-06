@@ -21,7 +21,7 @@ import com.percussion.services.contentmgr.impl.IPSContentRepository;
 import com.percussion.services.contentmgr.impl.PSContentInternalLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentMgrTest extends ServletTestCase
 {
    /**

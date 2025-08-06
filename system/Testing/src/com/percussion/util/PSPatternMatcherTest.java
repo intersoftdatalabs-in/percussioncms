@@ -19,9 +19,9 @@ package com.percussion.util;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import com.percussion.utils.tools.PSPatternMatcher;
 

@@ -19,12 +19,12 @@ package com.percussion.search;
 import com.percussion.server.PSRequest;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSRequestHandlerTestSuite;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import junit.textui.TestRunner;
 
 import org.junit.jupiter.api.Tag;
@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  *
  * @author paulhoward
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchEngineTest extends TestCase 
    implements IPSServerBasedJunitTest
 {

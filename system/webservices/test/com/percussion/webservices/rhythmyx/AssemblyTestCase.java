@@ -17,7 +17,7 @@
 
 package com.percussion.webservices.rhythmyx;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.assembly.AssemblySOAPStub;
@@ -35,7 +35,7 @@ import java.rmi.RemoteException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class AssemblyTestCase extends PSAssemblyTestBase
 {
    @Test

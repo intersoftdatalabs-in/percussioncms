@@ -29,7 +29,7 @@ import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.data.PSDeliveryType;
 import com.percussion.utils.guid.IPSGuid;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Create a tree and walk the tree using the tree model.

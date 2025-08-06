@@ -28,7 +28,7 @@ import java.util.List;
 
 import org.apache.commons.beanutils.Converter;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the {@link PSAgingTransitionConverter}

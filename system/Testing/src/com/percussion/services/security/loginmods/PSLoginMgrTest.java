@@ -20,7 +20,7 @@ import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.security.PSSecurityProviderPool;
 import com.percussion.server.PSRequest;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.IOException;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test case for the {@link IPSLoginMgr}.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLoginMgrTest
 {
    /**

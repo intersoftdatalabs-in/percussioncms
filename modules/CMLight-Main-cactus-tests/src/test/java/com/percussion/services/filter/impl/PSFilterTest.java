@@ -30,7 +30,7 @@ import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Tag;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFilterTest extends ServletTestCase
 {
    /**

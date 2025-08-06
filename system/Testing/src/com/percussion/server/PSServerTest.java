@@ -19,7 +19,7 @@
 package com.percussion.server;
 
 import com.percussion.utils.io.PathUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.AfterClass;
 import org.junit.jupiter.api.Tag;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSServerTest
 {
    /**

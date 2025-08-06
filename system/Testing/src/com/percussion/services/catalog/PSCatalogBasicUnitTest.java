@@ -26,7 +26,7 @@ import com.percussion.services.publisher.PSPublisherServiceLocator;
 
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author dougrand
  * 
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSCatalogBasicUnitTest
 {
    public static IPSAssemblyService asm = PSAssemblyServiceLocator

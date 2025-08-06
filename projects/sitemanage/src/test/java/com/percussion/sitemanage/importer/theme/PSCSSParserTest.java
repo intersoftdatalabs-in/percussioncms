@@ -22,7 +22,7 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
 import com.percussion.util.PSPurgableTempFile;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

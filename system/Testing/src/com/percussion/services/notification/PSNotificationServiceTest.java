@@ -19,8 +19,8 @@ package com.percussion.services.notification;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSNotificationServiceTest
 {
    /**

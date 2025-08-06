@@ -31,7 +31,7 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author dougrand
  */
 //TODO:  Duplicate Test?
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentTypeMgrTest
       implements IPSCustomJunitTest
 {

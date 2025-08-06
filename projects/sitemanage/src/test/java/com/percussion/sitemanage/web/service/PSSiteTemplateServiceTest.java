@@ -45,7 +45,7 @@ import com.percussion.sitemanage.service.PSSiteTemplates.ImportTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.logging.log4j.LogManager;

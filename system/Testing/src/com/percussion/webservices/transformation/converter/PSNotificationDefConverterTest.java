@@ -21,7 +21,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.workflow.data.PSNotificationDef;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.beanutils.Converter;
 

@@ -21,8 +21,8 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.w3c.dom.Document;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * This class unit tests the {@link PSSearchProperties} object. It is written

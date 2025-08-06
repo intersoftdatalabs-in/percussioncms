@@ -17,7 +17,7 @@
 
 package com.percussion.design.catalog.data.server;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSTableCatalogHandlerTest extends TestCase
 {

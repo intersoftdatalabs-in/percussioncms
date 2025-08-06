@@ -20,7 +20,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.content.data.PSSearchSummary;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSSearchSummaryConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchSummaryConverterTest extends PSConverterTestBase {
 
     /**

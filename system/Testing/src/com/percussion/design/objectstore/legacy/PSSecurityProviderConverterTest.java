@@ -27,7 +27,7 @@ import com.percussion.security.PSSecurityProvider;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.FileInputStream;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for the {@link PSSecurityProviderConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSecurityProviderConverterTest extends PSBaseConverterTest
 {
    /**

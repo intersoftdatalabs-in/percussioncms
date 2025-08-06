@@ -23,7 +23,7 @@ import com.percussion.delivery.metadata.impl.PSBlogsHelper;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -21,7 +21,7 @@ import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.impl.PSConfigMapper;
 import com.percussion.rx.config.impl.PSSiteConfigHandler;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author YuBingChen
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSiteConfigHandlerTest
 {
    @Test

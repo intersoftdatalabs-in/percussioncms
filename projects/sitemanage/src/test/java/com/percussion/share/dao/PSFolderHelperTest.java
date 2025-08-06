@@ -21,7 +21,7 @@ import com.percussion.security.SecureStringUtils;
 import com.percussion.share.dao.impl.PSFolderHelper;
 import com.percussion.share.data.IPSItemSummary;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,7 +33,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFolderHelperTest {
 
     // Nested test class for folder path logic

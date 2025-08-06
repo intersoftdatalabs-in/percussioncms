@@ -22,7 +22,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.servlets.PSSecurityFilter;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

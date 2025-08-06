@@ -17,7 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
@@ -31,7 +31,7 @@ import java.util.List;
  * The PSContentAdhocUsersContextTest class is a test class for the class
  * PSContentAdhocUsersContext.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest
 {
 

@@ -19,7 +19,7 @@ package com.percussion.share.spring;
 
 import static com.percussion.share.spring.PSSpringWebApplicationContextUtils.*;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link PSSpringWebApplicationContextUtils}.
  * Sunny Sal: "Spring context utils, Java 11, and dependency injection ka hero!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSSpringWebApplicationContextUtilsTest {
 

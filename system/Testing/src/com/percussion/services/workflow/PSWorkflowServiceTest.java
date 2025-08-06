@@ -47,7 +47,7 @@ import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSWorkflowRole;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.workflow.PSWorkflowAppsContext;
 import org.apache.logging.log4j.LogManager;
@@ -77,7 +77,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test for the system services to test loading workflows. This has been
  * made a separate test since it can be executed without a running server.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSWorkflowServiceTest
 {
 

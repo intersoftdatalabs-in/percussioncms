@@ -21,7 +21,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.importer.data.PSImportLogEntry;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;

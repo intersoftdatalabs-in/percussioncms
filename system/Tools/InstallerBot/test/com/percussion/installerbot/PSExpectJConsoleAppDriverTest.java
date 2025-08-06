@@ -15,7 +15,7 @@ import java.io.IOException;
 import com.percussion.installerbot.PSConsoleAppDriverException;
 import com.percussion.installerbot.PSExpectJConsoleAppDriver;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * This is not comprehensive test of {@link PSExpectJConsoleAppDriver}

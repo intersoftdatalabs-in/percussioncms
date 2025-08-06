@@ -20,7 +20,7 @@ package com.percussion.webservices.rhythmyxdesign;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSContentTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -58,7 +58,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class AssemblyDesignTestCase extends PSAssemblyTestBase
 {
    public void test1assemblyDesignSOAPCreateSlots() throws Exception

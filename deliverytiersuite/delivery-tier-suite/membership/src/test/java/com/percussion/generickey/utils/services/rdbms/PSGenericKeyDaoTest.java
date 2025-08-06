@@ -19,7 +19,7 @@ package com.percussion.generickey.utils.services.rdbms;
 import com.percussion.generickey.data.IPSGenericKey;
 import com.percussion.generickey.services.IPSGenericKeyDao;
 import com.percussion.generickey.utils.data.rdbms.impl.PSGenericKey;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;

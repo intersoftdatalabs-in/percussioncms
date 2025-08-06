@@ -18,9 +18,9 @@ package com.percussion.design.objectstore;
 
 import com.percussion.util.PSCollection;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Tests the {@link PSUISet} class

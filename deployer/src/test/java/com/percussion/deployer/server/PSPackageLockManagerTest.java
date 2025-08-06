@@ -21,7 +21,7 @@ import com.percussion.deployer.objectstore.PSArchiveInfo;
 import com.percussion.deployer.objectstore.PSArchiveManifest;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSArchiveFiles;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Unit test for the PSPackageLockManager.
  */
 @SuppressWarnings("unchecked")
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPackageLockManagerTest
 {
    /**

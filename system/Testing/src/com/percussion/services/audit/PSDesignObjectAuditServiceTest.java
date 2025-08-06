@@ -30,7 +30,7 @@ import java.util.Set;
 
 
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link IPSDesignObjectAuditService} class.

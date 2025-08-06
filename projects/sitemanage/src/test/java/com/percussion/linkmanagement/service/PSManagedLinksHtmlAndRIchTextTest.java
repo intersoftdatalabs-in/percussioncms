@@ -40,7 +40,7 @@ import com.percussion.test.PSServletTestCase;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Test;
  * Tests whether a new style managed link/image in rich text asset is converted to old style link or not. 
  * When we support new style managed link/image in rich text asset then this code needs to be refactored. 
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSManagedLinksHtmlAndRIchTextTest extends PSServletTestCase 
 {
     private static final String MANAGED_LINK_TEST = "/ManagedLinkTest";

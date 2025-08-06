@@ -32,7 +32,7 @@ import com.percussion.theme.data.PSRegionCSS.Property;
 import com.percussion.theme.data.PSRegionCssList;
 import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
@@ -44,7 +44,7 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "A good theme test is like a good outfit—everything matches, and nothing breaks!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSThemeServiceTest extends PSRestTestCase<PSThemeRestClient> {
 

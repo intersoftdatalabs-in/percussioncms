@@ -18,7 +18,7 @@ package com.percussion.membership.services;
 
 import com.percussion.delivery.multitenant.PSThreadLocalTenantContext;
 import com.percussion.membership.data.PSUserSummary;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

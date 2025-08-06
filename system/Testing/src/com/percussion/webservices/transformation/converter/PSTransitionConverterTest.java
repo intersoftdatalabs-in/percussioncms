@@ -26,7 +26,7 @@ import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.beanutils.Converter;
 /**

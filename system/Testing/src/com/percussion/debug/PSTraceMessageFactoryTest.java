@@ -18,9 +18,9 @@
 package com.percussion.debug;
 
 import com.percussion.design.objectstore.PSTraceOption;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import java.util.ArrayList;
 import java.util.Iterator;

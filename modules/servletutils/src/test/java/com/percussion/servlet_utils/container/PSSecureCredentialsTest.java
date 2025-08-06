@@ -14,24 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.container;
+package com.percussion.servlet_utils.container;
 
+import com.percussion.utils.container.PSSecureCredentials;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.w3c.dom.Document;
-
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSSecureCredentials} class.
  */
-public class PSSecureCredentialsTest extends TestCase
+public class PSSecureCredentialsTest
 {
    /**
     * Test the parameterized ctor and accessors
     * 
     * @throws Exception
     */
+    @Test
    public void testCtor() throws Exception
    {
       String ds = "jdbc/RxDefault";
@@ -61,6 +65,7 @@ public class PSSecureCredentialsTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testXml() throws Exception
    {
       String ds = "jdbc/RxDefault";

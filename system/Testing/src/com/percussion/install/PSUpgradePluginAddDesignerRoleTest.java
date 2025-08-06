@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;

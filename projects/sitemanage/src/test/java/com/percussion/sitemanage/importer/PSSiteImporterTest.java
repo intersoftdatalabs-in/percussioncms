@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.percussion.sitemanage.data.PSPageContent;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Disabled;

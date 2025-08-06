@@ -30,7 +30,7 @@ import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.util.PSStopwatch;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Test managing relationships in the persistent layer. 
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSRelationshipServiceTest
 {
    private static IPSRelationshipService ms_svc = PSRelationshipServiceLocator

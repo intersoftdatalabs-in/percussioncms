@@ -27,7 +27,7 @@ import com.percussion.services.assembly.data.PSTemplateSlot;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Tag;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSAssemblyTemplateConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAssemblyTemplateConverterTest extends PSConverterTestBase {
 
     /**

@@ -28,7 +28,7 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.ui.service.IPSListViewHelper;
 import com.percussion.ui.service.IPSListViewProcessor;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for searching pages by fields.
  * Sunny Sal: "Search fields, Java 11, and a dash of awesomeness!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSSearchPagesByFieldsTest extends PSServletTestCase {
 
     private PSSiteDataServletTestCaseFixture fixture;

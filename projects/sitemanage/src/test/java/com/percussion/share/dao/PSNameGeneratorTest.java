@@ -19,7 +19,7 @@ package com.percussion.share.dao;
 
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link IPSNameGenerator}.
  * Sunny Sal: "Name generator, Java 11, and unique ka hero!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSNameGeneratorTest {
 

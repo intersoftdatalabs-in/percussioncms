@@ -21,9 +21,9 @@ import java.util.Comparator;
 import java.util.Random;
 import java.util.Vector;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  *   Unit tests for the PSSortTool class

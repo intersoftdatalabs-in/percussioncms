@@ -16,7 +16,7 @@
  */
 package com.percussion.search;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 
 /**

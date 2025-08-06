@@ -24,7 +24,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 /**

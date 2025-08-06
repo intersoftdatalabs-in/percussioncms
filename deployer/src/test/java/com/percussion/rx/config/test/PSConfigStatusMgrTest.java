@@ -22,14 +22,14 @@ import com.percussion.rx.config.data.PSConfigStatus;
 import com.percussion.rx.config.data.PSConfigStatus.ConfigStatus;
 import com.percussion.rx.config.impl.PSConfigService;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Tag;
 
 import java.util.Date;
 import java.util.List;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSConfigStatusMgrTest extends ServletTestCase
 {
    public void testConfigStatus() throws PSNotFoundException {

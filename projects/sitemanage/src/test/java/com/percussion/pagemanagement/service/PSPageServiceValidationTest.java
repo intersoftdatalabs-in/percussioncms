@@ -39,7 +39,7 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.sitemanage.dao.IPSiteDao;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.publishing.IPSPublishingWs;
@@ -68,7 +68,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @RunWith(JMock.class)
 @Disabled
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPageServiceValidationTest
 {
 

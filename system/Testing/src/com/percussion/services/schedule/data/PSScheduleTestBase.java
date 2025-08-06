@@ -18,7 +18,7 @@ package com.percussion.services.schedule.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Base for the schedule classes test cases.

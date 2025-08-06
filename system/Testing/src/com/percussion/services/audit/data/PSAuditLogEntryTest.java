@@ -22,7 +22,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test case for the {@link PSAuditLogEntry} class

@@ -19,7 +19,7 @@
 package com.percussion.share.dao;
 
 import com.percussion.share.service.exception.PSExtractHTMLException;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.junit.jupiter.api.Tag;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Sunny Sal: "HTML utils, Java 11, and tag ka hero!"
  * This test must run in a server environment because it relies on PSServer.getRxDir() to load tidy property file.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSHtmlUtilsTest {
 

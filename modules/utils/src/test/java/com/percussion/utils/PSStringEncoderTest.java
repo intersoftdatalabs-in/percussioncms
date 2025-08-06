@@ -17,10 +17,12 @@
 package com.percussion.utils;
 
 import com.percussion.utils.jsr170.PSStringEncoder;
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class PSStringEncoderTest extends TestCase
+public class PSStringEncoderTest
 {
+   @Test
    public void testEncode() throws Exception
    {
       String enc, dec;
@@ -32,6 +34,7 @@ public class PSStringEncoderTest extends TestCase
       assertEquals("abc", dec);
    }
    
+   @Test
    public void testEncode2() throws Exception
    {
       String enc, dec;
@@ -43,6 +46,7 @@ public class PSStringEncoderTest extends TestCase
       assertEquals(dec, "a_b'c");
    }
    
+   @Test
    public void testEncode3() throws Exception
    {
       String enc, dec;
@@ -54,6 +58,7 @@ public class PSStringEncoderTest extends TestCase
       assertEquals(dec, "a b<>c");
    }
    
+   @Test
    public void testEncode4() throws Exception
    {
       String enc, dec;
@@ -65,6 +70,7 @@ public class PSStringEncoderTest extends TestCase
       assertEquals(dec, "a\tb\"c");
    } 
    
+   @Test
    public void testEmpty() throws Exception
    {
       String enc, dec;
@@ -76,6 +82,7 @@ public class PSStringEncoderTest extends TestCase
       assertEquals("", dec);
    }
    
+   @Test
    public void testDecode1() throws Exception
    {
       String dec;

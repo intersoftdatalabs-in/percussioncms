@@ -21,7 +21,7 @@ package com.percussion.services.touchitem.impl;
 import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSRelationship;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;

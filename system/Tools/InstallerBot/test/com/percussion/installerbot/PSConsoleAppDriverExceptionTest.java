@@ -15,7 +15,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.percussion.installerbot.PSConsoleAppDriverException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

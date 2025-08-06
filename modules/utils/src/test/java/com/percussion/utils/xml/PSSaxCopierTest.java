@@ -19,7 +19,7 @@ package com.percussion.utils.xml;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.percussion.util.PSResourceUtils.getResourcePath;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests the copier by parsing an external file and comparing the original
@@ -49,7 +50,7 @@ import static com.percussion.util.PSResourceUtils.getResourcePath;
  * 
  * @author dougrand
  */
-public class PSSaxCopierTest extends TestCase
+public class PSSaxCopierTest
 {
    /**
     * Test file in the unit resources tree
@@ -61,6 +62,7 @@ public class PSSaxCopierTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testCopier() throws Exception
    {
       DocumentBuilderFactory dbf = PSSecureXMLUtils.getSecuredDocumentBuilderFactory(
@@ -113,6 +115,7 @@ public class PSSaxCopierTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testHelper() throws Exception
    {
       Map<String,String> renames = new HashMap<String,String>();

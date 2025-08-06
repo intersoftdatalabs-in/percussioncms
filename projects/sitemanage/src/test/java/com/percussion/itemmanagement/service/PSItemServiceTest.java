@@ -35,7 +35,7 @@ import com.percussion.test.PSServletTestCase;
 import com.percussion.user.data.PSUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
@@ -46,7 +46,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSItemServiceTest extends PSServletTestCase
 {
     private PSSiteDataServletTestCaseFixture fixture;

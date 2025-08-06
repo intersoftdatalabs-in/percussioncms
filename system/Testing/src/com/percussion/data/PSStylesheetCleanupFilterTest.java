@@ -16,7 +16,7 @@
  */
 package com.percussion.data;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  *  Test class used to test methods in <code>PSStylesheetCleanupFilter</code>
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSStylesheetCleanupFilterTest{
 
    public PSStylesheetCleanupFilterTest()

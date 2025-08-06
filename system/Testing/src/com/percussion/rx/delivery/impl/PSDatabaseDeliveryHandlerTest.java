@@ -18,7 +18,7 @@ package com.percussion.rx.delivery.impl;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.xml.sax.InputSource;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDatabaseDeliveryHandlerTest
 {
    /**

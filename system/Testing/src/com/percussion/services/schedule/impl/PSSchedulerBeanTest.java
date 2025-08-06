@@ -22,8 +22,8 @@ import com.percussion.services.utils.general.PSServiceConfigurationBean;
 import java.io.IOException;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.quartz.Scheduler;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Andriy Palamarchuk
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSchedulerBeanTest
 {
    @Test

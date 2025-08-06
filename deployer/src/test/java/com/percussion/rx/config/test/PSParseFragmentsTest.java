@@ -18,7 +18,7 @@ package com.percussion.rx.config.test;
 
 import com.percussion.rx.config.impl.PSConfigDefGenerator;
 import com.percussion.utils.tools.PSParseFragments;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 

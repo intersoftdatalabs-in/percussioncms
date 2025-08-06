@@ -41,7 +41,7 @@ import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.share.data.PSAbstractPersistantObject;
 import com.percussion.share.test.PSRestTestCase;
 import com.percussion.share.test.PSTestUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 
 import java.util.HashMap;
@@ -53,7 +53,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSRenderServiceTest {
 

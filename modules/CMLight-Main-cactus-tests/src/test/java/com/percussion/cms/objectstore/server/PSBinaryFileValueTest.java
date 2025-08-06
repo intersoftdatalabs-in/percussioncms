@@ -30,7 +30,7 @@ import com.percussion.server.PSServer;
 import com.percussion.services.filestorage.IPSFileStorageService;
 import com.percussion.services.filestorage.PSFileStorageServiceLocator;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.apache.commons.lang.StringUtils;

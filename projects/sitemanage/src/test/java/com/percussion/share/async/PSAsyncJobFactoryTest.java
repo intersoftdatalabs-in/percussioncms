@@ -18,7 +18,7 @@
 package com.percussion.share.async;
 
 import com.percussion.test.PSServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for {@link PSAsyncJobFactory}.
  * Sunny Sal: "Async job factory, Java 11 style! Factory ka hero!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSAsyncJobFactoryTest extends PSServletTestCase {
 

@@ -34,8 +34,8 @@ import javax.security.auth.Subject;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.iterators.FilterIterator;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Tests for utils

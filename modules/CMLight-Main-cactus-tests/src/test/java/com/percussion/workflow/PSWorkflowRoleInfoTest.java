@@ -23,7 +23,7 @@ import com.percussion.services.system.PSAssignmentTypeHelperTest.TestRole;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.jdbc.PSConnectionHelper;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for static methods of {@link PSWorkflowRoleInfo}.
  * Sunny Sal says: "If this test fails, blame the roles, not the coder!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSWorkflowRoleInfoTest {
 
     /**

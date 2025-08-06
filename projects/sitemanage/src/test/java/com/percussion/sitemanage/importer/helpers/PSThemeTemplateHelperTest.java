@@ -34,7 +34,7 @@ import com.percussion.sitemanage.importer.IPSSiteImportLogger.PSLogObjectType;
 import com.percussion.sitemanage.importer.PSSiteImportLogger;
 import com.percussion.sitemanage.importer.helpers.impl.PSThemeTemplateHelper;
 import com.percussion.theme.service.IPSThemeService;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;

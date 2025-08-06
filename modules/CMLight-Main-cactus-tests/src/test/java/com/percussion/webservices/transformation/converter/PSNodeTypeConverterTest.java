@@ -17,7 +17,7 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.ui.data.PSHierarchyNode;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.ui.data.NodeType;
 import org.junit.jupiter.api.Tag;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSNodeTypeConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSNodeTypeConverterTest extends PSConverterTestBase {
 
     /**

@@ -20,7 +20,7 @@ package com.percussion.rx.delivery.impl;
 
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.util.PSPurgableTempFile;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

@@ -28,7 +28,7 @@ import org.apache.commons.collections.ListUtils;
 
 import com.percussion.pso.jexl.PSOListTools;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("unchecked")
 public class PSOListToolsTest extends TestCase

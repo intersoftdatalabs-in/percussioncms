@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.common.PSObjectSummary;
 import com.percussion.webservices.rhythmyx.UiLocator;
 import com.percussion.webservices.rhythmyxdesign.UiDesignLocator;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Implements utilities used by all ui test cases.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSUiTestBase extends PSTestBase
 {
    /**

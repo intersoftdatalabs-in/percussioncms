@@ -20,7 +20,7 @@ import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import net.sf.json.JSONArray;
 
 import org.apache.commons.lang.StringUtils;

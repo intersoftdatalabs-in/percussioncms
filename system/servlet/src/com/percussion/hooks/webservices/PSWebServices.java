@@ -29,8 +29,9 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.hooks.PSUtils;
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.tools.PSHttpRequest;
-import com.percussion.utils.servlet.PSServletUtils;
+
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

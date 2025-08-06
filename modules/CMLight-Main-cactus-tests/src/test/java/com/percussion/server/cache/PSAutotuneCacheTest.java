@@ -17,7 +17,7 @@
 
 package com.percussion.server.cache;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

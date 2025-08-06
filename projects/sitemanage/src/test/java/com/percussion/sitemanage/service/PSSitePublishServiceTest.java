@@ -47,7 +47,7 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSitePublishResponse;
 import com.percussion.sitemanage.service.IPSSitePublishService.PubType;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;

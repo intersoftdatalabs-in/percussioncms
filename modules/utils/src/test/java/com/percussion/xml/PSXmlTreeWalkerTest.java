@@ -16,15 +16,19 @@
  */
 package com.percussion.xml;
 
-import junit.framework.TestCase;
+import org.aspectj.lang.annotation.Before;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Objects;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * This is a unit test for the PSXmlTreeWalker class.
@@ -33,8 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
  * @version    1.0
  * @since      1.0
  */
-public class PSXmlTreeWalkerTest extends TestCase
+public class PSXmlTreeWalkerTest
 {
+   @Test
    public void testBookWalker()
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -46,8 +51,8 @@ public class PSXmlTreeWalkerTest extends TestCase
 
       PSXmlTreeWalker walker = new PSXmlTreeWalker(doc);
       
-      assertEquals("the root should be the initial current node",
-         walker.getCurrent(), doc.getDocumentElement());
+      assertEquals(
+         walker.getCurrent(), doc.getDocumentElement(),"the root should be the initial current node");
 
       int i = 0;
       for (Element el = walker.getNextElement("Book", true, true);
@@ -56,54 +61,55 @@ public class PSXmlTreeWalkerTest extends TestCase
       {
          String fromCur = walker.getElementData("title", false);
          String fromRelCur = walker.getElementData("./title", false);
-         assertEquals("title should match ./title",
-            fromCur, fromRelCur);
+         assertEquals(
+            fromCur, fromRelCur, "title should match ./title");
 
          fromCur = walker.getElementData("isbn", false);
          fromRelCur = walker.getElementData("./isbn", false);
-         assertEquals("isbn should match ./isbn",
-            fromCur, fromRelCur);
+         assertEquals(
+            fromCur, fromRelCur, "isbn should match ./isbn");
 
          fromCur = walker.getElementData("author", false);
          fromRelCur = walker.getElementData("./author", false);
-         assertEquals("author should match ./author",
-            fromCur, fromRelCur);
+         assertEquals(
+            fromCur, fromRelCur, "author should match ./author");
 
          fromCur = walker.getElementData("author/@id", false);
          fromRelCur = walker.getElementData("./author/@id", false);
-         assertEquals("author/@id should match ./author/@id",
-            fromCur, fromRelCur);
+         assertEquals(
+            fromCur, fromRelCur, "author/@id should match ./author/@id");
 
          // if we're on the first run, then getting the data from the
          // parent should also equal the current data
          if (i == 0) {
             fromCur = walker.getElementData("title", false);
             fromRelCur = walker.getElementData("../Book/title", false);
-            assertEquals("title should match ../Book/title",
-               fromCur, fromRelCur);
+            assertEquals(
+               fromCur, fromRelCur, "title should match ../Book/title");
 
             fromCur = walker.getElementData("isbn", false);
             fromRelCur = walker.getElementData("../Book/isbn", false);
-            assertEquals("isbn should match ../Book/isbn",
-               fromCur, fromRelCur);
+            assertEquals(
+               fromCur, fromRelCur, "isbn should match ../Book/isbn");
 
             fromCur = walker.getElementData("author", false);
             fromRelCur = walker.getElementData("../Book/author", false);
-            assertEquals("author should match ../Book/author",
-               fromCur, fromRelCur);
+            assertEquals(
+               fromCur, fromRelCur, "author should match ../Book/author");
 
             fromCur = walker.getElementData("author/@id", false);
             fromRelCur = walker.getElementData("../Book/author/@id", false);
-            assertEquals("author/@id should match ../Book/author/@id",
-               fromCur, fromRelCur);
+            assertEquals(
+               fromCur, fromRelCur, "author/@id should match ../Book/author/@id");
          }
 
          i++;
       }
 
-      assertEquals("Did we get all the books?", i, m_books.size());
+      assertEquals( i, m_books.size(), "Did we get all the books?");
    }
 
+   @BeforeEach
    public void setUp()
    {
       m_books = new java.util.ArrayList<>();
@@ -134,6 +140,7 @@ public class PSXmlTreeWalkerTest extends TestCase
     * <tr><td>root/foo/bar</td><td>/root/foo1/bar</td><td>null<td></tr>
     * </table>
     */
+    @Test
    public void testGetBaseElement()
    {
       String currentBase = "root/foo/bar";
@@ -261,6 +268,7 @@ public class PSXmlTreeWalkerTest extends TestCase
     * Test the serialization 
     * @throws IOException 
     */
+    @Test
    public void testSerialization() throws IOException
    {
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
@@ -411,6 +419,7 @@ public class PSXmlTreeWalkerTest extends TestCase
       private String m_authorId;
    }
 
+   @Test
    public void testCovertToXMLEntities(){
       String test = PSXmlTreeWalker.convertToXmlEntities("This is a test \uD83E\uDD21");
 

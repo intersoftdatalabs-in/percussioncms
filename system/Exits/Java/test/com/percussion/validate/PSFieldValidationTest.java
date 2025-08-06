@@ -11,7 +11,7 @@ package com.percussion.validate;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Check validations

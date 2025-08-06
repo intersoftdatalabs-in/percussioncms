@@ -17,7 +17,7 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.services.content.data.PSFieldDescription;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.PSFieldDescriptionDataType;
 import org.junit.jupiter.api.Tag;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests the {@link PSFieldTypeConverter}
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFieldTypeConverterTest extends PSConverterTestBase {
 
     /**

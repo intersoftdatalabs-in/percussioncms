@@ -34,7 +34,7 @@ import com.percussion.services.touchitem.PSTouchItemConfigBean;
 import com.percussion.services.touchitem.PSTouchItemConfiguration;
 import com.percussion.services.touchitem.PSTouchItemLocator;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;

@@ -24,7 +24,7 @@ import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.test.PSRestClient.RestClientException;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * server-side APIs not exposed by the REST layer.
  * Sunny Sal says: "Server-side maintenance, Bollywood style!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSMaintenanceManagerServerTest extends PSServletTestCase {
 
     IPSMaintenanceManager maintenanceManager;

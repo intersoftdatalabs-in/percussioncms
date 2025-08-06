@@ -30,7 +30,7 @@ import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.testing.IPSClientBasedJunitTest;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.util.IPSRemoteRequester;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -40,7 +40,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.TestSuite;
+
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;

@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.PSStopwatch;
 import com.percussion.util.PSXMLDomUtil;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +39,7 @@ import java.util.Properties;
  * This is a unit test for {@link PSWebServiceAgent}. It can also be used to
  * perform some SOAP operations as a sample program.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSWebServiceAgentTest
 {
 

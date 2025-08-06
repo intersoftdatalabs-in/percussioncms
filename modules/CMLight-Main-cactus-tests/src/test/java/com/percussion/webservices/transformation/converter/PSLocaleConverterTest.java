@@ -17,7 +17,7 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.i18n.PSLocale;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSLocaleConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSLocaleConverterTest extends PSConverterTestBase {
 
     /**

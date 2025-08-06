@@ -27,7 +27,7 @@ import com.percussion.services.assembly.data.PSTemplateSlot;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.PSChildEntry;
 import com.percussion.webservices.content.PSItem;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSItemConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSItemConverterTest extends PSConverterTestBase {
     /**
      * Tests the conversion from a server to a client item as well as a

@@ -16,9 +16,9 @@
  */
 package com.percussion.design.objectstore;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Date;

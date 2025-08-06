@@ -18,7 +18,7 @@ package com.percussion.services.system.data;
 
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemServiceLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import com.percussion.webservices.system.PSSystemWsLocator;
@@ -26,7 +26,7 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Tag;
 /**
  * Unit tests for the {@link PSSharedProperty} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSharedPropertyTest extends TestCase
 {
    /**

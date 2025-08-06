@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.PSRequest;
 import com.percussion.util.PSCollection;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the <code>PSRuleListEvaluator</code>.

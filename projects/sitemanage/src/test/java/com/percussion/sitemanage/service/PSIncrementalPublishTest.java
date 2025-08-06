@@ -38,7 +38,7 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.share.test.PSTestDataCleaner;
 import com.percussion.ui.service.IPSListViewHelper;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.apache.commons.io.IOUtils;

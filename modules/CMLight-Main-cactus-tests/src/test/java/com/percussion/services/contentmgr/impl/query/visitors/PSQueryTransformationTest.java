@@ -33,7 +33,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 
 import java.io.Reader;
@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Tag;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSQueryTransformationTest extends ServletTestCase
 {
    

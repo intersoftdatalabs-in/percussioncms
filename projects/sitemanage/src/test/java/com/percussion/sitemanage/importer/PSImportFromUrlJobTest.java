@@ -29,7 +29,7 @@ import com.percussion.sitemanage.data.PSSite;
 import com.percussion.sitemanage.data.PSSiteImportCtx;
 import com.percussion.sitemanage.importer.helpers.PSHelperTestUtils;
 import com.percussion.sitemanage.importer.helpers.impl.PSSiteCreationHelper;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.junit.jupiter.api.*;
 

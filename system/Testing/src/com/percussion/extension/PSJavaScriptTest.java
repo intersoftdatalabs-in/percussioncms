@@ -21,9 +21,9 @@ import com.google.common.io.Files;
 import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.utils.collections.PSIteratorUtils;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import java.io.File;
 import java.util.Iterator;

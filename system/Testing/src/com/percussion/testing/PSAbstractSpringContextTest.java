@@ -19,7 +19,7 @@ package com.percussion.testing;
 
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;

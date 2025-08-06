@@ -16,7 +16,7 @@
  */
 package com.percussion.rx.ui.jsf.beans;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSHelpTopicMappingTest extends TestCase
 {

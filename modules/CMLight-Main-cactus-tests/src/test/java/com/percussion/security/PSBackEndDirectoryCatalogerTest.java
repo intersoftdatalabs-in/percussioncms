@@ -20,7 +20,7 @@ package com.percussion.security;
 
 import com.percussion.design.objectstore.PSConditional;
 import com.percussion.design.objectstore.PSTextLiteral;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

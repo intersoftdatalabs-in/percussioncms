@@ -19,7 +19,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.content.data.PSAutoTranslation;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.commons.beanutils.Converter;
 import org.junit.jupiter.api.Tag;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test the {@link PSAutoTranslationConverter}.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAutoTranslationConverterTest extends PSConverterTestBase {
 
     /**

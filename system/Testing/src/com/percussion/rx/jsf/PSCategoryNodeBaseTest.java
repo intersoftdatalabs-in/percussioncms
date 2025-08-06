@@ -17,7 +17,7 @@
 package com.percussion.rx.jsf;
 
 import com.percussion.services.error.PSNotFoundException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

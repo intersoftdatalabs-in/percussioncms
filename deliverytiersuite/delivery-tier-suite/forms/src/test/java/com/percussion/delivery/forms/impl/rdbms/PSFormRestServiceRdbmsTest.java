@@ -52,6 +52,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -93,7 +94,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", temporaryFolder.getRoot().toAbsolutePath().toString());
     }
 
     @AfterEach
@@ -208,7 +209,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         try
         {
             PSFormSummaries summaries = formRestService.get();
-            assertEquals("Expecting one valid summary",1,summaries.getSummaries().size());
+            assertEquals(1,summaries.getSummaries().size(),"Expecting one valid summary");
             for (PSFormSummary summary : summaries.getSummaries())
             {
                 String formName = summary.getName();
@@ -244,15 +245,15 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         if (subject != null && toList != null)
         {
             params.put("perc_emnt", Arrays.asList(PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             ).encrypt(toList, PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             ).DEFAULT_KEY())));
             params.put("perc_emns", Arrays.asList(PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             )
                     .encrypt(subject, PSLegacyEncrypter.getInstance(
-                            temporaryFolder.getRoot().getAbsolutePath().concat(PSEncryptor.SECURE_DIR)
+                            temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
                     ).DEFAULT_KEY())));
         }
 

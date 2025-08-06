@@ -25,7 +25,7 @@ import com.percussion.server.PSServer;
 import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;

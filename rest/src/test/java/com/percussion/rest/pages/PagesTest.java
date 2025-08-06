@@ -20,7 +20,7 @@ package com.percussion.rest.pages;
 import com.percussion.rest.MainTest;
 import com.percussion.rest.errors.RestError;
 import com.percussion.rest.errors.RestErrorCode;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Disabled;

@@ -22,9 +22,9 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.system.utils.PSCalculation;
 import com.percussion.system.utils.PSDate;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.math.BigDecimal;

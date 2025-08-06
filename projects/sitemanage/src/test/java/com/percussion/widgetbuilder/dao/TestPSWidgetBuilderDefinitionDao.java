@@ -22,7 +22,7 @@ import com.percussion.services.widgetbuilder.IPSWidgetBuilderDefinitionDao;
 import com.percussion.services.widgetbuilder.PSWidgetBuilderDefinition;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

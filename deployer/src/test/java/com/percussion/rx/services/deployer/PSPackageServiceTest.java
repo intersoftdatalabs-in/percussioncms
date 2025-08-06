@@ -28,7 +28,7 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageActionStatus;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Tag;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author erikserating
  *
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPackageServiceTest
 {
 

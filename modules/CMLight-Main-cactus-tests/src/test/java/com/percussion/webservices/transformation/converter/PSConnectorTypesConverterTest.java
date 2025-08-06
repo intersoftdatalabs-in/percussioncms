@@ -17,7 +17,7 @@
 package com.percussion.webservices.transformation.converter;
 
 import com.percussion.search.objectstore.PSWSSearchField;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.common.ConnectorTypes;
 import org.junit.jupiter.api.Tag;
 
@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSConnectorTypesConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSConnectorTypesConverterTest extends PSConverterTestBase {
 
     /**

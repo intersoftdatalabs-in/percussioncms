@@ -17,7 +17,7 @@
 package com.percussion.workflow;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Tag;
@@ -29,7 +29,7 @@ import java.sql.SQLException;
  * The PSStateRolesContextTest class is a test class for the class
  * StateRolesContext.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSStateRolesContextTest extends PSAbstractWorkflowTest 
 {
 

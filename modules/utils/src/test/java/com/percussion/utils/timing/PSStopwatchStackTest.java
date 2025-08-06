@@ -16,10 +16,13 @@
  */
 package com.percussion.utils.timing;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.security.SecureRandom;
 
 /**
@@ -27,7 +30,7 @@ import java.security.SecureRandom;
  * 
  * @author dougrand
  */
-public class PSStopwatchStackTest extends TestCase
+public class PSStopwatchStackTest
 {
    private static final Logger ms_log = LogManager.getLogger(PSStopwatchStackTest.class);
 
@@ -35,6 +38,7 @@ public class PSStopwatchStackTest extends TestCase
     * Single level test to see that things are working correctly
     * @throws Exception
     */
+    @Test
    public void testOneLevel() throws Exception
    {
       PSStopwatchStack stack = PSStopwatchStack.getStack();
@@ -61,6 +65,7 @@ public class PSStopwatchStackTest extends TestCase
     * Check that the timings are working
     * @throws Exception
     */
+    @Test
    public synchronized void testTimings() throws Exception
    {
       PSStopwatchStack stack = PSStopwatchStack.getStack();
@@ -85,6 +90,7 @@ public class PSStopwatchStackTest extends TestCase
     * 
     * @throws Exception
     */
+    @Test
    public void testOverhead() throws Exception
    {
       int count = 0;

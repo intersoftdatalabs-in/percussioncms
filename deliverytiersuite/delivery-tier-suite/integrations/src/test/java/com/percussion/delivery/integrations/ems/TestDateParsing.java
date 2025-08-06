@@ -17,7 +17,7 @@
 
 package com.percussion.delivery.integrations.ems;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.Test;
 

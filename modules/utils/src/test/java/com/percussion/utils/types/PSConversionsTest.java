@@ -16,10 +16,12 @@
  */
 package com.percussion.utils.types;
 
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class PSConversionsTest extends TestCase
+public class PSConversionsTest
 {
+   @Test
    public void testToArr() throws Exception
    {
       byte[] rval = PSConversions.longToByteArray(0x0102030405060708L);
@@ -38,6 +40,7 @@ public class PSConversionsTest extends TestCase
 
    }
    
+   @Test
    public void testToLong() throws Exception
    {
       byte[] test = new byte[16];

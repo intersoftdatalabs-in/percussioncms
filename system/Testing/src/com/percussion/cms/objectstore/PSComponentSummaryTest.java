@@ -16,7 +16,7 @@
  */
 package com.percussion.cms.objectstore;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

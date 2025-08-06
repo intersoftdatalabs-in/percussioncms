@@ -19,7 +19,7 @@ package com.percussion.webservices.content;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.junit.jupiter.api.*;

@@ -25,7 +25,7 @@ import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.services.security.data.PSAclImpl;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Disabled;
@@ -48,7 +48,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Test the {@link IPSAclService} CRUD operations.  See 
  * {@link PSAclServiceAccessTest} for other service functionality.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAclServiceTest
 {
 

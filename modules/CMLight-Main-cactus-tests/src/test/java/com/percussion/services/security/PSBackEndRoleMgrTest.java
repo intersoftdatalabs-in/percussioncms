@@ -28,7 +28,7 @@ import com.percussion.services.security.data.PSCommunityRoleAssociation;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

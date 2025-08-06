@@ -16,8 +16,8 @@
  */
 package com.percussion.extension;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;

@@ -24,7 +24,7 @@ import com.percussion.server.PSServer;
 import com.percussion.services.security.data.PSCatalogerConfig;
 import com.percussion.services.security.data.PSCatalogerConfig.ConfigTypes;
 import com.percussion.security.IPSTypedPrincipal;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.IOException;

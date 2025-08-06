@@ -20,7 +20,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.content.data.PSAutoTranslation;
 import com.percussion.services.content.data.PSKeyword;
 import com.percussion.services.content.data.PSKeywordChoice;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Unit test for the {@link IPSContentService} 
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentServiceTest
 {
 

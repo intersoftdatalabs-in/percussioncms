@@ -24,8 +24,8 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSRxFixTest
 {
    /**

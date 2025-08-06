@@ -18,28 +18,32 @@ package com.percussion.utils;
 
 import com.percussion.utils.jsr170.PSValueComparator;
 import com.percussion.utils.jsr170.PSValueFactory;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-public class PSValueComparatorTest extends TestCase
+public class PSValueComparatorTest
 {
    static PSValueComparator vc = new PSValueComparator();
    
+   @Test
    public void testCompareLongs() throws Exception
    {
       doTest(1L, 2L);
    }
    
+   @Test
    public void testCompareDoubles() throws Exception
    {
       doTest(1.1, 1.2);
    }   
    
+   @Test
    public void testCompareDates() throws Exception
    {
       Calendar c1, c2;
@@ -53,6 +57,7 @@ public class PSValueComparatorTest extends TestCase
       doTest(c1, c2);
    }
 
+   @Test
    public void testCompareStrings() throws Exception
    {
       doTest("aaaa","aaab");
@@ -73,12 +78,13 @@ public class PSValueComparatorTest extends TestCase
       doTest("\u00D1", "O");
    }   
    
-   
+   @Test
    public void testCompareBooleans() throws Exception
    {
       doTest(Boolean.FALSE, Boolean.TRUE);
    }   
    
+   @Test
    public void testCompareFirstNull() throws Exception
    {
       Value v2 = PSValueFactory.createValue((Object) "a");
@@ -88,6 +94,7 @@ public class PSValueComparatorTest extends TestCase
       assertTrue(r < 0);
    }
    
+   @Test
    public void testCompareSecondNull() throws Exception
    {
       Value v1 = PSValueFactory.createValue((Object) "a");
@@ -97,12 +104,14 @@ public class PSValueComparatorTest extends TestCase
       assertTrue(r > 0);
    }
    
+   @Test
    public void testCompareBothNull() throws Exception
    {
       int r = vc.compare(null, null);
       assertTrue(r == 0);
    }
 
+   @Test
    private void doTest(Object o1, Object o2) throws ValueFormatException
    {
       Value v1 = PSValueFactory.createValue(o1);

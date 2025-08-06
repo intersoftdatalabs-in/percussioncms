@@ -18,7 +18,7 @@ package com.percussion.rx.admin.jsf.nodes;
 
 import com.percussion.services.schedule.data.PSNotificationTemplate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

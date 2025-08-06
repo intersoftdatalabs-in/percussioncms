@@ -19,7 +19,7 @@ package com.percussion.HTTPClient;
 import com.percussion.cms.IPSConstants;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.testing.PSClientTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +35,7 @@ import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Deprecated
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class HTTPClientTest extends PSClientTestCase
 {

@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSRelationshipConfig.SysConfigEnum;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSSystemTestBase;
 import com.percussion.webservices.PSTestUtils;
 import com.percussion.webservices.common.ObjectType;
@@ -94,7 +94,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test all system soap services
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class SystemTestCase extends PSSystemTestBase
 {
    /**

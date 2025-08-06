@@ -19,7 +19,7 @@ package com.percussion.services.guidmgr.data;
 
 import com.percussion.services.catalog.PSTypeEnum;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test legacy guids

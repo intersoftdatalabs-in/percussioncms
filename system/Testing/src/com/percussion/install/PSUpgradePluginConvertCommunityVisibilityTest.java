@@ -32,7 +32,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatchStack;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.hibernate.query.Query;
@@ -57,7 +57,7 @@ import java.io.InputStream;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSUpgradePluginConvertCommunityVisibilityTest
 {
    /**

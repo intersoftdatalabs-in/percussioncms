@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSContentEditorSystemDef;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSDesignGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSAssemblyTestBase;
 import com.percussion.webservices.PSContentTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -75,7 +75,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for all content design web services.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class ContentDesignTestCase extends PSContentTestBase
 {
   @BeforeEach Class

@@ -36,7 +36,7 @@ import com.percussion.taxonomy.repository.VisibilityServiceInf;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.apache.cactus.ServletTestCase;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -61,7 +61,7 @@ import static java.util.Arrays.asList;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class TaxonomyServiceTest extends ServletTestCase
 {
    private AttributeServiceInf attributeService;

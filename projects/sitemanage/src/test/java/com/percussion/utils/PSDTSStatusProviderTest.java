@@ -19,7 +19,7 @@ package com.percussion.utils;
 
 import com.percussion.integritymanagement.data.PSIntegrityTask.TaskStatus;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

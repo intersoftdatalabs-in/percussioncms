@@ -24,13 +24,13 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;
 
 // REFACTORED: CP-JAVA11
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSFileDigestServiceTest extends ServletTestCase
 {
    /**

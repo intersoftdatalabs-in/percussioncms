@@ -27,7 +27,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestTest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

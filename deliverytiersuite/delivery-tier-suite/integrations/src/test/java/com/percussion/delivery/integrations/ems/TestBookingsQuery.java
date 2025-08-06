@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import com.percussion.delivery.integrations.ems.model.Booking;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class TestBookingsQuery extends TestCase {
 	

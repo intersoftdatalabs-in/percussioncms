@@ -43,7 +43,7 @@ import com.percussion.share.test.PSRestClient.RestClientException;
 
 import java.util.List;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,7 +51,7 @@ import org.junit.jupiter.api.*;
 
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
 

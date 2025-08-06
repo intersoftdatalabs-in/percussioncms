@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.tomcat;
+package com.percussion.servlet_utils.tomcat;
 
+import com.percussion.servlet_utils.tomcat.PSTomcatUtils;
 import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
+import com.percussion.utils.tomcat.PSTomcatConnector;
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
-import com.percussion.utils.xml.PSInvalidXmlException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.xml.sax.SAXException;
-
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;

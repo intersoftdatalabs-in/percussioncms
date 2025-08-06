@@ -19,7 +19,7 @@ package com.percussion.security;
 
 import com.percussion.design.objectstore.PSRoleProvider;
 import com.percussion.design.objectstore.PSServerConfiguration;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

@@ -17,8 +17,8 @@
 package com.percussion.rxverify;
 
 import com.percussion.rxverify.data.PSFileInfo;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 import java.io.*;
 

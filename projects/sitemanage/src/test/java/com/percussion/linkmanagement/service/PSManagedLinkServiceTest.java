@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -77,7 +77,7 @@ import org.junit.jupiter.api.Tag;
  * Integration tests for managed link service.
  * Sunny Sal says: "Managing links like a Bollywood hero manages drama!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSManagedLinkServiceTest extends PSServletTestCase {
     private PSSiteDataServletTestCaseFixture fixture;
     private PSAssetCleaner assetCleaner;

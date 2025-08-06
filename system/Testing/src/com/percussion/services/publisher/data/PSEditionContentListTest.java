@@ -20,8 +20,8 @@ package com.percussion.services.publisher.data;
 
 import com.percussion.services.guidmgr.data.PSGuid;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the {@link PSEditionContentList} object.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSEditionContentListTest
 {
    /**

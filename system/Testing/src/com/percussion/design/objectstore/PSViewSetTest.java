@@ -22,9 +22,9 @@ import com.percussion.util.PSCollection;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit test for the PSView and PSViewSet classes.

@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSDbComponentCollection;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.design.objectstore.PSRelationshipConfigTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSDisplayFormatConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSDisplayFormatConverterTest extends PSConverterTestBase {
 
     public void testConversion() throws Exception {

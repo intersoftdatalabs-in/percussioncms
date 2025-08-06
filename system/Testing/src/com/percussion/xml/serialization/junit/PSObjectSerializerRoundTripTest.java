@@ -28,10 +28,10 @@ import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.serialization.PSObjectSerializer;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSObjectSerializerRoundTripTest
 {
    /**

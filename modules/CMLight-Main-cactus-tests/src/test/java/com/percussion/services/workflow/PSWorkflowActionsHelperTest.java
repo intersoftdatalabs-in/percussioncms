@@ -32,7 +32,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.security.IPSSecurityWs;

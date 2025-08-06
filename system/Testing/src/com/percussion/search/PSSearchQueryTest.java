@@ -29,10 +29,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+
+import org.junit.jupiter.api.Test;
+
 import org.junit.jupiter.api.Tag;
 
 
@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Tag;
  *
  * @author paulhoward
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchQueryTest extends TestCase 
    implements IPSServerBasedJunitTest
 {

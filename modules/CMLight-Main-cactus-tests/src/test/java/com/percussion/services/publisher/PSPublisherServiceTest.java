@@ -44,7 +44,7 @@ import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.services.publisher.data.PSSortCriterion;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.cactus.ServletTestCase;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -71,7 +71,7 @@ import static com.percussion.rx.publisher.impl.PSPublishingJob.NEXTNUMBER_PUBLIC
  */
 // REFACTORED: CP-JAVA11
 @TestMethodOrder(MethodName.class)
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPublisherServiceTest extends ServletTestCase
 {
    /**

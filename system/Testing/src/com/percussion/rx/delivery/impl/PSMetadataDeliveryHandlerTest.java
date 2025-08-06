@@ -26,7 +26,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;

@@ -21,11 +21,11 @@ import com.percussion.design.catalog.PSCataloger;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.testing.PSClientTestCase;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSColumnCatalogHandlerTest extends PSClientTestCase
 {
 

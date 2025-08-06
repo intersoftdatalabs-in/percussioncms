@@ -18,7 +18,7 @@
 package com.percussion.services.assembly.jexl;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +37,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSJexlDbExtensionsTest {
 
     private static final Logger log = LogManager.getLogger(PSJexlDbExtensionsTest.class);

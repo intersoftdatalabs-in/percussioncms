@@ -16,7 +16,7 @@
  */
 package com.percussion.webservices;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.faults.PSError;
 import com.percussion.webservices.transformation.converter.PSConverterTestBase;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSErrorException} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 class PSErrorExceptionTest extends PSConverterTestBase {
 
     /**

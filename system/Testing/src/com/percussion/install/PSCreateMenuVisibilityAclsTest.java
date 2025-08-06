@@ -18,7 +18,7 @@ package com.percussion.install;
 
 import com.percussion.testing.PSAbstractSpringContextTest;
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.testing.SpringContextTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;

@@ -20,7 +20,7 @@ import com.percussion.content.PSMimeContentAdapter;
 import com.percussion.error.PSNotFoundException;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.utils.collections.PSIteratorUtils;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.AfterClass;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit tests for the PSExtensionManager class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSExtensionManagerTest
     implements IPSServerBasedJunitTest
 {

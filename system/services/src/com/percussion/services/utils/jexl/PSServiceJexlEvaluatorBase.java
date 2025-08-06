@@ -20,8 +20,9 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.*;
 import com.percussion.server.PSServer;
+import com.percussion.servlet_utils.servlet.PSServletUtils;
 import com.percussion.utils.jexl.PSJexlEvaluator;
-import com.percussion.utils.servlet.PSServletUtils;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.tools.ToolManager;

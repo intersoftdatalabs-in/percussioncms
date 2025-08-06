@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;

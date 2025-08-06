@@ -11,7 +11,7 @@ package com.percussion.extensions.translations;
 
 import com.percussion.data.PSConversionException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSTranslationTest extends TestCase
 {

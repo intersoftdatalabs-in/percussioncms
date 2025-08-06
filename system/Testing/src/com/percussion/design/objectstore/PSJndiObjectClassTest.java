@@ -16,7 +16,7 @@
  */
 package com.percussion.design.objectstore;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_DYNAMIC;
 import static com.percussion.design.objectstore.PSJndiObjectClass.MEMBER_ATTR_STATIC;

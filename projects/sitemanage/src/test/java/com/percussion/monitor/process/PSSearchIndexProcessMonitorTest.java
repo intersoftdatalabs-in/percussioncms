@@ -19,7 +19,7 @@ package com.percussion.monitor.process;
 
 import com.percussion.search.PSSearchEditorChangeEvent;
 import com.percussion.search.PSSearchIndexEventQueue;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

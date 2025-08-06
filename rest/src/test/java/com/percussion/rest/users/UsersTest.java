@@ -20,7 +20,7 @@
 package com.percussion.rest.users;
 
 import com.percussion.rest.MainTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

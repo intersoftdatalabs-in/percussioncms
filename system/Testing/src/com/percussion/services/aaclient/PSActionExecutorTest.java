@@ -21,7 +21,7 @@ import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Andriy Palamarchuk

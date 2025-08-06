@@ -19,7 +19,7 @@ package com.percussion.services.sitemgr.data;
 
 import com.percussion.services.guidmgr.data.PSGuid;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for the {@link PSPublishingContext} object.

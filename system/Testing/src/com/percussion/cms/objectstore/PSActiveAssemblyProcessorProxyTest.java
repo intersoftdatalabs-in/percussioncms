@@ -18,9 +18,9 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSLocator;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Test the public interface documented for the active assembly processor proxy.

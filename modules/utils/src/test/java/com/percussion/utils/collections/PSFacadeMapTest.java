@@ -16,13 +16,18 @@
  */
 package com.percussion.utils.collections;
 
-import junit.framework.TestCase;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PSFacadeMapTest extends TestCase
+public class PSFacadeMapTest
 {
    
 
@@ -32,15 +37,10 @@ public class PSFacadeMapTest extends TestCase
 
    private Map<String, String> inner;
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Override
+   @BeforeEach
    protected void setUp() throws Exception
    {
-      super.setUp();
+
       HashMap<String, String> map = new HashMap<String,String>();
       map.put("a", "1");
       map.put("b", "2");
@@ -48,7 +48,7 @@ public class PSFacadeMapTest extends TestCase
       inner = Collections.unmodifiableMap(map);
    }
    
-   @SuppressWarnings("unchecked")
+   @Test
    public void testClone() throws Exception
    {
       fmap = new PSFacadeMap<String, String>(inner);
@@ -63,6 +63,7 @@ public class PSFacadeMapTest extends TestCase
       assertEquals(3, inner.entrySet().size());
    }
 
+   @Test
    public void testVarious() throws Exception
    {
       fmap = new PSFacadeMap<String, String>(inner);
@@ -112,7 +113,7 @@ public class PSFacadeMapTest extends TestCase
    }
    
   
-   
+   @Test
    public void testRemove() throws Exception
    {
       fmap = new PSFacadeMap<String, String>(inner);

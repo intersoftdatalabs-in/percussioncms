@@ -35,7 +35,7 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSContentTestBase;
 import com.percussion.webservices.PSTestUtils;
@@ -165,7 +165,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /** 
  * Test case for all public content services
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class ContentTestCase extends PSContentTestBase
 {

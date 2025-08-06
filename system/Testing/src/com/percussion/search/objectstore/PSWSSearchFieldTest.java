@@ -18,8 +18,8 @@ package com.percussion.search.objectstore;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Test the ctors, equals and hashcode methods of the 

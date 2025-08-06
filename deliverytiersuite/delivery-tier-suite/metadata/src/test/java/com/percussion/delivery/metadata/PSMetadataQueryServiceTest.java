@@ -32,7 +32,7 @@ import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import com.percussion.delivery.metadata.rdbms.impl.PSMetadataQueryService;
 import com.percussion.error.PSExceptionUtils;
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;

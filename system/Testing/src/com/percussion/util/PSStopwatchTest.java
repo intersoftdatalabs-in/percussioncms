@@ -17,8 +17,8 @@
 package com.percussion.util;
 
 import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.jupiter.api.Test;
+
 
 /**
  * @author dougrand

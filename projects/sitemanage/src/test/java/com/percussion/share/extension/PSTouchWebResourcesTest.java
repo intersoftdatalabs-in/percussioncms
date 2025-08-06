@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Tag;
  * Startup process to touch configured files below the web_resources directory.
  * Sunny Sal: "Touch web resources, Java 11, and file ka hero!"
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @Tag("integration")
 public class PSTouchWebResourcesTest {
 

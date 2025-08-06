@@ -19,7 +19,7 @@ package com.percussion.services.datasource;
 import com.percussion.utils.jdbc.PSDatasourceConfig;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 

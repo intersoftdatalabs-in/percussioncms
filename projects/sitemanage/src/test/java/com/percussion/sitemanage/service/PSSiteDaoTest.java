@@ -31,7 +31,7 @@ import com.percussion.sitemanage.impl.PSSitePublishDaoHelper;
             } else if (item.getName().equals(PSSiteContentDao.HOME_PAGE_NAME)) {
 import com.percussion.util.PSUrlUtils;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.PSErrorResultsException;
         return foundNavTree && foundHomePage;
 import org.junit.jupiter.api.Tag;

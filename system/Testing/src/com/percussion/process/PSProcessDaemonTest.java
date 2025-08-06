@@ -17,11 +17,11 @@
 package com.percussion.process;
 
 import com.percussion.testing.IPSCustomJunitTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 import junit.textui.TestRunner;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
@@ -64,7 +64,7 @@ import java.util.Map;
  * 
  * @author paulhoward
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSProcessDaemonTest extends TestCase implements IPSCustomJunitTest
 {
 

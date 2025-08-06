@@ -33,7 +33,7 @@ import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.services.content.data.PSItemStatus;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.commons.collections.IteratorUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;

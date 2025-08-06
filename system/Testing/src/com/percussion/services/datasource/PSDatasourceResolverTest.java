@@ -25,7 +25,7 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class for the {@link PSDatasourceResolver}

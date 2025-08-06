@@ -41,14 +41,14 @@ import com.percussion.sitemanage.service.PSPageToTemplatePair;
 import com.percussion.sitemanage.service.impl.PSSiteTemplateService;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.system.utils.IPSHtmlParameters;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.system.IPSSystemWs;
 import org.junit.jupiter.api.Tag;
 
 import static java.util.Arrays.asList;
 
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPageToTemplateTest extends PSServletTestCase
 {
 

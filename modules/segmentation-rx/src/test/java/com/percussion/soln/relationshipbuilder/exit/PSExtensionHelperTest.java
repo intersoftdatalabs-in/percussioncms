@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.w3c.dom.Document;

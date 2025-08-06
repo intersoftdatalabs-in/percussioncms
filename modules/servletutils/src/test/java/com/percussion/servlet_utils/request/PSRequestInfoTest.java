@@ -14,43 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.request;
+package com.percussion.servlet_utils.request;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
+import com.percussion.utils.request.PSRequestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test request info
  * 
  * @author dougrand
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 @TestMethodOrder(MethodName.class)
-public class PSRequestInfoTest extends TestCase
+public class PSRequestInfoTest
 {
 
    /**
     * @param arg0
     */
-   public PSRequestInfoTest(String arg0) {
-      super(arg0);
+   public PSRequestInfoTest() {
       
    }
    
-   @Test
-   public static TestSuite suite()
-   {
-      return new TestSuite(PSRequestInfoTest.class);
-   }
    
    @Test
    public void test10Basic()
@@ -58,7 +56,7 @@ public class PSRequestInfoTest extends TestCase
       try
       {
          PSRequestInfo.setRequestInfo("FOO", "BAR");
-         assertTrue("No exception where expected", false);
+         assertTrue(false, "No exception where expected");
       }
       catch(Exception e)
       {

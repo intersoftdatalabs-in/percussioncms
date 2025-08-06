@@ -19,7 +19,7 @@ package com.percussion.servlets;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSLoginServletTest extends TestCase
 {

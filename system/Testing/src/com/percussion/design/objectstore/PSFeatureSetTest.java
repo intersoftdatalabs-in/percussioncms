@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 

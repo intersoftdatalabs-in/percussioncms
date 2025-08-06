@@ -28,7 +28,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate.GlobalTemplateUsage;
 import com.percussion.services.assembly.IPSAssemblyTemplate.PublishWhen;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.data.PSTemplateBinding;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Tag;
 
@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTemplateSetterTest extends PSConfigurationTest
 {
    

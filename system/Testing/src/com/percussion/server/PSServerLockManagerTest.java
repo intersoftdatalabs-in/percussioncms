@@ -17,9 +17,9 @@
  
 package com.percussion.server;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 public class PSServerLockManagerTest extends TestCase
 {

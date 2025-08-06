@@ -19,7 +19,7 @@ package com.percussion.activity.service;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.PSStopwatch;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;

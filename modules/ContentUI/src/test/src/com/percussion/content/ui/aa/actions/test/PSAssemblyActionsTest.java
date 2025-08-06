@@ -12,8 +12,8 @@ package com.percussion.content.ui.aa.actions.test;
 import com.percussion.content.ui.aa.actions.IPSAAClientAction;
 import com.percussion.content.ui.aa.actions.PSAAClientActionFactory;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.utils.testing.IntegrationTest;
-import junit.framework.TestCase;
+
+import org.junit.jupiter.api.Test;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Tag;
 
@@ -24,7 +24,7 @@ import java.util.Map;
  * Tests for various actions that call the assembly service
  * to assemble content.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSAssemblyActionsTest
          extends
             PSAAClientActionTestBase

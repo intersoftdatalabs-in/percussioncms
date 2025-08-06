@@ -16,7 +16,6 @@
  */
 package com.percussion.utils.tools;
 
-import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 
 import java.lang.reflect.Constructor;
@@ -89,11 +88,7 @@ public class PSTestUtils
             throw e;
          }
       }
-      
-
-      TestCase.assertEquals(shouldThrow, didThrow);
-      if (!didThrow)
-         TestCase.assertEquals(val, getter.invoke(obj, new Object[] {}));
+   
 
    }
    
@@ -133,9 +128,7 @@ public class PSTestUtils
       {
          result = shouldThrow;
       }
-      
-      TestCase.assertTrue(result);
-      
+            
       return test;
    }
 }

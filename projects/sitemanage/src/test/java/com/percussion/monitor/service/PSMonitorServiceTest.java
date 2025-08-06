@@ -20,7 +20,7 @@ package com.percussion.monitor.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 

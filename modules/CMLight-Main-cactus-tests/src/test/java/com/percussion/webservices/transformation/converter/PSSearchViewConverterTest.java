@@ -19,7 +19,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.design.objectstore.PSRelationshipConfigTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.ui.data.PSSearchDef;
 import com.percussion.webservices.ui.data.PSViewDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSSearchViewConverter} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSSearchViewConverterTest extends PSConverterTestBase {
 
     /**

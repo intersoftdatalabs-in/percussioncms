@@ -24,7 +24,7 @@ import com.percussion.testing.IPSUnitTestConfigHelper;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.testing.PSConfigHelperTestCase;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.faults.PSErrorResultsFault;
 import com.percussion.webservices.faults.PSErrorResultsFaultServiceCall;
@@ -71,7 +71,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Implements utilities used by all webservice test cases.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSTestBase extends PSClientTestCase
 {
    public PSTestBase(String name)

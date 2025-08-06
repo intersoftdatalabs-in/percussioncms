@@ -22,9 +22,9 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.util.Iterator;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

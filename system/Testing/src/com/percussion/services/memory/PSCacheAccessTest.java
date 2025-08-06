@@ -18,7 +18,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.services.memory;
 
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 import net.sf.ehcache.CacheManager;
 import org.junit.jupiter.api.BeforeAll;

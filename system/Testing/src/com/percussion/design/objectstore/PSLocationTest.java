@@ -18,7 +18,7 @@ package com.percussion.design.objectstore;
 
 import java.util.Collections;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 import static com.percussion.design.objectstore.PSLocation.*;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
 

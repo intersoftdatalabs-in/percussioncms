@@ -16,7 +16,7 @@
  */
 package com.percussion.services.contentmgr.impl;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test some content utils methods

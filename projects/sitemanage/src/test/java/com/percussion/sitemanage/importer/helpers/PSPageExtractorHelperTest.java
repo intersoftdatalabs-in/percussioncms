@@ -57,7 +57,7 @@ import com.percussion.sitemanage.importer.helpers.impl.PSTemplateExtractorHelper
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 import com.percussion.sitesummaryservice.service.IPSSiteImportSummaryService;
 import com.percussion.theme.data.PSThemeSummary;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.percussion.utils.servlet;
+package com.percussion.servlet_utils.servlet;
 
 import com.percussion.error.PSExceptionUtils;
 
@@ -242,7 +242,6 @@ public class PSInputValidatorFilter implements Filter
         return null;
     }
 
-    // TODO: Remove me @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
     private void doLoadCustomProps(String propsFilePath)
     {
         // Load custom restrictions file
@@ -521,7 +520,7 @@ public class PSInputValidatorFilter implements Filter
 
         if ("true".equals(isEnabledString))
             isEnabled = true;
-        try(InputStream is = this.getClass().getResourceAsStream(getClass().getSimpleName() + ".properties")) {
+        try(InputStream is = this.getClass().getResourceAsStream("/com/percussion/servlet_utils/servlet/" + getClass().getSimpleName() + ".properties")) {
             notNull(is, "properties file should not be missing");
             doLoadProperties(is);
             doLoadCustomProps(propsFilePath);

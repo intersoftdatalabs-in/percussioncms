@@ -27,7 +27,7 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageActionStatus;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
 import com.percussion.utils.guid.IPSGuid;
-import com.percussion.utils.testing.IntegrationTest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test case for the {@link IPSPkgInfoService} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSPkgInfoServiceTest
 {
 

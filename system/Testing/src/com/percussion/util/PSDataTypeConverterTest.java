@@ -18,7 +18,7 @@ package com.percussion.util;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test class for {@link PSDataTypeConverter}. 

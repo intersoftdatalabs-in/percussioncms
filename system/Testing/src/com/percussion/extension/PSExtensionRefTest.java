@@ -18,9 +18,9 @@ package com.percussion.extension;
 
 import java.util.ArrayList;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Unit tests for the PSExtensionRef class

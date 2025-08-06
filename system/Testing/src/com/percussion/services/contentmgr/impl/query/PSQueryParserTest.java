@@ -32,7 +32,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 public class PSQueryParserTest extends TestCase
 {

@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
 import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.design.objectstore.PSRelationshipTest;
-import com.percussion.utils.testing.IntegrationTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Unit test for the {@link PSContentItemDependencyTree} class.
  */
-@Tag(IntegrationTest.class)
+@Tag("IntegrationTest")
 public class PSContentItemDependencyTreeTest
 {
    // see base class
