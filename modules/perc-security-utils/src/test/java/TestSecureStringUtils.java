@@ -19,25 +19,24 @@ import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.SecureStringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestSecureStringUtils {
 
-    @Rule
-    public TemporaryFolder tempFolder = TemporaryFolder.builder().build();
+    private Path tempDir;
 
     private static final String[] resourcePaths = new String[] {
             "/Sites/",
@@ -75,9 +74,10 @@ public class TestSecureStringUtils {
 
     };
 
-    @Before
-    public void setup(){
-        System.setProperty("rxdeploydir", tempFolder.getRoot().getAbsolutePath());
+    @BeforeEach
+    public void setup() throws Exception{
+        tempDir = Files.createTempDirectory("perc-security-utils-tests");
+        System.setProperty("rxdeploydir", tempDir.toAbsolutePath().toString());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class TestSecureStringUtils {
     @Test
     public void testWildStrings(){
 
-        String testPath = SecureStringUtils.cleanWildPath(resourcePaths,"/Rhythmyx/cm%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini","unit.test");
+        String testPath = SecureStringUtils.cleanWildPath(resourcePaths,"/Rhythmyx/cm%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini","unit.test");
         assertNull(testPath);
 
         testPath = SecureStringUtils.cleanWildPath(resourcePaths,"/login","unit.test");
@@ -105,13 +105,13 @@ public class TestSecureStringUtils {
         testPath = SecureStringUtils.cleanWildPath(resourcePaths,"favicon.ico","unit.test");
         assertEquals("favicon.ico",testPath);
 
-        testPath = SecureStringUtils.cleanWildPath(resourcePaths,"%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini","unit.test");
+        testPath = SecureStringUtils.cleanWildPath(resourcePaths,"%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cwindows%5cwin.ini","unit.test");
         assertNull(testPath);
 
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testPwdDecryption(){
         String encPwd = "Qhmee/8dNs2SL0+499RqMv/1hoNxdAgdnyIOewLB7xrt5A==";
         //Add .key and .legacyKey in this dir to get decrypted pwd.
