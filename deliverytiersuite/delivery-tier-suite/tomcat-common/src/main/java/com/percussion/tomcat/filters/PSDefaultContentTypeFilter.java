@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.tomcat.filters;
 
 import java.io.IOException;
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -28,23 +28,23 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-/***
+/**
  * Sets the content type to text/html if it hasn't been set.
  *
  * @author natechadwick
- *
  */
-public class PSDefaultContentTypeFilter implements Filter{
+public class PSDefaultContentTypeFilter implements Filter {
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws ServletException, IOException {
-        if(response.getContentType() == null){
-            final ServletContext servletContext = request.getServletContext();
+        if (response.getContentType() == null) {
+            var servletContext = request.getServletContext();
             if (request instanceof HttpServletRequest) {
-                String url = ((HttpServletRequest)request).getRequestURL().toString();
-                String queryString = ((HttpServletRequest)request).getQueryString();
-                final String mimeType = servletContext.getMimeType(url);
-                if(mimeType==null)
+                var url = ((HttpServletRequest) request).getRequestURL().toString();
+                var mimeType = servletContext.getMimeType(url);
+                if (mimeType == null) {
                     response.setContentType("text/html; charset=UTF-8");
+                }
             }
         }
         chain.doFilter(request, response);
@@ -52,14 +52,11 @@ public class PSDefaultContentTypeFilter implements Filter{
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // TODO Auto-generated method stub
-
+        // No initialization required
     }
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-
+        // No resources to clean up
     }
-
 }

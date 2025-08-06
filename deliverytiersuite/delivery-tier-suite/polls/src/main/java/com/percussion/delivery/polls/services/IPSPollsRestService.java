@@ -34,30 +34,25 @@ import com.percussion.delivery.services.IPSRestService;
  * @author natechadwick
  *
  */
-public interface IPSPollsRestService extends IPSRestService{
+// REFACTORED: CP-JAVA11
+public interface IPSPollsRestService extends IPSRestService {
+    @GET
+    @Path("/{pollName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSPollsResponse getPoll(@PathParam("pollName") String pollName);
 
-	@GET
-	@Path("/{pollName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSPollsResponse getPoll(@PathParam("pollName") String pollName);
+    @GET
+    @Path("/question/{pollQuestion}")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSPollsResponse getPollByQuestion(@PathParam("pollQuestion") String pollQuestion);
 
-	@GET
-	@Path("/question/{pollQuestion}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSPollsResponse getPollByQuestion(
-			@PathParam("pollQuestion") String pollQuestion);
+    @PUT
+    @Path("/save")
+    @Produces(MediaType.APPLICATION_JSON)
+    PSPollsResponse savePoll(PSRestPoll restPoll, @Context HttpServletRequest req);
 
-	@PUT
-	@Path("/save")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract PSPollsResponse savePoll(PSRestPoll restPoll,
-			@Context HttpServletRequest req);
-
-	@GET
-	@Path("/canuservote/{pollQuestion}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public abstract String canUserVote(
-			@PathParam("pollQuestion") String pollQuestion,
-			@Context HttpServletRequest req);
-
+    @GET
+    @Path("/canuservote/{pollQuestion}")
+    @Produces(MediaType.APPLICATION_JSON)
+    String canUserVote(@PathParam("pollQuestion") String pollQuestion, @Context HttpServletRequest req);
 }

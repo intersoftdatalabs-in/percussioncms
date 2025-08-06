@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls.data;
-
 
 import java.util.Set;
 
-public interface IPSPoll 
-{
-	public String getId();
-	public void setId(String id);
-	public String getPollName();
-	public void setPollName(String pollName);
-	public String getPollQuestion();
-	public void setPollQuestion(String pollQuestion);
-	public Set<IPSPollAnswer> getPollAnswers();
-	public void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
-
+/**
+ * Represents a poll with a name, question, and possible answers.
+ * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ */
+public interface IPSPoll {
+    String getId();
+    void setId(String id);
+    String getPollName();
+    void setPollName(String pollName);
+    String getPollQuestion();
+    void setPollQuestion(String pollQuestion);
+    Set<IPSPollAnswer> getPollAnswers();
+    void setPollAnswers(Set<IPSPollAnswer> pollAnswers);
 }

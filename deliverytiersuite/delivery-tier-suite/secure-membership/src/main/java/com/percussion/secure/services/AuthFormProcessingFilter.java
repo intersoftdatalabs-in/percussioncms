@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Form;
 import java.io.IOException;
 
+// REFACTORED: CP-JAVA11
 public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingFilter {
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "j_username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "j_password";
@@ -46,12 +47,12 @@ public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingF
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
-        if (postOnly && !request.getMethod().equals("POST")) {
+        if (postOnly && !"POST".equals(request.getMethod())) {
             throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());
         }
 
-        String username = obtainUsername(request);
-        String password = obtainPassword(request);
+        var username = obtainUsername(request);
+        var password = obtainPassword(request);
         if (username == null) {
             username = "";
         }
@@ -59,14 +60,14 @@ public class AuthFormProcessingFilter  extends AbstractAuthenticationProcessingF
             password = "";
         }
         username = username.trim();
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        var authRequest = new UsernamePasswordAuthenticationToken(username, password);
 
         // Allow subclasses to set the "details" property
         setDetails(request, authRequest);
-        if(this.getAuthenticationManager()==null){
+        if (this.getAuthenticationManager() == null) {
             logger.info("Authentication manager is null.");
         } else {
-            logger.info("Authentication manager was "+this.getAuthenticationManager().getClass().getName());
+            logger.info("Authentication manager was {}");
         }
         return this.getAuthenticationManager().authenticate(authRequest);
     }

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.tomcat.valves;
 
 import java.io.IOException;
@@ -30,8 +31,6 @@ import org.apache.catalina.LifecycleState;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.buf.CharChunk;
@@ -62,8 +61,7 @@ import org.apache.tomcat.util.buf.MessageBytes;
  *      delivery side services</li>
  * </ol>
  */
-public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
-{
+public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle {
     private static final Logger log = LogManager.getLogger(PSSimpleRedirectorValve.class);
 
     /**
@@ -84,45 +82,39 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
      */
     private String[] servletUrls;
     
-    boolean started;
-    
-    public boolean isStarted()
-    {
+    private boolean started;
+
+    public boolean isStarted() {
         return started;
     }
 
     @Override
-    public void invoke(Request request, Response response) throws IOException, ServletException
-    {
-        boolean matched = false;
-        if (started && !targetHost.equals(request.getServerName()))
-        {
-            MessageBytes path = request.getRequestPathMB();
-            boolean found = false;
-            for (int i = 0; !found && i < servletUrls.length; i++)
-            {
-                if (path.startsWithIgnoreCase(servletUrls[i],0))
-                {
+    public void invoke(Request request, Response response) throws IOException, ServletException {
+        var matched = false;
+        if (started && !targetHost.equals(request.getServerName())) {
+            var path = request.getRequestPathMB();
+            for (var servletUrl : servletUrls) {
+                if (path.startsWithIgnoreCase(servletUrl, 0)) {
                     matched = true;
-                    CharChunk chunk = request.getCoyoteRequest().serverName().getCharChunk();
+                    var chunk = request.getCoyoteRequest().serverName().getCharChunk();
                     chunk.recycle();
                     chunk.append(targetHost);
                     request.getMappingData().recycle();
-                    try
-                    {
-                        request.getConnector().getProtocolHandler().getAdapter().service(request.getCoyoteRequest(),
+                    try {
+                        request.getConnector().getProtocolHandler().getAdapter().service(
+                                request.getCoyoteRequest(),
                                 response.getCoyoteResponse());
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         //will be handled higher up the stack
                         throw new RuntimeException(e);
                     }
+                    break;
                 }
             }
         }
-        if (!matched)
+        if (!matched) {
             getNext().invoke(request, response);
+        }
     }
 
     /**
@@ -132,10 +124,10 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
      * @param targetHost If <code>null</code> or empty, the property is not
      * set.
      */
-    public void setTargetHost(String targetHost)
-    {
-        if (targetHost != null && targetHost.trim().length() > 0)
+    public void setTargetHost(String targetHost) {
+        if (targetHost != null && targetHost.trim().length() > 0) {
             this.targetHost = targetHost;
+        }
     }
 
     /**
@@ -145,54 +137,51 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle
      * @param serviceNames If <code>null</code> or empty, the property is not
      * set.
      */
-    public void setServiceNames(String serviceNames)
-    {
-        if (serviceNames != null && serviceNames.trim().length() > 0)
+    public void setServiceNames(String serviceNames) {
+        if (serviceNames != null && serviceNames.trim().length() > 0) {
             this.serviceNames = serviceNames;
+        }
     }
 
     /**
      * Performs some initialization.
-     * @throws LifecycleException 
+     * @throws LifecycleException if an error occurs during initialization
      */
     @Override
-    public void startInternal() throws LifecycleException
-    {
+    public void startInternal() throws LifecycleException {
         log.info("Starting Simple Redirector valve");
-        if (serviceNames == null)
-        {
+        if (serviceNames == null) {
             servletUrls = new String[0];
             return;
         }
 
-        StringTokenizer toker = new StringTokenizer(serviceNames, ",");
-        Collection<String> urls = new ArrayList<>();
-        while (toker.hasMoreTokens())
-        {
-            String s = toker.nextToken().trim();
-            if (!s.startsWith("/"))
+        var toker = new StringTokenizer(serviceNames, ",");
+        var urls = new ArrayList<String>();
+        while (toker.hasMoreTokens()) {
+            var s = toker.nextToken().trim();
+            if (!s.startsWith("/")) {
                 s = "/" + s;
-            if (!s.endsWith("/"))
+            }
+            if (!s.endsWith("/")) {
                 s = s + "/";
+            }
             urls.add(s);
         }
         servletUrls = urls.toArray(new String[0]);
-        log.info("   Redirecting to " + targetHost + " for the following paths: " + Arrays.toString(servletUrls));
+        log.info("   Redirecting to {} for the following paths: {}", targetHost, Arrays.toString(servletUrls));
         serviceNames = null;
         
         started = true;
-        if (getContainer()!=null)
+        if (getContainer() != null) {
             setState(LifecycleState.STARTING);
+        }
     }
     
     @Override
-    public void stopInternal() throws LifecycleException
-    {
-        started=false;
-        if (getContainer()!=null)
+    public void stopInternal() throws LifecycleException {
+        started = false;
+        if (getContainer() != null) {
             setState(LifecycleState.STOPPING);
+        }
     }
-    
-    
-    
 }

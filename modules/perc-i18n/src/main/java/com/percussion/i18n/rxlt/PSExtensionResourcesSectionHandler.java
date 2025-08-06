@@ -21,7 +21,6 @@ import com.percussion.i18n.tmxdom.PSTmxDocument;
 import com.percussion.util.PSFileFilter;
 import com.percussion.util.PSFilteredFileList;
 import com.percussion.utils.tools.PSPatternMatcher;
-import com.percussion.utils.*;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.File;

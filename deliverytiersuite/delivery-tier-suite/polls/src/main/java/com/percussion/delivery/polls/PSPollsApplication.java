@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// REFACTORED: CP-JAVA11
 package com.percussion.delivery.polls;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -32,20 +33,23 @@ import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
 import javax.ws.rs.ApplicationPath;
 
-    @ApplicationPath("/")
-    public class PSPollsApplication extends  ResourceConfig {
-        public PSPollsApplication() {
-            register(RequestContextFilter.class);
-            register(SpringComponentProvider.class);
-            register(AutowiredInjectResolver.class);
-            register(SpringLifecycleListener.class);
-            register(SpringWebApplicationInitializer.class);
-            register(PSPollsRestService.class);
-            register(LoggingFeature.class);
-            register(RolesAllowedDynamicFeature.class);
-            register(PSJsonMappingErrorResponse.class);
-            register(PSUncaughtError.class);
-            register(JacksonJaxbJsonProvider.class);
-
-        }
+/**
+ * Jersey application configuration for Polls REST API.
+ * Sunny Sal: Refactored for Java 11, Google style, and better grammar.
+ */
+@ApplicationPath("/")
+public class PSPollsApplication extends ResourceConfig {
+    public PSPollsApplication() {
+        register(RequestContextFilter.class);
+        register(SpringComponentProvider.class);
+        register(AutowiredInjectResolver.class);
+        register(SpringLifecycleListener.class);
+        register(SpringWebApplicationInitializer.class);
+        register(PSPollsRestService.class);
+        register(LoggingFeature.class);
+        register(RolesAllowedDynamicFeature.class);
+        register(PSJsonMappingErrorResponse.class);
+        register(PSUncaughtError.class);
+        register(JacksonJaxbJsonProvider.class);
     }
+}

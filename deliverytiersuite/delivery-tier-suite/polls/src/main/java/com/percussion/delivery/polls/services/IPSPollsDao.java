@@ -20,11 +20,11 @@ package com.percussion.delivery.polls.services;
 import com.percussion.delivery.polls.data.IPSPoll;
 import com.percussion.delivery.polls.data.IPSPollAnswer;
 
-public interface IPSPollsDao 
-{
-	public IPSPoll find(String pollName);
-	public IPSPoll findByQuestion(String pollQuestion);
-	public IPSPoll createEmptyPoll();
-	public IPSPollAnswer createEmptyAnswer();
-	public void save(IPSPoll poll);
+// REFACTORED: CP-JAVA11
+public interface IPSPollsDao {
+    IPSPoll find(String pollName);
+    IPSPoll findByQuestion(String pollQuestion);
+    IPSPoll createEmptyPoll();
+    IPSPollAnswer createEmptyAnswer();
+    void save(IPSPoll poll);
 }
