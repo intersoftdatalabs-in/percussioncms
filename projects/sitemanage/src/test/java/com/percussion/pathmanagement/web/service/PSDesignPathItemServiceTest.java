@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,7 +150,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes");
 //        Assert.assertNotNull("Path item list not null", pathItems);
-//        Assert.assertEquals("Path item list count", 1, pathItems.size());
+//        Assertions.assertEquals("Path item list count", 1, pathItems.size());
 //        
 //        // PSPathItem properties
 //        validatePathItems(pathItems.get(0),
@@ -192,7 +192,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes");
 //        Assert.assertNotNull("Path item list not null", pathItems);
-//        Assert.assertEquals("Path item list count", 2, pathItems.size());
+//        Assertions.assertEquals("Path item list count", 2, pathItems.size());
 //        
 //        // PSPathItem properties
 //        validatePathItems(pathItems.get(1),
@@ -216,7 +216,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes/percussionTest");
 //        Assert.assertNotNull("Path item list not null", pathItems);
-//        Assert.assertEquals("path items count", 7, pathItems.size());
+//        Assertions.assertEquals("path items count", 7, pathItems.size());
 //        
 //        validatePathItemOrder(pathItems, new String[] {
 //                "Ahe_folder",

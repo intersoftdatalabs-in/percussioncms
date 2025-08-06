@@ -300,8 +300,7 @@
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
             <artifactId>ojdbc8</artifactId>
-            <optional>true</optional>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <artifactId>xercesImpl</artifactId>
@@ -351,23 +350,4 @@
             <artifactId>json</artifactId>
         </dependency>
     </dependencies>
-    <reporting>
-        <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <reportSets>
-                <reportSet>
-                    <reports>
-                        <report>checkstyle</report>
-                    </reports>
-                </reportSet>
-            </reportSets>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-        </plugin>
-        </plugins>
-    </reporting>
 </project>

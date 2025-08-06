@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import java.io.UnsupportedEncodingException;
  * @author dougrand
  * 
  */
-public class PSReaderInputStreamTest extends TestCase
+import static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.fail;\nimport org.junit.jupiter.api.Test;\n\npublic class PSReaderInputStreamTest
 {
    /**
     * Create a string with all 2^16 code points. Move from a reader to a stream

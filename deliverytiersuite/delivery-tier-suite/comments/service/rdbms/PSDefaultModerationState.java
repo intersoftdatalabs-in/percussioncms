@@ -1,6 +1,6 @@
 // REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  * ...existing code...
  */
 package com.percussion.delivery.comments.service.rdbms;
@@ -64,7 +64,7 @@ public class PSDefaultModerationState implements IPSDefaultModerationState {
 }
 // REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  * ...existing code...
  */
 package com.percussion.delivery.comments.service.rdbms;

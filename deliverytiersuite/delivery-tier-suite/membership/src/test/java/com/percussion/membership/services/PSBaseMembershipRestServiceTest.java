@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.membership.services.impl.PSMembershipService;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -67,8 +67,8 @@ public  class PSBaseMembershipRestServiceTest extends JerseyTest
         Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(200,response.getStatus());
-        Assert.assertEquals(testGetVersion(), response.getEntity());
+        Assertions.assertEquals(200,response.getStatus());
+        Assertions.assertEquals(testGetVersion(), response.getEntity());
 	}
 
 

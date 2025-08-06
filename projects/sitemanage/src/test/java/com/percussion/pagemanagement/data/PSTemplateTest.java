@@ -1,6 +1,6 @@
 // REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  * ...existing license...
  */
 package com.percussion.pagemanagement.data;

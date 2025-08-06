@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.percussion.utils.container;
 
 import com.percussion.utils.container.adapters.JettyDatasourceConfigurationAdapter;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,7 +75,7 @@ public class ConfigurationContextTest {
 
         BaseContainerUtils containerUtils = ctx.getConfig();
 
-        Assert.assertEquals("jdbc/RhythmyxData",containerUtils.getDatasources().get(0).getName());
+        Assertions.assertEquals("jdbc/RhythmyxData",containerUtils.getDatasources().get(0).getName());
 
     }
 

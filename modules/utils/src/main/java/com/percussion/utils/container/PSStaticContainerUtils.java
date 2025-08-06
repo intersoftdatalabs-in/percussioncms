@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 
 package com.percussion.utils.container;
 
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.io.PathUtils;
@@ -66,14 +65,10 @@ public class PSStaticContainerUtils
       if (StringUtils.equalsIgnoreCase(encrypted, "Y"))
       {
          try{
-            str = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),str);
+            String secureDir = PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
+            str = PSEncryptor.decryptString(secureDir, str);
          } catch (PSEncryptionException e) {
-            str = PSLegacyEncrypter.getInstance(
-                    PathUtils.getRxPath().toAbsolutePath().toString().concat(
-                    PSEncryptor.SECURE_DIR)
-            ).decrypt(str, PSLegacyEncrypter.getInstance(
-                    PathUtils.getRxPath().toAbsolutePath().toString().concat(
-                    PSEncryptor.SECURE_DIR)).getPartOneKey(),null);
+            str = com.percussion.legacy.security.deprecated.PSLegacyEncrypter.getInstance().decrypt(str);
          }
 
       }

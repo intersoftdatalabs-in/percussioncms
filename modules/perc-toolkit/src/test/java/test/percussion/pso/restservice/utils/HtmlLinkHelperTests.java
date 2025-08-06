@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class HtmlLinkHelperTests {
 	public void testConvertToAbsoluteLink1() throws URISyntaxException, MalformedURLException {
 	
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+		Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
 		
 	}
 
@@ -46,7 +46,7 @@ public class HtmlLinkHelperTests {
 	public void testDotRelative() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "./image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+		Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
 		
 		
 	}
@@ -55,7 +55,7 @@ public class HtmlLinkHelperTests {
 	public void testRootAbsoluteFile() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "/image1.jpg");
-		Assert.assertEquals("http://www.somedomain.com/image1.jpg", test);
+		Assertions.assertEquals("http://www.somedomain.com/image1.jpg", test);
 		
 		
 	}
@@ -65,7 +65,7 @@ public class HtmlLinkHelperTests {
 	public void testRelativeDir() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images");
-		Assert.assertEquals("http://www.somedomain.com/images", test);
+		Assertions.assertEquals("http://www.somedomain.com/images", test);
 		
 		
 	}
@@ -74,7 +74,7 @@ public class HtmlLinkHelperTests {
 	public void testRelativeDirTrailingSlash() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/");
-		Assert.assertEquals("http://www.somedomain.com/images/", test);
+		Assertions.assertEquals("http://www.somedomain.com/images/", test);
 		
 		
 	}
@@ -83,7 +83,7 @@ public class HtmlLinkHelperTests {
 	public void testRelativeDirTrailingSlashFile() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.docx");
-		Assert.assertEquals("http://www.somedomain.com/images/file1.docx", test);
+		Assertions.assertEquals("http://www.somedomain.com/images/file1.docx", test);
 		
 		
 	}
@@ -93,7 +93,7 @@ public class HtmlLinkHelperTests {
 	public void testRelativeDirTrailingSlashFileBookmark() throws MalformedURLException, URISyntaxException{
 		
 		String test = HtmlLinkHelper.convertToAbsoluteLink("http://www.somedomain.com/", "images/file1.html#234.78");
-		Assert.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
+		Assertions.assertEquals("http://www.somedomain.com/images/file1.html#234.78", test);
 		
 		
 	}
@@ -103,7 +103,7 @@ public class HtmlLinkHelperTests {
 
 		String test = HtmlLinkHelper.getBaseLink("http://www.somewhere.gov/news/about.html?month=03&year=2011");
 		
-		Assert.assertEquals("http://www.somewhere.gov/", test);
+		Assertions.assertEquals("http://www.somewhere.gov/", test);
 	}
 	
 	
@@ -111,7 +111,7 @@ public class HtmlLinkHelperTests {
 	public void testBaseWithPort() throws MalformedURLException, URISyntaxException{
 		String test = HtmlLinkHelper.getBaseLink("http://www.somewhere.gov:8793/news/about.html?month=03&year=2011");
 		
-		Assert.assertEquals("http://www.somewhere.gov:8793/", test);
+		Assertions.assertEquals("http://www.somewhere.gov:8793/", test);
 	}
 	
 	@Test
@@ -130,7 +130,7 @@ public class HtmlLinkHelperTests {
 
 		String n = HtmlLinkHelper.convertLinksToAbsolute("https://www.percussion.com/randomcar.html",builder.toString());
 		
-		Assert.assertEquals(builder.toString(), n);
+		Assertions.assertEquals(builder.toString(), n);
 		
 	}
 }

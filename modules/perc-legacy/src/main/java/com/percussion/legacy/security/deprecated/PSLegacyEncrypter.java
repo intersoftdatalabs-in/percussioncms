@@ -36,6 +36,16 @@ public class PSLegacyEncrypter {
    }
    
    /**
+    * Private no-arg constructor for singleton access via {@link #getInstance()}.
+    * Initializes internal AES helper via factory to satisfy final field requirements.
+    */
+   private PSLegacyEncrypter() {
+      // Use legacy-compatible 16-byte key material (empty string bytes) to preserve behavior
+      // consistent with historical usage where blank keys were tolerated.
+      this.aes = new PSAesCBC(new byte[16]);
+   }
+   
+   /**
     * Encrypts the given plain text and returns Base64-encoded ciphertext.
     * Legacy string-based API retained for backward compatibility.
     */
@@ -89,5 +99,21 @@ public class PSLegacyEncrypter {
     */
    public byte[] decrypt(byte[] cipher) throws Exception {
       return aes.decrypt(cipher, "");
+   }
+   
+   /**
+    * Returns the singleton instance of PSLegacyEncrypter.
+    * Thread-safe lazy initialization using the initialization-on-demand holder idiom.
+    * This preserves backward compatibility while providing a stable accessor for callers.
+    */
+   public static PSLegacyEncrypter getInstance() {
+      return Holder.INSTANCE;
+   }
+   
+   /**
+    * Holder class for lazy-loaded singleton instance.
+    */
+   private static final class Holder {
+      private static final PSLegacyEncrypter INSTANCE = new PSLegacyEncrypter();
    }
 }

@@ -97,6 +97,14 @@ Example outcome:
 ## JUnit Platform Launcher Stability Pin
 Last performed: 2025-08-05
 
+Update tests such as java.imports() to JUnit 5:
+- org.junit.Test -> org.junit.jupiter.api.Test
+- @Before/@After -> @BeforeEach/@AfterEach
+- @Ignore -> @Disabled
+- org.junit.Assert.* -> org.junit.jupiter.api.Assertions.*
+- Replace TemporaryFolder Rule with @TempDir (java.nio.file.Path)
+- Remove Categories/FixMethodOrder usages or convert to @Tag when present
+
 Files to modify:
 - Root pom.xml dependencyManagement (preferred), or affected module pom.xml (temporary)
 

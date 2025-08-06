@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
 
@@ -80,8 +80,8 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
 
 
          Assert.assertNotNull(response);
-         Assert.assertEquals(200,response.getStatus());
-         Assert.assertEquals(testGetVersion(), response.getEntity());
+         Assertions.assertEquals(200,response.getStatus());
+         Assertions.assertEquals(testGetVersion(), response.getEntity());
  	}
 
 

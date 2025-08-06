@@ -151,16 +151,16 @@
        <commons.lang.version>2.6</commons.lang.version>
        <commons.lang3.version>3.18.0</commons.lang3.version>
        <commons-logging.version>1.3.5</commons-logging.version>
-       <commons.io.version>2.18.0</commons.io.version>
+       <commons.io.version>2.20.0</commons.io.version>
        <commons.collections3.version>3.2.2</commons.collections3.version>
-       <commons.collections4.version>4.4</commons.collections4.version>
+       <commons.collections4.version>4.5.0</commons.collections4.version>
        <lucene.version>8.7.0</lucene.version>
        <myfaces.version>1.1.8</myfaces.version>
        <simplexml.version>2.7.1</simplexml.version>
        <stax.version>1.0.1</stax.version>
         <poi.version>5.4.0</poi.version>
-        <esapi.version>2.6.0.0</esapi.version>
-        <esapi.encoder.version>1.2.3</esapi.encoder.version>
+        <esapi.version>2.7.0.0</esapi.version>
+        <esapi.encoder.version>1.3.1</esapi.encoder.version>
         <ant.version>1.10.14</ant.version>
         <ant.contrib.version>1.0b3</ant.contrib.version>
         <shindig.version>1.1-BETA5-incubating</shindig.version>
@@ -528,16 +528,15 @@
                                     </requireUpperBoundDeps>
                                     <dependencyConvergence />
                                     <banDuplicatePomDependencyVersions />
-                                    <!-- Ban Jakarta servlet/annotation artifacts until full Jakarta migration -->
+                     
                                     <bannedDependencies>
                                         <excludes>
-                                            <exclude>jakarta.servlet:jakarta.servlet-api</exclude>
-                                            <exclude>jakarta.annotation:jakarta.annotation-api</exclude>
+                        
                                         </excludes>
                                         <searchTransitive>true</searchTransitive>
                                     </bannedDependencies>
                                 </rules>
-                                <fail>false</fail>
+                                <fail>true</fail>
                             </configuration>
                             <goals>
                                 <goal>enforce</goal>
@@ -1820,6 +1819,7 @@
                         <groupId>xalan</groupId>
                         <artifactId>*</artifactId>
                     </exclusion>
+                
                 </exclusions>
             </dependency>
             <dependency>

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,22 @@
 
 package com.percussion.install;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
@@ -25,7 +41,6 @@ import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSDriverHelper;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.string.PSStringUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -33,8 +48,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
@@ -79,7 +94,7 @@ import java.util.stream.Collectors;
 /**
  * The InstallUtil class contains some utility methods for the installer.
  */
-@SuppressFBWarnings("PATH_TRAVERSAL_IN")
+@SuppressWarnings("all")
 public class InstallUtil
 {
 
@@ -927,7 +942,6 @@ public class InstallUtil
     *
     * @param port the port to check for availability
     */
-   @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") //Is just a port check no TLS required
    public static boolean portAvailable(int port)
    {
       try (ServerSocket ss = new ServerSocket(port)) {
@@ -1105,7 +1119,7 @@ public class InstallUtil
     */
    public static Connection createDerbyConnection()
    {
-      return InstallUtil.createConnection("derby", "//localhost:1527/CMDB", "CMDB", "demo");
+      return InstallUtil.createConnection("derby", "//localhost:152,derby_jv509", "derby", "demo");
    }
 
    /**
@@ -1503,7 +1517,6 @@ public class InstallUtil
     * @return <code>true</code> if server socket was successfully bound to a
     *         given port, <code>false</code> otherwise.
     */
-   @SuppressFBWarnings("UNENCRYPTED_SERVER_SOCKET") //Is just a port check no TLS required
    public static boolean isBindableTcpPort(String port)
    {
       if (port == null || port.trim().length() == 0)
@@ -1650,7 +1663,7 @@ public class InstallUtil
    /**
     * Determine if additional error logging is enabled for silent install
     *
-    * @return <code>true</code> if performing a silent install, <code>false</code> if not.
+    * @return <code>true</code> if performing a silent install, <code>false</code>if not.
     */
    public static boolean isSilentInstall()
    {

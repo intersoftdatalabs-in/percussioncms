@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 
 package com.percussion.utils.jexl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class JexlScriptFixesTest {
 
@@ -27,30 +27,30 @@ public class JexlScriptFixesTest {
 
         String testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg";
         String result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
-        Assert.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
+        Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg", result);
         System.out.println(testScript +" ----> "+result);
 
         testScript = "if ( !$test )";
         result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
         System.out.println(testScript +" ----> "+result);
-        Assert.assertEquals("if ( ! $test )", result);
+        Assertions.assertEquals("if ( ! $test )", result);
 
 
         testScript = "if ( $ref1=$ref2 )";
         result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
         System.out.println(testScript +" ----> "+result);
-        Assert.assertEquals("if ( $ref1 = $ref2 )", result);
+        Assertions.assertEquals("if ( $ref1 = $ref2 )", result);
 
 
         testScript = "$params=$rx.string.stringToMap(null);";
         result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
         System.out.println(testScript +" ----> "+result);
-        Assert.assertEquals("$params = $rx.string.stringToMap(null);", result);
+        Assertions.assertEquals("$params = $rx.string.stringToMap(null);", result);
 
 
         testScript = "sdfgsdfg foreach($item in list ) sdfgsdfg sdfgsdfg foreach($item in list ) sdfgsdfg";
         result = JexlScriptFixes.fixScript(testScript,"Unit Test", "fixScript");
         System.out.println(testScript +" ----> "+result);
-        Assert.assertEquals("sdfgsdfg for($item : list) sdfgsdfg sdfgsdfg for($item : list) sdfgsdfg", result);
+        Assertions.assertEquals("sdfgsdfg for($item : list) sdfgsdfg sdfgsdfg for($item : list) sdfgsdfg", result);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 package com.percussion.utils.container;
 
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
+import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.container.adapters.JBossConnectorConfigurationAdapter;
 import com.percussion.utils.container.adapters.JBossDatasourceConfigurationAdapter;
@@ -57,12 +57,15 @@ public class PSContainerUtilsFactory {
     }
 
     public static DefaultConfigurationContextImpl getConfigurationContextInstance(Path path) {
-        DefaultConfigurationContextImpl value = factoryInstances.computeIfAbsent(path.normalize().toAbsolutePath().toString(), k-> addNew(k, PSLegacyEncrypter.getInstance(PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)).getPartOneKey()));
+        DefaultConfigurationContextImpl value = factoryInstances.computeIfAbsent(
+                path.normalize().toAbsolutePath().toString(),
+                k -> addNew(k /* no legacy key required */)
+        );
         return value;
     }
 
     public static DefaultConfigurationContextImpl getConfigurationContextInstance() {
-        return getConfigurationContextInstance(PathUtils.getRxDir(null).toPath());
+        return getConfigurationContextInstance(PathUtils.getRxDir().toPath());
     }
 
     public static BaseContainerUtils getInstance() {
@@ -94,9 +97,14 @@ public class PSContainerUtilsFactory {
     }
 
 
-    private static DefaultConfigurationContextImpl addNew(String path, String key) {
+    private static DefaultConfigurationContextImpl addNew(String path) {
         ms_log.info("Creating new Configuration context for path "+path);
-        DefaultConfigurationContextImpl newContext = new DefaultConfigurationContextImpl(Paths.get(path), key, BaseContainerUtils::new);
+        // Use empty encryption key by default; adapters may override/configure as needed
+        DefaultConfigurationContextImpl newContext = new DefaultConfigurationContextImpl(
+                Paths.get(path),
+                "",
+                BaseContainerUtils::new
+        );
         getAdapterList().forEach(newContext::addConfigurationAdapter);
         newContext.load();
         return newContext;

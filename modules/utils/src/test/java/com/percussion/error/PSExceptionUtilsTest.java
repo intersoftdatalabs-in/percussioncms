@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.percussion.error;
 
 import com.percussion.utils.tools.IPSUtilsConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PSExceptionUtilsTest {
 
     private static final Logger log = LogManager.getLogger(IPSUtilsConstants.UNIT_TEST_LOG);
 
-    public class PSInnerClass{
+    public class PSInnerClass {
 
         public void throwinnerexception() throws Exception {
             throw new Exception("Inner Test Root Cause");

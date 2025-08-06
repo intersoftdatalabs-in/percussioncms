@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,17 +67,17 @@ public class PSTestCompare
          Assert.fail("One url is null and the other isn't");
       }
       
-      Assert.assertEquals(a.getProtocol(), b.getProtocol());
-      Assert.assertEquals(a.getHost(), b.getHost());
-      Assert.assertEquals(a.getPort(), b.getPort());
-      Assert.assertEquals(a.getPath(), b.getPath());
-      Assert.assertEquals(a.getAuthority(), b.getAuthority());
-      Assert.assertEquals(a.getUserInfo(), b.getUserInfo());
+      Assertions.assertEquals(a.getProtocol(), b.getProtocol());
+      Assertions.assertEquals(a.getHost(), b.getHost());
+      Assertions.assertEquals(a.getPort(), b.getPort());
+      Assertions.assertEquals(a.getPath(), b.getPath());
+      Assertions.assertEquals(a.getAuthority(), b.getAuthority());
+      Assertions.assertEquals(a.getUserInfo(), b.getUserInfo());
       
       // Now, parse each query if it exists
       Map qm1 = processQuery(a.getQuery());
       Map qm2 = processQuery(b.getQuery());
-      Assert.assertEquals(qm1,qm2);
+      Assertions.assertEquals(qm1,qm2);
    }
 
    /**
@@ -108,11 +108,11 @@ public class PSTestCompare
     */
    public static void assertEqualsWithHash(Object o1, Object o2)
    {
-      Assert.assertEquals(o1, o1);
-      Assert.assertEquals(o2, o2);
-      Assert.assertEquals(o1, o2);
-      Assert.assertEquals(o2, o1);
-      Assert.assertEquals(o1.hashCode(), o2.hashCode());
+      Assertions.assertEquals(o1, o1);
+      Assertions.assertEquals(o2, o2);
+      Assertions.assertEquals(o1, o2);
+      Assertions.assertEquals(o2, o1);
+      Assertions.assertEquals(o1.hashCode(), o2.hashCode());
    }
    
    /**
@@ -146,7 +146,7 @@ public class PSTestCompare
       act = PSStringUtils.compressWhitespace(act);
       exp = PSStringUtils.compressWhitespace(exp);
       
-      Assert.assertEquals(exp, act);
+      Assertions.assertEquals(exp, act);
    }
    
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import java.util.List;
 
 import com.opencsv.CSVReader;
 import org.junit.AfterClass;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.EventFactory;
 import com.ibm.cadf.auditlogger.AuditLogger;
@@ -112,23 +112,23 @@ public class CSVAuditLoggerTest
             // header row
             String[] headerRecord = iterator.next();
 
-            Assert.assertEquals("Id", headerRecord[0]);
-            Assert.assertEquals("Timestamp", headerRecord[1]);
-            Assert.assertEquals("Action", headerRecord[2]);
-            Assert.assertEquals("Observer", headerRecord[3]);
-            Assert.assertEquals("Initiator", headerRecord[4]);
-            Assert.assertEquals("Target", headerRecord[5]);
-            Assert.assertEquals("Outcome", headerRecord[6]);
-            Assert.assertEquals("<Measurements>", headerRecord[7]);
+            Assertions.assertEquals("Id", headerRecord[0]);
+            Assertions.assertEquals("Timestamp", headerRecord[1]);
+            Assertions.assertEquals("Action", headerRecord[2]);
+            Assertions.assertEquals("Observer", headerRecord[3]);
+            Assertions.assertEquals("Initiator", headerRecord[4]);
+            Assertions.assertEquals("Target", headerRecord[5]);
+            Assertions.assertEquals("Outcome", headerRecord[6]);
+            Assertions.assertEquals("<Measurements>", headerRecord[7]);
 
             // audit row
             String[] auditRecord = iterator.next();
-            Assert.assertEquals("Send File", auditRecord[2]);
-            Assert.assertEquals("Management Component", auditRecord[3]);
-            Assert.assertEquals("AuditLoggerTest", auditRecord[4]);
-            Assert.assertEquals("Configuration Component", auditRecord[5]);
-            Assert.assertEquals("successful", auditRecord[6]);
-            Assert.assertEquals("<" + metric1.getMetricId() + " - " + metric1.getName() + " "
+            Assertions.assertEquals("Send File", auditRecord[2]);
+            Assertions.assertEquals("Management Component", auditRecord[3]);
+            Assertions.assertEquals("AuditLoggerTest", auditRecord[4]);
+            Assertions.assertEquals("Configuration Component", auditRecord[5]);
+            Assertions.assertEquals("successful", auditRecord[6]);
+            Assertions.assertEquals("<" + metric1.getMetricId() + " - " + metric1.getName() + " "
                     + measurement1.getResult() + " : "
                     + metric1.getMetricId() + " - " + metric1.getName() + " "
                     + measurement2.getResult() + " : >", auditRecord[7]);

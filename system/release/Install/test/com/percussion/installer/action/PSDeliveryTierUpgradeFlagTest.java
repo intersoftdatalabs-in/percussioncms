@@ -1,7 +1,7 @@
 package com.percussion.installer.action;
 
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.SortedSet;
 
