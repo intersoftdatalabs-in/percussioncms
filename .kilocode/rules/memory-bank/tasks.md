@@ -12,7 +12,7 @@ Files to modify:
 
 Steps:
 1. Verify module compiles on Java 11 with javax.* compatibility.
-2. Ensure no jakarta.* artifacts are introduced; keep javax.* for Tomcat 9.
+2. Ensure no jakarta.* artifacts are introduced.
 3. Align test dependencies:
    - Prefer JUnit 5 Jupiter; keep Vintage if JUnit 4 tests remain.
    - Ensure org.jmock:jmock-junit4 or jmock-junit5 versions are explicit or inherited.

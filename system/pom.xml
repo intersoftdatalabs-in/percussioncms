@@ -342,6 +342,11 @@
     </build>
     <dependencies>
         <dependency>
+            <groupId>com.percussion</groupId>
+            <artifactId>perc-security-acl-shim</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>
             <scope>test</scope>

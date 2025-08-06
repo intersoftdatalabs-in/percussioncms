@@ -4,7 +4,7 @@ Concise reference for technologies, development setup, constraints, dependencies
 
 ## Technologies Used
 - Language and Runtime
-  - Java 11 target; javax.* APIs retained for Tomcat 9 compatibility
+  - Java 11 target.
 - Build System
   - Maven multi-module reactor with centralized dependencyManagement and pluginManagement in parent pom.xml
 - Frameworks and Libraries
@@ -14,7 +14,7 @@ Concise reference for technologies, development setup, constraints, dependencies
   - Apache Commons stack, SLF4J + Log4j
   - JUnit 5 testing with Vintage for JUnit 4 compatibility; JMock in legacy tests
 - Packaging and Deployment
-  - Tomcat 9 target; servlet APIs provided-scope in webapps
+  - DTS tomcat target; servlet APIs provided-scope in webapps
 
 ## Development Setup
 - JDK: 11
@@ -26,7 +26,6 @@ Concise reference for technologies, development setup, constraints, dependencies
   - mvn -U -DskipTests -rf :artifactId validate  (resume from failure)
 
 ## Technical Constraints
-- Preserve javax.* APIs; defer jakarta.* migration
 - Externalize JAXB and Activation for Java 11
 - Axis versions must be resolvable from Maven Central (1.4); avoid 1.4.1/1.4.2
 - Minimize legacy transitive drag via selective exclusions (e.g., commons-discovery Axis transitives)
@@ -67,13 +66,13 @@ Concise reference for technologies, development setup, constraints, dependencies
 ## CI/CD Guidelines
 - Build with JDK 11; run unit tests by default
 - Gate proprietary dependencies (smartgwt, tinymce, caja, perc-jetty-jars) with profile or documentation on credentialed repos
-- Delivery-tier artifacts packaged for Tomcat 9; no servlet API bundling
-- Future: enable full CI for all non-proprietary modules; smoke deploy to Tomcat 9 with basic regression suite
+- Delivery-tier artifacts packaged for DTS tomcat; no servlet API bundling
+- Future: enable full CI for all non-proprietary modules; smoke deploy to DTS tomcat with basic regression suite
 
 ## Security
 - OWASP-aligned practices; ESAPI and AntiSamy managed centrally
 - Keep dependencies current and consistent; resolve UBD warnings promptly
-- Avoid introducing jakarta.* until an explicit migration plan is approved
+- Add  jakarta.* alternatives for javax.* APIs as needed.
 
 # Source Code License Header and Copyright
 All source files must include the standard Percussion CMS license header at the top.
@@ -288,6 +287,14 @@ These instructions guide GitHub Copilot in generating Java 11 code for the Percu
 - Remove the JaCoco plugin.
 - Remove the Spotbugs plugin.
 - Remove the CycloneDX plugin.
+- Remove the PMD plugin.
+- Remove the Checkstyle plugin.
+- Remove the FindBugs plugin.
+- Remove the JDepend plugin.
+- Remove the JUnit 4 dependencies from the POM files.
+- Remove the JMock dependencies from the POM files.
+- Remove the JMock plugin from the POM files.
+- Remove the JMock annotations from the test classes.
 - All modules should use the same version of the Maven Compiler Plugin.
 - Ensure all modules use the same version of the Maven Surefire Plugin.
 - Ensure all modules use the same version of the Maven Enforcer Plugin.

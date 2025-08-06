@@ -3,7 +3,7 @@
 This document captures the current work focus, recent changes, and next steps for the Percussion CMS modernization effort.
 
 ## Current Work Focus
-- Java 11 migration of the multi-module Maven monorepo while preserving javax.* APIs for Tomcat 9 compatibility.
+- Java 11 migration of the multi-module Maven monorepo.
 - Centralizing dependencyManagement and pluginManagement in the parent POM to ensure consistent versions.
 - Test stack alignment: support JUnit 5 with Vintage where legacy JUnit 4 tests remain.
 - Stabilizing dependency resolution (e.g., Axis 1.4, CXF 3.5.11, JAXB/Activation externalized) and cleaning duplicate/legacy declarations.
@@ -41,9 +41,10 @@ This document captures the current work focus, recent changes, and next steps fo
 6. Plan handling for proprietary dependencies:
    - Document expected repositories or local artifact installation instructions.
    - Gate CI to skip modules requiring proprietary bits until credentials/artifacts are available.
-7. Run full build on JDK 11 and smoke deploy to Tomcat 9; then enable CI on JDK 11.
+7. Run full build on JDK 11 and smoke deploy to DTS tomcat; then enable CI on JDK 11.
 
 ## Notes
-- Maintain backward compatibility for customers while modernizing. Avoid jakarta servlet/annotation artifacts; stick to javax.* for Tomcat 9 targets.
+- Maintain backward compatibility for customers while modernizing. Avoid jakarta servlet/annotation artifacts.
 - Keep JAXB and Activation external on Java 11 (api and runtime versions managed centrally).
 - Use -U and dependency:tree to diagnose resolution issues; adjust parent management and module exclusions accordingly.
+- DTS = Delivery Tier Suite, the target deployment environment for the delivery-tier-suite modules.  This is deployed seperate from the CMS. Typically on the web server.

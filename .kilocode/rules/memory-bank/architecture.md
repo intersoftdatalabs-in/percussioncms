@@ -7,7 +7,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Parent Maven project orchestrates a multi-module monorepo with centralized dependencyManagement and pluginManagement.
 - Core libraries provide shared utilities leveraged by higher-level modules and extensions.
 - System layer aggregates core and foundational libraries used across legacy and modern modules.
-- Delivery-tier suite provides API endpoints and webapps for content delivery, packaged for Tomcat 9 deployments.
+- Delivery-tier suite provides API endpoints and webapps for content delivery, packaged for DTS tomcat deployments.
 - Extensions integrate optional functionality such as workflow and linkback.
 - Webservices preserves SOAP-based integration points for legacy compatibility.
 
@@ -30,7 +30,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
   - modules/webservices: Axis 1.x and SOAP endpoints, axistools/wsdl2java integrations.
 - Delivery Tier Suite
   - deliverytiersuite/delivery-tier-suite: Aggregator and submodules for delivery webapps.
-  - delivery tiers: comments, feeds, forms, common, distribution packaging for Tomcat 9 layout.
+  - delivery tiers: comments, feeds, forms, common, distribution packaging for DTS tomcat layout.
 - Extensions
   - modules/extensions-linkback, modules/extensions-workflow, modules/extensions-serverutils: Feature add-ons with test dependencies on JUnit and JMock.
 - UI and web resources
@@ -47,13 +47,13 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Webservices
   - Depends on Axis; properties for axis versions must align to resolvable artifacts.
 - Delivery-tier
-  - JAX-RS/CXF-based services pinned to CXF 3.5.11; packaged into Tomcat 9-friendly layouts.
+  - JAX-RS/CXF-based services pinned to CXF 3.5.11; packaged into DTS tomcat-friendly layouts.
 - Extensions
   - Depend on system/core; tests require JUnit 5 with Vintage for JUnit 4 remnants.
 
 ## Key Technical Decisions
 
-- Java 11 target while preserving javax.* APIs for Tomcat 9; avoid jakarta.* migrations at this time.
+- Java 11 target.
 - Externalize JAXB and Activation for Java 11 using jakarta.xml.bind-api replacement with javax compat via vendor BOMs or explicit artifacts; runtime and API versions managed in parent.
 - Pin Apache CXF to 3.5.11 across delivery-tier modules to ensure consistent JAX-RS behavior.
 - Migrate Oracle JDBC from ojdbc6 to com.oracle.database.jdbc:ojdbc8; manage version centrally.
@@ -65,7 +65,9 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 
 - Parent-driven dependency and plugin management to ensure consistency.
 - Module layering: core utilities -> system/shared -> delivery/extensions.
-- Backward-compatible API preservation strategy: javax servlet and related APIs retained.
+- Backward-compatible API preservation strategy: public api signatures should not change, but internal implementations may evolve.
+- New apis should be added in a way that does not break existing consumers.
+- SOAP apis will be removed and must be replaced with RESTful alternatives.
 - Defensive exclusions: targeted exclusions (e.g., commons-discovery to reduce Axis transitives) to minimize legacy drag.
 
 ## Critical Implementation Paths
@@ -78,7 +80,7 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 - Webservices Axis alignment
   - axis.version and axiscore.version set to 1.4, plugins aligned, ensure wsdl2java plugin versions are resolvable.
 - Delivery-tier packaging
-  - Ensure servlet APIs are provided scope; packaging compatible with Tomcat 9; avoid bundling servlet APIs.
+  - Ensure servlet APIs are provided scope; packaging compatible with DTS tomcat; avoid bundling servlet APIs.
 - Upper bound dependency resolution
   - commons-io, commons-collections4, xmlgraphics-commons, commons-logging, slf4j-api pinned in parent; prefer stable releases.
 
@@ -94,5 +96,5 @@ High-level view of Percussion CMS modules, their relationships, and key technica
 ## CI/CD and Deploy Targets
 
 - Build on JDK 11; run unit tests with JUnit 5 plus Vintage where necessary.
-- Package delivery-tier webapps for Tomcat 9 deployment.
+- Package delivery-tier webapps for DTS tomcat deployment.
 - Future: Enable full CI across modules except proprietary; smoke deploy and regression test.

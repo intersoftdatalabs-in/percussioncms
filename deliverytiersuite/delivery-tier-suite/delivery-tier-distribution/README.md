@@ -6,7 +6,7 @@ This module contains all the configuration files for DTS. For e.g.
 * DB configurations
 * Spring Security Configurations
 * Email Configurations
-* Tomcat configurations
+* DTS tomcat configurations
 etc...
 
 ## Java 11 Refactoring Status

@@ -18,7 +18,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 
 ## 2) Key Risks
 
-1. Mixed javax vs jakarta artifacts: Jakarta 5 (membership module) alongside javax stack => compile/runtime conflicts on Tomcat 9.
+1. Mixed javax vs jakarta artifacts: Jakarta 5 (membership module) alongside javax stack => compile/runtime conflicts on DTS tomcat.
 2. Axis/JAX-RPC: Requires JAXB/Activation at build and runtime; codegen plugins must run under JDK 11.
 3. REST stack inconsistency: Different CXF versions across parents complicate resolution.
 4. Servlet API and scopes: Some modules use old servlet-api artifacts and compile scope instead of provided.
@@ -37,7 +37,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Modules:
   - Update residual Java 8 flags in [`modules/perc-checkboxtree/pom.xml`](modules/perc-checkboxtree/pom.xml:32-34) to 11 or remove to inherit.
 
-### Stage 2 — Unify on javax.* stack (Tomcat 9+)
+### Stage 2 — Unify on javax.* stack (DTS tomcat 10+)
 - Replace Jakarta APIs with javax in the membership module:
   - [`deliverytiersuite/delivery-tier-suite/membership/pom.xml`](deliverytiersuite/delivery-tier-suite/membership/pom.xml:47,53): replace `jakarta.servlet-api` 5.0.0 with `javax.servlet:javax.servlet-api` 4.0.1 (scope provided) and `jakarta.annotation-api` with `javax.annotation:javax.annotation-api` 1.3.2.
 - Standardize Servlet API:
@@ -71,7 +71,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Standardize Surefire:
   - Parent pluginManagement: `maven-surefire-plugin 3.1.2` with `-Djava.awt.headless=true`, reasonable memory; many modules already 3.0.0–3.1.2.
 - Enforcer:
-  - Add rules to require Java 11 and to ban `jakarta.servlet*` and `jakarta.annotation*` until Tomcat 10 migration.
+  - Add rules to require Java 11 and to ban `jakarta.servlet*` and `jakarta.annotation*` until DTS tomcat 10 migration.
 
 ### Stage 7 — Build and runtime verification
 - Build smoke:
@@ -79,7 +79,6 @@ This plan completes and standardizes the repository migration to Java 11. It min
 - Tests:
   - `mvn test` (consider `-DforkCount=1C -Dmaven.test.failure.ignore=false`).
 - Runtime:
-  - Deploy WebUI and delivery-tier WARs to Tomcat 9.x (Servlet 4.0).
   - Smoke test REST endpoints (CXF/Jersey), UI login/navigation, any SOAP endpoints.
   - Watch for javax/jakarta linkage errors, JAXB missing classes, or CXF/Jersey provider conflicts.
 
@@ -91,10 +90,10 @@ This plan completes and standardizes the repository migration to Java 11. It min
 
 ### Stage 9 — Documentation and guardrails
 - Update contributor/developer docs to require JDK 11.
-- State container target: Tomcat 9.x (Servlet 4).
+- State container target: DTS tomcat 10.x (Servlet 5).
 - Open issues:
   - Refactor away from Axis/JAX-RPC.
-  - Future Jakarta namespace migration and Tomcat 10+ support.
+  - Future Jakarta namespace migration and DTS tomcat 10+ support.
 
 ## 4) Concrete Change Checklist
 
@@ -134,7 +133,7 @@ This plan completes and standardizes the repository migration to Java 11. It min
 
 - Unit tests: run across reactor; fix module-specific surefire forks if failures due to memory/modulepath.
 - Integration smoke:
-  - Start Tomcat 9.x, deploy WARs, verify:
+  - Start DTS tomcat 10.x, deploy WARs, verify:
     - Servlet filters (e.g., etag filter in system)
     - REST endpoints under CXF/Jersey respond with expected payloads
     - JAXB serialization/deserialization where used
@@ -145,4 +144,4 @@ This plan completes and standardizes the repository migration to Java 11. It min
 
 - Axis deprecation: Migrate SOAP clients/services to JAX-WS or REST; eliminate Axis toolchain and JAXB runtime coupling.
 - Jakarta migration (optional next major):
-  - Move to Tomcat 10.1+, update all javax.* to jakarta.* namespaces, upgrade Jersey/CXF to Jakarta variants, re-test.
+  - Move to DTS tomcat 10.1+, update all javax.* to jakarta.* namespaces, upgrade Jersey/CXF to Jakarta variants, re-test.
