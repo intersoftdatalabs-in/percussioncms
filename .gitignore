@@ -10,6 +10,8 @@ memory-bank/*
 .idea/sonarlint/issuestore/index.pb
 
 derby.log
+null
+undefined
 
 # random output file
 **/test-output.jar

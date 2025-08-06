@@ -78,7 +78,9 @@ class AclImplTest {
         assertTrue(acl.isOwner(owner2));
 
         // Non-owner cannot remove owner
-        Executable removeByNonOwner = () -> acl.deleteOwner(owner2, owner1);
+        // Use a true non-owner principal to verify NotOwnerException
+        Principal notOwner = new SimplePrincipal("notOwner");
+        Executable removeByNonOwner = () -> acl.deleteOwner(notOwner, owner1);
         assertThrows(NotOwnerException.class, removeByNonOwner);
 
         // Owner can remove other owner (not last)
