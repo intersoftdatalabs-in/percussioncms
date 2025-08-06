@@ -44,7 +44,7 @@ import com.percussion.design.objectstore.PSUISet;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSServerErrors;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
 import com.percussion.util.PSSqlHelper;
 import org.w3c.dom.Document;

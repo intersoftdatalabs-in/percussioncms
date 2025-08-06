@@ -18,7 +18,7 @@ package com.percussion.services.publisher.ui;
 
 import com.percussion.server.PSServer;
 import com.percussion.services.utils.jsf.validators.PSBaseValidator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;

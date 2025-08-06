@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,12 +152,10 @@ public class PSActionProperties
     *
     * @return A valid property, or <code>null</code> if one can't be found.
     */
-   private PSActionProperty getPropertyObject(String name)
-   {
-      Iterator it = iterator();
-      while (it.hasNext())
-      {
-         PSActionProperty prop = (PSActionProperty) it.next();
+   private PSActionProperty getPropertyObject(String name) {
+      Iterator<PSActionProperty> it = iterator();
+      while (it.hasNext()) {
+         PSActionProperty prop = it.next();
          if (prop.getName().equalsIgnoreCase(name))
             return prop;
       }

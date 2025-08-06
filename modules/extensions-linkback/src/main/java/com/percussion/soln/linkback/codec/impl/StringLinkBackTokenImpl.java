@@ -19,7 +19,7 @@ package com.percussion.soln.linkback.codec.impl;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.soln.linkback.codec.LinkbackTokenCodec;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

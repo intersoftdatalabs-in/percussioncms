@@ -35,7 +35,7 @@ import org.xml.sax.SAXException;
 
 import com.percussion.soln.relationshipbuilder.IPSRelationshipBuilder;
 import com.percussion.soln.relationshipbuilder.exit.PSExtensionHelper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 public class PSExtensionHelperTest extends TestCase

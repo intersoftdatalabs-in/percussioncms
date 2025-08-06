@@ -20,6 +20,8 @@ package com.percussion.util;
 import com.percussion.HTTPClient.NVPair;
 import com.percussion.HTTPClient.PSBinaryFileData;
 import com.percussion.server.PSRequest;
+import com.percussion.system.utils.IPSRemoteRequesterEx;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.Test;

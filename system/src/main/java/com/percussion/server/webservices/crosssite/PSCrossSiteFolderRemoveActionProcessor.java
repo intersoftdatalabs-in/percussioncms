@@ -21,7 +21,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

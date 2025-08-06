@@ -19,7 +19,7 @@ package com.percussion.server.webservices;
 
 import com.percussion.error.PSException;
 import com.percussion.server.PSRequest;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBase64Encoder;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;

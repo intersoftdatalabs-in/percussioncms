@@ -19,7 +19,7 @@ package com.percussion.test;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.share.test.PSRestTestCase;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

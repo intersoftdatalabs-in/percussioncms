@@ -36,6 +36,7 @@ import java.sql.ResultSet;
  * for timeout, enable passive mode, and umask to the ftp and sftp delivery
  * handler configurations if specified in the publisher config table.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginPublisherBeans implements IPSUpgradePlugin
 {
    /**

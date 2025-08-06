@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.validation;
 
+// REFACTORED: CP-JAVA11
 // Imports
 
 
@@ -40,6 +41,7 @@ import com.percussion.util.PSPurgableTempFile;
  */
 public class PSOFileUploadValidation implements IPSFieldValidator
 {
+   // REFACTORED: CP-JAVA11
    // Constants
    private final String CLASSNAME = getClass().getName();
    private static final Logger log = LogManager.getLogger(PSOFileUploadValidation.class);
@@ -257,12 +259,12 @@ public class PSOFileUploadValidation implements IPSFieldValidator
          {
             PSPurgableTempFile tempFile = (PSPurgableTempFile)obj;
             long fileSize = tempFile.length();
-    		log.debug("File size is = " + fileSize);
-    		if ( fileSize > 0 ) 
-			{
-            	String mimeType = tempFile.getSourceContentType(); // <-- NULL POINTER
-            	if ( excludedMimeTypes.indexOf( mimeType ) >= 0 ) bFlag = false;
-			}
+         log.debug("File size is = " + fileSize);
+         if ( fileSize > 0 ) 
+         {
+               String mimeType = tempFile.getSourceContentType(); // <-- NULL POINTER
+               if ( excludedMimeTypes.indexOf( mimeType ) >= 0 ) bFlag = false;
+         }
             }
       }
 

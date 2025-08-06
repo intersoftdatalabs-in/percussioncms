@@ -34,7 +34,7 @@ import com.percussion.share.dao.PSFolderPathUtils;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;

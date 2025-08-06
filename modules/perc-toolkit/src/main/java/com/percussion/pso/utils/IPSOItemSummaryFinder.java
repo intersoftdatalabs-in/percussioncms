@@ -19,6 +19,7 @@ import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.utils.guid.IPSGuid;
+// REFACTORED: CP-JAVA11
 public interface IPSOItemSummaryFinder
 {
    public PSLocator getCurrentOrEditLocator(IPSGuid guid) throws PSException;

@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.imageedit.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -27,10 +27,11 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.data.MasterImageMetaData;
@@ -41,30 +42,26 @@ import com.percussion.pso.imageedit.web.ImageEditorWizard;
 import com.percussion.pso.imageedit.web.ImagePersistenceManager;
 import com.percussion.pso.imageedit.web.ImageResizeManager;
 
-public class ImageEditorWizardTest
-{
+@ExtendWith(MockitoExtension.class)
+public class ImageEditorWizardTest {
    private static final Logger log = LogManager.getLogger(ImageEditorWizardTest.class);
-   Mockery context; 
-   TestableImageEditorWizard cut; 
-   ImagePersistenceManager imagePersistenceManager; 
+   TestableImageEditorWizard cut;
+   @Mock
+   ImagePersistenceManager imagePersistenceManager;
+   @Mock
    ImageResizeManager imageResizeManager;
+   @Mock
    ImageSizeDefinitionManager imageSizeDefinitionManager;
+   @Mock
    ImageCacheManager imageCacheManager;
-   
-   @Before
-   public void setUp() throws Exception
-   {
-      context = new Mockery(); 
+
+   @BeforeEach
+   public void setUp() throws Exception {
       cut = new TestableImageEditorWizard();
-      imagePersistenceManager = context.mock(ImagePersistenceManager.class);
       cut.setImagePersistenceManager(imagePersistenceManager);
-      imageResizeManager = context.mock(ImageResizeManager.class);
       cut.setImageResizeMgr(imageResizeManager);
-      imageSizeDefinitionManager = context.mock(ImageSizeDefinitionManager.class);
-      cut.setImageSizeDefMgr(imageSizeDefinitionManager); 
-      imageCacheManager = context.mock(ImageCacheManager.class);
+      cut.setImageSizeDefMgr(imageSizeDefinitionManager);
       cut.setImageCacheManager(imageCacheManager);
-      
    }
    
    //@Test
@@ -157,18 +154,13 @@ public class ImageEditorWizardTest
          addSizedImage(simd); 
       }}; 
       
-      context.checking(new Expectations(){{
-        one(imageSizeDefinitionManager).getAllImageSizes();
-        will(returnValue(sdl));
-      }});
-      
+      when(imageSizeDefinitionManager.getAllImageSizes()).thenReturn(sdl);
       List<Map<String,String>> result = cut.buildAllSizesList(mimd);
       assertNotNull(result);
-      
       assertEquals("sd1",result.get(0).get("code"));
       assertTrue(result.get(0).containsKey("checked")); 
       assertFalse(result.get(1).containsKey("checked")); 
-      context.assertIsSatisfied();
+      verify(imageSizeDefinitionManager).getAllImageSizes();
       
    }
    

@@ -26,7 +26,7 @@ import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.pubserver.data.PSPubServer;
 import com.percussion.services.pubserver.data.PSPubServerProperty;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

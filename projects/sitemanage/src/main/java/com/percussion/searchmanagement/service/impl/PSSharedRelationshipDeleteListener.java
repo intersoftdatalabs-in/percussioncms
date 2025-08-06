@@ -30,7 +30,8 @@ import com.percussion.services.notification.IPSNotificationService;
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashSet;

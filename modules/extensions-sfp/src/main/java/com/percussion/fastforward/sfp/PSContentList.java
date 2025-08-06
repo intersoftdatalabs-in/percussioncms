@@ -18,8 +18,8 @@ package com.percussion.fastforward.sfp;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

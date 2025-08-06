@@ -17,6 +17,7 @@
 
 package com.percussion.pso.workflow;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSFolderProperty;
@@ -39,7 +40,7 @@ import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.security.data.PSCommunityVisibility;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.content.IPSContentWs;
@@ -110,10 +111,10 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction{
 		log.debug("Initializing parameters");
 		
 		 String v = exDef.getInitParameter(PARAM_BASE + ".overrideVisibility");
-	      if(v!=null && StringUtils.isNotBlank(v))
-	      {
-	         setOverrideVisibility(Boolean.parseBoolean(v)); 
-	      }
+		  if(v!=null && StringUtils.isNotBlank(v))
+		  {
+			 setOverrideVisibility(Boolean.parseBoolean(v)); 
+		  }
 		
 	}
 
@@ -121,9 +122,9 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction{
 			throws PSExtensionProcessingException {
 			
 		log.debug("Performing Community Switch..");
-	    
-	    String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
-	    int folderid=0;
+		
+		String contentid = request.getParameter(IPSHtmlParameters.SYS_CONTENTID);
+		int folderid=0;
 
 		try {
 			folderid = PSOItemFolderUtilities.getItemParentFolderId(Integer.parseInt(contentid));
@@ -134,96 +135,96 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction{
 		}
 
 		String user = request.getUserName();
-	    String session = request.getUserSessionId();
-	    String targetCommunity = getDefaultCommunityProperty(folderid);
-	    
-	    if(targetCommunity == null){
-	    	log.warn("No " + DEFAULT_COMMUNITY_NAME + " property configured for the folder: " +  folderid + " , skipping Community Switching action");
-	    	return; //Do nothing further as there is no community configured.
-	    }
-	    
-	    IPSCatalogSummary comm = findCommunityByName(targetCommunity);
-	    if(comm == null){
-	    	log.warn("Unable to load community {} , skipping Community Switching action", targetCommunity);
-	    	return; //Do nothing further as there is no community configured.
-	    }
-	    // Test to be sure that the Workflow and State are visible in the target commnity. 
-	    boolean proceed=false;
-	    if(!getOverrideVisibility()){
+		String session = request.getUserSessionId();
+		String targetCommunity = getDefaultCommunityProperty(folderid);
+		
+		if(targetCommunity == null){
+			log.warn("No " + DEFAULT_COMMUNITY_NAME + " property configured for the folder: " +  folderid + " , skipping Community Switching action");
+			return; //Do nothing further as there is no community configured.
+		}
+		
+		IPSCatalogSummary comm = findCommunityByName(targetCommunity);
+		if(comm == null){
+			log.warn("Unable to load community {} , skipping Community Switching action", targetCommunity);
+			return; //Do nothing further as there is no community configured.
+		}
+		// Test to be sure that the Workflow and State are visible in the target commnity. 
+		boolean proceed=false;
+		if(!getOverrideVisibility()){
 		   if(testCommunityVisibility(wfCtx, comm.getGUID(),user,session)){
 			   proceed=true;
 		   }
 		}else{
 			proceed=true;
 		}
-	    
-	    if(proceed){
-	    	log.info("Switching Community for " + contentid + " to " + comm.getGUID().getUUID());
+		
+		if(proceed){
+			log.info("Switching Community for " + contentid + " to " + comm.getGUID().getUUID());
 
-	    	//This block of code executes a direct SQL update to 
-	    	//update the community of the item. When the workflow action 
-	    	//has been fired, the Transition has already occured, so in the 
-	    	//case of an item in a Public state, editing the item with the API
-	    	//will cause a cascade as we have to transition the item again
-	    	//in order to edit it.  This should be changed if there is ever
-	    	//a clean API to just edit an item sans Workflow.  I hate doing it this way but 
-	    	//don't see another option. 
-	    	
-	    	try{
+			//This block of code executes a direct SQL update to 
+			//update the community of the item. When the workflow action 
+			//has been fired, the Transition has already occured, so in the 
+			//case of an item in a Public state, editing the item with the API
+			//will cause a cascade as we have to transition the item again
+			//in order to edit it.  This should be changed if there is ever
+			//a clean API to just edit an item sans Workflow.  I hate doing it this way but 
+			//don't see another option. 
+			
+			try{
 
-	    		setCommunitySQL(wfCtx.getContentID(),comm.getGUID().getUUID());
-	    		
-	    		log.info("Community for item " +  contentid + " changed to " + comm.getName());
+				setCommunitySQL(wfCtx.getContentID(),comm.getGUID().getUUID());
+				
+				log.info("Community for item " +  contentid + " changed to " + comm.getName());
 			}finally{}
-	    }
-	    
-	    		
+		}
+		
+				
 	}
 	
    private static void setCommunitySQL(int contentId, int communityid)
    {
-      Connection conn = null;
-      PreparedStatement stmt = null;
-      try {
-         log.debug("changing community for content id " + contentId); 
-         conn = PSDatabasePool.getDatabasePool().getConnection();
-         stmt = conn.prepareStatement(SQL_UPDATE);
-         stmt.setInt(1, communityid);
-         stmt.setInt(2, contentId);
-         int rows = stmt.executeUpdate();
-         log.debug("rows affected " + rows); 
-         if(rows != 1)
-         {
-            log.warn("Switching Community: unexpected row count " + rows); 
-         }
-      }
-      catch(Exception ex)
-      {
-         log.error("SQL Error " + ex.getMessage(), ex);
-      }
-      finally
-      { 
-         if(stmt != null)
-         {
-            try
-            {
-               stmt.close();
-            } catch (SQLException e)
-            {
-               log.error("error releasing statement " + e.getMessage(), e); 
-            } 
-         }
-         if(conn != null)
-         {
-            try
-            {
-            	PSDatabasePool.getDatabasePool().releaseConnection(conn);
-            } catch (SQLException e)
-            {
-               log.error("error releasing connection " + e.getMessage(), e); 
-            } 
-         }
-      }
+	  Connection conn = null;
+	  PreparedStatement stmt = null;
+	  try {
+		 log.debug("changing community for content id " + contentId); 
+		 conn = PSDatabasePool.getDatabasePool().getConnection();
+		 stmt = conn.prepareStatement(SQL_UPDATE);
+		 stmt.setInt(1, communityid);
+		 stmt.setInt(2, contentId);
+		 int rows = stmt.executeUpdate();
+		 log.debug("rows affected " + rows); 
+		 if(rows != 1)
+		 {
+			log.warn("Switching Community: unexpected row count " + rows); 
+		 }
+	  }
+	  catch(Exception ex)
+	  {
+		 log.error("SQL Error " + ex.getMessage(), ex);
+	  }
+	  finally
+	  { 
+		 if(stmt != null)
+		 {
+			try
+			{
+			   stmt.close();
+			} catch (SQLException e)
+			{
+			   log.error("error releasing statement " + e.getMessage(), e); 
+			} 
+		 }
+		 if(conn != null)
+		 {
+			try
+			{
+				PSDatabasePool.getDatabasePool().releaseConnection(conn);
+			} catch (SQLException e)
+			{
+			   log.error("error releasing connection " + e.getMessage(), e); 
+			} 
+		 }
+	  }
    }
    
 	   private static final String SQL_UPDATE = "UPDATE CONTENTSTATUS SET COMMUNITYID = ? where CONTENTID = ?";
@@ -288,7 +289,7 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction{
 	private static void initServices(){
 			 gmgr = PSGuidManagerLocator.getGuidMgr();
 			 m_cws = PSContentWsLocator.getContentWebservice();
-	         secSvc = PSSecurityWsLocator.getSecurityDesignWebservice();  	   
+			 secSvc = PSSecurityWsLocator.getSecurityDesignWebservice();  	   
 	}
 
 	
@@ -363,11 +364,11 @@ public class PSOSwitchCommunityWorkflowAction implements IPSWorkflowAction{
 			PSFolder folder = m_cws.loadFolders(folders).get(0);
 			
 			//Convert the folder properties into a map and return the result
-	         Iterator<PSFolderProperty> it = folder.getProperties();
-	         while (it.hasNext()) {
-	             PSFolderProperty prop = it.next();
-	             props.put(prop.getName(), prop.getValue());
-	         }
+			 Iterator<PSFolderProperty> it = folder.getProperties();
+			 while (it.hasNext()) {
+				 PSFolderProperty prop = it.next();
+				 props.put(prop.getName(), prop.getValue());
+			 }
 			} catch (PSErrorResultsException | PSCmsException | PSNotFoundException e) {
 				log.error("Error looking up path for folder: {} Error: {}" , id ,PSExceptionUtils.getMessageForLog(e));
 				log.debug(PSExceptionUtils.getDebugMessageForLog(e));

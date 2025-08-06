@@ -22,6 +22,7 @@
  */
 package com.percussion.pso.workflow;
 
+// REFACTORED: CP-JAVA11
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -55,11 +56,11 @@ public class PSOSetRevisionLock extends PSDefaultExtension
       implements
          IPSWorkflowAction
 {
-	
-	   /* System services */ 
-	   private static IPSWorkflowService work = null; 
-	   private static IPSGuidManager gmgr = null;
-	   private static IPSCmsContentSummaries summ = null; 
+   
+      /* System services */ 
+      private static IPSWorkflowService work = null; 
+      private static IPSGuidManager gmgr = null;
+      private static IPSCmsContentSummaries summ = null; 
    /**
     * Logger for this class
     */

@@ -28,7 +28,7 @@ import com.percussion.services.publisher.IPSTemplateExpander;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.data.PSContentListItem;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

@@ -30,7 +30,7 @@ import com.percussion.services.publisher.IPSPublisherServiceErrors;
 import com.percussion.services.publisher.IPSTemplateExpander;
 import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.data.PSContentListItem;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.io.File;

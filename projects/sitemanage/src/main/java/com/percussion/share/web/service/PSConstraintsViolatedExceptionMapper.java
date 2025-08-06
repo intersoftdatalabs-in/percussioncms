@@ -20,7 +20,8 @@ package com.percussion.share.web.service;
 
 import com.percussion.share.validation.PSValidationErrors;
 import com.percussion.share.validation.PSValidationErrors.PSFieldError;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import net.sf.oval.ConstraintViolation;
 import net.sf.oval.context.MethodParameterContext;
 import net.sf.oval.exception.ConstraintsViolatedException;

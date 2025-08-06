@@ -16,9 +16,9 @@
  */
 package com.percussion.test.data;
 
-import com.percussion.util.PSRemoteRequester;
-
 import java.util.Map;
+
+import com.percussion.system.utils.PSRemoteRequester;
 
 public class DeleteWorkflows
 {

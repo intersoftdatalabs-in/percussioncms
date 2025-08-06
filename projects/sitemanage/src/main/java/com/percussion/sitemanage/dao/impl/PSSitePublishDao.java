@@ -41,7 +41,7 @@ import com.percussion.sitemanage.service.IPSSiteDataService.PublishType;
 import com.percussion.sitemanage.service.IPSSiteSectionMetaDataService;
 import com.percussion.sitemanage.task.impl.PSSiteMapGeneratorTask;
 import com.percussion.sitemanage.task.impl.PSUpdateTablesEditionTask;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPathUtil;
         try {
 import com.percussion.utils.service.impl.PSSiteConfigUtils;

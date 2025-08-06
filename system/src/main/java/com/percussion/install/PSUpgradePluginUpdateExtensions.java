@@ -22,7 +22,8 @@ import com.percussion.extension.IPSExtensionManager;
 import com.percussion.extension.PSExtensionDef;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionRef;
-import com.percussion.util.PSExtensionInstallTool;
+import com.percussion.system.utils.PSExtensionInstallTool;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.w3c.dom.Element;
 
@@ -48,6 +49,7 @@ import java.util.Set;
  * These modifications are performed only on JAVA handlers that are not 
  * deprecated and 
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateExtensions implements IPSUpgradePlugin
 {
    /**

@@ -91,7 +91,7 @@ import com.percussion.share.validation.PSValidationErrorsBuilder;
 import com.percussion.user.data.PSAccessLevel;
 import com.percussion.user.data.PSAccessLevelRequest;
 import com.percussion.user.service.IPSUserService;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.exceptions.PSORMException;
 import com.percussion.utils.guid.IPSGuid;

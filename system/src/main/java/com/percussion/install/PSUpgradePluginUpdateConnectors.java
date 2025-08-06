@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
  * saving them.  This process will update the connector elements with any
  * default attributes which have been added in subsequent Rhythmyx versions.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateConnectors implements IPSUpgradePlugin
 {
    /**

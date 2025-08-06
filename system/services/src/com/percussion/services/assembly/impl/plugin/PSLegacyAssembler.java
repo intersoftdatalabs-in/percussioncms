@@ -28,7 +28,7 @@ import com.percussion.services.assembly.IPSAssemblyResult;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.services.filter.PSFilterException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
 

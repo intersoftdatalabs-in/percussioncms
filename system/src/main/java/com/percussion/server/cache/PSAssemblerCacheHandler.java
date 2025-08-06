@@ -41,7 +41,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCacheException;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;

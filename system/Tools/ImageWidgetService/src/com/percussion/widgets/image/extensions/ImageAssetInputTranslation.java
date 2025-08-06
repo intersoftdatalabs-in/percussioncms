@@ -16,6 +16,7 @@
  */
 
 package com.percussion.widgets.image.extensions;
+import com.percussion.data.PSConversionException;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtensionDef;
@@ -117,7 +118,7 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
             var processingContext = createProcessingContext(extensionParams, request);
 
             log.debug("Processing image asset input for image: {}, thumbnail: {}",
-                processingContext.imageName(), processingContext.thumbName());
+                processingContext.getImageName(), processingContext.getThumbName());
 
             processImageAssets(processingContext, request);
 
@@ -138,7 +139,7 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
      * @param request the request context
      * @return processing context record
      */
-    private ProcessingContext createProcessingContext(PSExtensionParams params, IPSRequestContext request) {
+    private ProcessingContext createProcessingContext(PSExtensionParams params, IPSRequestContext request) throws PSConversionException {
         var imageName = params.getStringParam(0, DEFAULT_IMAGE_PARAM, false);
         var thumbName = params.getStringParam(1, DEFAULT_THUMB_PARAM, false);
 
@@ -158,7 +159,7 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
      * @throws Exception if processing fails
      */
     private void processImageAssets(ProcessingContext context, IPSRequestContext request) throws Exception {
-        var thumbIdParam = context.thumbName() + ID_SUFFIX;
+        var thumbIdParam = context.getThumbName() + ID_SUFFIX;
 
         if (StringUtils.isBlank(request.getParameter(thumbIdParam))) {
             processNewImageUpload(context, request);
@@ -175,26 +176,26 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
      * @throws Exception if processing fails
      */
     private void processNewImageUpload(ProcessingContext context, IPSRequestContext request) throws Exception {
-        var imageFile = (PSPurgableTempFile) request.getParameterObject(context.imageName());
+        var imageFile = (PSPurgableTempFile) request.getParameterObject(context.getImageName());
 
         if (imageFile == null) {
-            log.debug("No file found for parameter: {}", context.imageName());
+            log.debug("No file found for parameter: {}", context.getImageName());
             return;
         }
 
         // Set source metadata if missing
         updateFileMetadata(imageFile, context, request);
 
-        var mimeType = request.getParameter(context.imageName() + TYPE_SUFFIX);
+        var mimeType = request.getParameter(context.getImageName() + TYPE_SUFFIX);
 
         // Generate and update both image and thumbnail
         var generatedImage = generateImage(imageFile, mimeType);
         var generatedThumbnail = generateThumbnail(imageFile);
 
-        updateRequest(request, context.imageName(), generatedImage);
-        updateRequest(request, context.thumbName(), generatedThumbnail);
+        updateRequest(request, context.getImageName(), generatedImage);
+        updateRequest(request, context.getThumbName(), generatedThumbnail);
 
-        log.debug("Successfully processed new image upload for: {}", context.imageName());
+        log.debug("Successfully processed new image upload for: {}", context.getImageName());
     }
 
     /**
@@ -205,8 +206,8 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
      * @throws Exception if processing fails
      */
     private void processExistingImages(ProcessingContext context, IPSRequestContext request) throws Exception {
-        processInputImage(request, context.imageName());
-        processInputImage(request, context.thumbName());
+        processInputImage(request, context.getImageName());
+        processInputImage(request, context.getThumbName());
     }
 
     /**
@@ -219,11 +220,11 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
     private void updateFileMetadata(PSPurgableTempFile imageFile, ProcessingContext context,
                                    IPSRequestContext request) {
         if (StringUtils.isEmpty(imageFile.getSourceFileName())) {
-            imageFile.setSourceFileName(context.imageFileName());
+            imageFile.setSourceFileName(context.getImageFileName());
         }
 
         if (StringUtils.isEmpty(imageFile.getSourceContentType())) {
-            var contentType = request.getParameter(context.imageName() + TYPE_SUFFIX);
+            var contentType = request.getParameter(context.getImageName() + TYPE_SUFFIX);
             imageFile.setSourceContentType(contentType);
         }
     }
@@ -448,22 +449,40 @@ public class ImageAssetInputTranslation extends PSDefaultExtension implements IP
      * @param file the processed file
      */
     protected void updateRequest(IPSRequestContext request, String parameterName, PSPurgableTempFile file) {
-        request.setParameterObject(parameterName, file);
+        request.setParameter(parameterName, file);
         log.debug("Updated request parameter: {} with processed file", parameterName);
     }
 
     /**
-     * Record representing the processing context for image asset operations.
-     *
-     * @param imageName the image parameter name
-     * @param thumbName the thumbnail parameter name
-     * @param imageFileName the image filename
-     * @param thumbFileName the thumbnail filename
+     * POJO representing the processing context for image asset operations.
      */
-    private record ProcessingContext(
-        String imageName,
-        String thumbName,
-        String imageFileName,
-        String thumbFileName
-    ) {}
+    private static class ProcessingContext {
+        private final String imageName;
+        private final String thumbName;
+        private final String imageFileName;
+        private final String thumbFileName;
+
+        public ProcessingContext(String imageName, String thumbName, String imageFileName, String thumbFileName) {
+            this.imageName = imageName;
+            this.thumbName = thumbName;
+            this.imageFileName = imageFileName;
+            this.thumbFileName = thumbFileName;
+        }
+
+        public String getImageName() {
+            return imageName;
+        }
+
+        public String getThumbName() {
+            return thumbName;
+        }
+
+        public String getImageFileName() {
+            return imageFileName;
+        }
+
+        public String getThumbFileName() {
+            return thumbFileName;
+        }
+    }
 }

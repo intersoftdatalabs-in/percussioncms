@@ -21,7 +21,7 @@ import com.percussion.data.PSConversionException;
 import com.percussion.data.PSDataConverter;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.PSCalculation;
+import com.percussion.system.utils.PSCalculation;
 
 import java.sql.Timestamp;
 import java.util.Calendar;

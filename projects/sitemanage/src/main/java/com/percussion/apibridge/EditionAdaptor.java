@@ -24,7 +24,7 @@ import com.percussion.rest.editions.PublishResponse;
 import com.percussion.rx.publisher.IPSPublisherJobStatus;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import org.springframework.beans.factory.annotation.Autowired;

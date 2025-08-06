@@ -31,7 +31,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IPSReflectionFilter;
 import com.percussion.utils.testing.IntegrationTest;

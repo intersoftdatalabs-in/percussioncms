@@ -23,7 +23,8 @@ import com.percussion.server.IPSStartupProcess;
 import com.percussion.server.IPSStartupProcessManager;
 import com.percussion.server.PSServer;
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

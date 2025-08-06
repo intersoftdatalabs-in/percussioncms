@@ -31,8 +31,8 @@ import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSSingleHtmlParameter;
 import com.percussion.design.objectstore.PSSystemValidationException;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.system.utils.PSUniqueObjectGenerator;
 import com.percussion.util.PSCollection;
-import com.percussion.util.PSUniqueObjectGenerator;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

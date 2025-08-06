@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.percussion.server.IPSServerErrors;
  * @version    1.0
  * @since      1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSErrorException extends PSException
 {
    /**
@@ -47,7 +48,7 @@ public class PSErrorException extends PSException
    public PSErrorException(PSLogError err)
    {
       super( IPSServerErrors.WRAPPED_LOG_ERROR, new Object[] {
-         getMessageText( err ), new Integer( getMessageCode( err ) ) } );
+         getMessageText( err ), Integer.valueOf( getMessageCode( err ) ) } );
       m_errorObject = err;
    }
    
@@ -63,7 +64,7 @@ public class PSErrorException extends PSException
    public PSErrorException(PSLogError err, Throwable cause)
    {
       super( IPSServerErrors.WRAPPED_LOG_ERROR, new Object[] {
-         getMessageText( err ), new Integer( getMessageCode( err ) ) }, cause);
+         getMessageText( err ), Integer.valueOf( getMessageCode( err ) ) }, cause);
       m_errorObject = err;
    }
 

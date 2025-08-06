@@ -22,7 +22,7 @@ import com.percussion.data.PSExecutionData;
 import com.percussion.error.PSException;
 import com.percussion.security.PSUserEntry;
 import com.percussion.server.PSRequest;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * Macro extractor to get the authtype dependent revision for the item of the

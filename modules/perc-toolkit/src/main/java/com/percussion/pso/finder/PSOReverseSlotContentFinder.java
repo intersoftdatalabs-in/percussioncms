@@ -36,7 +36,7 @@ import com.percussion.services.assembly.impl.finder.PSBaseSlotContentFinder;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
 

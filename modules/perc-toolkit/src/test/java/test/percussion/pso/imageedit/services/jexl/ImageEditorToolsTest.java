@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.imageedit.services.jexl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -28,8 +28,8 @@ import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.jexl.ImageEditorTools;
@@ -49,7 +49,7 @@ public class ImageEditorToolsTest
    Property propb; 
    Sequence nodeSeq; 
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       context = new Mockery(); 

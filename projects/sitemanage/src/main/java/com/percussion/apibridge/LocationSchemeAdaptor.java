@@ -23,7 +23,7 @@ import com.percussion.rest.locationscheme.ILocationSchemeAdaptor;
 import com.percussion.rest.locationscheme.LocationScheme;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 /**
  * Adaptor for LocationScheme management in Percussion CMS.

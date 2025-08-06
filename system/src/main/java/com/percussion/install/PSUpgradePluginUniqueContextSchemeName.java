@@ -39,6 +39,7 @@ import java.util.Set;
  *
  * @author YuBingChen
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginUniqueContextSchemeName implements IPSUpgradePlugin
 {
    /*

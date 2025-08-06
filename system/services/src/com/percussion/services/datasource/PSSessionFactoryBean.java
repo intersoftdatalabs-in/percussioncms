@@ -17,7 +17,7 @@
 package com.percussion.services.datasource;
 
 import com.percussion.services.utils.hibernate.PSHibernateInterceptor;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.jdbc.IPSConnectionInfo;
 import com.percussion.utils.jdbc.IPSDatasourceManager;
 import com.percussion.utils.jdbc.PSConnectionDetail;

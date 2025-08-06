@@ -1,5 +1,6 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
+// REFACTORED: CP-JAVA11
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +28,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class FoldersTest extends MainTest
 {
 
-	public void testFolder()
+        public void testFolder()
     {
     
         String responseMsg = target("folders/by-path/sitea/path1/pathsub/pathsub2").request().get(String.class);
@@ -118,7 +118,7 @@ public class FoldersTest extends MainTest
 
     public void testFolderWrongSite()
     {
-    	
+        
         String responseMsg = target("folders/by-path/sitea/path1/pathsub%20/pathsub2/pathsub3")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -133,7 +133,7 @@ public class FoldersTest extends MainTest
     
     public void testFolderNameNotFound()
     {
-    	
+        
         Response response = target("folders/by-path/sitea/path1/pathsub%20/pathsub2/testNotFound")
                 .request(MediaType.APPLICATION_JSON_TYPE).get(Response.class);
         RestError ex = response.readEntity(RestError.class);
@@ -143,7 +143,7 @@ public class FoldersTest extends MainTest
     
     public void testSiteNotFound()
     {
-    	
+        
         Response response = target("folders/by-path/testNotFound/path1/pathsub%20/pathsub2/pathsub3")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -155,7 +155,7 @@ public class FoldersTest extends MainTest
     
     public void testPathNotFound()
     {
-    	
+        
         Response response = target("folders/by-path/siteb/path1/pathsub%20/testNotFound/pathsub3")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -167,7 +167,7 @@ public class FoldersTest extends MainTest
     
     public void testDeleteFolder()
     {
-    	
+        
         Response response = target("folders/by-path/siteb/path1/pathsub%20/pathsub2/pathsub3")
                 .request(MediaType.APPLICATION_JSON_TYPE).delete(Response.class);
         Status status = response.readEntity(Status.class);
@@ -177,7 +177,7 @@ public class FoldersTest extends MainTest
     
     public void testDeleteFolderNotFound()
     {
-    	
+        
         Response response = target("folders/by-path/siteb/path1/pathsub%20/pathsub2/testNotFound")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)

@@ -32,7 +32,7 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSSecurityException;
 import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.services.security.data.PSCommunity;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;

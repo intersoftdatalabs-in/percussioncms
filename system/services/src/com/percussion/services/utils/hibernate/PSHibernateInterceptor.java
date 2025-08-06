@@ -265,11 +265,13 @@ public class PSHibernateInterceptor extends EmptyInterceptor {
         }
 
         // Handle known special cases first for performance
-        if (obj instanceof PSAccessLevelImpl accessLevel) {
+        if (obj instanceof PSAccessLevelImpl) {
+            PSAccessLevelImpl accessLevel = (PSAccessLevelImpl) obj;
             return Optional.ofNullable(accessLevel.getGUID());
         }
 
-        if (obj instanceof PSAclEntryImpl aclEntry) {
+        if (obj instanceof PSAclEntryImpl) {
+            PSAclEntryImpl aclEntry = (PSAclEntryImpl) obj;
             return Optional.ofNullable(aclEntry.getGUID());
         }
 

@@ -71,6 +71,7 @@ import com.percussion.extension.PSExtensionException;
  */
 public interface IPSOWFActionService
 {
+   // REFACTORED: CP-JAVA11
    /**
     * Get the list of workflow actions configured for this workflow id and transition id.
     * @param workflowid  the workflow id.

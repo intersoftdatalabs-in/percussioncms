@@ -22,7 +22,7 @@ import com.percussion.extension.*;
 import com.percussion.linkmanagement.service.IPSManagedLinkService;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;

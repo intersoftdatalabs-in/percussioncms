@@ -38,7 +38,7 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.security.data.PSCatalogerConfig;
 import com.percussion.services.security.data.PSCatalogerConfigurations;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.servlet.PSServletUtils;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang.StringUtils;

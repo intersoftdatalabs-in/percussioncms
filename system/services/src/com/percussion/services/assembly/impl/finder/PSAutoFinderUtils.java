@@ -29,7 +29,7 @@ import com.percussion.services.contentmgr.data.PSQuery;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.sitemgr.PSSiteManagerException;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.collections.PSFacadeMap;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;

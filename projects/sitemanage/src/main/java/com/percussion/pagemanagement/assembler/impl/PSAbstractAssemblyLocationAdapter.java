@@ -31,7 +31,7 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.rx.PSLegacyExtensionUtils;
 import com.percussion.share.service.exception.PSBeanValidationUtils;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import net.sf.oval.constraint.NotNull;
 import org.apache.commons.beanutils.BeanUtils;

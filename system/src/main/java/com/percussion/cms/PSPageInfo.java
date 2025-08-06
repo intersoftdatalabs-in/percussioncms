@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
 
@@ -91,7 +92,7 @@ public class PSPageInfo
     *
     * @throws IllegalArgumentException if the type is not a supported value.
     */
-   public PSPageInfo( int type, int childId, List queryHandlers, List pageMap )
+   public PSPageInfo( int type, int childId, List<String> queryHandlers, List<Map.Entry<Integer, PSPageInfo>> pageMap )
    {
       if ( type < TYPE_FIRST || type > TYPE_LAST )
          throw new IllegalArgumentException( "Unsupported type supplied." );
@@ -99,9 +100,9 @@ public class PSPageInfo
       m_type = type;
       m_childId = childId;
       if ( null != queryHandlers )
-         m_handlers.addAll( queryHandlers );
+         m_handlers.addAll( queryHandlers ); // List<String> is parameterized
       if ( null != pageMap )
-         m_pageMap.addAll( pageMap );
+         m_pageMap.addAll( pageMap ); // List<Map.Entry<Integer, PSPageInfo>> is parameterized
    }
 
    /**
@@ -204,7 +205,7 @@ public class PSPageInfo
     *
     * @return An iterator over the ids. Never <code>null</code>, may be empty.
     */
-   public Iterator getPageIdList()
+   public Iterator<Map.Entry<Integer, PSPageInfo>> getPageIdList()
    {
       return m_pageMap.iterator();
    }

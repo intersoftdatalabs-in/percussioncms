@@ -24,7 +24,7 @@ import com.percussion.services.ui.IPSUiService;
 import com.percussion.services.ui.PSUiException;
 import com.percussion.services.ui.data.PSHierarchyNode;
 import com.percussion.services.ui.data.PSHierarchyNodeProperty;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;

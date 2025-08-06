@@ -18,7 +18,7 @@
 package com.percussion.widgets.image.web.impl;
 
 import com.percussion.server.PSServer;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.data.MimeUtils;
@@ -138,9 +138,10 @@ public class BinaryUploadController {
     protected JSONArray buildResults(HttpServletRequest request) throws PSBinaryUploadException {
         var results = new JSONArray();
 
-        if (!(request instanceof MultipartHttpServletRequest multipartRequest)) {
+        if (!(request instanceof MultipartHttpServletRequest)) {
             throw new PSBinaryUploadException("Request is not a multipart request");
         }
+        MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 
         log.debug("Processing multipart form request");
 

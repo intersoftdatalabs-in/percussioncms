@@ -26,8 +26,9 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSRelationshipUtils;
+import com.percussion.system.utils.PSRelationshipUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

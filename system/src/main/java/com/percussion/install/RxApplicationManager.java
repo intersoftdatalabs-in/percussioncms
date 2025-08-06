@@ -29,6 +29,7 @@ import java.io.IOException;
    * RxApplicatonManager is a class that manages the installation and 
   * conversion of applications.
   */
+// REFACTORED: CP-JAVA11
 public class RxApplicationManager
 {
    /**

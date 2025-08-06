@@ -16,17 +16,19 @@
  */
 package test.percussion.pso.workflow;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.percussion.extension.IPSWorkFlowContext;
 import com.percussion.extension.IPSWorkflowAction;
@@ -34,46 +36,51 @@ import com.percussion.pso.workflow.IPSOWFActionService;
 import com.percussion.pso.workflow.PSOSpringWorkflowActionDispatcher;
 import com.percussion.server.IPSRequestContext;
 
+// REFACTORED: CP-JAVA11
+@ExtendWith(MockitoExtension.class)
 public class PSOSpringWorkflowActionDispatcherTest
 {
    private static final Logger log = LogManager.getLogger(PSOSpringWorkflowActionDispatcherTest.class);
    
-   Mockery context;
    TestablePSOSpringWorkflowActionDispatcher cut; 
+   
+   @Mock
    IPSOWFActionService asvc; 
    
-   @Before
+   @Mock
+   IPSRequestContext request;
+   
+   @Mock
+   IPSWorkFlowContext wfContext;
+   
+   @Mock
+   IPSWorkflowAction action;
+   
+   @BeforeEach
    public void setUp() throws Exception
    {
-      context = new Mockery();
       cut = new TestablePSOSpringWorkflowActionDispatcher();
-      asvc = context.mock(IPSOWFActionService.class);
       cut.setAsvc(asvc);       
    }
    
    @Test
    public final void testPerformAction()
    {
-      final IPSRequestContext request = context.mock(IPSRequestContext.class);
-      final IPSWorkFlowContext wfContext = context.mock(IPSWorkFlowContext.class);
-      final IPSWorkflowAction action = context.mock(IPSWorkflowAction.class);
       final List<IPSWorkflowAction> acts = new ArrayList<IPSWorkflowAction>();
       acts.add(action); 
       try
       {
-         context.checking(new Expectations(){{
-            one(wfContext).getWorkflowID();
-            will(returnValue(1));
-            one(wfContext).getTransitionID();
-            will(returnValue(2));
-            one(asvc).getActions(1, 2);
-            will(returnValue(acts));
-            one(action).performAction(wfContext, request); 
-         }});
+         when(wfContext.getWorkflowID()).thenReturn(1);
+         when(wfContext.getTransitionID()).thenReturn(2);
+         when(asvc.getActions(1, 2)).thenReturn(acts);
          
          cut.performAction(wfContext, request);
          
-         context.assertIsSatisfied();
+         verify(wfContext).getWorkflowID();
+         verify(wfContext).getTransitionID();
+         verify(asvc).getActions(1, 2);
+         verify(action).performAction(wfContext, request);
+         
       } catch (Exception ex)
       {
          log.error("Unexpected Exception " + ex,ex);

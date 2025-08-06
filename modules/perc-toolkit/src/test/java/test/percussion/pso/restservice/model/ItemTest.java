@@ -17,8 +17,8 @@
 package test.percussion.pso.restservice.model;
 
 import com.percussion.pso.restservice.model.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -50,7 +50,7 @@ public class ItemTest {
      * Method setUp.
      * @throws Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         testItem = new Item();
         List<Field> fields = new ArrayList<Field>();

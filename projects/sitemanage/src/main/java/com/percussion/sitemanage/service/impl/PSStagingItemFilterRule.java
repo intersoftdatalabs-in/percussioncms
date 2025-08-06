@@ -22,7 +22,7 @@ import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.filter.IPSFilterItem;
 import com.percussion.services.filter.IPSItemFilterRule;
 import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.ArrayList;
 import java.util.HashSet;

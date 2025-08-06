@@ -35,7 +35,7 @@ import com.percussion.search.ui.PSFieldSelectionEditorDialog;
 import com.percussion.search.ui.PSSearchAdvancedPanel;
 import com.percussion.search.ui.PSSearchFieldEditor;
 import com.percussion.search.ui.PSSearchSimplePanel;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

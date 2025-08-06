@@ -21,7 +21,8 @@ import static org.apache.commons.lang.Validate.notNull;
 
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSNameGenerator;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.ext.Provider;

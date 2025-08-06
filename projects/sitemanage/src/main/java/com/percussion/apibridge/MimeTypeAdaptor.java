@@ -21,7 +21,7 @@ package com.percussion.apibridge;
 
 import com.percussion.rest.mimetypes.IMimeTypeAdaptor;
 import com.percussion.rest.mimetypes.MimeType;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 import java.util.Collections;
 import java.util.List;

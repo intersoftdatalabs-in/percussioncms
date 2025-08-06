@@ -29,7 +29,7 @@ public class ImageEditorException extends RuntimeException
     */
    public ImageEditorException()
    {
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param message

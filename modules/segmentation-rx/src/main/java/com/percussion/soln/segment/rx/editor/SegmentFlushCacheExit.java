@@ -32,7 +32,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.soln.segment.data.ISegmentDataService;
 import com.percussion.soln.segment.rx.SegmentServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 public class SegmentFlushCacheExit implements IPSResultDocumentProcessor {
     

@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.imageedit.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 
@@ -24,8 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -46,7 +46,7 @@ public class ImageSizeDefinitionLookupControllerTest
    private Mockery context; 
    private ImageSizeDefinitionManager defmgr; 
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       context = new Mockery(); 

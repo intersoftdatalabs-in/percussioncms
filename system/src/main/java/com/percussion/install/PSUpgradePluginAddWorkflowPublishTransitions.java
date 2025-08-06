@@ -57,6 +57,7 @@ import java.util.Properties;
 public class PSUpgradePluginAddWorkflowPublishTransitions
       implements
          IPSUpgradePlugin
+// REFACTORED: CP-JAVA11
 {
    private PrintStream logger;
 

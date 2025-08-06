@@ -32,7 +32,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.utils.exceptions.PSExceptionHelper;
 import com.percussion.utils.jexl.IPSScript;

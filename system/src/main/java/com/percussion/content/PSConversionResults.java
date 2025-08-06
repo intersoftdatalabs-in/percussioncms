@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import java.io.UnsupportedEncodingException;
  * Encapsulates the results from converting content using the 
  * {@link PSContentConverter}
  */
-public class PSConversionResults
-{
+// REFACTORED: CP-JAVA11
+public class PSConversionResults {
    /**
     * Construct this class from its member data
     * 

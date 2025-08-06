@@ -33,7 +33,7 @@ import com.percussion.services.content.data.PSKeyword;
 import com.percussion.services.content.data.PSRevisions;
 import com.percussion.services.content.data.PSSearchSummary;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;

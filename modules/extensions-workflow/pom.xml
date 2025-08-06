@@ -41,12 +41,12 @@
        <dependency>
            <groupId>org.jmock</groupId>
            <artifactId>jmock-junit4</artifactId>
-           <scope>test</scope>
+           <version>2.13.1</version><scope>test</scope>
        </dependency>
        <dependency>
            <groupId>junit</groupId>
            <artifactId>junit</artifactId>
-           <scope>test</scope>
+           <version>${junit.version}</version><scope>test</scope>
        </dependency>
        <dependency>
            <groupId>saxon</groupId>

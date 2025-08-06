@@ -31,7 +31,7 @@ import com.percussion.relationship.PSEffectResult;
 import com.percussion.relationship.annotation.PSEffectContext;
 import com.percussion.relationship.annotation.PSHandlesEffectContext;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;

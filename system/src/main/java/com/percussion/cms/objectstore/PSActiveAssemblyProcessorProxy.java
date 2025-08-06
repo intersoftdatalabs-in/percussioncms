@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -108,22 +108,19 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
       throws PSCmsException, PSUnknownNodeTypeException
    {
       PSContentTypeVariantSet variantSet = getItemVariants(item);
-      Iterator iter = variantSet.iterator();
-      Set slotKeys = new HashSet();
-      while (iter.hasNext())
-      {
-         PSContentTypeTemplate variant = (PSContentTypeTemplate) iter.next();
-         Iterator iter2 = variant.getVariantSlots().iterator();
-         while (iter2.hasNext())
-         {
-            PSVariantSlotType entry = (PSVariantSlotType) iter2.next();
+      Iterator<PSContentTypeTemplate> iter = variantSet.iterator();
+      Set<PSKey> slotKeys = new HashSet<>();
+      while (iter.hasNext()) {
+         var variant = iter.next();
+         Iterator<PSVariantSlotType> iter2 = variant.getVariantSlots().iterator();
+         while (iter2.hasNext()) {
+            var entry = iter2.next();
             int slotid = entry.getSlotId();
             slotKeys.add(PSSlotType.createKey(slotid));
          }
       }
 
-      PSKey[] keys = new PSKey[slotKeys.size()];
-      keys = (PSKey[]) slotKeys.toArray(keys);
+      PSKey[] keys = slotKeys.toArray(new PSKey[0]);
 
       PSComponentDefProcessorProxy defProxy =
          new PSComponentDefProcessorProxy(
@@ -216,12 +213,12 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
       filter.setProperty(IPSHtmlParameters.SYS_SLOTID, "" + slot.getSlotId());
 
       PSRelationshipProcessor relProxy = PSRelationshipProcessor.getInstance();
-      Iterator relationships = relProxy.getRelationships(filter).iterator();
+      Iterator<PSRelationship> relationships = relProxy.getRelationships(filter).iterator();
       PSAaRelationshipList aaRels = new PSAaRelationshipList();
       if (!relationships.hasNext())
          return aaRels;
       
-      List authLocatorList = null;
+      List<String> authLocatorList = null;
       try
       {
          if (authType != null)
@@ -245,7 +242,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
          }
          
          //Filter by authtype
-         if (!authLocatorList.contains("" + rel.getDependent().getId()))
+         if (authLocatorList == null || !authLocatorList.contains("" + rel.getDependent().getId()))
             continue;
 
          String variantstr = rel.getProperty(IPSHtmlParameters.SYS_VARIANTID);
@@ -322,21 +319,17 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
 
       PSRelationshipProcessor relProxy = PSRelationshipProcessor.getInstance();
       PSComponentSummaries summaries = new PSComponentSummaries();
-      Iterator iter = relProxy.getSummaries(filter, false).iterator();
-      try
-      {
-         List list = getDependentsByAuthType(owner, authType);
-         while (iter.hasNext())
-         {
-            PSComponentSummary summary = (PSComponentSummary) iter.next();
+      Iterator<PSComponentSummary> iter = relProxy.getSummaries(filter, false).iterator();
+      try {
+         List<String> list = getDependentsByAuthType(owner, authType);
+         while (iter.hasNext()) {
+            PSComponentSummary summary = iter.next();
             //Filter by authtype
-            if(!list.contains(""+((PSLocator)summary.getLocator()).getId()))
+            if (!list.contains("" + ((PSLocator) summary.getLocator()).getId()))
                continue;
             summaries.add(summary);
          }
-      }
-      catch (PSNotFoundException e)
-      {
+      } catch (PSNotFoundException e) {
          throw new PSCmsException(e.getErrorCode(), e.getErrorArguments());
       }
       return summaries;
@@ -367,7 +360,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
             "slotRelations cannot be null or empty");
 
       // validate slotid and owner for supplied relationships
-      Iterator relationships = slotRelations.iterator();
+      Iterator<PSAaRelationship> relationships = slotRelations.iterator();
       int slotid = -1;
       PSLocator owner = null;
       while (relationships.hasNext())
@@ -399,7 +392,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
       PSRelationshipSet currentSet = proxy.getRelationships(filter);
       
       // sort all existing relationships according to their sortrank property
-      Collections.sort(currentSet, new RelationshipSorter());
+      Collections.sort((List<PSRelationship>) currentSet, new RelationshipSorter());
 
       // prepare the result set with a list of all non-reordered relationships
       PSRelationshipSet resultSet = new PSRelationshipSet();
@@ -549,39 +542,22 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
    /**
     * Used to sort relationships based on the sort rank property.
     */
-   public class RelationshipSorter implements Comparator
-   {
-      /* (non-Javadoc)
-       * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-       */
-      public int compare(Object o1, Object o2)
-      {
-         PSRelationship rel1 = (PSRelationship) o1;
-         PSRelationship rel2 = (PSRelationship) o2;
-
+   public class RelationshipSorter implements Comparator<PSRelationship> {
+      @Override
+      public int compare(PSRelationship rel1, PSRelationship rel2) {
          int sortrank1 = 0;
-         try
-         {
-            sortrank1 = Integer.parseInt(rel1.getProperty(
-               IPSHtmlParameters.SYS_SORTRANK));
-         }
-         catch (Exception e)
-         {
+         try {
+            sortrank1 = Integer.parseInt(rel1.getProperty(IPSHtmlParameters.SYS_SORTRANK));
+         } catch (Exception e) {
             //ignore and keep 0
          }
-
          int sortrank2 = 0;
-         try
-         {
-            sortrank2 = Integer.parseInt(rel2.getProperty(
-               IPSHtmlParameters.SYS_SORTRANK));
-         }
-         catch (Exception e)
-         {
+         try {
+            sortrank2 = Integer.parseInt(rel2.getProperty(IPSHtmlParameters.SYS_SORTRANK));
+         } catch (Exception e) {
             //ignore and keep 0
          }
-         
-         return (sortrank1 - sortrank2);
+         return sortrank1 - sortrank2;
       }
    }
 
@@ -725,7 +701,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
     * @throws PSCmsException if any other error occurs while filtering by
     *            authtype.
     */
-   private List getDependentsByAuthType(PSLocator parent, int authType)
+   private List<String> getDependentsByAuthType(PSLocator parent, int authType)
       throws PSNotFoundException, PSCmsException
    {
       String resource = PSAuthTypes.getInstance().getResourceForAuthtype(
@@ -752,9 +728,9 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy
          throw new PSCmsException(IPSCmsErrors.INVALID_CONTEXT_FOR_AA_PROXY,
                args);
       }
-      List result = new ArrayList();
+      List<String> result = new ArrayList<>();
 
-      Map params = new HashMap();
+      Map<String, String> params = new HashMap<>();
       params.put(IPSHtmlParameters.SYS_CONTENTID, "" + parent.getId());
       params.put(IPSHtmlParameters.SYS_REVISION, "" + parent.getRevision());
       IPSInternalRequest ir = cxt.getInternalRequest(resource, params, true);

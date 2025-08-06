@@ -32,8 +32,9 @@ import com.percussion.error.PSException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.IPSServerErrors;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSRelationshipUtils;
+import com.percussion.system.utils.PSRelationshipUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

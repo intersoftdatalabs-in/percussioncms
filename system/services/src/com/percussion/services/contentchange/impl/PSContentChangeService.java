@@ -302,7 +302,8 @@ public final class PSContentChangeService implements IPSContentChangeService,
         Objects.requireNonNull(notification, "Notification cannot be null");
 
         var target = notification.getTarget();
-        if (target instanceof PSRelationshipChangeEvent relationshipEvent) {
+        if (target instanceof PSRelationshipChangeEvent) {
+            PSRelationshipChangeEvent relationshipEvent = (PSRelationshipChangeEvent) target;
             changeHandlers.parallelStream()
                 .forEach(handler -> {
                     try {
@@ -317,7 +318,8 @@ public final class PSContentChangeService implements IPSContentChangeService,
 
     @Override
     public void initHandler(IPSRequestHandler requestHandler) {
-        if (requestHandler instanceof PSContentEditorHandler contentEditorHandler) {
+        if (requestHandler instanceof PSContentEditorHandler) {
+            PSContentEditorHandler contentEditorHandler = (PSContentEditorHandler) requestHandler;
             // Use Spring proxy to handle transaction annotations
             var serviceProxy = PSContentChangeServiceLocator.getContentChangeService();
             contentEditorHandler.addEditorChangeListener(serviceProxy);

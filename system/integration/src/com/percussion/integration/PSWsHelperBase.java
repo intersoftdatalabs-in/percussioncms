@@ -16,7 +16,7 @@
  */
 package com.percussion.integration;
 
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.io.File;
 import java.io.FileInputStream;

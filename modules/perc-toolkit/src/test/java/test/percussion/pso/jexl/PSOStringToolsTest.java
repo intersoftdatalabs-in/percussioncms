@@ -16,12 +16,12 @@
  */
 package test.percussion.pso.jexl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import com.percussion.pso.jexl.PSOStringTools;
@@ -32,7 +32,7 @@ public class PSOStringToolsTest {
     String expectedNoXml = " blah\u00a0isn't going to show THESE WORDS: hello hello";
     PSOStringTools tool;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tool = new PSOStringTools();
     }

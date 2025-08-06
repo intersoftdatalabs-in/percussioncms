@@ -28,16 +28,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.percussion.pso.utils.SimplifyParameters;
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
-public class SimplifyParameterMapTest extends TestCase
+public class SimplifyParameterMapTest
 {
-   public static void main(String[] args)
-   {
-      junit.textui.TestRunner.run(SimplifyParameterMapTest.class);
-   }
+   // JUnit 5 does not use main or TestRunner
   
-   public void testSimplifyValue()
+   @Test
+   void testSimplifyValue()
    {
      assertEquals("xyzzy",SimplifyParameters.simplifyValue("xyzzy")); 
      assertEquals("foo", SimplifyParameters.simplifyValue(new String[]{"foo", "bar"}));
@@ -55,7 +54,8 @@ public class SimplifyParameterMapTest extends TestCase
    /*
     * Test method for 'com.percussion.pso.utils.SimplifyParameters.simplify(Map<String, Object>)'
     */
-   public void testSimplifyMap()
+   @Test
+   void testSimplifyMap()
    {
       Map<String,Object> inmap = new HashMap<String, Object>(); 
       List<String> inlist = new ArrayList<String>();
@@ -74,7 +74,8 @@ public class SimplifyParameterMapTest extends TestCase
    }
    
    @SuppressWarnings("unchecked")
-   public void testGetValueAsList()
+   @Test
+   void testGetValueAsList()
    {
       List<String> result; 
       result = SimplifyParameters.getValueAsList("foo");

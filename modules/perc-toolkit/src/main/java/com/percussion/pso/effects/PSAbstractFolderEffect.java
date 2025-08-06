@@ -17,6 +17,7 @@
 package com.percussion.pso.effects;
 import java.io.File;
 
+// REFACTORED: CP-JAVA11
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -46,6 +47,7 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 @PSHandlesEffectContext()
 public abstract class PSAbstractFolderEffect implements IPSEffect
 {
+   // REFACTORED: CP-JAVA11
    /**
     * Logger for this class
     */

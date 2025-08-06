@@ -30,7 +30,7 @@ import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSDefaultExtension;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.PSAssemblyException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * This class is intended to be used as a FieldOutputTranslation within a

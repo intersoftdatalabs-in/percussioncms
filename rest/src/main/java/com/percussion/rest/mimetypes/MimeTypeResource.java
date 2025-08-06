@@ -19,10 +19,11 @@
 
 package com.percussion.rest.mimetypes;
 
-import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.percussion.system.utils.PSSiteManageBean;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

@@ -16,9 +16,9 @@
  */
 package com.percussion.process;
 
+import com.percussion.system.utils.PSServerShutdownHelper;
 import com.percussion.util.IOTools;
 import com.percussion.util.PSOsTool;
-import com.percussion.util.PSServerShutdownHelper;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.logging.log4j.LogManager;

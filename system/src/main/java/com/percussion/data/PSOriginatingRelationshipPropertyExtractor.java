@@ -21,7 +21,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSOriginatingRelationshipProperty;
 import com.percussion.design.objectstore.PSRelationship;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * Extracts relationship properties from the originating relationship

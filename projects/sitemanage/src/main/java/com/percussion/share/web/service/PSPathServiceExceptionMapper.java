@@ -21,7 +21,8 @@ package com.percussion.share.web.service;
 import com.percussion.cms.IPSConstants;
 import com.percussion.pathmanagement.service.IPSPathService;
 import com.percussion.share.validation.PSErrors;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

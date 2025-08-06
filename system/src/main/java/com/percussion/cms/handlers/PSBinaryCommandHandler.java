@@ -64,8 +64,8 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
+import com.percussion.system.utils.PSUniqueObjectGenerator;
 import com.percussion.util.PSCollection;
-import com.percussion.util.PSUniqueObjectGenerator;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 

@@ -35,7 +35,8 @@ import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.services.system.PSAssignmentTypeHelper;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

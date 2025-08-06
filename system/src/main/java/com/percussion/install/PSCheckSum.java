@@ -29,8 +29,9 @@ import java.util.zip.CheckedInputStream;
 import java.util.zip.Checksum;
 
 /**
- * This program reads a file and generates the checksum using Adler32 algorithm
+ * This program reads a file and generates the checksum using the Adler32 algorithm.
  */
+// REFACTORED: CP-JAVA11
 public class PSCheckSum
 {
 
@@ -79,22 +80,13 @@ public class PSCheckSum
       if (!f.isFile())
          throw new IllegalArgumentException("File does not exist : " + filePath);
 
-      CheckedInputStream inFile = null;
       Checksum cs = new Adler32();
-
-      try
-      {
-         inFile = new CheckedInputStream(new FileInputStream(filePath), cs);
+      try (CheckedInputStream inFile = new CheckedInputStream(new FileInputStream(filePath), cs)) {
          byte[] buf = new byte[4096];
-         while (inFile.read(buf) >= 0)
-         {
+         while (inFile.read(buf) >= 0) {
+            // ...existing code...
          }
          return inFile.getChecksum().getValue();
-      }
-      finally
-      {
-         if (inFile != null)
-            inFile.close();
       }
    }
 }

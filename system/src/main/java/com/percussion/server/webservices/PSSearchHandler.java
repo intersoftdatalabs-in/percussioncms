@@ -92,7 +92,7 @@ import com.percussion.services.system.IPSSystemService;
 import com.percussion.services.system.PSSystemException;
 import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.timing.PSStopwatchStack;

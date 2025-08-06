@@ -26,7 +26,7 @@ import com.percussion.services.locking.PSLockException;
 import com.percussion.services.locking.data.PSObjectLock;
 import com.percussion.services.utils.orm.PSCriteriaQueryRepeater;
 import com.percussion.services.utils.orm.PSORMUtils;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorResultsException;

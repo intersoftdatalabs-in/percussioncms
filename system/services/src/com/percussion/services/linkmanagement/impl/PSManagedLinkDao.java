@@ -21,7 +21,8 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.linkmanagement.IPSManagedLinkDao;
 import com.percussion.services.linkmanagement.data.PSManagedLink;
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

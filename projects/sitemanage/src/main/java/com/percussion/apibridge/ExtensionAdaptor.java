@@ -20,7 +20,8 @@ package com.percussion.apibridge;
 import com.percussion.extension.*;
 import com.percussion.extensions.IPSExtensionService;
 import com.percussion.rest.extensions.*;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

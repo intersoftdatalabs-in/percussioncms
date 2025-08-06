@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.workflow;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.error.PSNotFoundException;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.IPSExtension;
@@ -124,7 +125,7 @@ public class PSOWFActionDispatcher extends PSDefaultExtension
         try
         {
             //Object actions[] = getWorkflowActions(contentType, transitionId);
-        	List<String> actions = getWorkflowActions(workflowId, transitionId);
+            List<String> actions = getWorkflowActions(workflowId, transitionId);
             log.debug("found {} actions to execute.", actions.size());
             for(String action : actions)
             {

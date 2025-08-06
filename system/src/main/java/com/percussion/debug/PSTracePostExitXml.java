@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import java.text.MessageFormat;
  *
  * Prints out the entire XML document sent to the first exit and returned from each successive exit.
  */
-public class PSTracePostExitXml extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTracePostExitXml extends PSTraceMessage {
 
    /**
     * The constructor for this class.

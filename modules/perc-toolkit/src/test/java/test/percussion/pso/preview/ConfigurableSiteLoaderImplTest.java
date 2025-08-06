@@ -25,15 +25,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConfigurableSiteLoaderImplTest {
 
@@ -46,7 +46,7 @@ public class ConfigurableSiteLoaderImplTest {
 	IPSSiteManager siteMgr; 
 	   
 	@SuppressWarnings("static-access")
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		context = new Mockery(); 
 		cut = new ConfigurableSiteLoaderImpl(); 

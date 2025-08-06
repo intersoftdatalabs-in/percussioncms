@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,45 +19,39 @@ package com.percussion.content;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Text;
 
-public class HTMLText extends HTMLNode implements Text
-{
-   public HTMLText(String initialValue)
-   {
+// REFACTORED: CP-JAVA11
+public class HTMLText extends HTMLNode implements Text {
+   public HTMLText(String initialValue) {
       super();
       setNodeValue(initialValue);
    }
 
-   public HTMLText()
-   {
+   public HTMLText() {
       super();
    }
 
-   public String getData()
-      throws DOMException
-   {
+   @Override
+   public String getData() throws DOMException {
       return getNodeValue();
    }
 
-   public void setData(String data)
-      throws DOMException
-   {
+   @Override
+   public void setData(String data) throws DOMException {
       setNodeValue(data);
    }
 
-   public int getLength()
-   {
+   @Override
+   public int getLength() {
       return m_value.length();
    }
 
-   public String substringData(int offset, int count)
-      throws DOMException
-   {
+   @Override
+   public String substringData(int offset, int count) throws DOMException {
       return m_value.substring(offset, offset + count);
    }
 
-   public void appendData(String arg)
-      throws DOMException
-   {
+   @Override
+   public void appendData(String arg) throws DOMException {
       m_value.append(arg);
    }
 

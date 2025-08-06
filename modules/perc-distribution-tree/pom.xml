@@ -258,7 +258,7 @@
                 <dependency>
                     <groupId>javax.servlet</groupId>
                     <artifactId>javax.servlet-api</artifactId>
-                    <version>${servlet.spec}</version>
+                    <version>${javax.servlet.api.version}</version>
                 </dependency>
                 <dependency>
 					<groupId>installanywhere</groupId>
@@ -451,9 +451,11 @@
             <artifactId>ant</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Use legacy javax JAX-RS API for Java 11/Tomcat 9 stack -->
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

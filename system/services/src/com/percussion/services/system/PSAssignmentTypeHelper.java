@@ -39,7 +39,7 @@ import com.percussion.services.workflow.data.PSAssignmentTypeEnum;
 import com.percussion.services.workflow.data.PSContentAdhocUser;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSWorkflow;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.timing.PSStopwatchStack;

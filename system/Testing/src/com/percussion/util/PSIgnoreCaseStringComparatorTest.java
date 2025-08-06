@@ -18,6 +18,8 @@ package com.percussion.util;
 
 import java.util.Comparator;
 
+import com.percussion.system.utils.PSIgnoreCaseStringComparator;
+
 import junit.framework.TestCase;
 
 public class PSIgnoreCaseStringComparatorTest extends TestCase

@@ -21,6 +21,8 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.MissingResourceException;
 
+import com.percussion.system.utils.PSHashTableFromBundle;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

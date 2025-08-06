@@ -33,6 +33,7 @@ import java.util.Properties;
  * @author federicoromanelli
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePlugin
 {
 

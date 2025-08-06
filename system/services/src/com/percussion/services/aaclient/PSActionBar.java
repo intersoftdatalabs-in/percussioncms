@@ -26,7 +26,7 @@ import com.percussion.services.assembly.jexl.PSAssemblerUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringTemplate;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.workflow.PSWorkFlowUtils;

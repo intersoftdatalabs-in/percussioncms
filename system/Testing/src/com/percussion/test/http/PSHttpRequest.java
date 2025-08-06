@@ -18,11 +18,11 @@ package com.percussion.test.http;
 
 import com.percussion.HTTPClient.ModuleException;
 import com.percussion.HTTPClient.NVPair;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.test.io.IOTools;
 import com.percussion.test.io.LogSink;
 import com.percussion.util.PSBase64Decoder;
 import com.percussion.util.PSCharSets;
-import com.percussion.util.PSRemoteRequester;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -28,7 +28,7 @@ import com.percussion.security.PSNotificationEmailAddress;
 import com.percussion.security.PSRoleManager;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.security.PSUserEntry;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

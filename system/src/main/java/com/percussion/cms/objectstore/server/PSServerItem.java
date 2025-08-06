@@ -58,7 +58,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.webservices.PSWebserviceUtils;

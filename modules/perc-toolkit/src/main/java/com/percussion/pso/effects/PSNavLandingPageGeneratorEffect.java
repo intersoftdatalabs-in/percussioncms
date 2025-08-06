@@ -17,6 +17,7 @@
 
 package com.percussion.pso.effects;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSFieldValue;
 import com.percussion.cms.objectstore.PSAaRelationship;
@@ -53,7 +54,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import org.apache.logging.log4j.LogManager;
@@ -396,7 +397,8 @@ public class PSNavLandingPageGeneratorEffect extends  PSNavAbstractEffect{
 		   
 		   PSItemDefinition lpDef = defMgr.getItemDef(m_contentTypeId, communityId);
 		   if (lpDef == null)
-		   {
+{
+	// REFACTORED: CP-JAVA11
 			   String errmsg = "Unable to find Itemdef for type {0} in community {1}. ";
 			   Object[] args = new Object[2];
 			   args[0] = config.getNavonTypeIds().get(0);

@@ -16,6 +16,7 @@
  */
 package com.percussion.cms;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSActionVisibilityContext;
 import com.percussion.cms.objectstore.PSActionVisibilityContexts;

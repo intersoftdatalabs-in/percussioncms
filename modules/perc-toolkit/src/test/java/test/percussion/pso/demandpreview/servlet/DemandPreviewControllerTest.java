@@ -17,7 +17,7 @@
 
 package test.percussion.pso.demandpreview.servlet;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.TimeoutException;
 
@@ -26,9 +26,9 @@ import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.Sequence;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
@@ -49,7 +49,7 @@ import com.percussion.utils.guid.IPSGuid;
 
 public class DemandPreviewControllerTest {
 
-    private static final Logger log = LogManager.getLogger(DemandPreviewControllerTest.class);
+	private static final Logger log = LogManager.getLogger(DemandPreviewControllerTest.class);
 	Mockery context;
 	IPSGuidManager gmgr; 
 	TestableDemandPreviewController cut; 
@@ -59,7 +59,7 @@ public class DemandPreviewControllerTest {
 	SiteEditionLookUpService siteLookup; 
 	IPSOItemSummaryFinder isFinder; 
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 	   context = new Mockery(); 
 	   cut = new TestableDemandPreviewController();
@@ -78,7 +78,7 @@ public class DemandPreviewControllerTest {
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	//TODO: Fix testDoPublishForPreview
 	public void testDoPublishForPreview() {
 		final String contentId = "1";

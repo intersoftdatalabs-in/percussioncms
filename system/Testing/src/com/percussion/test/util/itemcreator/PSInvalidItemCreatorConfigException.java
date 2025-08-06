@@ -30,7 +30,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException()
    {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param message
@@ -38,7 +38,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(String message)
    {
       super(message);
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param message
@@ -47,7 +47,7 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(String message, Throwable cause)
    {
       super(message, cause);
-      // TODO Auto-generated constructor stub
+      
    }
    /**
     * @param cause
@@ -55,6 +55,6 @@ public class PSInvalidItemCreatorConfigException extends Exception
    public PSInvalidItemCreatorConfigException(Throwable cause)
    {
       super(cause);
-      // TODO Auto-generated constructor stub
+      
    }
 }

@@ -33,8 +33,9 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.w3c.dom.*;
 
 import java.io.File;

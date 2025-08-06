@@ -26,6 +26,7 @@ import java.sql.Statement;
  * 
  * @author peterfrontiero
  */
+// REFACTORED: CP-JAVA11
 public class PSConnectionObject
 {
    /**

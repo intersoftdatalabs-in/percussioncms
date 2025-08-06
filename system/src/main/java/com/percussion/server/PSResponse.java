@@ -22,7 +22,7 @@ import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.error.PSErrorManager;
 import com.percussion.log.PSLogManager;
 import com.percussion.log.PSLogServerWarning;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBaseHttpUtils;
 import com.percussion.util.PSCharSets;
 import com.percussion.util.PSCharSetsConstants;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.cms.objectstore;
+
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 
 /**
- * This class is used for 1 part keys.
+ * This class is used for single-part keys.
  *
  * @author Paul Howard
  * @version 1.0
@@ -34,9 +37,8 @@ public class PSSimpleKey extends PSKey
     * @param keyName The name for the key, typically, the column name of the
     *    primary key of the associated table.
     */
-   public PSSimpleKey( String keyName )
-   {
-      super( new String [] { keyName } );
+   public PSSimpleKey(String keyName) {
+      super(new String[] { keyName });
    }
 
    /**
@@ -45,9 +47,8 @@ public class PSSimpleKey extends PSKey
     * @param keyName The name for the key, typically, the column name of the
     *    primary key of the associated table.
     */
-   public PSSimpleKey( String keyName, String value )
-   {
-      super( new String [] { keyName }, new String[] { value }, true );
+   public PSSimpleKey(String keyName, String value) {
+      super(new String[] { keyName }, new String[] { value }, true);
    }
 
    /**
@@ -65,9 +66,8 @@ public class PSSimpleKey extends PSKey
     *    so the component represented by this key could be removed while
     *    this key is instantiated.
     */
-   public PSSimpleKey( String keyName, String value, boolean persisted )
-   {
-      super( new String [] { keyName }, new String[] { value }, persisted );
+   public PSSimpleKey(String keyName, String value, boolean persisted) {
+      super(new String[] { keyName }, new String[] { value }, persisted);
    }
 
    /**
@@ -76,9 +76,8 @@ public class PSSimpleKey extends PSKey
     * @param keyName The name for the key, typically, the column name of the
     *    primary key of the associated table.
     */
-   public PSSimpleKey( String keyName, int value )
-   {
-      super( new String [] { keyName }, new int[] { value }, true );
+   public PSSimpleKey(String keyName, int value) {
+      super(new String[] { keyName }, new int[] { value }, true);
    }
 
 
@@ -87,10 +86,8 @@ public class PSSimpleKey extends PSKey
     *
     * @param src Never <code>null</code>.
     */
-   public PSSimpleKey(Element src)
-      throws PSUnknownNodeTypeException
-   {
-      //super validates contract
+   public PSSimpleKey(Element src) throws PSUnknownNodeTypeException {
+      // super validates contract
       super(src);
    }
 
@@ -99,9 +96,8 @@ public class PSSimpleKey extends PSKey
     *
     * @return The value of the key, never <code>null</code> or empty.
     */
-   public String getKeyValue()
-   {
-      return getPart( getDefinition()[0] );
+   public String getKeyValue() {
+      return getPart(getDefinition()[0]);
    }
 
    /**
@@ -109,8 +105,7 @@ public class PSSimpleKey extends PSKey
     *
     * @return The value of the key.
     */
-   public int getKeyValueAsInt()
-   {
+   public int getKeyValueAsInt() {
       return getPartAsInt(getDefinition()[0]);
    }
 
@@ -119,8 +114,7 @@ public class PSSimpleKey extends PSKey
     *
     * @return The key name, never <code>null</code> or empty.
     */
-   public String getKeyName()
-   {
+   public String getKeyName() {
       return getDefinition()[0];
    }
 

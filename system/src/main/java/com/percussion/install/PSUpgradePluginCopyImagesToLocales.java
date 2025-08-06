@@ -30,6 +30,7 @@ import java.util.List;
  * locale subfolder under the images directory provided the files do not exist
  * in the additional locale directory and are not hidden. 
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginCopyImagesToLocales implements IPSUpgradePlugin
 {
    /**

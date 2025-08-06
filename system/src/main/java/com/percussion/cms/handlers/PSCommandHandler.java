@@ -71,7 +71,7 @@ import com.percussion.server.PSServer;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCollection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

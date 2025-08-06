@@ -50,6 +50,7 @@ import java.util.Set;
  * pre 55. <code>true</code> <code>null</code> <code>false</code> <code>true</code>
  */
 
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlugin
 {
    /**

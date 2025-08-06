@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.imageedit.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -31,8 +31,8 @@ import javax.imageio.ImageWriter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.data.ImageData;
 import com.percussion.pso.imageedit.data.ImageMetaData;
@@ -44,7 +44,7 @@ public class ImageResizeManagerImplTest
    
    TestableImageResizeManager cut;
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new TestableImageResizeManager();

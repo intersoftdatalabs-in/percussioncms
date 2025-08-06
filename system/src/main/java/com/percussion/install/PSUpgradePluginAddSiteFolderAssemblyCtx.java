@@ -35,6 +35,7 @@ import java.sql.SQLException;
  * exist.  If it does exist and the name includes whitespace, then the name is
  * set to the new name with spaces converted to underscores.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
 {
    /**
@@ -181,12 +182,12 @@ public class PSUpgradePluginAddSiteFolderAssemblyCtx implements IPSUpgradePlugin
       PreparedStatement stmt = null;
       try
       {
-         Long contextid = new Long(PSGuidHelper.generateNextLong(
+         Long contextid = Long.valueOf(PSGuidHelper.generateNextLong(
                PSTypeEnum.CONTEXT));
                                           
          stmt = PSPreparedStatement.getPreparedStatement(conn, insertStmt);
          stmt.setLong(1, contextid);
-         stmt.setInt(2, new Integer(0));
+         stmt.setInt(2, 0);
          stmt.setString(3, NEW_CONTEXT_NAME);
          stmt.setString(4, "Site Folder Assembly Context");
      

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
  */
 package com.percussion.cms;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.util.PSMapPair;
@@ -245,7 +246,7 @@ public class PSDisplayFieldElementBuilder
     * @return The ParamList element, never <code>null</code>.
     */
    public static Element addParamListElement(Document doc, Element controlEl, 
-      Iterator params)
+      Iterator<?> params)
    {
       if (doc == null)
          throw new IllegalArgumentException("doc may not be null");
@@ -359,7 +360,7 @@ public class PSDisplayFieldElementBuilder
     * @param rows A list of display values as <code>String</code> objects to 
     * match, never <code>null</code>, may be empty.
     */
-   public static void selectChoices(Element controlEl, List rows)
+   public static void selectChoices(Element controlEl, List<?> rows)
    {
       // enforce params
       if (controlEl == null || !controlEl.getNodeName().equals(CONTROL_NAME))

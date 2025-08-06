@@ -92,9 +92,10 @@ import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.service.IPSUserService;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;

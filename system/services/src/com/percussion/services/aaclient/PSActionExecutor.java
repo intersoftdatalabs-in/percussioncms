@@ -45,7 +45,7 @@ import com.percussion.services.assembly.jexl.PSAssemblerUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
@@ -117,11 +117,20 @@ public class PSActionExecutor implements IPSWidgetHandler {
     */
    private void executeCeAction(HttpServletRequest request, HttpServletResponse response) throws Exception {
       switch (actionName) {
-         case "ce_setfield" -> executeSetField(request, response);
-         case "ce_checkout" -> executeCheckout(request, response);
-         case "ce_checkin" -> executeCheckin(request, response);
-         case "ce_checkoutstatus" -> executeCheckoutStatus(request, response);
-         default -> throw new Exception("Unhandled CE action: " + actionName);
+         case "ce_setfield":
+            executeSetField(request, response);
+            break;
+         case "ce_checkout":
+            executeCheckout(request, response);
+            break;
+         case "ce_checkin":
+            executeCheckin(request, response);
+            break;
+         case "ce_checkoutstatus":
+            executeCheckoutStatus(request, response);
+            break;
+         default:
+            throw new Exception("Unhandled CE action: " + actionName);
       }
    }
 

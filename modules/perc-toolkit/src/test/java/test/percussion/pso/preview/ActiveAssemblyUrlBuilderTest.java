@@ -22,7 +22,7 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +31,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.preview.ActiveAssemblyUrlBuilder;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters ;
 
 public class ActiveAssemblyUrlBuilderTest
 {
@@ -45,7 +45,7 @@ public class ActiveAssemblyUrlBuilderTest
    
    Mockery context; 
    ActiveAssemblyUrlBuilder cut; 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       context = new Mockery();

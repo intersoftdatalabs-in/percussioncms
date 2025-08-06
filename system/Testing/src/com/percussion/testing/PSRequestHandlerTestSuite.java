@@ -18,7 +18,7 @@ package com.percussion.testing;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSServer;
-import com.percussion.util.PSRemoteRequester;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.xml.PSXmlTreeWalker;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;

@@ -23,7 +23,7 @@ import com.percussion.services.contentmgr.impl.PSContentUtils;
 import com.percussion.services.contentmgr.impl.legacy.PSTypeConfiguration;
 import com.percussion.services.contentmgr.impl.query.nodes.IPSQueryNode;
 import com.percussion.services.contentmgr.impl.query.nodes.PSQueryNodeIdentifier;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang.StringUtils;
 

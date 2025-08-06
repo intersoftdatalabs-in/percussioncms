@@ -49,7 +49,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.sitemgr.PSSiteHelper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableFileInputStream;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.collections.PSCopier;

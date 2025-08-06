@@ -22,10 +22,11 @@ import java.io.File;
 
 /**
  * This class is launched at the end of the installation in a separate process
- * to complete the cleanup of temporary installation files. 
+ * to complete the cleanup of temporary installation files.
  * 
  * @author peterfrontiero
  */
+// REFACTORED: CP-JAVA11
 public class PSCleanup
 {
    /**
@@ -40,18 +41,16 @@ public class PSCleanup
     */
    public static void main(String args[])
    {
-      if (args.length == 0)
+      if (args.length == 0) {
          return;
-      
+      }
       String dirStr = args[0];
       File dirFile = new File(dirStr);
-           
       long startTime = System.nanoTime();
       double elapsedTime = 0;
-      while (dirFile.exists() && elapsedTime < (60000 * MAX_WAIT_TIME))
-      {
+      while (dirFile.exists() && elapsedTime < (60000 * MAX_WAIT_TIME)) {
          IOTools.deleteFile(dirFile);
-         elapsedTime = (System.nanoTime() - startTime)/1E6;
+         elapsedTime = (System.nanoTime() - startTime) / 1E6;
       }
    }
    

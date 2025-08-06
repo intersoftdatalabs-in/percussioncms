@@ -65,6 +65,7 @@ import com.percussion.webservices.content.PSContentWsLocator;
  */
 public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression 
 {
+    // REFACTORED: CP-JAVA11
    /**
     * Logger for this class
     */
@@ -154,9 +155,9 @@ public class FolderTools extends PSJexlUtilBase implements IPSJexlExpression
    public String getParentFolderPath(IPSGuid itemId) 
    throws PSErrorException, PSExtensionProcessingException   
    {
-	  String errmsg; 
-	  
-	  List<String> paths = getParentFolderPaths(itemId);
+      String errmsg; 
+      
+      List<String> paths = getParentFolderPaths(itemId);
       if(paths.size() == 0)
       {
          errmsg = "no paths returned for " + itemId; 

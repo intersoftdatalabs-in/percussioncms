@@ -22,7 +22,7 @@ import com.percussion.cx.IPSConstants;
 import com.percussion.cx.PSNavigationTree;
 import com.percussion.design.objectstore.IPSObjectStoreErrors;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSEntrySet;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;

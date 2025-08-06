@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 package com.percussion.pso.workflow;
+
+// REFACTORED: CP-JAVA11
 import java.util.Collection;
 
 import com.percussion.error.PSException;

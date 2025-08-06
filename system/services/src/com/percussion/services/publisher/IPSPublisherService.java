@@ -29,7 +29,7 @@ import com.percussion.services.publisher.data.PSItemPublishingHistory;
 import com.percussion.services.publisher.data.PSSiteItem;
 import com.percussion.services.publisher.data.PSSortCriterion;
 import com.percussion.services.pubserver.data.PSPubServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 
 import javax.jcr.query.QueryResult;

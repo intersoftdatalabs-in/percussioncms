@@ -73,7 +73,7 @@ import com.percussion.server.config.PSConfigManager;
 import com.percussion.server.config.PSServerConfigException;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;

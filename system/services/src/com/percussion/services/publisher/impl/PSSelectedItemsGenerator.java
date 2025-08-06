@@ -29,7 +29,7 @@ import com.percussion.services.contentmgr.data.PSQueryResult;
 import com.percussion.services.contentmgr.data.PSRow;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jsr170.PSLongValue;
 import com.percussion.utils.types.PSPair;

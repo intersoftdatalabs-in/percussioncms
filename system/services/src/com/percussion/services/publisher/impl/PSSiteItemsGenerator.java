@@ -28,7 +28,7 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.IPSSiteItem;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 

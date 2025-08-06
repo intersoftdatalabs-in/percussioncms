@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.restservice;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.pso.restservice.impl.ItemRestServiceImpl;
 import com.percussion.services.PSBaseServiceLocator;
 
@@ -24,17 +25,19 @@ import com.percussion.services.PSBaseServiceLocator;
 public class ItemRestClientLocator extends PSBaseServiceLocator {
 	  
 	   /**
-	    * Method getItemServiceBase.
-	    * @return ItemRestServiceImpl
-	    */
+		* Method getItemServiceBase.
+		* @return ItemRestServiceImpl
+		*/
 	   public static ItemRestServiceImpl getItemServiceBase()
 	   {
-	      return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN); 
+		  return (ItemRestServiceImpl) PSBaseServiceLocator.getBean(IMPORT_BASE_CLIENT_BEAN); 
 	   }
 	   
 	   /**
-	    * Field IMPORT_BASE_CLIENT_BEAN.
-	    * (value is ""restItemClient"")
-	    */
+		* Field IMPORT_BASE_CLIENT_BEAN.
+		* (value is ""restItemClient"")
+		*/
 	   public static final String IMPORT_BASE_CLIENT_BEAN = "restItemClient";
 }
+
+	// REFACTORED: CP-JAVA11

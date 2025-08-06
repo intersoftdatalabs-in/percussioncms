@@ -21,7 +21,7 @@ import com.percussion.pso.imageedit.data.OpenImageResult;
 import com.percussion.pso.imageedit.web.ImagePersistenceManager;
 import com.percussion.pso.imageedit.web.ImageUrlBuilder;
 import com.percussion.pso.utils.RxRequestUtils;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

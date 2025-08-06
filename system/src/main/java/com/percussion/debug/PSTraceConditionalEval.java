@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import java.text.MessageFormat;
  * Used to generate trace messages for the Conditional Evaluation information trace message 
  * type (0x10000).  Includes any conditional evaluation for selection (i.e. resource selection, mapper, etc.).  Prints out each operand, the operator, and result for every condition checked.
  */
-public class PSTraceConditionalEval extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceConditionalEval extends PSTraceMessage {
 
    /**
     * Constructor for this class.

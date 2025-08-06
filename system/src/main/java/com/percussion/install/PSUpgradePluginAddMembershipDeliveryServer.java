@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
  * @author JaySeletz
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddMembershipDeliveryServer extends PSUpgradePluginDeliveryServersBase
 {
    private static final String MEMBERSHIP_SERVICE_VALUE = "perc-membership-services";

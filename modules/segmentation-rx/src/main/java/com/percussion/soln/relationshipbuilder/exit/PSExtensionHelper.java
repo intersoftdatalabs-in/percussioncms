@@ -43,7 +43,7 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.soln.relationshipbuilder.IPSRelationshipBuilder;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 /**

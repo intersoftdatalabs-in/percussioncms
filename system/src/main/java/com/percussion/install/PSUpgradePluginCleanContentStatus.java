@@ -46,6 +46,7 @@ import java.util.Properties;
  * a dummy value of "title_CONTENTID". It will also write to the log file showing
  * any table rows that were modified.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin
 {
    /**

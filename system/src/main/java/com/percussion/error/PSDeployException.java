@@ -1,5 +1,6 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
+// REFACTORED: CP-JAVA11
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +38,10 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 /**
- * Exception class to used to report general exceptions, or may be subclassed
- * if necessary.  Handles formatting of messages stored in the
- * PSDeploymentErrorStringBundle resource bundle using error codes and 
- * arguments.  Localization is also supported.
+ * Exception class used to report general exceptions, or may be subclassed
+ * if necessary. Handles formatting of messages stored in the
+ * PSDeploymentErrorStringBundle resource bundle using error codes and
+ * arguments. Localization is also supported.
  */
 public class PSDeployException extends Exception
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,20 @@ import org.w3c.dom.DOMException;
  * Similar to HTMLText, but this class specifically represents the context of
  * a CDATA within the HTML.
  */
-public class HTMLCDATA extends HTMLText implements CDATASection
-{
+// REFACTORED: CP-JAVA11
+public class HTMLCDATA extends HTMLText implements CDATASection {
    /**
     * Initializes CDATASection node with an initial value within CDATA.
     */
-   public HTMLCDATA( String initialValue )
-   {
-      super( );
-      setData( initialValue );
+   public HTMLCDATA(String initialValue) {
+      super();
+      setData(initialValue);
    }
-
 
    /**
     * Default constructor.
     */
-   public HTMLCDATA()
-   {
+   public HTMLCDATA() {
       super();
    }
 
@@ -50,14 +47,9 @@ public class HTMLCDATA extends HTMLText implements CDATASection
     *
     * @return CDATA_SECTION_NODE.
     */
-   public short getNodeType()
-   {
+   public short getNodeType() {
       return CDATA_SECTION_NODE;
    }
-
-   /**
-    * @return The data string of this CDATA object.
-    */
    public String getData() throws DOMException
    {
       return m_data.toString();

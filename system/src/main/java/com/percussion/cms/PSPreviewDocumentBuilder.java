@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
 import com.percussion.data.IPSInternalResultHandler;
@@ -70,13 +71,13 @@ public class PSPreviewDocumentBuilder extends PSRowEditorDocumentBuilder
     * @return Since we don't want any action buttons on a preview page, we
     *    always return an empty iterator.
     */
-   protected Iterator getActionLinks( Document doc, PSExecutionData data )
+   protected Iterator<?> getActionLinks( Document doc, PSExecutionData data )
       throws PSDataExtractionException
    {
       if ( null == doc || null == data )
          throw new IllegalArgumentException( "One or more params is null." );
 
-      return PSIteratorUtils.emptyIterator();
+      return java.util.Collections.emptyIterator();
    }
 
 

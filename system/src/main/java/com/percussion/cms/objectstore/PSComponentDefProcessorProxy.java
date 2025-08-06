@@ -18,7 +18,8 @@ package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.PSRemoteRequester;
+import com.percussion.system.utils.PSRemoteRequester;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;

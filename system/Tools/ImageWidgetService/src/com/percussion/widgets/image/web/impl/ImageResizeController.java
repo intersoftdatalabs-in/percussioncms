@@ -18,12 +18,11 @@
 package com.percussion.widgets.image.web.impl;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.widgets.image.data.CachedImageMetaData;
 import com.percussion.widgets.image.data.ImageData;
 import com.percussion.widgets.image.services.ImageCacheManager;
 import com.percussion.widgets.image.services.ImageResizeManager;
-import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.lang3.StringUtils;
@@ -181,9 +180,9 @@ public class ImageResizeController {
         try (var inputStream = new ByteArrayInputStream(binaryDataOpt.get())) {
             var resizedImage = imageResizeManager.generateImage(
                 inputStream,
-                resizeParams.cropBox().orElse(null),
-                resizeParams.targetSize().orElse(null),
-                resizeParams.rotation()
+                resizeParams.getCropBox().orElse(null),
+                resizeParams.getTargetSize().orElse(null),
+                resizeParams.getRotation()
             );
 
             var newKey = imageCacheManager.addImage(resizedImage);
@@ -278,15 +277,29 @@ public class ImageResizeController {
     }
 
     /**
-     * Record class representing resize parameters.
-     *
-     * @param targetSize optional target dimensions
-     * @param cropBox optional crop rectangle
-     * @param rotation rotation angle in degrees
+     * POJO representing resize parameters.
      */
-    private record ResizeParameters(
-        Optional<Dimension> targetSize,
-        Optional<Rectangle> cropBox,
-        int rotation
-    ) {}
+    private static class ResizeParameters {
+        private final Optional<Dimension> targetSize;
+        private final Optional<Rectangle> cropBox;
+        private final int rotation;
+
+        public ResizeParameters(Optional<Dimension> targetSize, Optional<Rectangle> cropBox, int rotation) {
+            this.targetSize = targetSize;
+            this.cropBox = cropBox;
+            this.rotation = rotation;
+        }
+
+        public Optional<Dimension> getTargetSize() {
+            return targetSize;
+        }
+
+        public Optional<Rectangle> getCropBox() {
+            return cropBox;
+        }
+
+        public int getRotation() {
+            return rotation;
+        }
+    }
 }

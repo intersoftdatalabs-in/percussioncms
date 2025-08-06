@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+// REFACTORED: CP-JAVA11
 public class RxDesignerOnlyPostInstaller
 {
 

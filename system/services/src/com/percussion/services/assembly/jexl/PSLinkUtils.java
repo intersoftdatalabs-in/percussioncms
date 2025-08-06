@@ -21,7 +21,7 @@ import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.utils.request.PSRequestInfo;
 
 import java.net.MalformedURLException;

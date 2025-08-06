@@ -46,7 +46,7 @@ import com.percussion.services.security.data.PSBackEndRole;
 import com.percussion.services.security.data.PSBackEndSubject;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.security.data.PSCommunityRoleAssociation;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jdbc.PSConnectionDetail;

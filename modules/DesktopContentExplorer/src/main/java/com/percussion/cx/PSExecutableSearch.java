@@ -33,7 +33,7 @@ import com.percussion.error.PSException;
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.PSCommonSearchUtils;
 import com.percussion.search.PSWSSearchResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSEntrySet;
 import com.percussion.util.PSRemoteAppletRequester;
 import com.percussion.utils.collections.PSIteratorUtils;

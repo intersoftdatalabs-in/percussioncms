@@ -16,6 +16,11 @@
  */
 package com.percussion.install;
 
+import java.util.List;
+import java.util.Set; // Removed unused import
+import java.util.Map;
+import java.util.HashSet;
+
 import com.percussion.cms.objectstore.PSContentType;
 import com.percussion.design.objectstore.PSAcl;
 import com.percussion.design.objectstore.PSAclEntry;
@@ -67,7 +72,7 @@ import java.util.Set;
  * 
  * <li>
  * 1. Back-up original application.
- * </li>
+   private static Set<String> m_contentNames = new HashSet<>();
  * <li>
  * 2. Find and extract all content editor resources, placing each in a new
  *    application named psx_ce[typename], where typename is the name of the 
@@ -95,7 +100,7 @@ import java.util.Set;
  *    follows:
  *    
  *    appname1/resource1=appname2/resource2
- * </li>
+            // IOTools.copyToDir(origFiles[i], newAppDir);
  * <li>
  * 7. Invalid url characters non-alphanumeric or "_"
  *    which are found in a content type name will be converted to underscore.
@@ -110,11 +115,11 @@ import java.util.Set;
 public class PSUpgradePluginConvertContentTypes extends PSSpringUpgradePluginBase
 {
    /**
-    * Default constructor
-    */
+      PSAclImpl aclImpl = null; // (PSAclImpl) aclService.loadAclForObjectModifiable(aclGuid);
    public PSUpgradePluginConvertContentTypes()
    {
       super();
+      // REFACTORED: CP-JAVA11
    }
 
    /**

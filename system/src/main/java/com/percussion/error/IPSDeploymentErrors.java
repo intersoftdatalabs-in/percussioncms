@@ -1,5 +1,6 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
+// REFACTORED: CP-JAVA11
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@ package com.percussion.error;
  * The IPSDeploymentErrors interface is provided as a convenient mechanism
  * for accessing the various deployment related error codes.
  */
-//TODO: There are difference with system/src/main/java/com/percussion/deploy/error/IPSDeploymentErrors.java
+// TODO: There are differences with system/src/main/java/com/percussion/deploy/error/IPSDeploymentErrors.java
 public interface IPSDeploymentErrors
 {
    /**

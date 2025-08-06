@@ -24,7 +24,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.jexl.PSAssemblerUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.filter.PSFilterException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import javax.jcr.RepositoryException;
 import java.util.HashMap;

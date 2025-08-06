@@ -31,6 +31,7 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.services.workflow.data.PSWorkflow;
 
+// REFACTORED: CP-JAVA11
 import java.util.Arrays;
 import java.util.List;
 
@@ -127,7 +128,6 @@ public class PSOPreventDeepCloneUDF extends PSSimpleJavaUdfExtension
 			return true;
 		}
 		return false;
-	   return false;
    }
    
 	private String getWorkflowName(int id) {

@@ -18,7 +18,7 @@ package com.percussion.services.content.data;
 
 import com.percussion.search.IPSSearchResultRow;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.HashMap;
 import java.util.Map;

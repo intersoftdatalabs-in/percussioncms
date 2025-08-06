@@ -23,7 +23,7 @@ import com.percussion.design.objectstore.PSDisplayError;
 import com.percussion.design.objectstore.PSFieldError;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 

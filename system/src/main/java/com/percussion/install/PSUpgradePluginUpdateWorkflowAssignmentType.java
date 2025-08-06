@@ -36,6 +36,7 @@ import java.util.Properties;
  * @author rafaelsalis
  * 
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateWorkflowAssignmentType implements IPSUpgradePlugin
 {
    private PrintStream logger;

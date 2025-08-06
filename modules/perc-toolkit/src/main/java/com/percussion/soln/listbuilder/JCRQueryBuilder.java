@@ -37,7 +37,7 @@ import java.util.List;
  *
  */
 public class JCRQueryBuilder {
-
+    // REFACTORED: CP-JAVA11
     private String startDate = null;
     private String endDate = null;
     private String titleContains = null;

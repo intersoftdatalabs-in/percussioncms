@@ -16,7 +16,7 @@
  */
 package com.percussion.pagemanagement.assembler.impl;
 
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 // REFACTORED: CP-JAVA11
 public class PSAssemblyConfig {

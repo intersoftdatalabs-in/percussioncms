@@ -56,7 +56,7 @@ import com.percussion.services.system.data.PSDependency;
 import com.percussion.services.system.data.PSMimeContentAdapter;
 import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;

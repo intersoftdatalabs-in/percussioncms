@@ -37,7 +37,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSession;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.request.PSRequestInfo;
@@ -301,7 +301,7 @@ public class PSDesignerConnectionHandler implements IPSRequestHandler
 
 
    static final String UTIL_PKG_NAME = "com.percussion.util";
-   static com.percussion.util.PSFormatVersion ms_version = new com.percussion.util.PSFormatVersion(UTIL_PKG_NAME);
+   static com.percussion.system.utils.PSFormatVersion ms_version = new com.percussion.system.utils.PSFormatVersion(UTIL_PKG_NAME);
 
    private static final String   ms_openRoot      = "PSXDesignOpen";
    private static final String   ms_closeRoot   = "PSXDesignClose";

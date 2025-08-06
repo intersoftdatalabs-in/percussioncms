@@ -23,9 +23,10 @@ import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pathmanagement.data.PSPathItem;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSDataServiceException;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.ui.data.PSDisplayPropertiesCriteria;
 import com.percussion.ui.service.IPSListViewProcessor;
-import com.percussion.util.PSSiteManageBean;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;

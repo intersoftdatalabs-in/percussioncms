@@ -20,7 +20,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
 
 /**
  * Tests if the addressed content is publishable or not.

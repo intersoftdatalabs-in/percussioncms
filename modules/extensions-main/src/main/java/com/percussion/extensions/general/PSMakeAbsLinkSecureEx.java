@@ -20,7 +20,7 @@ import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSUdfProcessor;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 
 import java.net.URL;
 import java.util.HashMap;

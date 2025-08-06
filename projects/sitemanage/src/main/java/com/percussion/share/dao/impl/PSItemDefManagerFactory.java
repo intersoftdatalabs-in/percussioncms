@@ -18,7 +18,8 @@
 package com.percussion.share.dao.impl;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.annotation.Lazy;
 

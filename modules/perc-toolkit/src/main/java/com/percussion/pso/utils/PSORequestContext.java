@@ -25,7 +25,7 @@ package com.percussion.pso.utils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * A system request that overrides the PSRequestContext. 

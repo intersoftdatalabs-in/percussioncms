@@ -23,7 +23,7 @@ import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 import com.percussion.services.PSBaseServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jndi.PSJndiObjectLocator;
 import com.percussion.utils.request.PSRequestInfo;

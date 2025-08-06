@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.validation;
 
+// REFACTORED: CP-JAVA11
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
@@ -44,6 +45,7 @@ public class PSODateRangeFieldValidator extends PSDefaultExtension
       implements
          IPSFieldValidator
 {
+   // REFACTORED: CP-JAVA11
 
    private static final Logger log = LogManager.getLogger(PSODateRangeFieldValidator.class);
    

@@ -27,7 +27,7 @@ import com.percussion.error.PSException;
 import com.percussion.search.objectstore.PSWSSearchField;
 import com.percussion.search.objectstore.PSWSSearchParams;
 import com.percussion.search.objectstore.PSWSSearchRequest;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;

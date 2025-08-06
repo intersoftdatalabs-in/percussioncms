@@ -32,7 +32,8 @@ public class PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginD
    /**
     * Creates a new DeliveryServer entry for the cloud server, with all the 
     * configuration elements (URL / username, etc)
-    * @param doc w3c.DOM parsed documment for delivery-servers.xml
+// REFACTORED: CP-JAVA11
+   public class PSUpgradePluginAddThirdPartyDeliveryServer extends PSUpgradePluginDeliveryServersBase
     */
    @Override
    protected void upgradeDeliveryServers(Document doc)

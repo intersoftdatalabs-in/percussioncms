@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.workflow.service.impl;
 
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.workflow.service.IPSSteppedWorkflowMetadata;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

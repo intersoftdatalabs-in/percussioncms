@@ -45,7 +45,7 @@ public class PSUpgradePluginUniqueNames extends PSUpgradePluginModifyColumnBase
    }
 
    /**
-    * Makes unique the values from the given column of the given table.
+// REFACTORED: CP-JAVA11
     *
     * See base class for additional details.
     */

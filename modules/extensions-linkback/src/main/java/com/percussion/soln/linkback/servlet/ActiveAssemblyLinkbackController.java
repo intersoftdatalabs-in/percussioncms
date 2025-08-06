@@ -19,7 +19,7 @@ package com.percussion.soln.linkback.servlet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
 import com.percussion.soln.linkback.utils.ItemSummaryFinder;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

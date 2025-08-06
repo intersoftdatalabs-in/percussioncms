@@ -43,6 +43,7 @@ import java.util.Map;
 /**
  * This plugin is used to migrate publishing data from 6.x to Mako (6.6). 
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginPublishing implements IPSUpgradePlugin
 {
    /**

@@ -18,7 +18,7 @@ package com.percussion.content.ui.aa.actions.impl;
 
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.json.JSONException;
 import org.json.JSONObject;

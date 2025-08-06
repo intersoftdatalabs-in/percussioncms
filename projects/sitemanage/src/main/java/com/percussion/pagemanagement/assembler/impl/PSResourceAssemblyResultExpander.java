@@ -23,7 +23,8 @@ import com.percussion.rx.publisher.impl.PSAbstractAssemblyResultExpander;
 import com.percussion.rx.publisher.impl.PSPublishHandler;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;

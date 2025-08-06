@@ -21,7 +21,7 @@ import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.servlets.utils.PSComponentUrls;
-import com.percussion.util.PSHtmlBodyInputStream;
+import com.percussion.system.utils.PSHtmlBodyInputStream;
 import com.percussion.utils.codec.PSXmlDecoder;
 import com.percussion.utils.request.PSRequestInfo;
 

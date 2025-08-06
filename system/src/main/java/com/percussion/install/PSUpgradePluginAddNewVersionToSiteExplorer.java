@@ -35,6 +35,7 @@ import java.util.Properties;
  * of this plugin is to look for the New Version menu item relation for site
  * explorer and if does not exists add it.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddNewVersionToSiteExplorer implements IPSUpgradePlugin
 {
    /**

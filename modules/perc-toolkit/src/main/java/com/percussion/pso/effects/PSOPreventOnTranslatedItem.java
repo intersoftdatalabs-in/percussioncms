@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.effects;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSExceptionUtils;

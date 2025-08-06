@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public abstract class PSDbComponent implements IPSDbComponent
     * Just like {@link #getComponentType()}, except it returns the default
     * component type for a given <code>Class</code>
     */
-   public static String getComponentType(Class compClass)
+   public static String getComponentType(Class<?> compClass)
    {
       String name = compClass.getName();
       name = name.substring(name.lastIndexOf('.')+1);
@@ -450,11 +450,10 @@ public abstract class PSDbComponent implements IPSDbComponent
 
       try
       {
-         Class c = Class.forName(strClassName);
-         Constructor ctor = c.getConstructor(
-            new Class[] { Class.forName("org.w3c.dom.Element") });
-
-         key = (PSKey) ctor.newInstance(new Object [] {el});
+         @SuppressWarnings("unchecked")
+         Class<? extends PSKey> c = (Class<? extends PSKey>) Class.forName(strClassName);
+         Constructor<? extends PSKey> ctor = c.getConstructor(Element.class);
+         key = ctor.newInstance(el);
       }
       catch (ClassNotFoundException cnfe)
       {
@@ -838,10 +837,10 @@ public abstract class PSDbComponent implements IPSDbComponent
 
       int j = compValues.length;
       // get all values from m_key, gen and parentKey if needed
-      for (int i=compValues.length; i < keyParts.length; i++)
-      {
-         if (parentKey.getPart(keyParts[i]).trim().length() > 0)
+      for (int i = compValues.length; i < keyParts.length; i++) {
+         if (parentKey != null && parentKey.getPart(keyParts[i]) != null && parentKey.getPart(keyParts[i]).trim().length() > 0) {
             values[j++] = parentKey.getPart(keyParts[i]);
+         }
       }
 
       if (j < keyParts.length)

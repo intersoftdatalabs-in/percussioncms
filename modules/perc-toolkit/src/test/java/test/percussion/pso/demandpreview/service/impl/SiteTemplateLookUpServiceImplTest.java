@@ -37,16 +37,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class SiteTemplateLookUpServiceImplTest
 {
@@ -63,7 +63,7 @@ public class SiteTemplateLookUpServiceImplTest
 	IPSGuidManager guidManager;
 
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception
 	{
 		context = new Mockery();
@@ -80,7 +80,7 @@ public class SiteTemplateLookUpServiceImplTest
 	}
 
 	@Test
-	@Ignore
+	@Disabled
 	//TODO: Fix testLookUpSiteEdition
 	public void testLookUpSiteEdition() throws SiteLookUpException
 	{

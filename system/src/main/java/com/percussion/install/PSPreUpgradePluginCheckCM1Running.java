@@ -19,6 +19,7 @@ package com.percussion.install;
 
 import org.w3c.dom.Element;
 
+// REFACTORED: CP-JAVA11
 public class PSPreUpgradePluginCheckCM1Running implements IPSUpgradePlugin
 {
 

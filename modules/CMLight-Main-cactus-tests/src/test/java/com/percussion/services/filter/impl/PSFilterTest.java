@@ -29,7 +29,7 @@ import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.timing.PSStopwatch;
 

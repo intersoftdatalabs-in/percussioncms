@@ -20,7 +20,7 @@ package com.percussion.dashboardmanagement.service.impl;
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.dashboardmanagement.service.IPSGadgetService;
 import com.percussion.share.validation.PSValidationErrors;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 import java.util.ArrayList;
 import java.util.List;

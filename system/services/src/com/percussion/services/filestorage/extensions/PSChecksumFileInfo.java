@@ -31,7 +31,7 @@ import com.percussion.server.PSRequestValidationException;
 import com.percussion.services.filestorage.IPSFileMeta;
 import com.percussion.services.filestorage.PSFileStorageServiceLocator;
 import com.percussion.services.filestorage.data.PSMeta;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

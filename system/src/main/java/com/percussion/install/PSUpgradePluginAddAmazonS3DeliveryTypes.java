@@ -35,6 +35,7 @@ import java.util.Properties;
  * Upgrade plugin to add amazon_s3 and amazon_s3_only delivery types to PSX_DELIVERY_TYPE table.
  * 
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddAmazonS3DeliveryTypes implements IPSUpgradePlugin
 {
    private PrintStream logger;

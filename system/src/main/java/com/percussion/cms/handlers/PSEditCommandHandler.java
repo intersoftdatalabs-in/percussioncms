@@ -47,7 +47,7 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSApplicationHandler;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
 import com.percussion.util.PSMapPair;
 import com.percussion.utils.collections.PSIteratorUtils;
 

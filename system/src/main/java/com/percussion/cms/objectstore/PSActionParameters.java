@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,19 +144,14 @@ public class PSActionParameters
     *    parameters defined in this collection, never <code>null</code>, 
     *    may be empty.
     */
-   public Map toMap()
-   {
+   public Map<String, String> toMap() {
       // we use a tree map to sort the map in alpha order
-      Map params = new TreeMap();
-      Iterator parameters = iterator();
-      while (parameters.hasNext())
-      {
-         PSActionParameter parameter = 
-            (PSActionParameter) parameters.next();
-            
+      Map<String, String> params = new TreeMap<>();
+      Iterator<PSActionParameter> parameters = iterator();
+      while (parameters.hasNext()) {
+         PSActionParameter parameter = parameters.next();
          params.put(parameter.getName(), parameter.getValue());
       }
-      
       return params;
    }
    
@@ -168,39 +163,31 @@ public class PSActionParameters
     *    may be <code>null</code> or empty in which case the collection will be
     *    cleared.
     */
-   public void fromMap(Map params)
-   {
-      if (params == null || params.isEmpty())
-      {
+   public void fromMap(Map<String, String> params) {
+      if (params == null || params.isEmpty()) {
          clear();
          return;
       }
-      
       // add or update the new/changed parameters
-      Iterator parameters = params.keySet().iterator();
-      while (parameters.hasNext())
-      {
-         String name = (String) parameters.next();
-         String value = (String) params.get(name);
-         
+      for (Map.Entry<String, String> entry : params.entrySet()) {
+         String name = entry.getKey();
+         String value = entry.getValue();
          PSActionParameter parameter = getParameterObject(name);
          if (parameter != null)
             parameter.setValue(value);
          else
             add(new PSActionParameter(name, value));
       }
-      
       // remove parameters
-      List toBeRemoved = new ArrayList();
-      parameters = iterator();
-      while (parameters.hasNext())
-      {
-         PSActionParameter parameter = (PSActionParameter) parameters.next();
+      List<PSActionParameter> toBeRemoved = new ArrayList<>();
+      Iterator<PSActionParameter> parameters = iterator();
+      while (parameters.hasNext()) {
+         PSActionParameter parameter = parameters.next();
          if (params.get(parameter.getName()) == null)
             toBeRemoved.add(parameter);
       }
-      for (int i=0; i<toBeRemoved.size(); i++)
-         remove((IPSDbComponent) toBeRemoved.get(i));
+      for (PSActionParameter param : toBeRemoved)
+         remove(param);
    }
 
    /**
@@ -211,12 +198,10 @@ public class PSActionParameters
     *
     * @return A valid parameter, or <code>null</code> if one can't be found.
     */
-   private PSActionParameter getParameterObject(String name)
-   {
-      Iterator it = iterator();
-      while (it.hasNext())
-      {
-         PSActionParameter param = (PSActionParameter) it.next();
+   private PSActionParameter getParameterObject(String name) {
+      Iterator<PSActionParameter> it = iterator();
+      while (it.hasNext()) {
+         PSActionParameter param = it.next();
          if (param.getName().equalsIgnoreCase(name))
             return param;
       }

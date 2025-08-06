@@ -29,7 +29,7 @@ import com.percussion.services.publisher.IPSDeliveryType;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSDeliveryType;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang3.StringUtils;
 

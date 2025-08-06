@@ -30,7 +30,8 @@ import com.percussion.services.security.IPSAcl;
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSSecurityException;
 import com.percussion.services.security.data.PSAclImpl;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;

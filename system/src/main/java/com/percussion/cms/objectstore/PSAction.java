@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,12 @@ import java.util.List;
  * 'sys_Action.dtd'.
  */
 public class PSAction extends PSVersionableDbComponent
-   implements IPSCatalogSummary, IPSCloneTuner
-{
+   implements IPSCatalogSummary, IPSCloneTuner {
+
+   @Override
+   public PSTypeEnum getType() {
+      return PSTypeEnum.ACTION;
+   }
 
    private static final Logger log = LogManager.getLogger(PSAction.class);
 
@@ -1418,21 +1422,17 @@ public class PSAction extends PSVersionableDbComponent
     * @see com.percussion.services.data.IPSCloneTuner#tuneClone(java.lang.Object,
     * long)
     */
-   @SuppressWarnings("unchecked")
-   public Object tuneClone(long newId)
-   {
+   public Object tuneClone(long newId) {
       PSKey newKey = createKey(newId + "");
       setKey(newKey);
-      Iterator cols = m_params.iterator();
-      while (cols.hasNext())
-      {
-         PSActionParameter col = (PSActionParameter) cols.next();
+      Iterator<PSActionParameter> cols = m_params.iterator();
+      while (cols.hasNext()) {
+         PSActionParameter col = cols.next();
          col.setKey(newKey);
       }
-      Iterator props = m_props.iterator();
-      while (props.hasNext())
-      {
-         PSActionProperty prop = (PSActionProperty) props.next();
+      Iterator<PSActionProperty> props = m_props.iterator();
+      while (props.hasNext()) {
+         PSActionProperty prop = props.next();
          prop.setKey(newKey);
       }
       // Clone is always server action.

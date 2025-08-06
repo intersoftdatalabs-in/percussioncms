@@ -34,7 +34,7 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSLinkableItem;
 import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.share.service.exception.PSBeanValidationUtils;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.validation.ValidationException;
 import com.percussion.webservices.content.IPSContentDesignWs;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,59 +16,67 @@
  */
 package test.percussion.pso.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+// ...existing code...
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.IPSExtensionDef;
 import com.percussion.pso.validation.PSODateRangeFieldValidator;
 import com.percussion.server.IPSRequestContext;
 
+// REFACTORED: CP-JAVA11
+@ExtendWith(MockitoExtension.class)
 public class PSODateRangeFieldValidatorTest
 {
    private static final Logger log = LogManager.getLogger(PSODateRangeFieldValidatorTest.class);
    
-   Mockery context; 
+   @Mock
    IPSRequestContext request;
+   
+   @Mock
    IPSExtensionDef extDef; 
    
    PSODateRangeFieldValidator cut; 
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
-      context = new Mockery();
-      request = context.mock(IPSRequestContext.class);
       cut = new PSODateRangeFieldValidator(); 
       
-      extDef = context.mock(IPSExtensionDef.class); 
-      cut.init(extDef, new File("foo"));
       final String[] pnames = {PSODateRangeFieldValidator.CURRENT_FIELD, PSODateRangeFieldValidator.SOURCE_FIELD,
             PSODateRangeFieldValidator.MIN_DAYS, PSODateRangeFieldValidator.MAX_DAYS};
-      context.checking(new Expectations(){{
-         one(extDef).getRuntimeParameterNames();
-         will(returnIterator(pnames)); 
-         allowing(request).getParameter(PSODateRangeFieldValidator.CURRENT_FIELD);
-         will(returnValue(null));
-         allowing(request).getParameter(PSODateRangeFieldValidator.SOURCE_FIELD);
-         will(returnValue(null));
-         allowing(request).getParameter(PSODateRangeFieldValidator.MIN_DAYS);
-         will(returnValue(null));
-         allowing(request).getParameter(PSODateRangeFieldValidator.MAX_DAYS);
-         will(returnValue(null));
-      }});
+      
+      Iterator<String> paramIterator = Arrays.asList(pnames).iterator();
+      when(extDef.getRuntimeParameterNames())
+         .thenReturn(paramIterator); 
+      when(request.getParameter(PSODateRangeFieldValidator.CURRENT_FIELD))
+         .thenReturn(null);
+      when(request.getParameter(PSODateRangeFieldValidator.SOURCE_FIELD))
+         .thenReturn(null);
+      when(request.getParameter(PSODateRangeFieldValidator.MIN_DAYS))
+         .thenReturn(null);
+      when(request.getParameter(PSODateRangeFieldValidator.MAX_DAYS))
+         .thenReturn(null);
+         
+      cut.init(extDef, new File("foo"));
    }
+   
    @Test
    public final void testProcessUdf()
    {
@@ -87,10 +95,8 @@ public class PSODateRangeFieldValidatorTest
       
       try
       {
-         context.checking(new Expectations(){{
-            one(request).getParameter("field1");
-            will(returnValue(sourceStr));
-         }});
+         when(request.getParameter("field1"))
+            .thenReturn(sourceStr);
          
          Boolean result = (Boolean) cut.processUdf(params, request);
          
@@ -98,7 +104,7 @@ public class PSODateRangeFieldValidatorTest
          log.debug("Result is " + result);
          assertTrue(result.booleanValue());
          
-         context.assertIsSatisfied(); 
+         verify(request).getParameter("field1");
          
       } catch (PSConversionException ex)
       {
@@ -126,10 +132,8 @@ public class PSODateRangeFieldValidatorTest
       
       try
       {
-         context.checking(new Expectations(){{
-            one(request).getParameter("field1");
-            will(returnValue(sourceStr));
-         }});
+         when(request.getParameter("field1"))
+            .thenReturn(sourceStr);
          
          Boolean result = (Boolean) cut.processUdf(params, request);
          
@@ -137,7 +141,7 @@ public class PSODateRangeFieldValidatorTest
          log.debug("Result is " + result);
          assertFalse(result.booleanValue());
          
-         context.assertIsSatisfied(); 
+         verify(request).getParameter("field1");
          
       } catch (PSConversionException ex)
       {
@@ -164,10 +168,8 @@ public class PSODateRangeFieldValidatorTest
       
       try
       {
-         context.checking(new Expectations(){{
-            one(request).getParameter("field1");
-            will(returnValue(sourceStr));
-         }});
+         when(request.getParameter("field1"))
+            .thenReturn(sourceStr);
          
          Boolean result = (Boolean) cut.processUdf(params, request);
          
@@ -175,7 +177,7 @@ public class PSODateRangeFieldValidatorTest
          log.debug("Result is " + result);
          assertFalse(result.booleanValue());
          
-         context.assertIsSatisfied(); 
+         verify(request).getParameter("field1");
          
       } catch (PSConversionException ex)
       {

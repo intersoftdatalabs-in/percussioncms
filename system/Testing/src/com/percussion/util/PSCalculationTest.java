@@ -19,6 +19,9 @@ package com.percussion.util;
 
 import com.percussion.design.objectstore.PSNumericLiteral;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.system.utils.PSCalculation;
+import com.percussion.system.utils.PSDate;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

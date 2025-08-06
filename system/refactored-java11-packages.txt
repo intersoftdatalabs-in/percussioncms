@@ -1,4 +1,3 @@
-
 com.percussion.data, Data extraction and conditional evaluation (Java 11 refactored)
 com.percussion.util.servlet, Utility classes for servlet HTTP and multipart handling
 com.percussion.services.content
@@ -35,4 +34,6 @@ com.percussion.integration, Integration utilities and helpers (Java 11 refactore
 com.percussion.webdav, WebDAV servlet and status utilities (Java 11 refactored)
 com.percussion.hooks, Core servlet hooks and utilities (Java 11 refactored)
 com.percussion.hooks.webservices, SOAP webservices servlet endpoints (Java 11 refactored)
+com.percussion.install, Install and upgrade utilities (Java 11 refactored)
+com.percussion.cms, CMS display field element builder (Java 11 refactored)
 

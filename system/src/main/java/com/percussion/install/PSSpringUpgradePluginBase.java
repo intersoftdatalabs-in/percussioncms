@@ -18,8 +18,8 @@ package com.percussion.install;
 
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.services.PSBaseServiceLocator;
+import com.percussion.system.utils.PSDataSourceFactory;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
-import com.percussion.util.PSDataSourceFactory;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.servlet.PSServletUtils;

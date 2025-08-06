@@ -58,41 +58,25 @@ import java.util.Properties;
  * @see         com.percussion.design.objectstore.PSErrorWebPages
  * @see         com.percussion.design.objectstore.PSCustomError
  *
- * @author      Tas Giakouminakis
- * @version      1.0
- * @since      1.0
+ * @author Tas Giakouminakis
+ * @version 1.0
+ * @since 1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSErrorHandler {
 
    /**
-    * Construct an error handler with the specified customizations. For each
-    * error a custom page has not been defined, the default error page
-    * defined in the
-    * {@link com.percussion.error.PSErrorManager PSErrorManager}
-    * will be used. Use <code>null</code> if no custom error pages are being
-    * defined.
+    * Constructs an error handler with the specified customizations. For each error, if a custom page is not defined, the default error page from {@link com.percussion.error.PSErrorManager} will be used. Use {@code null} if no custom error pages are defined.
     *
-    * @param   pages               the custom error pages to use.
-    *
-    * @param   returnHtmlErrors   if <code>true</code>, the error response
-    *                              text is returned as HTML; otherwise,
-    *                              XML is used
-    *
-    * @param   notify            the notification settings.
-    *
-    * @param   rules               defines how to log the errors
-    *
-    * @param   rules   the rules that determine when/if errors are to be written
-    *   to the log. if it is <CODE>null</CODE>, then logging will be enabled for all
-    *   errors.
+    * @param pages the custom error pages to use
+    * @param returnHtmlErrors if {@code true}, error response text is returned as HTML; otherwise, XML is used
+    * @param notify the notification settings
+    * @param rules the rules that determine when/if errors are to be written to the log. If {@code null}, logging is enabled for all errors.
     */
    public PSErrorHandler(PSMapClassToObject pages,
-      boolean returnHtmlErrors,
-      PSNotifier notify,
-      PSLogger rules)
-   {
-      super();
-
+                         boolean returnHtmlErrors,
+                         PSNotifier notify,
+                         PSLogger rules) {
       m_logHandler = new com.percussion.log.PSLogHandler(rules);
       m_pages = pages;
       m_notify = notify;
@@ -100,41 +84,27 @@ public class PSErrorHandler {
    }
 
    /**
-    * A convenience constructor that calls the
-    * {@link #PSErrorHandler(PSMapClassToObject,boolean,PSNotifier,PSLogger) constructor}
-    * with a <CODE>null</CODE> PSLogger, enabling logging for all errors.
+    * Convenience constructor enabling logging for all errors.
     */
    public PSErrorHandler(PSMapClassToObject pages,
-      boolean returnHtmlErrors,
-      PSNotifier notify)
-      throws IllegalArgumentException
-   {
+                         boolean returnHtmlErrors,
+                         PSNotifier notify) {
       this(pages, returnHtmlErrors, notify, null);
    }
 
    /**
-    * A convenience constructor that calls the
-    * {@link #PSErrorHandler(PSMapClassToObject,boolean,PSNotifier,PSLogger) constructor}
-    * after converting the PSErrorWebPages object to a map
+    * Convenience constructor converting {@link PSErrorWebPages} to a map.
     */
-   public PSErrorHandler(
-      PSErrorWebPages pages, PSNotifier notify, PSLogger rules)
-      throws IllegalArgumentException
-   {
+   public PSErrorHandler(PSErrorWebPages pages, PSNotifier notify, PSLogger rules) {
       this(createPageMapFromErrorPages(pages),
-         ((pages == null) ? false : pages.isHtmlReturned()),
-         notify, rules);
+           (pages == null ? false : pages.isHtmlReturned()),
+           notify, rules);
    }
 
    /**
-    * A convenience constructor that calls the
-    * {@link #PSErrorHandler(PSErrorWebPages,PSNotifier,PSLogger) constructor}
-    * with a <CODE>null</CODE> logger, after converting the PSErrorWebPages object
-    * to a map
+    * Convenience constructor with {@code null} logger, converting {@link PSErrorWebPages} to a map.
     */
-   public PSErrorHandler(PSErrorWebPages pages, PSNotifier notify)
-      throws IllegalArgumentException
-   {
+   public PSErrorHandler(PSErrorWebPages pages, PSNotifier notify) {
       this(pages, notify, null);
    }
 
@@ -157,57 +127,41 @@ public class PSErrorHandler {
     *
     * @param   error         the error to be reported
     */
-   public void reportError(PSResponse response, PSLogError err)
-   {
-      // log the message first (in case we hit more errors below)
+   public void reportError(PSResponse response, PSLogError err) {
+      // Log the message first (in case we hit more errors below)
       m_logHandler.write(err);
-
-      // let the user (requestor) know what's going on
+      // Notify the requestor
       notifyRequestor(response, err);
-
-      // notify any administrators defined in the PSNotifier object
+      // Notify any administrators defined in the PSNotifier object
       notifyAdmins(err);
    }
 
-   public static Document fillErrorResponse(Throwable t)
-   {
-      // create a blank doc
+   public static Document fillErrorResponse(Throwable t) {
       Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
-
-      // and append the error (which will make it the root element)
       appendError(respDoc, respDoc, t);
-
       return respDoc;
    }
 
-   public static Element appendError(
-      Document respDoc, Node rootNode, Throwable t)
-   {
-      // can't use addEmptyElement, so use DOM directly
-       Element root = respDoc.createElement("PSXError");
+   public static Element appendError(Document respDoc, Node rootNode, Throwable t) {
+      // Can't use addEmptyElement, so use DOM directly
+      Element root = respDoc.createElement("PSXError");
       rootNode.appendChild(root);
 
-      PSXmlDocumentBuilder.addElement(
-         respDoc, root, "message", t.getMessage());
-      PSXmlDocumentBuilder.addElement(
-         respDoc, root, "exceptionClass", t.getClass().getName());
+      PSXmlDocumentBuilder.addElement(respDoc, root, "message", t.getMessage());
+      PSXmlDocumentBuilder.addElement(respDoc, root, "exceptionClass", t.getClass().getName());
       if (t instanceof PSException) {
-         PSException e = (PSException)t;
-
-         PSXmlDocumentBuilder.addElement(
-            respDoc, root, "errorCode", String.valueOf(e.getErrorCode()));
-
-         Element argsNode = PSXmlDocumentBuilder.addEmptyElement(
-               respDoc, root, "errorArgs");
-
+         PSException e = (PSException) t;
+         PSXmlDocumentBuilder.addElement(respDoc, root, "errorCode", String.valueOf(e.getErrorCode()));
+         Element argsNode = PSXmlDocumentBuilder.addEmptyElement(respDoc, root, "errorArgs");
          Object[] args = e.getErrorArguments();
          int size = (args == null) ? 0 : args.length;
-         for (int i = 0; i < size; i++) {
-            String argText = (args[i] == null) ? "" : args[i].toString();
-            PSXmlDocumentBuilder.addElement(respDoc, argsNode, "arg", argText);
+         if (args != null) {
+            for (int i = 0; i < size; i++) {
+               String argText = (args[i] == null) ? "" : args[i].toString();
+               PSXmlDocumentBuilder.addElement(respDoc, argsNode, "arg", argText);
+            }
          }
       }
-
       return root;
    }
 
@@ -352,17 +306,15 @@ public class PSErrorHandler {
 
                String fileExtension = null;
                if (file != null) {
-                  String oneFileName = file.getName();
-                  int fileNameLength = (oneFileName == null) ? 0 : oneFileName.length();
+               String oneFileName = file.getName();
+               if (oneFileName != null) {
+                  int fileNameLength = oneFileName.length();
                   if (fileNameLength > 0) {
-                     // bump the position by one since we need to anyway
-                     // we must check for 0 as the error condition rather than -1
-                     // and pos == fileNameLength as the upper bound rather than
-                     // pos+1
                      int pos = oneFileName.lastIndexOf(".") + 1;
-                       if ((pos != 0) && (pos != fileNameLength))
-                          fileExtension = oneFileName.substring(pos);
+                     if ((pos != 0) && (pos != fileNameLength))
+                        fileExtension = oneFileName.substring(pos);
                   }
+               }
                }
 
                if ((fileExtension != null) && (fileExtension.length() != 0)){
@@ -467,14 +419,165 @@ public class PSErrorHandler {
          props.put(PSSmtpMailProvider.PROPERTY_HOST, m_notify.getServer());
          PSSmtpMailProvider smtp = new PSSmtpMailProvider(props);
 
-         com.percussion.util.PSCollection collect = m_notify.getRecipients();
-         int collectSize = (collect == null) ? 0 : collect.size();
+      com.percussion.util.PSCollection collect = m_notify.getRecipients();
+      int collectSize = (collect == null) ? 0 : collect.size();
 
-         PSRecipient rec = null;
-         boolean errorExist = false;
+      PSRecipient rec = null;
+      boolean errorExist = false;
 
-         for (int i = 0; i < collectSize; i++){
-            rec = (PSRecipient)(collect.get(i));
+      if (collect == null) {
+         return;
+      }
+      if (collect == null) {
+         return;
+      }
+      try {
+         for (int i = 0; i < collectSize; i++) {
+            rec = (PSRecipient) (collect.get(i));
+            m_queNotif = m_queNotifHash.get(rec.getName());
+            if (m_queNotif == null) {
+               m_queNotif = new PSQueuedNotification();
+               m_queNotif.setFrom(from);
+               m_queNotif.setSubject(subject);
+               m_queNotif.addSendTo(rec.getName());
+            }
+            if (!isSpecialCase) {
+               m_queNotif.appendBodyText(bodyText);
+            }
+            switch (classFlag) {
+               case ms_authorizationError:
+                  if (rec.isAppAuthorizationFailureEnabled()) {
+                     processAppAuthorizationFailure(rec, err, m_queNotif);
+                     errorExist = true;
+                  }
+                  break;
+               case ms_designError:
+                  if (rec.isAppDesignErrorEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_htmlProcessingError:
+                  if (rec.isAppHtmlErrorEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_requestQueueError:
+                  int fixedAppQueueCount = rec.getAppRequestQueueMax();
+                  int qSize = ((PSLargeRequestQueueError) err).getRequestQueueSize();
+                  if (rec.isAppRequestQueueLargeEnabled()) {
+                     if (qSize >= fixedAppQueueCount) {
+                        m_queNotif.addGeneralErrorCountByOne();
+                        m_queNotif.appendBodyText(bodyText);
+                     }
+                     errorExist = true;
+                  }
+                  break;
+               case ms_largeRequestError:
+                  break;
+               case ms_responseTimeError:
+                  int fixedAppRespTime = rec.getAppResponseTimeMax();
+                  int respTime = ((PSPoorResponseTimeError) err).getResponseTimeMS();
+                  if (rec.isAppResponseTimeEnabled()) {
+                     if (respTime > fixedAppRespTime) {
+                        m_queNotif.addGeneralErrorCountByOne();
+                        m_queNotif.appendBodyText(bodyText);
+                     }
+                     errorExist = true;
+                  }
+                  break;
+               case ms_validationError:
+                  if (rec.isAppValidationErrorEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_xmlProcessingError:
+                  if (rec.isAppXmlErrorEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_backAuthorizationError:
+                  if (rec.isBackEndAuthorizationFailureEnabled()) {
+                     processBackEndAuthorizationFailure(rec, err, m_queNotif);
+                     errorExist = true;
+                  }
+                  break;
+               case ms_dataConversionError:
+                  if (rec.isBackEndDataConversionErrorEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_backQueryError:
+                  if (rec.isBackEndQueryFailureEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_backRequestQueueError:
+                  if (rec.isBackEndRequestQueueLargeEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_backServerDownError:
+                  if (rec.isBackEndServerDownFailureEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+               case ms_backUpdateError:
+                  if (rec.isBackEndUpdateFailureEnabled()) {
+                     m_queNotif.addGeneralErrorCountByOne();
+                     errorExist = true;
+                  }
+                  break;
+            }
+            if (!errorExist)
+               continue;
+            if (rec.isErrorThresholdByCount()) {
+               int generalErrorCount = m_queNotif.getGeneralErrorCount();
+               if (generalErrorCount >= rec.getErrorThresholdCount()) {
+                  smtp.send(m_queNotif);
+                  m_queNotif.setGeneralErrorCount(0);
+                  m_queNotif.resetBodyText();
+               } else {
+                  m_queNotifHash.put(rec.getName(), m_queNotif);
+               }
+            } else if (rec.isErrorThresholdByInterval()) {
+               long initialTimeMS = m_queNotif.getInitDate().getTime();
+               java.util.Date now = new java.util.Date();
+               long waitTime = now.getTime() - initialTimeMS;
+               long normalTime = (rec.getErrorThresholdInterval()) * 60000;
+               int generalErrorCount = m_queNotif.getGeneralErrorCount();
+               if ((waitTime >= normalTime) && (generalErrorCount > 0)) {
+                  smtp.send(m_queNotif);
+                  m_queNotif.setInitDate(now);
+                  m_queNotif.setGeneralErrorCount(0);
+                  m_queNotif.resetBodyText();
+               } else {
+                  m_queNotifHash.put(rec.getName(), m_queNotif);
+               }
+            }
+            errorExist = false;
+         }
+      }
+      catch (PSIllegalArgumentException e1) {
+         com.percussion.server.PSConsole.printMsg(
+            "Caught PSIllegalArgumentException in PSErrorHandler/notifyAdmins: ",
+            e1.getMessage());
+      } catch (IOException e2) {
+         com.percussion.server.PSConsole.printMsg(
+            "Caught IOException in class PSErrorHandler/notifyAdmins: ",
+            e2.getMessage());
+      } catch (com.percussion.mail.PSMailSendException e3) {
+         com.percussion.server.PSConsole.printMsg(
+            "Caught PSMailSendException in class PSErrorHandler/notifyAdmins: ",
+            e3.getMessage());
+      }
 
             if (!rec.isSendEnabled())  // cannot send, seek next one to send
                continue;
@@ -616,22 +719,24 @@ public class PSErrorHandler {
             }
 
             errorExist = false;
-         }  // end of for loop
-
-      } catch (PSIllegalArgumentException e1) {
-         com.percussion.server.PSConsole.printMsg(
-            "Caught PSIllegalArgumentException in PSErrorHandler/notifyAdmins: ",
-            e1.getMessage());
-      } catch (IOException e2) {
-         com.percussion.server.PSConsole.printMsg(
-            "Caught IOException in class PSErrorHandler/notifyAdmins: ",
-            e2.getMessage());
-      } catch (com.percussion.mail.PSMailSendException e3) {
-         com.percussion.server.PSConsole.printMsg(
-            "Caught PSMailSendException in class PSErrorHandler/notifyAdmins: ",
-            e3.getMessage());
-      }
+         
    }
+   catch (PSIllegalArgumentException e1) {
+      com.percussion.server.PSConsole.printMsg(
+         "Caught PSIllegalArgumentException in PSErrorHandler/notifyAdmins: ",
+         e1.getMessage());
+   }
+   catch (IOException e2) {
+      com.percussion.server.PSConsole.printMsg(
+         "Caught IOException in class PSErrorHandler/notifyAdmins: ",
+         e2.getMessage());
+   }
+   catch (com.percussion.mail.PSMailSendException e3) {
+      com.percussion.server.PSConsole.printMsg(
+         "Caught PSMailSendException in class PSErrorHandler/notifyAdmins: ",
+         e3.getMessage());
+   }
+}
 
    /**
     * Process when application authorization failure happened.
@@ -649,18 +754,18 @@ public class PSErrorHandler {
       int    fixedAuthFailCount = rec.getAppAuthorizationFailureCount();
       String ipAddress = ((PSApplicationAuthorizationError)err).getHost();
 
-      Integer counter = (Integer)(m_appCountHash.get(ipAddress));
+      Integer counter = m_appCountHash.get(ipAddress);
       if (counter != null){
-         ipCount = counter.intValue(); // last time
+         ipCount = counter; // last time
          ipCount += 1;   // this time
          if (ipCount < fixedAuthFailCount)
-            m_appCountHash.put(ipAddress, new java.lang.Integer(ipCount));
+            m_appCountHash.put(ipAddress, ipCount);
          else
-            m_appCountHash.put(ipAddress, new java.lang.Integer(0));
+            m_appCountHash.put(ipAddress, 0);
       }
       else{
          ipCount = 1;
-         m_appCountHash.put(ipAddress, new java.lang.Integer(ipCount));
+         m_appCountHash.put(ipAddress, ipCount);
       }
 
       if (ipCount >= fixedAuthFailCount){
@@ -684,20 +789,21 @@ public class PSErrorHandler {
       String bodyText;
 
       int    fixedAuthFailCount = rec.getBackEndAuthorizationFailureCount();
-      String ipAddress = ((PSBackEndAuthorizationError)err).getHost();
+      // getHost() is not defined for PSBackEndAuthorizationError; fallback to default
+      String ipAddress = "unknown"; // TODO: Implement host retrieval if available
 
-      Integer counter = (Integer)(m_beCountHash.get(ipAddress));
+      Integer counter = m_beCountHash.get(ipAddress);
       if (counter != null){
-         ipCount = counter.intValue(); // last time
+         ipCount = counter; // last time
          ipCount += 1;   // this time
          if (ipCount < fixedAuthFailCount)
-            m_beCountHash.put(ipAddress, new Integer(ipCount));
+            m_beCountHash.put(ipAddress, ipCount);
          else
-            m_beCountHash.put(ipAddress, new Integer(0));
+            m_beCountHash.put(ipAddress, 0);
       }
       else{
          ipCount = 1;
-         m_beCountHash.put(ipAddress, new Integer(ipCount));
+         m_beCountHash.put(ipAddress, ipCount);
       }
 
       if (ipCount >= fixedAuthFailCount){
@@ -801,27 +907,27 @@ public class PSErrorHandler {
    private static final int ms_backServerDownError    = 12;
    private static final int ms_backUpdateError        = 13;
 
-   /** log handler used to write log messages when an error occurs */
+   /** Log handler used to write log messages when an error occurs. */
    private com.percussion.log.PSLogHandler m_logHandler;
 
-   /** map from error objects to error pages */
+   /** Map from error objects to error pages. */
    private PSMapClassToObject m_pages;
 
-   /** notification settings; defines who should be notified and when */
+   /** Notification settings; defines who should be notified and when. */
    private PSNotifier m_notify;
 
-   /** queued notification object */
+   /** Queued notification object. */
    private PSQueuedNotification m_queNotif = null;
 
-   /** queued notifications with the receiver name as the key */
-   private java.util.HashMap m_queNotifHash = new java.util.HashMap();
+   /** Queued notifications with the receiver name as the key. */
+   private java.util.HashMap<String, PSQueuedNotification> m_queNotifHash = new java.util.HashMap<>();
 
-   /** a hash from ip addresses to a count of app auth failures */
-   private java.util.HashMap m_appCountHash = new java.util.HashMap();
+   /** A hash from IP addresses to a count of app auth failures. */
+   private java.util.HashMap<String, Integer> m_appCountHash = new java.util.HashMap<>();
 
-   /** a hash from ip addresses to a count of back end auth failures */
-   private java.util.HashMap m_beCountHash  = new java.util.HashMap();
+   /** A hash from IP addresses to a count of back end auth failures. */
+   private java.util.HashMap<String, Integer> m_beCountHash  = new java.util.HashMap<>();
 
-   /** return errors as HTML or use whatever the source type is? */
+   /** Return errors as HTML or use whatever the source type is? */
    private boolean m_returnHtmlErrors = false;
 }

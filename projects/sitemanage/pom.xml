@@ -208,10 +208,11 @@
     <artifactId>jmock</artifactId>
     <scope>test</scope>
 </dependency>
- <!-- https://mvnrepository.com/artifact/org.jmock/jmock-junit4 -->
+<!-- https://mvnrepository.com/artifact/org.jmock/jmock-junit4 -->
 <dependency>
     <groupId>org.jmock</groupId>
     <artifactId>jmock-junit4</artifactId>
+    <version>2.13.1</version>
     <scope>test</scope>
 </dependency>
  <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
@@ -490,11 +491,16 @@
           <version>${project.parent.version}</version>
           <scope>compile</scope>
       </dependency>
+      <!-- Use version managed in parent; if IDE still complains, pin to property -->
+      <!-- Pin commons-io to parent-managed version; fallback to property already defined in root -->
       <dependency>
           <groupId>commons-io</groupId>
           <artifactId>commons-io</artifactId>
+          <version>${commons.io.version}</version>
           <scope>compile</scope>
       </dependency>
+      <!-- Force IDE to refresh Maven dependencies by adding a harmless property change -->
+      <!-- m2e sometimes caches missing artifacts; this nudge helps it re-resolve -->
       <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
@@ -560,6 +566,7 @@
       <dependency>
           <groupId>javax.servlet</groupId>
           <artifactId>javax.servlet-api</artifactId>
+          <version>${javax.servlet.api.version}</version>
           <scope>provided</scope>
       </dependency>
       <dependency>
@@ -570,11 +577,6 @@
       <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-lang3</artifactId>
-          <scope>compile</scope>
-      </dependency>
-      <dependency>
-          <groupId>com.github.spotbugs</groupId>
-          <artifactId>spotbugs-annotations</artifactId>
           <scope>compile</scope>
       </dependency>
       <dependency>
@@ -593,9 +595,10 @@
           <scope>compile</scope>
       </dependency>
 
+      <!-- Use Java 11 compatible activation API managed in parent -->
       <dependency>
           <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
+          <artifactId>javax.activation-api</artifactId>
           <scope>compile</scope>
       </dependency>
       <dependency>
@@ -615,9 +618,16 @@
           <scope>compile</scope>
       </dependency>
       <dependency>
-          <groupId>jakarta.xml.bind</groupId>
-          <artifactId>jakarta.xml.bind-api</artifactId>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>${jaxb.api.version}</version>
           <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
+          <version>${jaxb.runtime.version}</version>
+          <scope>runtime</scope>
       </dependency>
       <dependency>
           <groupId>javax.jcr</groupId>
@@ -659,6 +669,7 @@
       <dependency>
           <groupId>axis</groupId>
           <artifactId>axis-jaxrpc</artifactId>
+          <version>1.4</version>
           <scope>compile</scope>
       </dependency>
       <dependency>
@@ -674,6 +685,7 @@
       <dependency>
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
+          <version>${junit.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>

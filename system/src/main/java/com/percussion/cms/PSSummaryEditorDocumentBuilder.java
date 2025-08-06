@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
+
+import java.util.Map;
 
 import com.percussion.cms.handlers.PSContentEditorHandler;
 import com.percussion.cms.handlers.PSEditCommandHandler;
@@ -39,7 +42,7 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSServerErrors;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
 import org.w3c.dom.Document;
 
@@ -139,8 +142,8 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
          which happens to be the only child of this editor. */
       String childPageId = "-99"; //arbitrary, invalid id (they typically start at 0)
       PSPageInfo info = (PSPageInfo) m_docContext.getPageInfoMap().get(
-            new Integer( getPageId()));
-      Iterator childrenPageIds = info.getPageIdList();
+            Integer.valueOf(getPageId()));
+      Iterator<Map.Entry<Integer, PSPageInfo>> childrenPageIds = info.getPageIdList();
       String rowEditorPageId = childrenPageIds.next().toString();
 
       PSCustomActionGroup group = ce.getCustomActionGroup(
@@ -170,7 +173,7 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
     * @return A valid iterator over 0 or more actions. Except for exceptional
     *    circumstances, there should be 1 entry.
     */
-   Iterator getSubmitActions()
+   Iterator<?> getSubmitActions()
    {
       return m_submitActions.iterator();
    }
@@ -185,23 +188,23 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
     * in the FORM. It is not encoded to save a step in the Javascript (which
     * would need to decode it before assigning it to the action of the form).
     */
-   protected Iterator getActionLinks( Document doc, PSExecutionData data )
+   protected Iterator<?> getActionLinks( Document doc, PSExecutionData data )
       throws PSDataExtractionException
    {
       if ( null == doc || null == data )
          throw new IllegalArgumentException( "One or more params is null." );
 
-      List actions = new ArrayList();
-      List params = new ArrayList();
+      List<Object> actions = new ArrayList<>();
+      List<Object> params = new ArrayList<>();
 
-      Iterator actionSet = getSubmitActions();
+      Iterator<?> actionSet = getSubmitActions();
 
       while ( actionSet.hasNext())
       {
          PSMapPair actionEntry = (PSMapPair) actionSet.next();
          String label = (String) actionEntry.getKey();
-         List extractorPairs = (List) actionEntry.getValue();
-         Iterator extractors = extractorPairs.iterator();
+         List<?> extractorPairs = (List<?>) actionEntry.getValue();
+         Iterator<?> extractors = extractorPairs.iterator();
          while ( extractors.hasNext())
          {
             PSMapPair paramEntry = (PSMapPair) extractors.next();
@@ -209,8 +212,8 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
             IPSDataExtractor extractor = (IPSDataExtractor) paramEntry.getValue();
             String value = extractor.extract( data ).toString();
             if ( name != FORMACTION_NAME )
-               value = URLEncoder.encode( value );
-            params.add( new PSMapPair( name, value ));
+               value = java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
+            params.add(new PSMapPair(name, value));
          }
 
          if(label.equalsIgnoreCase(ADDITEM_ACTION_LABEL))
@@ -222,8 +225,8 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
                ADDITEM_ACTION_LABEL, lang);
          }
 
-         actions.add( createActionElement( doc, label,
-               params.iterator(), true ));
+         actions.add(createActionElement(doc, label,
+               params.iterator(), true));
          params.clear();   // get ready for next iteration
       }
       return actions.iterator();
@@ -256,12 +259,12 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
     *
     * @return A list with at least 1 member.
     */
-   private List createActionLinkList( PSCustomActionGroup customActions,
+   private List<Object> createActionLinkList( PSCustomActionGroup customActions,
          String mapperId, String rowPageId, String thisPageId, String url )
    {
       try
       {
-         List actionList = new ArrayList();
+         List<Object> actionList = new ArrayList<>();
          boolean addStandard = true;
          int stdPos = 0;
          PSMapPair pair;
@@ -274,11 +277,11 @@ public class PSSummaryEditorDocumentBuilder extends PSModifyDocumentBuilder
             if ( sequence < 0 )
                sequence = 1000;     // arbitrarily large
 
-            Iterator links = customActions.getActionLinkList();
+            Iterator<?> links = customActions.getActionLinkList();
             while ( links.hasNext())
             {
                PSActionLink link = (PSActionLink) links.next();
-               Iterator params = link.getParameters();
+               Iterator<?> params = link.getParameters();
 
                List extractors = new ArrayList();
 

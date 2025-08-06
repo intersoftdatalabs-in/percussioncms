@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,107 +14,107 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.percussion.error;
 
 import com.percussion.cms.objectstore.PSKey;
 
+// REFACTORED: CP-JAVA11
 /**
  * This is the base class for all test results produced by different methods in
- * the {@link IPSEffect interface}. Implements common methods to pass informtion
- * from the methods to relationship engine after execution.
+ * the {@link IPSEffect} interface. Implements common methods to pass information
+ * from the methods to the relationship engine after execution.
  */
-public class PSResult
-{
+public class PSResult {
    /**
     * Default constructor. Does nothing special.
     */
-   public PSResult()
-   {
+   public PSResult() {
    }
 
    /**
     * Is the test success?
+    * 
     * @return <code>true</code> if the status indicates a not a failure,
-    *  </code>false</code> otherwise.
+    *         </code>false</code> otherwise.
     */
-   public boolean isSuccess()
-   {
-      return (m_status!=STATUS_ERROR);
+   public boolean isSuccess() {
+      return (m_status != STATUS_ERROR);
    }
 
    /**
     * Did the test produced any warning?
+    * 
     * @return <code>true</code> if the status indicates a warning,
-    *  </code>false</code> otherwise.
+    *         </code>false</code> otherwise.
     */
-   public boolean hasWarning()
-   {
-      return (m_status==STATUS_WARNING);
+   public boolean hasWarning() {
+      return (m_status == STATUS_WARNING);
    }
 
    /**
     * Access method for the exception.
+    * 
     * @return Exception if the status in the object is not a success.
-    * <code>null</code> otherwise.
+    *         <code>null</code> otherwise.
     */
-   public PSException getException()
-   {
+   public PSException getException() {
       return m_ex;
    }
 
    /**
     * Access method for the status code.
+    * 
     * @return one of the possibe status code values (STATUS_XXXX).
     */
-   public int getStatus()
-   {
+   public int getStatus() {
       return m_status;
    }
 
    /**
     * Returns keys supplied for this result.
+    * 
     * @return an array of keys, may be <code>null</code> or <code>empty</code>.
     */
-   public PSKey[] getKeys()
-   {
+   public PSKey[] getKeys() {
       return m_keys;
    }
 
    /**
     * Sets keys for this result.
+    * 
     * @param keys keys to set, may be <code>null</code> or <code>empty</code>.
     */
-   public void setKeys(PSKey[] keys)
-   {
+   public void setKeys(PSKey[] keys) {
       m_keys = keys;
    }
 
    /**
     * Sets the exception for the object as error. Implicitly sets is the staus
     * code to STATUS_ERROR.
-    * @param  msg message to attach to this result, never <code>null</code>.
+    * 
+    * @param msg message to attach to this result, never <code>null</code>.
     * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
     */
-   public void setError(String msg)
-   {
-      if(msg == null)
+   public void setError(String msg) {
+      if (msg == null)
          throw new IllegalArgumentException("msg must not be null");
 
       m_status = STATUS_ERROR;
       m_ex = new PSException(-1, msg);
    }
-   
+
    /**
     * Sets the message for the object as error. Implicitly sets is the staus
     * code to STATUS_ERROR.
-    * @param  lang language string to specify the locale for the string, must not be <code>null</code>.
+    * 
+    * @param lang    language string to specify the locale for the string, must not be <code>null</code>.
     * @param msgCode message code to look in the i18n resource bundle.
-    * @param args is the array of arguments required to format the error message, may be <code>null</code> if not required.
+    * @param args    is the array of arguments required to format the error message, may be <code>null</code> if not required.
     * @throws IllegalArgumentException if the required parameter supplied is <code>null</code>.
     */
-   public void setError(String lang, int msgCode, Object[] args)
-   {
-      if(lang == null)
+   public void setError(String lang, int msgCode, Object[] args) {
+      if (lang == null)
          throw new IllegalArgumentException("lang must not be null");
 
       m_status = STATUS_ERROR;
@@ -124,12 +124,12 @@ public class PSResult
    /**
     * Sets status to ERROR a given message and also creates an exception object.
     * Implicitly sets is the staus code to STATUS_ERROR.
-    * @param    exception exception object to be set, must not be <code>null</code>.
+    * 
+    * @param exception exception object to be set, must not be <code>null</code>.
     * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
     */
-   public void setError(PSException exception)
-   {
-      if(exception == null)
+   public void setError(PSException exception) {
+      if (exception == null)
          throw new IllegalArgumentException("exception must not be null");
 
       m_status = STATUS_ERROR;
@@ -139,12 +139,12 @@ public class PSResult
    /**
     * Sets the message for the object as warning. Implicitly sets is the staus
     * code to STATUS_WARNING.
-    * @param  msg message to attach to this result, never <code>null</code>.
+    * 
+    * @param msg message to attach to this result, never <code>null</code>.
     * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
     */
-   public void setWarning(String msg)
-   {
-      if(msg == null)
+   public void setWarning(String msg) {
+      if (msg == null)
          throw new IllegalArgumentException("msg must not be null");
 
       m_status = STATUS_WARNING;
@@ -154,14 +154,14 @@ public class PSResult
    /**
     * Sets the message for the object as warning. Implicitly sets is the staus
     * code to STATUS_WARNING.
-    * @param  lang language string to specify the locale for the string, must not be <code>null</code>.
+    * 
+    * @param lang    language string to specify the locale for the string, must not be <code>null</code>.
     * @param msgCode message code to look in the i18n resource bundle.
-    * @param args is the array of arguments required to format the error message, may be <code>null</code> if not required.
+    * @param args    is the array of arguments required to format the error message, may be <code>null</code> if not required.
     * @throws IllegalArgumentException if the required parameter supplied is <code>null</code>.
     */
-   public void setWarning(String lang, int msgCode, Object[] args)
-   {
-      if(lang == null)
+   public void setWarning(String lang, int msgCode, Object[] args) {
+      if (lang == null)
          throw new IllegalArgumentException("lang must not be null");
 
       m_status = STATUS_WARNING;
@@ -171,12 +171,12 @@ public class PSResult
    /**
     * Sets the exception for the object as warning. Implicitly sets is the staus
     * code to STATUS_WARNING.
-    * @param  exception exception object to be set, must not be <code>null</code>.
+    * 
+    * @param exception exception object to be set, must not be <code>null</code>.
     * @throws IllegalArgumentException if the parameter supplied is <code>null</code>.
     */
-   public void setWarning(PSException exception)
-   {
-      if(exception == null)
+   public void setWarning(PSException exception) {
+      if (exception == null)
          throw new IllegalArgumentException("exception must not be null");
 
       m_status = STATUS_WARNING;
@@ -186,8 +186,7 @@ public class PSResult
    /**
     * Sets result to success.
     */
-   public void setSuccess()
-   {
+   public void setSuccess() {
       m_status = STATUS_SUCCESS;
    }
 
@@ -200,7 +199,7 @@ public class PSResult
     * Exception if the test result indicates an error or warning. Initialized
     * to <code>null</code> and can be set using <code>setException</code> method.
     */
-   private PSException m_ex =  null;
+   private PSException m_ex = null;
 
    /**
     * Placeholder for the keys that client may attach to the result,

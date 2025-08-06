@@ -35,7 +35,7 @@ import com.percussion.services.system.data.PSContentStatusHistory;
 import com.percussion.share.dao.IPSFolderHelper;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.service.IPSSitePublishService;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.system.IPSSystemWs;
 import com.percussion.webservices.system.PSSystemWsLocator;

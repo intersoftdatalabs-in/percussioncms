@@ -28,7 +28,7 @@ import com.percussion.design.objectstore.IPSReplacementValue;
 import com.percussion.design.objectstore.PSContentItemData;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.server.PSRequest;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * Extracts the content item data associated with the current execution

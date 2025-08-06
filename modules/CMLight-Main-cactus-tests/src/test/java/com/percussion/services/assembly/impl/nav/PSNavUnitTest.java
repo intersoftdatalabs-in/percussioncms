@@ -26,7 +26,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;

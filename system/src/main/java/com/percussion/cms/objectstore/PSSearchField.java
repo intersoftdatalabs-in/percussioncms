@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.cms.objectstore;
 
 import com.percussion.cms.PSCmsException;
@@ -35,16 +37,12 @@ import java.util.List;
 /**
  * Represents a single search field used in a given search/view.
  */
-public class PSSearchField extends PSDbComponent
-   implements IPSSequencedComponent
-{
+public class PSSearchField extends PSDbComponent implements IPSSequencedComponent {
    /**
     * Creates the key required by the super.
     */
-   private PSSearchField()
-   {
-      super(new PSKey(new String []
-         {KEY_COL_FIELDNAME, KEY_COL_SEARCHID}));
+   private PSSearchField() {
+      super(new PSKey(new String[] { KEY_COL_FIELDNAME, KEY_COL_SEARCHID }));
    }
 
    /**
@@ -68,18 +66,13 @@ public class PSSearchField extends PSDbComponent
     *    
     * @return the created key with persisted state, never <code>null</code>.
     */
-   public static PSKey createKey(String fieldName, int searchId)
-   {
-      PSKey key = null;
-      String[] keys = new String[]{KEY_COL_FIELDNAME, KEY_COL_SEARCHID};
-      String[] values = new String[]{fieldName, String.valueOf(searchId)};
-
-      if (null == fieldName || fieldName.trim().length() == 0)
-         key = new PSKey(keys);
-      else
-         key = new PSKey(keys, values, true);
-
-      return key;
+   public static PSKey createKey(String fieldName, int searchId) {
+      String[] keys = new String[] { KEY_COL_FIELDNAME, KEY_COL_SEARCHID };
+      String[] values = new String[] { fieldName, String.valueOf(searchId) };
+      if (fieldName == null || fieldName.trim().isEmpty()) {
+         return new PSKey(keys);
+      }
+      return new PSKey(keys, values, true);
    }
 
 
@@ -96,29 +89,20 @@ public class PSSearchField extends PSDbComponent
     *
     * @param strDesc. The description. May be <code>null</code> or empty.
     */
-   public PSSearchField(String strName, String strLabel, String mnemonic,
-      String strType, String strDesc)
-   {
+   public PSSearchField(String strName, String strLabel, String mnemonic, String strType, String strDesc) {
       this();
-
-      if (strName == null || strName.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "field name must not be null or empty");
-
-      // Not validated below so we check here
-      if (strName.length() > FIELDNAME_LENGTH)
-         throw new IllegalArgumentException(
-            "field name must not exceed " + FIELDNAME_LENGTH +
-            "characters");
-
-      if (strType == null || strType.trim().length() == 0)
-         throw new IllegalArgumentException(
-            "field type must not be null or empty");
-
-      if (strLabel == null || strLabel.trim().length() == 0)
+      if (strName == null || strName.trim().isEmpty()) {
+         throw new IllegalArgumentException("field name must not be null or empty");
+      }
+      if (strName.length() > FIELDNAME_LENGTH) {
+         throw new IllegalArgumentException("field name must not exceed " + FIELDNAME_LENGTH + " characters");
+      }
+      if (strType == null || strType.trim().isEmpty()) {
+         throw new IllegalArgumentException("field type must not be null or empty");
+      }
+      if (strLabel == null || strLabel.trim().isEmpty()) {
          strLabel = strName;
-
-      // strName is part of the primary key
+      }
       setFieldDescription(strDesc);
       setFieldType(strType);
       setDisplayName(strLabel);
@@ -131,69 +115,45 @@ public class PSSearchField extends PSDbComponent
    }
 
    //see base class for description
-   protected String[] getKeyPartValues(IPSKeyGenerator gen)
-   {
-      return new String[] {getFieldName()};
+   protected String[] getKeyPartValues(IPSKeyGenerator gen) {
+      return new String[] { getFieldName() };
    }
 
    //see base class for description
-   public Element toXml(Document doc)
-   {
-      // base class handling
+   public Element toXml(Document doc) {
       Element root = super.toXml(doc);
-
-      root.setAttribute(SEQUENCE_ATTR, "" + m_sequence);
-
-      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDTYPE, 
-         m_strFieldType);
-
-      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_OPERATOR, 
-         m_strOperator);
-
-      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_EXTOPERATOR, 
-         m_extOperator);
-
-      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDLABEL, 
-         m_strDisplayName);
-      
-      if (m_mnemonic.length() > 0)
-         PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDMNEMONIC, 
-            m_mnemonic);
-
-      //we store all values in a single column, comma seperated
-      if (m_values.size() > 0)
-      {
-         Iterator iter = m_values.iterator();
-         StringBuilder buf = new StringBuilder();
+      root.setAttribute(SEQUENCE_ATTR, String.valueOf(m_sequence));
+      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDTYPE, m_strFieldType);
+      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_OPERATOR, m_strOperator);
+      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_EXTOPERATOR, m_extOperator);
+      PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDLABEL, m_strDisplayName);
+      if (m_mnemonic.length() > 0) {
+         PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDMNEMONIC, m_mnemonic);
+      }
+      // Store all values in a single column, comma separated
+      if (!m_values.isEmpty()) {
+      StringBuilder buf = new StringBuilder();
          boolean haveValue = false;
-         while (iter.hasNext())
-         {
-            String value = (String) iter.next();
-            if (value.length() > 0)
-            {
-               // escape any commas
+         for (Object valueObj : m_values) {
+            String value = (String) valueObj;
+            if (!value.isEmpty()) {
+               // Escape any commas
                value = PSStringOperation.replace(value, ",", ",,");
                buf.append(value);
                haveValue = true;
             }
             buf.append(",");
          }
-         if (haveValue)
-         {
-            PSXmlDocumentBuilder.addElement( doc, root, XML_NODE_FIELDVALUE,
-               buf.toString());
+         if (haveValue) {
+            PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_FIELDVALUE, buf.toString());
          }
       }
-
-      if (m_strDescription.length() > 0)
-      {
-         PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_DESCRIPTION, 
-            m_strDescription);
+      if (!m_strDescription.isEmpty()) {
+         PSXmlDocumentBuilder.addElement(doc, root, XML_NODE_DESCRIPTION, m_strDescription);
       }
-
-      if (m_choices != null)
+      if (m_choices != null) {
          root.appendChild(m_choices.toXml(doc));
-
+      }
       return root;
    }
 
@@ -275,7 +235,7 @@ public class PSSearchField extends PSDbComponent
       Element elVal = tree.getNextElement(XML_NODE_FIELDVALUE);
       tree.setCurrent(e);
 
-      List values = null;
+      List<String> values = null;
       if (elVal != null)
       {
          String value = PSXmlTreeWalker.getElementData(elVal);
@@ -286,7 +246,7 @@ public class PSSearchField extends PSDbComponent
                values = PSStringOperation.getSplittedList(value, ',');
             }
             else
-               values = new ArrayList();
+               values = new ArrayList<>();
          }
       }
       // method handles all cases
@@ -622,9 +582,12 @@ public class PSSearchField extends PSDbComponent
     * @return List of Strings, never <code>null</code>, may be empty. The
     *    caller takes ownership of the returned list.
     */
-   public List getFieldValues()
-   {
-      return (List) m_values.clone();
+   public List<String> getFieldValues() {
+      List<String> result = new ArrayList<>();
+      for (Object value : m_values) {
+         result.add((String) value);
+      }
+      return result;
    }
 
    /**
@@ -640,7 +603,7 @@ public class PSSearchField extends PSDbComponent
     *    empty values will be used. If any entry is <code>null</code>, then
     *    an empty value will be used.
     */
-   public void setFieldValues(String op, List values)
+   public void setFieldValues(String op, List<String> values)
    {
       if (op == null || op.trim().length() == 0)
          throw new IllegalArgumentException(
@@ -666,7 +629,7 @@ public class PSSearchField extends PSDbComponent
             "field value must not exceed " + FIELDVALUE_LENGTH +
             "characters");
 
-      List values = new ArrayList();
+      List<String> values = new ArrayList<>();
       values.add(value);
       setFieldValues(op, values);
    }
@@ -685,7 +648,7 @@ public class PSSearchField extends PSDbComponent
     *    empty values will be used. If any entry is <code>null</code>, then
     *    an empty value will be used.
     */
-   public void setExternalFieldValues(String extOp, List values)
+   public void setExternalFieldValues(String extOp, List<String> values)
    {
       if (extOp == null || extOp.trim().length() == 0)
          throw new IllegalArgumentException(
@@ -708,7 +671,7 @@ public class PSSearchField extends PSDbComponent
             "field value must not exceed " + FIELDVALUE_LENGTH +
             "characters");
 
-      List values = new ArrayList();
+      List<String> values = new ArrayList<>();
       values.add(value);
       setExternalFieldValues(extOp, values);
    }
@@ -890,7 +853,7 @@ public class PSSearchField extends PSDbComponent
       StringBuilder buf = new StringBuilder(m_strDescription.toLowerCase()
             + m_strFieldType + m_strFieldName.toLowerCase() + m_strOperator
             + m_sequence + m_extOperator);
-      Iterator iter = m_values.iterator();
+      Iterator<String> iter = m_values.iterator();
       while (iter.hasNext())
       {
          buf.append((String) iter.next());
@@ -953,7 +916,7 @@ public class PSSearchField extends PSDbComponent
     * @return <code>true</code> if the state changed due to this call,
     *    <code>false</code> otherwise.
     */
-   private boolean setValues(String op, String extOp, List values)
+   private boolean setValues(String op, String extOp, List<String> values)
    {
       op = normalizeOperator(op);
       op = (op == null ? "" : op);
@@ -976,9 +939,9 @@ public class PSSearchField extends PSDbComponent
       }
 
       if (values == null)
-         values = new ArrayList();
+         values = new ArrayList<>();
 
-      ArrayList newValues = new ArrayList();
+      ArrayList<String> newValues = new ArrayList<>();
       if (extOp.trim().length() > 0)
       {
          newValues.addAll(values);
@@ -995,7 +958,7 @@ public class PSSearchField extends PSDbComponent
          else if (values.size() < 1)
             values.add("");
 
-         Iterator iter = values.iterator();
+         Iterator<String> iter = values.iterator();
          boolean finished = false;
          if (!(op.equalsIgnoreCase(OP_ISNULL) || 
             op.equalsIgnoreCase(OP_ISNOTNULL)))
@@ -1131,7 +1094,7 @@ public class PSSearchField extends PSDbComponent
     * may be empty. The max size of the list is determined by the operator.
     * Note: ArrayList is used because we need to call clone on m_values.
     */
-   private ArrayList m_values = new ArrayList();
+   private ArrayList<String> m_values = new ArrayList<>();
 
    /**
     * Display name. Initialized in definition, never <code>null</code>

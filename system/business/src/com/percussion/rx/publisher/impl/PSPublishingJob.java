@@ -76,7 +76,7 @@ package com.percussion.rx.publisher.impl;
  import com.percussion.services.sitemgr.IPSSiteManager;
  import com.percussion.services.sitemgr.PSSiteManagerLocator;
  import com.percussion.services.utils.xml.PSObjectStream;
- import com.percussion.util.IPSHtmlParameters;
+ import com.percussion.system.utils.IPSHtmlParameters;
  import com.percussion.util.PSBaseHttpUtils;
  import com.percussion.util.PSStopwatch;
  import com.percussion.util.PSXMLDomUtil;

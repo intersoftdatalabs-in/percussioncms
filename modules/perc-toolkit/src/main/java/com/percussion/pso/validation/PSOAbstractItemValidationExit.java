@@ -37,7 +37,7 @@ import com.percussion.pso.workflow.IPSOWorkflowInfoFinder;
 import com.percussion.pso.workflow.PSOWorkflowInfoFinder;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.workflow.data.PSState;
-import com.percussion.util.PSItemErrorDoc;
+import com.percussion.system.utils.PSItemErrorDoc;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 
@@ -54,6 +54,7 @@ public abstract class PSOAbstractItemValidationExit
          IPSItemValidator,
          IPSResultDocumentProcessor
 {
+   // REFACTORED: CP-JAVA11
    private static final Logger log = LogManager.getLogger(PSOAbstractItemValidationExit.class);
   
    private IPSOWorkflowInfoFinder finder = null; 
@@ -161,31 +162,31 @@ public abstract class PSOAbstractItemValidationExit
       PSState state = finder.findDestinationState(contentid, transitionid);
       if(state == null)
       {
-    	  log.warn("Workflow state not found for item {}", contentid);
-    	  return false; //assume no match. 
+        log.warn("Workflow state not found for item {}", contentid);
+        return false; //assume no match. 
       }
       return allowed.contains(state.getName());
    }
    
    protected List<String> splitAndTrim(String input)
    {
-	   return splitAndTrim(input,","); 
+      return splitAndTrim(input,","); 
    }
    protected List<String> splitAndTrim(String input, String delimiter)
    {
-	   List<String> result = new ArrayList<>();
-	   if(StringUtils.isBlank(input))
-		   return result; 
-	   String[] parts = input.split(delimiter); 
-	   for(String part : parts)
-	   {
-		   if(!StringUtils.isBlank(part))
-		   {
-			   result.add(part.trim()); 
-		   }
-	   }
-	   return result; 
-	   
+      List<String> result = new ArrayList<>();
+      if(StringUtils.isBlank(input))
+         return result; 
+      String[] parts = input.split(delimiter); 
+      for(String part : parts)
+      {
+         if(!StringUtils.isBlank(part))
+         {
+            result.add(part.trim()); 
+         }
+      }
+      return result; 
+      
    }
    /**
     * @see com.percussion.extension.IPSExtension#init(com.percussion.extension.IPSExtensionDef, java.io.File)

@@ -89,10 +89,12 @@ public final class PSORMUtils {
 
         try {
             var result = method.get().invoke(object);
-            if (result instanceof Integer intValue) {
+            if (result instanceof Integer) {
+                Integer intValue = (Integer) result;
                 ms_log.trace("Retrieved version {} from {}", intValue, objectClass.getSimpleName());
                 return Optional.of(intValue);
-            } else if (result instanceof Number numberValue) {
+            } else if (result instanceof Number) {
+                Number numberValue = (Number) result;
                 var version = numberValue.intValue();
                 ms_log.trace("Converted version {} from {} to Integer", numberValue, objectClass.getSimpleName());
                 return Optional.of(version);

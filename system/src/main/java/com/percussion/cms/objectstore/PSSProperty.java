@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+
+// REFACTORED: CP-JAVA11
 package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
@@ -22,16 +24,13 @@ import org.w3c.dom.Element;
 
 /**
  * See base class for description. Represents a property of a given
- * {@link com.percussion.cms.objectstore.PSDisplayFormat}
+ * {@link com.percussion.cms.objectstore.PSDisplayFormat}.
  */
-public class PSSProperty extends PSCmsProperty
-{        
+public class PSSProperty extends PSCmsProperty {
    /**
     * Required ctor taking a element
     */
-   public PSSProperty(Element e)
-      throws PSUnknownNodeTypeException
-   {
+   public PSSProperty(Element e) throws PSUnknownNodeTypeException {
       super(PSSProperty.createKey(new String[] {}), "dummy");
       fromXml(e);
    }
@@ -39,8 +38,8 @@ public class PSSProperty extends PSCmsProperty
    /**
     * Required ctor taking a element
     */
-   public PSSProperty()
-   {
+   public PSSProperty() {
+      // Default constructor
    }
    
    
@@ -53,36 +52,21 @@ public class PSSProperty extends PSCmsProperty
     * @param strValue may be <code>null</code> to specify empty.
     * 
     */
-   public PSSProperty(String strName, String strValue)
-   {
-      super(PSSProperty.createKey(new String[] {}), 
-      strName, strValue, null, KEYASSIGN_ALL);       
+   public PSSProperty(String strName, String strValue) {
+      super(PSSProperty.createKey(new String[] {}), strName, strValue, null, KEYASSIGN_ALL);
    }
 
    // see base class for description
-   public static PSKey createKey(String [] values)
-   {
-      if (values == null || values.length == 0)                         
-         return new PSKey(new String [] 
-            {
-                                           KEY_COL_NAME, 
-                                           KEY_COL_VALUE,
-                                           KEY_COL_ID
-                                        });
-      
-      return new PSKey(new String [] 
-         {               
-            KEY_COL_NAME, 
-            KEY_COL_VALUE,
-            KEY_COL_ID
-         }, 
-         values, true);      
-   }     
+   public static PSKey createKey(String[] values) {
+      if (values == null || values.length == 0) {
+         return new PSKey(new String[] { KEY_COL_NAME, KEY_COL_VALUE, KEY_COL_ID });
+      }
+      return new PSKey(new String[] { KEY_COL_NAME, KEY_COL_VALUE, KEY_COL_ID }, values, true);
+   }
    
    //see base class for description
-   protected String[] getKeyPartValues(IPSKeyGenerator gen)
-   {
-      return new String[] {getName(), getValue()};
+   protected String[] getKeyPartValues(IPSKeyGenerator gen) {
+      return new String[] { getName(), getValue() };
    }
 
    /**
@@ -92,10 +76,8 @@ public class PSSProperty extends PSCmsProperty
     *
     * @throws UnsupportedOperationException Always.
     */
-   public void setValue(String value)
-   {
-      throw new UnsupportedOperationException(
-         "The value is immutable in this class.");
+   public void setValue(String value) {
+      throw new UnsupportedOperationException("The value is immutable in this class.");
    }
 
    // public static define 

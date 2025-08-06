@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.validation;
 
+// REFACTORED: CP-JAVA11
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import com.percussion.xml.PSXmlTreeWalker;
  */
 public class PSOItemXMLSupport
 {
+   // REFACTORED: CP-JAVA11
    private static final Logger log = LogManager.getLogger(PSOItemXMLSupport.class);
 
    /**

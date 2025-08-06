@@ -427,4 +427,10 @@ public class PSBaseServiceLocator {
 
             isInitialized = true;
             return ms_context;
-        } catch
+        } catch (Exception e) {
+            throw new PSMissingBeanConfigurationException("Failed to initialize application context", e);
+        } finally {
+            contextLock.writeLock().unlock();
+        }
+    }
+}

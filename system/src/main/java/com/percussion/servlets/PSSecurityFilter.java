@@ -38,7 +38,7 @@ import com.percussion.server.PSUserSessionManager;
 import com.percussion.services.security.PSJaasUtils;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSServletRequestWrapper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.utils.security.PSRemoteUserCallback;

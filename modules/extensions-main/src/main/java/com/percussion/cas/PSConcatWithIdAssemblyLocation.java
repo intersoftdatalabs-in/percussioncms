@@ -23,8 +23,9 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSHtmlParameters;
+import com.percussion.system.utils.PSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

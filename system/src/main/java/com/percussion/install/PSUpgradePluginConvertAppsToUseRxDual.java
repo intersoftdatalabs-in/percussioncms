@@ -38,6 +38,7 @@ import java.io.PrintWriter;
  *
  */
 
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginConvertAppsToUseRxDual implements IPSUpgradePlugin
 {
    /**

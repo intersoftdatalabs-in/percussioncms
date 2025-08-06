@@ -42,7 +42,7 @@ import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.share.service.IPSDataService;
 import com.percussion.share.service.IPSNameGenerator;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.service.impl.PSJsoupUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;

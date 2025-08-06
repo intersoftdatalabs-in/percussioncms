@@ -18,8 +18,8 @@ package test.percussion.pso.restservice.utils;
 
 import com.percussion.pso.restservice.utils.HtmlLinkHelper;
 import junit.framework.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -115,7 +115,7 @@ public class HtmlLinkHelperTests {
 	}
 	
 	@Test
-	@Ignore("Test is failing") //TODO: Fix me
+	@Disabled("Test is failing") //TODO: Fix me
 	public void testFixLinksRandom() throws IOException, TransformerException, ParserConfigurationException, SAXException, URISyntaxException{
 		
 		InputStream is = this.getClass().getResourceAsStream("randomcar.html");

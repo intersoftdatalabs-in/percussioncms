@@ -19,7 +19,7 @@ package com.percussion.soln.rx.assembly;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyResult;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.jexl.PSJexlEvaluator;
 import com.percussion.utils.jexl.PSScript;
 import org.apache.commons.jexl3.JxltEngine;

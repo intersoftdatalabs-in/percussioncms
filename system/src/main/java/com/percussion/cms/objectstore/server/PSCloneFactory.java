@@ -34,8 +34,8 @@ import com.percussion.server.PSServer;
 import com.percussion.server.cache.PSItemSummaryCache;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.legacy.IPSItemEntry;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.HashMap;
 import java.util.Iterator;

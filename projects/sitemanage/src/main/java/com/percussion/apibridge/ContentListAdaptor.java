@@ -20,7 +20,7 @@ package com.percussion.apibridge;
 import com.percussion.rest.contentlists.ContentList;
 import com.percussion.rest.contentlists.IContentListsAdaptor;
 import com.percussion.rest.extensions.Extension;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 import java.util.Collections;
 import java.util.List;

@@ -22,7 +22,8 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.rest.Guid;
 import com.percussion.rest.GuidList;
 import com.percussion.rest.Status;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

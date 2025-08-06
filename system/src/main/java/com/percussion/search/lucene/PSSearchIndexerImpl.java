@@ -36,7 +36,7 @@ import com.percussion.search.lucene.textconverter.IPSLuceneTextConverter;
 import com.percussion.search.lucene.textconverter.PSLuceneTextConverterFactory;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

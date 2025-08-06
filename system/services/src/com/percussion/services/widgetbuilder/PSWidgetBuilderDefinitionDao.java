@@ -19,7 +19,8 @@ package com.percussion.services.widgetbuilder;
 
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;

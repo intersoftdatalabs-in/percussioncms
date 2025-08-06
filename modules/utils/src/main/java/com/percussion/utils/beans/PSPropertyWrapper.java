@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PSPropertyWrapper
 {
-   private static final Class[] noparams = new Class[0];
+   private static final Class<?>[] noparams = new Class<?>[0];
 
    private static final Object[] emptyargs = new Object[0];
 
@@ -68,7 +68,7 @@ public class PSPropertyWrapper
 
       private String m_type; // get or set
 
-      private Class m_class;
+      private Class<?> m_class;
 
       /**
        * Create a new key, assume that arguments are always correct
@@ -76,7 +76,7 @@ public class PSPropertyWrapper
        * @param prop 
        * @param type 
        */
-      public Key(Class clazz, String prop, String type) {
+      public Key(Class<?> clazz, String prop, String type) {
          m_property = prop;
          m_class = clazz;
          m_type = type;
@@ -214,14 +214,14 @@ public class PSPropertyWrapper
       {
         this.init();
       }
-      Class clazz = m_wrappedObject.getClass();
+      Class<?> clazz = m_wrappedObject.getClass();
       Key k = new Key(clazz, pname, type);
       Method m = null;
-      Class[] args = noparams;
+      Class<?>[] args = noparams;
       if (type.equals("set"))
       {
          Method getm = findMethod(pname, "get");
-         args = new Class[]
+         args = new Class<?>[]
          {getm.getReturnType()};
       }
       m = ms_methodMap.get(k);

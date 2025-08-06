@@ -46,7 +46,7 @@ import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.tools.PSCatalogTableData;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSQLStatement;
 import com.percussion.util.PSSqlHelper;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ public interface IPSFolderProcessor
     *
     * @throws PSCmsException If any problems accessing the db.
     */
-    public void addChildren(List children, PSLocator targetFolderId) throws PSCmsException;
+    public void addChildren(List<PSLocator> children, PSLocator targetFolderId) throws PSCmsException;
    
    /**
     * This method can be used to catalog a folder's content.
@@ -173,13 +173,13 @@ public interface IPSFolderProcessor
     *
     * @throws PSCmsException If any problems occur while adding the children.
     */
-    public void copyChildren(List children, PSLocator targetFolderId) throws PSCmsException;
+    public void copyChildren(List<PSLocator> children, PSLocator targetFolderId) throws PSCmsException;
 
    /**
     * Same as {@link #moveChildren(PSLocator, List, PSLocator, boolean)} with
     * the last parameter value of <code>false</code>.
     */
-    public void removeChildren(PSLocator sourceFolderId, List children) throws PSCmsException, PSNotFoundException;
+    public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children) throws PSCmsException, PSNotFoundException;
 
    /**
     * Removes all items/folders specified in <code>children</code> from the
@@ -207,13 +207,13 @@ public interface IPSFolderProcessor
      *             not found or cannot be instantiated, or any problems occur
      *             while removing the relationship(s).
     */
-    public void removeChildren(PSLocator sourceFolderId, List children, boolean force) throws PSCmsException, PSNotFoundException;
+    public void removeChildren(PSLocator sourceFolderId, List<PSLocator> children, boolean force) throws PSCmsException, PSNotFoundException;
 
    /**
     * Same as {@link #moveChildren(PSLocator, List, PSLocator, boolean)} with
     * the last parameter value of <code>false</code>.
     */
-    public void moveChildren(PSLocator sourceFolderId, List children, PSLocator targetFolderId) throws PSCmsException;
+    public void moveChildren(PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId) throws PSCmsException;
 
    /**
     * Changes the linkage of each child from the source parent to the target
@@ -242,7 +242,7 @@ public interface IPSFolderProcessor
     * 
     * @throws PSCmsException If the db can't be accessed for any reason.
     */
-    public void moveChildren(PSLocator sourceFolderId, List children, PSLocator targetFolderId, boolean force)
+    public void moveChildren(PSLocator sourceFolderId, List<PSLocator> children, PSLocator targetFolderId, boolean force)
       throws PSCmsException;
 
    /**
@@ -270,7 +270,7 @@ public interface IPSFolderProcessor
     *         <code>null</code>, may be empty.
     * @throws PSCmsException for any error.
     */
-   public Set getFolderCommunities(PSLocator source) throws PSCmsException;
+   public Set<Integer> getFolderCommunities(PSLocator source) throws PSCmsException;
 
    /**
      * Clones the source folder and its children recursively and links it to the

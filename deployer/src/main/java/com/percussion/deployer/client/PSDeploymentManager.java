@@ -50,7 +50,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.PSAuthenticationFailedException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.PSServerLockException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.codec.PSXmlEncoder;
 import com.percussion.utils.collections.PSMultiValueHashMap;
 import com.percussion.xml.PSXmlDocumentBuilder;

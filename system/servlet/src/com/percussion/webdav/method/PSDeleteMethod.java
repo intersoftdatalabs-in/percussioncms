@@ -19,7 +19,7 @@ package com.percussion.webdav.method;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.client.PSRemoteAgent;
 import com.percussion.cms.objectstore.client.PSRemoteException;
-import com.percussion.util.PSWorkflowInfo;
+import com.percussion.system.utils.PSWorkflowInfo;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;
 import com.percussion.webdav.error.IPSWebdavErrors;

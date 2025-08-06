@@ -36,7 +36,7 @@ import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.soln.utilities.rx.jexl.DispatchTemplateUtil; 
 
 @RunWith(JMock.class)

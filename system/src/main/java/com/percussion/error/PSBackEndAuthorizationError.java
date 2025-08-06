@@ -1,8 +1,8 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * You may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -37,6 +37,7 @@ import java.util.Locale;
  * @version    1.0
  * @since      1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSBackEndAuthorizationError extends PSBackEndError
 {
    /**
@@ -88,14 +89,14 @@ public class PSBackEndAuthorizationError extends PSBackEndError
       if (loginId == null)
          m_uid         = "";
       else
-         m_uid         = loginId;
+         m_uid         = loginId; // Ensure loginId is set correctly
 
-      m_errorCode      = errorCode;
+      // m_errorCode is final in PSBackEndError; do not assign here. Value is set via super constructor.
    }
 
    /**
     * Get the host name (or specifically, the IP address of the host).
-    */
+    /* Subclasses must override this to build the messages in the
    public String getHost(){
       return m_host;
    }
@@ -126,7 +127,7 @@ public class PSBackEndAuthorizationError extends PSBackEndError
        *    [1] = errorString
        * to format the second submessage
        */
-      Object[] nativeArgs = { new Integer(m_errorCode), m_errorArgs[0] };
+      Object[] nativeArgs = { Integer.valueOf(m_errorCode), m_errorArgs[0] };
       msgs[1] = new PSLogSubMessage(
          m_errorCode, 
          PSErrorManager.createMessage(

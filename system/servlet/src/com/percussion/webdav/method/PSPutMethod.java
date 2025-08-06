@@ -33,7 +33,7 @@ import com.percussion.cms.objectstore.client.PSRemoteException;
 import com.percussion.cms.objectstore.ws.PSClientItem;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCharSets;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.PSWebdavStatus;

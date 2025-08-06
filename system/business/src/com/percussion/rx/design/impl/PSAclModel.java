@@ -24,7 +24,6 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import java.text.MessageFormat;
 
 // REFACTORED: CP-JAVA11
-package com.percussion.rx.design.impl;
 
 import com.percussion.services.security.IPSAclService;
 import com.percussion.services.security.PSSecurityException;

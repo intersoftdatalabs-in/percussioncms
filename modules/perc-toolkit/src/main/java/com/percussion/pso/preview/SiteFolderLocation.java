@@ -22,7 +22,7 @@ import java.util.Map;
 import com.percussion.pso.utils.PSOMutableUrl;
 import com.percussion.server.PSRequestParsingException;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  *  Location bean. 

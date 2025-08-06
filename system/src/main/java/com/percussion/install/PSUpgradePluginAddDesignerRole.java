@@ -44,6 +44,7 @@ import java.util.List;
  * @author JaySeletz
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDesignerRole extends PSSpringUpgradePluginBase
 {
    private static final String DESIGNER_ROLE_DESC = "Designers have the same abilities as Admins, except that they do not have the ability to manage workflows, users, roles, and folders, and cannot create, delete, or copy sites.";

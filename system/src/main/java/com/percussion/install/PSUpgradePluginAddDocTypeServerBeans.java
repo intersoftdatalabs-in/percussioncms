@@ -30,6 +30,7 @@ import java.io.PrintWriter;
  * removing the DocType and xml processing instruction from the xml file.
  */
 
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddDocTypeServerBeans implements IPSUpgradePlugin
 {
    /**

@@ -22,22 +22,25 @@
  */
 package test.percussion.pso.workflow;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.percussion.pso.workflow.PublishEditionService;
 import com.percussion.rx.publisher.IPSRxPublisherService;
 import com.percussion.services.guidmgr.IPSGuidManager;
 
-
+// REFACTORED: CP-JAVA11
+@ExtendWith(MockitoExtension.class)
 public class PublishEditionServiceTest
 {
    /**
@@ -45,24 +48,20 @@ public class PublishEditionServiceTest
     */
    private static final Logger log = LogManager.getLogger(PublishEditionServiceTest.class);
 
-   Mockery context; 
+   @Mock
    IPSGuidManager gmgr;
+   
+   @Mock
    IPSRxPublisherService rps; 
    
    TestablePublishEditionService svc = null; 
 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
-    
-      context = new Mockery(); 
-      gmgr = context.mock(IPSGuidManager.class);
-      rps = context.mock(IPSRxPublisherService.class);
-      
       svc = new TestablePublishEditionService(); 
       svc.setGmgr(gmgr);
       svc.setRps(rps); 
-      
    }
    
    @Test

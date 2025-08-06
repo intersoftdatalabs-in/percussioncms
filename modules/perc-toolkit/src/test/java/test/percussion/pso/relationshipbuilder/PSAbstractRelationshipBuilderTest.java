@@ -18,7 +18,7 @@
 package test.percussion.pso.relationshipbuilder;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.error.PSException;
 import com.percussion.pso.relationshipbuilder.PSAbstractRelationshipBuilder;

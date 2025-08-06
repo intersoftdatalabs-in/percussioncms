@@ -21,7 +21,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.extension.IPSExtensionErrors;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.w3c.dom.Document;
 
 import java.util.Collection;

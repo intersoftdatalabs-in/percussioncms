@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.ResourceBundle;
 /**
  *   A mapping from PSLogError-derived objects to HTTP error codes
  */
+// REFACTORED: CP-JAVA11
 public class PSErrorHttpCodes
 {
    
@@ -84,12 +85,12 @@ public class PSErrorHttpCodes
                            "com.percussion.error.PSErrorHttpCodeBundle", loc);
 
             String key = null;
-            for (Enumeration e = bun.getKeys(); e.hasMoreElements() ;)
+            for (Enumeration<String> e = bun.getKeys(); e.hasMoreElements() ;)
             {
-               key = (String)e.nextElement();
+               key = e.nextElement();
                try {
                   ms_codes.addReplaceMapping(   Class.forName(key),
-                                             new Integer(bun.getString(key)));
+                                             Integer.valueOf(bun.getString(key)));
                } catch (java.lang.NumberFormatException nfe) {
                   /* log this!!! */
                   Object[] args = { key,

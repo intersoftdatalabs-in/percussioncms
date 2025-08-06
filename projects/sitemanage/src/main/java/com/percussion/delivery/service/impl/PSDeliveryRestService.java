@@ -17,9 +17,9 @@
  */
 package com.percussion.delivery.service.impl;
 
-import com.percussion.util.PSSiteManageBean;
-
 import javax.ws.rs.Path;
+
+import com.percussion.system.utils.PSSiteManageBean;
 
 /**
  * REST endpoint for delivery operations.

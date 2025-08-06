@@ -29,7 +29,7 @@ import com.percussion.fastforward.managednav.IPSManagedNavService;
 import com.percussion.fastforward.managednav.PSManagedNavServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 
 import java.util.Map;

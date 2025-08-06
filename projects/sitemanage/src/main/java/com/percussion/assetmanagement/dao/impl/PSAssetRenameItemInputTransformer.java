@@ -27,7 +27,7 @@ import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.share.dao.PSFolderPathUtils;
 import com.percussion.share.rx.PSLegacyExtensionUtils;
 import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

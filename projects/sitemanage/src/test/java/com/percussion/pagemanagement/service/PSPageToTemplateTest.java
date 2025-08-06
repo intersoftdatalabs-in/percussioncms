@@ -40,7 +40,7 @@ import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.PSPageToTemplatePair;
 import com.percussion.sitemanage.service.impl.PSSiteTemplateService;
 import com.percussion.test.PSServletTestCase;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.system.IPSSystemWs;

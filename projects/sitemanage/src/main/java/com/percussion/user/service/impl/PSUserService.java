@@ -86,7 +86,7 @@ import com.percussion.user.data.PSUserLogin;
 import com.percussion.user.data.PSUserProviderType;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.user.service.IPSUserService.PSDirectoryServiceStatus.ServiceStatus;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.PSSpringBeanProvider;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.service.IPSUtilityService;

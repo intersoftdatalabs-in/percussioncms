@@ -33,10 +33,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 /**
- * This plugin has been written to add the sys_FileWord control to 
- * rx_Templates.xsl file.
+ * This plugin adds the sys_FileWord control to the rx_Templates.xsl file.
  */
 
+// REFACTORED: CP-JAVA11
 public class PSAddWordControlToRxTemplates implements IPSUpgradePlugin
 {
    /**

@@ -77,61 +77,69 @@ public class PSHtmlParameterTree
 
       // we will store an array list containing the PSXParam nodes so we
       // can quickly access the parameter for a given parameter level
-      List<Element> paramNodeList = new ArrayList<>();
+      ArrayList paramNodeList = new ArrayList();
 
-      Map<String, Object> params = request.getBalancedParameters();
+      Map params = request.getBalancedParameters();
       if ((params != null) && (params.size() != 0)) {
-         Iterator<Map.Entry<String, Object>> ite = params.entrySet().iterator();
+         Iterator ite = params.entrySet().iterator();
          while (ite.hasNext()) {
-            Map.Entry<String, Object> entry = ite.next();
-            String name = entry.getKey();
+            Map.Entry entry = (Map.Entry)ite.next();
+            String name = (String)entry.getKey();
             Object value = entry.getValue();
 
             /* Add file support for binary input data (attachments)
                Bug Id: Rx-99-10-0016 */
             if (value instanceof File) {
-                File f = (File) value;
-                boolean handled = false;
-                try {
-                    @SuppressWarnings("deprecation")
-                    // TODO: Replace deprecated File.toURL() with modern alternative (CP-JAVA11)
-                    URL u = f.toURL();
-                    if (u != null) {
-                        addParameter(doc, root, paramNodeList, 0, name, "", 
-                            PSXmlFieldExtractor.XML_URL_REFERENCE_ATTRIBUTE, u.toString());
-                        if (f instanceof PSPurgableTempFile)
-                            request.addTempFileResource((PSPurgableTempFile) f, u.toString());
-                        handled = true;
-                    }
-                } catch (MalformedURLException e) {
-                    // ignore, fallback to Base64
-                }
-                if (!handled) {
-                    try {
-                        FileInputStream fin = new FileInputStream(f);
-                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                        try {
-                            @SuppressWarnings("deprecation")
-                            // TODO: Replace deprecated PSBase64Encoder usage (CP-JAVA11)
-                            PSBase64Encoder.encode(fin, outputStream);
-                            value = outputStream;
-                        } catch (IOException ioex) {
-                            throw new PSRuntimeException(
-                                IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON, 
-                                new Object[]{name, "Base64", ioex.toString()});
-                        } finally {
-                            try { fin.close(); } catch (IOException ignore) {}
-                        }
-                        addParameter(doc, root, paramNodeList, 0, name, value);
-                    } catch (FileNotFoundException fnfe) {
-                        value = null;
-                        addParameter(doc, root, paramNodeList, 0, name, value);
-                    }
-                }
-            }
-            } else if (value instanceof List<?>) {
-               @SuppressWarnings("unchecked")
-               List<Object> valueList = (List<Object>) value;
+               File f = (File) value;
+               URL u = null;
+               try {
+                  u = f.toURL();
+               } catch(MalformedURLException e)
+               {
+                  // shouldn't happen!  if it does we will revert to the old way
+               }
+               
+               if (u != null)
+               {
+                  addParameter(doc, root, paramNodeList, 0, name, "", 
+                     PSXmlFieldExtractor.XML_URL_REFERENCE_ATTRIBUTE, u.toString());
+
+                  /*
+                   * If it's a purgable temp file, add it to the request so its
+                   * properties can be available for use later during request
+                   * processing.
+                   */
+                  if (f instanceof PSPurgableTempFile)
+                     request.addTempFileResource((PSPurgableTempFile) f, u.toString());
+               } else
+               {
+                  /* Convert file contents to Base64 */
+                  FileInputStream fin = null;
+                  try {
+                     fin = new FileInputStream(f);
+                  } catch (FileNotFoundException e) {
+                     value = null;
+                  }
+
+                  if (fin != null) {
+                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                    
+                     try {
+                        PSBase64Encoder.encode(fin, outputStream);
+                        value = outputStream;
+                     } catch (IOException e)
+                     {
+                        /* throw runtime exception on IO exception */
+                        throw new PSRuntimeException(
+                           IPSDataErrors.DATA_CANNOT_CONVERT_WITH_REASON, 
+                           new Object[]{name, "Base64", e.toString()});
+                     }
+                  }
+
+                  addParameter(doc, root, paramNodeList, 0, name, value);
+               }
+            } else if (value instanceof List) {
+               List valueList = (List)value;
                Object lastValue = null;
                for (int i = 0; i < valueList.size(); i++) {
                   value = valueList.get(i);
@@ -139,6 +147,7 @@ public class PSHtmlParameterTree
                      value = lastValue;
                   else
                      lastValue = value;
+
                   addParameter(doc, root, paramNodeList, i, name, value);
                }
             }
@@ -160,8 +169,9 @@ public class PSHtmlParameterTree
     *    Object)
     */
    private static void addParameter(
-      Document doc, Element root, List<Element> nodeList, int index,
-      String name, Object value) {
+      Document doc, Element root, List nodeList, int index,
+      String name, Object value)
+   {
       addParameter(doc, root, nodeList, index, name, value, null, null);
    }
    
@@ -197,16 +207,20 @@ public class PSHtmlParameterTree
     *                       parameter value node.  May be <code>null</code>.
     */
    private static void addParameter(
-      Document doc, Element root, List<Element> nodeList, int index,
-      String name, Object value, String attributeName, Object attributeValue) {
+      Document doc, Element root, List nodeList, int index,
+      String name, Object value, String attributeName, Object attributeValue)
+   {
       Element paramNode = null;
+
       while (index >= nodeList.size()) {
          nodeList.add(PSXmlDocumentBuilder.addEmptyElement(
             doc, root, "PSXParam"));
       }
-      paramNode = nodeList.get(index);
+
+      paramNode = (Element)nodeList.get(index);
       Element e = PSXmlDocumentBuilder.addElement(
          doc, paramNode, name, ((value == null) ? "" : value.toString()));
+
       if ((attributeName != null) && (attributeName.length() > 0))
          e.setAttribute(attributeName,
             attributeValue == null ? "" : attributeValue.toString());

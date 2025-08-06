@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import java.util.ResourceBundle;
 /**
  * Base class for all objects that output trace messages.
  */
-public abstract class PSTraceMessage implements IPSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public abstract class PSTraceMessage implements IPSTraceMessage {
 
    /**
     * Constructor for this class.  Sets the type of trace flag for this object

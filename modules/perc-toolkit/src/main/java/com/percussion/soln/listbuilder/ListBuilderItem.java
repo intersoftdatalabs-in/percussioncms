@@ -22,10 +22,10 @@ import java.util.Collection;
 
 /**
  * An instance of a list builder usually created
- * from an content node.
+ * from a content node.
  * 
  * @author adamgent
- *
+ * // REFACTORED: CP-JAVA11
  */
 public class ListBuilderItem {
 

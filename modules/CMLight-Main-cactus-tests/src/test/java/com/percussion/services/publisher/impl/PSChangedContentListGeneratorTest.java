@@ -22,7 +22,7 @@ import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.contentmgr.IPSContentPropertyConstants;
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;

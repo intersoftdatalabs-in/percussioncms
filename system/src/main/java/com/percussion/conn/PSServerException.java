@@ -31,6 +31,7 @@ import java.lang.reflect.Constructor;
  * @version 1.0
  * @since 1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSServerException extends PSException
 {
    /**
@@ -113,12 +114,12 @@ public class PSServerException extends PSException
 
       try
       {
-         Class excClass = Class.forName(m_className);
+        Class<?> excClass = Class.forName(m_className);
          Class[] classParams =
          {Integer.TYPE, Class.forName("[Ljava.lang.Object;")};
-         Constructor constr = excClass.getConstructor(classParams);
-         PSException e = (PSException) constr.newInstance(new Object[]
-         {new Integer(m_code), m_args});
+        Constructor<?> constr = excClass.getConstructor(classParams);
+        PSException e = (PSException) constr.newInstance(new Object[]
+        {Integer.valueOf(m_code), m_args});
          return e;
       }
       catch (Exception e)

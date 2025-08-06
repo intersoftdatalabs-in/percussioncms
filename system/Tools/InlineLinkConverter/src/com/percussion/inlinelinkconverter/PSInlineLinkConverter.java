@@ -32,7 +32,7 @@ import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.util.PSRemoteRequester;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.util.PSStringOperation;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -237,7 +237,7 @@ public class PSInlineLinkConverter {
      * @param props the properties of the conversion. It must contain
      *    the properties that are needed for <code>PSRemoteRequester</code>,
      *    which are used to communicate with Rhythmyx server. See
-     *    {@link com.percussion.util.PSRemoteRequester}.
+     *    {@link com.percussion.system.utils.PSRemoteRequester}.
      * @param xslDoc The XSL document that needs to be applied on the
      *    inline content to convert it. Must not be <code>null</code>.
      */

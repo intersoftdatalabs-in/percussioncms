@@ -20,7 +20,7 @@ package com.percussion.extensions.general;
 import com.percussion.data.PSConversionException;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.PSCalculation;
+import com.percussion.system.utils.PSCalculation;
 
 /**
  * The PSSimpleJavaUdf_add class adds the 2 supplied numbers and returns

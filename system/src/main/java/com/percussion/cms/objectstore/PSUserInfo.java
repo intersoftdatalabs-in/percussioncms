@@ -23,7 +23,7 @@ import com.percussion.webservices.security.data.PSRole;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCollection;
 import com.percussion.util.PSHttpConnection;
 import com.percussion.util.PSRemoteAppletRequester;

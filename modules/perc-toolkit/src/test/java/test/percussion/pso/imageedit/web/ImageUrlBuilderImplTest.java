@@ -16,12 +16,12 @@
  */
 package test.percussion.pso.imageedit.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.web.impl.ImageUrlBuilderImpl;
 
@@ -29,7 +29,7 @@ public class ImageUrlBuilderImplTest
 {
    private static final Logger log = LogManager.getLogger(ImageUrlBuilderImplTest.class);
    ImageUrlBuilderImpl cut; 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
      cut = new ImageUrlBuilderImpl(); 

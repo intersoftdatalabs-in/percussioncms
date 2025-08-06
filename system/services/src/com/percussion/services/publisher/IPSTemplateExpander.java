@@ -19,7 +19,7 @@ package com.percussion.services.publisher;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.extension.IPSExtension;
 import com.percussion.services.publisher.data.PSContentListItem;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import javax.jcr.query.QueryResult;
 import java.util.List;

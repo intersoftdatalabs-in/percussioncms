@@ -24,7 +24,7 @@ import com.percussion.extension.IPSExtensionHandler;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.install.PSLogger;
 import com.percussion.install.RxInstallerProperties;
-import com.percussion.util.PSExtensionInstallTool;
+import com.percussion.system.utils.PSExtensionInstallTool;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.tools.ant.BuildException;
 import org.w3c.dom.Document;

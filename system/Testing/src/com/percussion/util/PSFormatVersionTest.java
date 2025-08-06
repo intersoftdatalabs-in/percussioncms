@@ -17,6 +17,7 @@
 
 package com.percussion.util;
 
+import com.percussion.system.utils.PSFormatVersion;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 import java.io.StringReader;

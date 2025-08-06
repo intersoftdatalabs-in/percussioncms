@@ -26,7 +26,7 @@ import com.percussion.rest.sites.SiteList;
 import com.percussion.sitemanage.data.PSSiteSummary;
 import com.percussion.sitemanage.service.IPSSiteDataService;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.webservices.publishing.IPSPublishingWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import com.percussion.util.PSExtensionInstallTool;
+import com.percussion.system.utils.PSExtensionInstallTool;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

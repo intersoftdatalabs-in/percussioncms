@@ -37,7 +37,7 @@ import com.percussion.services.filter.data.PSFilterItem;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.utils.orm.PSDataCollectionHelper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.commons.lang.StringUtils;

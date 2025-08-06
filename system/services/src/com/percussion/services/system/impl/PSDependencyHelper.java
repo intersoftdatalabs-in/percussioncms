@@ -60,7 +60,7 @@ import com.percussion.services.system.IPSDependencyBaseline;
 import com.percussion.services.system.IPSDependencyManagerBaseline;
 import com.percussion.services.system.IPSDeploymentHandler;
 import com.percussion.services.system.data.PSDependent;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import org.w3c.dom.Element;
 

@@ -21,7 +21,7 @@ import com.percussion.error.PSNotFoundException;
 import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSUrlRequest;
 import com.percussion.extension.PSExtensionException;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

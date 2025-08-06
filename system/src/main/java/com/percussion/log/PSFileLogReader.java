@@ -17,8 +17,8 @@
 
 package com.percussion.log;
 
+import com.percussion.system.utils.PSRandomAccessInputStream;
 import com.percussion.util.PSDateFormatISO8601;
-import com.percussion.util.PSRandomAccessInputStream;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Document;

@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 
 package com.percussion.cms;
 
@@ -64,13 +65,13 @@ public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder
 
       PSModifyPlan plan = new PSModifyPlan(PSModifyPlan.TYPE_INSERT_PLAN);
 
-      ArrayList simpleChildMappings = new ArrayList(3);
+      ArrayList<PSSystemMapping> simpleChildMappings = new ArrayList<>(3);
 
       // create insert resource
       String reqName = "SimpleInsert" + mapper.getId();
       PSDataMapper simpleInsertSystemMapper =
-         PSApplicationBuilder.createSystemMappings(addTableKeys(
-            simpleChildMappings, mapper, fieldSet).iterator());
+         PSApplicationBuilder.createSystemMappings(
+            addTableKeys(simpleChildMappings, mapper, fieldSet).iterator());
 
       PSApplicationBuilder.createInsertDataset(m_internalApp, reqName,
          m_ce, mapper, null, simpleInsertSystemMapper);
@@ -148,7 +149,7 @@ public class PSSimpleChildInsertPlanBuilder extends PSModifyPlanBuilder
    {
       String result = null;
 
-      Iterator mappings = mapper.iterator();
+      Iterator<?> mappings = mapper.iterator();
       while (mappings.hasNext())
       {
          PSDisplayMapping mapping = (PSDisplayMapping)mappings.next();

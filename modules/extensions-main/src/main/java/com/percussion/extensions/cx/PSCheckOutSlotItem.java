@@ -24,8 +24,8 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSHtmlParameters;
+import com.percussion.system.utils.PSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.workflow.PSWorkFlowUtils;
 
 import java.util.HashMap;

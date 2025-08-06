@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.imageedit.data;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -27,8 +27,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.data.MasterImageMetaData;
 
@@ -38,7 +38,7 @@ public class MasterImageMetaDataTest
    
    MasterImageMetaData cut; 
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new MasterImageMetaData(); 
@@ -80,7 +80,7 @@ public class MasterImageMetaDataTest
             log.info("Property Descriptor " + pd2.getName() + " type " 
                   + pd2.getPropertyType().getName());
          }
-         assertTrue("description complete", true); 
+         assertTrue(true, "description complete");
       } catch (Exception ex)
       {
          log.error("Unexpected Exception " + ex,ex);

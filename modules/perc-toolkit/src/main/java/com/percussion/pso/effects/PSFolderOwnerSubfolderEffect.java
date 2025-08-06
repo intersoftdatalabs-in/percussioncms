@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.effects;
 
+// REFACTORED: CP-JAVA11
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;

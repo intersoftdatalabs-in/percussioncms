@@ -39,7 +39,7 @@ public class PSNameLabel extends JLabel
     */
    public PSNameLabel() {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
 
    /**

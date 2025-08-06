@@ -26,7 +26,7 @@ import com.percussion.relationship.IPSExecutionContext;
 import com.percussion.relationship.PSEffect;
 import com.percussion.relationship.PSEffectResult;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.workflow.IWorkflowRoleInfo;
 import com.percussion.workflow.PSExitNotifyAssignees;
 import com.percussion.workflow.PSWorkFlowContext;

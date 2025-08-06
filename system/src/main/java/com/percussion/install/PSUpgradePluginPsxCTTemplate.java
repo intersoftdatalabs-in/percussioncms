@@ -45,6 +45,7 @@ import java.util.Map;
  * table will be dropped.  It will also write to the log file showing table rows 
  * that were inserted.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginPsxCTTemplate implements IPSUpgradePlugin
 {
    /**

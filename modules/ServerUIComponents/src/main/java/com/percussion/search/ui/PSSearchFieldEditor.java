@@ -40,7 +40,7 @@ import com.percussion.i18n.ui.PSI18NTranslationKeyValues;
 import com.percussion.search.PSCommonSearchUtils;
 import com.percussion.search.PSSearchFieldFilter;
 import com.percussion.search.PSSearchFieldOperators;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.IPSRemoteRequester;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;

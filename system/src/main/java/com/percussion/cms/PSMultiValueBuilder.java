@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
 import com.percussion.data.PSDataExtractionException;
@@ -75,7 +76,7 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder
 
       boolean addedElem = false;
 
-      List rows = null;
+      List<String> rows = null;
       try
       {
          if (!m_isFieldShown)
@@ -92,9 +93,9 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder
                         IPSServerErrors.CE_MISSING_RESULTSET, m_fieldSetName);
 
                // only need to read rows if we are being displayed
-               rows = new ArrayList();
+               rows = new ArrayList<>();
                while (data.readRow())
-                  rows.add(data.getCurrentResultRowData()[0].toString());
+                  rows.add(data.getCurrentResultRowData()[0].toString()); // List<String> is parameterized
             }
             finally
             {
@@ -126,7 +127,7 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder
       boolean addedElem = PSChoiceBuilder.addChoiceElement(
          doc, parent, choices, data, isNewDoc, true);
 
-      List rows = (List)m_rows.get();
+      List<String> rows = m_rows.get();
       if (!isNewDoc && rows != null)
          PSDisplayFieldElementBuilder.selectChoices(parent, rows);
       
@@ -173,7 +174,7 @@ public class PSMultiValueBuilder extends PSDisplayFieldBuilder
     * </code> and then used in the {@link #addChoiceElement} to select the
     * appropriate elements.
     */
-   private static ThreadLocal m_rows = new ThreadLocal();
+   private static ThreadLocal<List<String>> m_rows = new ThreadLocal<>();
 
    /**
     * Set in ctor, determines if this builder's field should ever be

@@ -22,14 +22,14 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -41,7 +41,7 @@ public class PSOActionTest
 {
    private static final Logger log = LogManager.getLogger(PSOActionTest.class);
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
    }

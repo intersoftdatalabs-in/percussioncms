@@ -31,17 +31,17 @@ import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.IPSGuidManager;
-import com.percussion.services.guidmgr.data.PSLegacyGuid;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters ;
 import com.percussion.utils.guid.IPSGuid;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -50,9 +50,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * 
@@ -75,7 +75,7 @@ public class MultiSiteResolutionControllerTest
    /**
     * @throws Exception
     */
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       context = new Mockery();
@@ -98,7 +98,7 @@ public class MultiSiteResolutionControllerTest
     */
    @Test
    @SuppressWarnings("unchecked")
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public final void testHandleRequestInternalHttpServletRequestHttpServletResponse()
    {
       
@@ -118,7 +118,7 @@ public class MultiSiteResolutionControllerTest
          final IPSSite site = context.mock(IPSSite.class);
          loc.setSite(site); 
          locs.add(loc); 
-         final IPSGuid templateGuid = new PSLegacyGuid(123L);
+         final IPSGuid templateGuid = new PSGuid(123L);
          final IPSAssemblyTemplate template = context.mock(IPSAssemblyTemplate.class);
          
          context.checking(new Expectations(){{

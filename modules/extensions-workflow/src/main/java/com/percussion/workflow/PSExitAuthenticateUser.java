@@ -33,8 +33,9 @@ import com.percussion.server.PSServer;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.system.PSAssignmentTypeHelper;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

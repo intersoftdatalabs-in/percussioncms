@@ -43,7 +43,7 @@ import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestValidationException;
 import com.percussion.server.PSUserSession;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.io.IOException;
 import java.sql.SQLException;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.text.MessageFormat;
 /**
  * Used to generate trace messages for the Application Security trace message type (0x0010).  Includes the ACL entry name, the access allowed, if the user was required to authenticate, and if so, the User ID(s), and Security provider(s)/instances(s) used for authentication.
  */
-public class PSTraceAppSecurity extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceAppSecurity extends PSTraceMessage {
    
    /**
     * The constructor for this class.

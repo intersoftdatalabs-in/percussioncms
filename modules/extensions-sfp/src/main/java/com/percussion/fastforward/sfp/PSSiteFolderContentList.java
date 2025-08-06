@@ -26,8 +26,9 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.fastforward.utils.PSUtils;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+import com.percussion.system.utils.IPSHtmlParameters;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

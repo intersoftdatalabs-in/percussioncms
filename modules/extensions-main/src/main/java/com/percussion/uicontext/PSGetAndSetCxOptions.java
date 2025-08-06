@@ -28,7 +28,7 @@ import com.percussion.i18n.PSI18nUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.general.IPSRhythmyxInfo;
 import com.percussion.services.general.PSRhythmyxInfoLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.IPSXmlErrors;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;

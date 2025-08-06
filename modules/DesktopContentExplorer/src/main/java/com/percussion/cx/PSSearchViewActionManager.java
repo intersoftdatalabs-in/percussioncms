@@ -30,7 +30,7 @@ import com.percussion.cx.objectstore.PSNode;
 import com.percussion.cx.objectstore.PSProperties;
 import com.percussion.design.objectstore.PSSearchConfig;
 import com.percussion.error.PSException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSHtmlParamDocument;
 import com.percussion.util.PSStringOperation;
 import com.percussion.utils.collections.PSIteratorUtils;

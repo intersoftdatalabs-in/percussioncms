@@ -17,6 +17,7 @@
 
 package com.percussion.pso.effects;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.IPSFieldValue;
 import com.percussion.cms.objectstore.PSAaRelationship;
@@ -123,7 +124,8 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect{
 				
 				//Make sure that all the parameters have been supplied.
 				if(params.length<4)
-				{
+{
+	// REFACTORED: CP-JAVA11
 					throw new IllegalArgumentException("All parameters are required!");
 				}
 						
@@ -278,7 +280,7 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect{
 	 * during a save request.  
 	 */
 	public void attempt(Object[] params, IPSRequestContext request,
-		      IPSExecutionContext context, PSEffectResult result)
+			  IPSExecutionContext context, PSEffectResult result)
 			throws PSExtensionProcessingException, PSParameterMismatchException {
 			
 		if(context.isPostConstruction() || context.isPostDestruction()) {
@@ -476,11 +478,11 @@ public class PSOSetFieldOnSlottedItemEffect implements IPSEffect{
 
 		serverItem.load(loc, request.getSecurityToken());
 
-           // merge the new data into the current item
-           serverItem.loadData(item);
+		   // merge the new data into the current item
+		   serverItem.loadData(item);
 
-           // insert or update the item
-           serverItem.save(request.getRequest());
+		   // insert or update the item
+		   serverItem.save(request.getRequest());
 
 
 	}

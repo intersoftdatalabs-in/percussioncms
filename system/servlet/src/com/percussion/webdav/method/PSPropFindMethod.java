@@ -25,7 +25,7 @@ import com.percussion.search.IPSSearchResultRow;
 import com.percussion.search.PSExecutableSearchFactory;
 import com.percussion.search.PSSearchException;
 import com.percussion.search.PSWSSearchResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSURLEncoder;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.spring.PSUrlHandlerMapping;

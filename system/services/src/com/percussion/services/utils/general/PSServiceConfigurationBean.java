@@ -296,24 +296,16 @@ public class PSServiceConfigurationBean {
      * @return a string representation of current configuration
      */
     public String getConfigurationSummary() {
-        return String.format("""
-            PSServiceConfigurationBean Configuration:
-            - Max Cached Content Node Size: %d bytes
-            - Quartz Thread Count: %d
-            - Publish Job Timeout: %d seconds
-            - Publish Queue Timeout: %d seconds
-            - Max Rows Per Page: %d
-            - Use HTTPS for Secure Sites: %s
-            - Quartz Properties Count: %d
-            """,
-            maxCachedContentNodeSize,
-            quartzThreadCount,
-            publishJobTimeout,
-            publishQueueTimeout,
-            maxRowsPerPageInViewPubLog,
-            useHttpsForSecureSite,
-            quartzProperties.size()
-        );
+        StringBuilder sb = new StringBuilder();
+        sb.append("PSServiceConfigurationBean Configuration:\n");
+        sb.append("- Max Cached Content Node Size: ").append(maxCachedContentNodeSize).append(" bytes\n");
+        sb.append("- Quartz Thread Count: ").append(quartzThreadCount).append("\n");
+        sb.append("- Publish Job Timeout: ").append(publishJobTimeout).append(" seconds\n");
+        sb.append("- Publish Queue Timeout: ").append(publishQueueTimeout).append(" seconds\n");
+        sb.append("- Max Rows Per Page: ").append(maxRowsPerPageInViewPubLog).append("\n");
+        sb.append("- Use HTTPS for Secure Sites: ").append(useHttpsForSecureSite).append("\n");
+        sb.append("- Quartz Properties Count: ").append(quartzProperties.size()).append("\n");
+        return sb.toString();
     }
 
     /**

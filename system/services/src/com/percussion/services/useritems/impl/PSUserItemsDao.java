@@ -21,7 +21,8 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.useritems.IPSUserItemsDao;
 import com.percussion.services.useritems.data.PSUserItem;
 import com.percussion.share.dao.IPSGenericDao;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;

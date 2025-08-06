@@ -16,6 +16,13 @@
  */
 package com.percussion.install;
 
+import java.util.List;
+import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.services.catalog.PSTypeEnum;
@@ -71,9 +78,7 @@ public class PSUpgradePluginConvertCommunityVisibility
     */
    private IPSDatasourceManager m_dbm;
 
-   /**
-    * Db info for connections
-    */
+// ...existing code...
    private IPSConnectionInfo m_info;
 
    /**

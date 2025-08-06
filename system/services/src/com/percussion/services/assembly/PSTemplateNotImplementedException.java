@@ -32,7 +32,7 @@ public class PSTemplateNotImplementedException extends Exception
     */
    public PSTemplateNotImplementedException() {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
 
    /**
@@ -40,7 +40,7 @@ public class PSTemplateNotImplementedException extends Exception
     */
    public PSTemplateNotImplementedException(String message) {
       super(message);
-      // TODO Auto-generated constructor stub
+      
    }
 
    /**
@@ -48,7 +48,7 @@ public class PSTemplateNotImplementedException extends Exception
     */
    public PSTemplateNotImplementedException(Throwable cause) {
       super(cause);
-      // TODO Auto-generated constructor stub
+      
    }
 
    /**
@@ -57,7 +57,7 @@ public class PSTemplateNotImplementedException extends Exception
     */
    public PSTemplateNotImplementedException(String message, Throwable cause) {
       super(message, cause);
-      // TODO Auto-generated constructor stub
+      
    }
 
 }

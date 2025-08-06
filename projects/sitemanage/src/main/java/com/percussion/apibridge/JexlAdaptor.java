@@ -20,7 +20,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.jexl.IJexlAdaptor;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 /**
  * Adaptor for JEXL-related operations in Percussion CMS.

@@ -26,7 +26,7 @@ import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.users.IUserAdaptor;
 import com.percussion.rest.users.User;
 import com.percussion.rest.util.APIUtilities;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorResultsException;

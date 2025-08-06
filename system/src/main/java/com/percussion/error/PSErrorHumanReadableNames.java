@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.Enumeration;
  *   A static one-to-one mapping from error classes to human readable names
  *   and vice-versa.
  */
+// REFACTORED: CP-JAVA11
 public class PSErrorHumanReadableNames
 {
    /**
@@ -40,7 +41,7 @@ public class PSErrorHumanReadableNames
    /**
     *   Get the human readable name for an error class
     */
-   public static String getHumanReadableName(Class errorClass)
+public static String getHumanReadableName(Class<?> errorClass)
    {
       lazyInit();
       return (String)ms_errorNames.getValue(errorClass);
@@ -59,19 +60,20 @@ public class PSErrorHumanReadableNames
     *   Given a human readable name, get the error class associated
     *   with it
     */
-   public static Class getErrorClass(String humanReadableName)
+public static Class<?> getErrorClass(String humanReadableName)
    {
       lazyInit();
-      return (Class)ms_errorNames.getKey(humanReadableName);
+      return (Class<?>)ms_errorNames.getKey(humanReadableName);
    }
 
    /**
     *   Get an Enumeration of all the human readable names
     */
-   public static Enumeration getHumanReadableNames()
+   @SuppressWarnings("unchecked")
+   public static Enumeration<String> getHumanReadableNames()
    {
       lazyInit();
-      return ms_errorNames.values();
+      return (Enumeration<String>) ms_errorNames.values();
    }
 
    /**

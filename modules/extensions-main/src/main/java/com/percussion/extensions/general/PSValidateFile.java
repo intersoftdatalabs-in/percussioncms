@@ -18,7 +18,7 @@ package com.percussion.extensions.general;
 
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSPurgableTempFile;
 
 import org.apache.commons.lang.StringUtils;

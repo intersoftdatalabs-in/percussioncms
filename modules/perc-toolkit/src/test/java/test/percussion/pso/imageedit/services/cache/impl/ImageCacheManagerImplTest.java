@@ -16,12 +16,12 @@
  */
 package test.percussion.pso.imageedit.services.cache.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.data.ImageMetaData;
 import com.percussion.pso.imageedit.services.cache.impl.ImageCacheManagerImpl;
@@ -31,7 +31,7 @@ public class ImageCacheManagerImplTest
    private static final Logger log = LogManager.getLogger(ImageCacheManagerImplTest.class);
  
    TestableImageCacheManagerImpl cut; 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new TestableImageCacheManagerImpl();

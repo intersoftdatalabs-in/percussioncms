@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+
+// REFACTORED: CP-JAVA11
 package com.percussion.error;
 
 import com.percussion.data.IPSDataErrors;
@@ -74,7 +76,8 @@ public class PSBackEndQueryProcessingError extends PSBackEndError
       this(   applId,
             sessionId,
             IPSServerErrors.NATIVE_ERROR,
-            new Object[] { new Integer(errorCode),
+            new Object[] { Integer.valueOf(errorCode),
+// REFACTORED: CP-JAVA11
                            ((errorString == null) ? "" : errorString) },
             queryString);
    }
@@ -174,8 +177,8 @@ public class PSBackEndQueryProcessingError extends PSBackEndError
    }
 
    /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
+    * Subclasses must override this to build the messages in the
+    * specified locale.
     */
    protected PSLogSubMessage[] buildSubMessages(Locale loc)
    {

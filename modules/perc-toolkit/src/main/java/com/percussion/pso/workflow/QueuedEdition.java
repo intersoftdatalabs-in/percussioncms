@@ -22,6 +22,7 @@
  */
 package com.percussion.pso.workflow;
 
+// REFACTORED: CP-JAVA11
 
 /**
  * A Data Object describing an edition to be run in the future. 

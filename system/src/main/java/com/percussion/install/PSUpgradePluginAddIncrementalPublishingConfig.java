@@ -32,6 +32,7 @@ import java.util.List;
  * @author JaySeletz
  *
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddIncrementalPublishingConfig extends PSSpringUpgradePluginBase
 {
    private PrintStream logger;

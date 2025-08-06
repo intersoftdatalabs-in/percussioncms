@@ -17,6 +17,7 @@
 
 package com.percussion.soln.jcr;
 
+// REFACTORED: CP-JAVA11
 import java.util.Calendar;
 
 import javax.jcr.RepositoryException;
@@ -25,6 +26,7 @@ import javax.jcr.ValueFormatException;
 
 public abstract class AbstractSimplyProperty {
 
+    // REFACTORED: CP-JAVA11
     public boolean getBoolean() throws ValueFormatException, RepositoryException {
         return getValue().getBoolean();
     }

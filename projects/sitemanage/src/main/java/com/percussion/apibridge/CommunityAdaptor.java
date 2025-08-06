@@ -26,7 +26,7 @@ import com.percussion.rest.communities.ICommunityAdaptor;
 import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.services.security.data.PSCommunity;
 import com.percussion.services.security.data.PSCommunityVisibility;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.security.IPSSecurityDesignWs;

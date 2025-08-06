@@ -24,7 +24,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.util.PSCharSets;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.IPSWebserviceErrors;

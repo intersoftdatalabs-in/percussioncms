@@ -31,7 +31,7 @@ import com.percussion.services.catalog.data.PSObjectSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.security.data.PSCommunityVisibility;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 import com.percussion.webservices.PSErrorResultsException;

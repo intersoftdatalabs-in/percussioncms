@@ -23,7 +23,7 @@ import com.percussion.services.publisher.IPSPubStatus;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.rx.publisher.PSRxPubServiceInternalLocator;
 import com.percussion.rx.publisher.IPSRxPublisherServiceInternal;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.commons.lang.StringUtils;

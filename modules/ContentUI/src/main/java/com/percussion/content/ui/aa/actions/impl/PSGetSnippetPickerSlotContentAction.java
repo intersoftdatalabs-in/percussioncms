@@ -33,7 +33,7 @@ import com.percussion.services.assembly.jexl.PSAssemblerUtils;
 import com.percussion.services.assembly.jexl.PSDocumentUtils;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang.StringUtils;
 

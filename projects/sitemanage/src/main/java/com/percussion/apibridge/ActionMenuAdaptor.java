@@ -36,7 +36,7 @@ import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.menus.PSContentTypeActionMenuHelper;
 import com.percussion.services.menus.PSTemplateActionMenuHelper;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import org.springframework.beans.factory.annotation.Autowired;

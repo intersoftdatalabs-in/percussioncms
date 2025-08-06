@@ -32,7 +32,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.jexl.PSLocationUtils;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * Utilities for dispatch templates.  These utilities will dispatch to a template based on a content

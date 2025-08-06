@@ -33,7 +33,7 @@ import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
 import com.percussion.services.security.PSJaasUtils;
 import com.percussion.services.security.PSServletRequestWrapper;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

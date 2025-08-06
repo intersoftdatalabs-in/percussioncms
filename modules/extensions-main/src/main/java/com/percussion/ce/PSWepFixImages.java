@@ -23,8 +23,8 @@ import com.percussion.extensions.general.PSFileInfo;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSImageTools;
+import com.percussion.system.utils.PSImageTools;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSNodePrinter;
 import com.percussion.xml.PSXmlDocumentBuilder;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ package com.percussion.debug;
 /**
  * Used to process Trace Messages for the Exit Execution trace message type (0x0800).  This allows Java extensions to generate trace statements.  Content and format is determined by the exit that initates the trace command.
  */
-public class PSTraceExitExecution extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceExitExecution extends PSTraceMessage {
 
    /**
     * Constructor for this class.

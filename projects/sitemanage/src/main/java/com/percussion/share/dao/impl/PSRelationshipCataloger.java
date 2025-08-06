@@ -21,7 +21,7 @@ import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
 import com.percussion.share.dao.IPSRelationshipCataloger;
 import com.percussion.share.service.IPSIdMapper;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.webservices.system.IPSSystemWs;
 import org.springframework.beans.factory.annotation.Autowired;

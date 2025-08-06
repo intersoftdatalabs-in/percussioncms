@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+// REFACTORED: CP-JAVA11
 /**
  * PSContentFactory provides a convenient set of methods to load
  * HTML, XML, XSL, and DTD files from disk in particular encodings
@@ -86,8 +87,8 @@ public abstract class PSContentFactory
     * Interactive test. Command line arguments are filenames, which will
     * be loaded by the content factory and processed accordingly.
     */
-   public static void main(String[] args)
-   {
+/*
+ * Copyright 1999-2025 Percussion Software, Inc.
       try
       {
          for (int i = 0; i < args.length; i++)

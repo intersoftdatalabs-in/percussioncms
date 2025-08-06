@@ -18,9 +18,9 @@
 package com.percussion.log;
 
 import com.percussion.server.PSConsole;
+import com.percussion.system.utils.PSRandomAccessInputStream;
+import com.percussion.system.utils.PSRandomAccessOutputStream;
 import com.percussion.util.PSCharSets;
-import com.percussion.util.PSRandomAccessInputStream;
-import com.percussion.util.PSRandomAccessOutputStream;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.w3c.dom.Element;

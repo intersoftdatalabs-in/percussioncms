@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.validation;
 
+// REFACTORED: CP-JAVA11
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,8 +28,8 @@ import org.w3c.dom.Element;
 
 import com.percussion.extension.IPSItemValidator;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSItemErrorDoc;
+import com.percussion.system.utils.PSItemErrorDoc;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * An item validation exit that checks for required fields.
@@ -50,6 +51,7 @@ public class PSORequiredFieldsItemValidation
       extends
          PSOAbstractItemValidationExit implements IPSItemValidator
 {
+   // REFACTORED: CP-JAVA11
    private static final Logger log = LogManager.getLogger(PSORequiredFieldsItemValidation.class);
    /**
     * 
@@ -70,7 +72,7 @@ public class PSORequiredFieldsItemValidation
       String transitionid = req.getParameter(IPSHtmlParameters.SYS_TRANSITIONID);      
       
       if(transitionid == null || transitionid == ""){
-    	  transitionid = "123455";
+        transitionid = "123455";
       }
       
       Validate.notEmpty(transitionid);

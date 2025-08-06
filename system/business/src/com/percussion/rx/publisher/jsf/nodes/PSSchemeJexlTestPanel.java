@@ -31,7 +31,7 @@ import com.percussion.server.PSServer;
 import com.percussion.server.webservices.PSServerFolderProcessor;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBaseHttpUtils;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;

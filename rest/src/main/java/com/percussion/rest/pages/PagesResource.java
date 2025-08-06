@@ -26,7 +26,8 @@ import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.errors.LocationMismatchException;
 import com.percussion.rest.util.APIUtilities;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

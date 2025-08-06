@@ -37,7 +37,7 @@ import com.percussion.services.publisher.data.PSContentList;
 import com.percussion.services.publisher.data.PSPubItem;
 import com.percussion.services.publisher.data.PSSiteItem;
 import com.percussion.services.publisher.impl.PSPublisherService;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;

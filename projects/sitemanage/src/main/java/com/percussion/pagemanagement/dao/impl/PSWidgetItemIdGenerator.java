@@ -22,7 +22,7 @@ import com.percussion.pagemanagement.dao.IPSWidgetItemIdGenerator;
 import com.percussion.pagemanagement.data.PSRegionWidgetAssociations;
 import com.percussion.pagemanagement.data.PSRegionWidgets;
 import com.percussion.pagemanagement.data.PSWidgetItem;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.security.PSSecurityUtility;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ import java.util.Map;
  * exitts are run
  * - 0x2000 CGI post PostProc exit - CGI vars after post proc exits are run.
  */
-public class PSTraceHtmlCgi extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceHtmlCgi extends PSTraceMessage {
 
    /**
     * The constructor for this class.

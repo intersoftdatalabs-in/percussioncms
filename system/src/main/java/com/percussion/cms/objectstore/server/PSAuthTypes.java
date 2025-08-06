@@ -19,7 +19,8 @@ package com.percussion.cms.objectstore.server;
 import com.percussion.cms.IPSConstants;
 import com.percussion.services.general.IPSRhythmyxInfo;
 import com.percussion.services.general.PSRhythmyxInfoLocator;
-import com.percussion.util.PSObservableFile;
+import com.percussion.system.utils.PSObservableFile;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

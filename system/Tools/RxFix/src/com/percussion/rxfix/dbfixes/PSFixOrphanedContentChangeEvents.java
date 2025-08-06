@@ -50,7 +50,7 @@ public class PSFixOrphanedContentChangeEvents extends PSFixDBBase implements IPS
    public PSFixOrphanedContentChangeEvents() throws NamingException, SQLException
    {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
 
 

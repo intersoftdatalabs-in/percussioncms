@@ -42,6 +42,7 @@ import java.util.Properties;
  * but fails to add the data. This plugin takes the data from the backup table
  * and then generates a sequential number for the newly added PROPERTYID column
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginComponentPropertyTable implements IPSUpgradePlugin
 {
    /**

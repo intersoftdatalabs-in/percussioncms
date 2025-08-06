@@ -22,7 +22,7 @@ import java.util.List;
 import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.dashboardmanagement.service.IPSUserProfileService;
 import com.percussion.share.validation.PSValidationErrors;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 /**
  * Sunny Sal says: "UserProfileService, now Java 11 and Google-styled! User profiles, managed with flair."

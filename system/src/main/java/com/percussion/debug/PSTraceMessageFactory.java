@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import com.percussion.design.objectstore.PSTraceOption;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -29,8 +28,8 @@ import java.util.ResourceBundle;
  * Factory object used to create instances of each type of tracing message.  
  * Contains a static initializer to initialize the static member m_optionList.
  */
-public class PSTraceMessageFactory 
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceMessageFactory {
    
    /**
     * Creates the appropriate trace message object from the supplied trace flag.
@@ -115,8 +114,7 @@ public class PSTraceMessageFactory
     * @return the possible flags as a list of PSTraceOption objects.
     * @roseuid 39F46BEC0280
     */
-   public static ArrayList getPossibleOptions() 
-   {
+   public static ArrayList<PSTraceOption> getPossibleOptions() {
       return getPossibleOptions(Locale.getDefault());
    }
    
@@ -155,138 +153,89 @@ public class PSTraceMessageFactory
     * @return the possible flags as a list of PSTraceOption objects.
     * @roseuid 3A11462E0119
     */
-   public static ArrayList getPossibleOptions(Locale locale)
-   {
-      ArrayList optionList = null;
-
-      synchronized(m_optionLists)
-      {
-         optionList = (ArrayList)m_optionLists.get(locale);
-         if (optionList == null)
-         {
-            // create the arraylist
-            optionList = new ArrayList();
-
-            // get the resource bundle for localization of display names and descriptions
+   public static ArrayList<PSTraceOption> getPossibleOptions(Locale locale) {
+      ArrayList<PSTraceOption> optionList;
+      synchronized (m_optionLists) {
+         optionList = (ArrayList<PSTraceOption>) m_optionLists.get(locale);
+         if (optionList == null) {
+            optionList = new ArrayList<>();
             ResourceBundle bundle = ResourceBundle.getBundle("com.percussion.server.PSStringResources", locale);
-
-            optionList.add(
-                 new PSTraceOption(BASIC_REQUEST_INFO_FLAG,
-                                    bundle.getString("traceBasicRequestInfo_dispname"),
-                                    bundle.getString("traceBasicRequestInfo_desc"),
-                                    "traceBasicRequestInfo"));
-
-            optionList.add(
-                 new PSTraceOption(INIT_HTTP_VAR_FLAG,
-                                    bundle.getString("traceInitHttpVar_dispname"),
-                                    bundle.getString("traceInitHttpVar_desc"),
-                                    "traceInitHttpVar"));
-
-            optionList.add(
-                 new PSTraceOption(FILE_INFO_FLAG,
-                                    bundle.getString("traceFileInfo_dispname"),
-                                    bundle.getString("traceFileInfo_desc"),
-                                    "traceFileInfo"));
-
-            optionList.add(
-                 new PSTraceOption(APP_HANDLER_PROC_FLAG,
-                                    bundle.getString("traceAppHandlerProc_dispname"),
-                                    bundle.getString("traceAppHandlerProc_desc"),
-                                    "traceAppHandlerProc"));
-
-            optionList.add(
-                 new PSTraceOption(APP_SECURITY_FLAG,
-                                    bundle.getString("traceAppSecurity_dispname"),
-                                    bundle.getString("traceAppSecurity_desc"),
-                                    "traceAppSecurity"));
-
-            optionList.add(
-                 new PSTraceOption(POST_PREPROC_HTTP_VAR_FLAG,
-                                    bundle.getString("tracePostPreProcHttpVar_dispname"),
-                                    bundle.getString("tracePostPreProcHttpVar_desc"),
-                                    "tracePostPreProcHttpVar"));
-
-            optionList.add(
-                 new PSTraceOption(RESOURCE_HANDLER_FLAG,
-                                    bundle.getString("traceResourceHandler_dispname"),
-                                    bundle.getString("traceResourceHandler_desc"),
-                                    "traceResourceHandler"));
-
-            optionList.add(
-                 new PSTraceOption(MAPPER_FLAG,
-                                    bundle.getString("traceMapper_dispname"),
-                                    bundle.getString("traceMapper_desc"),
-                                    "traceMapper"));
-
-            optionList.add(
-                 new PSTraceOption(SESSION_INFO_FLAG,
-                                    bundle.getString("traceSessionInfo_dispname"),
-                                    bundle.getString("traceSessionInfo_desc"),
-                                    "traceSessionInfo"));
-
-            optionList.add(
-                 new PSTraceOption(DB_POOL_FLAG,
-                                    bundle.getString("traceDbPool_dispname"),
-                                    bundle.getString("traceDbPool_desc"),
-                                    "traceDbPool"));
-
-            optionList.add(
-                 new PSTraceOption(EXIT_PROC_FLAG,
-                                    bundle.getString("traceExitProc_dispname"),
-                                    bundle.getString("traceExitProc_desc"),
-                                    "traceExitProc"));
-
-            optionList.add(
-                 new PSTraceOption(EXIT_EXEC_FLAG,
-                                    bundle.getString("traceExitExec_dispname"),
-                                    bundle.getString("traceExitExec_desc"),
-                                    "traceExitExec"));
-
-            optionList.add(
-                 new PSTraceOption(POST_EXIT_XML_FLAG,
-                                    bundle.getString("tracePostExitXml_dispname"),
-                                    bundle.getString("tracePostExitXml_desc"),
-                                    "tracePostExitXml"));
-
-            optionList.add(
-                 new PSTraceOption(POST_EXIT_CGI_FLAG,
-                                    bundle.getString("tracePostExitCgi_dispname"),
-                                    bundle.getString("tracePostExitCgi_desc"),
-                                    "tracePostExitCgi"));
-
-            optionList.add(
-                 new PSTraceOption(OUTPUT_CONV_FLAG,
-                                    bundle.getString("traceOutputConv_dispname"),
-                                    bundle.getString("traceOutputConv_desc"),
-                                    "traceOutputConv"));
-
-            optionList.add(
-                 new PSTraceOption(RESULT_SET,
-                                    bundle.getString("traceResultSet_dispname"),
-                                    bundle.getString("traceResultSet_desc"),
-                                    "traceResultSet"));
-
-            optionList.add(
-                 new PSTraceOption(CONDITIONAL_EVAL_FLAG,
-                                    bundle.getString("traceConditionalEval_dispname"),
-                                    bundle.getString("traceConditionalEval_desc"),
-                                    "traceConditionalEval"));
-
-
-            // add it to the map
+            optionList.add(new PSTraceOption(BASIC_REQUEST_INFO_FLAG,
+                    bundle.getString("traceBasicRequestInfo_dispname"),
+                    bundle.getString("traceBasicRequestInfo_desc"),
+                    "traceBasicRequestInfo"));
+            optionList.add(new PSTraceOption(INIT_HTTP_VAR_FLAG,
+                    bundle.getString("traceInitHttpVar_dispname"),
+                    bundle.getString("traceInitHttpVar_desc"),
+                    "traceInitHttpVar"));
+            optionList.add(new PSTraceOption(FILE_INFO_FLAG,
+                    bundle.getString("traceFileInfo_dispname"),
+                    bundle.getString("traceFileInfo_desc"),
+                    "traceFileInfo"));
+            optionList.add(new PSTraceOption(APP_HANDLER_PROC_FLAG,
+                    bundle.getString("traceAppHandlerProc_dispname"),
+                    bundle.getString("traceAppHandlerProc_desc"),
+                    "traceAppHandlerProc"));
+            optionList.add(new PSTraceOption(APP_SECURITY_FLAG,
+                    bundle.getString("traceAppSecurity_dispname"),
+                    bundle.getString("traceAppSecurity_desc"),
+                    "traceAppSecurity"));
+            optionList.add(new PSTraceOption(POST_PREPROC_HTTP_VAR_FLAG,
+                    bundle.getString("tracePostPreProcHttpVar_dispname"),
+                    bundle.getString("tracePostPreProcHttpVar_desc"),
+                    "tracePostPreProcHttpVar"));
+            optionList.add(new PSTraceOption(RESOURCE_HANDLER_FLAG,
+                    bundle.getString("traceResourceHandler_dispname"),
+                    bundle.getString("traceResourceHandler_desc"),
+                    "traceResourceHandler"));
+            optionList.add(new PSTraceOption(MAPPER_FLAG,
+                    bundle.getString("traceMapper_dispname"),
+                    bundle.getString("traceMapper_desc"),
+                    "traceMapper"));
+            optionList.add(new PSTraceOption(SESSION_INFO_FLAG,
+                    bundle.getString("traceSessionInfo_dispname"),
+                    bundle.getString("traceSessionInfo_desc"),
+                    "traceSessionInfo"));
+            optionList.add(new PSTraceOption(DB_POOL_FLAG,
+                    bundle.getString("traceDbPool_dispname"),
+                    bundle.getString("traceDbPool_desc"),
+                    "traceDbPool"));
+            optionList.add(new PSTraceOption(EXIT_PROC_FLAG,
+                    bundle.getString("traceExitProc_dispname"),
+                    bundle.getString("traceExitProc_desc"),
+                    "traceExitProc"));
+            optionList.add(new PSTraceOption(EXIT_EXEC_FLAG,
+                    bundle.getString("traceExitExec_dispname"),
+                    bundle.getString("traceExitExec_desc"),
+                    "traceExitExec"));
+            optionList.add(new PSTraceOption(POST_EXIT_XML_FLAG,
+                    bundle.getString("tracePostExitXml_dispname"),
+                    bundle.getString("tracePostExitXml_desc"),
+                    "tracePostExitXml"));
+            optionList.add(new PSTraceOption(POST_EXIT_CGI_FLAG,
+                    bundle.getString("tracePostExitCgi_dispname"),
+                    bundle.getString("tracePostExitCgi_desc"),
+                    "tracePostExitCgi"));
+            optionList.add(new PSTraceOption(OUTPUT_CONV_FLAG,
+                    bundle.getString("traceOutputConv_dispname"),
+                    bundle.getString("traceOutputConv_desc"),
+                    "traceOutputConv"));
+            optionList.add(new PSTraceOption(RESULT_SET,
+                    bundle.getString("traceResultSet_dispname"),
+                    bundle.getString("traceResultSet_desc"),
+                    "traceResultSet"));
+            optionList.add(new PSTraceOption(CONDITIONAL_EVAL_FLAG,
+                    bundle.getString("traceConditionalEval_dispname"),
+                    bundle.getString("traceConditionalEval_desc"),
+                    "traceConditionalEval"));
             m_optionLists.put(locale, optionList);
-
          }
       }
-
-      /* we want to return a copy of the ArrayList so modifications to it
-       * wont affect our copy
-       */
-       ArrayList temp = new ArrayList(optionList.size());
-       Iterator i = optionList.iterator();
-       while (i.hasNext())
-         temp.add(i.next());
-
+      // Return a copy so modifications won't affect the original
+      ArrayList<PSTraceOption> temp = new ArrayList<>(optionList.size());
+      for (PSTraceOption option : optionList) {
+         temp.add(option);
+      }
       return temp;
    }
 
@@ -416,6 +365,6 @@ public class PSTraceMessageFactory
     * The Locale is the key to the Map.  Map is built as lists are requested for each 
     * Locale.
     */
-   private static HashMap m_optionLists = new HashMap();
+   private static final HashMap<Locale, ArrayList<PSTraceOption>> m_optionLists = new HashMap<>();
 
 }

@@ -31,7 +31,7 @@ import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.share.service.IPSSystemProperties;
 import com.percussion.share.service.impl.PSThumbnailRunner.Function;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 

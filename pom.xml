@@ -34,7 +34,7 @@
         <module>modules/perc-legacy</module>
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
-        <module>modules/webservices</module>
+        <!-- <module>modules/webservices</module> -->
         <module>modules/Simple</module>
         <module>modules/TableFactory</module>
         <module>modules/perc-service-wrapper</module>
@@ -58,7 +58,7 @@
         <module>modules/servletutils</module>
         <module>modules/perc-rxapps</module>
         <module>modules/perc-checkboxtree</module>
-        <module>modules/DesktopContentExplorer</module>
+        <!-- <module>modules/DesktopContentExplorer</module> -->
         <module>modules/perc-jetty</module>
 		<module>modules/perc-jetty-jars</module>
         <module>modules/perc-jetty-logging</module>
@@ -79,21 +79,19 @@
         <jenkins.buildNumber>2024</jenkins.buildNumber>
        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
        <buildNumber>${maven.build.timestamp}</buildNumber>
-       <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
-       <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
        <jdk.version>11</jdk.version>
        <java.source.version>11</java.source.version>
        <java.version>11</java.version>
        <maven.compiler.source>11</maven.compiler.source>
        <maven.compiler.target>11</maven.compiler.target>
-       <slf4j.version>1.7.26</slf4j.version>
+       <slf4j.version>1.7.36</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
        <maven.version>[3.6.0,)</maven.version>
        <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
        <versions.maven.plugin.version>2.7</versions.maven.plugin.version>
        <maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
-       <maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+       <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
        <maven.deploy.plugin.version>3.0.0-M1</maven.deploy.plugin.version>
        <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
        <jdeps.fail.build>false</jdeps.fail.build>
@@ -105,12 +103,11 @@
        <maven.assembly.plugin.version>3.2.0</maven.assembly.plugin.version>
        <gwt.maven.plugin.version>2.8.2</gwt.maven.plugin.version>
        <build.helper.maven.plugin.version>3.0.0</build.helper.maven.plugin.version>
-       <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+       <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
        <maven.clean.plugin.version>3.2.0</maven.clean.plugin.version>
        <maven.build.helper.plugin.version>3.3.0</maven.build.helper.plugin.version>
        <maven.install.plugin.version>3.0.0-M1</maven.install.plugin.version>
        <maven.jarsigner.plugin.version>3.0.0</maven.jarsigner.plugin.version>
-       <spotbugs.plugin.version>4.2.0</spotbugs.plugin.version>
        <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
        <commons.file.upload.version>1.6.0</commons.file.upload.version>
@@ -119,7 +116,7 @@
        <maven.release.plugin.version>3.0.0-M1</maven.release.plugin.version>
        <maven.scm.plugin.version>1.11.2</maven.scm.plugin.version>
        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
-       <maven.failsafe.plugin.version>2.22.2</maven.failsafe.plugin.version>
+       <maven.failsafe.plugin.version>3.2.5</maven.failsafe.plugin.version>
        <maven.resources.plugin.version>3.2.0</maven.resources.plugin.version>
        <maven.antrun.plugin.version>3.0.0</maven.antrun.plugin.version>
        <commons.rng.version>1.3</commons.rng.version>
@@ -127,12 +124,11 @@
        <batik.version>1.14</batik.version>
        <maven.shade.plugin.version>3.2.1</maven.shade.plugin.version>
        <maven.pmd.plugin.version>3.13.0</maven.pmd.plugin.version>
-       <maven.jxr.plugin.version>3.0.0</maven.jxr.plugin.version>
+       <maven.jxr.plugin.version>3.4.0</maven.jxr.plugin.version>
        <maven.war.plugin.version>3.3.1</maven.war.plugin.version>
        <plexus.component.metadata.version>2.1.0</plexus.component.metadata.version>
        <jetty.maven.plugin.version>9.4.54.v20240208</jetty.maven.plugin.version>
        <lifecycle.mapping.plugin>1.0.0</lifecycle.mapping.plugin>
-       <jacoco.maven.plugin.version>0.8.5</jacoco.maven.plugin.version>
        <skip.integration.tests>true</skip.integration.tests>
        <skip.unit.tests>false</skip.unit.tests>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -144,12 +140,17 @@
        <ehcache.version>2.10.6</ehcache.version>
        <gson.version>2.8.9</gson.version>
        <cxf.version>3.5.11</cxf.version>
-       <servlet.spec>3.1.0</servlet.spec>
-       <xmlgraphics.common.version>2.6</xmlgraphics.common.version>
+       <servlet.spec>4.0.1</servlet.spec>
+       <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+       <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
+       <jaxb.api.version>2.3.1</jaxb.api.version>
+       <jaxb.runtime.version>2.3.3</jaxb.runtime.version>
+       <activation.api.version>1.2.0</activation.api.version>
+       <xmlgraphics.common.version>2.9</xmlgraphics.common.version>
        <commons.lang.version>2.6</commons.lang.version>
        <commons.lang3.version>3.18.0</commons.lang3.version>
-       <commons-logging.version>1.2</commons-logging.version>
-       <commons.io.version>2.14.0</commons.io.version>
+       <commons-logging.version>1.3.5</commons-logging.version>
+       <commons.io.version>2.18.0</commons.io.version>
        <commons.collections3.version>3.2.2</commons.collections3.version>
        <commons.collections4.version>4.4</commons.collections4.version>
        <lucene.version>8.7.0</lucene.version>
@@ -169,7 +170,7 @@
         <jackson.version>2.15.0</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
-       <junit5.version>5.13.3</junit5.version>
+        <junit5.version>5.13.1</junit5.version>
         <junit.version>4.13.1</junit.version>
         <cactus.version>13-1.7.1</cactus.version>
         <cactus.sysproperties>cactus.contextURL</cactus.sysproperties>
@@ -180,10 +181,7 @@
        <mssql.version>12.4.1.jre8</mssql.version>
        <oracle.version>12.1.0.1</oracle.version>
        <jtds.version>1.3.1</jtds.version>
-       <install.jre.version>8.222.10.1</install.jre.version>
-       <axis.version>1.4.1</axis.version>
-       <axiscore.version>1.4.2</axiscore.version>
-       <httpcomponents.version>4.5.13</httpcomponents.version>
+       <install.jre.version>8.222.10.1</install.jre.version>       <httpcomponents.version>4.5.13</httpcomponents.version>
        <tika.version>1.28.5</tika.version>
        <commons-cli.version>1.4</commons-cli.version>
        <opencsv.version>4.6</opencsv.version>
@@ -248,18 +246,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.cyclonedx</groupId>
-                <artifactId>cyclonedx-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>makeAggregateBom</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jarsigner-plugin</artifactId>
@@ -340,49 +326,6 @@
             <artifactId>maven-jar-plugin</artifactId>
             <version>${maven.jar.plugin.version}</version>
             </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.maven.plugin.version}</version>
-                <executions>
-                    <!--
-                        Prepares the property pointing to the JaCoCo runtime agent which
-                        is passed as VM argument when Maven the Surefire plugin is executed.
-                    -->
-                    <execution>
-                        <id>pre-unit-test</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the path to the file which contains the execution data. -->
-                            <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-                            <!--
-                                Sets the name of the property containing the settings
-                                for JaCoCo runtime agent.
-                            -->
-                            <propertyName>surefireArgLine</propertyName>
-                        </configuration>
-                    </execution>
-                    <!--
-                        Ensures that the code coverage report for unit tests is created after
-                        unit tests have been run.
-                    -->
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the path to the file which contains the execution data. -->
-                            <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
-                            <!-- Sets the output directory for the code coverage report. -->
-                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Used to find plugin updates -->
             <!-- mvn versions:display-plugin-updates
             mvn versions:display-dependency-updates -->
@@ -446,59 +389,6 @@
                 </configuration>
             </plugin>
             <!-- Used for integration tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven.failsafe.plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.surefire</groupId>
-                        <artifactId>common-junit48</artifactId>
-                            <version>${maven.surefire.plugin.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <!--
-                        Ensures that both integration-test and verify goals of the Failsafe Maven
-                        plugin are executed.
-                    -->
-                    <execution>
-                        <id>integration-tests</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Sets the VM argument line used when integration tests are run. -->
-                            <!--suppress UnresolvedMavenProperty -->
-                            <argLine>${failsafeArgLine}</argLine>
-
-                            <systemPropertyVariables>
-                                <javax.xml.parsers.SAXParserFactory>com.percussion.xml.PSSaxParserFactoryImpl</javax.xml.parsers.SAXParserFactory>
-                                <log4j.configurationFile>${project.build.testOutputDirectory}/log4j2-tester.xml</log4j.configurationFile>
-                            </systemPropertyVariables>
-
-                            <systemProperties>
-                            <property>
-                                <name>javax.xml.parsers.SAXParserFactory</name>
-                                <value>com.percussion.xml.PSSaxParserFactoryImpl</value>
-                            </property>
-                            </systemProperties>
-                            <!--
-                                Skips integration tests if the value of skip.integration.tests property
-                                is true
-                            -->
-                            <skipTests>${skip.integration.tests}</skipTests>
-                            <testFailureIgnore>false</testFailureIgnore>
-                            <groups>com.percussion.utils.testing.IntegrationTest</groups>
-                            <includes>
-                                <include>**/*.java</include>
-                            </includes>
-                            <excludedGroups>com.percussion.utils.testing.BackloggedTest</excludedGroups>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -506,6 +396,56 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jdeps-plugin</artifactId>
                     <version>${maven.jdeps.plugin.version}</version>
+                </plugin>
+                <!-- Standardize test plugins across the build -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven.surefire.plugin.version}</version>
+                    <dependencies>
+                        <!-- Allow running vintage JUnit 4 tests under JUnit Platform if needed -->
+                        <dependency>
+                            <groupId>org.junit.vintage</groupId>
+                            <artifactId>junit-vintage-engine</artifactId>
+                            <version>${junit5.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.junit.platform</groupId>
+                            <artifactId>junit-platform-launcher</artifactId>
+                            <version>${junit5.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <useModulePath>false</useModulePath>
+                        <failIfNoTests>false</failIfNoTests>
+                        <includes>
+                            <include>**/*Test.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven.failsafe.plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit.vintage</groupId>
+                            <artifactId>junit-vintage-engine</artifactId>
+                            <version>${junit5.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.junit.platform</groupId>
+                            <artifactId>junit-platform-launcher</artifactId>
+                            <version>${junit5.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <useModulePath>false</useModulePath>
+                        <failIfNoTests>false</failIfNoTests>
+                        <includes>
+                            <include>**/*IT.java</include>
+                        </includes>
+                    </configuration>
                 </plugin>
                 <plugin>
                 <groupId>com.samaxes.maven</groupId>
@@ -594,6 +534,14 @@
                                     </requireUpperBoundDeps>
                                     <dependencyConvergence />
                                     <banDuplicatePomDependencyVersions />
+                                    <!-- Ban Jakarta servlet/annotation artifacts until full Jakarta migration -->
+                                    <bannedDependencies>
+                                        <excludes>
+                                            <exclude>jakarta.servlet:jakarta.servlet-api</exclude>
+                                            <exclude>jakarta.annotation:jakarta.annotation-api</exclude>
+                                        </excludes>
+                                        <searchTransitive>true</searchTransitive>
+                                    </bannedDependencies>
                                 </rules>
                                 <fail>false</fail>
                             </configuration>
@@ -610,9 +558,11 @@
                     <configuration>
                         <source>11</source>
                         <target>11</target>
+                        <!-- Consider using release instead of source/target to lock stdlib: -->
+                        <!-- <release>11</release> -->
                         <fork>true</fork>
-                         <debug>true</debug>
-                        <debuglevel>lines,vars,source</debuglevel> 
+                        <debug>true</debug>
+                        <debuglevel>lines,vars,source</debuglevel>
                         <meminitial>1024m</meminitial>
                         <maxmem>2024m</maxmem>
                     </configuration>
@@ -822,61 +772,6 @@
                     </dependencies>
                 </plugin>
                 <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.plugin.version}</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>build-tools</artifactId>
-                            <version>${project.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.percussion</groupId>
-                            <artifactId>perc-security-utils</artifactId>
-                            <version>8.1.6-SNAPSHOT</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.h3xstream.findsecbugs</groupId>
-                            <artifactId>findsecbugs-plugin</artifactId>
-                            <version>LATEST</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.mebigfatguy.fb-contrib</groupId>
-                            <artifactId>fb-contrib</artifactId>
-                            <version>7.4.7</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <fork>false</fork>
-                        <spotbugsXmlOutputDirectory>target/site</spotbugsXmlOutputDirectory>
-                        <skipEmptyReport>false</skipEmptyReport>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                        <includeTests>false</includeTests>
-                        <classFilesDirectory>${project.build.outputDirectory}</classFilesDirectory>
-                        <xmlOutput>true</xmlOutput>
-                        <effort>Max</effort>
-                        <threshold>Low</threshold>
-                        <failOnError>false</failOnError>
-                        <plugins>
-                            <plugin>
-                                <groupId>com.h3xstream.findsecbugs</groupId>
-                                <artifactId>findsecbugs-plugin</artifactId>
-                                <version>LATEST</version>
-                            </plugin>
-                        </plugins>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>scan</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
                     <version>5.2.2</version>
@@ -942,19 +837,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>3.0.0-M4</version>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>${spotbugs.plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>spotbugs</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
+                <version>${maven.surefire.plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -968,99 +851,54 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven.pmd.plugin.version}</version>
-            </plugin>
         </plugins>
-    </reporting>
-    <repositories>
-        <repository>
-            <id>perc-release-repo</id>
-            <url>https://mvn.intsof.com/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>thirdparty</id>
-            <name>thirdparty</name>
-            <url>https://mvn.intsof.com/repositories/thirdparty/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>maven-central</id>
-            <url>https://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>perc-snapshot-repo</id>
-            <name>Snapshots</name>
-            <url>https://mvn.intsof.com/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-        </repository>
-
-    </repositories>
-
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>perc-releases-repo</id>
-            <name>Perc releases Repository</name>
-            <url>https://mvn.intsof.com/repositories/releases/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>perc-snapshot-repo</id>
-            <name>Perc Snapshots Repository</name>
-            <url>https://mvn.intsof.com/repositories/snapshots/</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>never</updatePolicy>
-            </snapshots>
-            <releases>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>thirdparty</id>
-            <name>thirdparty</name>
-            <url>https://mvn.intsof.com/repositories/thirdparty/</url>
-        </pluginRepository>
-        <pluginRepository>
-            <id>maven-central</id>
-            <url>https://repo1.maven.org/maven2</url>
-        </pluginRepository>
-    </pluginRepositories>
-
-
-    <dependencyManagement>
-        <dependencies>
+    </reporting><dependencyManagement>
+<dependencies><!-- Centralize Java 11 removed/externally provided APIs -->
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet.api.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Ensure JUnit Platform is available centrally -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.vintage</groupId>
+                <artifactId>junit-vintage-engine</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${javax.annotation.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb.runtime.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>javax.activation-api</artifactId>
+                <version>${activation.api.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.xmlgraphics</groupId>
                 <artifactId>fop</artifactId>
@@ -1074,42 +912,37 @@
                 <scope>compile</scope>
             </dependency>
             <dependency>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-annotations</artifactId>
-                <version>4.2.0</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.opencsv</groupId>
                 <artifactId>opencsv</artifactId>
                 <version>${opencsv.version}</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Start Junit 5-->
             <dependency>
                 <groupId>org.jmock</groupId>
                 <artifactId>jmock</artifactId>
-                <version>2.8.4</version>
+                <version>2.13.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.jmock</groupId>
-                <artifactId>jmock-junit4</artifactId>
-                <version>2.8.4</version>
+                <artifactId>jmock-junit5</artifactId>
+                <version>2.13.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit5.version}</version>
+                <scope>test</scope>
             </dependency>
-
+            <!-- End Junit 5-->
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>${nettyall.version}</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.mortbay.jasper/apache-jsp -->
             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-jsp</artifactId>
@@ -1117,8 +950,7 @@
                 <scope>provided</scope>
             </dependency>
 
-                        <!-- https://mvnrepository.com/artifact/org.mortbay.jasper/apache-el -->
-            <dependency>
+             <dependency>
                 <groupId>org.mortbay.jasper</groupId>
                 <artifactId>apache-el</artifactId>
                 <version>8.5.9.1</version>
@@ -1883,13 +1715,7 @@
                 <groupId>commons-digester</groupId>
                 <artifactId>commons-digester</artifactId>
                 <version>1.8.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-discovery</groupId>
-                <artifactId>commons-discovery</artifactId>
-                <version>0.5</version>
-            </dependency>
-            <dependency>
+            </dependency><dependency>
                 <groupId>commons-validator</groupId>
                 <artifactId>commons-validator</artifactId>
                 <version>${commons.validator.version}</version>
@@ -2131,31 +1957,22 @@
                 <version>${quartz.version}</version>
             </dependency>
 
-
-            <!-- https://mvnrepository.com/artifact/org.apache.axis/axis -->
-            <dependency><!-- current is 1.4.2 -->
-                <groupId>axis</groupId>
-                <artifactId>axis</artifactId>
-                <version>${axiscore.version}</version>
-            </dependency>
-            <dependency><!-- current is 1.4.1 -->
+<!--<dependency>
                 <groupId>axis</groupId>
                 <artifactId>axis-saaj</artifactId>
                 <version>${axis.version}</version>
             </dependency>
-            <dependency><!-- current is 1.4.1 -->
+            <dependency>
                 <groupId>axis</groupId>
                 <artifactId>axis-jaxrpc</artifactId>
                 <version>${axis.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/javax.xml/jaxrpc-api 
-                for axis 1.1 -->
             <dependency>
                 <groupId>javax.xml</groupId>
                 <artifactId>jaxrpc-api</artifactId>
                 <version>1.1</version>
             </dependency>
-
+-->
             <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-imaging -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -2164,13 +1981,13 @@
             </dependency>
 
 
-            <!-- https://mvnrepository.com/artifact/soap/soap -->
+           <!--
             <dependency>
                 <groupId>soap</groupId>
                 <artifactId>soap</artifactId>
                 <version>2.3.1</version>
             </dependency>
-
+            -->
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
@@ -2374,7 +2191,7 @@
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
-                <version>1.6R7</version>
+                <version>1.8.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.derby</groupId>
@@ -2401,9 +2218,10 @@
                 <version>1.0.0</version>
             </dependency>
             <dependency>
-                <groupId>com.oracle</groupId>
-                <artifactId>ojdbc6</artifactId>
-                <version>${oracle.version}</version>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc8</artifactId>
+                <version>19.3.0.0</version>
+                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -2485,28 +2303,8 @@
                 <artifactId>p4</artifactId>
                 <version>0.0.1</version>
             </dependency>
-            <dependency>
-                <groupId>installanywhere</groupId>
-                <artifactId>iaant</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>installanywhere</groupId>
-                <artifactId>services</artifactId>
-                <version>0.0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>flexera.ia</groupId>
-                <artifactId>IAClasses</artifactId>
-                <version>2020.0.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>expectj</groupId>
-                <artifactId>expectj</artifactId>
-                <version>1.1</version>
-            </dependency>
-
-
+    
+    
             <!-- workbench swtcalendar -->
             <!-- https://mvnrepository.com/artifact/org.codehaus.openxma/xmartclient -->
             <dependency>
@@ -2520,24 +2318,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>jmock</groupId>
-                <artifactId>jmock-cglib</artifactId>
-                <version>1.2.0</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cglib</groupId>
-                        <artifactId>cglib</artifactId>
-                    </exclusion>
-                </exclusions>
-                <scope>compile</scope>
-            </dependency>
-          <dependency>
-                <groupId>jmock</groupId>
-                <artifactId>jmock</artifactId>
-                <version>1.2.0</version>
-                <scope>compile</scope>
-            </dependency>
+    
             <dependency>
                 <groupId>javax.servlet.jsp</groupId>
                 <artifactId>javax.servlet.jsp-api</artifactId>
@@ -2621,11 +2402,6 @@
                 <version>3.4.2</version>
             </dependency>
 
-            <dependency>
-                <groupId>jakarta.ws.rs</groupId>
-                <artifactId>jakarta.ws.rs-api</artifactId>
-                <version>2.1.5</version>
-            </dependency>
 
             <!-- Extra dependencies for Ant build remove when converted -->
             <!-- https://mvnrepository.com/artifact/com.yahoo.platform.yui/yuicompressor -->
@@ -2697,11 +2473,6 @@
                 <version>3.2.1</version>
             </dependency>
 
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
-            </dependency>
 
             <dependency>
                 <groupId>wsdl4j</groupId>
@@ -2733,13 +2504,9 @@
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
-                <version>1.5.6</version>
+                <version>1.6.2</version>
             </dependency>
-            <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>activation</artifactId>
-                <version>1.1</version>
-            </dependency>
+            <!-- javax.activation-api is already managed above; remove legacy activation 1.1 -->
 <!-- end email support -->
 
             <dependency>
@@ -2814,12 +2581,6 @@
             </dependency>
 
             <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>${servlet.spec}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-library</artifactId>
                 <version>1.3</version>
@@ -2854,18 +2615,6 @@
                 <version>1.0.1</version>
             </dependency>
             <dependency>
-                <groupId>jakarta.xml.bind</groupId>
-                <artifactId>jakarta.xml.bind-api</artifactId>
-                <scope>compile</scope>
-                <version>2.3.2</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.annotation</groupId>
-                <artifactId>javax.annotation-api</artifactId>
-                <version>1.3.2</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.dom4j</groupId>
                 <artifactId>dom4j</artifactId>
                 <version>2.1.3</version>
@@ -2876,14 +2625,7 @@
                 <artifactId>google-http-client</artifactId>
                 <version>1.25.0</version>
                 <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>axis</groupId>
-                <artifactId>axis-jaxrp</artifactId>
-                <version>${axis.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
+            </dependency><dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15to18</artifactId>
                 <version>${bc.version}</version>
@@ -2942,30 +2684,7 @@
                 <groupId>com.percussion</groupId>
                 <artifactId>perc-server-ui-cmp</artifactId>
                 <version>${project.parent.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    <!--
-     <distributionManagement>
-     <repository>
-             <id>github</id>
-             <name>GitHub Percussion Apache Maven Release Packages</name>
-             <url>https://maven.pkg.github.com/percussion/percussioncms</url>
-         </repository>
-         <snapshotRepository>
-             <id>github</id>
-             <name>GitHub Percussion Apache Maven Snapshot Packages </name>
-             <url>https://maven.pkg.github.com/percussion/percussioncms/</url>
-         </snapshotRepository>
-
-             <snapshotRepository>
-                 <id>intersoft.s3.repo</id>
-                 <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-             </snapshotRepository>
-             <repository>
-                 <id>intersoft.s3.repo</id>
-                 <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-             </repository>
-     </distributionManagement>
-            -->
+            </dependency></dependencies>
+</dependencyManagement>
+ 
 </project>

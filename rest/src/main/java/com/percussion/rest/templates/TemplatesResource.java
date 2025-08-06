@@ -19,7 +19,6 @@
 
 package com.percussion.rest.templates;
 
-import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +28,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.percussion.system.utils.PSSiteManageBean;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;

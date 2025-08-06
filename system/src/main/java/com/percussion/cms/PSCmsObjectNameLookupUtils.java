@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,18 +43,16 @@ public class PSCmsObjectNameLookupUtils {
      *
      * @return The map used as the cache, never <code>null</code>.
      */
-    public static Map initLookupCache(IPSRequestContext request)
-    {
-        if (request == null)
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> initLookupCache(IPSRequestContext request) {
+        if (request == null) {
             throw new IllegalArgumentException("request may not be null");
-
-        Map cache = (Map)request.getPrivateObject(CACHE_KEY);
-        if (cache == null)
-        {
-            cache = new HashMap();
+        }
+        Map<String, Object> cache = (Map<String, Object>) request.getPrivateObject(CACHE_KEY);
+        if (cache == null) {
+            cache = new HashMap<>();
             request.setPrivateObject(CACHE_KEY, cache);
         }
-
         return cache;
     }
 }

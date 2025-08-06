@@ -25,7 +25,7 @@ import com.percussion.services.contentchange.PSContentChangeServiceLocator;
 import com.percussion.services.contentchange.data.PSContentChangeType;
 import com.percussion.services.contentmgr.data.PSQueryResult;
 import com.percussion.services.publisher.PSPublisherException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.List;
 import java.util.Map;

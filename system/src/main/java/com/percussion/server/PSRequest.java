@@ -39,7 +39,7 @@ import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.services.security.PSTypedPrincipal;
 import com.percussion.servlets.PSSecurityFilter;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSBaseHttpUtils;
 import com.percussion.util.PSInputStreamReader;
 import com.percussion.util.PSPurgableTempFile;

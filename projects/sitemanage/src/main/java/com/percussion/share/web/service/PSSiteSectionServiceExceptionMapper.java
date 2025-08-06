@@ -24,7 +24,8 @@ import com.percussion.share.service.exception.IPSValidationException;
 import com.percussion.share.service.exception.PSErrorUtils;
 import com.percussion.share.validation.PSErrors;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

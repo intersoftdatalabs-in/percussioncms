@@ -17,7 +17,7 @@
 package linkback;
 
 import com.percussion.soln.linkback.codec.impl.StringLinkBackTokenImpl;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;

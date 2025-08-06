@@ -52,7 +52,7 @@ import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSInternalRequest;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSMapPair;
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.webservices.PSErrorException;

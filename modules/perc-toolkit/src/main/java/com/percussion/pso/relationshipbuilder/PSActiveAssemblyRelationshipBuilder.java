@@ -35,7 +35,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 public abstract class PSActiveAssemblyRelationshipBuilder extends
         PSRelationshipBuilder {
@@ -51,7 +51,7 @@ public abstract class PSActiveAssemblyRelationshipBuilder extends
 	
 	 private IPSAssemblyService m_assemblyService;
 	 public PSActiveAssemblyRelationshipBuilder() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	 
 	 public void init() {

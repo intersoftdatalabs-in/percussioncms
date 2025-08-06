@@ -30,7 +30,7 @@ import com.percussion.design.objectstore.PSLocator;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSDbComponent;
 import com.percussion.design.objectstore.PSRelationshipConfig;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.xml.PSXmlDocumentBuilder;

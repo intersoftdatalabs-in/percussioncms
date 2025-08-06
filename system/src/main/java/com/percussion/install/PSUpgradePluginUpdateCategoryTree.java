@@ -30,6 +30,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginUpdateCategoryTree implements IPSUpgradePlugin
 {
 

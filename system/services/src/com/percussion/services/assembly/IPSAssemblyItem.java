@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// REFACTORED: CP-JAVA11
 package com.percussion.services.assembly;
 
 import com.percussion.services.assembly.IPSAssemblyResult.Status;
@@ -28,528 +27,677 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.jcr.Node;
 
 /**
- * Represents a unit of work to be assembled with enhanced Java 11 support.
- *
- * <p>Each assembly item encapsulates all information necessary for content assembly,
- * including the content node, template, parameters, variables, and assembly context.
- * The assembly process transforms this item into an {@link IPSAssemblyResult}.
- *
- * <p>Assembly Item Lifecycle:
- * <ol>
- *   <li>Create item using {@link IPSAssemblyService#createAssemblyItem()}</li>
- *   <li>Configure item properties using setters</li>
- *   <li>Call {@link #normalize()} to validate and prepare the item</li>
- *   <li>Process item through assembly pipeline</li>
- * </ol>
- *
- * <p>Key features:
- * <ul>
- *   <li>Content node management with lazy loading</li>
- *   <li>Template and variable binding</li>
- *   <li>Parameter processing and validation</li>
- *   <li>Debug mode support</li>
- *   <li>Clone support for slot processing</li>
- *   <li>Optional-based safe navigation</li>
- * </ul>
- *
- * <p><strong>Important:</strong> Items created using {@link IPSAssemblyService#createAssemblyItem()}
- * must explicitly call {@link #normalize()} before assembly. After normalization,
- * setters should not be called as the item becomes immutable for assembly purposes.
- *
+ * Each unit of work to be assembled is represented by an assembly item. The
+ * item encapsulates all the information necessary. The output of the assembly
+ * process is {@link com.percussion.services.assembly.IPSAssemblyResult}, which
+ * may or may not be represented by the same underlying object. Note that if
+ * multipage rendering is implemented, there could be multiple output results
+ * for a single item.
+ * <p>
+ * If the item is created using {@link IPSAssemblyService#createAssemblyItem()}
+ * then you must explicitely call {@link #normalize()} before assembly. Once
+ * the item has been normalized, either though the explicit call or the
+ * implicit call made by the deprecated creation call, the setters should not
+ * be called.
+ * 
  * @author dougrand
- * @since Java 11 Modernization
  */
-public interface IPSAssemblyItem extends Cloneable, Serializable {
+public interface IPSAssemblyItem extends Cloneable, Serializable
+{
+   /**
+    * The path is of the form
+    * <code>//folder1/folder2/.../foldern/itemname</code> and may end in an
+    * option <code>#revnumber</code>. If a revision is not specified, then
+    * the current revision of the item is used. A path that only contains
+    * numbers is taken as a direct reference to a particular content id, and may
+    * also be modified by a revision number. Child items can be referenced below
+    * the item as <code>.../folder/itemname/childname#nnn</code> where nnn is
+    * the index of the particular child item. With revision it becomes
+    * <code>.../itemname#revision/childname#nnn</code>
+    * <p>
+    * Items that are not in a folder may be referenced by a synthentic path that
+    * starts with "/" instead of "//". The syntax is /cid#revision. For example
+    * /301#1 will reference the first revision an item with content id 301.
+    * <p>
+    * The path may either have been passed in, or may be calculated from
+    * parameter values. When calculated from the parameter values, the parameter
+    * <code>sys_folderid</code> must be present to get a complete path. If the
+    * parameter is missing, then the simplified "/nnn#rr" will be returned
+    * instead.
+    * 
+    * @return the path, never <code>null</code> or empty
+    */
+   String getPath();
 
-    /**
-     * Get the path of the content item being assembled.
-     *
-     * <p>Path formats supported:
-     * <ul>
-     *   <li>Folder path: {@code //folder1/folder2/.../foldern/itemname}</li>
-     *   <li>With revision: {@code //folder1/.../itemname#revnumber}</li>
-     *   <li>Direct content ID: {@code /cid#revision} (for items not in folders)</li>
-     *   <li>Child items: {@code .../itemname/childname#nnn}</li>
-     * </ul>
-     *
-     * <p>If revision is not specified, the current revision is used. The path may
-     * be passed in directly or calculated from parameter values using {@code sys_folderid}.
-     *
-     * @return the path, never {@code null} or empty
-     */
-    String getPath();
+   /**
+    * The content node being assembled. If the node is <code>null</code>
+    * (normal case) then the assembly engine will load the node from the content
+    * manager using the path. If the node is already loaded, as may be the case
+    * for certain slot finders, the node will be used.
+    * <p>
+    * If this is called and the node is not set or loaded by the assembly
+    * manager, the method will force the load, which will take care of code that
+    * wishes to use the node after the item has been assembled by the legacy
+    * plugin.
+    * 
+    * @return the node, may be <code>null</code> if not yet loaded
+    */
+   Node getNode();
 
-    /**
-     * Get the content node being assembled with Optional wrapper for safer access.
-     *
-     * @return Optional containing the node if loaded, empty otherwise
-     */
-    default Optional<Node> getNodeOptional() {
-        return Optional.ofNullable(getNode());
-    }
+   /**
+    * If the node is loaded or set, then this method will return
+    * <code>true</code> otherwise <code>false</code>. This method will not
+    * cause the node to be loaded.
+    * 
+    * @return <code>true</code> if the node is loaded for the assembly item.
+    */
+   boolean hasNode();
 
-    /**
-     * Get the content node being assembled.
-     *
-     * <p>The node handling follows these rules:
-     * <ul>
-     *   <li>If node is null (normal case), assembly engine loads from content manager</li>
-     *   <li>If node is pre-loaded (e.g., slot finders), the existing node is used</li>
-     *   <li>Calling this method forces loading if not already loaded</li>
-     * </ul>
-     *
-     * @return the node, may be {@code null} if not yet loaded
-     */
-    Node getNode();
+   /**
+    * This method allows the caller to change or set the node being referenced
+    * by the assembly item. This is normally called internally to the assembly
+    * service in order to set the node being processed, but can also be called
+    * in conjunction with calling {@link Object#clone()}.
+    * <p>
+    * The valid use case for this is generally in slot processing, where the
+    * slot content finder returns references to the slot contents. The source
+    * assembly item is cloned and then the new node (and other new information)
+    * is placed in the cloned assembly items.
+    * 
+    * @param node the node, may be <code>null</code> to reset the node. Also
+    *           modifies the id stored. The id will be set to <code>null</code>
+    *           for a <code>null</code> node
+    */
+   void setNode(Node node);
 
-    /**
-     * Check if the content node is loaded without forcing a load operation.
-     *
-     * @return {@code true} if the node is loaded for the assembly item
-     */
-    boolean hasNode();
+   /**
+    * Get the item filter, which can be used to limit the results from various
+    * slot finder and elsewhere. The item filter will be derived from the
+    * authtype or filter parameters, as available.
+    * 
+    * @return Returns the filter, if <code>null</code> then no filtering will
+    *         occur.
+    * @throws PSFilterException if there was a filter specified in the
+    *            parameters, but it was not found
+    */
+   IPSItemFilter getFilter() throws PSFilterException;
 
-    /**
-     * Set or change the content node being referenced by the assembly item.
-     *
-     * <p>This method is primarily used internally by the assembly service and in
-     * slot processing scenarios where assembly items are cloned with different nodes.
-     * Setting the node also modifies the stored ID accordingly.
-     *
-     * @param node the node, may be {@code null} to reset (also sets ID to null)
-     */
-    void setNode(Node node);
+   /**
+    * Parameters apply to the template and item to be assembled. The data in the
+    * parameters is dependent on the template and assembler plugin that is used.
+    * Coming from the assembly servlet, this map will also contain all passed
+    * HTML parameters. Repeated parameters will have multiple values in the
+    * string array.
+    * 
+    * @return a map of parameters, may be empty, but never <code>null</code>
+    */
+   Map<String, String[]> getParameters();
 
-    /**
-     * Get the item filter for limiting results from slot finders and other operations.
-     *
-     * <p>The filter is derived from authtype or filter parameters as available.
-     * If no filter is specified, no filtering will occur during assembly.
-     *
-     * @return the filter, may be {@code null} for no filtering
-     * @throws PSFilterException if a filter was specified but not found
-     */
-    IPSItemFilter getFilter() throws PSFilterException;
+   /**
+    * Get single parameter value.
+    * 
+    * @param name the name of the parameter, never <code>null</code> or empty
+    * @param defaultvalue the default value to return if the parameter is not
+    *           defined, may be null or empty
+    * @return the value or default value for the given parameter name
+    */
+   String getParameterValue(String name, String defaultvalue);
 
-    /**
-     * Get the item filter with Optional wrapper for safer access.
-     *
-     * @return Optional containing the filter if available, empty otherwise
-     */
-    default Optional<IPSItemFilter> getFilterOptional() {
-        try {
-            return Optional.ofNullable(getFilter());
-        } catch (PSFilterException e) {
-            return Optional.empty();
-        }
-    }
+   /**
+    * Get parameter values.
+    * 
+    * @param name the name of the parameter, never <code>null</code> or empty
+    * @param defaultvalues the default values to return if the parameter is not
+    *           defined, may be <code>null</code> or empty
+    * @return the values or default values for the given parameter name
+    */
+   String[] getParameterValues(String name, String defaultvalues[]);
 
-    /**
-     * Get assembly parameters that apply to the template and item.
-     *
-     * <p>Parameters include:
-     * <ul>
-     *   <li>Template-specific configuration values</li>
-     *   <li>Assembly plugin parameters</li>
-     *   <li>HTTP parameters from assembly servlet</li>
-     *   <li>System parameters (sys_* values)</li>
-     * </ul>
-     *
-     * <p>Repeated parameters will have multiple values in the string array.
-     *
-     * @return parameter map, may be empty but never {@code null}
-     */
-    Map<String, String[]> getParameters();
+   /**
+    * The parameter is present in the set of parameters. It may or may not have
+    * a value. Use this method to distinguish if a parameter is present but
+    * empty, versus not present
+    * 
+    * @param name the name of the parameter, never <code>null</code> or empty
+    * @return <code>true</code> if the parameter is present, regardless of the
+    *         associated value
+    */
+   boolean hasParameter(String name);
 
-    /**
-     * Get a single parameter value with default fallback.
-     *
-     * @param name the parameter name, not {@code null} or empty
-     * @param defaultvalue the default value if parameter is not defined
-     * @return the parameter value or default value
-     * @throws IllegalArgumentException if name is null or empty
-     */
-    String getParameterValue(String name, String defaultvalue);
+   /**
+    * Additional variables to bind when handling the template, may be
+    * <code>null</code> or empty. Note that the contents of this entering the
+    * assembly service will be the context variables that have been defined.
+    * <P>
+    * Any additional variables that are bound as part of the assembly process
+    * will not be present in this map. See the bindings instead.
+    * 
+    * @return a map of variables, may be <code>null</code>
+    */
+   Map<String, String> getVariables();
 
-    /**
-     * Get a single parameter value with Optional wrapper for safer access.
-     *
-     * @param name the parameter name, not {@code null} or empty
-     * @return Optional containing the parameter value if present, empty otherwise
-     * @throws IllegalArgumentException if name is null or empty
-     */
-    default Optional<String> getParameterValueOptional(String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("name cannot be null or empty");
-        }
-        return Optional.ofNullable(getParameterValue(name, null));
-    }
+   /**
+    * Any bindings calculated by the assembly service can be retrieved via this
+    * method. If no bindings are calculated, this will return <code>null</code>.
+    * 
+    * @return empty if there are no bindings, otherwise a set of
+    *         named values. Each value may contain an object, a sub map or a
+    *         list of values.
+    */
+   Map<String, Object> getBindings();
 
-    /**
-     * Get parameter values array with default fallback.
-     *
-     * @param name the parameter name, not {@code null} or empty
-     * @param defaultvalues the default values if parameter is not defined
-     * @return the parameter values or default values
-     * @throws IllegalArgumentException if name is null or empty
-     */
-    String[] getParameterValues(String name, String[] defaultvalues);
+   /**
+    * The template to use in the assembly. Set by the assembly engine before the
+    * bindings process begins. Never set for legacy templates.
+    * 
+    * @return the template, may be <code>null</code>
+    */
+   IPSAssemblyTemplate getTemplate();
 
-    /**
-     * Check if a parameter is present regardless of its value.
-     *
-     * <p>Use this method to distinguish between a parameter that is present but empty
-     * versus a parameter that is not present at all.
-     *
-     * @param name the parameter name, not {@code null} or empty
-     * @return {@code true} if the parameter is present, regardless of value
-     * @throws IllegalArgumentException if name is null or empty
-     */
-    boolean hasParameter(String name);
+   /**
+    * As an item is assembled, the value returned by {@link #getTemplate()} may
+    * change. For example, after the inner content is assembled, the template is
+    * changed to the global template before processing. Dispatch templates also
+    * exhibit this behavior.
+    * <p>
+    * Some users may need to know what the original template was. This method
+    * returns that id. This value is cleared when the item is cloned.
+    * 
+    * @return The id of the template first set on this work item, or the 
+    * current template if this value is currently <code>null</code>. May be
+    * <code>null</code> if a template is not set.
+    */
+   IPSGuid getOriginalTemplateGuid();
+   
+   /**
+    * The reference id identifies a particular assembly request within a given
+    * job. The reference id allows a caller to associate assembly results and
+    * requests. While reference ids could be reused across preview requests,
+    * they will never be repeated for publishing jobs.
+    * 
+    * @return the id, may be any value, but unique for a given job id
+    */
+   long getReferenceId();
 
-    /**
-     * Get all parameter names as a Stream for functional processing.
-     *
-     * @return Stream of parameter names, never {@code null}
-     */
-    default Stream<String> getParameterNames() {
-        return getParameters().keySet().stream();
-    }
+   /**
+    * Get the reference ID that the unpublishing was originated from.
+    * @return the reference ID. It may be <code>null</code> if 
+    *    {@link #isPublish()} returns <code>true</code>.
+    */
+   Long getUnpublishRefId();
+   
+   /**
+    * The job id is unique per publishing run and helps a caller associate
+    * results and requests for a given run. This id is also used internally to
+    * determine if certain cached values can be reused, therefore this value
+    * should be changed for each new assembly job, which includes new previews.
+    * 
+    * @return the job id, may be any value, but different for each run
+    */
+   long getJobId();
 
-    /**
-     * Get additional variables to bind during template processing.
-     *
-     * <p>These variables represent context variables defined for assembly.
-     * Additional variables bound during the assembly process are available
-     * through {@link #getBindings()} instead.
-     *
-     * @return variable map, may be {@code null}
-     */
-    Map<String, String> getVariables();
+   /**
+    * Get the guid for the item specified.
+    * 
+    * @return the guid from the item specified by the path or parameters. Will
+    *         never return <code>null</code> for a valid assembly item.
+    *         Calling this method will derive the id from either the
+    *         sys_contentid and sys_revision parameters or the path.
+    */
+   IPSGuid getId();
 
-    /**
-     * Get variables with Optional wrapper for safer access.
-     *
-     * @return Optional containing variables if present, empty otherwise
-     */
-    default Optional<Map<String, String>> getVariablesOptional() {
-        return Optional.ofNullable(getVariables());
-    }
+   /**
+    * Get the site id if defined for the assembly item. The site id is extracted
+    * from the site id http parameter. Note that if the item is created for a
+    * slot, then the site id may be the site id of the referenced site rather 
+    * than the original site.
+    * 
+    * @return the site id, or <code>null</code> if the parameter is missing
+    */
+   IPSGuid getSiteId();
 
-    /**
-     * Get bindings calculated by the assembly service.
-     *
-     * <p>Bindings contain named values calculated during assembly, where each value
-     * may be an object, sub-map, or list of values. This provides the final
-     * variable context for template evaluation.
-     *
-     * @return bindings map, empty if no bindings calculated, otherwise named values
-     */
-    Map<String, Object> getBindings();
+   /**
+    * Get the folder content id if defined for the assembly item. The folder id
+    * may be extracted from the folder http parameter or from the path.
+    * 
+    * @return the folder content id, or <code>0</code> if the folder is not
+    *         defined
+    */
+   int getFolderId();
 
-    /**
-     * Get bindings with Optional wrapper for safer access.
-     *
-     * @return Optional containing bindings if present, empty otherwise
-     */
-    default Optional<Map<String, Object>> getBindingsOptional() {
-        return Optional.ofNullable(getBindings());
-    }
+   /**
+    * Indicates if the item should be assembled in debug mode. Debug mode
+    * outputs information about the assembly, but doesn't run the plug in. This
+    * is inherited by cloned items.
+    * 
+    * @return <code>true</code> for an item to be debugged.
+    */
+   boolean isDebug();
 
-    /**
-     * Get the template used for assembly.
-     *
-     * <p>The template is set by the assembly engine before bindings processing begins.
-     * It may change during assembly (e.g., switching to global template after inner
-     * content assembly, or dispatch template behavior).
-     *
-     * @return the current template, may be {@code null}
-     */
-    IPSAssemblyTemplate getTemplate();
+   /**
+    * Indicates if this assembly is for a publishing or unpublishing case. This
+    * will return <code>true</code> for publishing or previews. The value
+    * <code>false</code> can be used by the assembly plugin to short circuit
+    * processing when appropriate.
+    * 
+    * @return <code>false</code> for unpublishing
+    */
+   boolean isPublish();
 
-    /**
-     * Get the template with Optional wrapper for safer access.
-     *
-     * @return Optional containing the template if present, empty otherwise
-     */
-    default Optional<IPSAssemblyTemplate> getTemplateOptional() {
-        return Optional.ofNullable(getTemplate());
-    }
+   /**
+    * Get the user name set. The user name informs preview and active assembly
+    * who the user is, which allows assembly to display the appropriate versions
+    * of items in preview.
+    * @return the user name, may be <code>null</code> but never empty.
+    */
+   String getUserName();
+   
+   /**
+    * As a specific item is assembled, the implementation often will clone the
+    * item in order to handle some contained item such as slot content. When
+    * this happens, this method allows the implementation to find out what the
+    * <q>parent</q> assembly item is. This is set as part of the
+    * <code>clone()</code> method.
+    * 
+    * @return either <code>null</code> for an item that was constructed, or
+    * the parent assembly item for an assembly item that was cloned.
+    */
+   IPSAssemblyItem getCloneParentItem();
+   
+   /**
+    * If this is for a paged item's page, then this will return the page
+    * number. Page numbers are <code>1</code> based. If the item contains
+    * a page number, it will also contain a parent reference id.
+    * 
+    * @return the page number or <code>null</code> if there is no page number.
+    */
+   Integer getPage();
+   
+   /**
+    * Set the page number
+    * @param page the page number, may be <code>null</code> 
+    */
+   void setPage(Integer page);
+   
+   /**
+    * If this is for a paged item's page, then this will return the 
+    * original paginated page's reference id so that status update can mark
+    * the parent as failed if the child page fails. This is also used so the
+    * assembly system knows whether the page should be evaluated for pagination.
+    * 
+    * @return the parent reference id or <code>null</code> if this is not
+    * a page child item.
+    */
+   Long getParentPageReferenceId();
+   
+   /**
+    * Set the parent reference id
+    * @param refid the parent reference id, may be <code>null</code>.
+    */
+   void setParentPageReferenceId(long refid);
+   
+   /**
+    * Set a new folder id, see {@link #getFolderId()}
+    * 
+    * @param folderId the new folder id
+    */
+   void setFolderId(int folderId);
 
-    /**
-     * Get the original template GUID that was first set on this item.
-     *
-     * <p>Since templates may change during assembly (e.g., global templates, dispatch),
-     * this method preserves the original template reference. The value is cleared
-     * when the item is cloned.
-     *
-     * @return the original template ID, or current template ID if original is null,
-     *         may be {@code null} if no template is set
-     */
-    IPSGuid getOriginalTemplateGuid();
+   /**
+    * Gets the owner ID of the assembled item.
+    * @return the ID. It may be <code>null</code> if unknown.
+    */
+   IPSGuid getOwnerId();
+   
+   /**
+    * Sets the owner ID of the assembled item.
+    * @param ownerId the owner ID. It may be <code>null</code> if unknown.
+    */
+   void setOwnerId(IPSGuid ownerId);
+   
+   /**
+    * Set a new site id, see {@link #getSiteId()}
+    * 
+    * @param siteid the new site id
+    */
+   void setSiteId(IPSGuid siteid);
+   
+   
+   /**
+    * Set the publishing server id to use with the delivery item.
+    * @param pubserverid the ID of the publishing server.
+    * It may be <code>null</code> if the publish-server is unknown.
+    */
+   void setPubServerId(Long pubserverid);
+   
+   /**
+    * Get the publishing server id that is used for this item.
+    * @return publishing server id. It is <code>null</code> if the publish-server is unknown.
+    */
+   Long getPubServerId();
+      
+   /**
+    * Set new bindings, see {@link #getBindings()}
+    * 
+    * @param bindings The bindings to set, may be <code>null</code>
+    */
+   void setBindings(Map<String, Object> bindings);
 
-    /**
-     * Get the original template GUID with Optional wrapper.
-     *
-     * @return Optional containing the original template GUID if present, empty otherwise
-     */
-    default Optional<IPSGuid> getOriginalTemplateGuidOptional() {
-        return Optional.ofNullable(getOriginalTemplateGuid());
-    }
+   /**
+    * Set a new id for the referenced content item, see {@link #getId()}
+    * 
+    * @param id The id to set, may be <code>null</code>
+    */
+   void setId(IPSGuid id);
 
-    /**
-     * Get the reference ID that identifies this assembly request within a job.
-     *
-     * <p>Reference IDs allow callers to associate assembly results with requests.
-     * While reference IDs may be reused across preview requests, they are never
-     * repeated within publishing jobs.
-     *
-     * @return the reference ID, unique within a given job ID
-     */
-    long getReferenceId();
+   /**
+    * Set the new parameters, see {@link #getParameters()}
+    * 
+    * @param parameters The parameters to set, if <code>null</code> then the
+    *           parameters are defaulted to an empty map
+    */
+   void setParameters(Map<String, String[]> parameters);
 
-    /**
-     * Get the reference ID that originated the unpublishing operation.
-     *
-     * @return the unpublish reference ID, may be {@code null} if {@link #isPublish()} is true
-     */
-    Long getUnpublishRefId();
+   /**
+    * Put single value into parameter map, replacing any current value for the
+    * named parameter
+    * 
+    * @param name the parameter name, never <code>null</code> or empty
+    * @param value the value, never <code>null</code> or empty
+    * @fixme This needs to be reviewed as why empty values needs to be avoided.
+    */
+   void setParameterValue(String name, String value);
+   
+   /**
+    * Remove any value for the given parameter name
+    * 
+    * @param name the parameter name, never <code>null</code> or empty
+    */
+   public void removeParameterValue(String name);
 
-    /**
-     * Get the unpublish reference ID with Optional wrapper.
-     *
-     * @return Optional containing the unpublish reference ID if present, empty otherwise
-     */
-    default Optional<Long> getUnpublishRefIdOptional() {
-        return Optional.ofNullable(getUnpublishRefId());
-    }
+   /**
+    * Set a new path, may be <code>null</code>
+    * 
+    * @param path The path to set, see {@link #getPath()}
+    */
+   void setPath(String path);
 
-    /**
-     * Get the job ID that is unique per publishing run.
-     *
-     * <p>Job IDs help callers associate results and requests for a given run and
-     * are used internally to determine if cached values can be reused. This value
-     * should change for each new assembly job, including new previews.
-     *
-     * @return the job ID, unique per assembly run
-     */
-    long getJobId();
+   /**
+    * Set a reference id
+    * 
+    * @param referenceId The referenceId to set, see {@link #getReferenceId()}
+    */
+   void setReferenceId(long referenceId);
+   
+   /**
+    * Set a new job id
+    * 
+    * @param jobId The jobId to set, see {@link #getJobId()}.
+    */
+   public void setJobId(long jobId);
+   
+   /**
+    * Set the publish state. A state of <code>false</code> means that this
+    * assembly item is for an unpublish. See {@link #isPublish()} for details.
+    * 
+    * @param pub the new state
+    */
+   public void setPublish(boolean pub);
 
-    /**
-     * Get the GUID for the item being assembled.
-     *
-     * <p>The GUID is derived from either sys_contentid/sys_revision parameters
-     * or extracted from the path. This method will never return {@code null}
-     * for a valid assembly item.
-     *
-     * @return the item GUID, never {@code null} for valid items
-     */
-    IPSGuid getId();
+   /**
+    * @param variables The variables to set, see {@link #getVariables()}
+    */
+   void setVariables(Map<String, String> variables);
 
-    /**
-     * Get the site ID if defined for the assembly item.
-     *
-     * <p>The site ID is extracted from the sys_siteid HTTP parameter. For slot items,
-     * this may be the referenced site ID rather than the original site ID.
-     *
-     * @return the site ID, or {@code null} if not defined
-     */
-    IPSGuid getSiteId();
+   /**
+    * @param template The template to set, see {@link #getTemplate()}
+    */
+   void setTemplate(IPSAssemblyTemplate template);
 
-    /**
-     * Get the site ID with Optional wrapper for safer access.
-     *
-     * @return Optional containing the site ID if present, empty otherwise
-     */
-    default Optional<IPSGuid> getSiteIdOptional() {
-        return Optional.ofNullable(getSiteId());
-    }
+   /**
+    * Call this to enable using the edit revision if the item is checked out to
+    * the user, and otherwise to use the current revision. Note that if this is 
+    * set, the node returned from {@link #getNode()} may not match a node set in
+    * {@link #setNode(Node)} as the code in these routines will check the version
+    * and replace the node in use if it is not the current or edit reivision.
+    * @param userName the user name, may be <code>null</code> but not empty
+    */
+   void setUserName(String userName);
 
-    /**
-     * Get the folder content ID if defined for the assembly item.
-     *
-     * <p>The folder ID may be extracted from the sys_folderid HTTP parameter
-     * or derived from the path information.
-     *
-     * @return the folder content ID, or 0 if not defined
-     */
-    int getFolderId();
+   /**
+    * The item filter, see {@link #getFilter()}
+    * 
+    * @param filter The filter to set.
+    */
+   void setFilter(IPSItemFilter filter);
 
-    /**
-     * Check if the item should be assembled in debug mode.
-     *
-     * <p>Debug mode outputs assembly information but doesn't run the plugin.
-     * This setting is inherited by cloned items.
-     *
-     * @return {@code true} for debug mode assembly
-     */
-    boolean isDebug();
+   /**
+    * Set if this item is in debug mode. Debug mode means that instead of the
+    * assembler set on the template, the debug assembler will be used instead.
+    * The debug assembler shows bindings and other information in a friendly
+    * fashion for debugging an implementation.
+    * 
+    * @param isDebug <code>true</code> if it is in debug mode
+    */
+   void setDebug(boolean isDebug);
+   
+   /**
+    * Handle the dicotomy between the path and sys_contentid, sys_revision and
+    * sys_folderid parameters. If the item is created with a path, the three
+    * parameters will be filled out (note, no folder id if the item isn't in a
+    * folder though). If the item is created with the three parameters, the path
+    * will be filled out. In addition the guid of the content item will be
+    * calculated and stored.
+    * <p>
+    * This method must be called before the item is assembled.
+    * 
+    * @throws PSAssemblyException if the item is invalid.
+    */
+   void normalize() throws PSAssemblyException;
+   
+   /**
+    * Create a clone of the assembly item
+    * @return the clone, never <code>null</code>.
+    */
+   Object clone();
 
-    /**
-     * Check if this assembly is for publishing or unpublishing.
-     *
-     * <p>This returns {@code true} for publishing or preview operations.
-     * Assembly plugins can use {@code false} to short-circuit processing
-     * during unpublishing operations.
-     *
-     * @return {@code false} for unpublishing operations
-     */
-    boolean isPublish();
+   /**
+    * Create a clone for use in pagination. For this purpose, the cloned items
+    * must be sanitized to not contain all the information that would normally
+    * be present for two reasons:
+    * <ul>
+    * <li>The extra data adds to the cost of serializing and posting the item 
+    * to the JMS queue
+    * <li>Not all the information associated with the work item can be 
+    * serialized
+    * </ul>
+    * @return a pagination clone, very similar to a normal clone.
+    */
+   @SuppressWarnings("unchecked")
+   IPSAssemblyItem pageClone();
+   
+   
+   /**
+    * Get the assembly url.
+    * @return the assembly url, set by the publishing system. May be 
+    * <code>null</code> for some work items.
+    */
+   public String getAssemblyUrl();
+   
+   /**
+    * Get the delivery context ID as an integer.
+    * @return the delivery context, the context used to calculate the delivery
+    * location.
+    */
+   public int getDeliveryContext();
+   
+   /**
+    * Set the delivery path
+    * 
+    * @param deliveryPath the deliveryPath to set, may be <code>null</code>
+    * or empty.
+    */
+   public void setDeliveryPath(String deliveryPath);
 
-    /**
-     * Get the user name for preview and active assembly operations.
-     *
-     * <p>The user name informs preview and active assembly which user is requesting
-     * assembly, allowing display of appropriate item versions in preview mode.
-     *
-     * @return the user name, may be {@code null} but never empty
-     */
-    String getUserName();
+   /**
+    * Set delivery type.
+    * 
+    * @param deliveryType the deliveryType to set, may not be 
+    * <code>null</code> or empty.
+    */
+   public void setDeliveryType(String deliveryType);
+ 
+   /**
+    * Set the assembly url.
+    * @param assemblyUrl the assembly url, may be <code>null</code> or empty.
+    */
+   public void setAssemblyUrl(String assemblyUrl);
+   
+   
+   /**
+    * Set the delivery context
+    * 
+    * @param context the context being used for the delivery location
+    */
+   public void setDeliveryContext(int context);
 
-    /**
-     * Get the user name with Optional wrapper for safer access.
-     *
-     * @return Optional containing the user name if present, empty otherwise
-     */
-    default Optional<String> getUserNameOptional() {
-        return Optional.ofNullable(getUserName());
-    }
+   /**
+    * Set the reference ID that the unpublishing was originated from.
+    * @param unpubRefId the reference ID.
+    */
+   public void setUnpublishRefId(Long unpubRefId);
+   
+   /**
+    * Get the delivery path. The delivery path is really only relevant for
+    * the file based publisher plug ins.
+    * 
+    * @return the path, may be <code>null</code> or empty.
+    */
+   String getDeliveryPath();
 
-    /**
-     * Get the parent assembly item if this item was cloned.
-     *
-     * <p>When assembly implementations clone items for processing contained items
-     * (such as slot content), this method provides access to the parent item.
-     * This is set automatically as part of the {@code clone()} method.
-     *
-     * @return the parent assembly item for cloned items, or {@code null} for constructed items
-     */
-    IPSAssemblyItem getCloneParentItem();
+   /**
+    * Get the delivery type information. A delivery type is the name of a 
+    * delivery handler. Delivery types are configured through the system's
+    * publishing design UI. Each handler can have more than one type associated
+    * with it, configuring the handler for a specific use. 
+    * <p>
+    * The delivery type name is interpreted by the delivery manager to determine
+    * what delivery handler Spring bean to use.
+    * 
+    * @return the delivery type, never <code>null</code> or empty.
+    */
+   String getDeliveryType();
+   
+   /**
+    * Get the time that it took for this work item to be assembled. Set by 
+    * the assembly system. Not valid before assembly.
+    * @return the time in milliseconds.
+    */
+   public int getElapsed();
 
-    /**
-     * Get the clone parent item with Optional wrapper for safer access.
-     *
-     * @return Optional containing the parent item if this is a clone, empty otherwise
-     */
-    default Optional<IPSAssemblyItem> getCloneParentItemOptional() {
-        return Optional.ofNullable(getCloneParentItem());
-    }
+   /**
+    * Sets the status of the result.
+    * 
+    * @param status The status to set.
+    */
+   public void setStatus(Status status);
 
-    /**
-     * Get the page number for paged item pages.
-     *
-     * <p>Page numbers are 1-based. Items containing a page number will also
-     * contain a parent reference ID for tracking pagination relationships.
-     *
-     * @return the page number, or {@code null} if not a paged item
-     */
-    Integer getPage();
+   /**
+    * Set the time in milliseconds for the assembly.
+    * @param elapsed the time in milliseconds.
+    */
+   public void setElapsed(int elapsed);
+   
+   /**
+    * Store the result data for the assembly. The result data will be stored
+    * in a {@link PSPurgableTempFile} if it is larger than 
+    * <code>THRESHOLD</code> bytes in size. Smaller result data is simply stored
+    * in memory. 
+    * <p>
+    * Call either this method or {@link #setResultStream(InputStream)}, but not 
+    * both. Calling this method will clear any previously stored result data, 
+    * either in memory or the file system.
+    * 
+    * @param resultData The resultData to set. Once this method has been called
+    * the passed array is owned by the work item and should not be further 
+    * modified. Conversely, there is no guarantee that modifications would
+    * be propagated given the possible storage of the data in the file system.
+    */
+   public void setResultData(byte[] resultData)throws IOException;
 
-    /**
-     * Get the page number with Optional wrapper for safer access.
-     *
-     * @return Optional containing the page number if present, empty otherwise
-     */
-    default Optional<Integer> getPageOptional() {
-        return Optional.ofNullable(getPage());
-    }
+   /**
+    * Get the delivery context ID of the item.
+    * @return the GUID of the context ID, never <code>null</code>.
+    */
+   public IPSGuid getDeliveryContextId();
 
-    /**
-     * Set the page number for paged items.
-     *
-     * @param page the page number, may be {@code null}
-     */
-    void setPage(Integer page);
+   /**
+    * Set a new mimetype
+    * 
+    * @param mimeType The mimeType to set, may be <code>null</code>
+    */
+   public void setMimeType(String mimeType);
+   
 
-    /**
-     * Get the parent reference ID for paged item pages.
-     *
-     * <p>For paged items, this returns the original paginated page's reference ID,
-     * allowing status updates to mark the parent as failed if child pages fail.
-     * This is also used to determine if pages should be evaluated for pagination.
-     *
-     * @return the parent reference ID, or {@code null} if not a page child item
-     */
-    Long getParentPageReferenceId();
+   /**
+    * The work item holds a navigation helper, which contains information that
+    * can be used while assembling any part of an item, either the page, global
+    * page or snippets. The reference is cloned to subordinate requests.
+    * 
+    * @return the nav helper, never <code>null</code>
+    */
+   public PSNavHelper getNavHelper();
+   
+   /**
+    * Store result data. The result data will be stored in a temporary file
+    * in the file system using a {@link PSPurgableTempFile}. 
+    * <p>
+    * Call either this method or {@link #setResultData(byte[])}, but not both.
+    * Calling this method will clear any previously stored result data, either
+    * in memory or the file system.
+    * 
+    * @param is the result data stream, may be null. The input stream should
+    * be closed by the caller.
+    * 
+    * @throws IOException 
+    */
+   public void setResultStream(InputStream is) throws IOException;
+   
+   /**
+    * Get the assembly context based on the parameters
+    * 
+    * @return the context value, or <code>-1</code> if the parameter cannot be
+    *         found.
+    */
+   public int getContext();
 
-    /**
-     * Get the parent page reference ID with Optional wrapper.
-     *
-     * @return Optional containing the parent reference ID if present, empty otherwise
-     */
-    default Optional<Long> getParentPageReferenceIdOptional() {
-        return Optional.ofNullable(getParentPageReferenceId());
-    }
+   /**
+    * This method is provided so assemblers can help manage the originating
+    * template id. Generally, this method does not need to be called, but there
+    * are special circumstances where this class cannot properly manage this
+    * value. For example, the velocity assembler clones the item before
+    * assembling the global template, which would clear this value. However, it
+    * should not be cleared in that case. The velocity assembler should call
+    * this method after cloning to reset this value to its state before the
+    * clone.
+    */
+   public void setOriginalTemplateGuid(IPSGuid g);
+   
+   /**
+    * Remove any value for the given parameter name
+    * 
+    * @param name the parameter name, never <code>null</code> or empty
+    */
+   public void removeParameter(String name);
+   
+   /**
+    * Set the paginated state
+    * @param value <code>true</code> if paginated.
+    */
+   public void setPaginated(boolean value);
 
-    /**
-     * Set the parent reference ID for paged items.
-     *
-     * @param refid the parent reference ID, may be {@code null}
-     */
-    void setParentPageReferenceId(long refid);
-
-    /**
-     * Set the folder ID for the assembly item.
-     *
-     * @param folderId the new folder ID
-     */
-    void setFolderId(int folderId);
-
-    /**
-     * Gets the owner ID of the assembled item.
-     * @return the ID. It may be <code>null</code> if unknown.
-     */
-    IPSGuid getOwnerId();
-
-    /**
-     * Sets the owner ID of the assembled item.
-     * @param ownerId the owner ID. It may be <code>null</code> if unknown.
-     */
-    void setOwnerId(IPSGuid ownerId);
-
-    /**
-     * Set a new site id, see {@link #getSiteId()}
-     *
-     * @param siteid the new site id
-     */
-    void setSiteId(IPSGuid siteid);
-
-
-    /**
-     * Set the publishing server id to use with the delivery item.
-     * @param pubserverid the ID of the publishing server.
-     * It may be <code>null</code> if the publish-server is unknown.
-     */
-    void setPubServerId(Long pubserverid);
-
-    /**
-     * Get the publishing server id that is used for this item.
-     * @return publishing server id. It is <code>null</code> if the publish-server is unknown.
-     */
-    Long getPubServerId();
-
-    /**
-     * Set new bindings, see {@link #getBindings()}
-     *
-     * @param bindings The bindings to set, may be <code>null</code>
-     */
-    void setBindings(Map<String, Object> bindings);
-
-    /**
-     * Set a new id for the referenced content item, see {@link #getId()}
-     *
-     * @param id The id to set, may be <code>null</code>
-     */
-    void setId(IPSGuid id);
-
-    /**
-     * Set the new parameters, see {@link #getParameters()}
-     *
-     * @param parameters The parameters to set, if <code>null</code> then the
-
+}

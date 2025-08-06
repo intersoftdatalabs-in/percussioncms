@@ -4,7 +4,7 @@ public class DatabaseSecurityProvider implements SecurityProvider {
 
     @Override
     public boolean authenticate(String username, String password) {
-    ]    // Implement database authentication logic here
+        // Implement database authentication logic here
         // For example, check against a user table in the database
         if (username == null || password == null) {
             return false;

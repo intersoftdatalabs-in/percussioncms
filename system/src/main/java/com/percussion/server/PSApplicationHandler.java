@@ -77,7 +77,7 @@ import com.percussion.security.PSDataEncryptionHandler;
 import com.percussion.server.cache.IPSCacheHandler;
 import com.percussion.server.cache.PSCacheContext;
 import com.percussion.server.cache.PSCacheManager;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.xml.PSXmlDocumentBuilder;

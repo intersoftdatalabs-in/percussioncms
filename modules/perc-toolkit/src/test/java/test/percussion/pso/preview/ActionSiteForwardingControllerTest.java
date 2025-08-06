@@ -28,15 +28,15 @@ import com.percussion.pso.preview.SiteFolderFinder;
 import com.percussion.pso.preview.SiteFolderLocation;
 import com.percussion.services.assembly.IPSAssemblyService;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters ;
 import com.percussion.webservices.security.IPSSecurityWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
@@ -46,9 +46,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * 
@@ -73,7 +73,7 @@ public class ActionSiteForwardingControllerTest
    /**
     * @throws Exception
     */
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       context = new Mockery();
@@ -100,7 +100,7 @@ public class ActionSiteForwardingControllerTest
     * Test method for {@link ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    @Test
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public final void testHandleRequestWithSiteId()
    {
       req.addParameter(IPSHtmlParameters.SYS_SITEID, "1");
@@ -119,7 +119,7 @@ public class ActionSiteForwardingControllerTest
     * Test method for {@link ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    @Test
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public final void testHandleRequestOneSite()
    {
       try
@@ -160,7 +160,7 @@ public class ActionSiteForwardingControllerTest
     * Test method for {@link ActionSiteForwardingController#handleRequestInternal(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}.
     */
    @Test
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public final void testHandleRequestInternalTwoSites()
    {
       try

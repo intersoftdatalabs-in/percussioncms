@@ -310,7 +310,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException() {
             super();
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -319,7 +319,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(String message, Throwable cause) {
             super(message, cause);
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -327,7 +327,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(String message) {
             super(message);
-            // TODO Auto-generated constructor stub
+            
         }
 
         /**
@@ -335,7 +335,7 @@ public interface IPSDeliveryClient
          */
         public PSDeliveryClientException(Throwable cause) {
             super(cause);
-            // TODO Auto-generated constructor stub
+            
         }
     }
 }

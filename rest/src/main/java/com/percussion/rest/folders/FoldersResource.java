@@ -25,7 +25,8 @@ import com.percussion.rest.Status;
 import com.percussion.rest.errors.BackendException;
 import com.percussion.rest.errors.FolderNotFoundException;
 import com.percussion.rest.errors.LocationMismatchException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

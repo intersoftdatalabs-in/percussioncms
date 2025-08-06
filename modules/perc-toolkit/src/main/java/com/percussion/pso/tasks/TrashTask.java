@@ -22,6 +22,7 @@
  */
 package com.percussion.pso.tasks;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.handlers.PSRelationshipCommandHandler;
 import com.percussion.cms.objectstore.PSComponentSummary;
@@ -513,7 +514,8 @@ public class TrashTask implements IPSTask {
 	
 	 * @throws FatalTaskException  * @throws PSORMException */
 	private void dedupeTitles(List<PSComponentSummary> pageSumms) throws FatalTaskException
-			 {
+{
+	// REFACTORED: CP-JAVA11
 
 		// List to check against
 		final Map<String, List<PSComponentSummary>> dupCheck = new HashMap<String, List<PSComponentSummary>>();

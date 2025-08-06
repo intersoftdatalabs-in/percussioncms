@@ -16,13 +16,13 @@
  */
 package test.percussion.pso.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.utils.PathCleanupUtils;
 
@@ -32,28 +32,28 @@ public class PathCleanupUtilsTest
    
    Mockery context; 
    
-   @Before
-   public void setUp() throws Exception
+   @BeforeEach
+   public void setUp()
    {
     }
    
    
    @Test
-   public final void testIsNotLowerCase()
+   void testIsNotLowerCase()
    {
       final String testString ="/A/B/c/d/e.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, false, true);
       assertEquals("/A/B/c/d/e.jpg", result);
    }
    @Test
-   public final void testIsLowerCase()
+   void testIsLowerCase()
    {
       final String testString ="/A/B/c/d/e.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true);
       assertEquals("/a/b/c/d/e.jpg", result);
    }
    @Test
-   public final void testIsExtension()
+   void testIsExtension()
    {
       final String testString ="aaaa...bbb.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true);
@@ -61,7 +61,7 @@ public class PathCleanupUtilsTest
    }
    
    @Test
-   public final void testIsNotExtension()
+   void testIsNotExtension()
    {
       final String testString ="aaaa...bbb.bbb";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, false);
@@ -69,7 +69,7 @@ public class PathCleanupUtilsTest
    }
    
    @Test
-   public final void testSpeciaChars()
+   void testSpeciaChars()
    {
       final String testString ="a/b/c\\d/Awefe.dd&&$32.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true);
@@ -77,7 +77,7 @@ public class PathCleanupUtilsTest
    }
    
    @Test
-   public final void stripExtension()
+   void stripExtension()
    {
       final String testString ="a/b/c\\d/Awefe.dd&&$32.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true,true,"","","");
@@ -85,14 +85,14 @@ public class PathCleanupUtilsTest
    }
    
    @Test
-   public final void addPrefixSuffixWithExtension()
+   void addPrefixSuffixWithExtension()
    {
       final String testString ="a/b/c\\d/Awefe.dd&&$32.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true,false,"prefix_","_suffix","");
       assertEquals("prefix_a/b/c-d/awefe-dd-and-and-32_suffix.jpg", result);
    }
    @Test
-   public final void forceExtension()
+   void forceExtension()
    {
       final String testString ="filename.jpg";
       String result = PathCleanupUtils.cleanupPathPart(testString, true, true,false,"prefix_","_suffix","test");

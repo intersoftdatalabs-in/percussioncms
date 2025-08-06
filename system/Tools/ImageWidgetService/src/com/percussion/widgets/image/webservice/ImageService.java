@@ -146,9 +146,9 @@ public class ImageService {
             try (var inputStream = new ByteArrayInputStream(binaryDataOpt.get())) {
                 var resizedImage = resizeManager.generateImage(
                     inputStream,
-                    resizeParams.cropBox().orElse(null),
-                    resizeParams.targetSize().orElse(null),
-                    resizeParams.rotation()
+                    resizeParams.getCropBox().orElse(null),
+                    resizeParams.getTargetSize().orElse(null),
+                    resizeParams.getRotation()
                 );
 
                 var newKey = cacheManager.addImage(resizedImage);
@@ -283,17 +283,31 @@ public class ImageService {
     }
 
     /**
-     * Record representing resize operation parameters.
-     *
-     * @param targetSize optional target dimensions
-     * @param cropBox optional crop rectangle
-     * @param rotation rotation angle in degrees
+     * POJO representing resize operation parameters.
      */
-    private record ResizeParameters(
-        Optional<Dimension> targetSize,
-        Optional<Rectangle> cropBox,
-        int rotation
-    ) {}
+    private static class ResizeParameters {
+        private final Optional<Dimension> targetSize;
+        private final Optional<Rectangle> cropBox;
+        private final int rotation;
+
+        public ResizeParameters(Optional<Dimension> targetSize, Optional<Rectangle> cropBox, int rotation) {
+            this.targetSize = targetSize;
+            this.cropBox = cropBox;
+            this.rotation = rotation;
+        }
+
+        public Optional<Dimension> getTargetSize() {
+            return targetSize;
+        }
+
+        public Optional<Rectangle> getCropBox() {
+            return cropBox;
+        }
+
+        public int getRotation() {
+            return rotation;
+        }
+    }
 
     /**
      * Exception thrown when image service operations fail.

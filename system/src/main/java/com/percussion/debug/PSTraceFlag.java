@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import java.util.Arrays;
 /**
  * Wrapper object for doing bitwise operations on a set of 120 possible flags.  Contains a list of 4 groups of flags.  Each flag is an int used to specify a trace option.  The highest two bits of each flag are reserved as an indicator of 4 possible groups (00-11).  Thus there is support for 30 flags in each of 4 groups.
  */
-public class PSTraceFlag
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceFlag {
    /**
     * Replaces this objects internal flag with the provided flag for the specfied group.
     *

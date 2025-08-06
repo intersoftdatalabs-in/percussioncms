@@ -41,7 +41,7 @@ import com.percussion.services.assembly.impl.PSAssemblyJexlEvaluator;
 import com.percussion.services.assembly.impl.PSTrackAssemblyError;
 import com.percussion.services.assembly.jexl.PSDocumentUtils;
 import com.percussion.services.filter.PSFilterException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.exceptions.PSExceptionHelper;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.jexl.IPSScript;

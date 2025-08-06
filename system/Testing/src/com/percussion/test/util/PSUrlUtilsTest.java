@@ -19,8 +19,8 @@ package com.percussion.test.util;
 import static org.junit.Assert.assertEquals;
 
 import com.percussion.server.PSServer;
+import com.percussion.system.utils.PSUrlUtils;
 import com.percussion.testing.PSMockRequestContext;
-import com.percussion.util.PSUrlUtils;
 
 import java.net.URL;
 import java.util.LinkedHashMap;

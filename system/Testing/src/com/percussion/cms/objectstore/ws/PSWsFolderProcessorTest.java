@@ -35,9 +35,9 @@ import com.percussion.search.IPSExecutableSearch;
 import com.percussion.search.PSExecutableSearchFactory;
 import com.percussion.search.PSWSSearchResponse;
 import com.percussion.server.webservices.PSServerFolderProcessor;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.testing.IPSClientBasedJunitTest;
 import com.percussion.testing.PSClientTestCase;
-import com.percussion.util.PSRemoteRequester;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 

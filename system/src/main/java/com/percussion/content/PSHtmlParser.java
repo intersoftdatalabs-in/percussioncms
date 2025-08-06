@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import java.util.Stack;
  * the parser's buffer to bear this exact relation to the unread stream,
  * you must not use any buffering on input streams or readers.
  */
+// REFACTORED: CP-JAVA11
 public class PSHtmlParser
 {
    public PSHtmlParser()
@@ -79,7 +80,7 @@ public class PSHtmlParser
    {
       m_caseInsensitiveSearch = caseInsensiteValues;
       if (m_stopAt == null)
-         m_stopAt = new ArrayList();
+         m_stopAt = new ArrayList<>();
       m_stopAt.add(el);
    }
 
@@ -915,7 +916,7 @@ public class PSHtmlParser
                {
                   // pop all these guys off
                   // System.out.println("Found " + realName + " on stack.");
-                  HTMLElement lastEl = el;
+                  // Removed unused variable lastEl
                   for (int j = m_elStack.size() - 1; j >= i; j--)
                   {
                      HTMLElement popEl = (HTMLElement)m_elStack.pop();
@@ -1012,9 +1013,9 @@ public class PSHtmlParser
          // see if the search nodes match the finishing node
          HTMLElement el = (HTMLElement)m_elStack.peek();
 
-         for (Iterator i = m_stopAt.iterator(); i.hasNext(); )
+         for (Iterator<HTMLElement> i = m_stopAt.iterator(); i.hasNext(); )
          {
-            HTMLElement stopAt = (HTMLElement)i.next();
+            HTMLElement stopAt = i.next();
             // System.out.println("Seeing if " + el + " matches " + stopAt);
             if (matches(stopAt, el))
             {
@@ -1328,19 +1329,13 @@ public class PSHtmlParser
    private void finishComment()
       throws HTMLException
    {
-      String text = m_comment.toString();
       m_comment.setLength(0);
-      if (m_elStack.empty())
-      {
-         // ignore this comment because it's outside the
-         // root element
+      if (m_elStack.empty()) {
+         // ignore this comment because it's outside the root element
          // htmlException("Wrong context for comment");
-      }
-      else
-      {
-         HTMLElement curEl = (HTMLElement)m_elStack.peek();
+      } else {
          // TODO: make an HTMLComment node
-         // curEl.appendChild(new HTMLText(text));
+         // ((HTMLElement)m_elStack.peek()).appendChild(new HTMLText(m_comment.toString()));
       }
    }
 
@@ -1410,7 +1405,7 @@ public class PSHtmlParser
          if (parentName.equals("TH"))
             return false;
       }
-      boolean parentIsText  = (null != ms_textElements.get(parentName));
+      // Removed unused variable parentIsText
       boolean childIsText   = (null != ms_textElements.get(childName)); 
       boolean parentIsBlock = (null != ms_blockElements.get(parentName));
       boolean childIsBlock  = (null != ms_blockElements.get(childName));
@@ -1618,7 +1613,7 @@ public class PSHtmlParser
    // we stop if/when we reach an element with this name and with all of
    // its attributes
    // private HTMLElement m_stopAt = null;
-   private ArrayList m_stopAt = null;
+   private ArrayList<HTMLElement> m_stopAt = null;
 
    // true if we should stop parsing
    private boolean m_stop = false;
@@ -1638,7 +1633,7 @@ public class PSHtmlParser
    private StringBuilder m_attrName = new StringBuilder(); // an attribute name
    private StringBuilder m_attrVal  = new StringBuilder(); // an attribute value
    private StringBuilder m_comment  = new StringBuilder(); // a comment
-   private StringBuilder m_procInstr= new StringBuilder(); // processing instruction
+   // Removed unused field m_procInstr
    private StringBuilder m_cdata = new StringBuilder(); // CDATA source
 
    // this is non-null if the caller wants us to maintain a literal buffer
@@ -1647,7 +1642,7 @@ public class PSHtmlParser
    private String m_curAtName = null;
  
    // TODO: use arraylist for performance reasons
-   private Stack m_elStack = new Stack();
+   private Stack<HTMLElement> m_elStack = new Stack<>();
 
    private boolean m_upperCaseTags = true;
    private boolean m_lowerCaseTags = false;
@@ -1678,7 +1673,7 @@ public class PSHtmlParser
     * noclose elements ALWAYS close immediately and never get pushed onto the stack,
     * because they are not allowed to have close tags.
     */
-   private static Map ms_autoCloseElements = new HashMap();
+   private static Map<String, Boolean> ms_autoCloseElements = new HashMap<>();
    static
    {
       ms_autoCloseElements.put("AREA", Boolean.TRUE);
@@ -1703,7 +1698,7 @@ public class PSHtmlParser
     * Block-level elements are "higher level" elements that can contain
     * other block-level and text-level elements.
     */
-   private static Map ms_blockElements = new HashMap();
+   private static Map<String, Boolean> ms_blockElements = new HashMap<>();
    static
    {
       ms_blockElements.put("ADDRESS", Boolean.TRUE);
@@ -1748,7 +1743,7 @@ public class PSHtmlParser
     * Text-level elements are "lower-level" and generally cannot contain
     * block-level elements. They can contain other text-level elements.
     */
-   private static Map ms_textElements = new HashMap();
+   private static Map<String, Boolean> ms_textElements = new HashMap<>();
    static
    {
       ms_textElements.put("A", Boolean.TRUE);
@@ -1788,7 +1783,7 @@ public class PSHtmlParser
     * Some elements can act as either block- or text-level, depending on
     * their context. I call these "special".
     */
-   private static Map ms_specialElements = new HashMap();
+   private static Map<String, Boolean> ms_specialElements = new HashMap<>();
    static
    {
       ms_specialElements.put("APPLET", Boolean.TRUE);

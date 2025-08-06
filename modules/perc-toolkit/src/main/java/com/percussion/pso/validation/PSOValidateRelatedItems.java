@@ -18,6 +18,7 @@ package com.percussion.pso.validation;
 import java.util.Arrays;
 import java.util.List;
 
+// REFACTORED: CP-JAVA11
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -36,8 +37,8 @@ import com.percussion.fastforward.utils.PSUtils;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSItemErrorDoc;
+import com.percussion.system.utils.PSItemErrorDoc;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.xml.PSXmlDocumentBuilder;
@@ -78,13 +79,14 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 
 public class PSOValidateRelatedItems extends PSDefaultExtension implements
 		IPSResultDocumentProcessor, IPSItemValidator 
-  {
+{
+   // REFACTORED: CP-JAVA11
    /**
-    * Logger for this class
-    */
+	* Logger for this class
+	*/
    private static final Logger logger = LogManager.getLogger(PSOValidateRelatedItems.class);
 
-    
+	
    private static IPSGuidManager gmgr = null; 
    private static IPSContentWs cws = null; 
 	/**
@@ -197,7 +199,7 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 			IPSRequestContext request, Document resultDoc)
 			throws PSParameterMismatchException, PSExtensionProcessingException {
 
-	    initServices();
+		initServices();
 		/* Mainly, if the incoming request is an "edit" or "search" request, 
 		 * this should not do anything.
 		 */
@@ -227,7 +229,7 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 
 
 			try {
-			    
+				
 
 				String varId; // for backwards compatibility only
 				String slotName;
@@ -262,14 +264,14 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 					// convert to int for method:
 					numTimes = Integer.parseInt(numOfTimes);
 
-			        
+					
 
 					int slotSize = 0; 
 					for(PSAaRelationship rel : relations)
 					{
 					   if(slotName.equalsIgnoreCase(rel.getSlotName()))
 					   { //we found one
-					      slotSize++; 
+						  slotSize++; 
 					   }
 					}
 					
@@ -340,10 +342,10 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 		transId = PSUtils.getParameter(args, 1);
 		if (transId != null && !transId.equals("*")) {
 		   try {
-		      int tid = Integer.parseInt(transId);
+			  int tid = Integer.parseInt(transId);
 		   } catch (NumberFormatException e) {
-		      throw new PSParameterMismatchException(
-		      "Transition id must be a number.");
+			  throw new PSParameterMismatchException(
+			  "Transition id must be a number.");
 		   }
 		}
 
@@ -351,44 +353,44 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 		for (int i = 2; i < args.length; i += 4) {
 		   varId = PSUtils.getParameter(args, i);
 		   if (varId == null) {
-		      logger.debug("Validation Complete");
-		      return;
+			  logger.debug("Validation Complete");
+			  return;
 		   }
 		   slotName = PSUtils.getParameter(args, i + 1);
 		   mustOccur = PSUtils.getParameter(args, i + 2);
 		   numOfTimes = PSUtils.getParameter(args, i + 3);
 		   // convert to int for method:
 		   if (numOfTimes != null) {
-		      try {
-		         int numoftimes = Integer.parseInt(numOfTimes);
-		      } catch (NumberFormatException e) {
-		         throw new PSParameterMismatchException(
-		               "Required argument numOfTimes is not a number: Value is "
-		               + numOfTimes);
-		      }
+			  try {
+				 int numoftimes = Integer.parseInt(numOfTimes);
+			  } catch (NumberFormatException e) {
+				 throw new PSParameterMismatchException(
+					   "Required argument numOfTimes is not a number: Value is "
+					   + numOfTimes);
+			  }
 		   } else {
-		      throw new PSParameterMismatchException(
-		      "Required argument numOfTimes is null");
+			  throw new PSParameterMismatchException(
+			  "Required argument numOfTimes is null");
 		   }
 		   if (varId == null)
-		      throw new PSParameterMismatchException(
-		      "Required argument varId is null");
+			  throw new PSParameterMismatchException(
+			  "Required argument varId is null");
 		   if (slotName == null)
-		      throw new PSParameterMismatchException(
-		      "Required argument slotName is null");
+			  throw new PSParameterMismatchException(
+			  "Required argument slotName is null");
 		   if (mustOccur == null)
-		      throw new PSParameterMismatchException(
-		      "Required argument mustOccur is null");
+			  throw new PSParameterMismatchException(
+			  "Required argument mustOccur is null");
 		   if (numOfTimes == null)
-		      throw new PSParameterMismatchException(
-		      "Required argument numOfTimes is null");
+			  throw new PSParameterMismatchException(
+			  "Required argument numOfTimes is null");
 
 		   if ((!mustOccur.equals(MORE_THAN))
-		         & (!mustOccur.equals(LESS_THAN))
-		         & (!mustOccur.equals(EXACTLY)))
-		      throw new PSParameterMismatchException(
-		            "Usage: MORE_THAN, LESS_THAN, EXACTLY;  What occured: "
-		            + mustOccur);
+				 & (!mustOccur.equals(LESS_THAN))
+				 & (!mustOccur.equals(EXACTLY)))
+			  throw new PSParameterMismatchException(
+					"Usage: MORE_THAN, LESS_THAN, EXACTLY;  What occured: "
+					+ mustOccur);
 		}
 
 
@@ -396,57 +398,57 @@ public class PSOValidateRelatedItems extends PSDefaultExtension implements
 
 	 
 	  /**
-	    * Checks if the current transition matches a specified value.  This routine 
-	    * is intended for use in validation exits where a specific transition id 
-	    * is provided as a parameter.  
-	    * <p>
-	    * If the parameter supplied is an "*", then this method always returns true. 
-	    * Otherwise, the parameter is compared with the 
-	    * <code>sys_transitionid</code> HTML parameter and then of the 
-	    * <code>WFAction</code> HTML parameter.  If either of these values match,
-	    * then <code>true</code> is returned.     
-	    * @param request the callers request context.
-	    * @param transParameter the match parameter to be compared.  Use "*" to 
-	    * match any transition. 
-	    * @throws IllegalArgumentException when the <code>transParameter</code> 
-	    * is <code>null</code>.
-	    * @return <code>true</code> if the transition matches, <code>false</code>
-	    * otherwise. 
-	    */
+		* Checks if the current transition matches a specified value.  This routine 
+		* is intended for use in validation exits where a specific transition id 
+		* is provided as a parameter.  
+		* <p>
+		* If the parameter supplied is an "*", then this method always returns true. 
+		* Otherwise, the parameter is compared with the 
+		* <code>sys_transitionid</code> HTML parameter and then of the 
+		* <code>WFAction</code> HTML parameter.  If either of these values match,
+		* then <code>true</code> is returned.     
+		* @param request the callers request context.
+		* @param transParameter the match parameter to be compared.  Use "*" to 
+		* match any transition. 
+		* @throws IllegalArgumentException when the <code>transParameter</code> 
+		* is <code>null</code>.
+		* @return <code>true</code> if the transition matches, <code>false</code>
+		* otherwise. 
+		*/
 	   private static boolean matchTransitionId(IPSRequestContext request, String transParameter)
 	   {
-	      if(transParameter == null)
-	      {
-	         logger.error("Transition name parameter must not be null"); 
-	         throw new IllegalArgumentException("Transition name parameter must not be null"); 
-	      }
-	      if(transParameter.equals("*"))
-	      {
-	         logger.debug("transition id match *");
-	         return true; 
-	      }
-	      String transid = request.getParameter(IPSHtmlParameters.SYS_TRANSITIONID);
-	      if(transid != null && transParameter.equals(transid))
-	      { 
-	         logger.debug("transition id matches sys_transitionid");
-	         return true; 
-	      }
-	      transid = request.getParameter("WFAction");
-	      if(transid != null && transParameter.equals(transid))
-	      { 
-	         logger.debug("transition id matches WFAction");
-	         return true; 
-	      }
-	      
-	      logger.debug("No match for transition id "); 
-	      return false;
+		  if(transParameter == null)
+		  {
+			 logger.error("Transition name parameter must not be null"); 
+			 throw new IllegalArgumentException("Transition name parameter must not be null"); 
+		  }
+		  if(transParameter.equals("*"))
+		  {
+			 logger.debug("transition id match *");
+			 return true; 
+		  }
+		  String transid = request.getParameter(IPSHtmlParameters.SYS_TRANSITIONID);
+		  if(transid != null && transParameter.equals(transid))
+		  { 
+			 logger.debug("transition id matches sys_transitionid");
+			 return true; 
+		  }
+		  transid = request.getParameter("WFAction");
+		  if(transid != null && transParameter.equals(transid))
+		  { 
+			 logger.debug("transition id matches WFAction");
+			 return true; 
+		  }
+		  
+		  logger.debug("No match for transition id "); 
+		  return false;
 	   }
 	   private static void initServices()
-       {
-          if(gmgr == null)
-          {
-             cws = PSContentWsLocator.getContentWebservice(); 
-             gmgr = PSGuidManagerLocator.getGuidMgr(); 
-          }
-       }
+	   {
+		  if(gmgr == null)
+		  {
+			 cws = PSContentWsLocator.getContentWebservice(); 
+			 gmgr = PSGuidManagerLocator.getGuidMgr(); 
+		  }
+	   }
 }

@@ -17,7 +17,7 @@
 package test.percussion.pso.jexl;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.jexl.PSOMapTools;
 
@@ -41,7 +41,7 @@ public class PSOMapToolsTest {
     Map<String, Object> actual;
     Map<String, Object> expected;
     
-    @Before
+    @BeforeEach
     public void setUp() {
         mapTools = new PSOMapTools();
         expected = new HashMap<String, Object>();

@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.transform;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -37,15 +37,15 @@ import javax.imageio.stream.ImageInputStream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 import com.percussion.pso.transform.PSOThumbnailGenerator;
 
 public class PSOThumbnailGeneratorTest
 {
-    private static final Logger log = LogManager.getLogger(PSOThumbnailGeneratorTest.class);
+	private static final Logger log = LogManager.getLogger(PSOThumbnailGeneratorTest.class);
    
    private static final String GIF_IMAGE = "test/percussion/pso/transform/ninja_avatar.gif";
    private static final String PNG_IMAGE = "test/percussion/pso/transform/TestPNG.png";
@@ -56,94 +56,94 @@ public class PSOThumbnailGeneratorTest
    TestThumbnailGenerator cut;  
    
    
-   @Before
-   public void setUp() throws Exception
+   @BeforeEach
+   public void setUp()
    {
-      cut = new TestThumbnailGenerator(); 
+	  cut = new TestThumbnailGenerator(); 
    }
    
    @Test
-   public final void testComputeSizeBoth()
+   void testComputeSizeBoth()
    {
-      Dimension originalSize = new Dimension(400,300); 
-      Dimension result = cut.computeSize(0, 100, 200, originalSize); 
-      assertNotNull(result);
-      assertEquals(100, result.width);
-      assertEquals(200, result.height); 
+	  Dimension originalSize = new Dimension(400,300); 
+	  Dimension result = cut.computeSize(0, 100, 200, originalSize); 
+	  assertNotNull(result);
+	  assertEquals(100, result.width);
+	  assertEquals(200, result.height); 
    }
    
    @Test
-   public final void testComputeSizeWidth()
+   void testComputeSizeWidth()
    {
-      Dimension originalSize = new Dimension(100,200); 
-      Dimension result = cut.computeSize(0, 50, 0 , originalSize); 
-      assertNotNull(result);
-      assertEquals(50, result.width);
-      assertEquals(100, result.height); 
+	  Dimension originalSize = new Dimension(100,200); 
+	  Dimension result = cut.computeSize(0, 50, 0 , originalSize); 
+	  assertNotNull(result);
+	  assertEquals(50, result.width);
+	  assertEquals(100, result.height); 
    }
    @Test
-   public final void testComputeSizeHeight()
+   void testComputeSizeHeight()
    {
-      Dimension originalSize = new Dimension(100,200); 
-      Dimension result = cut.computeSize(0, 0 , 100 , originalSize); 
-      assertNotNull(result);
-      assertEquals(50, result.width);
-      assertEquals(100, result.height); 
+	  Dimension originalSize = new Dimension(100,200); 
+	  Dimension result = cut.computeSize(0, 0 , 100 , originalSize); 
+	  assertNotNull(result);
+	  assertEquals(50, result.width);
+	  assertEquals(100, result.height); 
    }
    @Test
-   public final void testComputeSizeNone()
+   void testComputeSizeNone()
    {
-      Dimension result;
-      try
-      {
-         Dimension originalSize = new Dimension(100,200); 
-         result = cut.computeSize(0, 0 , 0 , originalSize); 
-         
-      } catch (IllegalArgumentException ex)
-      {
-            log.info("Expected Exception caught");
-            assertTrue("expected exception", true); 
-      }
-   }
-   
-   @Test
-   public final void testComputeSizeMaxdimHeight()
-   {
-      Dimension originalSize = new Dimension(100,200); 
-      Dimension result = cut.computeSize(100, 0 , 0 , originalSize); 
-      assertNotNull(result);
-      assertEquals(50, result.width);
-      assertEquals(100, result.height); 
+	  Dimension result;
+	  try
+	  {
+		 Dimension originalSize = new Dimension(100,200); 
+		 result = cut.computeSize(0, 0 , 0 , originalSize); 
+		 
+	  } catch (IllegalArgumentException ex)
+	  {
+			log.info("Expected Exception caught");
+			assertTrue(true, () -> "expected exception");
+	  }
    }
    
    @Test
-   public final void testComputeSizeMaxdimWidth()
+   void testComputeSizeMaxdimHeight()
    {
-      Dimension originalSize = new Dimension(200,100); 
-      Dimension result = cut.computeSize(100, 0 , 0 , originalSize); 
-      assertNotNull(result);
-      assertEquals(100, result.width);
-      assertEquals(50, result.height); 
+	  Dimension originalSize = new Dimension(100,200); 
+	  Dimension result = cut.computeSize(100, 0 , 0 , originalSize); 
+	  assertNotNull(result);
+	  assertEquals(50, result.width);
+	  assertEquals(100, result.height); 
+   }
+   
+   @Test
+   void testComputeSizeMaxdimWidth()
+   {
+	  Dimension originalSize = new Dimension(200,100); 
+	  Dimension result = cut.computeSize(100, 0 , 0 , originalSize); 
+	  assertNotNull(result);
+	  assertEquals(100, result.width);
+	  assertEquals(50, result.height); 
    }
 
    @Test
-   public final void testHalfImage()
+   void testHalfImage()
    {
-      BufferedImage inImage = new BufferedImage(1000, 2000, BufferedImage.TYPE_INT_RGB);
-      Graphics2D g2d = inImage.createGraphics();
-      g2d.setColor(Color.CYAN); 
-      g2d.fillRect(0, 0, 1000, 2000);
-      g2d.dispose(); 
-      
-      BufferedImage result = cut.halfImage(inImage); 
-      assertNotNull(result);
-      assertEquals(500, result.getWidth());
-      assertEquals(1000, result.getHeight()); 
-      assertEquals(Transparency.OPAQUE, result.getTransparency());
+	  BufferedImage inImage = new BufferedImage(1000, 2000, BufferedImage.TYPE_INT_RGB);
+	  Graphics2D g2d = inImage.createGraphics();
+	  g2d.setColor(Color.CYAN); 
+	  g2d.fillRect(0, 0, 1000, 2000);
+	  g2d.dispose(); 
+	  
+	  BufferedImage result = cut.halfImage(inImage); 
+	  assertNotNull(result);
+	  assertEquals(500, result.getWidth());
+	  assertEquals(1000, result.getHeight()); 
+	  assertEquals(Transparency.OPAQUE, result.getTransparency());
    }
    
    @Test
-   public final void testReadJpeg()
+   void testReadJpeg()
    {
 	   log.info("reading a jpeg"); 
 	   InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/leonardo.jpg");
@@ -168,7 +168,7 @@ public class PSOThumbnailGeneratorTest
    }
    
    @Test
-   public final void testReadGif()
+   void testReadGif()
    {
 	   log.info("reading a GIF"); 
 	   InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/ninja_avatar.gif");
@@ -195,7 +195,7 @@ public class PSOThumbnailGeneratorTest
    }
    
    @Test
-   public final void testReadPng()
+   void testReadPng()
    {
 	   log.info("reading a PNG"); 
 	   InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/TestPNG.png");
@@ -222,7 +222,7 @@ public class PSOThumbnailGeneratorTest
    }
    
    @Test
-   public final void testResizeGif()
+   void testResizeGif()
    {
 	   log.info("resizing a GIF"); 
 	   InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/ninja_avatar.gif");
@@ -251,7 +251,7 @@ public class PSOThumbnailGeneratorTest
    }
    
    @Test
-   public final void testWriteJpeg()
+   void testWriteJpeg()
    {
 	   log.info("writing a jpeg"); 
 	   InputStream is = getClass().getResourceAsStream("/com/percussion/pso/transform/leonardo.jpg");
@@ -277,18 +277,18 @@ public class PSOThumbnailGeneratorTest
    private class TestThumbnailGenerator extends PSOThumbnailGenerator
    {
 
-      @Override
-      public Dimension computeSize(int maxDim, int thumbWidth,
-            int thumbHeight, Dimension originalSize)
-      {
-         return super.computeSize(maxDim, thumbWidth, thumbHeight, originalSize);
-      }
+	  @Override
+	  public Dimension computeSize(int maxDim, int thumbWidth,
+			int thumbHeight, Dimension originalSize)
+	  {
+		 return super.computeSize(maxDim, thumbWidth, thumbHeight, originalSize);
+	  }
 
-      @Override
-      public BufferedImage halfImage(BufferedImage inImage)
-      {
-         return super.halfImage(inImage);
-      }
+	  @Override
+	  public BufferedImage halfImage(BufferedImage inImage)
+	  {
+		 return super.halfImage(inImage);
+	  }
 
 	@Override
 	public BufferedImage createBufferedImage(int width, int height,
@@ -329,6 +329,6 @@ public class PSOThumbnailGeneratorTest
 		super.writeImage(outImage, iw, outstream);
 	}
 
-      
+	  
    }
 }

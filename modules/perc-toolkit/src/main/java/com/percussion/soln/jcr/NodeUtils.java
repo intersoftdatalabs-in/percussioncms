@@ -17,6 +17,7 @@
 
 package com.percussion.soln.jcr;
 
+// REFACTORED: CP-JAVA11
 import static org.apache.commons.lang.Validate.notEmpty;
 import static org.apache.commons.lang.Validate.notNull;
 
@@ -49,6 +50,7 @@ public class NodeUtils {
     
     public static class DefaultTranslator extends BeanPropertyToNodePropertyNameTranslator {
 
+    // REFACTORED: CP-JAVA11
         private String fieldPrefix;
         private Collection<String> ignoreFields;
         private Map<String, String> nameMap;

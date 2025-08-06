@@ -47,7 +47,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.content.data.PSItemSummary;
 import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;

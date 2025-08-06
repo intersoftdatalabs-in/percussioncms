@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.cms;
 
 import com.percussion.data.IPSInternalResultHandler;
@@ -79,7 +80,6 @@ abstract public class PSModifyDocumentBuilder extends PSEditorDocumentBuilder
       {
          try
          {
-            int id = Integer.parseInt( contentId );
          }
          catch ( NumberFormatException e )
          {
@@ -100,7 +100,7 @@ abstract public class PSModifyDocumentBuilder extends PSEditorDocumentBuilder
       workflow.setAttribute( CONTENTID_NAME, contentId );
 
       // the BasicInfo child will be added by a workflow exit
-      Iterator handlers = getWorkflowResources().iterator();
+      Iterator<?> handlers = getWorkflowResources().iterator();
       PSExecutionData reqData = null;
       try
       {
@@ -158,7 +158,7 @@ abstract public class PSModifyDocumentBuilder extends PSEditorDocumentBuilder
     *
     * @throws PSDataExtractionException If a needed resource cannot be found.
     */
-   private List getWorkflowResources()
+   private List<?> getWorkflowResources()
       throws PSDataExtractionException
    {
       String [] datasetNames =
@@ -167,9 +167,9 @@ abstract public class PSModifyDocumentBuilder extends PSEditorDocumentBuilder
          CONTENTSTATUS_DATATSET_NAME
       };
 
-      List handlers = new ArrayList();
+      List<Object> handlers = new ArrayList<>();
 
-      Iterator names = PSIteratorUtils.iterator( datasetNames );
+      Iterator<?> names = PSIteratorUtils.iterator( datasetNames );
       while ( names.hasNext())
       {
          String reqName = IPSConstants.EDITOR_SUPPORT_APPNAME + "/"
@@ -181,7 +181,7 @@ abstract public class PSModifyDocumentBuilder extends PSEditorDocumentBuilder
             throw new PSDataExtractionException(
                   IPSServerErrors.CE_NEEDED_APP_NOT_RUNNING, reqName );
          }
-         handlers.add( rh );
+         handlers.add(rh);
       }
 
       return handlers;

@@ -19,7 +19,7 @@ package com.percussion.pso.preview;
 import com.percussion.cms.objectstore.PSAction;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.sitemgr.IPSSite;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang.StringUtils;

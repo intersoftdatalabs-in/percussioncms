@@ -49,6 +49,7 @@ import java.util.Properties;
  * will also writes to the log file showing any table rows that were deleted so that
  * a user can rebuild the scheme if needed.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginCleanLocationSchemes implements IPSUpgradePlugin
 {
    /**

@@ -37,7 +37,7 @@ import com.percussion.share.service.IPSDataService.DataServiceNotFoundException;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.IPSItemSummaryFactoryService;
 import com.percussion.sitemanage.data.PSSiteSection.PSSectionTypeEnum;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.thread.PSThreadUtils;
 import com.percussion.webservices.PSErrorException;

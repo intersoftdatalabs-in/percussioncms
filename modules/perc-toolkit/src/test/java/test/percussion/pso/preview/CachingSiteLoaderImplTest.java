@@ -22,9 +22,9 @@
  */
 package test.percussion.pso.preview;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +33,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.preview.CachingSiteLoaderImpl;
 import com.percussion.services.sitemgr.IPSSite;
@@ -54,7 +54,7 @@ public class CachingSiteLoaderImplTest
    {
       
    }
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new CachingSiteLoaderImpl();

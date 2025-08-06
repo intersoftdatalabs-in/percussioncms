@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.apache.commons.collections.CollectionUtils.*;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -26,8 +26,8 @@ import java.util.Set;
 
 
 import org.apache.commons.collections.Predicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import com.percussion.pso.utils.MutableHttpServletRequestWrapper;
@@ -37,7 +37,7 @@ public class MutableHttpServletRequestWrapperTest
    
    MutableHttpServletRequestWrapper cut;
    
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       MockHttpServletRequest request = new MockHttpServletRequest();

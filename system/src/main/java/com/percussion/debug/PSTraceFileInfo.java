@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import java.util.Map;
 /**
  * Used to generate trace messages for the File Information trace messages type (0x0004) if a post includes one or more files.  Includes the name, mime type and length for each, and if each is treated as XML or a single value.
  */
-public class PSTraceFileInfo extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceFileInfo extends PSTraceMessage {
 
    /**
     * Constructor for this class

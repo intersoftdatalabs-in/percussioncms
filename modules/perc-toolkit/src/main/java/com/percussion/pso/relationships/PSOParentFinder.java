@@ -16,6 +16,7 @@
  */
 package com.percussion.pso.relationships;
 
+// REFACTORED: CP-JAVA11
 import java.util.List;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 /**
  * Finds parent items for a given content item.
@@ -50,6 +51,7 @@ import com.percussion.util.IPSHtmlParameters;
  */
 public class PSOParentFinder implements IPSOParentFinder
 {
+   // REFACTORED: CP-JAVA11
    
    private IPSRequestContext requestContext = null; 
    private PSRelationshipProcessorProxy proxy = null;

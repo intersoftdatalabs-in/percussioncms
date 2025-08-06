@@ -23,7 +23,7 @@ import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.services.assembly.IPSTemplateSlot;
 import com.percussion.services.assembly.PSAssemblyException;
 import com.percussion.services.assembly.PSAssemblyServiceLocator;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.webservices.assembly.IPSAssemblyWs;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateWs;
 import org.apache.commons.lang.StringUtils;

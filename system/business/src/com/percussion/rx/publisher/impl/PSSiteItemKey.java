@@ -22,7 +22,7 @@ import static org.apache.commons.lang.Validate.notNull;
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.jexl.PSStringUtils;
 import com.percussion.services.publisher.IPSSiteItem;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.Map;
 

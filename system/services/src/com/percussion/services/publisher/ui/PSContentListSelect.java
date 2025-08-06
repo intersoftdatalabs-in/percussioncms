@@ -31,8 +31,8 @@ import com.percussion.services.publisher.PSPublisherException;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
 import com.percussion.services.publisher.data.PSContentList;
 import com.percussion.services.publisher.data.PSEditionType;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
 

@@ -138,9 +138,12 @@ public abstract class PSBaseValidator implements Validator {
             return false;
         }
 
-        if (value instanceof String stringValue && StringUtils.isBlank(stringValue)) {
-            ms_log.debug("Validation failed: {} is blank", fieldName);
-            return false;
+        if (value instanceof String) {
+            String stringValue = (String) value;
+            if (StringUtils.isBlank(stringValue)) {
+                ms_log.debug("Validation failed: {} is blank", fieldName);
+                return false;
+            }
         }
 
         return true;

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import com.percussion.error.PSException;
 import com.percussion.pso.relationshipbuilder.IPSRelationshipBuilder;
 import com.percussion.pso.relationshipbuilder.exit.PSExtensionHelper;
 import com.percussion.services.assembly.PSAssemblyException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters ;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -45,10 +45,9 @@ public class PSExtensionHelperTest
 
    private Set<Integer> m_output;
 
-   /* (non-Javadoc)
-    * @see junit.framework.TestCase#setUp()
-    */
-   @Before
+   // JUnit 5 setup
+    // ...existing code...
+   @BeforeEach
    public void setUp() throws Exception
    {
       m_output = new HashSet<Integer>();
@@ -59,6 +58,7 @@ public class PSExtensionHelperTest
       XMLUnit.setIgnoreWhitespace(true);
    }
 
+   @Test
    public void testConvertRejectsNullOutput()
    {
       boolean threw = false;
@@ -73,6 +73,7 @@ public class PSExtensionHelperTest
       assertTrue(threw);
    }
 
+   @Test
    public void testConvertHandlesNullInput()
    {
       Collection<Object> invalids = PSExtensionHelper.convert(null, m_output);
@@ -80,6 +81,7 @@ public class PSExtensionHelperTest
       assertEquals(0, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesAllNullsInInput()
    {
       Object[] input = new Object[] {null, null};
@@ -88,6 +90,7 @@ public class PSExtensionHelperTest
       assertEquals(2, invalids.size());
    }
 
+   @Test
    public void testConvertHandlesNullsInInput()
    {
       Object[] input = new Object[] {"700", null, 301};
@@ -97,6 +100,7 @@ public class PSExtensionHelperTest
       assertEquals(2, m_output.size());
    }
    
+   @Test
    public void testConvertHandlesEmptysInInput()
    {
       Object[] input = new Object[] {"700", "", 301};
@@ -106,22 +110,23 @@ public class PSExtensionHelperTest
       assertEquals(2, m_output.size());
    }
    
+   @Test
    public void testConvertSingleEmptyString() {
-	      Object[] input = new Object[] {""};
-	      Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
-	      assertNotNull(invalids);
-	      assertEquals(1, invalids.size());
-	      assertEquals(0, m_output.size());
+         Object[] input = new Object[] {""};
+         Collection<Object> invalids = PSExtensionHelper.convert(input, m_output);
+         assertNotNull(invalids);
+         assertEquals(1, invalids.size());
+         assertEquals(0, m_output.size());
           if (invalids.size() == 1 && invalids.contains("")) {
-       	   
+            
           }
           else {
-        	  fail();
+           fail();
           }
    }
 
    @Test
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public void testUpdateDisplayChoicesSelectAll() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
@@ -138,8 +143,8 @@ public class PSExtensionHelperTest
             }
             
             public void addRelationships(Collection<Integer> ids)
-					throws PSAssemblyException, PSException {
-			}
+               throws PSAssemblyException, PSException {
+         }
 
         };
        PSExtensionHelper helper = new PSExtensionHelper(builder, params, null);
@@ -157,7 +162,7 @@ public class PSExtensionHelperTest
    }
 
    @Test
-   @Ignore("Test is failing") //TODO: Fix me
+   @Disabled("Test is failing") //TODO: Fix me
    public void testUpdateDisplayChoices() throws Exception {
        Map<String, String> params = new HashMap<String, String>();
        params.put(PSExtensionHelper.IDS_FIELD_NAME, "tree");
@@ -176,8 +181,8 @@ public class PSExtensionHelperTest
            }
            
            public void addRelationships(Collection<Integer> ids)
-					throws PSAssemblyException, PSException {
-			}
+               throws PSAssemblyException, PSException {
+         }
           
       };
       

@@ -1,4 +1,20 @@
 /*
+ * Copyright 1999-2025 Percussion Software, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +30,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 
 package com.percussion.cms;
 
@@ -35,7 +52,6 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.server.*;
 import com.percussion.server.cache.PSFolderRelationshipCache;
 import com.percussion.services.assembly.IPSAssemblyResult;
-import com.percussion.services.assembly.IPSAssemblyResult.Status;
 import com.percussion.services.assembly.impl.AssemblerInfoUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
@@ -46,8 +62,8 @@ import com.percussion.services.utils.general.PSAssemblyServiceUtils;
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSState;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSCms;
+import com.percussion.system.utils.PSCms;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
@@ -71,6 +87,7 @@ import static com.percussion.webservices.PSWebserviceUtils.getItemSummary;
  * the data source is a single value (as opposed to an array or table).
  */
 public class PSSingleValueBuilder extends PSDisplayFieldBuilder
+// REFACTORED: CP-JAVA11
 {
 
    private static final Logger log = LogManager.getLogger(PSSingleValueBuilder.class);
@@ -462,7 +479,9 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
       if (parentIsEditLiveDivWrapper)
       {
          moveSpecialAttribs(elem, parentEl);
-         parentEl.setAttribute(CONTENT_EDITABLE, "false");
+         if (parentEl != null) {
+            parentEl.setAttribute(CONTENT_EDITABLE, "false");
+         }
       }
       else
       {
@@ -1164,7 +1183,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
       PSRelationship rel = null;
       try
       {
-         rel = svc.loadRelationship(Integer.parseInt(relationshipid));
+         rel = svc.loadRelationship(Integer.parseInt(relationshipid)).orElse(null);
       }
       catch (NumberFormatException | PSException e)
       {
@@ -1254,10 +1273,10 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
 
       }
       String ocid = contentid;
-      Integer cid = new Integer(contentid);
+      Integer cid = Integer.valueOf(contentid);
       if(!inlineLinkRelData.m_contentIdPathMap.containsKey(cid))
       {
-         Integer rid = new Integer(relationshipid);
+         Integer rid = Integer.valueOf(relationshipid);
          Integer newCid =
              inlineLinkRelData.m_relIdContentIdMap.get(rid);
          if(newCid!=null)
@@ -1280,7 +1299,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
                   inlineLinkRelData.m_contentIdPathMap.put(entry, locatorList);
                }
 
-               if(locatorList.contains(new Integer(contentid))){
+               if(locatorList.contains(Integer.valueOf(contentid))){
                      contentid = entry.toString();
                      found = true;
                      break;
@@ -1369,19 +1388,18 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
     *    <code>IPSHtmlParameters.SYS_SITEID</code> of an element.
     *    It may be <code>null</code> or empty if not defined.
     * @param folderid item's parent folderid, may be <code>null</code> in which
-    *    case the request to teh variant will not have the folderid.
+    *    case the request to the variant will not have the folderid.
     * @param originalsiteid original siteid, may be <code>null</code> in which
-    *    case the request to teh variant will not have the original siteid.
+    *    case the request to the variant will not have the original siteid.
     * @param elem Variant output element which needs to be replaced if it is
     *    not <code>null</code>.
     * @param request IPSRequestContext Object assumed not null.
     * @return The element which contains the latest output of the specified
     *    variant. It may be <code>null</code> if an error occurs.
     * @throws PSCmsException if it is not able to fix last public revision
-    *    in the url that the elem holds.
+    *    in the URL that the elem holds.
     * 
     */
-   @SuppressWarnings("unchecked")
    private static Element replaceVariant(
       String pssessionid,
       String contentid,
@@ -1418,7 +1436,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
        }
 
        //Build a map of required attributes
-       Map paramMap = new HashMap(6);
+       Map<String, Object> paramMap = new HashMap<>(6);
        paramMap.put(IPSHtmlParameters.SYS_SESSIONID, pssessionid);
        paramMap.put(IPSHtmlParameters.SYS_CONTEXT, context);
        paramMap.put(IPSHtmlParameters.SYS_AUTHTYPE, authtype);
@@ -1537,7 +1555,7 @@ public class PSSingleValueBuilder extends PSDisplayFieldBuilder
       }
        
       byte[] byteResult = null;
-      if (result.getStatus() != Status.SUCCESS)
+      if (!result.isSuccess())
       {
          request.printTraceMessage("Failed to expand inline template");
          return null;

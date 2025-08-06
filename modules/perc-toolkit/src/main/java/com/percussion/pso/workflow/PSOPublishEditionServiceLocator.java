@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 package com.percussion.pso.workflow;
+// REFACTORED: CP-JAVA11
 import com.percussion.services.PSBaseServiceLocator;
 /*
  *  PSOPublishEditionServiceLocator.java

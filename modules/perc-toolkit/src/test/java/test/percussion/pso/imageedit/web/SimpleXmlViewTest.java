@@ -22,15 +22,15 @@
  */
 package test.percussion.pso.imageedit.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.w3c.dom.Document;
@@ -44,7 +44,7 @@ public class SimpleXmlViewTest
    private static final Logger log = LogManager.getLogger(SimpleXmlViewTest.class);
    SimpleXmlView cut; 
    Map<String, Object> model; 
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new SimpleXmlView();

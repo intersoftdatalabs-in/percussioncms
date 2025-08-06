@@ -23,8 +23,8 @@ import com.percussion.extension.PSExtensionParams;
 import com.percussion.extension.PSSimpleJavaUdfExtension;
 import com.percussion.server.IPSInternalRequest;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSUrlUtils;
+import com.percussion.system.utils.PSUrlUtils;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXPathEvaluator;
 import org.w3c.dom.Document;
 

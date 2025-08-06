@@ -19,13 +19,14 @@
 
 package com.percussion.rest.editions;
 
-import com.percussion.util.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.percussion.system.utils.PSSiteManageBean;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;

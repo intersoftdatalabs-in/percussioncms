@@ -18,6 +18,7 @@ package com.percussion.pso.effects;
 import java.util.ArrayList;
 import java.util.List;
 
+// REFACTORED: CP-JAVA11
 
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSLocator;

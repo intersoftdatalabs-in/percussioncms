@@ -465,6 +465,7 @@ public class PSKeyword implements Serializable, IPSCatalogSummary,
          .append("label", label)
          .append("description", description)
          .append("sequence", sequence)
+         .toString();
    }
 
    /*

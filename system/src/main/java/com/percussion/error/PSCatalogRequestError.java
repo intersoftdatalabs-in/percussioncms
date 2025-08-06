@@ -1,5 +1,6 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
+// REFACTORED: CP-JAVA11
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +33,7 @@ import java.util.Locale;
  * @version    1.0
  * @since      1.0
  */
+// REFACTORED: CP-JAVA11
 public class PSCatalogRequestError extends PSLogError
 {
    /**
@@ -72,8 +74,8 @@ public class PSCatalogRequestError extends PSLogError
    }
 
    /**
-    * sublcasses must override this to build the messages in the
-    * specified locale
+    * Subclasses must override this to build the messages in the
+    * specified locale.
     */
    protected PSLogSubMessage[] buildSubMessages(Locale loc)
    {

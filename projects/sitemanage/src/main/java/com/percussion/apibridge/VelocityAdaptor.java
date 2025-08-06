@@ -20,7 +20,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.rest.velocity.IVelocityAdaptor;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 
 /**
  * Adaptor for Velocity-related operations in Percussion CMS.

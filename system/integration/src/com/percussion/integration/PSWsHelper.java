@@ -68,7 +68,7 @@ import com.percussion.integration.webservices.search.wsdl.SearchPort;
 import com.percussion.integration.webservices.search.wsdl.SearchServicesLocator;
 import com.percussion.integration.webservices.standarditem.ContentKey;
 import com.percussion.integration.webservices.standarditem.Item;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.io.IOException;
 import java.math.BigInteger;

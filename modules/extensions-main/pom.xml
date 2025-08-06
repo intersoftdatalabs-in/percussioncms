@@ -65,7 +65,7 @@
        <dependency>
            <groupId>junit</groupId>
            <artifactId>junit</artifactId>
-           <scope>test</scope>
+           <version>${junit.version}</version><scope>test</scope>
        </dependency>
        <dependency>
            <groupId>commons-lang</groupId>

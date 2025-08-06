@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// REFACTORED: CP-JAVA11
 /**
  * This plugin scans all menu actions (RXMENUACTION). For each menu action it
  * checks to see if there is a known ACL by asking the acl service. If there is
@@ -72,27 +73,27 @@ import java.util.Map;
  *  
  * @author dougrand
  */
-public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase
-{
+// REFACTORED: CP-JAVA11
+public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase {
    /**
     * ACL service
     */
-   private static IPSAclService ms_acl = PSAclServiceLocator.getAclService();
+   private static final IPSAclService ms_acl = PSAclServiceLocator.getAclService();
 
    private IPSUpgradeModule m_config;
-   
+
    /**
     * Map of actionid and communities that the action is hidden for. Initialized
     * in {@link #process(IPSUpgradeModule, Element)}. Never <code>null</code>, may be empty.
     */
-   private Map m_actionCommVis = new HashMap();
-   
+   private final Map<Integer, List<Integer>> m_actionCommVis = new HashMap<>();
+
    /**
-    * Communties' id name map, initialized in the
+    * Communities' id name map, initialized in the
     * {@link #process(IPSUpgradeModule, Element)}. Never <code>null</code> or
     * empty (unless a system has no communities at all!).
     */
-   private Map m_communityNames = new HashMap();
+   private final Map<Integer, String> m_communityNames = new HashMap<>();
 
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
    {
@@ -113,25 +114,20 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase
          ResultSet rs = st.executeQuery();
          while (rs.next())
          {
-            Integer actionid = new Integer(rs.getInt(1));
-            Integer commid = new Integer(rs.getInt(2));
-            List comids = (List) m_actionCommVis.get(actionid);
-            if(comids == null)
-            {
-               comids = new ArrayList();
+            Integer actionid = Integer.valueOf(rs.getInt(1));
+            Integer commid = Integer.valueOf(rs.getInt(2));
+            List<Integer> comids = m_actionCommVis.get(actionid);
+            if (comids == null) {
+               comids = new ArrayList<>();
                m_actionCommVis.put(actionid, comids);
             }
             comids.add(commid);
          }
          //
          //Initialize community id-name map.
-         List comms = PSRoleMgrLocator.getBackEndRoleManager()
-            .findCommunitiesByName(null);
-         for (int i=0; i<comms.size(); i++)
-         {
-            PSCommunity community = (PSCommunity)comms.get(i);
-            m_communityNames.put(new Integer(community.getGUID().getUUID()),
-                  community.getName());
+         List<PSCommunity> comms = PSRoleMgrLocator.getBackEndRoleManager().findCommunitiesByName(null);
+         for (PSCommunity community : comms) {
+            m_communityNames.put(Integer.valueOf(community.getGUID().getUUID()), community.getName());
          }
          //
          
@@ -235,6 +231,7 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase
          logger.println("ACL created for actionid " + actionid);
       }
       // Translate community permissions from RXMENUVISIBILITY table to ACLs
+// REFACTORED: CP-JAVA11
       if(!m_actionCommVis.isEmpty())
       {
          //only if RXMENUVISIBILITY has entries for community context.
@@ -263,13 +260,11 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase
       getLogger().println(
          "Porting community permisions from RXMENUVISIBILTY "
             + "table for action with actionid=" + action.getUUID());
-      List comids = (List) m_actionCommVis.get(new Integer(action.getUUID()));
+      List<Integer> comids = m_actionCommVis.get(Integer.valueOf(action.getUUID()));
       if (comids == null || comids.isEmpty())
          return;
-      for (int i=0; i<comids.size(); i++)
-      {
-         Integer comid = (Integer) comids.get(i);
-         String comName = (String) m_communityNames.get(comid);
+      for (Integer comid : comids) {
+         String comName = m_communityNames.get(comid);
          if (StringUtils.isEmpty(comName))
          {
             getLogger().println(
@@ -294,7 +289,7 @@ public class PSCreateMenuVisibilityAcls extends PSSpringUpgradePluginBase
          }
       }
       // Save
-      List acls = new ArrayList();
+      List<IPSAcl> acls = new ArrayList<>();
       acls.add(acl);
       ms_acl.saveAcls(acls);
       getLogger().println("Porting community done");

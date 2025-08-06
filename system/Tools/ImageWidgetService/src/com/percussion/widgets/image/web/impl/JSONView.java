@@ -217,7 +217,8 @@ public class JSONView extends AbstractView implements View {
      */
     private String extractNamedJsonObject(Map<String, Object> model, RenderContext context) {
         var jsonObj = model.get(modelObjectName);
-        if (jsonObj instanceof JSON json) {
+        if (jsonObj instanceof JSON) {
+            JSON json = (JSON) jsonObj;
             return formatJson(json, context.debug());
         }
 
@@ -322,17 +323,24 @@ public class JSONView extends AbstractView implements View {
     }
 
     /**
-     * Record representing the render context for JSON view rendering.
-     *
-     * @param debug whether to use debug formatting
-     * @param forceHtml whether to force HTML wrapping
-     * @param jQueryFormFile whether this is a jQuery form file upload
-     * @param isAjax whether this is an AJAX request
+     * POJO representing the render context for JSON view rendering.
      */
-    private record RenderContext(
-        boolean debug,
-        boolean forceHtml,
-        boolean jQueryFormFile,
-        boolean isAjax
-    ) {}
+    private static class RenderContext {
+        private final boolean debug;
+        private final boolean forceHtml;
+        private final boolean jQueryFormFile;
+        private final boolean isAjax;
+
+        public RenderContext(boolean debug, boolean forceHtml, boolean jQueryFormFile, boolean isAjax) {
+            this.debug = debug;
+            this.forceHtml = forceHtml;
+            this.jQueryFormFile = jQueryFormFile;
+            this.isAjax = isAjax;
+        }
+
+        public boolean debug() { return debug; }
+        public boolean forceHtml() { return forceHtml; }
+        public boolean jQueryFormFile() { return jQueryFormFile; }
+        public boolean isAjax() { return isAjax; }
+    }
 }

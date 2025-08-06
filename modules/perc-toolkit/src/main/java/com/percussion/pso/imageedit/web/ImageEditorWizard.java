@@ -28,7 +28,7 @@ import com.percussion.pso.imageedit.services.ImageSizeDefinitionManager;
 import com.percussion.pso.imageedit.services.ImageSizeDefinitionManagerLocator;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManager;
 import com.percussion.pso.imageedit.services.cache.ImageCacheManagerLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;

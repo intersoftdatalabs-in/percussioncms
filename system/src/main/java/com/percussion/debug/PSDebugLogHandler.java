@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,8 @@ import java.util.ResourceBundle;
  * delegating that to one of the classes derived from IPSTraceMessage.  This class also maintains a reference to the ouput stream that is used to when sending a trace message.  Currently that is to a file in the application directory, but 
  * ultimately that may be to a remote debugging console or other Output Streams.
  */
-public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateListener
-{
+// REFACTORED: CP-JAVA11
+public class PSDebugLogHandler extends PSLogHandler implements IPSTraceStateListener {
 
    /**
     * Stores the log and trace options for this handler's application.  Checks to see 

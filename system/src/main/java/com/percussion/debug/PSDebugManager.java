@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Singleton used to manage all DebugLogHandlers and the output stream used by
  * tracing and debug logging
  */
-public class PSDebugManager
-{
+// REFACTORED: CP-JAVA11
+public class PSDebugManager {
 
    /**
     * Used to obtain the singleton instance of the DebugManager.  If an instance

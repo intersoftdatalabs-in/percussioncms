@@ -22,13 +22,7 @@
   <build>
 
        <plugins>
-           <plugin>
-           <groupId>com.github.spotbugs</groupId>
-           <artifactId>spotbugs-maven-plugin</artifactId>
-               <configuration>
-                   <skip>true</skip>
-               </configuration>
-           </plugin>
+        
       <!--
       Copies the additional distribution content over the unpacked jetty-home
       artifact contents, after the antrun execution that initially populates
@@ -172,9 +166,9 @@
                             <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
                         </artifactItem>
                         <artifactItem>
-                            <groupId>com.oracle</groupId>
-                            <artifactId>ojdbc6</artifactId>
-                            <version>${oracle.version}</version>
+                            <groupId>com.oracle.database.jdbc</groupId>
+                            <artifactId>ojdbc8</artifactId>
+                            <!-- Inherit version 19.3.0.0 from parent dependencyManagement -->
                             <type>jar</type>
                             <overWrite>true</overWrite>
                             <outputDirectory>${assembly-directory}/base/lib/jdbc</outputDirectory>
@@ -367,8 +361,8 @@
           <scope>provided</scope>
       </dependency>
       <dependency>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
+          <groupId>com.oracle.database.jdbc</groupId>
+          <artifactId>ojdbc8</artifactId>
           <scope>provided</scope>
       </dependency>
       <dependency>

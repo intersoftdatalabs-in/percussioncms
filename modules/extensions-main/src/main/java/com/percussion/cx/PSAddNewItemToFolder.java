@@ -22,7 +22,7 @@ import com.percussion.extension.*;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSConsole;
 import com.percussion.server.webservices.PSServerFolderProcessor;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.w3c.dom.Document;
 
 import java.io.File;

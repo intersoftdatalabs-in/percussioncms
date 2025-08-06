@@ -26,7 +26,8 @@ import com.percussion.role.data.PSRole;
 import com.percussion.role.service.impl.PSRoleService;
 import com.percussion.share.data.PSStringWrapper;
 import com.percussion.share.service.exception.PSDataServiceException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 

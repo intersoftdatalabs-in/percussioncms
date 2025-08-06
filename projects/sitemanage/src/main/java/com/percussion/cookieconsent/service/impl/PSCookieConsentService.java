@@ -28,7 +28,7 @@ import com.percussion.pubserver.IPSPubServerService;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.request.PSRequestInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

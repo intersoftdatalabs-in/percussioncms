@@ -40,7 +40,7 @@ import com.percussion.server.PSResponse;
 import com.percussion.server.PSServer;
 import com.percussion.server.webservices.IPSWebServicesErrors;
 import com.percussion.server.webservices.PSWebServicesBaseHandler;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

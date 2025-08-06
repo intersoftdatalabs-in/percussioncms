@@ -31,7 +31,7 @@ import com.percussion.server.PSRequestParsingException;
 import com.percussion.server.PSServer;
 import com.percussion.server.PSUserSessionManager;
 import com.percussion.tools.PSURIEncoder;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.tools.IPSUtilsConstants;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;

@@ -151,6 +151,7 @@ public abstract class PSModifyPlanBuilder
 
    /**
     * Walks the mapper and builds a list of all tables that the display mappings
+// REFACTORED: CP-JAVA11
     * reference.  For any mappings that reference a field not found
     * in the provided fieldSet, will check any immediate child fieldsets of
     * the type {@link PSFieldSet#TYPE_MULTI_PROPERTY_SIMPLE_CHILD} for that
@@ -169,11 +170,21 @@ public abstract class PSModifyPlanBuilder
       if (dispMapper == null || fieldSet == null)
          throw new IllegalArgumentException("One or more params is null");
 
-      Map tables = new HashMap();
-      Iterator mappings = dispMapper.iterator();
+      Map<String, PSBackEndTable> tables = new HashMap<>();
+      Iterator<?> mappingsRaw = dispMapper.iterator();
+      Iterator<PSDisplayMapping> mappings = new Iterator<PSDisplayMapping>() {
+         @Override
+         public boolean hasNext() {
+            return mappingsRaw.hasNext();
+         }
+         @Override
+         public PSDisplayMapping next() {
+            return (PSDisplayMapping) mappingsRaw.next();
+         }
+      };
       while (mappings.hasNext())
       {
-         PSDisplayMapping mapping = (PSDisplayMapping)mappings.next();
+         PSDisplayMapping mapping = mappings.next();
          String fieldRef = mapping.getFieldRef();
          Object o = fieldSet.get(fieldRef);
          if (o instanceof PSFieldSet)
@@ -276,7 +287,7 @@ public abstract class PSModifyPlanBuilder
          dataMapper.add(dataMapping);
 
          // set up selection key for contentid
-         HashMap selectionKeys = new HashMap();
+         HashMap<String, String> selectionKeys = new HashMap<>();
          selectionKeys.put(contentIdCol.getColumn(),
             contentIdParam);
 
@@ -285,7 +296,7 @@ public abstract class PSModifyPlanBuilder
             null);
 
          // now create the validations
-         Map validations = new HashMap();
+         Map<String, PSSingleHtmlParameter> validations = new HashMap<>();
          validations.put(IPSConstants.ITEM_EDITREVISION,
             new PSSingleHtmlParameter(editRevParam));
 
@@ -319,7 +330,7 @@ public abstract class PSModifyPlanBuilder
       if (mapper == null || fieldSet == null)
          throw new IllegalArgumentException("One or more params is null");
 
-      ArrayList updateSysMappings =
+      ArrayList<PSSystemMapping> updateSysMappings =
          PSApplicationBuilder.getSystemUpdateMappings(m_ceHandler, m_ce);
       updateSysMappings = addTableKeys(updateSysMappings,
          mapper, fieldSet);
@@ -339,14 +350,14 @@ public abstract class PSModifyPlanBuilder
     *
     * @return A data mapper with the required mappings, never <code>null</code>.
     */
-   protected ArrayList getSystemDeleteMappings(PSDisplayMapper mapper,
+   protected ArrayList<PSSystemMapping> getSystemDeleteMappings(PSDisplayMapper mapper,
       PSFieldSet fieldSet)
    {
       if (mapper == null || fieldSet == null)
          throw new IllegalArgumentException("One or more params is null");
 
       // add the system mappings
-      ArrayList deleteMappings = new ArrayList();     
+      ArrayList<PSSystemMapping> deleteMappings = new ArrayList<>();     
       String sysTableRef =
          PSContentEditorSystemDef.CONTENT_STATUS_TABLE_ALIAS;
       PSBackEndTable sysTable = new PSBackEndTable(sysTableRef);
@@ -391,15 +402,25 @@ public abstract class PSModifyPlanBuilder
     * <code>null</code>.
     * @return A data mapper with the required mappings, never <code>null</code>.
     */
-   protected List getDeleteChildMappings(PSDisplayMapper mapper,
+   protected List<PSSystemMapping> getDeleteChildMappings(PSDisplayMapper mapper,
            PSFieldSet fieldSet)
    {
-       List deleteChildMappings = new ArrayList(); 
+       List<PSSystemMapping> deleteChildMappings = new ArrayList<>(); 
        
-       Iterator mappings = mapper.iterator();
+       Iterator<?> mappingsRaw = mapper.iterator();
+       Iterator<PSDisplayMapping> mappings = new Iterator<PSDisplayMapping>() {
+          @Override
+          public boolean hasNext() {
+             return mappingsRaw.hasNext();
+          }
+          @Override
+          public PSDisplayMapping next() {
+             return (PSDisplayMapping) mappingsRaw.next();
+          }
+       };
        while (mappings.hasNext())
        {
-          PSDisplayMapping mapping = (PSDisplayMapping)mappings.next();
+          PSDisplayMapping mapping = mappings.next();
           PSDisplayMapper childMapper = mapping.getDisplayMapper();
           if (childMapper == null)
              continue;
@@ -433,7 +454,7 @@ public abstract class PSModifyPlanBuilder
     * @throws PSSystemValidationException if any field's table cannot be located.
     * @throws SQLException if the column type cannot be determined
     */
-   protected List getBinaryFields(PSFieldSet fieldSet)
+   protected List<PSField> getBinaryFields(PSFieldSet fieldSet)
       throws SQLException, PSSystemValidationException
    {
       if (fieldSet == null)
@@ -450,7 +471,7 @@ public abstract class PSModifyPlanBuilder
     * @param checkChildren If <code>true</code>, binary fields located in any
     * immediate SDMP fieldsets will be included in the resulting list.
     */
-   private List getBinaryFields(PSFieldSet fieldSet, boolean checkChildren)
+   private List<PSField> getBinaryFields(PSFieldSet fieldSet, boolean checkChildren)
       throws SQLException, PSSystemValidationException
    {
       if (fieldSet == null)
@@ -458,7 +479,7 @@ public abstract class PSModifyPlanBuilder
 
       // see if we've already checked this fieldSet - may be null in the map
       if (m_binaryFields.containsKey(fieldSet))
-         return ((List)m_binaryFields.get(fieldSet));
+         return m_binaryFields.get(fieldSet);
 
       PSContentEditorPipe pipe =
          (PSContentEditorPipe)m_ce.getPipe();
@@ -467,8 +488,18 @@ public abstract class PSModifyPlanBuilder
          pipe.getLocator().getTableSets());
 
       // walk the fields looking for binary fields
-      List binFields = new ArrayList();
-      Iterator fields = fieldSet.getAll();
+      List<PSField> binFields = new ArrayList<>();
+      Iterator<?> fieldsRaw = fieldSet.getAll();
+      Iterator<Object> fields = new Iterator<Object>() {
+         @Override
+         public boolean hasNext() {
+            return fieldsRaw.hasNext();
+         }
+         @Override
+         public Object next() {
+            return fieldsRaw.next();
+         }
+      };
       while (fields.hasNext())
       {
          Object o = fields.next();
@@ -547,7 +578,7 @@ public abstract class PSModifyPlanBuilder
     * @see #addTableKeys(ArrayList, PSDisplayMapper, PSFieldSet, boolean)
     * addTableKeys
     */
-   protected ArrayList addTableKeys(ArrayList mappings,
+   protected ArrayList<PSSystemMapping> addTableKeys(ArrayList<PSSystemMapping> mappings,
       PSDisplayMapper dispMapper, PSFieldSet fieldSet)
    {
       return addTableKeys(mappings, dispMapper, fieldSet, false);
@@ -575,13 +606,13 @@ public abstract class PSModifyPlanBuilder
     * @return A copy of the supplied mappings, with the new entries added.  The
     * original mappings are not modified.  Never <code>null</code>.
     */
-   protected ArrayList addTableKeys(ArrayList mappings,
+   protected ArrayList<PSSystemMapping> addTableKeys(ArrayList<PSSystemMapping> mappings,
       PSDisplayMapper dispMapper, PSFieldSet fieldSet, boolean updateSequence)
    {
       if (mappings == null || dispMapper == null || fieldSet == null)
          throw new IllegalArgumentException("One or more params is null");
 
-      ArrayList resultMappings = (ArrayList)mappings.clone();
+      ArrayList<PSSystemMapping> resultMappings = new ArrayList<>(mappings);
 
       // get table used by the mapper's fieldSet to add complex child keys
       PSBackEndTable table = getMapperTable(dispMapper, fieldSet);
@@ -633,13 +664,13 @@ public abstract class PSModifyPlanBuilder
     * @return A copy of the supplied mappings, with the new entries added.  The
     * original mappings are not modified.  Never <code>null</code>.
     */
-   protected List addTableKeysForDelete(List mappings,
+   protected List<PSSystemMapping> addTableKeysForDelete(List<PSSystemMapping> mappings,
       PSDisplayMapper dispMapper, PSFieldSet fieldSet)
    {
       if (mappings == null || dispMapper == null || fieldSet == null)
          throw new IllegalArgumentException("One or more params is null");
 
-      List resultMappings = (List)((ArrayList)mappings).clone();
+      List<PSSystemMapping> resultMappings = new ArrayList<>(mappings);
 
 
       // get all tables used by the mapper and add keys all tables must have
@@ -665,7 +696,7 @@ public abstract class PSModifyPlanBuilder
     * @param mappings The list of mappings to append to.  Assumed not
     * <code>null</code>.
     */
-   private void addCommonTableKeys(PSBackEndTable table, List mappings)
+   private void addCommonTableKeys(PSBackEndTable table, List<PSSystemMapping> mappings)
    {
       // all tables must have the following
       PSSystemMapping sysMapping = new PSSystemMapping(table,
@@ -686,7 +717,7 @@ public abstract class PSModifyPlanBuilder
     * Adds contentid key to the mappings using the specified table.
     * This is specific for delete/purge item operation
     */
-   private void addCommonTableKeysForDelete(PSBackEndTable table, List mappings)
+   private void addCommonTableKeysForDelete(PSBackEndTable table, List<PSSystemMapping> mappings)
    {
       // all tables must have the following
       PSSystemMapping sysMapping = new PSSystemMapping(table,
@@ -757,7 +788,7 @@ public abstract class PSModifyPlanBuilder
     * fields.  Never <code>null</code>, entries are added by calls to {@link
     * #getBinaryFields(PSFieldSet, boolean) getBinaryFields()}.
     */
-   private Map m_binaryFields = new HashMap();
+   private Map<PSFieldSet, List<PSField>> m_binaryFields = new HashMap<>();
 
    /**
     * The content editor dataset this handler is processing commands

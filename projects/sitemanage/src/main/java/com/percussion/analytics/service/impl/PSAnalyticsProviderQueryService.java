@@ -21,7 +21,7 @@ import com.percussion.analytics.error.PSAnalyticsProviderException;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.share.service.exception.PSValidationException;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.utils.date.PSDateRange;
 import org.springframework.beans.factory.annotation.Autowired;
 

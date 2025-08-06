@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,37 +26,33 @@ import org.w3c.dom.UserDataHandler;
 /**
  * Adds some convenience methods to the DOM node interface.
  */
-public abstract class HTMLNode implements Node
-{
-   public HTMLNode()
-   {
+// REFACTORED: CP-JAVA11
+public abstract class HTMLNode implements Node {
+   // m_value and m_children are already defined above
+
+   public HTMLNode() {
       m_value = new StringBuilder();
       m_children = new HTMLNodeList();
    }
 
    ///////////////////////// our stuff
-   public void setParentNode(HTMLNode parent)
-   {
+   public void setParentNode(HTMLNode parent) {
       m_parent = parent;
    }
 
-   public int getNumChildNodes()
-   {
+   public int getNumChildNodes() {
       return m_children.size();
    }
 
-   public void setPreviousSibling(HTMLNode prevSibling)
-   {
+   public void setPreviousSibling(HTMLNode prevSibling) {
       m_prevSib = prevSibling;
    }
 
-   public void setNextSibling(HTMLNode nextSibling)
-   {
+   public void setNextSibling(HTMLNode nextSibling) {
       m_nextSib = nextSibling;
    }
 
-   public void setOwnerDocument(Document doc)
-   {
+   public void setOwnerDocument(Document doc) {
       m_ownerDoc = doc;
    }
 

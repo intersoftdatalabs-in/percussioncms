@@ -34,7 +34,7 @@ import static org.apache.commons.lang.Validate.notNull;
 
 
 public class ListBuilderJexl implements IPSJexlExpression {
-
+    // REFACTORED: CP-JAVA11
 
     private static final String PROPERTY_PREFIX = "rx:soln_list_";
     private static final String MANUAL_SLOT_NAME = "soln_list_ManualSlot";

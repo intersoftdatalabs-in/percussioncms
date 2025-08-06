@@ -29,7 +29,7 @@ import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.services.publisher.IPSPublisherService;
 import com.percussion.services.publisher.PSPublisherServiceLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSUrlUtils;
 import com.percussion.utils.guid.IPSGuid;
 

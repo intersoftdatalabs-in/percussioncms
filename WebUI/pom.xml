@@ -577,12 +577,6 @@
             <groupId>com.percussion</groupId>
             <artifactId>perc-jetty-jars</artifactId>
             <version>${project.parent.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
             <scope>provided</scope>
         </dependency>
 
@@ -953,13 +947,7 @@
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-discovery</groupId>
-            <artifactId>commons-discovery</artifactId>
-        </dependency>
-        <dependency>
+        </dependency><dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcmail-jdk15to18</artifactId>
         </dependency>
@@ -990,8 +978,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
             <scope>provided</scope>
         </dependency>
 

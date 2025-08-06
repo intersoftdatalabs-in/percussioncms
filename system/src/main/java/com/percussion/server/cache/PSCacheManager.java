@@ -24,7 +24,7 @@ import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSCachedResponse;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCacheException;
 
 import java.util.ArrayList;

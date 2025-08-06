@@ -77,7 +77,8 @@ public class ImageCacheManagerImpl implements ImageCacheManager {
         }
 
         var objectValue = element.getObjectValue();
-        if (objectValue instanceof ImageData imageData) {
+        if (objectValue instanceof ImageData) {
+            ImageData imageData = (ImageData) objectValue;
             log.debug("Retrieved image data for key: {}", imageKey);
             return imageData;
         }

@@ -348,3 +348,6 @@ public interface IPSAclService {
     /**
      * Internal implementation for ACL validation.
      */
+    Optional<String> validateAclImpl(IPSAcl acl);
+
+}

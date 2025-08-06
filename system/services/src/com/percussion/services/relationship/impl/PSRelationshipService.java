@@ -31,7 +31,8 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.services.relationship.IPSRelationshipService;
 import com.percussion.services.relationship.data.PSRelationshipConfigName;
 import com.percussion.services.relationship.data.PSRelationshipData;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.query.Query;

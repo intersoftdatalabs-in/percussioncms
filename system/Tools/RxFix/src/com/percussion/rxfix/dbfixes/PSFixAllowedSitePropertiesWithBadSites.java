@@ -56,7 +56,7 @@ public class PSFixAllowedSitePropertiesWithBadSites extends PSFixDBBase implemen
    public PSFixAllowedSitePropertiesWithBadSites() throws NamingException, SQLException
    {
       super();
-      // TODO Auto-generated constructor stub
+      
    }
 
    @Override

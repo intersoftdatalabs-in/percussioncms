@@ -21,7 +21,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSAaRelationship;
 import com.percussion.content.ui.aa.actions.PSAAClientActionException;
 import com.percussion.content.ui.aa.actions.PSActionResponse;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Map;

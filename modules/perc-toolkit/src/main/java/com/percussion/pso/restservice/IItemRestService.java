@@ -16,6 +16,7 @@
  */
  package com.percussion.pso.restservice;
 
+// REFACTORED: CP-JAVA11
 import com.percussion.pso.restservice.exception.ItemRestException;
 import com.percussion.pso.restservice.model.Item;
 import com.percussion.pso.restservice.model.Items;
@@ -129,6 +130,7 @@ public interface IItemRestService {
 	@Path("/Type/{typename}")
 	public PagedResult getTypeItems(@PathParam("typename") String type,@QueryParam("n") Integer n);
 
+	// REFACTORED: CP-JAVA11
 	
 	@GET
 	@Path("{id}/{rev}/field/{fieldname}")

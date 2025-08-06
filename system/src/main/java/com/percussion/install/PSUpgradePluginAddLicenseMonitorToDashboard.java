@@ -36,6 +36,7 @@ import static com.percussion.utils.container.IPSJdbcDbmsDefConstants.PWD_ENCRYPT
 /**
  * Adds the License Monitor gadget to the Dashboard of each Admin user
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePlugin
 {
    /**
@@ -121,7 +122,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
          for (String admin : admins)
          {
             // Only select rows with admin users and with Dashboard metadata
-            String query = "Select * FROM " + this.UPDATED_TABLE + " WHERE METAKEY = 'perc.user." + admin + ".dash.page.0'";
+            String query = "Select * FROM " + UPDATED_TABLE + " WHERE METAKEY = 'perc.user." + admin + ".dash.page.0'";
             PreparedStatement ps = conn.prepareStatement(query);
             ResultSet results = ps.executeQuery();
             
@@ -142,7 +143,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
             logger.println("+ Modified dashboard configuration: " + modifiedDashboard);
    
             // Prepare the corresponding query to update the row
-            String updateDataValueQuery = "UPDATE " + this.UPDATED_TABLE + " SET METAKEY = ?, DATA = ? WHERE METAKEY = '" + results.getString("METAKEY") + "'";
+            String updateDataValueQuery = "UPDATE " + UPDATED_TABLE + " SET METAKEY = ?, DATA = ? WHERE METAKEY = '" + results.getString("METAKEY") + "'";
             PreparedStatement ps2 = conn.prepareStatement(updateDataValueQuery);
             ps2.setString(1, results.getString("METAKEY"));     // METAKEY column
             ps2.setClob(2, new SerialClob(modifiedDashboard.toCharArray())); // DATA column
@@ -274,9 +275,9 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
    private String getNewGadgetJSON(int instanceId)
    {
       String licenseMonitorGadget = "{\"instanceId\":" + instanceId + ",";
-      licenseMonitorGadget += "\"url\":\"" + this.NEW_GADGET_URL + "\",";
-      licenseMonitorGadget += "\"col\":" + this.NEW_GADGET_COLUMN + ",";
-      licenseMonitorGadget += "\"row\":" + this.NEW_GADGET_ROW + ",";
+      licenseMonitorGadget += "\"url\":\"" + NEW_GADGET_URL + "\",";
+      licenseMonitorGadget += "\"col\":" + NEW_GADGET_COLUMN + ",";
+      licenseMonitorGadget += "\"row\":" + NEW_GADGET_ROW + ",";
       licenseMonitorGadget += "\"expanded\":true}";
       
       // If instance id > 0, there is (or there are) JSON(s) representing other gadget(s)

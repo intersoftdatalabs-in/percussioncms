@@ -43,7 +43,7 @@ public class PSRequestInfoTest extends TestCase
     */
    public PSRequestInfoTest(String arg0) {
       super(arg0);
-      // TODO Auto-generated constructor stub
+      
    }
    
    @Test

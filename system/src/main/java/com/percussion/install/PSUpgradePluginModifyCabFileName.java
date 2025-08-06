@@ -32,6 +32,7 @@ import java.io.PrintWriter;
  * need to be run on upgrade from 20011114 to 20020320 only.
  */
 
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginModifyCabFileName implements IPSUpgradePlugin
 {
    /**

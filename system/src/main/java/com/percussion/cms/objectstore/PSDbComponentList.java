@@ -87,7 +87,7 @@ public class PSDbComponentList extends PSDbComponent
    public PSDbComponentList(String className, String compType)
       throws ClassNotFoundException
    {
-      this(Class.forName(className), compType);
+      this((Class<? extends IPSDbComponent>) Class.forName(className), compType);
    }
 
 
@@ -95,7 +95,7 @@ public class PSDbComponentList extends PSDbComponent
     * Convenience method that calls {@link #PSDbComponentList(Class,
     * String) PSDbComponentList(className, null)}.
     */
-   public PSDbComponentList(Class compClass)
+   public PSDbComponentList(Class<? extends IPSDbComponent> compClass)
    {
       this(compClass, null);
    }
@@ -110,7 +110,7 @@ public class PSDbComponentList extends PSDbComponent
     *    is used. Each component added to this collection must match this
     *    name.
     */
-   public PSDbComponentList(Class compClass, String compType)
+   public PSDbComponentList(Class<? extends IPSDbComponent> compClass, String compType)
    {
       this();
       if (null == compClass)
@@ -169,7 +169,7 @@ public class PSDbComponentList extends PSDbComponent
     * @throws PSUnknownNodeTypeException If the supplied source element does
     *    not conform to the dtd defined in the <code>fromXml<code> method.
     */
-   public PSDbComponentList(Element[] items, Class compClass)
+   public PSDbComponentList(Element[] items, Class<? extends IPSDbComponent> compClass)
       throws PSUnknownNodeTypeException
    {
       this(items, compClass, null);
@@ -200,7 +200,7 @@ public class PSDbComponentList extends PSDbComponent
     * @throws PSUnknownNodeTypeException If the supplied source element does
     *    not conform to the dtd defined in the <code>fromXml<code> method.
     */
-   public PSDbComponentList(Element[] items, Class compClass, String compType)
+   public PSDbComponentList(Element[] items, Class<? extends IPSDbComponent> compClass, String compType)
       throws PSUnknownNodeTypeException
    {
       if (compClass == null)
@@ -273,7 +273,7 @@ public class PSDbComponentList extends PSDbComponent
     *    IPSSequencedComponent on added components. Otherwise, behaves like
     *    other ctors.
     */
-   PSDbComponentList(Class compClass, String compType, boolean sequenced)
+   PSDbComponentList(Class<? extends IPSDbComponent> compClass, String compType, boolean sequenced)
    {
       this(compClass, compType);
       m_ignoreSequencing = !sequenced;
@@ -293,7 +293,7 @@ public class PSDbComponentList extends PSDbComponent
     * @return class object contained by this list.
     *    Never <code>null</code>.
     */
-   public Class getMemberClass()
+   public Class<? extends IPSDbComponent> getMemberClass()
    {
       return m_class;
    }
@@ -329,7 +329,7 @@ public class PSDbComponentList extends PSDbComponent
       if (isEmpty())
          return root;
 
-      Iterator iter = iterator();
+      Iterator<IPSDbComponent> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent comp = (IPSDbComponent) iter.next();
@@ -457,11 +457,11 @@ public class PSDbComponentList extends PSDbComponent
                   strClass +=
                         PSStringOperation.replace(strNodeName, "PSX", "PS");
             }
-            m_class = Class.forName(strClass);
+            m_class = (Class<? extends IPSDbComponent>) Class.forName(strClass);
          }
 
          // Load the object and append to the current list
-         Constructor ctor = m_class.getConstructor(new Class[] {Element.class});
+         Constructor<? extends IPSDbComponent> ctor = m_class.getConstructor(new Class[] {Element.class});
          Element [] args = new Element[1];
          while (aEl != null && aEl.getNodeName().equalsIgnoreCase(strNodeName))
          {
@@ -593,7 +593,7 @@ public class PSDbComponentList extends PSDbComponent
    public void setPersisted()
       throws PSCmsException
    {
-      Iterator it = m_list.iterator();
+      Iterator<IPSDbComponent> it = m_list.iterator();
       while (it.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) it.next();
@@ -648,7 +648,7 @@ public class PSDbComponentList extends PSDbComponent
          return;
 
       // process deletes first
-      Iterator deletes = m_deleteList.iterator();
+      Iterator<IPSDbComponent> deletes = m_deleteList.iterator();
       while (deletes.hasNext())
       {
          PSDbComponent c = (PSDbComponent) deletes.next();
@@ -657,7 +657,7 @@ public class PSDbComponentList extends PSDbComponent
 
       int index = 0;
       // Modified list exists - create the xml for the server
-      Iterator iter = iterator();
+      Iterator<IPSDbComponent> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) iter.next();
@@ -719,7 +719,7 @@ public class PSDbComponentList extends PSDbComponent
       if (m_list.isEmpty())
          return DBSTATE_UNMODIFIED;
 
-      Iterator iter = iterator();
+      Iterator<IPSDbComponent> iter = iterator();
 
       // check the kids
       boolean allNew = true;
@@ -1062,7 +1062,7 @@ public class PSDbComponentList extends PSDbComponent
     * @return An iterator over 0 or more entries, each of which is an
     *    IPSDbComponent of the same type. Never <code>null</code>.
     */
-   public Iterator iterator()
+   public Iterator<IPSDbComponent> iterator()
    {
       return Collections.unmodifiableList(m_list).iterator();
    }
@@ -1074,7 +1074,7 @@ public class PSDbComponentList extends PSDbComponent
     * @return An iterator over 0 or more entries, each of which is an
     *    IPSDbComponent of the same type. Never <code>null</code>.
     */
-   public ListIterator listIterator()
+   public ListIterator<IPSDbComponent> listIterator()
    {
       return Collections.unmodifiableList(m_list).listIterator();
    }
@@ -1161,7 +1161,7 @@ public class PSDbComponentList extends PSDbComponent
    private int getIndex(IPSDbComponent comp)
    {
       int i = 0;
-      Iterator it = m_list.iterator();
+      Iterator<IPSDbComponent> it = m_list.iterator();
       while (it.hasNext())
       {
          if (((IPSDbComponent) it.next()).equals(comp))
@@ -1193,11 +1193,11 @@ public class PSDbComponentList extends PSDbComponent
       PSDbComponentList copy = null;
       copy = (PSDbComponentList) super.cloneFull();
 
-      copy.m_list = new ArrayList(); // objects added below
-      copy.m_deleteList = new ArrayList(); // objects added below
+      copy.m_list = new ArrayList<>(); // objects added below
+      copy.m_deleteList = new ArrayList<>(); // objects added below
 
-      Iterator iter = iterator();
-      Iterator delIter = m_deleteList.iterator();
+      Iterator<IPSDbComponent> iter = iterator();
+      Iterator<IPSDbComponent> delIter = m_deleteList.iterator();
 
       // Clone list of objects
       while (iter.hasNext())
@@ -1262,7 +1262,7 @@ public class PSDbComponentList extends PSDbComponent
          method, so we have to do it our selves */
       long hash = 0;
       long index = 1;
-      Iterator i = iterator();
+      Iterator<IPSDbComponent> i = iterator();
       while (i.hasNext())
       {
          Object obj = i.next();
@@ -1299,10 +1299,10 @@ public class PSDbComponentList extends PSDbComponent
          m_isCloning = false;
       }
 
-      copy.m_list = new ArrayList(); // objects added below
-      copy.m_deleteList = new ArrayList();
+      copy.m_list = new ArrayList<>(); // objects added below
+      copy.m_deleteList = new ArrayList<>();
 
-      Iterator iter = iterator();
+      Iterator<IPSDbComponent> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) iter.next();
@@ -1322,7 +1322,7 @@ public class PSDbComponentList extends PSDbComponent
     *    removed from this list. Never <code>null</code>, may be empty. This
     *    must be treated as read-only and should not be cached.
     */
-   Collection getDeleteCollection()
+   Collection<IPSDbComponent> getDeleteCollection()
    {
       return m_deleteList;
    }
@@ -1349,7 +1349,7 @@ public class PSDbComponentList extends PSDbComponent
 
       // Check each child, if any one is persisted return
       // true
-      Iterator comps = iterator();
+      Iterator<IPSDbComponent> comps = iterator();
       while (comps.hasNext())
       {
          if (((IPSDbComponent) comps.next()).isPersisted())
@@ -1374,7 +1374,7 @@ public class PSDbComponentList extends PSDbComponent
 
       // Check each child, if any one is persisted return
       // true
-      Iterator comps = iterator();
+      Iterator<IPSDbComponent> comps = iterator();
       while (comps.hasNext())
       {
          if (((IPSDbComponent) comps.next()).isAssigned())
@@ -1388,21 +1388,21 @@ public class PSDbComponentList extends PSDbComponent
     * Class object of child component being contained. Set by time ctor is
     * finished, then never changes after that (not even fromXml).
     */
-   private Class m_class = null;
+   private Class<? extends IPSDbComponent> m_class = null;
 
    /**
     * All the components managed by this list that have not been deleted.
     * Never <code>null</code>. Every entry is an IPSDbComponent of the same
     * class and implements IPSSequencedComponent.
     */
-   private List m_list = new ArrayList();
+   private List<IPSDbComponent> m_list = new ArrayList<>();
 
    /**
     * List of components that have been removed from this collection. Never
     * <code>null</code>. Every entry is an IPSDbComponent of the same
     * class that has a state equal to DBSTATE_MARKEDFORDELETE.
     */
-   private List m_deleteList = new ArrayList();
+   private List<IPSDbComponent> m_deleteList = new ArrayList<>();
 
    /**
     * We use this flag instead of the base's state attribute because of the

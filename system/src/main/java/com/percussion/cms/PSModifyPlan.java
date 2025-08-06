@@ -58,6 +58,7 @@ public class PSModifyPlan
 
    /**
     * Returns the type of this plan.  See {@link #PSModifyPlan(int)} for plan
+// REFACTORED: CP-JAVA11
     * types.
     *
     * @return the type.
@@ -82,7 +83,6 @@ public class PSModifyPlan
       m_steps.add(step);
    }
 
-   final Object stepLock = new Object();
 
    /**
     * Executes each step of the plan
@@ -112,11 +112,9 @@ public class PSModifyPlan
       int stepCount = 0;
       for (IPSModifyStep step : m_steps) {
          // need to synchronize on this in case another thread is checking
-         synchronized (stepLock) {
-            if (step.getHandler() == null)
-               step.setHandler(PSServer.getInternalRequestHandler(appName +
-                       "/" + step.getName()));
-         }
+         if (step.getHandler() == null)
+            step.setHandler(PSServer.getInternalRequestHandler(appName +
+                    "/" + step.getName()));
          step.execute(data);
          stepCount++;
       }
@@ -130,7 +128,7 @@ public class PSModifyPlan
     *
     * @return The Iterator, never <code>null</code>, may be empty.
     */
-   public Iterator getAllSteps()
+   public Iterator<IPSModifyStep> getAllSteps()
    {
       return m_steps.iterator();
    }
@@ -145,10 +143,10 @@ public class PSModifyPlan
     */
    public void addAllSteps(PSModifyPlan modifyPlan)
    {
-      Iterator steps = modifyPlan.getAllSteps();
+      Iterator<IPSModifyStep> steps = modifyPlan.getAllSteps();
       while (steps.hasNext())
       {
-         IPSModifyStep step = (IPSModifyStep)steps.next();
+         IPSModifyStep step = steps.next();
          addModifyStep(step);
       }
    }

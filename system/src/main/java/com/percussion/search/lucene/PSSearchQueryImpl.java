@@ -27,7 +27,7 @@ import com.percussion.search.PSSearchQuery;
 import com.percussion.search.PSSearchResult;
 import com.percussion.search.lucene.analyzer.PSLuceneAnalyzerFactory;
 import com.percussion.server.PSServer;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;

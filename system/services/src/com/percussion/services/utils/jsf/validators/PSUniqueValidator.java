@@ -98,7 +98,8 @@ public class PSUniqueValidator extends PSBaseValidator {
      * @return {@code true} if value is a duplicate, {@code false} otherwise
      */
     private boolean isDuplicateValue(Object value, Collection<? extends Object> existingValues) {
-        if (value instanceof String stringValue) {
+        if (value instanceof String) {
+            String stringValue = (String) value;
             return isDuplicateString(stringValue, existingValues);
         } else {
             return isDuplicateObject(value, existingValues);

@@ -57,12 +57,13 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
-            <resource>
+           <!--  <resource>
                 <directory>webservices/src</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
             </resource>
+            -->
             <resource>
                 <directory>beans/src</directory>
                 <excludes>
@@ -141,12 +142,14 @@
                     <exclude>**/*.java</exclude>
                 </excludes>
             </testResource>
+            <!--
             <testResource>
                 <directory>webservices/test</directory>
                 <excludes>
                     <exclude>**/*.java</exclude>
                 </excludes>
             </testResource>
+            -->
             <testResource>
                 <directory>Testing/src</directory>
                 <excludes>
@@ -190,8 +193,8 @@
                             <sources>
                                 <source>agenthandler/src</source>
                                 <source>Tools/ImageWidgetService/src</source>
-                                <source>webservices/sample/loader/java/src</source>
-                                <source>webservices/src</source>
+                              <!--  <source>webservices/sample/loader/java/src</source> 
+                                <source>webservices/src</source>-->
                                 <source>beans/src</source>
                                 <source>i18n/src</source>
                                 <source>release/src</source>
@@ -217,7 +220,7 @@
                             <sources>
                                 <source>Testing/src</source>
                                 <source>FastForward/SiteFolderPublishing/Exits/src/test/java</source>
-                                <source>webservices/test</source>
+                              <!--  <source>webservices/test</source> -->
                                 <source>Tools/RxFix/test</source>
                                 <source>Tools/ImageWidgetService/test</source>
                                 <source>release/test</source>
@@ -396,22 +399,12 @@
             <artifactId>tablefactory</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
+      <!--  <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>webservices</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-
+        -->
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
@@ -540,24 +533,13 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>jmock</groupId>
-            <artifactId>jmock-cglib</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>cglib</groupId>
-                    <artifactId>cglib</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jmock</groupId>
+            <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
+    
         <dependency>
             <groupId>simple-jndi</groupId>
             <artifactId>simple-jndi</artifactId>
@@ -1056,37 +1038,6 @@
             <artifactId>quartz</artifactId>
         </dependency>
 
-
-        <!-- bugs with code generation with 1.4 -->
-        <!-- axis dependencies -->
-        <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>${axiscore.version}</version>
-
-        </dependency>
-
-        <dependency>
-        <groupId>axis</groupId>
-        <artifactId>axis-saaj</artifactId>
-            <version>${axis.version}</version>
-
-        </dependency>
-        <dependency>
-            <groupId>wsdl4j</groupId>
-            <artifactId>wsdl4j</artifactId>
-        </dependency>
-        <!-- end axis dependencies -->
-
-        <!-- https://mvnrepository.com/artifact/javax.xml/jaxrpc-api for 
-            axis 1.1 -->
-        <dependency>
-            <groupId>javax.xml</groupId>
-            <artifactId>jaxrpc-api</artifactId>
-
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-imaging -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-imaging</artifactId>
@@ -1101,25 +1052,21 @@
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>axis</groupId>
+                    <artifactId>axis</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>axis</groupId>
+                    <artifactId>axis-jaxrpc</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-
-
-        <!-- https://mvnrepository.com/artifact/soap/soap -->
-        <dependency>
-            <groupId>soap</groupId>
-            <artifactId>soap</artifactId>
-
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.ant/ant -->
-        <!-- https://mvnrepository.com/artifact/org.apache.ant/ant-apache-oro -->
 
 
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-
         </dependency>
 
 
@@ -1150,11 +1097,6 @@
 
         </dependency>
 
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-        </dependency>
-
         <!-- Tools/ant build -->
         <!-- contains perforce tasks -->
         <dependency>
@@ -1181,13 +1123,6 @@
             <groupId>org.apache.ant</groupId>
             <artifactId>ant-commons-net</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>expectj</groupId>
-            <artifactId>expectj</artifactId>
-
-        </dependency>
-
 
         <!-- use api move core to when needed or set scope -->
         <dependency>
@@ -1458,25 +1393,7 @@
         <dependency>
             <groupId>xml-resolver</groupId>
             <artifactId>xml-resolver</artifactId>
-        </dependency>
-        <!-- JNLP support -->
-        <dependency>
-            <groupId>jardiff</groupId>
-            <artifactId>jardiff</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>jnlp-servlet</groupId>
-            <artifactId>jnlp-servlet</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.xml.rpc</groupId>
-            <artifactId>javax.xml.rpc-api</artifactId>
-            <version>1.1.2</version>
-        </dependency>
-        <dependency>
+        </dependency><dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-i18n</artifactId>
             <version>8.1.6-SNAPSHOT</version>
@@ -1489,15 +1406,4 @@
         </dependency>
 
     </dependencies>
-  <!--  <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
-    -->
-</project>
+  </project>

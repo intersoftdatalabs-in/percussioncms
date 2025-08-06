@@ -28,7 +28,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.extension.services.PSDatabasePool;
 import com.percussion.server.IPSServerErrors;
 import com.percussion.server.PSConsole;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSCacheException;
 import com.percussion.util.PSPreparedStatement;
 import com.percussion.util.PSSqlHelper;

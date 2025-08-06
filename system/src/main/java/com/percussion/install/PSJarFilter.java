@@ -36,6 +36,7 @@ import java.util.jar.JarOutputStream;
  * This class allows the installer to accept a jar file that has component
  * text files that need to be localized for the installation. 
  */
+// REFACTORED: CP-JAVA11
 public class PSJarFilter
 {
    /**
@@ -67,8 +68,8 @@ public class PSJarFilter
    public static void filter(
       File inputJar,
       File outputJar,
-      List filesToFilter,
-      Map environment)
+      List<String> filesToFilter,
+      Map<String, String> environment)
       throws IOException
    {
       if (inputJar == null)
@@ -91,25 +92,25 @@ public class PSJarFilter
       {
          throw new IllegalArgumentException("You must specify an environment");
       }
-
-      JarFile inputJarFile = new JarFile(inputJar);
-      Enumeration entries = inputJarFile.entries();
-      FileOutputStream output = new FileOutputStream(outputJar);
-      JarOutputStream outputJarStream = new JarOutputStream(output);
-      while (entries.hasMoreElements())
-      {
-         JarEntry entry = (JarEntry) entries.nextElement();
-         InputStream is = inputJarFile.getInputStream(entry);
-         if (filesToFilter.contains(entry.getName()))
-         {
-            copyFilterBytes(entry, is, outputJarStream, environment);
+      JarOutputStream outputJarStream = null;
+      try (JarFile inputJarFile = new JarFile(inputJar)) {
+         Enumeration<JarEntry> entries = inputJarFile.entries();
+         FileOutputStream output = new FileOutputStream(outputJar);
+         outputJarStream = new JarOutputStream(output);
+         while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            InputStream is = inputJarFile.getInputStream(entry);
+            if (filesToFilter.contains(entry.getName())) {
+               copyFilterBytes(entry, is, outputJarStream, environment);
+            } else {
+               copyBytes(entry, is, outputJarStream);
+            }
          }
-         else
-         {
-            copyBytes(entry, is, outputJarStream);
+      } finally {
+         if (outputJarStream != null) {
+            outputJarStream.close();
          }
       }
-      outputJarStream.close();
    }
 
    /**
@@ -129,7 +130,7 @@ public class PSJarFilter
       JarEntry entry,
       InputStream inputStream,
       JarOutputStream outputJarStream,
-      Map environment)
+      Map<String, String> environment)
       throws IOException
    {
       Reader reader = new InputStreamReader(inputStream);
@@ -170,7 +171,7 @@ public class PSJarFilter
     *           contains values for expansion, assumed not <code>null</code>
     * @return expanded string
     */
-   private static String expand(String line, Map environment)
+   private static String expand(String line, Map<String, String> environment)
       throws IOException
    {
       StringBuilder output = new StringBuilder(line.length());

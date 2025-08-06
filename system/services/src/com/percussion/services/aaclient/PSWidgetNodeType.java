@@ -115,12 +115,18 @@ public enum PSWidgetNodeType {
      * @return description string, never null
      */
     public String getDescription() {
-        return switch (this) {
-            case WIDGET_NODE_TYPE_PAGE -> "Active Assembly Page";
-            case WIDGET_NODE_TYPE_SLOT -> "Active Assembly Slot";
-            case WIDGET_NODE_TYPE_SNIPPET -> "Active Assembly Snippet";
-            case WIDGET_NODE_TYPE_FIELD -> "Content Editor Field";
-        };
+        switch (this) {
+            case WIDGET_NODE_TYPE_PAGE:
+                return "Active Assembly Page";
+            case WIDGET_NODE_TYPE_SLOT:
+                return "Active Assembly Slot";
+            case WIDGET_NODE_TYPE_SNIPPET:
+                return "Active Assembly Snippet";
+            case WIDGET_NODE_TYPE_FIELD:
+                return "Content Editor Field";
+            default:
+                throw new IllegalStateException("Unknown widget node type: " + this);
+        }
     }
 
     @Override

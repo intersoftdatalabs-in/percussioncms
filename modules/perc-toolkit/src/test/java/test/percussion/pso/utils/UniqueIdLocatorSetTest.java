@@ -22,15 +22,15 @@
  */
 package test.percussion.pso.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.pso.utils.UniqueIdLocatorSet;
@@ -41,13 +41,13 @@ public class UniqueIdLocatorSetTest
    
    UniqueIdLocatorSet cut;
    
-   @Before
-   public void setUp() throws Exception
+   @BeforeEach
+   public void setUp()
    {
       cut = new UniqueIdLocatorSet(); 
    }
    @Test
-   public final void testAddPSLocator()
+   void testAddPSLocator()
    {
       log.info("starting test AddPSLocator"); 
       PSLocator l1 = new PSLocator(1); 
@@ -65,7 +65,7 @@ public class UniqueIdLocatorSetTest
      
    }
    @Test
-   public final void testAddAll()
+   void testAddAll()
    {
       log.info("starting test AddAll"); 
       PSLocator l1 = new PSLocator(1); 
@@ -88,7 +88,7 @@ public class UniqueIdLocatorSetTest
    }
    
    @Test
-   public final void testContains()
+   void testContains()
    {
       log.info("starting test Contains"); 
       PSLocator l1 = new PSLocator(1); 
@@ -109,7 +109,7 @@ public class UniqueIdLocatorSetTest
    }
    
    @Test
-   public final void testRemove()
+   void testRemove()
    {
       log.info("starting test Remove"); 
       PSLocator l1 = new PSLocator(1); 
@@ -133,7 +133,7 @@ public class UniqueIdLocatorSetTest
    }
    
    @Test
-   public final void testRemoveAll()
+   void testRemoveAll()
    {
       log.info("starting test Remove"); 
       PSLocator l1 = new PSLocator(1); 

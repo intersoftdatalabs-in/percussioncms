@@ -23,7 +23,8 @@ import com.percussion.pagemanagement.data.PSWidgetContentType;
 import com.percussion.pagemanagement.service.IPSPageService;
 import com.percussion.services.error.PSRuntimeException;
 import com.percussion.sitemanage.service.IPSSitePublishServiceHelper;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.SQLQuery;

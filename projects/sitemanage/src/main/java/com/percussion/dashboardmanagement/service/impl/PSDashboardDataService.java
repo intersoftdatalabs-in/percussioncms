@@ -21,7 +21,8 @@ import com.percussion.dashboardmanagement.dao.IPSDashboardDao;
 import com.percussion.dashboardmanagement.data.PSDashboard;
 import com.percussion.dashboardmanagement.service.IPSDashboardDataService;
 import com.percussion.share.service.PSAbstractSimpleDataService;
-import com.percussion.util.PSSiteManageBean;
+import com.percussion.system.utils.PSSiteManageBean;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

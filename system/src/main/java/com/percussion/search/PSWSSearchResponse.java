@@ -18,7 +18,7 @@
 package com.percussion.search;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.xml.PSXmlTreeWalker;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;

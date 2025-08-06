@@ -64,6 +64,7 @@ import java.io.IOException;
  * <p>
  * &lt/property&gt
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginAddQuartzProperties implements IPSUpgradePlugin
 {
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)

@@ -22,7 +22,7 @@ import com.percussion.pagemanagement.data.PSTemplate;
 import com.percussion.pagemanagement.data.PSTemplateSummary;
 import com.percussion.share.IPSSitemanageConstants;
 import com.percussion.sitemanage.data.PSSite;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import org.junit.jupiter.api.Assertions;
 
 import javax.ws.rs.client.Client;

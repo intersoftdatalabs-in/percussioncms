@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import java.text.MessageFormat;
  * Value of each input param (by doing a toString on it) in the form 'param=value'.
  * The value returned (by doing a toString on it) in the form 'return=value'
  */
-public class PSTraceMapper extends PSTraceMessage 
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceMapper extends PSTraceMessage {
    
    /**
     * The constructor for this class.

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ import java.util.Set;
  * but not all of the methods of the Set interface, except it uses appropriate
  * types rather than Object.
  */
-public class PSDbComponentSet extends PSDbComponent
+public class PSDbComponentSet<T extends IPSDbComponent> extends PSDbComponent
 {
    /**
     * Convenience method that calls {@link #PSDbComponentSet(String,
@@ -88,10 +88,9 @@ public class PSDbComponentSet extends PSDbComponent
     *
     * @throws NullPointerException if className is <code>null</code>.
     */
-   public PSDbComponentSet(String className, String compType)
-      throws ClassNotFoundException
-   {
-      this(Class.forName(className), compType);
+   @SuppressWarnings("unchecked")
+   public PSDbComponentSet(String className, String compType) throws ClassNotFoundException {
+      this((Class<T>) Class.forName(className), compType);
    }
 
 
@@ -99,8 +98,7 @@ public class PSDbComponentSet extends PSDbComponent
     * Convenience method that calls {@link #PSDbComponentSet(Class,
     * String) PSDbComponentSet(className, null)}.
     */
-   public PSDbComponentSet(Class compClass)
-   {
+   public PSDbComponentSet(Class<T> compClass) {
       this(compClass, null);
    }
 
@@ -114,27 +112,20 @@ public class PSDbComponentSet extends PSDbComponent
     *    is used. Each component added to this collection must match this
     *    name.
     */
-   public PSDbComponentSet(Class compClass, String compType)
-   {
+   public PSDbComponentSet(Class<T> compClass, String compType) {
       this();
-      if (compClass == null)
+      if (compClass == null) {
          throw new IllegalArgumentException("Supplied class cannot be null.");
-
-      if ((compType == null) || (compType.trim().length() < 0))
-      {
+      }
+      if ((compType == null) || (compType.trim().length() < 1)) {
          compType = compClass.getName().substring(
-               compClass.getName().lastIndexOf('.')+1);
+               compClass.getName().lastIndexOf('.') + 1);
       }
-
-      if (null == compType || compType.trim().length() == 0)
-      {
-         throw new IllegalArgumentException(
-               "Component type cannot be null or empty.");
+      if (compType == null || compType.trim().isEmpty()) {
+         throw new IllegalArgumentException("Component type cannot be null or empty.");
       }
-      if (compClass.isInterface())
-      {
-         throw new IllegalArgumentException("Interfaces are not supported for "
-               + "component collections, you must provide a class.");
+      if (compClass.isInterface()) {
+         throw new IllegalArgumentException("Interfaces are not supported for component collections, you must provide a class.");
       }
       m_class = compClass;
       m_memberComponentType = compType;
@@ -173,9 +164,7 @@ public class PSDbComponentSet extends PSDbComponent
     * @throws PSUnknownNodeTypeException If the supplied source element does
     *    not conform to the dtd defined in the <code>fromXml<code> method.
     */
-   public PSDbComponentSet(Element[] items, Class compClass)
-      throws PSUnknownNodeTypeException
-   {
+   public PSDbComponentSet(Element[] items, Class<T> compClass) throws PSUnknownNodeTypeException {
       this(items, compClass, null);
    }
    
@@ -204,46 +193,30 @@ public class PSDbComponentSet extends PSDbComponent
     * @throws PSUnknownNodeTypeException If the supplied source element does
     *    not conform to the dtd defined in the <code>fromXml<code> method.
     */
-   public PSDbComponentSet(Element[] items, Class compClass, String compType)
-      throws PSUnknownNodeTypeException
-   {
-      if (compClass == null)
+   public PSDbComponentSet(Element[] items, Class<T> compClass, String compType) throws PSUnknownNodeTypeException {
+      if (compClass == null) {
          throw new IllegalArgumentException("Supplied class cannot be null.");
-   
-      if (compClass.isInterface())
-      {
-         throw new IllegalArgumentException("Interfaces are not supported for "
-               + "component collections, you must provide a class.");
       }
-      
-      if (null == compType)
-      {
+      if (compClass.isInterface()) {
+         throw new IllegalArgumentException("Interfaces are not supported for component collections, you must provide a class.");
+      }
+      if (compType == null) {
          compType = compClass.getName().substring(
-               compClass.getName().lastIndexOf('.')+1);
+               compClass.getName().lastIndexOf('.') + 1);
       }
-
-      if (null == compType || compType.trim().length() == 0)
-      {
-         throw new IllegalArgumentException(
-               "Component type cannot be null or empty.");
+      if (compType == null || compType.trim().isEmpty()) {
+         throw new IllegalArgumentException("Component type cannot be null or empty.");
       }
-   
       m_class = compClass;
       m_memberComponentType = compType;
-   
       Document doc = PSXmlDocumentBuilder.createXmlDocument();
-   
-      //create a root element which name is constructed from the item class
-      Element root = PSXmlDocumentBuilder.createRoot(doc,
-         getNodeName());
-   
-      for (int i = 0; items != null && i < items.length; i++)
-      {
+      // create a root element which name is constructed from the item class
+      Element root = PSXmlDocumentBuilder.createRoot(doc, getNodeName());
+      for (int i = 0; items != null && i < items.length; i++) {
          Node node = doc.importNode(items[i], true);
          root.appendChild(node);
       }
-     
-      //now we can reuse existing fromXml to create this Set.
+      // now we can reuse existing fromXml to create this Set.
       fromXml(root);
    }
 
@@ -279,8 +252,7 @@ public class PSDbComponentSet extends PSDbComponent
     * @return class object contained by this Set.
     *    Never <code>null</code>.
     */
-   public Class getMemberClass()
-   {
+   public Class<T> getMemberClass() {
       return m_class;
    }
 
@@ -316,7 +288,7 @@ public class PSDbComponentSet extends PSDbComponent
       if (isEmpty() && m_deleteList.isEmpty())
          return root;
 
-      Iterator iter = iterator();
+      Iterator<T> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent comp = (IPSDbComponent) iter.next();
@@ -441,17 +413,18 @@ public class PSDbComponentSet extends PSDbComponent
                   strClass +=
                         PSStringOperation.replace(strNodeName, "PSX", "PS");
             }
-            m_class = Class.forName(strClass);
+            m_class = (Class<T>) Class.forName(strClass);
          }
 
          // Load the object and append to the current list
-         Constructor ctor = m_class.getConstructor(new Class[] {Element.class});
+         @SuppressWarnings("unchecked")
+         Constructor<T> ctor = m_class.getConstructor(new Class[] {Element.class});
          Element [] args = new Element[1];
          while (aEl != null && aEl.getNodeName().equalsIgnoreCase(strNodeName))
          {
             // Create the class
             args[0] = aEl;
-            PSDbComponent aCmp = (PSDbComponent) ctor.newInstance(args);
+            T aCmp = ctor.newInstance(args);
 
             //must be set before we can add
             if (m_memberComponentType == null)
@@ -576,7 +549,7 @@ public class PSDbComponentSet extends PSDbComponent
    public void setPersisted()
       throws PSCmsException
    {
-      Iterator it = m_set.iterator();
+      Iterator<T> it = m_set.iterator();
       while (it.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) it.next();
@@ -631,7 +604,7 @@ public class PSDbComponentSet extends PSDbComponent
 
       int index = 0;
       // Modified list exists - create the xml for the server
-      Iterator iter = iterator();
+      Iterator<T> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) iter.next();
@@ -681,7 +654,7 @@ public class PSDbComponentSet extends PSDbComponent
       if (m_set.isEmpty())
          return DBSTATE_UNMODIFIED;
 
-      Iterator iter = iterator();
+      Iterator<T> iter = iterator();
 
       // check the kids
       boolean allNew = true;
@@ -744,7 +717,7 @@ public class PSDbComponentSet extends PSDbComponent
    {
       // Threshold must be m_class
       checkType(comp, true);
-      return m_set.add(comp);
+      return m_set.add((T) comp);
    }
 
    /**
@@ -759,21 +732,12 @@ public class PSDbComponentSet extends PSDbComponent
     *    same type as the type supplied during construction.
     * @throws IllegalArgumentException if <code>coll</code> is <code>null</code>
     */
-   public boolean addAll(Collection coll)
+   public boolean addAll(Collection<? extends T> coll)
    {
-      if (coll == null)
-         throw new IllegalArgumentException("coll may not be null");
-
-      boolean changed = false;
-      Iterator it = coll.iterator();
-      while (it.hasNext())
-      {
-         PSDbComponent comp = (PSDbComponent)it.next();
-         boolean added = add(comp);
-         if (added && !changed)
-            changed = true;
+      for (T item : coll) {
+         add(item);
       }
-      return changed;
+      return true;
    }
 
    /**
@@ -836,7 +800,7 @@ public class PSDbComponentSet extends PSDbComponent
     */
    public void clear()
    {
-      Iterator iter = iterator();
+      Iterator<T> iter = iterator();
 
       while (iter.hasNext())
       {
@@ -894,7 +858,7 @@ public class PSDbComponentSet extends PSDbComponent
       checkType(comp, true);
 
       IPSDbComponent retComp = null;
-      Iterator it = iterator();
+      Iterator<T> it = iterator();
       while (it.hasNext())
       {
          IPSDbComponent tempComp = (IPSDbComponent)it.next();
@@ -924,7 +888,7 @@ public class PSDbComponentSet extends PSDbComponent
     * @return An iterator over 0 or more entries, each of which is an
     *    IPSDbComponent of the same type. Never <code>null</code>.
     */
-   public Iterator iterator()
+   public Iterator<T> iterator()
    {
       return Collections.unmodifiableSet(m_set).iterator();
    }
@@ -945,7 +909,7 @@ public class PSDbComponentSet extends PSDbComponent
       if (!checkType(comp, false))
          return false;
 
-      Iterator it = m_set.iterator();
+      Iterator<T> it = m_set.iterator();
       while (it.hasNext())
       {
          Object obj = it.next();
@@ -982,16 +946,15 @@ public class PSDbComponentSet extends PSDbComponent
     * @see com.percussion.cms.objectstore.PSDbComponent#cloneFull()
     */
    @Override
-   public Object cloneFull()
-   {
-      PSDbComponentSet copy = null;
-      copy = (PSDbComponentSet) super.cloneFull();
+   public Object cloneFull() {
+      PSDbComponentSet<T> copy = null;
+      copy = (PSDbComponentSet<T>) super.cloneFull();
 
-      copy.m_set = new HashSet(); // objects added below
-      copy.m_deleteList = new ArrayList(); // objects added below
+      copy.m_set = new HashSet<>(); // objects added below
+      copy.m_deleteList = new ArrayList<>(); // objects added below
 
-      Iterator iter = iterator();
-      Iterator delIter = m_deleteList.iterator();
+      Iterator<T> iter = iterator();
+      Iterator<T> delIter = m_deleteList.iterator();
 
       // Clone list of objects
       while (iter.hasNext())
@@ -1089,7 +1052,7 @@ public class PSDbComponentSet extends PSDbComponent
       copy.m_set = new HashSet(); // objects added below
       copy.m_deleteList = new ArrayList();
 
-      Iterator iter = iterator();
+      Iterator<T> iter = iterator();
       while (iter.hasNext())
       {
          IPSDbComponent c = (IPSDbComponent) iter.next();
@@ -1109,8 +1072,7 @@ public class PSDbComponentSet extends PSDbComponent
     *    removed from this Set. Never <code>null</code>, may be empty. This
     *    must be treated as read-only and should not be cached.
     */
-   Collection getDeleteCollection()
-   {
+   Collection<T> getDeleteCollection() {
       return m_deleteList;
    }
 
@@ -1136,9 +1098,8 @@ public class PSDbComponentSet extends PSDbComponent
 
       // Check each child, if any one is persisted return
       // true
-      Iterator comps = iterator();
-      while (comps.hasNext())
-      {
+      Iterator<T> comps = iterator();
+      while (comps.hasNext()) {
          if (((IPSDbComponent) comps.next()).isPersisted())
             return true;
       }
@@ -1161,9 +1122,8 @@ public class PSDbComponentSet extends PSDbComponent
 
       // Check each child, if any one is persisted return
       // true
-      Iterator comps = iterator();
-      while (comps.hasNext())
-      {
+      Iterator<T> comps = iterator();
+      while (comps.hasNext()) {
          if (((IPSDbComponent) comps.next()).isAssigned())
             return true;
       }
@@ -1175,21 +1135,35 @@ public class PSDbComponentSet extends PSDbComponent
     * Class object of child component being contained. Set by time ctor is
     * finished, then never changes after that (not even fromXml).
     */
-   private Class m_class = null;
+   /**
+    * Class object of child component being contained. Set by time ctor is
+    * finished, then never changes after that (not even fromXml).
+    */
+   private Class<T> m_class = null;
 
    /**
     * All the components managed by this Set that have not been deleted.
     * Never <code>null</code>. Every entry is an IPSDbComponent of the same
     * class.
     */
-   private Set m_set = new HashSet();
+   /**
+    * All the components managed by this Set that have not been deleted.
+    * Never <code>null</code>. Every entry is an IPSDbComponent of the same
+    * class.
+    */
+   private Set<T> m_set = new HashSet<>();
 
    /**
     * List of components that have been removed from this collection. Never
     * <code>null</code>. Every entry is an IPSDbComponent of the same
     * class that has a state equal to DBSTATE_MARKEDFORDELETE.
     */
-   private List m_deleteList = new ArrayList();
+   /**
+    * List of components that have been removed from this collection. Never
+    * <code>null</code>. Every entry is an IPSDbComponent of the same
+    * class that has a state equal to DBSTATE_MARKEDFORDELETE.
+    */
+   private List<T> m_deleteList = new ArrayList<>();
 
    /**
     * We use this flag instead of the base's state attribute because of the

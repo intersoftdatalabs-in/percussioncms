@@ -16,7 +16,7 @@
  */
 package com.percussion.test.data;
 
-import com.percussion.util.PSRemoteRequester;
+import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.utils.xml.PSXmlUtils;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;

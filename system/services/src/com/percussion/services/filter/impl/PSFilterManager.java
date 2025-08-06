@@ -31,7 +31,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import com.percussion.util.PSBaseBean;
+import com.percussion.system.utils.PSBaseBean;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import org.apache.commons.lang.StringUtils;

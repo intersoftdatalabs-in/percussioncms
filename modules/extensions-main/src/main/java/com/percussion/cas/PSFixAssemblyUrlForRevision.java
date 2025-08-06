@@ -25,8 +25,8 @@ import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestParsingException;
-import com.percussion.util.IPSHtmlParameters;
-import com.percussion.util.PSParseUrlQueryString;
+import com.percussion.system.utils.PSParseUrlQueryString;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.Map;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 package test.percussion.pso.validation;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,16 +27,16 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.RowIterator;
 
-import junit.framework.TestCase;
+// Removed TestCase extension for JUnit 5
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.Sequence;
-import org.jmock.lib.legacy.ClassImposteriser;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.mockito.Mockito.*;
+// ...existing code...
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
@@ -52,20 +52,19 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.system.IPSSystemWs;
 
-public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
+@ExtendWith(MockitoExtension.class)
+public class PSOUniqueFieldWithInFoldersValidatorTest {
 
     private static final Logger log = LogManager.getLogger(PSOUniqueFieldWithInFoldersValidatorTest.class);
     
     TestablePSOUniqueFieldValidator validator;
-    Mockery context;
-    PSONodeCataloger nodeCataloger; 
-    
-    @Before
+    @Mock
+    PSONodeCataloger nodeCataloger;
+
+    @BeforeEach
     public void setUp() throws Exception {
         validator = new TestablePSOUniqueFieldValidator();
-        context = new Mockery(){{setImposteriser(ClassImposteriser.INSTANCE);}};
-        nodeCataloger = context.mock(PSONodeCataloger.class);
-        validator.setNodeCataloger(nodeCataloger); 
+        validator.setNodeCataloger(nodeCataloger);
     }
     
     @Test
@@ -97,152 +96,98 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
     }
 
     @Test
-    public void testMakeTypeList()
-    {
-        try
-      {
-         context.checking(new Expectations(){{
-              one(nodeCataloger).getContentTypeNamesWithField("fld");
-              will(returnValue(Arrays.asList(new String[]{"x","y","z"})));
-           }});
-         
-         String str = validator.makeTypeList("fld");
-         assertNotNull(str); 
-         String expected = "x, y, z";
-         
-         assertEquals(expected, str);
-         log.info("type list is " + str); 
-         context.assertIsSatisfied(); 
-      } catch (RepositoryException ex)
-      {
-         log.error("Unexpected Exception " + ex,ex);
-      }
+    public void testMakeTypeList() {
+        try {
+            when(nodeCataloger.getContentTypeNamesWithField("fld")).thenReturn(Arrays.asList("x", "y", "z"));
+            String str = validator.makeTypeList("fld");
+            assertNotNull(str);
+            String expected = "x, y, z";
+            assertEquals(expected, str);
+            log.info("type list is " + str);
+        } catch (RepositoryException ex) {
+            log.error("Unexpected Exception " + ex, ex);
+        }
+    }
+    
+    @Mock
+    IPSRequestContext req;
+    @Mock
+    PSFolder folder;
+    @Mock
+    IPSGuid folderGuid;
+    @Mock
+    IPSGuid guid;
+    @Mock
+    IPSGuidManager gmgr;
+    @Mock
+    IPSContentWs cws;
+    @Mock
+    IPSContentMgr cmgr;
+    @Mock
+    Query q;
+    @Mock
+    QueryResult qres;
+    @Mock
+    RowIterator rows;
+    @Mock
+    IPSSystemWs systemWs;
+    @Mock
+    PSRelationship rel1;
+
+    @Test
+    public void testGetFolderId() {
+        final String psredirect = "http://base123?ps1=2&sys_folderid=1234&foo=bar";
+        when(req.getParameter("psredirect")).thenReturn(psredirect);
+        Integer fid = validator.getFolderId(req);
+        assertEquals(1234, fid.longValue());
     }
     
     @Test
-    public void testGetFolderId()
-    {
-       final IPSRequestContext req = context.mock(IPSRequestContext.class); 
-       
-       final String psredirect = "http://base123?ps1=2&sys_folderid=1234&foo=bar"; 
-       
-       context.checking(new Expectations(){{
-          one(req).getParameter("psredirect"); 
-          will(returnValue(psredirect));
-       }});
-       
-       Integer fid = validator.getFolderId(req);
-       Assert.assertEquals(1234,fid.longValue());
-       context.assertIsSatisfied(); 
+    public void testIsFieldValueUniqueInFolder() {
+        final List<PSFolder> folderList = Arrays.asList(folder);
+        try {
+            validator.setContentManager(cmgr);
+            validator.setContentWs(cws);
+            validator.setGuidManager(gmgr);
+            when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+            when(cws.loadFolders(Arrays.asList(folderGuid))).thenReturn(folderList);
+            when(folder.getFolderPath()).thenReturn("/foo/bar/baz");
+            when(cmgr.createQuery(any(String.class), any(String.class))).thenReturn(q);
+            when(cmgr.executeQuery(eq(q), eq(-1), isNull(), isNull())).thenReturn(qres);
+            when(qres.getRows()).thenReturn(rows);
+            when(rows.getSize()).thenReturn(0L);
+            boolean val = validator.isFieldValueUniqueInFolder(123, "rx:field", "foo", "rx:type, rx:anothertype");
+            assertTrue(val);
+        } catch (Exception ex) {
+            log.error("Unexpected Exception " + ex, ex);
+            fail("Exception");
+        }
     }
     
     @Test
-    public void testIsFieldValueUniqueInFolder()
-    {
-       final IPSGuid folderGuid = context.mock(IPSGuid.class); 
-       final IPSGuidManager gmgr = context.mock(IPSGuidManager.class); 
-       final IPSContentWs cws = context.mock(IPSContentWs.class); 
-       final PSFolder folder = context.mock(PSFolder.class); 
-       final List<PSFolder> folderList = Arrays.asList(new PSFolder[]{folder});
-       final IPSContentMgr cmgr = context.mock(IPSContentMgr.class);
-       final Query q = context.mock(Query.class);
-       final QueryResult qres = context.mock(QueryResult.class);
-       final RowIterator rows = context.mock(RowIterator.class); 
-       
-       
-       try
-      {
-         validator.setContentManager(cmgr);
-         validator.setContentWs(cws);
-         validator.setGuidManager(gmgr); 
-         
-         context.checking(new Expectations(){{
-             one(gmgr).makeGuid(with(any(PSLocator.class)));
-             will(returnValue(folderGuid)); 
-             one(cws).loadFolders(Arrays.asList(new IPSGuid[]{folderGuid}));
-             will(returnValue(folderList));
-             one(folder).getFolderPath();
-             will(returnValue("/foo/bar/baz"));
-             one(cmgr).createQuery(with(any(String.class)), with(any(String.class)));
-             will(returnValue(q)); 
-             one(cmgr).executeQuery(q, -1, null, null); 
-             will(returnValue(qres)); 
-             one(qres).getRows();
-             will(returnValue(rows));
-             one(rows).getSize();
-             will(returnValue(0L)); 
-          }});
-         
-         boolean val = validator.isFieldValueUniqueInFolder(123, "rx:field", "foo", "rx:type, rx:anothertype"); 
-         assertTrue(val);  
-         context.assertIsSatisfied();
-         
-      } catch (Exception ex)
-      {
-         log.error("Unexpected Exception " + ex,ex);
-         fail("Exception");
-      }
-       
-    }
-    
-    @Test
-    public void testIsFieldValueUniqueInFolderForExistingItem()
-    {
-       final IPSGuid guid = context.mock(IPSGuid.class);
-       final IPSGuidManager gmgr = context.mock(IPSGuidManager.class); 
-       final IPSContentWs cws = context.mock(IPSContentWs.class); 
-       final IPSContentMgr cmgr = context.mock(IPSContentMgr.class);
-       final Query q = context.mock(Query.class);
-       final QueryResult qres = context.mock(QueryResult.class);
-       final RowIterator rows = context.mock(RowIterator.class); 
-       
-       
-       try
-      {
-         validator.setContentManager(cmgr);
-         validator.setContentWs(cws);
-         validator.setGuidManager(gmgr); 
-         
-         context.checking(new Expectations(){{
-             one(gmgr).makeGuid(with(any(PSLocator.class)));
-             will(returnValue(guid)); 
-             one(cws).findFolderPaths(guid);
-             will(returnValue(new String[]{"/foo/bar/baz"}));
-             one(cmgr).createQuery(with(any(String.class)), with(any(String.class)));
-             will(returnValue(q)); 
-             one(cmgr).executeQuery(q, -1, null, null); 
-             will(returnValue(qres)); 
-             one(qres).getRows();
-             will(returnValue(rows));
-             one(rows).getSize();
-             will(returnValue(0L)); 
-            
-          }});
-         
-         boolean val = validator.isFieldValueUniqueInFolderForExistingItem(123, "rx:field", "foo", "rx:type, rx:anothertype"); 
-         assertTrue(val);  
-         context.assertIsSatisfied();
-         
-      } catch (Exception ex)
-      {
-         log.error("Unexpected Exception " + ex,ex);
-         fail("Exception");
-      }
+    public void testIsFieldValueUniqueInFolderForExistingItem() {
+        try {
+            validator.setContentManager(cmgr);
+            validator.setContentWs(cws);
+            validator.setGuidManager(gmgr);
+            when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(guid);
+            when(cws.findFolderPaths(guid)).thenReturn(new String[]{"/foo/bar/baz"});
+            when(cmgr.createQuery(any(String.class), any(String.class))).thenReturn(q);
+            when(cmgr.executeQuery(eq(q), eq(-1), isNull(), isNull())).thenReturn(qres);
+            when(qres.getRows()).thenReturn(rows);
+            when(rows.getSize()).thenReturn(0L);
+            boolean val = validator.isFieldValueUniqueInFolderForExistingItem(123, "rx:field", "foo", "rx:type, rx:anothertype");
+            assertTrue(val);
+        } catch (Exception ex) {
+            log.error("Unexpected Exception " + ex, ex);
+            fail("Exception");
+        }
     }
     
     @Test
     public void testIsFieldValueUniqueInFolderWithPath()
     {
-       final IPSGuid folderGuid = context.mock(IPSGuid.class); 
-       final IPSGuidManager gmgr = context.mock(IPSGuidManager.class); 
-       final IPSContentWs cws = context.mock(IPSContentWs.class); 
-       final PSFolder folder = context.mock(PSFolder.class); 
-       final List<PSFolder> folderList = Arrays.asList(new PSFolder[]{folder});
-       final IPSContentMgr cmgr = context.mock(IPSContentMgr.class);
-       final Query q = context.mock(Query.class);
-       final QueryResult qres = context.mock(QueryResult.class);
-       final RowIterator rows = context.mock(RowIterator.class); 
-       
+       final List<PSFolder> folderList = Arrays.asList(folder);
        
        try
       {
@@ -250,26 +195,24 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
          validator.setContentWs(cws);
          validator.setGuidManager(gmgr); 
          
-         context.checking(new Expectations(){{
-        	  one(gmgr).makeGuid(with(any(PSLocator.class)));
-              will(returnValue(folderGuid)); 
-              one(cws).loadFolders(Arrays.asList(new IPSGuid[]{folderGuid}));
-              will(returnValue(folderList));
-              one(folder).getFolderPath();
-              will(returnValue("//Sites/SiteA/subsite"));
-    one(cmgr).createQuery(with(any(String.class)), with(any(String.class)));
-             will(returnValue(q)); 
-             one(cmgr).executeQuery(q, -1, null, null); 
-             will(returnValue(qres)); 
-             one(qres).getRows();
-             will(returnValue(rows));
-             one(rows).getSize();
-             will(returnValue(0L)); 
-          }});
+         when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+         when(cws.loadFolders(Arrays.asList(folderGuid))).thenReturn(folderList);
+         when(folder.getFolderPath()).thenReturn("//Sites/SiteA/subsite");
+         when(cmgr.createQuery(any(String.class), any(String.class))).thenReturn(q);
+         when(cmgr.executeQuery(q, -1, null, null)).thenReturn(qres);
+         when(qres.getRows()).thenReturn(rows);
+         when(rows.getSize()).thenReturn(0L);
          
          boolean val = validator.isFieldValueUniqueInFolder(123, "rx:field", "foo", "rx:type, rx:anothertype","//Sites/SiteA"); 
          assertTrue(val);  
-         context.assertIsSatisfied();
+         
+         verify(gmgr).makeGuid(any(PSLocator.class));
+         verify(cws).loadFolders(Arrays.asList(folderGuid));
+         verify(folder).getFolderPath();
+         verify(cmgr).createQuery(any(String.class), any(String.class));
+         verify(cmgr).executeQuery(q, -1, null, null);
+         verify(qres).getRows();
+         verify(rows).getSize();
          
       } catch (Exception ex)
       {
@@ -282,17 +225,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
     @Test
     public void testIsFieldValueUniqueInFolderWithTwoSites()
     {
-       final IPSGuid folderGuid = context.mock(IPSGuid.class); 
-       final IPSGuidManager gmgr = context.mock(IPSGuidManager.class); 
-       final IPSContentWs cws = context.mock(IPSContentWs.class); 
-       final PSFolder folder = context.mock(PSFolder.class); 
-       final List<PSFolder> folderList = Arrays.asList(new PSFolder[]{folder});
-      
-       final IPSContentMgr cmgr = context.mock(IPSContentMgr.class);
-       final Query q = context.mock(Query.class);
-       final QueryResult qres = context.mock(QueryResult.class);
-       final RowIterator rows = context.mock(RowIterator.class); 
-       
+       final List<PSFolder> folderList = Arrays.asList(folder);
        
        try
       {
@@ -300,38 +233,26 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
          validator.setContentWs(cws);
          validator.setGuidManager(gmgr); 
          
-         context.checking(new Expectations(){{
-        	 one(gmgr).makeGuid(with(any(PSLocator.class)));
-             will(returnValue(folderGuid)); 
-             one(cws).loadFolders(Arrays.asList(new IPSGuid[]{folderGuid}));
-             will(returnValue(folderList));
-             one(folder).getFolderPath();
-             will(returnValue("//Sites/SiteA/subfolder"));
-            one(folder).getFolderPath();
-             will(returnValue("//Sites/SiteB/subfolder"));
-             one(cmgr).createQuery(with(any(String.class)), with(any(String.class)));
-             will(returnValue(q)); 
-             one(cmgr).executeQuery(q, -1, null, null); 
-             will(returnValue(qres)); 
-             one(qres).getRows();
-             will(returnValue(rows));
-             one(rows).getSize();
-             will(returnValue(0L)); 
-             one(cmgr).createQuery(with(any(String.class)), with(any(String.class)));
-             will(returnValue(q)); 
-             one(cmgr).executeQuery(q, -1, null, null); 
-             will(returnValue(qres)); 
-             one(qres).getRows();
-             will(returnValue(rows));
-             one(rows).getSize();
-             will(returnValue(0L)); 
-            
-             
-          }});
+         when(gmgr.makeGuid(any(PSLocator.class))).thenReturn(folderGuid);
+         when(cws.loadFolders(Arrays.asList(folderGuid))).thenReturn(folderList);
+         when(folder.getFolderPath())
+            .thenReturn("//Sites/SiteA/subfolder")
+            .thenReturn("//Sites/SiteB/subfolder");
+         when(cmgr.createQuery(any(String.class), any(String.class))).thenReturn(q);
+         when(cmgr.executeQuery(q, -1, null, null)).thenReturn(qres);
+         when(qres.getRows()).thenReturn(rows);
+         when(rows.getSize()).thenReturn(0L);
          
          boolean val = validator.isFieldValueUniqueInFolder(123, "rx:field", "foo", "rx:type, rx:anothertype","//Sites/SiteA,//Sites/SiteB"); 
          assertTrue(val);  
-         context.assertIsSatisfied();
+         
+         verify(gmgr).makeGuid(any(PSLocator.class));
+         verify(cws).loadFolders(Arrays.asList(folderGuid));
+         verify(folder, times(2)).getFolderPath();
+         verify(cmgr, times(2)).createQuery(any(String.class), any(String.class));
+         verify(cmgr, times(2)).executeQuery(q, -1, null, null);
+         verify(qres, times(2)).getRows();
+         verify(rows, times(2)).getSize();
          
       } catch (Exception ex)
       {
@@ -345,26 +266,17 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
     @SuppressWarnings("unchecked")
     public void testIsPromotable()
     {
-       final IPSSystemWs systemWs = context.mock(IPSSystemWs.class); 
        validator.setSystemWs(systemWs); 
        final List<PSRelationship> emptyRels = Collections.EMPTY_LIST;
-       final PSRelationship rel1 = context.mock(PSRelationship.class);
        final List<PSRelationship> oneRels = Collections.<PSRelationship>singletonList(rel1);
        
        boolean result;
        
        try
       {
-         final Sequence filterSeq = context.sequence("filter");   
-         
-         context.checking(new Expectations(){{
-            one(systemWs).loadRelationships(with(any(PSRelationshipFilter.class)));
-            inSequence(filterSeq);
-            will(returnValue(emptyRels));
-            one(systemWs).loadRelationships(with(any(PSRelationshipFilter.class)));
-            inSequence(filterSeq);
-            will(returnValue(oneRels)); 
-         }});
+         when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
+            .thenReturn(emptyRels)
+            .thenReturn(oneRels);
          
          result = validator.isPromotable(0);
          assertFalse(result);
@@ -375,7 +287,7 @@ public class PSOUniqueFieldWithInFoldersValidatorTest extends TestCase {
          result = validator.isPromotable(43);
          assertTrue(result);
          
-         context.assertIsSatisfied();
+         verify(systemWs, times(2)).loadRelationships(any(PSRelationshipFilter.class));
          
       } catch (Exception ex)
       {

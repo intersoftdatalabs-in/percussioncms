@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import java.io.UnsupportedEncodingException;
  * This class provides writer functionality to the trace output stream, and
  * additional functionality required by tracing.
  */
-public class PSTraceWriter extends OutputStreamWriter
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceWriter extends OutputStreamWriter {
    /**
     * Constructs a trace writer for the specified output stream, using the
     * specified encoding.

@@ -43,7 +43,7 @@
      * Object GUID for slot.
      */
     private static IPSGuid ms_slotTemplate = new PSGuid(PSTypeEnum.SLOT, 123);
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.IPSWebserviceErrors;

@@ -16,13 +16,13 @@
  */
 package test.percussion.pso.imageedit.services.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.percussion.pso.imageedit.data.ImageSizeDefinition;
 import com.percussion.pso.imageedit.services.impl.ImageSizeDefinitionManagerImpl;
@@ -42,7 +42,7 @@ public class ImageSizeDefinitionManagerImplTest
    /**
     * @throws Exception
     */
-   @Before
+   @BeforeEach
    public void setUp() throws Exception
    {
       cut = new ImageSizeDefinitionManagerImpl(); 

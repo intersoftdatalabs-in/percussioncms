@@ -33,7 +33,7 @@ import com.percussion.services.workflow.data.PSTransition;
 import com.percussion.services.workflow.data.PSTransitionRole;
 import com.percussion.services.workflow.data.PSWorkflow;
 import com.percussion.services.workflow.data.PSTransition.PSWorkflowCommentEnum;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.workflow.PSWorkFlowUtils;
 

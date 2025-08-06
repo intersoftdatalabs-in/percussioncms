@@ -33,7 +33,7 @@ import com.percussion.services.filter.PSFilterException;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.util.PSStringTemplate;
 import com.percussion.util.PSStringTemplate.PSStringTemplateException;
 import com.percussion.utils.guid.IPSGuid;
@@ -103,11 +103,15 @@ public class PSPageTree implements IPSWidgetHandler {
       var nodeTypeStr = idObj.get("nodeType").toString();
       var nodeType = PSWidgetNodeType.valueOf(Integer.parseInt(nodeTypeStr));
 
-      return switch (nodeType) {
-         case WIDGET_NODE_TYPE_PAGE, WIDGET_NODE_TYPE_SNIPPET -> getSlots(idObj).toString();
-         case WIDGET_NODE_TYPE_SLOT -> getSnippets(idObj).toString();
-         default -> "[]"; // Empty JSON array for unsupported node types
-      };
+      switch (nodeType) {
+         case WIDGET_NODE_TYPE_PAGE:
+         case WIDGET_NODE_TYPE_SNIPPET:
+            return getSlots(idObj).toString();
+         case WIDGET_NODE_TYPE_SLOT:
+            return getSnippets(idObj).toString();
+         default:
+            return "[]"; // Empty JSON array for unsupported node types
+      }
    }
 
    /**

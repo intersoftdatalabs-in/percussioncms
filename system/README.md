@@ -1,4 +1,27 @@
 
+## Java 11 Migration (August 2025)
+
+- Migrated all source code to Java 11 features (var, Optional, Streams, generics).
+- Upgraded logging to Log4j 2.x (where applicable).
+- Refactored JUnit4 tests to JUnit5 (in Testing/src).
+- Ensured backwards compatibility for all public APIs.
+- Updated generics usage for collections and iterators.
+- Added `// REFACTORED: CP-JAVA11` marker to refactored classes.
+- See `refactored-java11-packages.txt` for package tracking.
+
+### Migration Notes
+- No breaking changes to public interfaces.
+- All legacy logging replaced with Log4j 2.x.
+- JUnit5 is now required for all tests.
+- Please run `mvn clean verify` and `mvn spotless:check` before commits.
+
+### Usage Example
+
+```java
+// Example: Using Optional and Streams
+Optional<String> name = Optional.ofNullable(user.getName());
+List<String> emails = users.stream().map(User::getEmail).collect(Collectors.toList());
+```
 
 
 

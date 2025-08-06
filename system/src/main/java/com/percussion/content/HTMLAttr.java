@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,43 +20,37 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.TypeInfo;
 
+// REFACTORED: CP-JAVA11
 public class HTMLAttr extends HTMLNode implements Attr
 {
-   public HTMLAttr(String name, String value)
-   {
+   public HTMLAttr(String name, String value) {
       super();
       m_name = name;
       setValue(value);
    }
 
-   public int numChildren()
-   {
+   public int numChildren() {
       return 0; // attributes have no children
    }
 
-   public String getName()
-   {
+   public String getName() {
       return getNodeName();
    }
 
-   // always return true as there are no default attributes in HTML
-   public boolean getSpecified()
-   {
+   // Always return true as there are no default attributes in HTML
+   public boolean getSpecified() {
       return true;
    }
 
-   public String getValue()
-   {
+   public String getValue() {
       return getNodeValue();
    }
 
-   public void setValue(String value)
-   {
+   public void setValue(String value) {
       setNodeValue(value);
    }
 
-   public short getNodeType()
-   {
+   public short getNodeType() {
       return ATTRIBUTE_NODE;
    }
 

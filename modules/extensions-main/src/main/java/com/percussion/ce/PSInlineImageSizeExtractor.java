@@ -22,7 +22,7 @@ import com.percussion.extension.PSExtensionException;
 import com.percussion.extension.PSExtensionProcessingException;
 import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.server.IPSRequestContext;
-import com.percussion.util.PSImageTools;
+import com.percussion.system.utils.PSImageTools;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

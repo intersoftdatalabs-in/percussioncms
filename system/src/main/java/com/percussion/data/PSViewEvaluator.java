@@ -25,7 +25,7 @@ import com.percussion.design.objectstore.PSConditionalView;
 import com.percussion.design.objectstore.PSView;
 import com.percussion.design.objectstore.PSViewSet;
 import com.percussion.server.PSRequest;
-import com.percussion.util.IPSHtmlParameters;
+import com.percussion.system.utils.IPSHtmlParameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;

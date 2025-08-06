@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// REFACTORED: CP-JAVA11
 package com.percussion.cms.objectstore;
 
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import org.w3c.dom.Element;
 
 /**
- * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
- * for details. 
+ * See base class {@link com.percussion.cms.objectstore.PSDbComponentList} for details.
  */
-public class PSSProperties extends PSDbComponentCollection
-{
+public class PSSProperties extends PSDbComponentCollection {
    /**
     * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
     * for description.
     */
-   public PSSProperties()
-   {              
+   public PSSProperties() {
       super(PSSearchMultiProperty.class);
    }
    
@@ -38,8 +37,7 @@ public class PSSProperties extends PSDbComponentCollection
     * See base class {@link com.percussion.cms.objectstore.PSDbComponentList}
     * for description.
     */
-   public PSSProperties(Element source) throws PSUnknownNodeTypeException
-   {
+   public PSSProperties(Element source) throws PSUnknownNodeTypeException {
       super(source);
    }
    
@@ -48,8 +46,7 @@ public class PSSProperties extends PSDbComponentCollection
     * 
     * @return the XML element name, never <code>null</code> or empty.
     */
-   public String getNodeName()
-   {
+   public String getNodeName() {
       return XML_NODE_NAME;
    }
 

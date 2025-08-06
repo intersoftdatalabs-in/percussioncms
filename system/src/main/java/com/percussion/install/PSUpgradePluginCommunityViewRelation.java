@@ -37,6 +37,7 @@ import java.util.Properties;
  * If communities are enabled on the system this plugin adds the relation if
  * the relation does not exist already.
  */
+// REFACTORED: CP-JAVA11
 public class PSUpgradePluginCommunityViewRelation implements IPSUpgradePlugin
 {
    /**

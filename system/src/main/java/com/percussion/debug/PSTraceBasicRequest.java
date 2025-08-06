@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
  * type (0x0001).  Includes the type of request (POST or GET), the complete URL, 
  * and the HTTP version.  This type of trace message should be invoked as soon as possible after the request has begun to be processed.
  */
-public class PSTraceBasicRequest extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceBasicRequest extends PSTraceMessage {
    
    /**
     * This is the constructor for this class

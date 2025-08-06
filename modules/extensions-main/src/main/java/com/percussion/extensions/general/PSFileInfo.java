@@ -29,8 +29,8 @@ import com.percussion.extension.PSParameterMismatchException;
 import com.percussion.security.PSAuthorizationException;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.server.PSRequestValidationException;
+import com.percussion.system.utils.PSHttpUtils;
 import com.percussion.util.PSBaseHttpUtils;
-import com.percussion.util.PSHttpUtils;
 import com.percussion.util.PSPurgableTempFile;
 
 import java.util.ArrayList;

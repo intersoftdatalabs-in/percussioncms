@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.w3c.dom.Element;
  * Session ID
  * All User context values associated w/ the current request.
  */
-public class PSTraceSessionInfo extends PSTraceMessage
-{
+// REFACTORED: CP-JAVA11
+public class PSTraceSessionInfo extends PSTraceMessage {
    
    /**
     * Constructor for this class.

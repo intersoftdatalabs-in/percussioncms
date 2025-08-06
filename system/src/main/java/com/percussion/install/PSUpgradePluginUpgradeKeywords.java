@@ -35,6 +35,7 @@ import java.util.Set;
  * @author Andriy Palamarchuk
  */
 public class PSUpgradePluginUpgradeKeywords extends PSSpringUpgradePluginBase
+// REFACTORED: CP-JAVA11
 {
 
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
