@@ -24,104 +24,90 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
 
+// REFACTORED: CP-JAVA11
 @Entity
 @Table(name = "PERC_POLLS")
-public class PSPoll implements IPSPoll, Serializable
-{
-
+public class PSPoll implements IPSPoll, Serializable {
     @Id
     @GeneratedValue
     @Column(name = "POLL_ID")
-	private long pollId;
+    private long pollId;
 
     @Column(name = "POLL_NAME", nullable = false, length = 256)
-	private String pollName;
+    private String pollName;
 
     @Column(name = "POLL_QUESTION", nullable = false, length = 4000)
-	private String pollQuestion;
+    private String pollQuestion;
 
-
-    @OneToMany(cascade = CascadeType.ALL,  fetch = FetchType.EAGER, mappedBy = "poll", targetEntity = PSPollAnswer.class, orphanRemoval=true)
-	private Set<IPSPollAnswer> pollAnswers;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "poll", targetEntity = PSPollAnswer.class, orphanRemoval = true)
+    private Set<IPSPollAnswer> pollAnswers;
 
     @Version
     @Column(name = "VERSION")
-    Integer version;	
+    private Integer version;
 
-
-	public long getPollId()
-	{
-		return pollId;
-	}
-
-	public void setPollId(long id)
-	{
-
-            this.pollId = id;
-	}
-
-	public String getId()
-	{
-	    return String.valueOf(this.pollId);
-	}
-	
-    public void setId(String id)
-    {
-        this.pollId = Long.parseLong(id);
+    public long getPollId() {
+        return pollId;
     }
-	
-	@Override
-	public String getPollName()
-	{
-		return pollName;
-	}
 
-	@Override
-	public void setPollName(String pollName) 
-	{
-		this.pollName = pollName;
-	}
-
-	@Override
-	public String getPollQuestion()
-	{
-		return pollQuestion;
-	}
-
-	@Override
-	public void setPollQuestion(String pollQuestion) 
-	{
-		this.pollQuestion = pollQuestion;
-	}
+    public void setPollId(long id) {
+        this.pollId = id;
+    }
 
     @Override
-	public Set<IPSPollAnswer> getPollAnswers()
-	{
-		return this.pollAnswers;
-	}
+    public String getId() {
+        return String.valueOf(this.pollId);
+    }
 
-	@Override
-	public void setPollAnswers(Set<IPSPollAnswer> pollAnswers) 
-	{
-		this.pollAnswers = pollAnswers;
-	}
+    @Override
+    public void setId(String id) {
+        this.pollId = Long.parseLong(id);
+    }
+
+    @Override
+    public String getPollName() {
+        return pollName;
+    }
+
+    @Override
+    public void setPollName(String pollName) {
+        this.pollName = pollName;
+    }
+
+    @Override
+    public String getPollQuestion() {
+        return pollQuestion;
+    }
+
+    @Override
+    public void setPollQuestion(String pollQuestion) {
+        this.pollQuestion = pollQuestion;
+    }
+
+    @Override
+    public Set<IPSPollAnswer> getPollAnswers() {
+        return pollAnswers;
+    }
+
+    @Override
+    public void setPollAnswers(Set<IPSPollAnswer> pollAnswers) {
+        this.pollAnswers = pollAnswers;
+    }
+
     /**
-     * @return Returns the version.
+     * Returns the version.
      */
-    public Integer getVersion()
-    {
+    public Integer getVersion() {
         return version;
     }
 
     /**
-     * @param version The version to set.
+     * Sets the version. Can only be set once.
      */
-    public void setVersion(Integer version)
-    {
-        if (this.version != null && version != null)
+    public void setVersion(Integer version) {
+        if (this.version != null && version != null) {
             throw new IllegalStateException("Version can only be set once");
-
+        }
         this.version = version;
     }
-
 }

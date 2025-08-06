@@ -139,46 +139,34 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
 
    @Override
    protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken auth) {
-       String username = auth.getName();
-       String password = (String)auth.getCredentials();
+       var username = auth.getName();
+       var password = (String)auth.getCredentials();
        DirContextOperations ctxOps = null;
-
-       DirContext ctx = bindAsUser(username, password);
-
+       var ctx = bindAsUser(username, password);
        try {
-    	   ctxOps = searchForUser(ctx, username);
-
+           ctxOps = searchForUser(ctx, username);
        } catch (NamingException e) {
-           logger.error("Failed to locate directory entry for authenticated user: " + username + "- PSLdapMembershipAuthProvider.doAuthentication", e);
-           logger.error("Failed to locate directory entry for authenticated user: " + username + "- PSLdapMembershipAuthProvider.doAuthentication", badCredentials());
+           logger.error("Failed to locate directory entry for authenticated user: {} - PSLdapMembershipAuthProvider.doAuthentication");
+           logger.error("Failed to locate directory entry for authenticated user: {} - PSLdapMembershipAuthProvider.doAuthentication");
        } finally {
            LdapUtils.closeContext(ctx);
        }
-       
        return ctxOps;
    }
    
    @Override
    protected Authentication createSuccessfulAuthentication(UsernamePasswordAuthenticationToken authentication,
            UserDetails user) {
-       
-       Object password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
-       
+       var password = useAuthenticationRequestCredentials ? authentication.getCredentials() : user.getPassword();
        if(user.getAuthorities() == null || user.getAuthorities().isEmpty()) {
-           
-           //int subErrorCode = parseSubErrorCode(new InsufficientAuthenticationException("User Not Authorized").getMessage());
-           
            if (convertSubErrorCodesToExceptions) {
-        	   logger.error("User Not Authorized - PSLdapMembershipAuthProvider.createSuccessfulAuthentication()");
+               logger.error("User Not Authorized - PSLdapMembershipAuthProvider.createSuccessfulAuthentication()");
                raiseExceptionForErrorCode(1328);
-               //raiseExceptionForErrorCode(subErrorCode);
            }
        } 
-
-       UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
+       var result = new UsernamePasswordAuthenticationToken(user, password,
                authoritiesMapper.mapAuthorities(user.getAuthorities()));
        result.setDetails(authentication.getDetails());
-
        return result;
    }
    
@@ -189,52 +177,42 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
     */
    @Override
    protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username, String password) {
-       String[] groups = userData.getStringAttributes("memberOf");
-
+       var groups = userData.getStringAttributes("memberOf");
        if (groups == null) {
            logger.debug("No values for 'memberOf' attribute.");
-
            return AuthorityUtils.NO_AUTHORITIES;
        }
-
        if (logger.isDebugEnabled()) {
-           logger.debug("'memberOf' attribute values: " + Arrays.asList(groups));
+           logger.debug("'memberOf' attribute values: {}", (Throwable) Arrays.asList(groups));
        }
-
-       ArrayList<GrantedAuthority> authorities = new ArrayList<>(groups.length);
-
-       for (String group : groups) {
+       var authorities = new ArrayList<GrantedAuthority>(groups.length);
+       for (var group : groups) {
            authorities.add(new SimpleGrantedAuthority(new DistinguishedName(group).removeLast().getValue()));
        }
-
        return authorities;
    }
 
    private DirContext bindAsUser(String username, String password) {
-       // TODO. add DNS lookup based on domain
-       final String bindUrl = url;
+       final var bindUrl = url;
        DirContext dirContext = null;
-
-       Hashtable<String,String> env = new Hashtable<>();
+       var env = new Hashtable<String,String>();
        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-       String bindPrincipal = createBindPrincipal(username);
+       var bindPrincipal = createBindPrincipal(username);
        env.put(Context.SECURITY_PRINCIPAL, bindPrincipal);
        env.put(Context.PROVIDER_URL, bindUrl);
        env.put(Context.SECURITY_CREDENTIALS, password);
        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
        env.put(Context.OBJECT_FACTORIES, DefaultDirObjectFactory.class.getName());
-
        try {
-    	   dirContext = contextFactory.createContext(env);
+           dirContext = contextFactory.createContext(env);
        } catch (NamingException e) {
            if ((e instanceof AuthenticationException) || (e instanceof OperationNotSupportedException)) {
                handleBindException(bindPrincipal, e);
                logger.error("Bad Credentials - PSLdapMembershipAuthProvider.bindAsUser", badCredentials());
            } else {
-        	   logger.error("Convert Ldap Exception - PSLdapMembershipAuthProvider.bindAsUser", LdapUtils.convertLdapException(e));
+               logger.error("Convert Ldap Exception - PSLdapMembershipAuthProvider.bindAsUser", LdapUtils.convertLdapException(e));
            }
        }
-       
        return dirContext;
    }
 
@@ -316,15 +294,11 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
    }
 
    private DirContextOperations searchForUser(DirContext ctx, String username) throws NamingException {
-       SearchControls searchCtls = new SearchControls();
+       var searchCtls = new SearchControls();
        searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-       String searchFilter = getUserSearchFilter();
-
-       final String bindPrincipal = createBindPrincipal(username);
-
-       String searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
-
+       var searchFilter = getUserSearchFilter();
+       var bindPrincipal = createBindPrincipal(username);
+       var searchRoot = rootDn != null ? rootDn : searchRootFromPrincipal(bindPrincipal);
        return SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx, searchCtls, searchRoot, searchFilter,
                new Object[]{bindPrincipal});
    }
@@ -341,16 +315,14 @@ public class PSLdapMembershipAuthProvider extends AbstractLdapAuthenticationProv
    }
 
    private String rootDnFromDomain(String domain) {
-       String[] tokens = StringUtils.tokenizeToStringArray(domain, ".");
-       StringBuilder root = new StringBuilder();
-
-       for (String token : tokens) {
+       var tokens = StringUtils.tokenizeToStringArray(domain, ".");
+       var root = new StringBuilder();
+       for (var token : tokens) {
            if (root.length() > 0) {
                root.append(',');
            }
            root.append("dc=").append(token);
        }
-
        return root.toString();
    }
 

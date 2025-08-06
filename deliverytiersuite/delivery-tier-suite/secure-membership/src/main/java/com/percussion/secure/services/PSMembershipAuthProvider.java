@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// REFACTORED: CP-JAVA11
 package com.percussion.secure.services;
 
 import com.percussion.secure.data.PSMembershipConfiguration;
@@ -44,126 +45,94 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * Works to provide authentication for Active Directory users and CM1 registered members
- * using Spring Security
+ * Provides authentication for Active Directory users and CM1 registered members using Spring Security.
  *
+ * @author Jay Seletz
  */
-public class PSMembershipAuthProvider extends  AbstractUserDetailsAuthenticationProvider
-    {
-        /**
-         * Stores the current thread session id so that it can be obtained elsewhere to set the membership session cookie.
-         */
+public class PSMembershipAuthProvider extends AbstractUserDetailsAuthenticationProvider {
     private static final ThreadLocal<String> SESSION_ID = new ThreadLocal<>();
-
-    private static Client ms_client = ClientBuilder.newClient();
-    
+    private static final Client msClient = ClientBuilder.newClient();
     private PSMembershipConfiguration membershipConfig;
     private PSLdapMembershipAuthProvider ldapMembershipAuthProvider;
     private String accessGroupFileName;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
-    
 
-    public void setMembershipConfig(PSMembershipConfiguration membershipConfig)
-    {
+    public void setMembershipConfig(PSMembershipConfiguration membershipConfig) {
         this.membershipConfig = membershipConfig;
     }
 
-	public void setLdapMembershipAuthProvider(
-			PSLdapMembershipAuthProvider ldapMembershipAuthProvider) {
-		this.ldapMembershipAuthProvider = ldapMembershipAuthProvider;
-	}
+    public void setLdapMembershipAuthProvider(PSLdapMembershipAuthProvider ldapMembershipAuthProvider) {
+        this.ldapMembershipAuthProvider = ldapMembershipAuthProvider;
+    }
 
-	public void setAccessGroupFileName(String accessGroupFileName) {
-		this.accessGroupFileName = accessGroupFileName;
-	}
+    public void setAccessGroupFileName(String accessGroupFileName) {
+        this.accessGroupFileName = accessGroupFileName;
+    }
 
-	/**
-     * Get the current thread's session id for the authenticated subject, calling this method clears the current
-     * session id.
+    /**
+     * Gets the current thread's session id for the authenticated subject, then clears it.
      *
-     * @return The session id, may be <code>null</code> if there is no authenticated session.
+     * @return The session id, or null if there is no authenticated session.
      */
-    public static String getAuthenticatedSessionId()
-    {
-        String sessionid = SESSION_ID.get();
+    public static String getAuthenticatedSessionId() {
+        var sessionId = SESSION_ID.get();
         SESSION_ID.set(null);
-        return sessionid;
+        return sessionId;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    	
-    	// Check what kind of request is this. Membership or ldap secure membership? Then proceed accordingly.
-    	
-    	if(membershipConfig != null && membershipConfig.getUseLdap() != null && membershipConfig.getUseLdap().equalsIgnoreCase("yes")) {
-    		return ldapMembershipAuthProvider.authenticate(authentication);
-    	}
-
-    	return super.authenticate(authentication);
-    }
-
-    @Override
-    protected void additionalAuthenticationChecks(UserDetails userDetails,
-            UsernamePasswordAuthenticationToken authentication) throws AuthenticationException
-    {
-        // no-op for our impl
-    }
-
-    @Override
-    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
-            throws AuthenticationException
-    {
-        String groups = login(username, authentication.getCredentials().toString());
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        
-        if(StringUtils.isEmpty(groups))
-        	return new User(username, "", authorities);
-        
-        String[] groupList = PSStringUtils.getAllowedGroups(groups);
-        List<String> groupsFromFile = PSMembershipAuthUtils.getAccessGroupsFromXML(accessGroupFileName);
-
-        for (int i = 0; i < groupList.length; i++)
-        {
-            String group = StringUtils.strip(groupList[i]);
-            
-            if(groupsFromFile != null && !groupsFromFile.isEmpty() && groupsFromFile.contains("'"+group.toUpperCase()+"'"))
-            	authorities.add(new SimpleGrantedAuthority(group));
+        if (membershipConfig != null && "yes".equalsIgnoreCase(membershipConfig.getUseLdap())) {
+            return ldapMembershipAuthProvider.authenticate(authentication);
         }
-        
-        if(!authorities.isEmpty())
-        	return new User(username, "", authorities);
-        
+        return super.authenticate(authentication);
+    }
+
+    @Override
+    protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        // No additional checks required for this implementation
+    }
+
+    @Override
+    protected UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
+        var groups = login(username, Objects.toString(authentication.getCredentials(), ""));
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        if (StringUtils.isEmpty(groups)) {
+            return new User(username, "", authorities);
+        }
+        var groupList = PSStringUtils.getAllowedGroups(groups);
+        var groupsFromFile = PSMembershipAuthUtils.getAccessGroupsFromXML(accessGroupFileName);
+        for (var group : groupList) {
+            var trimmedGroup = StringUtils.strip(group);
+            if (groupsFromFile != null && !groupsFromFile.isEmpty() && groupsFromFile.contains("'" + trimmedGroup.toUpperCase() + "'")) {
+                authorities.add(new SimpleGrantedAuthority(trimmedGroup));
+            }
+        }
+        if (!authorities.isEmpty()) {
+            return new User(username, "", authorities);
+        }
         logger.error("User Not Authorized - PSMembershipAuthProvider.createSuccessfulAuthentication()", new AuthorizationServiceException("User Not Authorized"));
-		throw new AuthorizationServiceException("User Not Authorized");
+        throw new AuthorizationServiceException("User Not Authorized");
     }
 
     /**
-     * Login the user and return the groups the user is a member of.
-     * 
-     * @param userId Assumed not <code>null</code>
-     * @param password Assumed not <code>null</code>
-     * 
-     * @return A comma-delimited list of group names, never <code>null</code>, may be empty.
-     * 
-     * @throws BadCredentialsException if the authentication fails for any reason.
+     * Logs in the user and returns the groups the user is a member of.
+     *
+     * @param userId Assumed not null
+     * @param password Assumed not null
+     * @return A comma-delimited list of group names, never null, may be empty.
+     * @throws BadCredentialsException if authentication fails for any reason.
      */
-    private String login(String userId, String password) throws BadCredentialsException
-    {
-        try
-        {
-            String sessionId = authenticateMember(userId, password);
-            
-            String groups = getMemberGroups(sessionId, userId);
-            
+    private String login(String userId, String password) throws BadCredentialsException {
+        try {
+            var sessionId = authenticateMember(userId, password);
+            var groups = getMemberGroups(sessionId, userId);
             SESSION_ID.set(sessionId);
-            
             return groups;
-        }
-        catch (JSONException e)
-        {
-            // log an error and then auth should fail
+        } catch (JSONException e) {
             logger.error("Error authenticating user " + userId, e);
             logger.debug(e.getMessage(), e);
             throw new BadCredentialsException("");
@@ -171,112 +140,73 @@ public class PSMembershipAuthProvider extends  AbstractUserDetailsAuthentication
     }
 
     /**
-     * Authenticate the supplied credentials
-     * 
+     * Authenticates the supplied credentials.
+     *
      * @return The session id if successful
-     * 
      * @throws JSONException If there is an error parsing a REST response
      */
-    private String authenticateMember(String userId, String password) throws JSONException
-    {
-
-
-        WebTarget webTarget = ms_client.target(membershipConfig.getBaseUrl() + "/perc-membership-services/membership/login");
-
-        String request = "{\"email\": \"" + userId + "\", \"password\": \"" + password + "\"}";
-
-        Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON));
-
-        JSONObject resultObj = getJSONResult(response);
-        String sessionId = resultObj.getString("sessionId");
-        String status = resultObj.getString("status");
-        String message = resultObj.getString("message");
-
-        if (!"SUCCESS".equals(status))
-        {
-            if ("AUTH_FAILED".equals(status))
+    private String authenticateMember(String userId, String password) throws JSONException {
+        var webTarget = msClient.target(membershipConfig.getBaseUrl() + "/perc-membership-services/membership/login");
+        var request = String.format("{\"email\": \"%s\", \"password\": \"%s\"}", userId, password);
+        var invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON_TYPE);
+        var response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON));
+        var resultObj = getJSONResult(response);
+        var sessionId = resultObj.getString("sessionId");
+        var status = resultObj.getString("status");
+        var message = resultObj.getString("message");
+        if (!"SUCCESS".equals(status)) {
+            if ("AUTH_FAILED".equals(status)) {
                 throw new BadCredentialsException("");
-
+            }
             throw new BadCredentialsException(message);
         }
-        
         return sessionId;
     }
 
-
     /**
-     * Get the groups for the supplied session id
+     * Gets the groups for the supplied session id.
      *
      * @param sessionId The session id to use
      * @param userId Used for any error messages
-     * 
-     * @return The list of groups as a comma-delimited string, upper-cased to support case-insensitivity.
-     * 
+     * @return The list of groups as a comma-delimited string, upper-cased for case-insensitivity.
      * @throws JSONException If there is an error parsing a REST response
      */
-    private String getMemberGroups( String sessionId, String userId) throws JSONException
-    {
-        String groups;
-
-        WebTarget webTarget = ms_client.target(membershipConfig.getBaseUrl() + "/perc-membership-services/membership/session");
-
-        String request = "{\"sessionId\": \"" + sessionId + "\"}";
-
-        Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON_TYPE);
-        Response response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON));
-
-        JSONObject resultObj = getJSONResult(response);
-        JSONObject summaryObj = resultObj.getJSONObject("userSummary");
-
-        String email = summaryObj.getString("email");
-
-        if (email == null || email.isEmpty())
-        {
-            // should have worked since we just logged in
+    private String getMemberGroups(String sessionId, String userId) throws JSONException {
+        var webTarget = msClient.target(membershipConfig.getBaseUrl() + "/perc-membership-services/membership/session");
+        var request = String.format("{\"sessionId\": \"%s\"}", sessionId);
+        var invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON_TYPE);
+        var response = invocationBuilder.post(Entity.entity(request, MediaType.APPLICATION_JSON));
+        var resultObj = getJSONResult(response);
+        var summaryObj = resultObj.getJSONObject("userSummary");
+        var email = summaryObj.getString("email");
+        if (email == null || email.isEmpty()) {
             logger.error("Unable to retrieve session info for user: " + userId);
             throw new BadCredentialsException("");
         }
-        groups = summaryObj.getString("groups");
-        if (groups == null)
-            groups = "";
-
+        var groups = summaryObj.optString("groups", "");
         return groups.toUpperCase();
     }
-    
 
-
-   
     /**
-     * Check the response status and if successful return the response as a JSON object.
-     * 
-     * @param response The response to check, assumed not <code>null</code>
-     * 
-     * @return The JSON Object, never <code>null</code>.
-     * 
-     * @throws JSONException If the reponse cannot be parsed as a JSON object.
-     * 
+     * Checks the response status and if successful returns the response as a JSON object.
+     *
+     * @param response The response to check, assumed not null
+     * @return The JSON Object, never null.
+     * @throws JSONException If the response cannot be parsed as a JSON object.
      * @throws BadCredentialsException If the response does not have a 200 status.
      */
-    private JSONObject getJSONResult(Response response) throws JSONException, BadCredentialsException
-    {
-        if (response.getStatus() != 200)
-        {
+    private JSONObject getJSONResult(Response response) throws JSONException, BadCredentialsException {
+        if (response.getStatus() != 200) {
             throw new BadCredentialsException("Failed : HTTP error code : " + response.getStatus());
         }
-
-        String jsonString =  response.readEntity(String.class);
-        JSONObject resultObj = new JSONObject(jsonString);
-
-        return resultObj;
+        var jsonString = response.readEntity(String.class);
+        return new JSONObject(jsonString);
     }
-    
-    /***
-     * Default ctor
+
+    /**
+     * Default constructor
      */
-    public PSMembershipAuthProvider(){
-    	super();
+    public PSMembershipAuthProvider() {
+        super();
     }
-    
-    
 }

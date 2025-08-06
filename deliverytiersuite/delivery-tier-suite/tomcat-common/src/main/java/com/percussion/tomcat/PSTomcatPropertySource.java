@@ -1,3 +1,4 @@
+// REFACTORED: CP-JAVA11
 /*
  * Copyright 1999-2023 Percussion Software, Inc.
  *
@@ -24,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.Properties;
 
 public class PSTomcatPropertySource implements org.apache.tomcat.util.IntrospectionUtils.PropertySource {
@@ -48,28 +50,25 @@ public class PSTomcatPropertySource implements org.apache.tomcat.util.Introspect
     }
 
     @Override
-    public String getProperty(String s) {
-        return getProperties().getProperty(s);
+    public String getProperty(String key) {
+        return Optional.ofNullable(getProperties().getProperty(key)).orElse(null);
     }
 
     private Properties getProperties() {
-        String catalinaBase = System.getProperty("catalina.home");
-
-
-        if(catalinaBase == null){
-            logger.error("Unable to determine catalina.home!  Is the environment set?");
-            catalinaBase="";
+        var catalinaBase = System.getProperty("catalina.home");
+        if (catalinaBase == null) {
+            logger.error("Unable to determine catalina.home! Is the environment set?");
+            catalinaBase = "";
         }
-        logger.debug("Got catalina.home:{}", catalinaBase);
-        Properties props = new Properties();
+        logger.debug("Got catalina.home: {}", catalinaBase);
+        var props = new Properties();
 
-        Path p = Paths.get(catalinaBase, "conf/perc");
-        p = p.resolve("perc-catalina.properties");
+        var percConfPath = Paths.get(catalinaBase, "conf", "perc", "perc-catalina.properties");
 
-        try (FileInputStream fs = new FileInputStream(p.toFile())) {
+        try (var fs = new FileInputStream(percConfPath.toFile())) {
             props.load(fs);
         } catch (IOException exception) {
-            logger.error("Error reading:{} got error {}", p.toAbsolutePath(), exception.getMessage());
+            logger.error("Error reading: {} got error {}", percConfPath.toAbsolutePath(), exception.getMessage());
         }
 
         return props;
