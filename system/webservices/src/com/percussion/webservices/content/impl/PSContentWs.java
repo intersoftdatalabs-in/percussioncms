@@ -136,7 +136,7 @@ import com.percussion.webservices.system.PSSystemWsLocator;
 import com.percussion.webservices.ui.IPSUiDesignWs;
 import com.percussion.webservices.ui.PSUiWsLocator;
 import com.percussion.workflow.PSWorkFlowUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -506,7 +506,7 @@ public class PSContentWs extends PSContentBaseWs implements IPSContentWs
       }
    }
 
-   @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
+   // TODO: Remove me @SuppressFBWarnings("LEST_LOST_EXCEPTION_STACK_TRACE")
    public String[] findItemPaths(IPSGuid id) throws PSErrorException
    {
       PSWebserviceUtils.validateLegacyGuid(id);

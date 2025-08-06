@@ -26,7 +26,7 @@ import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -4804,7 +4804,7 @@ System.out.println("NULL Values not allowed as Update Key");
     * -dbprops <propsFile> -typemap <typeMapFile> -def <defFile> -data <dataFile>
     * @param args see description.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    private static void main2(String args[])
    {
       if(args.length < 8)

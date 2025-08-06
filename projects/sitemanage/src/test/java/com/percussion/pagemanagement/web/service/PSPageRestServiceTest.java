@@ -49,15 +49,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSPageRestServiceTest extends PSRestTestCase<PSPageRestClient> {
 
     private static PSTestSiteData testSiteData;
 
-    @BeforeAll
+    @BeforeEach All
     public void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();

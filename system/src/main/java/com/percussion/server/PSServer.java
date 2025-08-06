@@ -128,7 +128,7 @@ import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.utils.types.PSPair;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.serialization.PSObjectSerializer;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -680,7 +680,7 @@ public class PSServer {
       }
    }
 
-   @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
    public static String stackToString(Exception t)
    {
       StringWriter sw = new StringWriter();

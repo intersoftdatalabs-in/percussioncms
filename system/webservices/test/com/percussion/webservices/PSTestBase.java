@@ -63,15 +63,15 @@ import org.apache.axis.client.Call;
 import org.apache.commons.lang.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Implements utilities used by all webservice test cases.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSTestBase extends PSClientTestCase
 {
    public PSTestBase(String name)
@@ -306,7 +306,7 @@ public class PSTestBase extends PSClientTestCase
       }
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setup() throws Exception
    {
       Properties properties = null;

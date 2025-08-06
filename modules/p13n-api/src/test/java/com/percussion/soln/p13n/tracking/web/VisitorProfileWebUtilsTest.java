@@ -18,14 +18,14 @@
 package test.percussion.soln.p13n.tracking.web;
 
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -40,7 +40,7 @@ public class VisitorProfileWebUtilsTest {
     MockHttpServletResponse response;
     VisitorProfile profile;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         request = new MockHttpServletRequest();
         request.setMethod("GET");

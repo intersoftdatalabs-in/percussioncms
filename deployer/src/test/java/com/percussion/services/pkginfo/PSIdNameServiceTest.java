@@ -23,16 +23,16 @@ import com.percussion.services.pkginfo.impl.PSIdNameService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Test case for the {@link PSIdNameService} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSIdNameServiceTest
 {
    /**

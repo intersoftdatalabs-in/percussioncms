@@ -60,10 +60,10 @@ import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
 import com.percussion.webservices.system.IPSSystemWs;
 
-import org.junit.Ignore;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -74,8 +74,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Optional;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
+@TestMethodOrder(MethodName.class)
+@Tag(IntegrationTest.class)
 public class PSPageServiceTest extends PSServletTestCase
 {
 
@@ -454,7 +454,7 @@ public class PSPageServiceTest extends PSServletTestCase
         assertTrue(pageIds.contains(pageId2));
     }
 
-    @Ignore("Error Message: null")
+    @Disabled("Error Message: null")
     @Test
     public void test160FindPagesBySiteAndTemplate() throws Exception
     {
@@ -515,7 +515,7 @@ public class PSPageServiceTest extends PSServletTestCase
         createTestGetUnusedAsset_hiddenByTemplateAssets(false);
     }
     
-    @Ignore
+    @Disabled
     public void test_fixmeGetUnusedAssets_assetHiddenByTemplateAsset() throws PSDataServiceException {
         createTestGetUnusedAsset_hiddenByTemplateAssets(true);
     }

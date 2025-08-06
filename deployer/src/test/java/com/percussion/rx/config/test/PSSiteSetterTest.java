@@ -29,13 +29,13 @@ import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSiteSetterTest extends PSConfigurationTest
 {
    public void testConfigFiles() throws Exception

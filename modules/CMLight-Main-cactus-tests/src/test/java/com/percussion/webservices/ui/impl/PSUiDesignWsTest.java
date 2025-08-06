@@ -22,7 +22,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import com.percussion.webservices.ui.PSUiWsLocator;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Integration test for UI Design Web Service.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 class PSUiDesignWsTest {
 
     @Test

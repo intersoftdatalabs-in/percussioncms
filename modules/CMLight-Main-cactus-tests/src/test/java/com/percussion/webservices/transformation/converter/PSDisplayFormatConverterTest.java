@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSDisplayFormatConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDisplayFormatConverterTest extends PSConverterTestBase {
 
     public void testConversion() throws Exception {

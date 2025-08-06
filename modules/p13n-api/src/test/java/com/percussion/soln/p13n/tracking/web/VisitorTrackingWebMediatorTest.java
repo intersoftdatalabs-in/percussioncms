@@ -17,7 +17,7 @@
 
 package test.percussion.soln.p13n.tracking.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
 
 import javax.servlet.http.Cookie;
@@ -31,9 +31,9 @@ import org.jmock.Mockery;
 import org.jmock.Sequence;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -60,7 +60,7 @@ public class VisitorTrackingWebMediatorTest {
     MockHttpServletResponse response;
     VisitorProfile profile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mediator = new VisitorTrackingWebMediator();
         tracking = context.mock(IVisitorTrackingService.class);

@@ -20,16 +20,16 @@ import com.percussion.utils.server.IPSCgiVariables;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestTest;
 import com.percussion.testing.IPSCustomJunitTest;
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.assertTrue;
  * This test needs the NT Guest account activated. It is excluded to run 
  * on nightly builds. 
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSSecurityProviderTest
    implements IPSCustomJunitTest
 {

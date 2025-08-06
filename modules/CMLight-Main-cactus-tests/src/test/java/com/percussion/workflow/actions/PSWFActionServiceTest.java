@@ -21,7 +21,7 @@ import com.percussion.extension.IPSWorkflowAction;
 import com.percussion.extension.PSExtensionException;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit Tests for PSWFActionService which is used by the workflow transition
  * action dispatcher extension.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 class PSWFActionServiceTest {
 
     @Test

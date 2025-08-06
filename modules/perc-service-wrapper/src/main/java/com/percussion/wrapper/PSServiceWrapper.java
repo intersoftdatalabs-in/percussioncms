@@ -19,7 +19,7 @@
 package com.percussion.wrapper;
 
 import com.percussion.i18n.rxlt.PSRxltMain;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class PSServiceWrapper {
      * <p>
      * If Derby doesn't start it will fail.
      */
-    @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+    // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
     public static void main(String[] args) {
 
         rxDir = JettyStartUtils.locateRxDir();

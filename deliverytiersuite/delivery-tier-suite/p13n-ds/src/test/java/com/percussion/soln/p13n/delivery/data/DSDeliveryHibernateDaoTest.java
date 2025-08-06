@@ -28,14 +28,14 @@ import java.util.Map;
 import static integrationtest.spring.SpringSetup.getBean;
 import static integrationtest.spring.SpringSetup.loadXmlBeanFiles;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DSDeliveryHibernateDaoTest {
 
     static IDeliveryDataService dao;
     
-    @BeforeClass
+    @BeforeEach Class
     public static void setUp() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/*.xml");

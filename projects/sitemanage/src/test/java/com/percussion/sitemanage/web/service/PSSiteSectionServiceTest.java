@@ -63,7 +63,7 @@ public class PSSiteSectionServiceTest extends PSRestTestCase<PSSiteSectionRestCl
     static PSSiteTemplateRestClient siteTemplateRestClient;
     static PSTemplateServiceClient templateRestClient;
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();

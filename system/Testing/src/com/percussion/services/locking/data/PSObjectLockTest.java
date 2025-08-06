@@ -28,20 +28,20 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the {@link PSObjectLock} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSObjectLockTest
 {
    /**
@@ -168,7 +168,7 @@ public class PSObjectLockTest
       service.releaseLocks(Collections.singletonList(lock));
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setUp() throws Exception
    {
       IPSSystemService systemService = 

@@ -21,20 +21,20 @@ package com.percussion.server;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.AfterClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.nio.channels.FileLock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Andriy Palamarchuk
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSServerTest
 {
    /**

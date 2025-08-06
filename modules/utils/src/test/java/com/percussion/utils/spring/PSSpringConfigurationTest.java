@@ -17,22 +17,22 @@
 package com.percussion.utils.spring;
 
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * Test case for the {@link PSSpringConfiguration} class.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSSpringConfigurationTest extends PSBaseXmlConfigTest
 {
    /**

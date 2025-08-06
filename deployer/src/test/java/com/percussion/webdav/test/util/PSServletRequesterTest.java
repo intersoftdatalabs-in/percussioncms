@@ -30,9 +30,9 @@ import com.percussion.util.servlet.PSServletRequester;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webdav.PSWebdavServlet;
 import com.percussion.webdav.method.PSWebdavUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +50,7 @@ import java.util.List;
 /**
  * This is used to test PSServletRequester class
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSServletRequesterTest extends PSWebdavServlet
 {
 
@@ -331,7 +331,7 @@ public class PSServletRequesterTest extends PSWebdavServlet
     * formatting tags
     * @param e
     */
-   @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
    private void writeStackTrace(Exception e)
    {
        m_writer.println("<pre><font size=\"2\" color=\"blue\">");

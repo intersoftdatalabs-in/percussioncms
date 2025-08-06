@@ -26,7 +26,7 @@ import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -79,7 +79,7 @@ public class PSUpgradePluginCheckDuplicateKeysInTables implements IPSUpgradePlug
       return null;
    }
 
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    private void processTable()
    {
       if ( getTableName() == null || getTableColumn() == null )

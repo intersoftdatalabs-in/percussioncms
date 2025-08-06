@@ -19,18 +19,18 @@ package com.percussion.data;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *  Test class used to test methods in <code>PSStylesheetCleanupUtils</code>
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSStylesheetCleanupUtilsTest
 {
    public PSStylesheetCleanupUtilsTest() {

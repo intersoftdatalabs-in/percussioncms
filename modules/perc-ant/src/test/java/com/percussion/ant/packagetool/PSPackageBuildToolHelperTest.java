@@ -17,15 +17,15 @@
 
 package com.percussion.ant.packagetool;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSPackageBuildToolHelperTest  
 {
    @Test

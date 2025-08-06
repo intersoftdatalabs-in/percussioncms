@@ -28,7 +28,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSTemplateSlotConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSTemplateSlotConverterTest extends PSConverterTestBase {
 
     /**

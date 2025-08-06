@@ -53,7 +53,7 @@ import com.percussion.util.PSSqlHelper;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -97,7 +97,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin
     * 
     * @param dbProps the database properties, never <code>null</code>.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public void setDbProperties(Properties dbProps)
    {
       m_dbProps = dbProps;
@@ -207,7 +207,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin
     * @param module IPSUpgradeModule object. may not be <code>null<code>.
     * @param elemData data element of plugin.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule module, Element elemData)
    {
       PrintStream logger = module.getLogStream();

@@ -57,7 +57,7 @@ public class MainTest {
                 .target(endpoint).path(address);
     }
 
-    @BeforeAll
+    @BeforeEach All
     public static void initialize() throws Exception {
         // No-op for now
     }

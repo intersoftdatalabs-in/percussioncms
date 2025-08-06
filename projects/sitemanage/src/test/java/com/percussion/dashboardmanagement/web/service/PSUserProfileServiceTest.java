@@ -16,17 +16,17 @@
  */
 package com.percussion.dashboardmanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.dashboardmanagement.data.PSUserProfile;
 import com.percussion.share.test.PSDataServiceRestClient;
 import com.percussion.share.test.PSRestTestCase;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Ignore("SUT are not used")
+@Disabled("SUT are not used")
 public class PSUserProfileServiceTest extends PSRestTestCase<PSUserProfileServiceTest.UserProfileRestClient> {
     
 

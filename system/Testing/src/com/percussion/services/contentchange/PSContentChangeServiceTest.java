@@ -16,7 +16,7 @@
  */
 package com.percussion.services.contentchange;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.contentchange.data.PSContentChangeEvent;
 import com.percussion.services.contentchange.data.PSContentChangeType;
@@ -28,13 +28,13 @@ import java.util.Set;
 import com.percussion.share.dao.IPSGenericDao;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentChangeServiceTest
 {
 

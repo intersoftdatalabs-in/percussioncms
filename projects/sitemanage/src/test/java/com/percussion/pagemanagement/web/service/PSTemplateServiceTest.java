@@ -29,7 +29,7 @@ import com.percussion.share.test.PSTestDataCleaner;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "Testing templates is like checking your pizza base before adding toppings—crucial!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSTemplateServiceTest extends PSRestTestCase<PSTemplateServiceClient> {
 

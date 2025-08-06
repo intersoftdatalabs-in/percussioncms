@@ -21,11 +21,11 @@ import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormData;
 import com.percussion.delivery.utils.spring.PSNonValidatingGenericXMLContextLoader;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
@@ -38,11 +38,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  *
@@ -62,7 +62,7 @@ import static org.junit.Assert.fail;
 public class PSFormServiceTest extends PSBaseFormServiceTest
 {
 
-    @Before
+    @BeforeEach
     public void setup(){
 
     }
@@ -403,7 +403,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
         assertEquals("forms count", 0, count);
     }
 
-    @After
+    @AfterEach
     // @Transactional
     public void tearDown()
     {
@@ -722,7 +722,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("Test fails for no good reason - bad mock")
+    @Disabled("Test fails for no good reason - bad mock")
     public void testSendFormEmail() throws Exception
     {
         String[] fieldValue1 = new String[] { "field1", "value1" };

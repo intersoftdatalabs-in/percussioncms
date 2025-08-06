@@ -24,10 +24,10 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.soln.segment.ISegmentNode;
@@ -40,12 +40,12 @@ public class SegmentControlTreeXmlTest {
     Mockery context = new JUnit4Mockery();
     SegmentMocks segMocks;
     
-    @BeforeClass
+    @BeforeEach Class
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segTreeXml = new SegmentControlTreeXml();
         segMocks = new SegmentMocks(context);

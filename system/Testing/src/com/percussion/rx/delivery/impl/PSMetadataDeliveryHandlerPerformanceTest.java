@@ -36,8 +36,8 @@ import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.HiddenFileFilter;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -77,7 +77,7 @@ public class PSMetadataDeliveryHandlerPerformanceTest extends TestCase
     
     private PSMetadataDeliveryHandler metadataDeliveryHandler = new PSMetadataDeliveryHandler();
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         PSDeliveryInfo deliveryServer =
@@ -92,7 +92,7 @@ public class PSMetadataDeliveryHandlerPerformanceTest extends TestCase
         metadataDeliveryHandler.prepareForDelivery(JOB_ID);
     }
     
-    @After
+    @AfterEach
     public void tearDown() 
     {
        metadataDeliveryHandler.releaseForDelivery(JOB_ID);

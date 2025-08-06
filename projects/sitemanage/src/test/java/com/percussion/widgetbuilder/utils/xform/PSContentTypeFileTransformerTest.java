@@ -42,7 +42,7 @@ public class PSContentTypeFileTransformerTest {
 
     private static PSWidgetPackageSpec packageSpec;
 
-    @BeforeAll
+    @BeforeEach All
     public static void beforeAll() {
         packageSpec = setupPackageSpec();
     }

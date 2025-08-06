@@ -25,7 +25,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.system.RelationshipConfigSummary;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.commons.beanutils.Converter;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSRelationshipConfigConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSRelationshipConfigConverterTest extends PSConverterTestBase {
 
     /**

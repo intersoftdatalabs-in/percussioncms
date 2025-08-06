@@ -21,9 +21,9 @@ import com.percussion.services.assembly.data.PSAssemblyWorkItem;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
  * 
  * @author dougrand
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodName.class)
 public class PSTrackAssemblyErrorsTest extends TestCase
 {
 

@@ -21,7 +21,7 @@ import java.io.File;
 
 import org.junit.AfterClass;
 import org.junit.jupiter.api.Assertions;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.exception.CADFException;
@@ -33,7 +33,7 @@ import com.ibm.cadf.util.Constants;
 public class AuditMiddlewareTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         System.setProperty(Constants.API_AUDIT_MAP, "api_audit_map.conf");

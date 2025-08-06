@@ -33,16 +33,16 @@ import junit.framework.TestSuite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *   Unit tests for the PSDebugManager class
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDebugManagerTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {

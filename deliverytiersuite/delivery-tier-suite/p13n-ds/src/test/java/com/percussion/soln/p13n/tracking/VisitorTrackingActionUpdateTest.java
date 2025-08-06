@@ -17,7 +17,7 @@
 
 package com.percussion.soln.p13n.tracking;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +26,9 @@ import java.util.UUID;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.tracking.IVisitorProfileDataService;
 import com.percussion.soln.p13n.tracking.IVisitorTrackingAction;
@@ -48,7 +48,7 @@ public class VisitorTrackingActionUpdateTest {
 	
 	Mockery context = new JUnit4Mockery();
 	
-	@Before
+	@BeforeEach 
 	public void setUp() throws Exception {	
 	    action = new VisitorTrackingActionUpdate();
 	}

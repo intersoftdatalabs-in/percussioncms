@@ -23,7 +23,7 @@ import com.percussion.server.PSServer;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.io.PathUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -87,7 +87,7 @@ public class PSMakeLasagna extends Task
    }
    
    // see base class
-   @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
+   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
    @Override
    public void execute() throws BuildException
    {

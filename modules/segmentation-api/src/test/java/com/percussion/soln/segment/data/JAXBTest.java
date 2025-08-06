@@ -17,7 +17,7 @@
 
 package test.percussion.soln.segment.data;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ import javax.xml.bind.JAXB;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.segment.Segment;
@@ -40,7 +40,7 @@ public class JAXBTest {
     Segments segments;
     
     StringWriter sw;
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segA = new Segment();
         segA.setName("A");

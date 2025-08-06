@@ -20,16 +20,16 @@ package com.percussion.delivery.metadata.solr.impl;
 import com.percussion.share.dao.PSSerializerUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class SolrConfigLoaderTest
 {
    @Test

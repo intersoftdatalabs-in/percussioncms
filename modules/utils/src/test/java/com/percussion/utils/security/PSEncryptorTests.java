@@ -19,38 +19,39 @@ package com.percussion.utils.security;
 
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test class for PSEncryptor
  */
 //@todo: Fix it...
-@Ignore
+@Disabled
 public class PSEncryptorTests {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
+    @TempDir
+    public Path temporaryFolder;
     private String rxdeploydir;
 
-    @Before
+    @BeforeEach
     public void setup(){
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir",temporaryFolder.getRoot().toAbsolutePath().toString() + File.separator + "test-secure");
     }
 
-    @After
+    @AfterEach
     public void teardown(){
         //Reset the deploy dir property if it was set prior to test
         if(rxdeploydir != null)

@@ -43,7 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -82,7 +82,7 @@ import java.util.Set;
  * @author peterfrontiero
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSWidgetDialogGenerator extends PSServletTestCase
 {
     @Override

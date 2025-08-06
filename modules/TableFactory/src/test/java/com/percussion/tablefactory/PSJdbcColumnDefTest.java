@@ -18,20 +18,20 @@
 package com.percussion.tablefactory;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.sql.Types;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for PSJdbcColumnDef.
@@ -569,14 +569,14 @@ public class PSJdbcColumnDefTest
    }
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
 
    private String rxdeploydir;
 
    /**
     * Performs the setup required by the tests: creating a datatypemap.
     */
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       m_map = new PSJdbcDataTypeMap( "MSSQL", "inetdae7", null );
@@ -584,7 +584,7 @@ public class PSJdbcColumnDefTest
       System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       //Reset the deploy dir property if it was set prior to test
       if(rxdeploydir != null)

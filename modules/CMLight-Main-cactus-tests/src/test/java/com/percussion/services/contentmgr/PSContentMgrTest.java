@@ -23,7 +23,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentMgrTest extends ServletTestCase
 {
    /**

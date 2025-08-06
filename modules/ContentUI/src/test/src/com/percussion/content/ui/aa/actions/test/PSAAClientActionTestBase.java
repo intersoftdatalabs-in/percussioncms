@@ -17,7 +17,7 @@ import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ import java.util.Map;
  * @author erikserating
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAAClientActionTestBase extends ServletTestCase
 {
    /**

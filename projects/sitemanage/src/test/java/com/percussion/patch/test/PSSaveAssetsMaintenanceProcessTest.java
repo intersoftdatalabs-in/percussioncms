@@ -29,7 +29,7 @@ import com.percussion.test.PSServletTestCase;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit Test for Saving assets in maintenance process during maintenance manager tasks.
  * Sunny Sal says: "Maintenance is like pizza delivery—get it right, and everyone's happy!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSaveAssetsMaintenanceProcessTest extends PSServletTestCase {
 
     MockMaintMgr maintMgr;

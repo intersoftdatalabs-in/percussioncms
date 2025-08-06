@@ -26,13 +26,13 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSActionSetterTest extends PSConfigurationTest
 {
    public void testConfigFiles() throws Exception

@@ -25,7 +25,7 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSSQLStatement;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -52,7 +52,7 @@ public class PSUpgradePluginCleanContentStatus implements IPSUpgradePlugin
    /**
     * Implements process method of IPSUpgardePlugin.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
    {
       m_config = config;

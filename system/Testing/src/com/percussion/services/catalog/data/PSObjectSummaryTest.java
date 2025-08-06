@@ -21,7 +21,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.security.PSPermissions;
 import com.percussion.services.security.data.PSUserAccessLevel;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -68,7 +68,7 @@ public class PSObjectSummaryTest
     * @throws Exception
     */
    @Test
-   @Ignore ("TODO: Fix me.  Test fails on certain JRE versions / OS")
+   @Disabled ("TODO: Fix me.  Test fails on certain JRE versions / OS")
    public void testCompleteSerialization() throws Exception
    {
       PSObjectSummary nsum = new PSObjectSummary();

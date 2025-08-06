@@ -28,14 +28,14 @@ import com.percussion.webservices.assembly.data.PSTemplateSlot;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class AssemblyTestCase extends PSAssemblyTestBase
 {
    @Test

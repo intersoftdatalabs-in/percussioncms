@@ -104,7 +104,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
         }
     };
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
@@ -318,7 +318,7 @@ public class PSSiteDataServiceTest extends PSRestTestCase<PSSiteRestClient> {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCopy() throws Exception
     {
         log.debug("testCopy");

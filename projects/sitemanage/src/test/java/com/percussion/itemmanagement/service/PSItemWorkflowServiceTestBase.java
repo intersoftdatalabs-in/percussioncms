@@ -40,11 +40,11 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.Collections;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSItemWorkflowServiceTestBase extends PSServletTestCase
 {
     protected PSSiteDataServletTestCaseFixture fixture;

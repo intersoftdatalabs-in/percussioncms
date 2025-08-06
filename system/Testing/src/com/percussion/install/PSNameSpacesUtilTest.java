@@ -16,18 +16,18 @@
  */
 package com.percussion.install;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static com.percussion.install.PSNameSpacesUtil.removeWhitespacesFromName;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSNameSpacesUtilTest
 {
 

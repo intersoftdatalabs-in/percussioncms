@@ -28,14 +28,14 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PSIteratorChainTest extends TestCase
 {
 
    private List<List<String>> values = new ArrayList<List<String>>();
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       values.add(asList("a","b"));

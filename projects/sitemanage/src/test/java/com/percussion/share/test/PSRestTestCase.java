@@ -23,14 +23,14 @@ import java.util.Properties;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public abstract class PSRestTestCase<REST_CLIENT extends PSObjectRestClient> {
     public static String baseUrl;
     protected REST_CLIENT restClient;
 
-    @BeforeAll
+    @BeforeEach All
     public static void loadProperties() throws Exception {
         if (baseUrl == null) {
             var cactusProps = new Properties();

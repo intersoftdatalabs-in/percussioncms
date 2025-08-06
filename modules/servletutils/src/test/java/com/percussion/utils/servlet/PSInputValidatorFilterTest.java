@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.TestCase;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -45,7 +45,7 @@ import org.springframework.mock.web.MockServletContext;
  * @author adamgent
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSInputValidatorFilterTest extends TestCase
 {
     

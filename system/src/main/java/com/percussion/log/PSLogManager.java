@@ -19,7 +19,7 @@ package com.percussion.log;
 import com.percussion.server.PSServer;
 import com.percussion.util.PSDoubleList;
 import com.percussion.utils.jdbc.PSConnectionHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.xml.sax.SAXException;
 
 import javax.naming.NamingException;
@@ -661,7 +661,7 @@ public class PSLogManager
    /**
     *   Notify the log queue thread that a new message has been queued.
     */
-   @SuppressFBWarnings("NN_NAKED_NOTIFY")
+   // TODO: Remove me @SuppressFBWarnings("NN_NAKED_NOTIFY")
    private static void notifyQueue()
    {
       synchronized (m_queue)

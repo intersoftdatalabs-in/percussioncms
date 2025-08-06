@@ -18,7 +18,7 @@
 package test.percussion.soln.segment;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -26,9 +26,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentService;
@@ -54,7 +54,7 @@ public class SegmentTreeFactoryTest {
 
     ISegmentService segmentService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segmentTreeFactory = new SegmentTreeFactory();
         segmentService = context.mock(ISegmentService.class);

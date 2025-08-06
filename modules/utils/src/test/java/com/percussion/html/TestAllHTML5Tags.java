@@ -21,20 +21,21 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test to validate the HTML cleaner / parser against
@@ -42,8 +43,8 @@ import static org.junit.Assert.*;
  */
 public class TestAllHTML5Tags {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
     public Document parsedDoc;
     public String parsedHTML;
@@ -51,10 +52,9 @@ public class TestAllHTML5Tags {
     Map<String, String> globalAttributes = new HashMap<String, String>();
     Map<String, String> eventAttribute = new HashMap<String, String>();
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, PSHtmlParsingException {
-        temporaryFolder.create();
-
+      
         String sourceDoc = new Scanner(Objects.requireNonNull(TestPSHtmlCleanerProperties.class.getResourceAsStream("/com/percussion/html/alltags.html")), "UTF-8").useDelimiter("\\A").next();
 
         parsedDoc = PSHtmlUtils.createHTMLDocument(sourceDoc,
@@ -162,7 +162,7 @@ public class TestAllHTML5Tags {
 
     }
 
-    @After
+    @AfterEach
     public void teardown(){
 
     }

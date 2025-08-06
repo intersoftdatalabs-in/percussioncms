@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  *
  * @author paulhoward
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSearchEngineTest extends TestCase 
    implements IPSServerBasedJunitTest
 {

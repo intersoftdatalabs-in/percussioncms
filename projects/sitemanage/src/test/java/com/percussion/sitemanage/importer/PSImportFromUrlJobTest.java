@@ -82,7 +82,7 @@ class PSImportFromUrlJobTest extends PSSiteImportTestBase {
     /**
      * Tests if the jobs can gather the helpers they need from the context.
      */
-    @Ignore
+    @Disabled
     public void ignore_testHelperAvailability()
     {
         // Create jobs
@@ -109,7 +109,7 @@ class PSImportFromUrlJobTest extends PSSiteImportTestBase {
     /**
      * Tests if the whole process of importing a site is successful.
      */
-    @Ignore
+    @Disabled
     public void ignore_testImportSite()
     {
         importedSite = new PSSite();
@@ -149,7 +149,7 @@ class PSImportFromUrlJobTest extends PSSiteImportTestBase {
      * @throws Exception 
      * 
      */
-    @Ignore
+    @Disabled
     public void ignore_testImportTemplateFromUrl() throws Exception
     {
         createFixture();

@@ -21,7 +21,7 @@ package com.percussion.searchmanagement.service.impl;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.search.PSSearchIndexEventQueue;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -52,7 +52,7 @@ public class PSIndexHelper implements Runnable {
     /**
      * Add items to the concurrent data structure for background processing.
      */
-    @SuppressFBWarnings("NN_NAKED_NOTIFY")
+    // TODO: Remove me @SuppressFBWarnings("NN_NAKED_NOTIFY")
     public void addItemsForIndex(Set<PSLocator> locas) {
         try {
             ids.addAll(locas);

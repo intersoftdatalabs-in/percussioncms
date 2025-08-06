@@ -33,7 +33,7 @@ import com.percussion.theme.service.impl.PSThemeService;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,7 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSRenderLinkServiceTest extends PSServletTestCase
 {
     private PSSiteDataServletTestCaseFixture fixture;

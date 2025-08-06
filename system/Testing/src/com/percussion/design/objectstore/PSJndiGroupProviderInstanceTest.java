@@ -24,10 +24,10 @@ import org.w3c.dom.Element;
 
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_BETABLE;
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_DIRCONN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PSJndiGroupProviderInstanceTest
 {

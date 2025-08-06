@@ -28,7 +28,7 @@ import com.percussion.search.PSSearchResult;
 import com.percussion.search.lucene.analyzer.PSLuceneAnalyzerFactory;
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.IPSHtmlParameters;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -311,7 +311,7 @@ public class PSSearchQueryImpl extends PSSearchQuery implements Closeable
     * <code>null</code>, if no directory exists with that content type id.
     * @throws PSSearchException in case of io or index corrupted exceptions.
     */
-   @SuppressFBWarnings({"PATH_TRAVERSAL_IN"})
+   // TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN"})
    private IndexReader getIndexReader(String ctypeId)
            throws IOException, PSSearchException {
 

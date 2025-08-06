@@ -54,16 +54,16 @@ import java.util.Arrays;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for all public security web services
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class SecurityTestCase extends PSSecurityTestBase
 {
    /**
@@ -554,7 +554,7 @@ public class SecurityTestCase extends PSSecurityTestBase
     * 
     * @throws Exception if the test fails.
     */
-   @Ignore
+   @Disabled
    @Test //TODO: Fix this
    public void FIXME_test6SecuritySOAPFilterByRuntimeVisibility() throws Exception
    {

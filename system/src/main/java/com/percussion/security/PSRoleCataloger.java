@@ -24,7 +24,7 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.server.PSConsole;
 import com.percussion.server.PSServer;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -427,7 +427,7 @@ public class PSRoleCataloger extends PSCataloger
     *         may be empty.
     * @throws NamingException for any JNDI lookup error.
     */
-   @SuppressFBWarnings("LDAP_INJECTION") //Mitigated in PSJndiUtils.buildFilter
+   // TODO: Remove me @SuppressFBWarnings("LDAP_INJECTION") //Mitigated in PSJndiUtils.buildFilter
    private NamingEnumeration getAttributes(DirContext context,
                                            PSDirectoryDefinition directory, Map filterValues, String[] returnAttrs)
    throws NamingException

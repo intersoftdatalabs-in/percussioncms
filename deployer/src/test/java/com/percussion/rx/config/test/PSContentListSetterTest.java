@@ -26,12 +26,12 @@ import com.percussion.services.filter.IPSItemFilter;
 import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.publisher.IPSContentList;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentListSetterTest extends PSConfigurationTest
 {
    public void testNegative() throws Exception

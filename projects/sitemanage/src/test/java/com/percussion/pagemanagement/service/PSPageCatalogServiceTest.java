@@ -29,7 +29,7 @@ import com.percussion.share.spring.PSSpringWebApplicationContextUtils;
 import com.percussion.sitemanage.error.PSSiteImportException;
 import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ import java.util.Optional;
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPageCatalogServiceTest extends PSServletTestCase
 {
     private PSSiteDataServletTestCaseFixture fixture;

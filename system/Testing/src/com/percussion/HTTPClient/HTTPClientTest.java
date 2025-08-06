@@ -21,22 +21,22 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.testing.PSClientTestCase;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Deprecated
-@Category(IntegrationTest.class)
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+@Tag(IntegrationTest.class)
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class HTTPClientTest extends PSClientTestCase
 {
    private static final Logger log = LogManager.getLogger(IPSConstants.TEST_LOG);

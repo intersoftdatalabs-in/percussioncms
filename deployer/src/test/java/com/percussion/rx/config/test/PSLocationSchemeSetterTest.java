@@ -30,14 +30,14 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSLocationSchemeSetterTest extends PSConfigurationTest
 {
 

@@ -19,10 +19,10 @@ package com.percussion.ant.install;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.utils.container.adapters.DtsConnectorConfigurationAdapterTest;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,21 +32,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /***
  * Test the ant task that creates the DTS properties
  */
 public class TestUpdateDTSConfiguration {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
     private static String STAGING_PATH = "Staging/Deployment";
     private static String STAGING_PATH_WIN = "Staging\\Deployment";
 
-    @Before
+    @BeforeEach
     public void setup(){
         PSSecureXMLUtils.setupJAXPDefaults();
     }

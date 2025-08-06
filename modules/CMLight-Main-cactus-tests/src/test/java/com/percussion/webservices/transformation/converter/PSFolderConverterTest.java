@@ -24,7 +24,7 @@ import com.percussion.cms.objectstore.PSObjectPermissions;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSActionConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFolderConverterTest extends PSConverterTestBase {
 
     /**

@@ -83,7 +83,7 @@ class PSSearchServiceTest extends PSRestTestCase<PSSearchServiceRestClient> {
         return searchServiceClient;
     }
 
-    @BeforeAll
+    @BeforeEach All
     static void setupSuite() throws Exception {
         pathServiceRestClient = new PSPathServiceRestClient(baseUrl);
         setupClient(pathServiceRestClient);

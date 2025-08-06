@@ -33,16 +33,15 @@ public class PSJettyConnectorsTest {
 
     @Test
     public void load() throws IOException {
-        Path root = temporaryFolder.getRoot().toPath();
+        Path root = temporaryFolder;
 
         InputStream srcInstallProps = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/installation.properties");
         InputStream srcLoginConf = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/login.conf");
         InputStream srcPercDsXML= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
         InputStream srcPercDsProperties= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
-
-        temporaryFolder.newFolder("jetty","base","etc");
-
-        Files.copy(srcInstallProps,root.resolve("jetty/base/etc/installation.properties"));
+        
+        Files.createDirectories(temporaryFolder.resolve("jetty/base/etc"));
+Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
         Files.copy(srcLoginConf,root.resolve("jetty/base/etc/login.conf"));
         Files.copy(srcPercDsXML,root.resolve("jetty/base/etc/perc-ds.xml"));
         Files.copy(srcPercDsProperties,root.resolve("jetty/base/etc/perc-ds.properties"));
@@ -54,16 +53,15 @@ public class PSJettyConnectorsTest {
 
     @Test
     public void save() throws IOException {
-        Path root = temporaryFolder.getRoot().toPath();
+        Path root = temporaryFolder;
 
         InputStream srcInstallProps = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/installation.properties");
         InputStream srcLoginConf = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/login.conf");
         InputStream srcPercDsXML= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds.xml");
         InputStream srcPercDsProperties= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/perc-ds-derby.properties");
 
-        temporaryFolder.newFolder("jetty","base","etc");
-
-        Files.copy(srcInstallProps,root.resolve("jetty/base/etc/installation.properties"));
+        Files.createDirectories(temporaryFolder.resolve("jetty/base/etc"));
+Files.copy(srcInstallProps, root.resolve("jetty/base/etc/installation.properties"));
         Files.copy(srcLoginConf,root.resolve("jetty/base/etc/login.conf"));
         Files.copy(srcPercDsXML,root.resolve("jetty/base/etc/perc-ds.xml"));
         Files.copy(srcPercDsProperties,root.resolve("jetty/base/etc/perc-ds.properties"));

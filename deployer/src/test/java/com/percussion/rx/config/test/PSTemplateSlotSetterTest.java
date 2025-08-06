@@ -29,7 +29,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author YuBingChen
  */
 @SuppressWarnings("unchecked")
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSTemplateSlotSetterTest extends PSConfigurationTest // TestCase
 {
    public void testSlotProperties() throws Exception

@@ -23,9 +23,9 @@ import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -33,8 +33,8 @@ import org.junit.jupiter.api.Test;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@Tag(IntegrationTest.class)
+@TestMethodOrder(MethodName.class)
 public class PSRequestInfoTest extends TestCase
 {
 

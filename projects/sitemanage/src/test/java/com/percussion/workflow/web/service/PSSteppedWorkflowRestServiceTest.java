@@ -66,7 +66,7 @@ public class PSSteppedWorkflowRestServiceTest extends PSRestTestCase<PSSteppedWo
         return workflowEditorRestServiceClient;
     }
 
-    @BeforeAll
+    @BeforeEach All
     public static void setupSuite() throws Exception {
         workflowEditorRestServiceClient = new PSSteppedWorkflowRestServiceClient(baseUrl);
         setupClient(workflowEditorRestServiceClient);

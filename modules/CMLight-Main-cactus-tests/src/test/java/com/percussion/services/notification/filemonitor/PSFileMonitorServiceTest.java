@@ -33,12 +33,12 @@ import com.percussion.services.notification.PSNotificationServiceLocator;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
 import com.percussion.services.notification.filemonitor.impl.PSFileMonitorService;
 import com.percussion.util.PSPurgableTempFile;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Unit Test for  File Monitor Notification service {@link PSFileMonitorService}
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFileMonitorServiceTest extends ServletTestCase
       implements IPSNotificationListener
 {

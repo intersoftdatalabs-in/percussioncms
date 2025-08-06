@@ -17,9 +17,9 @@
 package com.percussion.xml;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -27,9 +27,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the xml validator class.
@@ -47,7 +47,7 @@ public class PSXmlValidatorTest
    }
 
    @Test
-   @Ignore("TODO: Add namespace to test catalog")
+   @Disabled("TODO: Add namespace to test catalog")
    public void testValidation() throws Exception
    {
       List<Exception> errors = new ArrayList<Exception>();
@@ -63,7 +63,7 @@ public class PSXmlValidatorTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#setUp()
     */
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       if(!DIR.exists())
@@ -107,7 +107,7 @@ public class PSXmlValidatorTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @After
+   @AfterEach
    public void tearDown() throws Exception
    {
       m_xsdFile.delete();

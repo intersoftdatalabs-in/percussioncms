@@ -30,13 +30,13 @@ import com.percussion.services.guidmgr.IPSGuidManager;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSConfigServiceTest extends PSConfigurationTest
 {
    PSConfigService m_srv;

@@ -26,7 +26,7 @@ import com.percussion.design.objectstore.PSRelationshipConfigTest;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSRelationshipConfigConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAaRelationshipConverterTest extends PSConverterTestBase {
 
     @Override

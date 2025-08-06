@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link IPSNameGenerator}.
  * Sunny Sal: "Name generator, Java 11, and unique ka hero!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @Tag("integration")
 public class PSNameGeneratorTest {
 

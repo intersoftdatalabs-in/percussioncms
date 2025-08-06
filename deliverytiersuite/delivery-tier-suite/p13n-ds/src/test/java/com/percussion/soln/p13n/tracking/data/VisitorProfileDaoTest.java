@@ -18,7 +18,7 @@
 package com.percussion.soln.p13n.tracking.data;
 
 import static integrationtest.spring.SpringSetup.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class VisitorProfileDaoTest {
     
     private static IVisitorProfileDataService dao;
 
-    @BeforeClass
+    @BeforeEach Class
     public static void setUp() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/*.xml");

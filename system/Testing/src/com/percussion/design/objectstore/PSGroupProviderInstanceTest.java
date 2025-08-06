@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_BETABLE;
 import static com.percussion.security.PSSecurityProvider.SP_TYPE_DIRCONN;
 import static com.percussion.testing.PSTestCompare.assertEqualsWithHash;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
 public class PSGroupProviderInstanceTest

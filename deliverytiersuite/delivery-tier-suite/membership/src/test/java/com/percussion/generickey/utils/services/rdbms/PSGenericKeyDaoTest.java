@@ -23,13 +23,13 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.time.DateUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -44,7 +44,7 @@ import java.util.UUID;
  * 
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSGenericKeyDaoTest extends TestCase
 {
@@ -57,7 +57,7 @@ public class PSGenericKeyDaoTest extends TestCase
 
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();
@@ -81,7 +81,7 @@ public class PSGenericKeyDaoTest extends TestCase
     }
 
     @Override
-    @After
+    @AfterEach
     public void tearDown()
     {
 

@@ -19,16 +19,16 @@ package com.percussion.services.assembly.ui;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit test for migration bean
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSVariantMigrationBeanTest
 {
    /**

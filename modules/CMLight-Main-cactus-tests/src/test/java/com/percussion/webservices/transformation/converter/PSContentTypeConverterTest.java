@@ -22,7 +22,7 @@ import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test the {@link PSContentTypeConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentTypeConverterTest extends PSConverterTestBase {
 
     /**

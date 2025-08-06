@@ -20,7 +20,7 @@ import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.contentmgr.data.PSContentTemplateDesc;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit test for the {@link PSContentTemplateDescConverter}
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentTemplateDescConverterTest extends PSConverterTestBase {
 
     /**

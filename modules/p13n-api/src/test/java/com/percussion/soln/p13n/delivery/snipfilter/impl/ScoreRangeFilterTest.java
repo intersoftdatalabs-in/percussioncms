@@ -17,7 +17,7 @@
 
 package test.percussion.soln.p13n.delivery.snipfilter.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 

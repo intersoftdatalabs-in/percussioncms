@@ -20,14 +20,14 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.faults.PSError;
 import com.percussion.webservices.transformation.converter.PSConverterTestBase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSErrorException} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 class PSErrorExceptionTest extends PSConverterTestBase {
 
     /**

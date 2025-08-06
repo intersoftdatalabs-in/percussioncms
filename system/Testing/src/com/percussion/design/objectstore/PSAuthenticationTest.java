@@ -18,16 +18,16 @@ package com.percussion.design.objectstore;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Authentication object store class testing, including constructors,
@@ -37,17 +37,17 @@ public class PSAuthenticationTest
 {
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
 
    private String rxdeploydir;
 
-   @Before
+   @BeforeEach 
    public void setup(){
       rxdeploydir = System.getProperty("rxdeploydir");
       System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       //Reset the deploy dir property if it was set prior to test
       if(rxdeploydir != null)

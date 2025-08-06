@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.services.workflow.data.PSNotificationDef;
@@ -29,9 +29,9 @@ import java.util.List;
 import com.percussion.util.PSResourceUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 /**
@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
  * changes are made.
  * 
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSUpgradePluginUpdateWFNotificationTest
 {
    @Test

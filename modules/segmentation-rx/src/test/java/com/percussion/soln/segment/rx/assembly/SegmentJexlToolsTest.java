@@ -19,7 +19,7 @@ package com.percussion.soln.segment.rx.assembly;
 
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,9 +32,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.segment.ISegmentService;
 import com.percussion.soln.segment.Segment;
@@ -60,7 +60,7 @@ public class SegmentJexlToolsTest {
     
     Map<String, Integer> expected;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         jexl = new SegmentJexlTools();
         segmentService = context.mock(ISegmentService.class);

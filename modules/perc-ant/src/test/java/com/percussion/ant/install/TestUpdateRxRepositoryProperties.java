@@ -21,12 +21,12 @@ import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Before;
-import org.junit.Rule;
+
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,13 +36,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class TestUpdateRxRepositoryProperties {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
      private Path getResourcePath(String resource) throws URISyntaxException {
          return Paths.get(TestUpdateRxRepositoryProperties.class.getResource(resource).toURI());
@@ -59,7 +59,7 @@ public class TestUpdateRxRepositoryProperties {
         return p;
     }
 
-    @Before
+    @BeforeEach
     public void setup(){
         PSSecureXMLUtils.setupJAXPDefaults();
     }

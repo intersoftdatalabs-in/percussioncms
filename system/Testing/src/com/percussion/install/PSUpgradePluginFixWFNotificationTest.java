@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -33,9 +33,9 @@ import java.util.List;
 import com.percussion.util.PSResourceUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 /**
@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSUpgradePluginFixWFNotificationTest
 {
 
@@ -54,7 +54,7 @@ public class PSUpgradePluginFixWFNotificationTest
    private static final String PENDING = "Pending";
    private static final String ADMIN_ROLE_GUID = "0-25-9";
    
-   @Before
+   @BeforeEach 
    public void setup()
    {
       // initialize the locator for unit testing

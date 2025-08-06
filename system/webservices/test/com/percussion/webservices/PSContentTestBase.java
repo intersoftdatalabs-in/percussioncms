@@ -75,9 +75,9 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Provides base class functionality for content and content design web service

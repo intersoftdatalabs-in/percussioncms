@@ -23,17 +23,17 @@ import com.percussion.rx.config.impl.PSConfigNormalizer;
 import com.percussion.rx.config.impl.PSImplConfigLoader;
 import com.percussion.rx.config.impl.PSObjectConfigHandler;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test {@link PSImplConfigLoader}
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * Note, the "Working directory" must be ${workspace_loc:Rhythmyx-Main} when run
  * this unit test.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSImplConfigLoaderTest
 {
 

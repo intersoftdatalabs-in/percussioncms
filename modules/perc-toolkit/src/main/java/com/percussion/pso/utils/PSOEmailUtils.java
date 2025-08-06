@@ -20,7 +20,7 @@ package com.percussion.pso.utils;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.server.PSServer;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,7 +79,7 @@ public class PSOEmailUtils {
 	  * @param subject
 	  * @param body
 	  */
-	@SuppressFBWarnings("PATH_TRAVERSAL_IN")
+	// TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
 	public static void sendEmail(String from_line, String to_line, String cc_line, String bcc_line, String subject, String body)
 	{
 		try

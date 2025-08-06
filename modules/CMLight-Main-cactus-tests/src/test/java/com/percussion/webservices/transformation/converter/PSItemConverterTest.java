@@ -32,7 +32,7 @@ import com.percussion.webservices.content.PSChildEntry;
 import com.percussion.webservices.content.PSItem;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSItemConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSItemConverterTest extends PSConverterTestBase {
     /**
      * Tests the conversion from a server to a client item as well as a

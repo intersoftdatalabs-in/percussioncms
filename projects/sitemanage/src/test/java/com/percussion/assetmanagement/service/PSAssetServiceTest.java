@@ -67,7 +67,7 @@ import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.system.IPSSystemWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 

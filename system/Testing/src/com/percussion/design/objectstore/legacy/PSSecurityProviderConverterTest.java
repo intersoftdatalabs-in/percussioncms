@@ -35,15 +35,15 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSSecurityProviderConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSecurityProviderConverterTest extends PSBaseConverterTest
 {
    /**

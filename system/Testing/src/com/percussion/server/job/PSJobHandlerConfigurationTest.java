@@ -28,7 +28,7 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for the <code>PSJobHandlerConfiguration</code> class

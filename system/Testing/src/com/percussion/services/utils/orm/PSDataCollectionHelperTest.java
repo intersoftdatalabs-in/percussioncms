@@ -31,20 +31,20 @@ import org.hibernate.criterion.Restrictions;
 
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test the data collection helper for correct behavior.
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDataCollectionHelperTest
 {
    /**

@@ -16,18 +16,18 @@
  */
 package com.percussion.utils.jexl;
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.FixMethodOrder;
+
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Test evaluator for valid and invalid case handling
@@ -35,8 +35,8 @@ import static org.junit.Assert.assertFalse;
  * @author dougrand
  */
 @SuppressWarnings(value = "unchecked")
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(UnitTest.class)
+@TestMethodOrder(MethodName.class)
+@Tag("UnitTest")
 public class PSJexlEvaluatorTest
 {
 
@@ -79,14 +79,14 @@ public class PSJexlEvaluatorTest
       assertEquals("n3", z_a_c.get(0));
       assertEquals("n2", z_a_c.get(1));
       assertEquals("n1", z_a_b.get("c"));
-      assertEquals(new Integer(2), y.get(2));
-      assertEquals(new Integer(3), y.get(5));
+      assertEquals(Integer.valueOf(2), y.get(2));
+      assertEquals(Integer.valueOf(3), y.get(5));
       assertEquals(null, y.get(0));
       assertEquals("a", y_0.get("w"));
-      assertEquals(new Integer(123), z.get("x"));
-      assertEquals(new Integer(5), (vars.get("$c")));
-      assertEquals(new Integer(3), (vars.get("$d")));
-      assertEquals(new Integer(3), (vars.get("$d")));
+      assertEquals(Integer.valueOf(123), z.get("x"));
+      assertEquals(Integer.valueOf(5), (vars.get("$c")));
+      assertEquals(Integer.valueOf(3), (vars.get("$d")));
+      assertEquals(Integer.valueOf(3), (vars.get("$d")));
    }
 
    /**
@@ -175,10 +175,10 @@ public class PSJexlEvaluatorTest
       
       PSJexlEvaluator eval = new PSJexlEvaluator(initial);
       IPSScript exp = eval.createScript("$c");
-      assertEquals(new Integer(2147483647), eval.evaluate(exp));
+      assertEquals(Integer.valueOf(2147483647), eval.evaluate(exp));
       exp = eval.createScript("$c * $a");
       Object result =eval.evaluate(exp);
-      assertEquals(new Long(8589934588l),result);
+      assertEquals(Long.valueOf(8589934588L),result);
    }
    
    /**
@@ -221,8 +221,7 @@ public class PSJexlEvaluatorTest
          exp.reinit(false);
          Object ret = exp.eval(eval.getVars());
 
-         assertFalse("An exception should have been thrown for "
-               + expression, true);
+         assertFalse(true, "An exception should have been thrown for " + expression );
       }
       catch (RuntimeException t)
       {

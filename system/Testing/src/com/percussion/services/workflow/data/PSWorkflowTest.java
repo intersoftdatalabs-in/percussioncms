@@ -25,11 +25,11 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the {@link PSWorkflow} class.
@@ -51,7 +51,7 @@ public class PSWorkflowTest
    }
 
    @Test
-   @Ignore
+   @Disabled
    //TODO:  Fix me.  The toXML on state is missing one of the aging transitions for some reason.
    public void testAll() throws Exception
    {

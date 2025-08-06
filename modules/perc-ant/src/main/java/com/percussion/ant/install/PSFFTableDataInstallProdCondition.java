@@ -21,7 +21,7 @@ import com.percussion.install.RxFileManager;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSSqlHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 import java.io.File;
@@ -66,7 +66,7 @@ implements Condition
    /* (non-Javadoc)
     * @see org.apache.tools.ant.taskdefs.condition.Condition#eval()
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public boolean eval()
    {
       boolean isFFTableDataInstall = false;

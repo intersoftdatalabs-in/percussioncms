@@ -18,12 +18,12 @@
 package com.percussion.soln.p13n.tracking;
 
 import static com.percussion.soln.p13n.tracking.impl.SegmentWeightUtil.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class NormalizeSegmentWeightsTest {
@@ -31,7 +31,7 @@ public class NormalizeSegmentWeightsTest {
     HashMap<String, Integer> weights;
     HashMap<String, Integer> expected;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         weights = new HashMap<String, Integer>();
         expected = new HashMap<String, Integer>();

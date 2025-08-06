@@ -29,7 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.ws.rs.core.Response.Status;
 import java.io.File;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * server-side APIs not exposed by the REST layer.
  * Sunny Sal says: "Server-side maintenance, Bollywood style!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSMaintenanceManagerServerTest extends PSServletTestCase {
 
     IPSMaintenanceManager maintenanceManager;

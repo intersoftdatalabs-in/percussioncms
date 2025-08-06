@@ -26,7 +26,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -39,7 +39,7 @@ import java.util.Properties;
  * This is a unit test for {@link PSWebServiceAgent}. It can also be used to
  * perform some SOAP operations as a sample program.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSWebServiceAgentTest
 {
 

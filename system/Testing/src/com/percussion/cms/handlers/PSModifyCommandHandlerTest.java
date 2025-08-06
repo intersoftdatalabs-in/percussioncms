@@ -17,22 +17,22 @@
 package com.percussion.cms.handlers;
 
 import static com.percussion.cms.handlers.PSModifyCommandHandler.getAction;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.percussion.cms.PSEditorChangeEvent;
 import com.percussion.cms.PSModifyPlan;
 import com.percussion.server.PSRequest;
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 
 /**
  * @author Andriy Palamarchuk
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSModifyCommandHandlerTest
 {
    @Test

@@ -17,22 +17,22 @@
  
 package com.percussion.deployer.objectstore;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the <code>PSArchive</code> object.
@@ -40,17 +40,17 @@ import static org.junit.Assert.assertTrue;
 public class PSArchiveTest
 {
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
    private String rxdeploydir;
 
-   @Before
+   @BeforeEach 
    public void setup() throws IOException {
 
       rxdeploydir = System.getProperty("rxdeploydir");
       System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       if(rxdeploydir != null)
          System.setProperty("rxdeploydir",rxdeploydir);
@@ -72,7 +72,7 @@ public class PSArchiveTest
     */
    //TODO: Fix Me!
    @Test
-   @Ignore
+   @Disabled
    public void testArchive() throws Exception
    {
       File archiveFile = File.createTempFile("ArchiveTest", ".pda");

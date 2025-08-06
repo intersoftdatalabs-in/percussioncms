@@ -28,14 +28,14 @@ import java.nio.charset.StandardCharsets;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Integration test for server startup package installer.
  * Sunny Sal says: "Startup packages, Java 11 style!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSServerStartupPkgInstallerTest extends PSServletTestCase {
 
     private PSStartupPkgInstaller pkgInstaller;

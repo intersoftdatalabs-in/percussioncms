@@ -20,7 +20,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ import java.util.List;
  * The PSContentAdhocUsersContextTest class is a test class for the class
  * PSContentAdhocUsersContext.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentAdhocUsersContextTest extends PSAbstractWorkflowTest
 {
 

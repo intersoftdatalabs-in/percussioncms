@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 package com.percussion.utils.container.adapters;
 
 import com.percussion.error.PSExceptionUtils;
+import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
@@ -250,14 +251,17 @@ public class JBossDatasourceConfigurationAdapter implements IPSConfigurationAdap
                         loginCfgFile.getAbsolutePath());
             }
             ds.setUserId(creds.getUserId());
-            String password = creds.getPassword();
-            try {
-                String secureDir = PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
-                password = PSEncryptor.decryptString(secureDir, password);
-            } catch (PSEncryptionException e) {
-                password = com.percussion.legacy.security.deprecated.PSLegacyEncrypter.getInstance().decrypt(password);
+            String pw = "";
+            try{
+                pw = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),creds.getPassword());
+            }catch(PSEncryptionException | java.lang.IllegalArgumentException e){
+                pw = PSLegacyEncrypter.getInstance(
+                        PathUtils.getRxPath().toAbsolutePath().toString().concat(
+                        PSEncryptor.SECURE_DIR)
+                ).decrypt(creds.getPassword(),
+                        secretKey,null);
             }
-            ds.setPassword(password);
+            ds.setPassword(pw);
 
             // clear the security domain
             ds.setSecurityDomain(null);
@@ -318,9 +322,9 @@ public class JBossDatasourceConfigurationAdapter implements IPSConfigurationAdap
 
             if (!StringUtils.isBlank(ds.getUserId()))
             {
-                String password =  ds.getPassword();
+                String pw =  ds.getPassword();
                 try{
-                     password = PSEncryptor.encryptProperty(PathUtils.getRxPath().toAbsolutePath().toString().concat(
+                     pw = PSEncryptor.encryptProperty(PathUtils.getRxPath().toAbsolutePath().toString().concat(
                              PSEncryptor.SECURE_DIR),loginCfgFile.getAbsolutePath(),null,ds.getPassword());
 
                 } catch (PSEncryptionException e) {
@@ -330,7 +334,7 @@ public class JBossDatasourceConfigurationAdapter implements IPSConfigurationAdap
                 }
 
                 PSSecureCredentials cred = new PSSecureCredentials(
-                        ds.getName(), ds.getUserId(), password );
+                        ds.getName(), ds.getUserId(), pw );
                 ds.setSecurityDomain(cred.getSecurityDomainName());
 
                 creds.add(cred);

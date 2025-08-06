@@ -16,21 +16,21 @@
  */
 package com.percussion.extension;
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Ignore;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.Date;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for the PSExtensionHandlerHandler class.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSExtensionHandlerHandlerTest
 {
    public PSExtensionHandlerHandlerTest()
@@ -38,7 +38,7 @@ public class PSExtensionHandlerHandlerTest
 
    }
 
-   @Ignore //TODO: Tis test needs a proper setup method that generates a temp set of directories and files to test.
+   @Disabled //TODO: Tis test needs a proper setup method that generates a temp set of directories and files to test.
    @Test
    public void testRecursiveCopy() throws Exception
    {

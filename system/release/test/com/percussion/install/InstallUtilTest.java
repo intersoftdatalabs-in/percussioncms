@@ -19,20 +19,20 @@ package com.percussion.install;
 import com.percussion.util.IOTools;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -41,11 +41,11 @@ import static org.junit.Assert.assertTrue;
 public class InstallUtilTest
 {
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
 
    public InstallUtilTest(){}
 
-   @Before
+   @BeforeEach 
    public void setup() throws IOException {
       ms_root = temporaryFolder.newFolder().getAbsolutePath();
    }

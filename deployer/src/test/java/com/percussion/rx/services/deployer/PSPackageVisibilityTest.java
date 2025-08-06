@@ -23,14 +23,14 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.ArrayUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPackageVisibilityTest extends ServletTestCase
 {
    public void testGetCommunities()

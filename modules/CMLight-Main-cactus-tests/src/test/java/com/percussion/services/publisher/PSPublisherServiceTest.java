@@ -48,10 +48,10 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,8 +70,8 @@ import static com.percussion.rx.publisher.impl.PSPublishingJob.NEXTNUMBER_PUBLIC
  * @author dougrand
  */
 // REFACTORED: CP-JAVA11
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
+@TestMethodOrder(MethodName.class)
+@Tag(IntegrationTest.class)
 public class PSPublisherServiceTest extends ServletTestCase
 {
    /**

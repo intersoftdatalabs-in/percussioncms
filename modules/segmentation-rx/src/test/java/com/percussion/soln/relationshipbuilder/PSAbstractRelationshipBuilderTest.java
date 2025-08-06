@@ -18,7 +18,7 @@
 package com.percussion.soln.relationshipbuilder;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Collection;

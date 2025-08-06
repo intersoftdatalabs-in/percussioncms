@@ -23,7 +23,7 @@ import com.percussion.rx.config.impl.PSObjectConfigHandler;
 import com.percussion.rx.config.impl.spring.IPSBeanPropertiesInternal;
 import com.percussion.rx.config.impl.spring.PSBeanProperties;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSBeanPropertiesTest extends PSConfigurationTest
 {
    @Override

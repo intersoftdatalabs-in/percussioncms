@@ -20,12 +20,12 @@ import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.PSBaseMembershipServiceTest;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
@@ -36,7 +36,7 @@ import javax.persistence.criteria.Root;
  *
  */
 
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
 {
@@ -45,7 +45,7 @@ public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
 
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();
@@ -62,7 +62,7 @@ public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         super.tearDown();

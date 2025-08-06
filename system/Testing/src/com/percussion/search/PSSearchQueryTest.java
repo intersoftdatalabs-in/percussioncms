@@ -33,7 +33,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 
 /**
@@ -44,7 +44,7 @@ import org.junit.experimental.categories.Category;
  *
  * @author paulhoward
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSearchQueryTest extends TestCase 
    implements IPSServerBasedJunitTest
 {

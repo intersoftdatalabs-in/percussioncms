@@ -35,7 +35,7 @@ import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ import java.util.Set;
  * @author dougrand
  * 
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFilterServiceTest extends ServletTestCase
 {
    private static final Logger log = LogManager.getLogger(PSFilterServiceTest.class);

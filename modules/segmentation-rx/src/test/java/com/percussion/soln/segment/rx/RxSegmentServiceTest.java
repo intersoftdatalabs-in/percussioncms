@@ -42,9 +42,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.services.contentmgr.IPSContentMgr;
@@ -74,7 +74,7 @@ public class RxSegmentServiceTest {
             "rx:sys_folderid", "jcr:path");
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         contentManager = context.mock(IPSContentMgr.class);
         contentWs = context.mock(IPSContentWs.class);

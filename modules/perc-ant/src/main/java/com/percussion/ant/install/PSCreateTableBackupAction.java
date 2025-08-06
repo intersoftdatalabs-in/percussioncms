@@ -24,7 +24,7 @@ import com.percussion.tablefactory.PSJdbcExecutionStep;
 import com.percussion.tablefactory.PSJdbcStatementFactory;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.tablefactory.tools.DbUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -67,7 +67,7 @@ import java.util.Properties;
 public class PSCreateTableBackupAction extends PSAction
 {
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

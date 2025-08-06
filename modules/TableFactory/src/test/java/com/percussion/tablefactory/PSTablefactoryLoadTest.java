@@ -17,24 +17,24 @@
 package com.percussion.tablefactory;
 
 import com.percussion.error.PSExceptionUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test adding data to db. Assumes a database with specific credentials,
@@ -42,21 +42,21 @@ import static org.junit.Assert.assertTrue;
  * 
  * @author dougrand
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSTablefactoryLoadTest
 {
 
    private static final Logger log = LogManager.getLogger(PSTablefactoryLoadTest.class);
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
    private String rxdeploydir;
    protected String baseDir;
    private  NetworkServerControl server;
 
    public PSTablefactoryLoadTest(){}
 
-   @Before
+   @BeforeEach 
    public void setup() throws IOException {
 
       rxdeploydir = System.getProperty("rxdeploydir");
@@ -105,7 +105,7 @@ public class PSTablefactoryLoadTest
       }
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       try {
          //Reset the deploy dir property if it was set prior to test

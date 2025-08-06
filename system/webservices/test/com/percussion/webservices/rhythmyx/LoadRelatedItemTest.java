@@ -24,14 +24,14 @@ import com.percussion.webservices.content.ContentSOAPStub;
 import com.percussion.webservices.content.LoadItemsRequest;
 import com.percussion.webservices.content.PSItem;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for loading related items
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class LoadRelatedItemTest extends PSTestBase
 {
    /**

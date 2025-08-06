@@ -16,7 +16,7 @@
  */
 package com.percussion.delivery.metadata.utils;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.Validate;
 
 import java.io.UnsupportedEncodingException;
@@ -31,7 +31,7 @@ import java.security.NoSuchAlgorithmException;
  * @author miltonpividori
  *
  */
-@SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1") //Is used to create a hash of a CLOB/long string for indexing not for security
+// TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1") //Is used to create a hash of a CLOB/long string for indexing not for security
 public class PSHashCalculator
 {
     private static final String HEXES = "0123456789ABCDEF";

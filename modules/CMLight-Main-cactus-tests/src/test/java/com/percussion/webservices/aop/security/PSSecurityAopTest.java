@@ -53,7 +53,7 @@ import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.aop.security.data.PSMockDesignObject;
 import com.percussion.webservices.aop.security.strategy.PSSecurityStrategy;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ import java.util.Set;
  * Test case for the AOP implementation used to enforce web service security.
  * Uses mock service interfaces to test correct behavior by classes extending {@link PSSecurityStrategy}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSecurityAopTest extends ServletTestCase {
     /**
      * Gets the test ACLs created during {@link #setUp()}.

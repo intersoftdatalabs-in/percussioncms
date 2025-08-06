@@ -23,7 +23,7 @@ import com.percussion.services.filter.PSFilterServiceLocator;
 import com.percussion.services.filter.data.PSItemFilter;
 import com.percussion.services.filter.data.PSItemFilterRuleDef;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.*;
 
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSItemFilterConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSItemFilterConverterTest extends PSConverterTestBase {
 
     /**

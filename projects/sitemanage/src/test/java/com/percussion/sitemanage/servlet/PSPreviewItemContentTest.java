@@ -65,7 +65,7 @@ public class PSPreviewItemContentTest {
     private IPSAssetService assetService;
     private IPSItemService itemService;
 
-    @BeforeAll
+    @BeforeEach All
     public void setUp() throws Exception {
         PSSpringWebApplicationContextUtils.injectDependencies(this);
         fixture = new PSSiteDataServletTestCaseFixture(request, response);

@@ -38,7 +38,7 @@ import com.percussion.services.pubserver.IPSPubServerDao;
 import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.types.PSPair;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,7 +74,7 @@ public class PSAmazonS3EditionTask implements IPSEditionTask
     private String targetRegion = Regions.DEFAULT_REGION.getName();
     private static final Logger log = LogManager.getLogger(IPSConstants.PUBLISHING_LOG);
 
-    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     @SuppressWarnings("unused")
     public void init(IPSExtensionDef def, File codeRoot) throws PSExtensionException {
         webResFolder = new File(PSServer.getRxDir().getAbsolutePath() + File.separatorChar + WEB_RESOURCES);

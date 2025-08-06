@@ -21,18 +21,18 @@ import com.percussion.design.objectstore.PSObjectFactory;
 import com.percussion.error.PSException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Multithreading tests for the lock manager implementation. Set up
@@ -45,7 +45,7 @@ public class PSXmlObjectStoreLockManagerTest
    private static final Logger log = LogManager.getLogger(PSXmlObjectStoreLockManagerTest.class);
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
 
    public PSXmlObjectStoreLockManagerTest()
    {
@@ -90,7 +90,7 @@ public class PSXmlObjectStoreLockManagerTest
     * Test {@link PSServerXmlObjectStore.RecoverableFile} class
     */
    @Test
-   @Ignore("TODO: This test has a logic problem.  Please fix it.")
+   @Disabled("TODO: This test has a logic problem.  Please fix it.")
    public void testBackFile() throws IOException, PSException {
       PSServerXmlObjectStore.RecoverableFile dirBkup;
       

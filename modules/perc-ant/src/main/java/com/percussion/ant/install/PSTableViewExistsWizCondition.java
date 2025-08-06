@@ -23,7 +23,7 @@ import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 import java.io.File;
@@ -82,7 +82,7 @@ public class PSTableViewExistsWizCondition extends PSAction implements Condition
     * <code>objectName</code> already exists in the database,
     * <code>false</code> otherwise.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    private boolean checkExists()
    {
 

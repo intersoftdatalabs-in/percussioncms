@@ -54,22 +54,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.junit.FixMethodOrder;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test CMS Accessors
  * 
  * @author dougrand
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@Category(IntegrationTest.class)
+@TestMethodOrder(MethodName.class)
+@Tag(IntegrationTest.class)
 public class PSCmsObjectMgrTest
 {
    /**

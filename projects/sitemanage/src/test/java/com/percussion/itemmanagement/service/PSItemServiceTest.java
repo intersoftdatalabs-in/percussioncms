@@ -39,14 +39,14 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSItemServiceTest extends PSServletTestCase
 {
     private PSSiteDataServletTestCaseFixture fixture;

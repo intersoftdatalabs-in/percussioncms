@@ -24,7 +24,7 @@ import com.percussion.i18n.tmxdom.PSTmxDocument;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -70,7 +70,7 @@ import java.util.stream.Stream;
   * to a size to slowdown loading resources significantly, we may have to
   * consider reading resources in a separate thread.
   */
-@SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
+// TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
 public class PSTmxResourceBundle
    implements IPSTmxDtdConstants
 {

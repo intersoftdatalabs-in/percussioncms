@@ -24,15 +24,15 @@ import com.percussion.error.PSExceptionUtils;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,11 +43,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @Transactional(isolation = Isolation.READ_UNCOMMITTED,propagation = Propagation.NESTED)
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodName.class)
 public class PSMostReadServiceTest extends TestCase {
 
 	private static final Logger log = LogManager.getLogger(PSMostReadServiceTest.class);
@@ -85,7 +85,7 @@ public class PSMostReadServiceTest extends TestCase {
      */
     private static final String PAGE_FULL = "/" + SITE_NAME + PAGE_NAME;
     
-    @Before
+    @BeforeEach
     public void before() {
 
 		try {
@@ -105,7 +105,7 @@ public class PSMostReadServiceTest extends TestCase {
      * @throws Exception
      */
     @Test
-	@Ignore("TODO: These tests fail intermittently - need fixed")
+	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testA() throws Exception
     {
     	PSVisitQuery query = new PSVisitQuery();
@@ -135,7 +135,7 @@ public class PSMostReadServiceTest extends TestCase {
      * @throws Exception
      */
     @Test
-	@Ignore("TODO: Fix me.  These test cases sporadically fail.")
+	@Disabled("TODO: Fix me.  These test cases sporadically fail.")
     public void testB() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("5");
@@ -167,7 +167,7 @@ public class PSMostReadServiceTest extends TestCase {
      * @return Exception
      */
     @Test
-	@Ignore("TODO: These tests fail intermittently - need fixed")
+	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testC() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("5");
@@ -182,7 +182,7 @@ public class PSMostReadServiceTest extends TestCase {
     }
     
     @Test
-	@Ignore("TODO: These tests fail intermittently - need fixed")
+	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testD() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("1");
@@ -205,7 +205,7 @@ public class PSMostReadServiceTest extends TestCase {
     }
     
     @Test
-    @Ignore("Test is intermittently failing, TODO: Fix Me!")
+    @Disabled("Test is intermittently failing, TODO: Fix Me!")
     public void testE() throws Exception {
     	// tests many items in DB
     	addManyEntries();
@@ -229,7 +229,7 @@ public class PSMostReadServiceTest extends TestCase {
     }
     
     @Test
-	@Ignore("TODO: These tests fail intermittently - need fixed")
+	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testF() throws Exception {
     	// test the delete functionality for items 6 - 156
     	// IMPORTANT: delete functionality hasn't been completed yet
@@ -259,7 +259,7 @@ public class PSMostReadServiceTest extends TestCase {
     }
     
     @Test
-	@Ignore("TODO: These tests fail intermittently - need fixed")
+	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testG() {
     	// test miscellaneous code for coverage
     	PSDbBlogPostVisit bpv = null;

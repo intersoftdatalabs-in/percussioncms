@@ -18,7 +18,7 @@ package com.percussion.rxverify.modules;
 
 import com.percussion.rxverify.data.PSFileInfo;
 import com.percussion.rxverify.data.PSInstallation;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -110,7 +110,7 @@ public class PSVerifyInstalledFiles implements IPSVerify
     * 
     * @see com.percussion.rxverify.IPSVerify#verify(java.util.Map, java.io.File)
     */
-   @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
+   // TODO: Remove me @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN"})
    @SuppressWarnings("unchecked")
    public void verify(File rxdir, File originalRxDir,
          PSInstallation installation)

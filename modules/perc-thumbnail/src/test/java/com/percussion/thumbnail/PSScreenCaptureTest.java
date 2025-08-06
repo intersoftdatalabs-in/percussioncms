@@ -21,19 +21,19 @@ package com.percussion.thumbnail;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSScreenCaptureTest {
 
     protected static final Logger log = LogManager.getLogger();
@@ -43,7 +43,7 @@ public class PSScreenCaptureTest {
     public static File temp;
 
 
-    @Before
+    @BeforeEach
     public void before()
             throws IOException
     {

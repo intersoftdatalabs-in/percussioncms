@@ -56,7 +56,7 @@ public class PSPageValidatorTest extends PSRestTestCase<PSPageValidatorRestClien
     /**
      * Creates a connection and logs in using an indirect technique.
      */
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception {
         restClient = new PSPageValidatorRestClient(baseUrl);
         setupClient(restClient);

@@ -46,7 +46,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ import org.junit.jupiter.api.Test;
  * Tests whether a new style managed link/image in rich text asset is converted to old style link or not. 
  * When we support new style managed link/image in rich text asset then this code needs to be refactored. 
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSManagedLinksHtmlAndRIchTextTest extends PSServletTestCase 
 {
     private static final String MANAGED_LINK_TEST = "/ManagedLinkTest";

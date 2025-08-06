@@ -39,7 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all security test cases.
@@ -101,7 +101,7 @@ public class PSSecurityTestBase extends PSTestBase
       }
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setup() throws Exception
    {
 

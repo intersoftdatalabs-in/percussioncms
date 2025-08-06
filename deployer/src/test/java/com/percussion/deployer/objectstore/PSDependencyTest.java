@@ -19,9 +19,9 @@ package com.percussion.deployer.objectstore;
 
 import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.Rule;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -30,11 +30,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *  Unit test class for all dependency objects.
@@ -42,7 +42,7 @@ import static org.junit.Assert.assertTrue;
 public class PSDependencyTest
 {
    @Rule
-   public TemporaryFolder tempFolder = new TemporaryFolder();
+   public Path tempFolder = new TemporaryFolder();
 
 
    public PSDependencyTest(){}

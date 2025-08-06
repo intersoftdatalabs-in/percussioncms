@@ -34,10 +34,10 @@ import org.apache.logging.log4j.Logger;
 
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The tests in this class assume the content and relationships in the fast
@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPublisherTouchItemsTest
 {
     private static final Logger ms_log = LogManager.getLogger(PSPublisherTouchItemsTest.class);

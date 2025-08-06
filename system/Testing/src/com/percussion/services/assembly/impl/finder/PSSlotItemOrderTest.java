@@ -24,12 +24,12 @@ import com.percussion.utils.guid.IPSGuid;
 import org.jmock.Expectations;
 
 import org.jmock.Mockery;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for 
@@ -45,7 +45,7 @@ public class PSSlotItemOrderTest
     * <code>SlotItem</code>s.
     */
    @Test
-   @Ignore("TODO: This test is broken, please fix me")
+   @Disabled("TODO: This test is broken, please fix me")
    public void testOrder()
    {
       Comparator<ContentItem> c = new ContentItemOrder();

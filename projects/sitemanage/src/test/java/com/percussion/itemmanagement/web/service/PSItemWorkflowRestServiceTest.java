@@ -41,7 +41,7 @@ public class PSItemWorkflowRestServiceTest extends PSRestTestCase<PSItemWorkflow
     static PSItemWorkflowServiceRestClient restClient;
     private static PSTestSiteData testSiteData;
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception
     {
         testSiteData = new PSTestSiteData();

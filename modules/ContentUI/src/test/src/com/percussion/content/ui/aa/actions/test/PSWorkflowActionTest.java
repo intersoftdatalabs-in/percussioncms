@@ -25,7 +25,7 @@ import com.percussion.services.workflow.data.PSContentAdhocUser;
 import com.percussion.services.workflow.data.PSState;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Test workflow actions
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSWorkflowActionTest extends PSAAClientActionTestBase
 {
 

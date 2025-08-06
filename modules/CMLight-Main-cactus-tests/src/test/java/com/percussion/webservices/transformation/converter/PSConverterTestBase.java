@@ -25,7 +25,7 @@ import com.percussion.webservices.transformation.PSTransformationException;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.beanutils.Converter;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ import java.util.List;
  * The converter base test provides generic test functionality and should
  * be extended by all converter tests.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public abstract class PSConverterTestBase extends ServletTestCase {
 
     /**

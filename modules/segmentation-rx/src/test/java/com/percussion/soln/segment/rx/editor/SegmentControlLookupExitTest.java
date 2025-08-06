@@ -28,10 +28,10 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import com.percussion.extension.IPSExtensionDef;
@@ -48,12 +48,12 @@ public class SegmentControlLookupExitTest {
     ExtensionMocks extMocks = new ExtensionMocks(context);
     SegmentMocks segMocks = new SegmentMocks(context);
     
-    @BeforeClass
+    @BeforeEach Class
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         exit = new SegmentControlLookupExit();
         segmentServiceMock = context.mock(ISegmentService.class);

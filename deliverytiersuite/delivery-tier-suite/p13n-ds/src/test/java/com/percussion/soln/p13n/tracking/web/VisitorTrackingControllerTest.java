@@ -19,7 +19,7 @@ package test.percussion.soln.p13n.tracking.web;
 
 
 import static com.percussion.soln.p13n.tracking.web.VisitorTrackingWebUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,9 +32,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -76,7 +76,7 @@ public class VisitorTrackingControllerTest  {
     "\"visitorProfile\":null,\"visitorProfileId\":100}";
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         visitorTrackingController = new VisitorTrackingController();
         visitorTrackingService = context.mock(IVisitorTrackingService.class);

@@ -20,7 +20,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.search.objectstore.PSWSSearchField;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSSearchFieldConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSearchFieldConverterTest extends PSConverterTestBase {
 
     /**

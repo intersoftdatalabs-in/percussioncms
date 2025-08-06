@@ -17,19 +17,19 @@
 package com.percussion.services.assembly.data;
 
 
-import com.percussion.utils.testing.UnitTest;
-import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author dougrand
  *
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSTemplateBindingTest
 {
    /**

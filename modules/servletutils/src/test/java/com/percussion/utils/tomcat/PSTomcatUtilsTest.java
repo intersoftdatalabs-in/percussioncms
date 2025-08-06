@@ -20,7 +20,7 @@ import com.percussion.utils.container.IPSConnector;
 import com.percussion.utils.container.PSAbstractConnector;
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
 import com.percussion.utils.xml.PSInvalidXmlException;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;
 
@@ -31,8 +31,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static com.percussion.util.PSResourceUtils.getResourcePath;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link PSTomcatUtils} class.
@@ -71,7 +71,7 @@ public void testLoadHttpConnectors() throws Exception
    }
 
    @Test
-   @Ignore("SKIPPED: TODO: testSaveHttpConnectors - Fix Me. This test fails.")
+   @Disabled("SKIPPED: TODO: testSaveHttpConnectors - Fix Me. This test fails.")
    public void testSaveHttpConnectors() throws Exception {
       // make copy of the configs
       File srcServerDoc = getTempXmlFile();

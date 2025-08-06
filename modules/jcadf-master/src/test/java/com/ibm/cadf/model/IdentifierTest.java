@@ -18,7 +18,7 @@
 package com.ibm.cadf.model;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.cfg.Config;
@@ -27,7 +27,7 @@ import com.ibm.cadf.util.Constants;
 public class IdentifierTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");

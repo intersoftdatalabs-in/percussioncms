@@ -34,7 +34,7 @@ import com.percussion.theme.data.PSTheme;
 import com.percussion.theme.data.PSThemeSummary;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +44,13 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "A good theme test is like a good outfit—everything matches, and nothing breaks!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSThemeServiceTest extends PSRestTestCase<PSThemeRestClient> {
 
     private static PSTestSiteData testSiteData;
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUpFixture() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();

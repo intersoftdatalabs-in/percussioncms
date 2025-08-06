@@ -25,13 +25,13 @@ import com.percussion.services.workflow.PSWorkflowServiceLocator;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.collections.IteratorUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAllowAllCtypeWorkflowsUpdaterTest
 {
 

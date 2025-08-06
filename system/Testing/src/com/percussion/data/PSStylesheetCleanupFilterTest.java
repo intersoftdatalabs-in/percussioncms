@@ -20,25 +20,25 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *  Test class used to test methods in <code>PSStylesheetCleanupFilter</code>
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSStylesheetCleanupFilterTest{
 
    public PSStylesheetCleanupFilterTest()
    {
    }
   
-   @BeforeClass
+   @BeforeEach Class
    public static  void setupFilter() throws Exception
    {
       initFilter();  

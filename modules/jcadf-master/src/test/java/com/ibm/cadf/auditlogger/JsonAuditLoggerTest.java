@@ -20,7 +20,7 @@ package com.ibm.cadf.auditlogger;
 import java.io.File;
 import java.io.IOException;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.EventFactory;
@@ -36,7 +36,7 @@ import com.ibm.cadf.util.Constants;
 public class JsonAuditLoggerTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");

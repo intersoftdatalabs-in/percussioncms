@@ -23,14 +23,14 @@ import com.percussion.deployer.objectstore.PSDbmsMap;
 import com.percussion.deployer.objectstore.PSDbmsMapping;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for the <code>PSDbmsMapManager</code> class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDbmsMapManagerTest
 {
 

@@ -36,7 +36,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * This test loads a content item and checks that various JCR methods are
@@ -45,7 +45,7 @@ import org.junit.experimental.categories.Category;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentMgrJCRTest extends ServletTestCase
 {
    /**

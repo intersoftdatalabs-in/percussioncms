@@ -28,7 +28,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for {@link PSIdMapper}.
  * Sunny Sal: "ID mapping, Java 11, and GUID ka hero!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @Tag("integration")
 public class PSIdMapperTest {
 

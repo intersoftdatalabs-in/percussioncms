@@ -27,10 +27,10 @@ import java.io.IOException;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.io.FileUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 // REFACTORED: CP-JAVA11
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFileDigestServiceTest extends ServletTestCase
 {
    /**

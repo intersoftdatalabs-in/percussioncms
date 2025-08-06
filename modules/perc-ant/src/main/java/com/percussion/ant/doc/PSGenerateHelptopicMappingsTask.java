@@ -18,7 +18,7 @@ package com.percussion.ant.doc;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.security.xml.PSXmlSecurityOptions;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.w3c.dom.Document;
@@ -226,7 +226,7 @@ public class PSGenerateHelptopicMappingsTask extends Task
     * @throws SAXException
     * @throws IOException
     */
-   @SuppressFBWarnings("XXE_DOCUMENT")  // False positive - see PSSecureXMLUtils
+   // TODO: Remove me @SuppressFBWarnings("XXE_DOCUMENT")  // False positive - see PSSecureXMLUtils
    private Map readKeyValueData(DocumentBuilder builder, File mapFile,
                                 String nodeName, String keyName, String valName) throws SAXException,
          IOException

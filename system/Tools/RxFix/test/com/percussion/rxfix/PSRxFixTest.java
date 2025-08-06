@@ -27,16 +27,16 @@ import java.util.List;
 import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Run the test framework and check the results for sanity
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSRxFixTest
 {
    /**

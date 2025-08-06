@@ -26,7 +26,7 @@ import javax.jcr.query.Row;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Perform a variety of tests to ensure that the JCR query engine is
@@ -34,7 +34,7 @@ import org.junit.experimental.categories.Category;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentMgrQueryTest extends ServletTestCase
 {
    /**

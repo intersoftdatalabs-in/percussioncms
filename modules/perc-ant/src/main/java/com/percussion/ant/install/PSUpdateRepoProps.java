@@ -26,7 +26,7 @@ import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.IPSDatasourceConfig;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -67,7 +67,7 @@ import java.util.Properties;
  */
 public class PSUpdateRepoProps extends PSAction
 {
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public void execute()
    {
        File root = new File(getRootDir());

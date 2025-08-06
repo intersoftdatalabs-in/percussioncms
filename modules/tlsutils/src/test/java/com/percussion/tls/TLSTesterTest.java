@@ -17,10 +17,10 @@
 
 package com.percussion.tls;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -29,7 +29,7 @@ import java.io.PrintStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,7 +42,7 @@ public class TLSTesterTest {
     private PrintStream originalOut;
     private String originalOsName;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // Capture System.out for testing console output
         outputStream = new ByteArrayOutputStream();
@@ -53,7 +53,7 @@ public class TLSTesterTest {
         originalOsName = System.getProperty("os.name");
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.setOut(originalOut);
         if (originalOsName != null) {

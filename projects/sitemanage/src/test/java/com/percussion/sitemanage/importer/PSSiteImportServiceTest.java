@@ -102,7 +102,7 @@ class PSSiteImportServiceTest extends PSSiteImportTestBase {
     /**
      * Tests if the service can gather all the helpers from the context.
      */
-    @Ignore
+    @Disabled
     public void ignore_testHelperAvailability()
     {
         assertNotNull(siteImportService);
@@ -117,7 +117,7 @@ class PSSiteImportServiceTest extends PSSiteImportTestBase {
     /**
      * Tests if the whole process of importing a site is successful.
      */
-    @Ignore
+    @Disabled
     public void ignore_testImportSite()
     {
         importedSite = new PSSite();
@@ -140,7 +140,7 @@ class PSSiteImportServiceTest extends PSSiteImportTestBase {
      * @throws Exception 
      * 
      */
-    @Ignore
+    @Disabled
     public void ignore_testImportTemplateFromUrl() throws Exception
     {
         fixture.site1.setBaseUrl(IMPORT_SITE_URL);
@@ -154,7 +154,7 @@ class PSSiteImportServiceTest extends PSSiteImportTestBase {
         }
     }
     
-    @Ignore
+    @Disabled
     public void ignore_testImportPage() throws Exception
     {
         PSPage page1 = addCatalogedPage();

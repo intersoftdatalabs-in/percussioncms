@@ -39,14 +39,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Test item filters
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFilterTest extends ServletTestCase
 {
    /**

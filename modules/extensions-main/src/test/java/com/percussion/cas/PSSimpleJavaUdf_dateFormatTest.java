@@ -20,10 +20,10 @@ import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.extensions.general.PSSimpleJavaUdfBaseTest;
 import com.percussion.extensions.general.PSSimpleJavaUdf_dateFormat;
 import com.percussion.extensions.general.PSSimpleJavaUdf_dateFormatEx;
-import com.percussion.utils.testing.UnitTest;
+
 import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Tests both versions: {@link PSSimpleJavaUdf_dateFormat} and
@@ -31,7 +31,7 @@ import org.junit.experimental.categories.Category;
  * 
  * @author DougRand
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSSimpleJavaUdf_dateFormatTest extends PSSimpleJavaUdfBaseTest
 {
    @Test

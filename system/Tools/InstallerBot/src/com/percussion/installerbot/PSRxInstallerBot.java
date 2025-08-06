@@ -16,7 +16,7 @@
  */
 package com.percussion.installerbot;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -123,7 +123,7 @@ public class PSRxInstallerBot
    /**
     * Prints exception description to program output. 
     */
-   @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+   // TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
    private void printExceptionError(final Exception e)
    {
       m_out.println("Installation error");
@@ -138,7 +138,7 @@ public class PSRxInstallerBot
     * @throws FileNotFoundException if file not found.
     * @throws IOException on file reading failure.
     */
-   @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+   // TODO: Remove me @SuppressFBWarnings("PATH_TRAVERSAL_IN")
    Properties loadProperties(final String propertiesFileName) throws IOException
    {
       final Properties properties = new Properties();

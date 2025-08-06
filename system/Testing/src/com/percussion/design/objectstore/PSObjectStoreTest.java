@@ -49,19 +49,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for the object store. These tests require the server to be running.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSObjectStoreTest extends PSClientTestCase
 {
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setUp()
    {
       BasicConfigurator.configure();

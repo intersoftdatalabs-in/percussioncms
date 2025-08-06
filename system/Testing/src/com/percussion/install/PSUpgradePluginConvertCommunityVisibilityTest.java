@@ -43,7 +43,7 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -57,7 +57,7 @@ import java.io.InputStream;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSUpgradePluginConvertCommunityVisibilityTest
 {
    /**
@@ -85,7 +85,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
 
    private PSConnectionInfo m_info;
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setUp() throws Exception
    {
       // Forces spring to initialize with standard junit configuration

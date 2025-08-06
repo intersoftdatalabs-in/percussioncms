@@ -19,7 +19,7 @@ package com.percussion.extensions.general;
 import com.percussion.server.IPSRequestContext;
 import com.percussion.testing.PSMockRequestContext;
 import com.percussion.testing.PSTestCompare;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PSMakeLinkTest
@@ -33,7 +33,7 @@ public class PSMakeLinkTest
    public PSMakeLinkTest() {
    }
 
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       m_ext = new PSMakeAbsLinkSecureEx();

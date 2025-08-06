@@ -38,14 +38,14 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all ui test cases.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSUiTestBase extends PSTestBase
 {
    /**
@@ -126,7 +126,7 @@ public class PSUiTestBase extends PSTestBase
       }
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setup() throws Exception
    {
       m_session = PSTestUtils.login();

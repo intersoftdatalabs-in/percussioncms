@@ -37,11 +37,11 @@ import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.apache.cactus.ServletTestCase;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,7 +61,7 @@ import static java.util.Arrays.asList;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class TaxonomyServiceTest extends ServletTestCase
 {
    private AttributeServiceInf attributeService;
@@ -96,7 +96,7 @@ public class TaxonomyServiceTest extends ServletTestCase
 
    private Language language;
 
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception
    {
       initServices();
@@ -194,7 +194,7 @@ public class TaxonomyServiceTest extends ServletTestCase
       }
    }
 
-   @After
+   @AfterEach
    public void tearDown() throws Exception
    {
       if (taxonomies != null)
@@ -207,7 +207,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore()//TODO: Fix me
+   @Disabled()//TODO: Fix me
    public void testDeleteAttribute_withoutNodes()
    {
       attributeService.removeAttribute(attribute2);
@@ -224,7 +224,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore()//TODO: Fix me
+   @Disabled()//TODO: Fix me
    public void testDeleteAttribute_withNodes()
    {
       Collection valuesBeforeTest = valueService.getAllValues();
@@ -260,7 +260,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testGetNodesInDeletionOrder_emptyList()
    {
       List<Node> nodes = new ArrayList<Node>();
@@ -273,7 +273,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testGetNodesInDeletionOrder_oneRoot()
    {
       List<Node> nodes = buildTaxonomyTreeNodeOneRoot();
@@ -305,7 +305,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testGetNodesInDeletionOrder_twoRoots()
    {
       List<Node> nodes = buildTaxonomyTreeNodeTwoRoots();
@@ -331,7 +331,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testGetNodesInDeletionOrder_threeRoots()
    {
       List<Node> nodes = buildTaxonomyTreeNodeThreeRoots();
@@ -378,7 +378,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testRemoveTaxonomy()
    {
       addVisibilitiesToTaxonomy();
@@ -417,7 +417,7 @@ public class TaxonomyServiceTest extends ServletTestCase
    }
 
    @Test
-   @Ignore() //TODO: Fix me
+   @Disabled() //TODO: Fix me
    public void testTaxonomyExists()
    {
       boolean doesExist = taxonomyService.doesTaxonomyExists("Tags");

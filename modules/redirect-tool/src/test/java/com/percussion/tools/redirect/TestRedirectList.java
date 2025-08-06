@@ -18,18 +18,18 @@
 package com.percussion.tools.redirect;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Validates the Redirect Entry List
@@ -37,12 +37,12 @@ import static org.junit.Assert.assertTrue;
 public class TestRedirectList {
 
     @ClassRule
-    public static TemporaryFolder tempFolder = new TemporaryFolder();
+    public static Path tempFolder = new TemporaryFolder();
 
     public static void createTempFolder() throws IOException {
         tempFolder.create();
     }
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         createTempFolder();
     }

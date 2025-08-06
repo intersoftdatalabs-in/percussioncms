@@ -27,7 +27,7 @@ import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -911,7 +911,7 @@ public class RxUpgrade
     * @throws FileNotFoundException if cannot find the properties file 
     *   described above file. 
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public static Properties getRxRepositoryProps()
          throws FileNotFoundException, IOException
    {

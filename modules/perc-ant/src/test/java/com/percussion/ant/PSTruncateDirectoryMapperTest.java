@@ -16,12 +16,12 @@
  */
 package com.percussion.ant;
 
-import com.percussion.utils.testing.UnitTest;
+
 import junit.framework.TestCase;
 import org.apache.tools.ant.BuildException;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSTruncateDirectoryMapperTest extends TestCase
 {
    public void testSetTo()

@@ -81,14 +81,14 @@ import java.util.Set;
 
 import junit.framework.AssertionFailedError;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test system design web service functionality.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class SystemDesignTestCase extends PSSystemTestBase
 {
    @Test

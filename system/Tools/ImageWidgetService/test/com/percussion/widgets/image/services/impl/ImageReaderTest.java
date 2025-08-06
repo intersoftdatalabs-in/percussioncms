@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.velocity.shaded.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author matthew.ernewein
@@ -54,7 +54,7 @@ public class ImageReaderTest
 
    private static final Logger log = LogManager.getLogger(ImageReaderTest.class);
 
-   @BeforeClass
+   @BeforeEach Class
    public static void runBeforeClass()
    {
 
@@ -104,19 +104,19 @@ public class ImageReaderTest
    }
 
    @Test
-   @Ignore //TODO: Should be passing once svg support is working
+   @Disabled //TODO: Should be passing once svg support is working
    public void testSVG() throws IOException{
       testImage("anenome.svg");
    }
 
    @Test
-   @Ignore //TODO: Should be passing once jpeg2000 support is working
+   @Disabled //TODO: Should be passing once jpeg2000 support is working
    public void testJPEG2000() throws IOException{
       testImage("relax.jp2");
    }
 
    @Test
-   @Ignore //TODO: Should be passing once webp support is working
+   @Disabled //TODO: Should be passing once webp support is working
    public void testWebp() throws IOException{
       testImage("1.webp");
    }
@@ -140,7 +140,7 @@ public class ImageReaderTest
    }
 
    @Test
-   @Ignore
+   @Disabled
    public void testSmallGif() throws IOException
    {
       //This GIF in particular had an issue with site sucker.

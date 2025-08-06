@@ -28,8 +28,8 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.jcr.Node;
@@ -38,10 +38,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /*
  * Test class for com.percussion.fastforward.calendar.PSCalendarMonthModel
@@ -53,7 +53,7 @@ public class PSCalendarMonthModelTest
 
     Mockery context = new Mockery();
 
-    @Before
+    @BeforeEach 
    public void setUp() throws Exception
    {
       m_info = new PSCalendarMonthModel();
@@ -288,7 +288,7 @@ public class PSCalendarMonthModelTest
     * 'getEventsForDay'
     */
    @Test
-   @Ignore //TODO: Fix me - test is failing
+   @Disabled //TODO: Fix me - test is failing
    public void testEvents() throws Exception
    {
       FastDateFormat df = FastDateFormat.getInstance("yyyy-MM-dd");

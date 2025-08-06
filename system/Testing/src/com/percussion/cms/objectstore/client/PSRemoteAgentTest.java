@@ -43,16 +43,16 @@ import java.util.List;
 import junit.framework.TestSuite;
 
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for the <code>PSRemoteAgent</code> class.
  */
-@Category({IntegrationTest.class})
+@Tag({IntegrationTest.class})
 public class PSRemoteAgentTest extends PSClientTestCase
 {
 

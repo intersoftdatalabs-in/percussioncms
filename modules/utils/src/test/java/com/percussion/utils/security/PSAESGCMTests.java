@@ -23,32 +23,32 @@ import com.percussion.security.IPSKey;
 import com.percussion.security.IPSSecretKey;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptionKeyFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 //@todo: Fix it...
-@Ignore
+@Disabled
 public class PSAESGCMTests {
 
 
     public PSAESGCMTests(){}
 
-    @Before
+    @BeforeEach
     public void setup(){
 
     }
 
-    @After
+    @AfterEach
     public void teardown(){
 
     }

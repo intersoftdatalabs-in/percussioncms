@@ -32,7 +32,7 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.tablefactory.tools.DbUtils;
 import com.percussion.util.IOTools;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -86,7 +86,7 @@ import java.util.Properties;
 public class PSDBXMLDataUpdate extends PSXMLFileUpdate
 {
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

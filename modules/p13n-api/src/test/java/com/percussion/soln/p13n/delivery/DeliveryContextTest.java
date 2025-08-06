@@ -20,7 +20,7 @@ package test.percussion.soln.p13n.delivery;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.hamcrest.Matchers.isOneOf;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.Assert.assertSame;
 
 import java.util.Collection;
@@ -36,9 +36,9 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.percussion.soln.p13n.delivery.IDeliveryResponseListItem;
 import com.percussion.soln.p13n.delivery.IDeliveryResponseSnippetItem;
@@ -69,7 +69,7 @@ public class DeliveryContextTest {
     VisitorProfile visitorProfile;
     
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         
         segmentService = mockery.mock(ISegmentService.class);

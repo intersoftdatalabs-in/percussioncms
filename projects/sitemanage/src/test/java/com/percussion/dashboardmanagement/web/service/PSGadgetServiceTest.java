@@ -16,7 +16,7 @@
  */
 package com.percussion.dashboardmanagement.web.service;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.share.test.PSDataServiceRestClient;
@@ -24,10 +24,10 @@ import com.percussion.share.test.PSRestTestCase;
 
 import java.util.List;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Ignore("SUT are not used")
+@Disabled("SUT are not used")
 public class PSGadgetServiceTest extends PSRestTestCase<PSGadgetServiceTest.GadgetRestClient> {
     
     protected GadgetRestClient restClient;

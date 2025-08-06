@@ -25,7 +25,7 @@ import com.percussion.system.utils.PSRemoteRequester;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -43,7 +43,7 @@ import java.util.Properties;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSRemoteRequesterTest
 {
 

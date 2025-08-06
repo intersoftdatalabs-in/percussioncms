@@ -28,17 +28,17 @@ import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import org.apache.commons.lang.StringUtils;
 import org.glassfish.jersey.internal.PropertiesDelegate;
 import org.glassfish.jersey.server.ContainerRequest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -61,10 +61,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests the rest layer service interface directly, by-passing Jersey.  Tests
@@ -75,7 +75,7 @@ import static org.junit.Assert.fail;
  * @author JaySeletz
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 
 
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
@@ -85,25 +85,25 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     private IPSFormRestService formRestService;
 
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
     private String rxdeploydir;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
         System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
     }
 
-    @After
+    @AfterEach
     public void teardown(){
         if(rxdeploydir != null)
             System.setProperty("rxdeploydir",rxdeploydir);
     }
 
     @Test
-    @Ignore("TODO: FixMe!")
+    @Disabled("TODO: FixMe!")
     public void testSubmitFormWithEmail() throws Exception
     {
     	//FIXME
@@ -118,7 +118,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("TODO: FixMe!")
+    @Disabled("TODO: FixMe!")
     public void testSubmitFormWithEmailNotConfigured() throws Exception
     {
     	//FIXME
@@ -137,7 +137,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("TODO: FixMe!")
+    @Disabled("TODO: FixMe!")
     public void testSubmitFormWithoutEmail() throws IOException
     {
         String[] fieldValue1 = new String[] { "field1", "value1" };
@@ -153,7 +153,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("TODO: FixMe!")
+    @Disabled("TODO: FixMe!")
     public void testSubmitFormWithEmailError() throws IOException
     {
         String[] fieldValue1 = new String[] { "field1", "value1" };
@@ -172,7 +172,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("TODO: Fix Me!")
+    @Disabled("TODO: Fix Me!")
     public void testSubmitFormWithInvalidName() throws IOException
     {
         String[] fieldValue1 = new String[] { "field1", "value1" };
@@ -192,7 +192,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     }
 
     @Test
-    @Ignore("TODO: FixMe!")
+    @Disabled("TODO: FixMe!")
     public void getSummariesWithInvalidFormNamesInDb() throws IOException
     {
         String[] fieldValue1 = new String[] { "field1", "value1" };

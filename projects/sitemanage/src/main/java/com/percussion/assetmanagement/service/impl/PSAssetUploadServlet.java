@@ -23,7 +23,7 @@ import com.percussion.error.PSExceptionUtils;
 import com.percussion.security.SecureStringUtils;
 import com.percussion.share.service.exception.PSExtractHTMLException;
 import com.percussion.sitemanage.importer.theme.PSAssetCreator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,7 +64,7 @@ public class PSAssetUploadServlet extends HttpServlet {
         return "";
     }
 
-    @SuppressFBWarnings("XSS_SERVLET")
+    // TODO: Remove me @SuppressFBWarnings("XSS_SERVLET")
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

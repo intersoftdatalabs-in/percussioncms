@@ -22,7 +22,7 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.transformation.impl.PSTransformerFactory;
 import org.apache.commons.beanutils.Converter;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test the {@link PSAutoTranslationConverter}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAutoTranslationConverterTest extends PSConverterTestBase {
 
     /**

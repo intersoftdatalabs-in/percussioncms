@@ -66,7 +66,7 @@ public class PSSiteTemplateServiceTest extends PSRestTestCase<PSSiteTemplateRest
     private static int sectionCounter = 0;
     private static final Logger log = LogManager.getLogger(PSSiteTemplateServiceTest.class);
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();

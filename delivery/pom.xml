@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.percussion</groupId>
         <artifactId>core</artifactId>
-        <version>8.1.6-SNAPSHOT</version>
+        <version>8.2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>perc-common-ui</artifactId>
-    <version>8.1.6-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
     <packaging>war</packaging>
     <dependencies>
         <!-- AWS SDK for S3 and STS (latest v1.x for Java 11 compatibility) -->

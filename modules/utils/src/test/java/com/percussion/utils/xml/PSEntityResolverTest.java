@@ -20,36 +20,37 @@ package com.percussion.utils.xml;
 import com.percussion.security.xml.PSCatalogResolver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class PSEntityResolverTest {
 
     private static final Logger log = LogManager.getLogger(PSEntityResolverTest.class);
 
-    @Rule
-    public TemporaryFolder temporaryFolder = TemporaryFolder.builder().build();
+    @TempDir
+    public Path temporaryFolder;
     private File testInstallRoot;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
-        testInstallRoot = temporaryFolder.newFolder("testInstallRoot");
+        testInstallRoot = temporaryFolder.resolve("testInstallRoot").toFile();
         System.setProperty("rxdeploydir",testInstallRoot.getAbsolutePath());
     }
 
     @Test
-    @Ignore("TODO: Update to use the test XML Catalog")
+    @Disabled("TODO: Update to use the test XML Catalog")
     public void testExternalEntityOutsideOfInstall() throws IOException {
         PSCatalogResolver resolver = new PSCatalogResolver();
         InputSource src = resolver.resolveEntity("-//W3C//ENTITIES_Latin_1_for_XHTML//EN","https://www.percussion.com/DTD/HTMLlat1x.ent");

@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.apache.cactus.ServletTestCase;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashMap;
 
@@ -32,7 +32,7 @@ import static com.percussion.content.ui.browse.PSContentBrowser.COLUMN_TYPE;
 /**
  * @author Andriy Palamarchuk
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentBrowserTest extends ServletTestCase
 {
    @Override

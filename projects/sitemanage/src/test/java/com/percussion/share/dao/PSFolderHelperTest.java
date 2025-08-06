@@ -26,14 +26,14 @@ import com.percussion.webservices.security.IPSSecurityWs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSFolderHelperTest {
 
     // Nested test class for folder path logic

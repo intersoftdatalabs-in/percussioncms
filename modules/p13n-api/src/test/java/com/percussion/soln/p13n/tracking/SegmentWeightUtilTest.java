@@ -17,11 +17,11 @@
 
 package test.percussion.soln.p13n.tracking;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.p13n.tracking.impl.SegmentWeightUtil;
@@ -34,7 +34,7 @@ public class SegmentWeightUtilTest {
     HashMap<String, Integer> request;
     Map<String, Integer> actual;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         weights = new HashMap<String, Integer>();
         request = new HashMap<String, Integer>();

@@ -19,13 +19,13 @@ package com.percussion.ant.install;
 
 import com.percussion.install.PSLogger;
 import org.junit.*;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.sql.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /***
  * Test the ant task
@@ -33,14 +33,14 @@ import static org.junit.Assert.assertEquals;
 public class TestExecSQLRemoveDupes {
 
     @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public static Path temporaryFolder;
 
     private static String repoRoot;
     private static String oldRepoRoot;
     private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
     private static final String connectionURL = "jdbc:derby:CMDB;create=true;user=CMDB;password=demo";
 
-    @BeforeClass
+    @BeforeEach Class
     public static void setup() throws Exception{
         temporaryFolder.create();
         repoRoot = temporaryFolder.getRoot().getAbsolutePath() + File.separator + "Repository";
@@ -69,7 +69,7 @@ public class TestExecSQLRemoveDupes {
                 temporaryFolder.getRoot().toPath().resolve("rxconfig/Installer/rxrepository.properties"));
     }
 
-    @After
+    @AfterEach
     public void after() throws Exception{
         //Restore system property if it had been set to not interfere with other tests
         if(oldRepoRoot!=null) {

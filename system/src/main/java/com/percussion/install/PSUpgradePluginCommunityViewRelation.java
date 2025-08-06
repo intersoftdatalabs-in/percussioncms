@@ -19,7 +19,7 @@ package com.percussion.install;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSSQLStatement;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Element;
 
 import java.io.File;
@@ -54,7 +54,7 @@ public class PSUpgradePluginCommunityViewRelation implements IPSUpgradePlugin
     * @param elemData data element of plugin.
     * @return <code>null</code>.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
    {
       config.getLogStream().println(

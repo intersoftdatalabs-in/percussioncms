@@ -17,7 +17,7 @@
 // REFACTORED: CP-JAVA11
 package com.percussion.share.test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.beans.PropertyDescriptor;
 import java.util.HashMap;

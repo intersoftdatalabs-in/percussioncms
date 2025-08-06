@@ -32,15 +32,15 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link IPSLoginMgr}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSLoginMgrTest
 {
    /**

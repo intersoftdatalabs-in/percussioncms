@@ -20,12 +20,12 @@ import com.percussion.error.IPSDeploymentErrors;
 import com.percussion.error.PSDeployException;
 import com.percussion.error.PSExceptionUtils;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -34,14 +34,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the PSPackageConfiguration, which include
  * PSDependencyMap and PSDependencyDef classes
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSPackageConfigurationTest
 {
 

@@ -17,12 +17,12 @@
 package com.percussion.utils.string;
 
 import com.percussion.utils.string.PSXmlPIUtils.Action;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.utils.types.PSPair;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.ByteArrayInputStream;
@@ -30,9 +30,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSXmlPITest
 {
    static String ms_test1 = "<doc><el><%active%><?php phpcode?></el><%active2%></doc>";

@@ -43,14 +43,14 @@ import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Simple testers for the content repository
  *
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentRepositoryTest extends ServletTestCase
 {
    static final String TESTRESULT = "<Proxy result>";

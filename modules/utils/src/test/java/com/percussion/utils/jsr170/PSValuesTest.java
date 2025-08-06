@@ -16,10 +16,10 @@
  */
 package com.percussion.utils.jsr170;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.jcr.PropertyType;
 import javax.jcr.Value;
@@ -29,12 +29,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSValuesTest
 {
    static final FastDateFormat ms_date =
@@ -55,7 +56,7 @@ public class PSValuesTest
       try
       {
          bool.getDate();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false == true, "Should have thrown exception");
       }
       catch (Exception e)
       {
@@ -64,7 +65,7 @@ public class PSValuesTest
       try
       {
          bool.getLong();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false, "Should have thrown exception" );
       }
       catch (Exception e)
       {
@@ -73,7 +74,7 @@ public class PSValuesTest
       try
       {
          bool.getDouble();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false, "Should have thrown exception");
       }
       catch (Exception e)
       {
@@ -98,7 +99,7 @@ public class PSValuesTest
       try
       {
          date.getBoolean();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false, "Should have thrown exception");
       }
       catch (Exception e)
       {
@@ -122,7 +123,7 @@ public class PSValuesTest
       try
       {
          d.getBoolean();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false, "Should have thrown exception");
       }
       catch (Exception e)
       {
@@ -181,7 +182,7 @@ public class PSValuesTest
       try
       {
          d.getBoolean();
-         assertTrue("Should have thrown exception", false);
+         assertTrue(false, "Should have thrown exception");
       }
       catch (Exception e)
       {
@@ -232,7 +233,7 @@ public class PSValuesTest
       try
       {
          d = PSValueFactory.createValue(Boolean.class);
-         assertTrue("Should have throw exception ", false);
+         assertTrue(false, "Should have thrown exception ");
       }
       catch (Exception e)
       {

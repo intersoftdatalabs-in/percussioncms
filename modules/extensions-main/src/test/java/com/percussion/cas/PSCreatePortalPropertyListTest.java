@@ -17,14 +17,14 @@
 package com.percussion.cas;
 
 import com.percussion.data.PSConversionException;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
 
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 /**
@@ -33,7 +33,7 @@ import org.w3c.dom.Document;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSCreatePortalPropertyListTest
 {
    private static final Logger log = LogManager.getLogger(PSCreatePortalPropertyListTest.class);

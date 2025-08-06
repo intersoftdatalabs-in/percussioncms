@@ -43,11 +43,11 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Implements utilities used by all assembly test cases.
@@ -135,7 +135,7 @@ public class PSAssemblyTestBase extends PSTestBase
       }
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public void setUp() throws Exception
    {
 
@@ -163,7 +163,7 @@ public class PSAssemblyTestBase extends PSTestBase
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @After
+   @AfterEach
    protected static void tearDown() throws Exception
    {
       deleteTestSlots(m_session);

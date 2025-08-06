@@ -24,7 +24,7 @@ import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.util.Calendar;
@@ -34,7 +34,7 @@ import java.util.Date;
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSLocalDeployerClientTest extends ServletTestCase
 {
     

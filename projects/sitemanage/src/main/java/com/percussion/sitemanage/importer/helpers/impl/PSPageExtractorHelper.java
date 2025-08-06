@@ -48,7 +48,7 @@ import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.utils.types.PSPair;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -174,7 +174,7 @@ public class PSPageExtractorHelper extends PSGenericMetadataExtractorHelper {
     }
 
     @Override
-    @SuppressFBWarnings("RU_INVOKE_RUN")
+    // TODO: Remove me @SuppressFBWarnings("RU_INVOKE_RUN")
     public void process(PSPageContent pageContent, PSSiteImportCtx context) throws PSSiteImportException {
         try {
             startTimer();

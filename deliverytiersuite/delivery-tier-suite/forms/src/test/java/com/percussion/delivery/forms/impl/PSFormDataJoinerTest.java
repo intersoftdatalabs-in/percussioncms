@@ -20,13 +20,13 @@ package com.percussion.delivery.forms.impl;
 import com.percussion.delivery.forms.data.IPSFormData;
 import com.percussion.delivery.forms.data.PSFormData;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.text.MessageFormat;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class PSFormDataJoinerTest
         return result;
     }
     
-    @Before
+    @BeforeEach
     public void setUp()
     {
         formDataJoiner = new PSFormDataJoiner();

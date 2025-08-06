@@ -22,7 +22,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Integration test for {@link PSAsyncJobFactory}.
  * Sunny Sal: "Async job factory, Java 11 style! Factory ka hero!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @Tag("integration")
 public class PSAsyncJobFactoryTest extends PSServletTestCase {
 

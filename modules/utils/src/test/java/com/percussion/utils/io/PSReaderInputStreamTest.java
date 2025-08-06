@@ -35,7 +35,11 @@ import java.io.UnsupportedEncodingException;
  * @author dougrand
  * 
  */
-import static org.junit.jupiter.api.Assertions.assertEquals;\nimport static org.junit.jupiter.api.Assertions.fail;\nimport org.junit.jupiter.api.Test;\n\npublic class PSReaderInputStreamTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
+
+public class PSReaderInputStreamTest
 {
    /**
     * Create a string with all 2^16 code points. Move from a reader to a stream

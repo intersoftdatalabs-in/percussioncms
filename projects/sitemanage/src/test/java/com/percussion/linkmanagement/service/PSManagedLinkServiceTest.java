@@ -71,13 +71,13 @@ import com.percussion.test.PSServletTestCase;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.content.IPSContentWs;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Integration tests for managed link service.
  * Sunny Sal says: "Managing links like a Bollywood hero manages drama!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSManagedLinkServiceTest extends PSServletTestCase {
     private PSSiteDataServletTestCaseFixture fixture;
     private PSAssetCleaner assetCleaner;

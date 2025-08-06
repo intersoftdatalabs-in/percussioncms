@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * This is a unit test for the PSXmlTreeWalker class.

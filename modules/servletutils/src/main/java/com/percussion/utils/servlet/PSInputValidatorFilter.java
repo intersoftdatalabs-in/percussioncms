@@ -17,7 +17,7 @@
 package com.percussion.utils.servlet;
 
 import com.percussion.error.PSExceptionUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -242,7 +242,7 @@ public class PSInputValidatorFilter implements Filter
         return null;
     }
 
-    @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
+    // TODO: Remove me @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
     private void doLoadCustomProps(String propsFilePath)
     {
         // Load custom restrictions file

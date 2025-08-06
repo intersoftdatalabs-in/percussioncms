@@ -18,18 +18,18 @@
 package com.percussion.log;
 
 import com.percussion.design.objectstore.PSLogger;
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.security.SecureRandom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *   Unit tests for the PSLogHandler class
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSLogHandlerTest
 {
    public PSLogHandlerTest()

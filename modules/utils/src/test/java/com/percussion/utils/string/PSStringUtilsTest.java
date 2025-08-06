@@ -16,8 +16,8 @@
  */
 package com.percussion.utils.string;
 
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;
@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for string utilities.
@@ -36,7 +36,7 @@ import static org.junit.Assert.fail;
 public class PSStringUtilsTest
 {
 
-   @Before
+   @BeforeEach 
    public void setup(){
       //Set headless mode - this test covers code that relies on graphics engine
       System.setProperty("java.awt.headless", "true");
@@ -299,7 +299,7 @@ public class PSStringUtilsTest
     */
    @Test
    //TODO: Fix me
-   @Ignore("Test is failing")
+   @Disabled("Test is failing")
    public void testPathAbbreviator()
    {
       Font x = new Font("Arial", Font.PLAIN, 12);

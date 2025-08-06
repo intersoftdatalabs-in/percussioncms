@@ -18,7 +18,7 @@
 package com.percussion;
 
 import com.percussion.error.PSExceptionUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -111,7 +111,7 @@ public class SSLCertificateChecker {
     }
 
 
-    @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
+    // TODO: Remove me @SuppressFBWarnings("URLCONNECTION_SSRF_FD")
     private void checkCertificate(String urlStr, int warningDays) {
         URL url = null;
 

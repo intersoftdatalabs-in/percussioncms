@@ -47,11 +47,11 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +59,7 @@ import java.util.Set;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Scenario description:
@@ -67,8 +67,8 @@ import static org.junit.Assert.assertNotNull;
  * @author adamgent, Oct 15, 2009
  */
 @RunWith(JMock.class)
-@Ignore
-@Category(IntegrationTest.class)
+@Disabled
+@Tag(IntegrationTest.class)
 public class PSPageServiceValidationTest
 {
 
@@ -105,7 +105,7 @@ public class PSPageServiceValidationTest
     private IPSRecycleService recycleService;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         folderHelperWs = context.mock(IPSFolderHelper.class);

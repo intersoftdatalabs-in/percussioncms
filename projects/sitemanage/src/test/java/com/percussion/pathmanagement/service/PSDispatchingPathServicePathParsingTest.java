@@ -30,7 +30,7 @@ import com.percussion.share.data.PSItemProperties;
 import com.percussion.share.data.PSNoContent;
 import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.ui.service.IPSListViewHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class PSDispatchingPathServicePathParsingTest {
     }
 
     @Test
-    @SuppressFBWarnings("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS")
+    // TODO: Remove me @SuppressFBWarnings("NP_NULL_PARAM_DEREF_ALL_TARGETS_DANGEROUS")
     public void shouldFailOnNormalizeNullPath() {
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () -> assertNormalize(null, null));
     }

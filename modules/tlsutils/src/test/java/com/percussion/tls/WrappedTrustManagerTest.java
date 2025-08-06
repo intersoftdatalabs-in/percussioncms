@@ -17,10 +17,10 @@
 
 package com.percussion.tls;
 
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -30,7 +30,7 @@ import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,7 +49,7 @@ public class WrappedTrustManagerTest {
     private ByteArrayOutputStream outputStream;
     private PrintStream originalOut;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         // Capture System.out for testing console output
         outputStream = new ByteArrayOutputStream();
@@ -97,7 +97,7 @@ public class WrappedTrustManagerTest {
         assertTrue("Null KeyStore should be handled gracefully", true);
     }
 
-    @Ignore
+    @Disabled
     @Test(expected = RuntimeException.class)
     public void testAddKeyStore_InvalidKeyStore() {
         // Given
@@ -132,7 +132,7 @@ public class WrappedTrustManagerTest {
         // The result should be a merged set without duplicates
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testCheckServerTrusted_SuccessfulValidation() {
         // Given
@@ -154,7 +154,7 @@ public class WrappedTrustManagerTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testCheckServerTrusted_ValidationFailure() {
         // Given
         X509Certificate[] chain = {mockCertificate1, mockCertificate2};
@@ -172,7 +172,7 @@ public class WrappedTrustManagerTest {
         }
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testCheckClientTrusted_SuccessfulValidation() throws CertificateException {
         // Given
@@ -192,7 +192,7 @@ public class WrappedTrustManagerTest {
         assertTrue("Method should handle client certificate validation", true);
     }
 
-    @Ignore
+    @Disabled
     @Test
     public void testCheckClientTrusted_ValidationFailure() {
         // Given

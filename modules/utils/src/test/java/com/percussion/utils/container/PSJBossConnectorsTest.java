@@ -17,11 +17,11 @@
 
 package com.percussion.utils.container;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,15 +30,15 @@ import java.nio.file.Path;
 
 public class PSJBossConnectorsTest {
 
-    @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir
+    public Path tempFolder;
 
     File root;
 
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
-         root = tempFolder.newFolder();
+         root = tempFolder.toFile();
          if(! Files.exists(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"))) {
              Path p = Files.createDirectories(root.toPath().resolve("AppServer/server/rx/deploy/jboss-web.deployer"));
 
@@ -59,7 +59,7 @@ public class PSJBossConnectorsTest {
     }
 
     @Test
-    @Ignore("TODO: This test is failing. Fix it please!")
+    @Disabled("TODO: This test is failing. Fix it please!")
     public void save() throws IOException {
 
 

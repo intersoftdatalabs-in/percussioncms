@@ -31,19 +31,19 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author erikserating
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPackageServiceTest
 {
 
@@ -149,7 +149,7 @@ public class PSPackageServiceTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#setUp()
     */
-   @BeforeClass
+   @BeforeEach Class
    public static void setUp() throws Exception
    {
       instance = new PSPackageServiceTest();

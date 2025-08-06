@@ -33,9 +33,9 @@ import com.percussion.xml.serialization.PSObjectSerializer;
 
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test round tripping of specific objects with the serializer to test
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertEquals;
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSObjectSerializerRoundTripTest
 {
    /**

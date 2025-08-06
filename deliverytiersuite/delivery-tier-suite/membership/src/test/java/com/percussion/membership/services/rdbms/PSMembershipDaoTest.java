@@ -22,17 +22,17 @@ import com.percussion.membership.data.PSAccountSummary;
 import com.percussion.membership.data.rdbms.impl.PSMembership;
 import com.percussion.membership.services.IPSMembershipDao;
 import com.percussion.membership.services.PSMemberExistsException;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import junit.framework.TestCase;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -47,7 +47,7 @@ import java.util.List;
  *
  */
 @Transactional
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
 public class PSMembershipDaoTest extends TestCase
 {
@@ -59,7 +59,7 @@ public class PSMembershipDaoTest extends TestCase
     private SessionFactory sessionFactory;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();
@@ -80,13 +80,13 @@ public class PSMembershipDaoTest extends TestCase
 
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception
     {
         super.tearDown();
     }
     
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
+    
     @Test
     public void testMembership() throws Exception
     {
@@ -102,7 +102,7 @@ public class PSMembershipDaoTest extends TestCase
         assertEquals(other, membership);
     }
     
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
+    
     @Test
     public void testCreateAndFind() throws Exception
     {
@@ -216,7 +216,7 @@ public class PSMembershipDaoTest extends TestCase
         assertEquals(members, found);
     }
     
-    @SuppressFBWarnings("PREDICTABLE_RANDOM")
+    // TODO: Remove me @SuppressFBWarnings("PREDICTABLE_RANDOM")
     @Test
     public void testChangeStatusAccount() throws Exception
     {
@@ -248,7 +248,7 @@ public class PSMembershipDaoTest extends TestCase
         membershipDao.deleteAccount(userId);
     }
     
-    @SuppressFBWarnings("PREDICTABLE_RANDOM")
+    // TODO: Remove me @SuppressFBWarnings("PREDICTABLE_RANDOM")
     @Test
     public void testDeleteAccount() throws Exception
     {

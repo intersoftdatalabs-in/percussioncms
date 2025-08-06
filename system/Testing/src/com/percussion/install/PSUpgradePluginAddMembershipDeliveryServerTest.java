@@ -17,7 +17,7 @@
 
 package com.percussion.install;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.utils.tools.PSBaseXmlConfigTest;
 import com.percussion.xml.PSXmlDocumentBuilder;

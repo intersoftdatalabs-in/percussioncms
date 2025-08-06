@@ -33,7 +33,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ import java.util.List;
  * <p>
  * Sunny Sal says: "Widgets are like toppings—test them all, and your pizza (app) will be delicious!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSWidgetServiceTest extends PSRestTestCase<PSWidgetServiceTest.PSWidgetRestClient> {
 

@@ -17,12 +17,12 @@
 
 package com.percussion.utils.io;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,23 +30,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class PathUtilsTests {
 
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
     private String rxdeploydir;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", temporaryFolder.getRoot().toAbsolutePath().toString());
     }
 
-    @After
+    @AfterEach
     public void teardown(){
         if(rxdeploydir != null)
             System.setProperty("rxdeploydir",rxdeploydir);
@@ -56,7 +56,7 @@ public class PathUtilsTests {
 
     //TODO: Finish adding various test cases.
     @Test
-    @Ignore
+    @Disabled
     public void testAutodetect() throws IOException {
         System.setProperty("rxdeploydir","");
         System.setProperty("user.dir", System.getProperty("user.home"));
@@ -71,11 +71,11 @@ public class PathUtilsTests {
                 File.separator, ".perc_config"), PathUtils.getRxDir(null).getAbsolutePath());
 
 
-        File dtsBase = temporaryFolder.newFolder("Deployment","Server");
-        File rxconfig = temporaryFolder.newFolder("rxconfig");
+        File dtsBase = temporaryFolder.resolve("Deployment").resolve("Server").toFile();
+        File rxconfig = temporaryFolder.resolve("rxconfig").toFile()    ;
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(),
+        assertEquals(temporaryFolder.getRoot().toAbsolutePath(),
                 PathUtils.getRxDir(rxconfig.getAbsolutePath()).getAbsolutePath());
 
 
@@ -83,30 +83,17 @@ public class PathUtilsTests {
         System.setProperty("user.dir", dtsBase.getAbsolutePath());
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(), PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
+        assertEquals(temporaryFolder.getRoot().toAbsolutePath(), PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
 
-        File jettyBase = temporaryFolder.newFolder("jetty","base");
+        File jettyBase = temporaryFolder.resolve("jetty").resolve("base").toFile();
         System.setProperty("user.dir", jettyBase.getAbsolutePath());
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(), PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
+        assertEquals(temporaryFolder.getRoot().toAbsolutePath(), PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
 
 
 
     }
 
-
-    public void testNoObjectStore() throws IOException {
-
-
-    }
-
-    public void testObjectStore(){
-
-    }
-
-    public void testNoObjectStoreNoRxConfig(){
-
-    }
 
 }

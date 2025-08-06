@@ -73,6 +73,7 @@ Concise reference for technologies, development setup, constraints, dependencies
 - OWASP-aligned practices; ESAPI and AntiSamy managed centrally
 - Keep dependencies current and consistent; resolve UBD warnings promptly
 - Add  jakarta.* alternatives for javax.* APIs as needed.
+- Do not remove methods that are tagged as @Deprecated without consulting with the team.
 
 # Source Code License Header and Copyright
 All source files must include the standard Percussion CMS license header at the top.

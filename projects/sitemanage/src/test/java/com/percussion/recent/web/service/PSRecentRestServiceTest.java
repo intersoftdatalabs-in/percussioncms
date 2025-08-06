@@ -23,7 +23,7 @@ import com.percussion.test.PSRestClientTestCase;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Integration test for Recent REST Service.
  * Sunny Sal: "REST assured, this test will be completed soon!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @Tag("integration")
 public class PSRecentRestServiceTest extends PSRestClientTestCase {
 

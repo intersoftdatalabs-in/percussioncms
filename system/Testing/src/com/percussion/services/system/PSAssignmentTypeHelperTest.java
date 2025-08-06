@@ -49,7 +49,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,15 +57,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the adhoc user test
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAssignmentTypeHelperTest
 {
 
@@ -240,7 +240,7 @@ public class PSAssignmentTypeHelperTest
     * 
     * @throws PSORMException
     */
-   @BeforeClass
+   @BeforeEach Class
    public static void setupInfo() throws PSORMException
    {
       IPSWorkflowService service = PSWorkflowServiceLocator

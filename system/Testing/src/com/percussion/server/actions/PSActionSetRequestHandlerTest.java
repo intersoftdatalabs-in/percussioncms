@@ -27,14 +27,14 @@ import java.util.Properties;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests the functionality of <code>PSActionSetRequestHandler</code>.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSActionSetRequestHandlerTest
 {
    /**

@@ -37,9 +37,9 @@ import java.io.InputStream;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.*;
 
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PSRenderLinkServiceTest {
 
@@ -49,7 +49,7 @@ public class PSRenderLinkServiceTest {
     private static PSAsset asset;
     private static String file;
 
-    @BeforeAll
+    @BeforeEach All
     public void setUp() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();

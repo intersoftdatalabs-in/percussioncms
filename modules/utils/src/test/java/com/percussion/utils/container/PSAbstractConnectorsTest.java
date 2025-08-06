@@ -17,7 +17,7 @@
 
 package com.percussion.utils.container;
 
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ public class PSAbstractConnectorsTest {
     Map<String,String> loadMap;
 
     @Test
-    @Before
+    @BeforeEach
     public void loadProperties() {
         File root = new File(getClass().getClassLoader().getResource("com/percussion/utils/container/sample.properties").getFile());
         Path rootPath = Paths.get(root.toURI());
@@ -40,7 +40,7 @@ public class PSAbstractConnectorsTest {
     }
 
     @Test
-    @After
+    @AfterEach
     public void saveProperties() {
         Path root = Paths.get(new File(getClass().getClassLoader().getResource("com/percussion/utils/container/sample1.properties").getFile()).toURI());
         PSAbstractConnectors saveProp=new PSAbstractConnectors();

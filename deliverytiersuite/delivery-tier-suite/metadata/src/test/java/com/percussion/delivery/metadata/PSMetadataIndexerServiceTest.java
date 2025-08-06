@@ -23,12 +23,12 @@ import com.percussion.delivery.metadata.extractor.data.PSMetadataProperty;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import junit.framework.TestCase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import java.util.Set;
  * @author erikserating
  * 
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
 public class PSMetadataIndexerServiceTest extends TestCase
@@ -57,7 +57,7 @@ public class PSMetadataIndexerServiceTest extends TestCase
      */
     private static final int ENTRIES_COUNT_FOR_PERFORMANCE_TESTING = 7;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         super.setUp();

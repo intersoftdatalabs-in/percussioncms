@@ -19,9 +19,9 @@ package com.percussion.membership.services;
 import com.percussion.delivery.multitenant.PSThreadLocalTenantContext;
 import com.percussion.membership.data.PSUserSummary;
 import junit.framework.TestCase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,14 +41,14 @@ public abstract class PSBaseMembershipServiceTest extends TestCase
     
     private String TEST_TENANT_ID = "007";
     
-    @Before
+    @BeforeEach
     public void setup() throws Exception{
         super.setUp();
     	//Setup the tenant id for the mongo tests
         PSThreadLocalTenantContext.setTenantId(TEST_TENANT_ID);
     }
     
-    @After
+    @AfterEach
     public void teardown() throws Exception{
         super.tearDown();
     	//Clear the tenant id for the next test script
@@ -94,7 +94,7 @@ public abstract class PSBaseMembershipServiceTest extends TestCase
         isValidSession(userId, sessionId);
     }
     
-    @Ignore // This is breaking when within the full build and it takes way too much time
+    @Disabled // This is breaking when within the full build and it takes way too much time
     @Test
     public void testGetUserExpiredSession() throws Exception
     {

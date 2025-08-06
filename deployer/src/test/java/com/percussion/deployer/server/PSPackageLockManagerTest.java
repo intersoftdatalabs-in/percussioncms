@@ -24,7 +24,7 @@ import com.percussion.util.PSArchiveFiles;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 
 import java.io.File;
@@ -36,14 +36,14 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the PSPackageLockManager.
  */
 @SuppressWarnings("unchecked")
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPackageLockManagerTest
 {
    /**

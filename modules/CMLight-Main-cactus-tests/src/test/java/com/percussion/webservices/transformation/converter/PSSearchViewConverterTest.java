@@ -23,7 +23,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.ui.data.PSSearchDef;
 import com.percussion.webservices.ui.data.PSViewDef;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSSearchViewConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSearchViewConverterTest extends PSConverterTestBase {
 
     /**

@@ -21,9 +21,9 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.testing.SpringContextTest;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,10 +34,10 @@ import javax.naming.InitialContext;
 
 //TODO: The spring tests need moved to a new jar.
 
-@Category({IntegrationTest.class, SpringContextTest.class})
+@Tag({IntegrationTest.class, SpringContextTest.class})
 //@WebAppConfiguration("file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF")
 @ContextConfiguration(classes = {PSSpringContextTestConfig.class})
-@IgnoreInWebAppSpringContext
+@DisabledInWebAppSpringContext
 public class PSAbstractSpringContextTest {
 
     @Autowired
@@ -46,11 +46,11 @@ public class PSAbstractSpringContextTest {
     @Autowired
     protected ConfigurableApplicationContext ctx;
 
-    @Before
+    @BeforeEach
     public  void setContext(){
         PSBaseServiceLocator.setCtx(ctx);
     }
-    @BeforeClass
+    @BeforeEach Class
     public static void setupJndi() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.osjava.sj.memory.MemoryContextFactory");
         System.setProperty("org.osjava.sj.jndi.shared", "true");

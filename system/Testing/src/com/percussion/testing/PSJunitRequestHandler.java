@@ -23,7 +23,7 @@ import com.percussion.server.PSConsole;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSResponse;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import junit.framework.Test;
 import junit.framework.TestFailure;
 import junit.framework.TestResult;
@@ -84,7 +84,7 @@ import java.util.List;
  * dir=c:/e2/classes/com/percussion/cms/dg
  * </pre>
  */
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class PSJunitRequestHandler implements IPSLoadableRequestHandler
 {
    /**

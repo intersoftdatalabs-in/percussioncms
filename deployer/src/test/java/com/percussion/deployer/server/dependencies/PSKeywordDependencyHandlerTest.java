@@ -24,7 +24,7 @@ import com.percussion.services.content.PSContentServiceLocator;
 import com.percussion.services.content.data.PSKeyword;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * Test case for the {@link PSKeywordDependencyHandler}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSKeywordDependencyHandlerTest extends ServletTestCase
 {
    /**

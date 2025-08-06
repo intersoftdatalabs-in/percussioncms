@@ -24,7 +24,7 @@ import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.util.PSProperties;
 import com.percussion.util.PSSqlHelper;
 import com.percussion.utils.jdbc.PSJdbcUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.File;
 import java.sql.Connection;
@@ -64,7 +64,7 @@ import java.sql.SQLException;
 public class PSTrimRxPubDocs extends PSAction
 {
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

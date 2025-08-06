@@ -33,7 +33,7 @@ import com.percussion.services.system.data.PSDependency;
 import com.percussion.services.system.data.PSDependent;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.assembly.data.PSAssemblyTemplateBindingsBinding;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSConverterTest extends PSConverterTestBase {
 
     public void testPSLoginConversion() throws Exception {

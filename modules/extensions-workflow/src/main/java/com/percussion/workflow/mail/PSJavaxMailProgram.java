@@ -18,7 +18,7 @@
 package com.percussion.workflow.mail;
 
 import com.percussion.extension.IPSExtensionErrors;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 
 import javax.mail.Message;
@@ -58,7 +58,7 @@ public class PSJavaxMailProgram implements IPSMailProgram
    /*
     * Method required by the interface.
     */
-   @SuppressFBWarnings("SMTP_HEADER_INJECTION")
+   // TODO: Remove me @SuppressFBWarnings("SMTP_HEADER_INJECTION")
    public void sendMessage(IPSMailMessageContext messageContext)
            throws PSMailException
    {

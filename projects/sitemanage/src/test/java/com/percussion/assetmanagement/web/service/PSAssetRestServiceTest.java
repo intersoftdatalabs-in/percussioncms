@@ -72,7 +72,7 @@ class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestClient> {
             + "</div>"
             + "</div>";
 
-    @BeforeAll
+    @BeforeEach All
     static void setUpAll() throws Exception {
         testSiteData = new PSTestSiteData();
         testSiteData.setUp();
@@ -763,7 +763,7 @@ class PSAssetRestServiceTest extends PSRestTestCase<PSAssetServiceRestClient> {
         }
     }
 
-    @Ignore("Not ready yet. Ignore it to fix the build.")
+    @Disabled("Not ready yet. Ignore it to fix the build.")
     @Test
     void test130GetForms() throws Exception {
         restClient.switchCommunity(1002);

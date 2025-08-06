@@ -19,14 +19,14 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.design.objectstore.PSField;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.PSFieldDimension;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSDimensionEnumConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDimensionEnumConverterTest extends PSConverterTestBase {
 
     /**

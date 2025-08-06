@@ -34,7 +34,7 @@ import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSJdbcUtils;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -241,7 +241,7 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants
     * @throws PSMissingApplicationPolicyException if an error occurs loading
     * jndi datasources
     */
-   @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
+   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
    public static Properties loadRxRepositoryProperties(String rxRoot)
       throws FileNotFoundException, PSInvalidXmlException, SAXException,
       IOException, PSMissingApplicationPolicyException

@@ -22,17 +22,17 @@ import java.io.File;
 
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.PSResourceUtils;
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author dougrand
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSNamespaceCleanupTest
 {
    /**
@@ -40,7 +40,7 @@ public class PSNamespaceCleanupTest
     */
    static File ms_cfile = null;
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setUp() throws Exception
    {
       ms_cfile = PSResourceUtils.getFile(PSNamespaceCleanupTest.class,

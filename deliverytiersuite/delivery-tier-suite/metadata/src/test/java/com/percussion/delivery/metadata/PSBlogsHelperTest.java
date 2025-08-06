@@ -24,12 +24,12 @@ import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import junit.framework.TestCase;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ import java.util.List;
  * @author leonardohildt
  * 
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
 public class PSBlogsHelperTest extends TestCase
@@ -60,7 +60,7 @@ public class PSBlogsHelperTest extends TestCase
     
     private static final int YEAR_COUNT = 2;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception
     {
         super.setUp();

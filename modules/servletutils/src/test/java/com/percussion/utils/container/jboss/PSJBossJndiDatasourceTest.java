@@ -16,13 +16,13 @@
  */
 
 package com.percussion.utils.container.jboss;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 
 /**
  * Test case for the {@link PSJBossJndiDatasource} class.
  */
-@Ignore
+@Disabled
 public class PSJBossJndiDatasourceTest 
 {
 /***

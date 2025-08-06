@@ -29,7 +29,7 @@ import com.percussion.tablefactory.PSJdbcTableSchemaCollection;
 import com.percussion.tablefactory.install.RxLogTables;
 import com.percussion.utils.container.IPSJdbcDbmsDefConstants;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -82,7 +82,7 @@ public class PSExportDatabase extends PSAction
 {
     private static final String ERROR = "ERROR :";
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

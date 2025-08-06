@@ -22,7 +22,7 @@ import com.percussion.install.PSLogger;
 import com.percussion.rxfix.PSRxFixCmd;
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSProperties;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ import java.util.List;
 public class PSRxFix extends PSAction
 {
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

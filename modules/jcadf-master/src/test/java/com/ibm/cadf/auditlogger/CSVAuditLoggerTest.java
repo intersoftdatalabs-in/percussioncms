@@ -27,7 +27,7 @@ import java.util.List;
 import com.opencsv.CSVReader;
 import org.junit.AfterClass;
 import org.junit.jupiter.api.Assertions;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.EventFactory;
@@ -45,7 +45,7 @@ import com.ibm.cadf.util.Constants;
 public class CSVAuditLoggerTest
 {
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         System.setProperty(Constants.API_AUDIT_MAP, "/com/ibm/cadf/cfg/api_audit_map.conf");

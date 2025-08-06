@@ -19,17 +19,17 @@ package com.percussion.utils.security;
 
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @todo Fix it... fails on Linux buildServer
  */
-@Ignore
+@Disabled
 public class PSPasswordHandlerTests {
 
     private static String savedEncPass;

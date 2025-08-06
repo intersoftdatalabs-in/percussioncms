@@ -61,15 +61,15 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Implements utilities used by all system test cases.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSystemTestBase extends PSTestBase
 {
    /**
@@ -228,7 +228,7 @@ public class PSSystemTestBase extends PSTestBase
       binding.deleteSharedProperties(req);
    }
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setup() throws Exception
    {
 

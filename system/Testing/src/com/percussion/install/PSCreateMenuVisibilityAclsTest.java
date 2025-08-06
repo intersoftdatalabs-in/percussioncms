@@ -21,18 +21,18 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.testing.SpringContextTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 
 /**
  * Test menu visibility acl install plugin
  * 
  * @author dougrand
  */
-@Category({IntegrationTest.class, SpringContextTest.class})
-@RunWith(SpringJUnit4ClassRunner.class)
-@IgnoreInWebAppSpringContext
+@Tag({IntegrationTest.class, SpringContextTest.class})
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
+@DisabledInWebAppSpringContext
 public class PSCreateMenuVisibilityAclsTest extends PSAbstractSpringContextTest
 {
    /**

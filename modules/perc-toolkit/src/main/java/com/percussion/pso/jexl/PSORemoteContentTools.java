@@ -21,7 +21,7 @@ import com.percussion.extension.IPSJexlExpression;
 import com.percussion.extension.IPSJexlMethod;
 import com.percussion.extension.IPSJexlParam;
 import com.percussion.extension.PSJexlUtilBase;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.Credentials;
@@ -63,7 +63,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an api specifically for pulling remote content
+    // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an api specifically for pulling remote content
     @IPSJexlMethod(description="Returns a status code for a url",
             params={
                     @IPSJexlParam(name="urlString", description="url to pull content from, include query params if desired")
@@ -219,7 +219,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API method for returning remote JSON content in a template.
+    // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API method for returning remote JSON content in a template.
     @IPSJexlMethod(description="Returns JSONObject based on a URL.",
         params={
             @IPSJexlParam(name="urlString", description="url to pull content from, include query params if desired")
@@ -255,7 +255,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API
+    // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") //Is an API
     @IPSJexlMethod(description="Returns JSONObject based on a URL.",
         params={
             @IPSJexlParam(name="urlString", description="url to pull content from, include query params if desired"),
@@ -342,7 +342,7 @@ public class PSORemoteContentTools extends PSJexlUtilBase implements IPSJexlExpr
      * @throws IllegalArgumentException
      * @throws IOException
      */
-    @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting remote data by url
+    // TODO: Remove me @SuppressFBWarnings("HTTP_PARAMETER_POLLUTION") // Is an api method for getting remote data by url
     @IPSJexlMethod(description="Returns JSONObject based on a URL.",
         params={
             @IPSJexlParam(name="urlString", description="url to pull content from, include query params if desired"),

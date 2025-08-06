@@ -83,7 +83,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.service.IPSUtilityService;
 import com.percussion.webservices.publishing.IPSPublishingWs;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -1027,7 +1027,7 @@ public class PSPubServerService implements IPSPubServerService {
      * @param pubServerInfo
      * @param oldPasswordProperty
      */
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
+    
     private void setPasswordProperty(PSPubServer server, PSPublishServerInfo pubServerInfo, PSPubServerProperty oldPasswordProperty)
     {
         Boolean isPasswordSet = Boolean.valueOf(pubServerInfo.findProperty(PASSWORD_FLAG)) ? true : false;
@@ -1786,7 +1786,7 @@ public class PSPubServerService implements IPSPubServerService {
      * @param pubServerInfo
      * @param oldPasswordProperty
      */
-    @SuppressFBWarnings("HARD_CODE_PASSWORD")
+    
     private void setPasswordProperty(PSPubServer server, PSPublishServerInfo pubServerInfo, PSPubServerProperty oldPasswordProperty)
     {
         Boolean isPasswordSet = Boolean.valueOf(pubServerInfo.findProperty(PASSWORD_FLAG)) ? true : false;

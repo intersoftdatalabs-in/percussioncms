@@ -17,26 +17,26 @@
 package com.percussion.ant.install;
 
 import com.percussion.security.xml.PSSecureXMLUtils;
-import com.percussion.utils.testing.UnitTest;
-import org.junit.Before;
-import org.junit.Rule;
+
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSPkgConfigFileEmptyConditionTest
 {
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
    /**
     * Constant for the non-empty package configuration file location.
     */   
@@ -49,7 +49,7 @@ public class PSPkgConfigFileEmptyConditionTest
    private static final String TEST_CFG_FILE_EMPTY =
       "/com/percussion/ant/install/perc.SystemObjects_defaultConfig_Empty.xml";
 
-   @Before
+   @BeforeEach 
    public void setup(){
       PSSecureXMLUtils.setupJAXPDefaults();
    }

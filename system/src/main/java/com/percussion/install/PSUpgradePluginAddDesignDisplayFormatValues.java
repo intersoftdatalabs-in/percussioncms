@@ -18,7 +18,7 @@ package com.percussion.install;
 
 import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.util.PSSqlHelper;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Element;
 
 import java.io.PrintStream;
@@ -50,7 +50,7 @@ public class PSUpgradePluginAddDesignDisplayFormatValues implements IPSUpgradePl
    /* (non-Javadoc)
     * @see com.percussion.install.IPSUpgradePlugin#process(com.percussion.install.IPSUpgradeModule, org.w3c.dom.Element)
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule module, @SuppressWarnings("unused") Element elemData)
    {
       logger = module.getLogStream();

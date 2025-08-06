@@ -29,7 +29,7 @@ import com.percussion.soln.linkback.utils.LinkbackUtils;
 import com.percussion.system.utils.IPSHtmlParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -38,7 +38,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ActionPanelLinkbackControllerTest {
 
@@ -51,7 +51,7 @@ public class ActionPanelLinkbackControllerTest {
     /**
      * @throws java.lang.Exception
      */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         cut = new ActionPanelLinkbackController();
         cut.setHelpViewName("helpview");

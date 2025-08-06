@@ -87,14 +87,14 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test all system soap services
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class SystemTestCase extends PSSystemTestBase
 {
    /**

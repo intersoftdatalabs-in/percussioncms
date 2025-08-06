@@ -29,7 +29,7 @@ import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.content.PSContentWsLocator;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +39,7 @@ import java.util.Map;
 /**
  * Test the add and remove snippet actions
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAddRemoveSnippetActionTest extends PSAAClientActionTestBase
 {
 

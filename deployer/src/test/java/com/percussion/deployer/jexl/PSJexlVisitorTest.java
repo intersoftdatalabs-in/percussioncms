@@ -16,20 +16,20 @@
  */
 package com.percussion.deployer.jexl;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.apache.commons.jexl3.parser.ParserVisitor;
 import org.apache.commons.jexl3.parser.SimpleNode;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author vamsinukala
  * 
  */
 // public class PrintJexlVisitor implements ParserVisitor
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSJexlVisitorTest
 {
 

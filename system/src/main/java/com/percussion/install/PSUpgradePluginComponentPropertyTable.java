@@ -23,7 +23,7 @@ import com.percussion.tablefactory.PSJdbcTableData;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -55,7 +55,7 @@ public class PSUpgradePluginComponentPropertyTable implements IPSUpgradePlugin
    /**
     * Implements process method of IPSUpgardePlugin.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule config, Element elemData)
    {
       FileInputStream in = null;

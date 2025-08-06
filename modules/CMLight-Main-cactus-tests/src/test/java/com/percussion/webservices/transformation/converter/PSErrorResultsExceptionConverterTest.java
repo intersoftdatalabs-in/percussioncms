@@ -27,14 +27,14 @@ import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.faults.PSErrorResultsFault;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSErrorResultsExceptionConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSErrorResultsExceptionConverterTest extends PSConverterTestBase {
 
     public void testConversion() throws Exception {

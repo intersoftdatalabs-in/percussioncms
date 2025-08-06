@@ -18,14 +18,14 @@
 package com.percussion.deployer.objectstore;
 
 import com.percussion.util.PSFormatVersion;
-import com.percussion.utils.testing.UnitTest;
+
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -34,27 +34,27 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test for the <code>PSArchiveInfo</code> object.
  */
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSArchiveInfoTest
 {
 
    @Rule
-   public TemporaryFolder temporaryFolder = new TemporaryFolder();
+   public Path temporaryFolder;
    private String rxdeploydir;
 
-   @Before
+   @BeforeEach 
    public void setup() throws IOException {
 
       rxdeploydir = System.getProperty("rxdeploydir");
       System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
    }
 
-   @After
+   @AfterEach
    public void teardown(){
       if(rxdeploydir != null)
          System.setProperty("rxdeploydir",rxdeploydir);

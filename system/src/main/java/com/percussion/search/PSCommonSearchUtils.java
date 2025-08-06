@@ -70,7 +70,7 @@ public  class PSCommonSearchUtils {
                     getTranslationValue(EDITOR_I18N_PREFIX + "@After");
     public static String OP_BEFORE =
             PSI18NTranslationKeyValues.getInstance().
-                    getTranslationValue(EDITOR_I18N_PREFIX + "@Before");
+                    getTranslationValue(EDITOR_I18N_PREFIX + "@BeforeEach ");
     public static String OP_BETWEEN =
             PSI18NTranslationKeyValues.getInstance().
                     getTranslationValue(EDITOR_I18N_PREFIX + "@Between");

@@ -59,7 +59,7 @@ import com.percussion.webservices.faults.PSNotAuthorizedFault;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -70,15 +70,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for all content design web services.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class ContentDesignTestCase extends PSContentTestBase
 {
-  @BeforeClass
+  @BeforeEach Class
    public static void setup() throws Exception
    {
       deleteTestKeywords();

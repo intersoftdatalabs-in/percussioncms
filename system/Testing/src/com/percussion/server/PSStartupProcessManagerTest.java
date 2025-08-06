@@ -16,7 +16,7 @@
  */
 package com.percussion.server;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.notification.PSNotificationEvent;
 import com.percussion.services.notification.PSNotificationEvent.EventType;
@@ -31,13 +31,13 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.tika.io.IOUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * @author JaySeletz
  *
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSStartupProcessManagerTest
 {
    private static final String YES = "yes";

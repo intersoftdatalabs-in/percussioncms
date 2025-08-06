@@ -44,7 +44,7 @@ import org.jmock.Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +52,7 @@ import java.util.Date;
 import java.util.List;
 
 // REFACTORED: CP-JAVA11
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 class PSSitePublishStatusServiceTest {
 
     private static final Logger log = LogManager.getLogger(PSSitePublishStatusServiceTest.class);

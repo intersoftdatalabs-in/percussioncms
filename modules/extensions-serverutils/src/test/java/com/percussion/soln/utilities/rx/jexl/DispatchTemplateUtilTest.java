@@ -27,10 +27,10 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.assembly.IPSAssemblyItem;
 import com.percussion.services.assembly.IPSAssemblyService;
@@ -52,7 +52,7 @@ public class DispatchTemplateUtilTest {
     
     Node mockNode;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         picker = new DispatchTemplateUtil();
         

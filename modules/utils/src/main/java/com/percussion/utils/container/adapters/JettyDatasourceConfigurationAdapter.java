@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 package com.percussion.utils.container.adapters;
 
 import com.percussion.error.PSExceptionUtils;
+import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.util.PSProperties;
@@ -29,9 +30,9 @@ import com.percussion.utils.container.PSJndiDatasourceImpl;
 import com.percussion.utils.container.PSStaticContainerUtils;
 import com.percussion.utils.container.config.ContainerConfig;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
+import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.IPSDatasourceResolver;
 import com.percussion.utils.jdbc.PSDatasourceResolver;
-import com.percussion.utils.io.PathUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -188,12 +189,15 @@ public class JettyDatasourceConfigurationAdapter implements IPSConfigurationAdap
 
                 if (encrypted != null && encrypted.equalsIgnoreCase("Y")) {
                     try {
-                        // Attempt secure decrypt first
-                        String secureDir = PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR);
-                        pwd = PSEncryptor.decryptString(secureDir, pwd);
-                    } catch (PSEncryptionException e) {
-                        // Fallback to legacy decrypt
-                        pwd = com.percussion.legacy.security.deprecated.PSLegacyEncrypter.getInstance().decrypt(pwd);
+                        pwd = PSEncryptor.decryptString(PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR),pwd);
+
+                    }catch(PSEncryptionException | java.lang.IllegalArgumentException e){
+                        pwd = PSLegacyEncrypter.getInstance(
+                                PathUtils.getRxPath().toAbsolutePath().toString().concat(
+                                PSEncryptor.SECURE_DIR)
+                        ).decrypt(pwd, PSLegacyEncrypter.getInstance(
+                                PathUtils.getRxPath().toAbsolutePath().toString().concat(
+                                        PSEncryptor.SECURE_DIR)).getPartOneKey(),null);
                     }
                 } else {
                     needsEncryption = true;

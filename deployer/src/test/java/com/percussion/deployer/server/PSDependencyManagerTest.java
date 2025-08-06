@@ -35,17 +35,17 @@ import com.percussion.deployer.server.dependencies.PSUserDependencyHandler;
 import com.percussion.deployer.server.dependencies.PSWorkflowDependencyHandler;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test for the PSDependencyMap and PSDependencyDef classes
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDependencyManagerTest
 {
    /**

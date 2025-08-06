@@ -28,15 +28,15 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.design.objectstore.PSTextLiteral;
 import com.percussion.services.PSBaseServiceLocator;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for the {@link PSBackEndTableDirectoryCataloger}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSBackEndTableDirectoryCatalogerTest
 {
    private static final String DEFAULT_PASSWORD = "89e495e7941cf9e40e6980d14a16bf023ccd4c91";

@@ -20,21 +20,21 @@ package com.percussion.services.assembly.jexl;
 import com.percussion.utils.testing.IntegrationTest;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.concurrent.TimeUnit;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSCacheUtilsTest extends TestCase {
 	
 	private static Logger logger = Logger.getLogger(PSCacheUtilsTest.class.getName());
 	private static final PSCacheUtils cache_utils = new PSCacheUtils();
 	private static String cache_value;
 
-	@Before
+	@BeforeEach 
 	protected void setUp() throws Exception {
 		
 		cache_utils.put("testPrev", "I am testing prev!", PSCacheUtils.getVelocityPrevCache());
@@ -43,7 +43,7 @@ public class PSCacheUtilsTest extends TestCase {
 		super.setUp();
 	}
 
-	@After
+	@AfterEach
 	protected void tearDown() throws Exception {
 		
 		cache_utils.flush(PSCacheUtils.getVelocityPrevCache());

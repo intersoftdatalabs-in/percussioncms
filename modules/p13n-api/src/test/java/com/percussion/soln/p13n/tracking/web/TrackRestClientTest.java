@@ -17,15 +17,15 @@
 
 package test.percussion.soln.p13n.tracking.web;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -49,7 +49,7 @@ public class TrackRestClientTest {
     protected MockHttpServletResponse servletResponse;
     protected TestWebServer tw = new TestWebServer(PORT);
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         client.setTrackingURI("http://localhost:" + PORT + "/soln-p13n/track/track");
         servletRequest = new MockHttpServletRequest();
@@ -100,7 +100,7 @@ public class TrackRestClientTest {
         assertRequestBody(expected, tw.getRequestBody());
     }
     
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         tw.stop();
     }

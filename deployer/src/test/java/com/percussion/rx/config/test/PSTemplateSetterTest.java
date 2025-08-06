@@ -30,7 +30,7 @@ import com.percussion.services.assembly.PSAssemblyServiceLocator;
 import com.percussion.services.assembly.data.PSTemplateBinding;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import java.util.Map;
  *
  * @author YuBingChen
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSTemplateSetterTest extends PSConfigurationTest
 {
    

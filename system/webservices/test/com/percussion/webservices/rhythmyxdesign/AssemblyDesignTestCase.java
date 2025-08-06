@@ -50,15 +50,15 @@ import com.percussion.webservices.faults.PSErrorsFaultServiceCall;
 import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.rmi.RemoteException;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class AssemblyDesignTestCase extends PSAssemblyTestBase
 {
    public void test1assemblyDesignSOAPCreateSlots() throws Exception

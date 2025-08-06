@@ -19,7 +19,7 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.content.data.PSItemStatus;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.transformation.PSTransformationException;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Unit tests for the {@link PSItemStatusConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSItemStatusConverterTest extends PSConverterTestBase {
 
     /**

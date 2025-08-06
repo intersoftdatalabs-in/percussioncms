@@ -25,16 +25,16 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(JMock.class)
 public class SegmentRelationshipBuilderTest {
@@ -71,7 +71,7 @@ public class SegmentRelationshipBuilderTest {
         
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         segServMock = context.mock(ISegmentService.class);
         segRelBuilder = new TestRelationshipBuilder();

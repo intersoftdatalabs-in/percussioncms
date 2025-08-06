@@ -39,7 +39,7 @@ import com.percussion.sitemanage.data.PSSiteSectionList;
 import com.percussion.sitemanage.data.PSSiteSectionProperties;
 import com.percussion.sitemanage.data.PSUpdateSectionLink;
 import com.percussion.sitemanage.service.IPSSiteSectionService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +184,7 @@ public class PSSiteSectionRestService
     @GET
     @Path("/blogs/{siteName}")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH")
+    // TODO: Remove me @SuppressFBWarnings("NP_NULL_ON_SOME_PATH")
     public List<PSSiteBlogProperties> getBlogsForSite(@PathParam("siteName") String siteName) throws PSValidationException {
         try {
             return new PSSiteBlogPropertiesList(siteSectionService.getBlogsForSite(siteName));

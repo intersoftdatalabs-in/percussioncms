@@ -18,13 +18,13 @@ package com.percussion.pagemanagement.service;
 
 import static com.percussion.pagemanagement.service.impl.PSResourceDefinitionUtils.sortByDependencies;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.pagemanagement.data.PSResourceDefinitionGroup.PSFileResource;
@@ -44,7 +44,7 @@ public class PSResourceDefinitionUtilsTest
     private PSResourceDefinition e;
     private PSResourceDefinition f;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         a = createResource("a", (String[]) null);
         b = createResource("b", "a");

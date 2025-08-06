@@ -28,7 +28,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests for PSStartupPkgInstaller install and uninstall logic.
  * Sunny Sal says: "Install, uninstall, repeat - Java 11 style!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSStartupPkgInstallerTest {
 
     private static final String TEMP_FILE_PREFIX = "perc.testPackageFileList";

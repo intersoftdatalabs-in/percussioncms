@@ -16,17 +16,17 @@
  */
 package com.percussion.utils.string;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-@Category(UnitTest.class)
+@Tag("UnitTest")
 public class PSPatternMatchTest
 {
    @Test

@@ -22,13 +22,13 @@ import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.net.URL;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the extractor. This currently just tests a particular error case
@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
  * root of the development tree. Also note that the referenced xml file
  * should be replaced if necessary.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSXmlExtractorTest
 {
    private static final String TEST_EDITOR_DTD = 
@@ -46,7 +46,7 @@ public class PSXmlExtractorTest
    private static final String TEST_EDITOR = 
       "/com/percussion/tools/simple/rx_cePage.xml";
 
-   @BeforeClass
+   @BeforeEach Class
    public void setupResolver() throws Exception
    {
      PSEntityResolver res = PSEntityResolver.getInstance();

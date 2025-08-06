@@ -17,7 +17,7 @@
 package com.percussion.pso.utils;
 
 // REFACTORED: CP-JAVA11
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.fileupload.FileItem;
 
 import javax.activation.DataSource;
@@ -81,7 +81,7 @@ public class FileItemDataSource implements DataSource
     * @return the file name. 
     * @see javax.activation.DataSource#getName()
     */
-   @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
+   // TODO: Remove me @SuppressFBWarnings("FILE_UPLOAD_FILENAME")
    public String getName()
    {     
       return item.getName(); 

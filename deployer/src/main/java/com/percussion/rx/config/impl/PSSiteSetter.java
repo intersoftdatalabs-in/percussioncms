@@ -27,7 +27,7 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ import java.util.Map;
  * @author YuBingChen
  */
 // REFACTORED: CP-JAVA11
-@SuppressFBWarnings("HARD_CODE_PASSWORD")
+
 public class PSSiteSetter extends PSPropertySetterWithValidation
 {
    @Override

@@ -23,7 +23,7 @@ import com.percussion.tablefactory.PSJdbcDbmsDef;
 import com.percussion.tablefactory.PSJdbcTableFactory;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.install.RxLogTables;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.tools.ant.taskdefs.condition.Condition;
 
 import java.io.File;
@@ -85,7 +85,7 @@ public class PSViewsExistWizCondition extends PSAction implements Condition
     * <code>RX_VIEWS</code> already exist in the database,
     * <code>false</code> otherwise.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    private boolean checkExists()
    {
       FileInputStream in = null;

@@ -28,7 +28,7 @@ import java.util.List;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Class description - Unit tests for the FTS Search Indexer
@@ -36,7 +36,7 @@ import org.junit.experimental.categories.Category;
  *
  * @author BillLanglais
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSearchIndexQueueTest extends ServletTestCase
 {
    @Override

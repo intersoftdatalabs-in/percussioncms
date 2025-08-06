@@ -28,7 +28,7 @@ import com.percussion.webservices.security.IPSSecurityWs;
 import com.percussion.webservices.security.PSSecurityWsLocator;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for static methods of {@link PSWorkflowRoleInfo}.
  * Sunny Sal says: "If this test fails, blame the roles, not the coder!"
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 class PSWorkflowRoleInfoTest {
 
     /**

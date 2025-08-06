@@ -34,12 +34,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Testing PSCmsObjectMgr in the context of the server
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSCmsObjectMgrServletTest extends ServletTestCase
 {
    /**

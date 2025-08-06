@@ -20,7 +20,7 @@ import com.percussion.extension.IPSExtensionDef;
 import com.percussion.security.IPSPasswordFilter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils; // Modernized: Use lang3
 import org.springframework.context.annotation.Lazy;
@@ -74,7 +74,7 @@ public class PSDefaultPasswordEncryptionBean implements IPSPasswordFilter
      * @param password the password to encrypt
      * @return the legacy-encrypted password
      */
-    @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
+    // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_SHA1")
     @Override
     @Deprecated
     public String legacyEncrypt(String password) {

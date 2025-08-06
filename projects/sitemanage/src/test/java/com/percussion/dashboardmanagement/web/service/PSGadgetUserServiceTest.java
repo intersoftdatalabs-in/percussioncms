@@ -16,8 +16,8 @@
  */
 package com.percussion.dashboardmanagement.web.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.dashboardmanagement.data.PSGadget;
 import com.percussion.share.test.PSDataServiceRestClient;
@@ -25,15 +25,15 @@ import com.percussion.share.test.PSRestTestCase;
 
 import java.util.List;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Ignore("SUT are not used")
+@Disabled("SUT are not used")
 public class PSGadgetUserServiceTest extends PSRestTestCase<PSGadgetUserServiceTest.GadgetRestClient> {
     
     protected GadgetRestClient restClient;
 
-    @Ignore("Jose fix this bitch")
+    @Disabled("Jose fix this bitch")
     @Test
     public void testFindAll() throws Exception {
     	List<PSGadget> gadgets = restClient.findAll("alex");

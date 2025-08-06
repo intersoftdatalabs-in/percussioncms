@@ -129,14 +129,14 @@ import com.percussion.webservices.system.PSRelationshipFilterCategory;
 import com.percussion.webservices.system.PSWorkflow;
 import com.percussion.webservices.system.SwitchCommunityRequest;
 import com.percussion.webservices.system.SystemSOAPStub;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import junit.framework.AssertionFailedError;
 import org.apache.axis.attachments.AttachmentPart;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -156,17 +156,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /** 
  * Test case for all public content services
  */
-@Category(IntegrationTest.class)
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+@Tag(IntegrationTest.class)
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class ContentTestCase extends PSContentTestBase
 {
    public enum BinaryFiles 

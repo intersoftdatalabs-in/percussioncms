@@ -27,7 +27,7 @@ import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -77,7 +77,7 @@ public class PSCatalogTableData
     * @throws PSJdbcTableFactoryException if an error occurs while decrypting
     * the database password specified in the properties file.
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public static PSJdbcDbmsDef loadProps(String propsName)
       throws PSJdbcTableFactoryException, IOException
    {

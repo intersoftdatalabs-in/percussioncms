@@ -22,11 +22,11 @@ import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSJndiDatasource;
 import com.percussion.utils.container.PSJettyConnectorsTest;
 import com.percussion.utils.container.config.model.impl.BaseContainerUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,22 +36,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JBossConnectorConfigurationAdapterTest {
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @TempDir
+    public Path temporaryFolder;
 
     private String rxdeploydir;
 
-    @Before
+    @BeforeEach
     public void setup(){
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString());
     }
 
-    @After
+    @AfterEach
     public void teardown(){
         //Reset the deploy dir property if it was set prior to test
         if(rxdeploydir != null)
@@ -61,7 +61,7 @@ public class JBossConnectorConfigurationAdapterTest {
     @Test
     public void load() throws IOException {
 
-        Path root = temporaryFolder.getRoot().toPath();
+        Path root = temporaryFolder;
 
         InputStream srcInstallProps = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/installation.properties");
         InputStream srcLoginConf = PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/jetty/base/etc/login.conf");
@@ -72,11 +72,11 @@ public class JBossConnectorConfigurationAdapterTest {
         InputStream srcJbossServerBeans= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/server-beans.xml");
         InputStream srcJbossRxDsXml= PSJettyConnectorsTest.class.getResourceAsStream("/com/percussion/utils/container/AppServer/server/rx/deploy/rx-ds.xml");
 
-        temporaryFolder.newFolder("jetty","base","etc");
-        temporaryFolder.newFolder("AppServer","server","rx","conf");
-        temporaryFolder.newFolder("AppServer","server","rx","deploy","jboss-web.deployer");
-        temporaryFolder.newFolder("AppServer","server","rx","deploy","rxapp.ear","rxapp.war","WEB-INF","config","spring");
-        temporaryFolder.newFolder("AppServer","server","rx","deploy","rxapp.ear","rxapp.war","WEB-INF","config","user","spring");
+        Files.createDirectories(temporaryFolder.resolve("jetty").resolve("base").resolve("etc"));
+        Files.createDirectories(temporaryFolder.resolve("AppServer").resolve("server").resolve("rx").resolve("conf"));
+        Files.createDirectories(temporaryFolder.resolve("AppServer").resolve("server").resolve("rx").resolve("deploy").resolve("jboss-web.deployer"));
+        Files.createDirectories(temporaryFolder.resolve("AppServer").resolve("server").resolve("rx").resolve("deploy").resolve("rxapp.ear").resolve("rxapp.war").resolve("WEB-INF").resolve("config").resolve("spring"));
+        Files.createDirectories(temporaryFolder.resolve("AppServer").resolve("server").resolve("rx").resolve("deploy").resolve("rxapp.ear").resolve("rxapp.war").resolve("WEB-INF").resolve("config").resolve("user").resolve("spring"));
 
         Files.copy(srcInstallProps,root.resolve("jetty/base/etc/installation.properties"));
         Files.copy(srcLoginConf,root.resolve("jetty/base/etc/login.conf"));
@@ -117,10 +117,7 @@ public class JBossConnectorConfigurationAdapterTest {
         assertEquals("support",repConnection.getPassword());
         IPSJndiDatasource repConnection2 = datasources.get(1);
         assertEquals("support",repConnection2.getPassword());
-        // @TODO:  Should be testing if the expected values are loaded and saved after load and save
-        // @TODO:  <!-- <security-domain>rx.datasource.jdbc_database_-_300</security-domain> -->
-        //  uncommenting this in rs-ds.xml throws Exception this needs to be looked at:-
-        //javax.crypto.BadPaddingException: Given final block not properly padded. Such issues can arise if a bad key is used during decryption.
+ 
     }
 
 }

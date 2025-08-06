@@ -18,33 +18,33 @@
 package com.percussion.utils.security;
 
 import com.percussion.delivery.data.PSDeliveryInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PSContentSecurityPolicyUtilsTests {
 
 
-    @Before
+    @BeforeEach
     public void setup(){
 
     }
 
-    @After
+    @AfterEach
     public void teardown(){
 
     }
 
     @Test
-    @Ignore //FIXME Test is failing
+    @Disabled //FIXME Test is failing
     public void testEditCSP(){
         List<PSDeliveryInfo> psDeliveryInfoList = new ArrayList<>();
         String contentSecurityString = PSSecurityUtility.CONTENT_SECURITY_POLICY_DEFAULT;

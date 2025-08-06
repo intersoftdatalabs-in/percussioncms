@@ -23,7 +23,7 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.jdbc.PSConnectionInfo;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -137,7 +137,7 @@ public class PSBackEndConnection
     * @return all connection properties with the property name as
     *    key and the description as property value, never <code>null</code>.
     */
-   @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
+   // TODO: Remove me @SuppressFBWarnings({"HARD_CODE_PASSWORD", "HARD_CODE_PASSWORD"})
    public static Properties getConnectionProperties()
    {
       Properties props = new Properties();

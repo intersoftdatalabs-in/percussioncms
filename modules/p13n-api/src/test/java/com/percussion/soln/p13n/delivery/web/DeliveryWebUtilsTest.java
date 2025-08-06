@@ -19,11 +19,11 @@ package test.percussion.soln.p13n.delivery.web;
 
 import static com.percussion.soln.p13n.delivery.web.DeliveryWebUtils.*;
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.p13n.delivery.DeliveryRequest;
@@ -33,7 +33,7 @@ import com.percussion.soln.p13n.delivery.data.DeliverySnippetItem;
 
 public class DeliveryWebUtilsTest {
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
     

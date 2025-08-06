@@ -25,7 +25,7 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 "file:../modules/perc-distribution-tree/target/distribution/jetty/base/webapps/Rhythmyx/WEB-INF/config/spring/" + PSServletUtils.DESIGN_BEANS_FILE_NAME
 })
  */
-@IgnoreInWebAppSpringContext
+@DisabledInWebAppSpringContext
 public class PSSpringContextTestConfig {
 
 }

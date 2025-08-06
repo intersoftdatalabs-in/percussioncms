@@ -34,7 +34,7 @@ public class SegmentServiceTest {
     private static ISegmentService segmentService;
     
     
-    @BeforeClass
+    @BeforeEach Class
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/applicationContext-ds.xml",

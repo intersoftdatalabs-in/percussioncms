@@ -20,7 +20,7 @@ import com.percussion.server.PSRequestContext;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -31,7 +31,7 @@ import java.util.Calendar;
  * The PSProcessTransitionTest class is a test class for the method
  * processTransition. See  {@link #HelpMessage} for command line options.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSProcessTransitionTest extends PSAbstractWorkflowTest 
 {
 

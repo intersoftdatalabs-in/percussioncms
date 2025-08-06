@@ -22,14 +22,14 @@ import com.percussion.services.security.data.PSAccessLevelImpl;
 import com.percussion.services.security.data.PSAclEntryImpl;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test case for the {@link PSAclEntryImplConverter}.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSAclEntryImplConverterTest extends PSConverterTestBase {
 
     /**

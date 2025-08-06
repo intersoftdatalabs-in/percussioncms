@@ -2,7 +2,7 @@
 
 package com.percussion.rest.templates;
 
-import com.percussion.utils.testing.UnitTest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

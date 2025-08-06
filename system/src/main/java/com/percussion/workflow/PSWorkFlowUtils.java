@@ -47,7 +47,7 @@ import com.percussion.utils.io.PathUtils;
 import com.percussion.utils.jdbc.PSConnectionHelper;
 import com.percussion.utils.string.PSStringUtils;
 import com.percussion.workflow.mail.IPSMailMessageContext;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailConstants;
@@ -1349,7 +1349,7 @@ public class PSWorkFlowUtils
     * @return          <CODE>String</CODE> containing the stack trace
     * @throws IllegalArgumentException if the input is <CODE>null</CODE>
     */
-   @SuppressFBWarnings()
+   // TODO: Remove me @SuppressFBWarnings()
    public static String stackTraceString(Throwable throwable)
    {
       if (null == throwable )

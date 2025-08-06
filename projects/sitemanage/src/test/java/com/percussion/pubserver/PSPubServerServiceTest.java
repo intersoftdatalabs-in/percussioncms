@@ -46,7 +46,7 @@ public class PSPubServerServiceTest extends PSRestTestCase<PSPubServerServiceRes
         return pubServerRestServiceClient;
     }
 
-    @BeforeAll
+    @BeforeEach All
     static void setupSuite() throws Exception {
         pubServerRestServiceClient = new PSPubServerServiceRestClient(baseUrl);
         setupClient(pubServerRestServiceClient);

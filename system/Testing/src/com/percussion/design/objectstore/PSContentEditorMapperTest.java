@@ -19,7 +19,7 @@ package com.percussion.design.objectstore;
 import com.percussion.util.PSCollection;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -29,11 +29,11 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit tests for <code>PSContentEditorMapper</code>.
@@ -393,7 +393,7 @@ public class PSContentEditorMapperTest
    /**
     * Assigns test objects to system def, shared def, and CE mapper fields
     */
-   @Before
+   @BeforeEach 
    public void setUp() throws Exception {
       PSFieldSet fieldSet = createFieldSet();
       PSUIDefinition uiDefinition = createUIDefinition();

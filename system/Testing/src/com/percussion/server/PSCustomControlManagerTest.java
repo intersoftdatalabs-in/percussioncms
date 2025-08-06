@@ -18,11 +18,11 @@
 package com.percussion.server;
 
 import com.percussion.util.IOTools;
-import org.junit.After;
-import org.junit.Ignore;
-import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -30,11 +30,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
@@ -43,7 +43,7 @@ import static org.junit.Assert.assertTrue;
 public class PSCustomControlManagerTest
 {
    @Rule
-   public TemporaryFolder tempFolder = new TemporaryFolder();
+   public Path tempFolder = new TemporaryFolder();
 
    public PSCustomControlManagerTest(){}
 
@@ -54,7 +54,7 @@ public class PSCustomControlManagerTest
     */
    @Test
    //TODO: Fix me - test is currently failing
-   @Ignore
+   @Disabled
    public void testAll() throws Exception
    {
       FileWriter fw = null;
@@ -186,7 +186,7 @@ public class PSCustomControlManagerTest
       }
    }               
       
-   @After
+   @AfterEach
    public void tearDown()
    {
       File resourcesDir = new File(RESOURCE_PATH + "/sys_resources");

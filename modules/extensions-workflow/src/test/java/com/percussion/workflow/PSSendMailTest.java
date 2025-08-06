@@ -20,7 +20,7 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.workflow.model.PSMessagePackage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.List;
  * PSSendMailTest is a test class for the method
  * PSExitNotifyAssignees.sendMail.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSendMailTest extends PSAbstractWorkflowTest 
 {
    private static final Logger log = LogManager.getLogger(PSSendMailTest.class);

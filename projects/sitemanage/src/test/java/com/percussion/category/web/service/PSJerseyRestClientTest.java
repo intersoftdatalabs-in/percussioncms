@@ -40,7 +40,7 @@ public class PSJerseyRestClientTest {
 
     private static PSCategoryServiceRestClient client;
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() {
         client = new PSCategoryServiceRestClient();
     }

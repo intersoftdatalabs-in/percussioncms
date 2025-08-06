@@ -25,18 +25,18 @@ import javax.jcr.query.RowIterator;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import com.percussion.utils.jsr170.PSLongValue;
 import com.percussion.utils.jsr170.PSStringValue;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Test jcr query facilities
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSContentMgrQueryTest extends ServletTestCase
 {
    /**
@@ -109,7 +109,7 @@ public class PSContentMgrQueryTest extends ServletTestCase
             "//Sites/CorporateInvestments/Images/Housing");
    }
 
-   @Ignore("junit.framework.AssertionFailedError: null")
+   @Disabled("junit.framework.AssertionFailedError: null")
    public void testMultiFolderPaths() throws Exception
    {
       mgr = PSContentMgrLocator.getContentMgr();
@@ -149,7 +149,7 @@ public class PSContentMgrQueryTest extends ServletTestCase
             + "WHERE rx:displaytitle like '%fund%'", Query.SQL);
    }
 
-   @Ignore("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
+   @Disabled("org.hibernate.exception.SQLGrammarException: could not execute query on Derby")
    public void testSimpleQuery3() throws Exception
    {
       performTest("SELECT rx:sys_title FROM nt:base "
@@ -172,7 +172,7 @@ public class PSContentMgrQueryTest extends ServletTestCase
             Query.SQL, 2);
    }
    
-   @Ignore("org.hibernate.exception.SQLGrammarException: could not execute query")
+   @Disabled("org.hibernate.exception.SQLGrammarException: could not execute query")
    public void testMissingProp() throws Exception
    {
       performTest("SELECT rx:sys_title, rx:filename FROM nt:base "

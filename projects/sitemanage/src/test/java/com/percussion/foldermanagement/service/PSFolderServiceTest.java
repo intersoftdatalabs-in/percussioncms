@@ -186,7 +186,7 @@ public class PSFolderServiceTest extends PSRestTestCase<PSFolderServiceRestClien
         folderCleaner.clean();
     }
 
-    @BeforeAll
+    @BeforeEach All
     public static void setup() throws Exception {
         siteRestClient = new PSSiteRestClient(baseUrl);
         setupClient(siteRestClient);

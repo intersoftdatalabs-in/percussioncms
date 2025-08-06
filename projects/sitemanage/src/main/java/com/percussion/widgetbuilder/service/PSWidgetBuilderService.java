@@ -42,7 +42,7 @@ import com.percussion.widgetbuilder.data.PSWidgetBuilderValidationResults;
 import com.percussion.widgetbuilder.utils.PSWidgetPackageBuilder;
 import com.percussion.widgetbuilder.utils.PSWidgetPackageSpec;
 import com.percussion.widgetbuilder.utils.validate.PSWidgetBuilderDefinitionValidator;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -210,7 +210,7 @@ public class PSWidgetBuilderService implements IPSWidgetBuilderService {
     @Path("/validate/")
     @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
-    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
+    // TODO: Remove me @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     public PSWidgetBuilderValidationResults validate(PSWidgetBuilderDefinitionData definition) {
         Validate.notNull(definition, "definition must not be null");
         var results = new PSWidgetBuilderValidationResults();

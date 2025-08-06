@@ -23,7 +23,7 @@ import com.percussion.delivery.metadata.IPSMetadataEntry;
 import com.percussion.delivery.metadata.IPSMetadataProperty;
 import com.percussion.delivery.metadata.utils.PSHashCalculator;
 import com.percussion.error.PSExceptionUtils;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressFBWarnings("UNSAFE_HASH_EQUALS")
+// TODO: Remove me @SuppressFBWarnings("UNSAFE_HASH_EQUALS")
 @Repository
 @Scope("singleton")
 public class PSMetadataDao implements IPSMetadataDao

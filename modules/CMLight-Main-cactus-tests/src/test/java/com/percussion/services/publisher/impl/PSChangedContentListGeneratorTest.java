@@ -37,14 +37,14 @@ import javax.jcr.query.RowIterator;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.apache.commons.lang.math.NumberUtils;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * @author JaySeletz
  *
  */
 // REFACTORED: CP-JAVA11
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSChangedContentListGeneratorTest extends ServletTestCase
 {
    private static final String CONTENT_CHANGE_TYPE_PARAM = "contentChangeType";

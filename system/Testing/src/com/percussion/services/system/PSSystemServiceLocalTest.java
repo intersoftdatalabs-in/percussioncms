@@ -25,19 +25,19 @@ import com.percussion.utils.guid.IPSGuid;
 import java.util.List;
 
 import com.percussion.utils.testing.IntegrationTest;
-import com.percussion.utils.testing.UnitTest;
+
 import junit.framework.TestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test case for system service calls that don't require a running server.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSystemServiceLocalTest
 {
    /**

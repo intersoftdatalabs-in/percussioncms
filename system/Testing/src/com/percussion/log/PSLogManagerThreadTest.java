@@ -20,16 +20,16 @@ package com.percussion.log;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
 import com.percussion.utils.testing.IntegrationTest;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSLogManagerThreadTest extends PSConfigHelperTestCase
    implements IPSServerBasedJunitTest
 {

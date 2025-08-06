@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -35,9 +35,9 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author JaySeletz
@@ -64,7 +64,7 @@ public class PSBaseFormServiceTest
 
     Lock sequential = new ReentrantLock();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         sequential.lock();
     }
@@ -102,7 +102,7 @@ public class PSBaseFormServiceTest
     }
 
 
-    @After
+    @AfterEach
    // @Transactional
     public void tearDown()
     {

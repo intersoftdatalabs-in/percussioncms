@@ -32,20 +32,20 @@ import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.util.PSStopwatch;
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test managing relationships in the persistent layer. 
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSRelationshipServiceTest
 {
    private static IPSRelationshipService ms_svc = PSRelationshipServiceLocator

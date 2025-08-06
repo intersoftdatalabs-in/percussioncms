@@ -17,7 +17,7 @@
 
 package com.percussion.HTTPClient;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -62,7 +62,7 @@ class MD5
      * @param input the data to be digested.
      * @return the md5-digested input
      */
-    @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
+    // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
 	public static final byte[] digest(byte[] input)
     {
 	try
@@ -83,7 +83,7 @@ class MD5
      * @param input2 the second part of the data to be digested.
      * @return the md5-digested input
      */
-    @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
+    // TODO: Remove me @SuppressFBWarnings("WEAK_MESSAGE_DIGEST_MD5")
 	@Deprecated
     public static final byte[] digest(byte[] input1, byte[] input2)
     {

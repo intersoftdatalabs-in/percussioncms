@@ -17,18 +17,18 @@
 
 package com.percussion.tools.redirect;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.percussion.tools.redirect.TestRedirectList.createTempFolder;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class TestJSONConversion {
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException {
         createTempFolder();
     }

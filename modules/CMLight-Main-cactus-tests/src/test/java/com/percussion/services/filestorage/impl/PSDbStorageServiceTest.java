@@ -42,10 +42,10 @@ import java.util.Set;
 import com.percussion.utils.testing.IntegrationTest;
 import org.apache.cactus.ServletTestCase;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 // REFACTORED: CP-JAVA11
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSDbStorageServiceTest extends ServletTestCase
 {
    private PSPurgableTempFile testXml;

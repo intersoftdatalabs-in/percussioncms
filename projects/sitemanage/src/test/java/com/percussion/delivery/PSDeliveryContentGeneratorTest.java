@@ -52,8 +52,8 @@ import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,10 +63,10 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 //@RunWith(JMock.class)
-//@Ignore("There are no Tomcat running in the continuos machine. If you want to " +
+//@Disabled("There are no Tomcat running in the continuos machine. If you want to " +
 //        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
 //        "server. Be sure build and install the latest delivery services code.")
-//@Category(IntegrationTest.class)
+//@Tag(IntegrationTest.class)
 public class PSDeliveryContentGeneratorTest
 {
     private static final String SERVER_URL = "http://localhost:9970";

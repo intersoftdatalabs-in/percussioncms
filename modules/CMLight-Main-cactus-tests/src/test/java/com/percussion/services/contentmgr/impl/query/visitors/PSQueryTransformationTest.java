@@ -43,14 +43,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.cactus.ServletTestCase;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Test aspects of the transformation engine
  * 
  * @author dougrand
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSQueryTransformationTest extends ServletTestCase
 {
    

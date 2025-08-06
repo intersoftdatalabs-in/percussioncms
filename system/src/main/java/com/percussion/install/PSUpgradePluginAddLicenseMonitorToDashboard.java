@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Element;
 
 import javax.sql.rowset.serial.SerialClob;
@@ -65,7 +65,7 @@ public class PSUpgradePluginAddLicenseMonitorToDashboard implements IPSUpgradePl
     * com.percussion.install.IPSUpgradePlugin#process(com.percussion.install
     * .IPSUpgradeModule, org.w3c.dom.Element)
     */
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    public PSPluginResponse process(IPSUpgradeModule module, @SuppressWarnings("unused") Element elemData)
    {
       logger = module.getLogStream();

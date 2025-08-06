@@ -18,11 +18,11 @@
 package com.percussion.soln.p13n.tracking.data;
 
 import static java.util.Arrays.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -39,7 +39,7 @@ public class VisitorProfileResourceRepositoryTest {
     VisitorProfile a;
     VisitorProfile b;
     File writeFile;
-    @Before
+    @BeforeEach
     public void setUp() {
         repo = new VisitorProfileResourceRepository();
         String basePath = getClass().getPackage().getName().replaceAll("\\.","/")  + "/";

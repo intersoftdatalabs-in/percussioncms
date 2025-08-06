@@ -35,12 +35,12 @@ import com.percussion.error.PSExceptionUtils;
 import junit.framework.TestCase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -49,7 +49,7 @@ import java.util.*;
  * @author erikserating
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+ @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
         {"classpath:test-beans.xml"})
 public class PSMetadataQueryServiceTest extends TestCase
@@ -66,7 +66,7 @@ public class PSMetadataQueryServiceTest extends TestCase
 
     private static final int ENTRY_COUNT = 5;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception
     {
         super.setUp();

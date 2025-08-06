@@ -20,14 +20,14 @@ package com.percussion.webservices.transformation.converter;
 import com.percussion.services.assembly.IPSAssemblyTemplate;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.webservices.assembly.data.PublishType;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the {@link PSPublishWhenConverter} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPublishWhenConverterTest extends PSConverterTestBase {
 
     /**

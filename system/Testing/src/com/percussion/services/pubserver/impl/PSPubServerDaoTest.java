@@ -29,18 +29,18 @@ import com.percussion.utils.testing.IntegrationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSPubServerDaoTest
 {
    /**
@@ -84,7 +84,7 @@ public class PSPubServerDaoTest
    IPSSite m_site;
    static PSPubServerDaoTest instance;
 
-   @BeforeClass
+   @BeforeEach Class
    public static void setup()
    {
       instance = new PSPubServerDaoTest();

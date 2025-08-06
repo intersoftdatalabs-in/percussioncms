@@ -18,12 +18,12 @@
 package com.percussion.soln.p13n.delivery.ds;
 
 import static integrationtest.spring.SpringSetup.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.BeforeClass;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -46,7 +46,7 @@ public class DSDeliveryTest  {
     MockHttpServletRequest request;
     MockHttpServletResponse response;
 
-    @BeforeClass
+    @BeforeEach Class
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/delivery-servlet.xml",
@@ -58,7 +58,7 @@ public class DSDeliveryTest  {
 //        dataSetup.setupData();
     }
     
-    @Before
+    @BeforeEach
     public void setUp() {
         request = new MockHttpServletRequest();
         request.setMethod("GET");

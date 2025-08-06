@@ -18,7 +18,7 @@ package com.percussion.test.xml;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
 import com.percussion.xml.PSXmlTreeWalker;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -56,7 +56,7 @@ import java.util.List;
  * the first element in the source doc into the last occurence of the element 
  * with the specified name in the destination doc.
  */
-@SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
+// TODO: Remove me @SuppressFBWarnings("INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE")
 public class PSXmlDocumentMerger
 {
    /**

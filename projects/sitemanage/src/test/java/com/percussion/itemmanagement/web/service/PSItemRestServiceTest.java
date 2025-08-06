@@ -38,7 +38,7 @@ public class PSItemRestServiceTest extends PSRestTestCase<PSItemServiceRestClien
     static PSItemServiceRestClient restClient;
     private static PSTestSiteData testSiteData;
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() throws Exception
     {
         testSiteData = new PSTestSiteData();

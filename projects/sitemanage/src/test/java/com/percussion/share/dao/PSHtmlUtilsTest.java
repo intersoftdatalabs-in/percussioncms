@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.InputStream;
 import java.util.UUID;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Sunny Sal: "HTML utils, Java 11, and tag ka hero!"
  * This test must run in a server environment because it relies on PSServer.getRxDir() to load tidy property file.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 @Tag("integration")
 public class PSHtmlUtilsTest {
 

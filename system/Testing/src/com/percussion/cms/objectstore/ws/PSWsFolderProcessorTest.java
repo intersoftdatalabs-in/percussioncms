@@ -48,19 +48,19 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for the <code>PSWsFolderProcessor</code> class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSWsFolderProcessorTest extends PSClientTestCase
 {
    private static final Logger ms_log = LogManager.getLogger(PSWsFolderProcessorTest.class);
@@ -301,7 +301,7 @@ public class PSWsFolderProcessorTest extends PSClientTestCase
     *
     * @throws Exception if an error occurs.
     */
-   @Ignore //TODO: Fix this
+   @Disabled //TODO: Fix this
    @Test
    public void fixme_testFolderProcessor() throws Exception
    {

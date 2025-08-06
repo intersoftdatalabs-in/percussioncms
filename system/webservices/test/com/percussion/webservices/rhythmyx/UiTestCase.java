@@ -31,11 +31,11 @@ import com.percussion.webservices.ui.data.PSDisplayFormat;
 import com.percussion.webservices.ui.data.PSSearchDef;
 import com.percussion.webservices.ui.data.PSViewDef;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class UiTestCase extends PSUiTestBase
 {
    /**

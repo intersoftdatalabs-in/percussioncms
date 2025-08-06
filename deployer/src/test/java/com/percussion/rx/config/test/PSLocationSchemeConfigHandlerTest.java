@@ -23,7 +23,7 @@ import com.percussion.util.PSResourceUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.types.PSPair;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,13 +33,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
  * @author YuBingChen
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSLocationSchemeConfigHandlerTest
 {
    @Test

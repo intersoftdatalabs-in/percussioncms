@@ -30,12 +30,12 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
 /**
  * Unit tests for the {@link PSSharedProperty} class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSSharedPropertyTest extends TestCase
 {
    /**

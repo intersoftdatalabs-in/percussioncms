@@ -16,7 +16,7 @@
  */
 package com.percussion.test.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.percussion.server.PSServer;
 import com.percussion.system.utils.PSUrlUtils;
@@ -25,7 +25,7 @@ import com.percussion.testing.PSMockRequestContext;
 import java.net.URL;
 import java.util.LinkedHashMap;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class PSUrlUtilsTest
@@ -33,7 +33,7 @@ public class PSUrlUtilsTest
 
     @Test
     //TODO: Fix me!
-    @Ignore()
+    @Disabled()
     public void testCreateUrls() throws Exception
     {
         String base = "test/base.htm?par1=val1&par2=val2#anchor";

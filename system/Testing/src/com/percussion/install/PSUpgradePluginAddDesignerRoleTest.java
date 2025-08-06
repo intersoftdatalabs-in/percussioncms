@@ -16,7 +16,7 @@
  */
 package com.percussion.install;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.services.workflow.IPSWorkflowService;
 import com.percussion.services.workflow.PSWorkflowServiceLocator;
@@ -40,15 +40,15 @@ import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.utils.testing.SpringContextTest;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.xml.sax.SAXException;
 
 /**
  * @author JaySeletz
  *
  */
-@Category({IntegrationTest.class, SpringContextTest.class})
-@IgnoreInWebAppSpringContext
+@Tag({IntegrationTest.class, SpringContextTest.class})
+@DisabledInWebAppSpringContext
 public class PSUpgradePluginAddDesignerRoleTest extends PSAbstractSpringContextTest
 {
 

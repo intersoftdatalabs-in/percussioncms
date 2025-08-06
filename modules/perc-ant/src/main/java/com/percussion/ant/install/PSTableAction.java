@@ -30,7 +30,7 @@ import com.percussion.tablefactory.PSJdbcTableSchema;
 import com.percussion.tablefactory.PSJdbcTableSchemaCollection;
 import com.percussion.util.PSProperties;
 import com.percussion.xml.PSXmlDocumentBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import org.apache.tools.ant.BuildException;
 import org.w3c.dom.Document;
 
@@ -79,7 +79,7 @@ import java.util.Iterator;
 public class PSTableAction extends PSAction
 {
    // see base class
-   @SuppressFBWarnings("HARD_CODE_PASSWORD")
+   
    @Override
    public void execute()
    {

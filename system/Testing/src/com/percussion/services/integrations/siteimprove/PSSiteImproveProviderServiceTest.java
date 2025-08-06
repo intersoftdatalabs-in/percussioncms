@@ -22,19 +22,19 @@ import com.percussion.services.integrations.IPSIntegrationProviderService;
 import junit.framework.TestCase;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer.MethodName;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-//Remove @Ignore in order to run tests, these tests manually test siteimprove endpoints.
-@Ignore
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//Remove @Disabled in order to run tests, these tests manually test siteimprove endpoints.
+@Disabled
+@TestMethodOrder(MethodName.class)
 public class PSSiteImproveProviderServiceTest extends TestCase {
 
 	// Testing Resources

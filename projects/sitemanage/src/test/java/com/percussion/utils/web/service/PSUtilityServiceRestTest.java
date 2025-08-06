@@ -41,7 +41,7 @@ public class PSUtilityServiceRestTest extends PSRestTestCase<PSUtilityRestClient
         return utilityTestClient = new PSUtilityRestClient(baseUrl);
     }
 
-    @BeforeAll
+    @BeforeEach All
     public static void setUp() {
         // No-op, placeholder for future setup if needed.
     }

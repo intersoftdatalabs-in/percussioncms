@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.percussion</groupId>
     <artifactId>core</artifactId>
-    <version>8.1.6-SNAPSHOT</version>
+    <version>8.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>https://www.github.com/intersoftdatalabs-in/percussioncms</url>
 
@@ -636,7 +636,7 @@
 						<dependency>
 							<groupId>com.percussion</groupId>
 							<artifactId>rxutils</artifactId>
-							<version>8.1.6-SNAPSHOT</version>
+							<version>8.2.0-SNAPSHOT</version>
 						</dependency>
 						<dependency>
 							<groupId>xerces</groupId>

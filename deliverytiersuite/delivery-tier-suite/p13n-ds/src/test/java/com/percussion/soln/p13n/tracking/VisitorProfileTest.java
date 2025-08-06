@@ -17,12 +17,12 @@
 
 package com.percussion.soln.p13n.tracking;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
 import java.util.HashMap;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.p13n.tracking.VisitorProfile;
@@ -33,7 +33,7 @@ public class VisitorProfileTest {
     VisitorProfile profileB;
     VisitorProfile profileC;
     
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Date date = new Date();
         profileA = new VisitorProfile();

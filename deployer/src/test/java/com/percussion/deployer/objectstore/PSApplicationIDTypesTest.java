@@ -25,20 +25,20 @@ import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.testing.IntegrationTest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test class for the <code>PSApplicationIDTypes</code> class.
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSApplicationIDTypesTest
 {
    /**

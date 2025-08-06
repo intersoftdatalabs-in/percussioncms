@@ -28,10 +28,10 @@ import java.util.List;
 
 import com.percussion.utils.testing.IntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit test basic methods for enumerating data in the services. Each service is
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * @author dougrand
  * 
  */
-@Category(IntegrationTest.class)
+@Tag(IntegrationTest.class)
 public class PSCatalogBasicUnitTest
 {
    public static IPSAssemblyService asm = PSAssemblyServiceLocator
