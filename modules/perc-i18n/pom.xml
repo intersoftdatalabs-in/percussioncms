@@ -33,7 +33,7 @@
                                 <dependencyConvergence />
                                 <banDuplicatePomDependencyVersions />
                             </rules>
-                            <fail>false</fail>
+                            <fail>true</fail>
                         </configuration>
                         <goals>
                             <goal>enforce</goal>

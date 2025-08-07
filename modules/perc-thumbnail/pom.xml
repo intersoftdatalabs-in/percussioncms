@@ -21,32 +21,6 @@
     <profiles>
 <profile>
     <id>populate-nexus</id>
-    <repositories>
-        <repository>
-            <id>perc-java-repo</id>
-            <url>https://mvn.intsof.com/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>perc-snapshots-repo</id>
-            <url>https://mvn.intsof.com/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-        <repository>
-            <id>perc-thirdparty</id>
-            <name>thirdparty</name>
-            <url>https://mvn.intsof.com/repositories/thirdparty/</url>
-        </repository>
-        <repository>
-            <id>maven-central</id>
-            <url>https://repo1.maven.org/maven2</url>
-        </repository>
-    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -229,30 +203,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>perc-releases-repo</id>
-            <url>https://mvn.intsof.com/repositories/releases/</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>perc-snapshots-repo</id>
-            <url>https://mvn.intsof.com/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>perc-thirdparty</id>
-            <name>thirdparty</name>
-            <url>https://mvn.intsof.com/repositories/thirdparty/</url>
-        </repository>
-        <repository>
-            <id>maven-central</id>
-            <url>https://repo1.maven.org/maven2</url>
-        </repository>
-    </repositories>
 
 </project>

@@ -89,7 +89,7 @@
        <slf4j.version>1.7.36</slf4j.version>
        <fop.version>2.2</fop.version>
        <avalon.version>4.1.5</avalon.version>
-       <maven.version>[3.6.0,)</maven.version>
+       <maven.version>[3.6,)</maven.version>
        <maven.toolchains.plugin.version>3.0.0</maven.toolchains.plugin.version>
        <versions.maven.plugin.version>2.7</versions.maven.plugin.version>
        <maven.dependency.plugin.version>3.1.2</maven.dependency.plugin.version>
