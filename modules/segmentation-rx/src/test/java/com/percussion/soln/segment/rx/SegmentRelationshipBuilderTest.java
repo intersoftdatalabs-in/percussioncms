@@ -36,7 +36,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentRelationshipBuilderTest {
 
     Mockery context = new JUnit4Mockery();

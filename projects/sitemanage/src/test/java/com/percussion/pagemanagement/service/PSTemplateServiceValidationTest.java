@@ -46,7 +46,7 @@ import com.percussion.share.service.IPSIdMapper;
 import com.percussion.share.service.exception.PSBeanValidationException;
 import com.percussion.sitemanage.service.IPSSiteTemplateService;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 @Disabled("Incompatible with JEXL Uberspect")
 class PSTemplateServiceValidationTest {
 

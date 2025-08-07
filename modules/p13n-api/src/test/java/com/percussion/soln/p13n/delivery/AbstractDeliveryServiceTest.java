@@ -46,7 +46,7 @@ import com.percussion.soln.p13n.tracking.VisitorProfile;
 //import static org.hamcrest.Matchers.*;
 //import static org.junit.matchers.JUnitMatchers.*;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class AbstractDeliveryServiceTest {
     //TODO: More tests needed.
     Mockery context = new JUnit4Mockery();

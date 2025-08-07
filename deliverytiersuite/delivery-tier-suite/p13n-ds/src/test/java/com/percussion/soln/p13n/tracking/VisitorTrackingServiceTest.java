@@ -43,7 +43,7 @@ import com.percussion.soln.p13n.tracking.impl.VisitorTrackingService;
  * 
  * @author adamgent
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingServiceTest {
 	private VisitorTrackingService tracker;
 	IVisitorTrackingAction action;

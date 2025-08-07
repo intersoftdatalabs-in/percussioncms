@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Disabled;
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 class PSWidgetServiceValidationTest {
 
     private final Mockery context = new JUnit4Mockery();

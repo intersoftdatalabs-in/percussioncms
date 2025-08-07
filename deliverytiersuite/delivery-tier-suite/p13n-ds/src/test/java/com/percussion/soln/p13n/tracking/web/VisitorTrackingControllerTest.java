@@ -57,7 +57,7 @@ import com.percussion.soln.p13n.tracking.web.VisitorTrackingWebMediator;
  * @author Steve Bolton
  * @author Adam Gent
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingControllerTest  {
 
     Mockery context = new JUnit4Mockery();

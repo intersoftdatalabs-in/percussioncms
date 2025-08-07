@@ -39,7 +39,7 @@ import com.percussion.services.contentmgr.IPSNodeDefinition;
 import com.percussion.system.utils.IPSHtmlParameters;
 import com.percussion.soln.utilities.rx.jexl.DispatchTemplateUtil; 
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DispatchTemplateUtilTest {
 
     Mockery context = new JUnit4Mockery();

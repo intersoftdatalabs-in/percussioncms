@@ -60,7 +60,7 @@ import com.percussion.webservices.content.IPSContentWs;
  * @author adamgent
  *
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class RxSegmentServiceTest {
     Mockery context = new JUnit4Mockery();
     RxSegmentService service = new RxSegmentService();

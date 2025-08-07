@@ -44,7 +44,7 @@ import com.percussion.soln.p13n.tracking.action.impl.VisitorTrackingActionLogin;
  * Scenario description: 
  * @author adamgent, Aug 23, 2009
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingActionLoginTest {
 
     Mockery context = new JUnit4Mockery();

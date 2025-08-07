@@ -66,7 +66,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Test page validation. 
  * @author adamgent, Oct 15, 2009
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 @Disabled
 @Tag("IntegrationTest")
 public class PSPageServiceValidationTest

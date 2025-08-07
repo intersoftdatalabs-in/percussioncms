@@ -40,7 +40,7 @@ import com.percussion.soln.segment.ISegmentService;
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.rx.editor.SegmentControlLookupExit;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlLookupExitTest {
     Mockery context = new JUnit4Mockery();
     SegmentControlLookupExit exit;

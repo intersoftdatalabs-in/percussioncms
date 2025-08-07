@@ -37,7 +37,7 @@ import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.ISegmentTreeFactory;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeExit;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeExitTest {
     Mockery context = new JUnit4Mockery();
     SegmentControlTreeExit exit;

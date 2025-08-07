@@ -57,7 +57,7 @@ import com.percussion.soln.segment.Segments;
  * Scenario description: 
  * @author adamgent, Jul 15, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DeliveryContextTest {
 
     Mockery mockery = new JUnit4Mockery();

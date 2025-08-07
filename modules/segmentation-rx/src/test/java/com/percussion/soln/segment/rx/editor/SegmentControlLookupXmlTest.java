@@ -36,7 +36,7 @@ import org.w3c.dom.Document;
 import com.percussion.soln.segment.Segment;
 import com.percussion.soln.segment.rx.editor.SegmentControlLookupXml;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlLookupXmlTest {
     Mockery context = new JUnit4Mockery();
     SegmentMocks segMocks = new SegmentMocks(context);

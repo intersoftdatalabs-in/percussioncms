@@ -34,7 +34,7 @@ import com.percussion.soln.segment.ISegmentNode;
 import com.percussion.soln.segment.ISegmentTree;
 import com.percussion.soln.segment.rx.editor.SegmentControlTreeXml;
 
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentControlTreeXmlTest {
     SegmentControlTreeXml segTreeXml;
     Mockery context = new JUnit4Mockery();

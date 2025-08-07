@@ -50,7 +50,7 @@ import com.percussion.soln.segment.Segments;
  * Scenario description: Create a context from a delivery request.
  * @author adamgent, Jan 24, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class DSDeliveryContextFactoryTest {
 
     Mockery context = new JUnit4Mockery();

@@ -32,7 +32,7 @@ import java.security.cert.X509Certificate;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class TLSTesterTest {
 
     @Mock

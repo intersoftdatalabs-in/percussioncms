@@ -41,7 +41,7 @@ import com.percussion.soln.p13n.tracking.action.impl.VisitorTrackingActionUpdate
  * 
  * @author Stephen Bolton
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class VisitorTrackingActionUpdateTest {
 
 	IVisitorTrackingAction action;

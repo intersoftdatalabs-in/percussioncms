@@ -49,7 +49,7 @@ import com.percussion.soln.segment.rx.assembly.SegmentJexlTools;
  * Scenario description: 
  * @author adamgent, Apr 18, 2008
  */
-@RunWith(JMock.class)
+@ExtendWith(MockitoExtension.class)
 public class SegmentJexlToolsTest {
 
     Mockery context = new JUnit4Mockery();

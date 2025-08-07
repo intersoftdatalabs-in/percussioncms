@@ -62,7 +62,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author miltonpividori
  *
  */
-//@RunWith(JMock.class)
+//@ExtendWith(MockitoExtension.class)
 //@Disabled("There are no Tomcat running in the continuos machine. If you want to " +
 //        "run these unit tests, adjust the SERVER_URL constant and start your Tomcat " +
 //        "server. Be sure build and install the latest delivery services code.")
