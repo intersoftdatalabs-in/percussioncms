@@ -30,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -49,6 +50,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author miltonpividori
  *
  */
+@ExtendWith(SpringExtension.class)
 @WebAppConfiguration(value = "src/test/webapp" )
 @ActiveProfiles({"dev", "integration"})
 @ContextHierarchy({
@@ -102,7 +104,7 @@ public class PSFormServiceTest extends PSBaseFormServiceTest
         List<IPSFormData> allForms = formService.findAllForms();
 
         assertEquals(1, allForms.size());
-        assertEquals(allForms.get(0).getName());
+        assertNotNull(allForms.get(0).getName());
 
 
         assertEquals(3, allForms.get(0).getFields().size());
