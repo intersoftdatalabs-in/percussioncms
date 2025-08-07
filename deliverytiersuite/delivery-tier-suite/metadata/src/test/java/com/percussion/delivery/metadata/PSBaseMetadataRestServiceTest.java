@@ -23,7 +23,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.context.ContextLoaderListener;
@@ -69,7 +69,6 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
                 .build();
     }
 
-    @Disabled
     @Test
  	public void testGetRestVersion(){
 
@@ -79,15 +78,15 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
         Response response = invocationBuilder.get();
 
 
-         Assert.assertNotNull(response);
-         Assertions.assertEquals(200,response.getStatus());
-         Assertions.assertEquals(testGetVersion(), response.getEntity());
+         assertNotNull(response);
+         assertEquals(200, response.getStatus());
+         assertEquals(testGetVersion(), response.getEntity());
  	}
 
-
+    @Test
  	private String testGetVersion(){
  		String version = PSVersionHelper.getVersion(this.getClass());
- 		Assert.assertNotNull(version);
+ 		assertNotNull(version);
  		System.out.print(version);
  		return version;
  	}

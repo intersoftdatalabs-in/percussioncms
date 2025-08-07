@@ -36,12 +36,13 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <dependency>
+   <!--     <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-integrations</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
+        -->
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-membership-services</artifactId>

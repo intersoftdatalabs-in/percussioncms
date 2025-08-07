@@ -18,16 +18,16 @@ package com.percussion.delivery.forms.impl;
 
 import com.percussion.delivery.utils.PSVersionHelper;
 import com.percussion.delivery.utils.spring.PSConfigurableApplicationContext;
-import junit.framework.Assert;
+import static org.junit.jupiter.api.Assertions.*;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.request.RequestContextListener;
-
 import javax.servlet.http.HttpServlet;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -41,7 +41,7 @@ import javax.ws.rs.core.Response;
  * @author natechadwick
  *
  */
-public class PSFormRestServiceBaseTest extends JerseyTest {
+public class PSFormRestServiceBaseTest extends JerseyTest{
 
 
 	public PSFormRestServiceBaseTest(){
@@ -79,7 +79,7 @@ public class PSFormRestServiceBaseTest extends JerseyTest {
 		WebTarget webTarget = client.target("/forms/version");
 		Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
 		Response response = invocationBuilder.get();
-        Assert.assertNotNull(response);
+        assertNotNull(response);
         Assertions.assertEquals(200,response.getStatus());
         Assertions.assertEquals(testGetVersion(), response.getEntity());
 	}
@@ -87,7 +87,7 @@ public class PSFormRestServiceBaseTest extends JerseyTest {
 
 	private String testGetVersion(){
 		String version = PSVersionHelper.getVersion(this.getClass());
-		Assert.assertNotNull(version);
+		assertNotNull(version);
 		System.out.print(version);
 		return version;
 	}

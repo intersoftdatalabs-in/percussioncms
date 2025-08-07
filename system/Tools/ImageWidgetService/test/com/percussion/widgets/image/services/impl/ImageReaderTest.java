@@ -155,7 +155,7 @@ public class ImageReaderTest
       BufferedImage bufferedImage = ImageIO.read(getClass().getClassLoader()
               .getResourceAsStream(resourcePath));
       testResize(resourcePath);
-      Assert.assertNotNull("Buffered image is null after read:" + resourcePath,
+      assertNotNull("Buffered image is null after read:" + resourcePath,
             bufferedImage);
    }
 

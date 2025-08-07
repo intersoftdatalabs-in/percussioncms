@@ -247,7 +247,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
             params.put("perc_emnt", Arrays.asList(PSLegacyEncrypter.getInstance(
                     temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             ).encrypt(toList, PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.getRoot().toAbsolutePath().toString().  concat(PSEncryptor.SECURE_DIR)
             ).DEFAULT_KEY())));
             params.put("perc_emns", Arrays.asList(PSLegacyEncrypter.getInstance(
                     temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)

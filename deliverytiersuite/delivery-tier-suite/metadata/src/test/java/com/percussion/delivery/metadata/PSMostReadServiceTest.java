@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.MethodOrderer.MethodName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,7 @@ import java.util.List;
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
 @TestMethodOrder(MethodName.class)
-public class PSMostReadServiceTest extends TestCase {
+public class PSMostReadServiceTest {
 
 	private static final Logger log = LogManager.getLogger(PSMostReadServiceTest.class);
     
@@ -89,7 +89,6 @@ public class PSMostReadServiceTest extends TestCase {
     public void before() {
 
 		try {
-			super.setUp();
 
 		indexer.deleteAllMetadataEntries();
 		addEntries();
@@ -105,7 +104,6 @@ public class PSMostReadServiceTest extends TestCase {
      * @throws Exception
      */
     @Test
-	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testA() throws Exception
     {
     	PSVisitQuery query = new PSVisitQuery();
@@ -115,17 +113,17 @@ public class PSMostReadServiceTest extends TestCase {
     	query.setTimePeriod("WEEK");
     	List<String> topPages = blogPostService.getTopVisitedBlogPosts(query);
     	
-        assertTrue("most read pages not empty", topPages.size() > 0);
-		assertEquals("size is equal to 3", 3, topPages.size());
+        assertTrue(topPages.size() > 0, "most read pages not empty");
+        assertEquals(3, topPages.size(), "size is equal to 3");
         
         // hits should be returned based on last entry date as there is no more than 1
         // entry for each page in DB at this time.
         String testName = PAGE_FULL + "4.html";
-		assertEquals("first item in list was last item tracked", testName, topPages.get(0));
+		assertEquals(testName, topPages.get(0), "first item in list was last item tracked");
         
-        // page 2 should be last item in list because we limited the query by 3
+        // page 2 should be last item in list because we limited the query to 3
         testName = PAGE_FULL + "2.html";
-		assertEquals("page2.html should be returned", testName, topPages.get(2));
+		assertEquals(testName, topPages.get(2), "page2.html should be returned");
     }
     
     /**
@@ -135,7 +133,6 @@ public class PSMostReadServiceTest extends TestCase {
      * @throws Exception
      */
     @Test
-	@Disabled("TODO: Fix me.  These test cases sporadically fail.")
     public void testB() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("5");
@@ -149,16 +146,16 @@ public class PSMostReadServiceTest extends TestCase {
     	
     	topPages = blogPostService.getTopVisitedBlogPosts(query);
 
-		assertEquals("list should contain 5 items", 5, topPages.size());
+		assertEquals(5, topPages.size(), "list should contain 5 items");
     	
     	String testName = PAGE_FULL + "0.html";
-		assertEquals("page0.html should have the most hits", testName, topPages.get(4));
+		assertEquals(testName, topPages.get(4), "page0.html should have the most hits");
     	
     	testName = PAGE_FULL + "2.html";
-		assertEquals("page2.html should have 2nd most hits", testName, topPages.get(2));
+		assertEquals(testName, topPages.get(2), "page2.html should have 2nd most hits");
     	
     	testName = PAGE_FULL + "1.html";
-		assertEquals("page1.html should have 3rd most hits", testName, topPages.get(3));
+		assertEquals(testName, topPages.get(3), "page1.html should have 3rd most hits");
     	
     }
     
@@ -167,7 +164,6 @@ public class PSMostReadServiceTest extends TestCase {
      * @return Exception
      */
     @Test
-	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testC() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("5");
@@ -178,11 +174,10 @@ public class PSMostReadServiceTest extends TestCase {
     	
     	List<String> pagePaths = blogPostService.getTopVisitedBlogPosts(query);
 
-		assertEquals("Page paths size should be 0", 0, pagePaths.size());
+		assertEquals(0, pagePaths.size(), "Page paths size should be 0");
     }
     
     @Test
-	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testD() throws Exception {
     	PSVisitQuery query = new PSVisitQuery();
     	query.setLimit("1");
@@ -192,20 +187,19 @@ public class PSMostReadServiceTest extends TestCase {
     	
     	List<String> pagePaths = blogPostService.getTopVisitedBlogPosts(query);
 
-		assertEquals("list size should be 1", 1, pagePaths.size());
+		assertEquals(1, pagePaths.size(), "list size should be 1");
     	
     	String testName = PAGE_FULL + "4.html";
-		assertEquals("least hit page should be page4.html", testName, pagePaths.get(0));
+		assertEquals(testName, pagePaths.get(0), "least hit page should be page4.html");
     	
     	query.setSortOrder("desc");
     	pagePaths = blogPostService.getTopVisitedBlogPosts(query);
     	
     	testName = PAGE_FULL + "0.html";
-    	assertEquals("page0.html should still have most hits", testName, pagePaths.get(0));
+    	assertEquals(testName, pagePaths.get(0), "page0.html should still have most hits");
     }
     
     @Test
-    @Disabled("Test is intermittently failing, TODO: Fix Me!")
     public void testE() throws Exception {
     	// tests many items in DB
     	addManyEntries();
@@ -219,17 +213,16 @@ public class PSMostReadServiceTest extends TestCase {
     	
     	List<String> topPosts = blogPostService.getTopVisitedBlogPosts(query);
 
-		assertEquals("List size is 25", 25, topPosts.size());
+		assertEquals(25, topPosts.size(), "List size is 25");
     	
     	// ensure 155 still got set regardless of UI max limit
     	query.setLimit("155");
     	
     	topPosts = blogPostService.getTopVisitedBlogPosts(query);
-		assertEquals("List size is 155", 155, topPosts.size());
+		assertEquals(155, topPosts.size(), "List size is 155");
     }
     
     @Test
-	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testF() throws Exception {
     	// test the delete functionality for items 6 - 156
     	// IMPORTANT: delete functionality hasn't been completed yet
@@ -253,13 +246,12 @@ public class PSMostReadServiceTest extends TestCase {
     		blogPostService.delete(pagePaths);
     	}
     	catch (Exception e) {
-    		assertTrue("delete method should be unsupported", e instanceof UnsupportedOperationException);
+    		assertTrue(e instanceof UnsupportedOperationException, "delete method should be unsupported");
     	}
 
     }
     
     @Test
-	@Disabled("TODO: These tests fail intermittently - need fixed")
     public void testG() {
     	// test miscellaneous code for coverage
     	PSDbBlogPostVisit bpv = null;
@@ -286,7 +278,7 @@ public class PSMostReadServiceTest extends TestCase {
     	}
     	
     	bpv = new PSDbBlogPostVisit("test", new Date(), BigInteger.ONE);
-    	assertEquals("should equal test", "test", bpv.getPagepath());
+    	assertEquals("should equal test", bpv.getPagepath(), "test");
     	assertTrue(bpv.getHitDate().getTime() <= System.currentTimeMillis());
     	
     }
@@ -316,8 +308,7 @@ public class PSMostReadServiceTest extends TestCase {
 
         // sleep for 2 seconds, 1 second longer than PSBlogPostVisitService
         // thread executor scheduler
-		//TODO: Figure out why this is needed.
-    	Thread.sleep(5000);
+    	Thread.sleep(2000);
     }
     
     /**
@@ -368,8 +359,8 @@ public class PSMostReadServiceTest extends TestCase {
 
         // sleep for 2 seconds, 1 second longer than PSBlogPostVisitService
         // thread executor scheduler
-		//TODO: Figure out why this is needed.
-    	Thread.sleep(5000);
+
+    	Thread.sleep(2000);
     }
     
     

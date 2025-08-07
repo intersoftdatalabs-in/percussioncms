@@ -29,7 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
 import org.springframework.transaction.annotation.Transactional;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
@@ -41,7 +43,7 @@ import javax.persistence.criteria.Root;
 @Transactional
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSGenericKeyServiceTest extends TestCase
+public class PSGenericKeyServiceTest
 {
     @Autowired
     private IPSGenericKeyService genericKeyService;
@@ -50,11 +52,10 @@ public class PSGenericKeyServiceTest extends TestCase
     private SessionFactory sessionFactory;
 
 
-    @Override
     @BeforeEach
     public void setUp() throws Exception
     {
-        super.setUp();
+
         Session session = getSession();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -71,7 +72,7 @@ public class PSGenericKeyServiceTest extends TestCase
         return sessionFactory.getCurrentSession();
 
     }
-    @Override
+
     @AfterEach
     public void tearDown() {
     }

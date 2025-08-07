@@ -148,7 +148,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrieveSiteInfo(TESTING_SITE, badTestingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		//try combination of nulls
@@ -171,7 +171,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrieveSiteInfo(UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 	}
@@ -182,7 +182,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.retrievePageInfo(UUID.randomUUID().toString(), TESTING_PAGE, testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		//try combination of empty string and nulls
@@ -204,7 +204,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.updateSiteInfo(UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		try {
@@ -226,7 +226,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 		try {
 			providerService.updatePageInfo(null, UUID.randomUUID().toString(), testingCredentials);
 		} catch (Exception e) {
-			Assert.assertNotNull(e);
+			assertNotNull(e);
 		}
 
 		try {

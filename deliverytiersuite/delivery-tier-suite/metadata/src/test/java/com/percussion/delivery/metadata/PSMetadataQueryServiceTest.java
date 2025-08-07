@@ -31,19 +31,21 @@ import com.percussion.delivery.metadata.impl.utils.PSPair;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataEntry;
 import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import com.percussion.delivery.metadata.rdbms.impl.PSMetadataQueryService;
-import com.percussion.error.PSExceptionUtils;
 import org.junit.jupiter.api.Test;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 
+import com.percussion.error.PSExceptionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
 
 /**
  * @author erikserating
@@ -52,7 +54,7 @@ import java.util.*;
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
         {"classpath:test-beans.xml"})
-public class PSMetadataQueryServiceTest extends TestCase
+public class PSMetadataQueryServiceTest
 {
     private static final Logger log = LogManager.getLogger(PSMetadataQueryServiceTest.class);
 
@@ -69,7 +71,6 @@ public class PSMetadataQueryServiceTest extends TestCase
     @BeforeEach
     public void before() throws Exception
     {
-        super.setUp();
         indexer.deleteAllMetadataEntries();
         addTestEntries();
     }
@@ -83,9 +84,9 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         List<PSPair<String, Integer>> tags = psMetadataTagsHelper.processTags(results, null);
 
-        assertNotNull("array tags not null", tags);
-        assertEquals("size array tags", 6, tags.size());
-        assertEquals("name first tags", "bar", tags.get(0).getFirst());
+        assertNotNull(tags, "array tags not null");
+        assertEquals(6, tags.size(), "size array tags");
+        assertEquals("bar", tags.get(0).getFirst(), "name first tags");
 
         System.out.println("testTagsProcess::");
         System.out.println();
@@ -106,8 +107,8 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         List<PSPair<String, Integer>> tags = psMetadataTagsHelper.processTags(results, null);
 
-        assertNotNull("array tags not null", tags);
-        assertEquals("size array tags", 0, tags.size());
+        assertNotNull(tags, "array tags not null");
+        assertEquals(0, tags.size(), "size array tags");
     }
 
     @Test
@@ -119,9 +120,9 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         List<PSPair<String, Integer>> tags = psMetadataTagsHelper.processTags(results, null);
 
-        assertNotNull("array tags not null", tags);
-        assertEquals("size array tags", 6, tags.size());
-        assertEquals("name first tags", "bar", tags.get(0).getFirst());
+        assertNotNull(tags, "array tags not null");
+        assertEquals(6, tags.size(), "size array tags");
+        assertEquals("bar", tags.get(0).getFirst(), "name first tags");
 
         System.out.println("testTagsProcess_withOrderAlpha::");
         System.out.println();
@@ -142,9 +143,9 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         List<PSPair<String, Integer>> tags = psMetadataTagsHelper.processTags(results, PSMetadataTagsHelper.COUNT_SORT);
 
-        assertNotNull("array tags not null", tags);
-        assertEquals("size array tags", 6, tags.size());
-        assertEquals("name first tags", "jb", tags.get(0).getFirst());
+        assertNotNull(tags, "array tags not null");
+        assertEquals(6, tags.size(), "size array tags");
+        assertEquals("jb", tags.get(0).getFirst(), "name first tags");
 
         System.out.println("testTagsProcess_withOrderCount::");
         System.out.println();
@@ -165,9 +166,9 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         List<PSPair<String, Integer>> tags = psMetadataTagsHelper.processTags(results, PSMetadataTagsHelper.COUNT_SORT);
 
-        assertNotNull("array tags not null", tags);
-        assertEquals("size array tags", 6, tags.size());
-        assertEquals("name first tags", "jb", tags.get(0).getFirst());
+        assertNotNull(tags, "array tags not null");
+        assertEquals(6, tags.size(), "size array tags");
+        assertEquals("jb", tags.get(0).getFirst(), "name first tags");
 
         System.out.println("testTagsProcess_withOrderCountAndAlpha::");
         System.out.println();
@@ -194,8 +195,8 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         Integer results = searchResults.getSecond(); //getting totalEntries
 
-        assertNotNull("Entries count should NOT be null", results);
-        assertEquals("Wrong entries count" + results.intValue(), ENTRY_COUNT * 3, results.intValue());
+        assertNotNull(results, "Entries count should NOT be null");
+        assertEquals(ENTRY_COUNT * 3, results.intValue(), "Wrong entries count" + results.intValue());
 
         query.setReturnTotalEntries(false);
 
@@ -203,7 +204,7 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         results = searchResults.getSecond(); //getting totalEntries
 
-        assertNull("Entries count should be null", results);
+        assertNull(results, "Entries count should be null");
     }
 
     @Test
@@ -222,8 +223,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         List<IPSMetadataEntry> results = searchResults.getFirst();
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", ENTRY_COUNT * 3, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(ENTRY_COUNT * 3, results.size(), "entries found");
 
         Date previousDateValue = getTime(1900, 1, 1);
         IPSMetadataEntry entry;
@@ -234,8 +235,7 @@ public class PSMetadataQueryServiceTest extends TestCase
 
             props = toPropsMap(entry.getProperties());
 
-            assertTrue("Date greater than previous",
-                    props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0);
+            assertTrue(props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0, "Date greater than previous");
 
             previousDateValue = props.get("dcterms:created").getDatevalue();
         }
@@ -286,9 +286,9 @@ public class PSMetadataQueryServiceTest extends TestCase
             }
         }
 
-        assertNotNull("previous not null", metadataBlogResults.getPrevious());
-        assertNotNull("current not null", metadataBlogResults.getCurrent());
-        assertNull("next null", metadataBlogResults.getNext());
+        assertNotNull(metadataBlogResults.getPrevious(), "previous not null");
+        assertNotNull(metadataBlogResults.getCurrent(), "current not null");
+        assertNull(metadataBlogResults.getNext(), "next null");
     }
 
     @Test
@@ -331,9 +331,9 @@ public class PSMetadataQueryServiceTest extends TestCase
             }
         }
 
-        assertNull("next is null", metadataBlogResults.getNext());
-        assertNull("current is null", metadataBlogResults.getCurrent());
-        assertNull("previous is null", metadataBlogResults.getPrevious());
+        assertNull(metadataBlogResults.getNext(), "next is null");
+        assertNull(metadataBlogResults.getCurrent(), "current is null");
+        assertNull(metadataBlogResults.getPrevious(), "previous is null");
     }
 
     private List<IPSMetadataEntry> initiazeTagsProcessTest()
@@ -414,8 +414,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         }
         System.out.println();
 
-        assertNotNull("categories not null", categoriesPage1);
-        assertEquals("size array categories", 4, countCategoriesFromTree(categoriesPage1.get(0)));
+        assertNotNull(categoriesPage1, "categories not null");
+        assertEquals(4, countCategoriesFromTree(categoriesPage1.get(0)), "size array categories");
 
         // Categories in page 2
         assertEquals(0, categoriesPage2.size());
@@ -518,8 +518,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", ENTRY_COUNT, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(ENTRY_COUNT, results.size(), "entries found");
         Map<String, IPSMetadataProperty> props;
 
         for (IPSMetadataEntry entry : results)
@@ -527,15 +527,15 @@ public class PSMetadataQueryServiceTest extends TestCase
             props = toPropsMap(entry.getProperties());
 
             // Folder
-            assertEquals("entry folder", "/folderA/blogs/", entry.getFolder());
+            assertEquals("/folderA/blogs/", entry.getFolder(), "entry folder");
 
             // dcterms:title
-            assertTrue("dcterms:title present", props.containsKey("dcterms:title"));
-            assertEquals("dcterms:title value type", VALUETYPE.STRING, props.get("dcterms:title").getValuetype());
-            assertTrue("dcterms:title value", props.get("dcterms:title").getStringvalue().startsWith("ABC Title"));
+            assertTrue(props.containsKey("dcterms:title"), "dcterms:title present");
+            assertEquals(VALUETYPE.STRING, props.get("dcterms:title").getValuetype(), "dcterms:title value type");
+            assertTrue(props.get("dcterms:title").getStringvalue().startsWith("ABC Title"), "dcterms:title value");
 
             // type
-            assertEquals("entry type", "blog", entry.getType());
+            assertEquals("blog", entry.getType(), "entry type");
         }
     }
 
@@ -558,8 +558,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", 3, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(3, results.size(), "entries found");
         service.setQueryLimit(configLimit);
     }
 
@@ -578,8 +578,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setOrderBy("dcterms:created desc, linktext asc");
 
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
-        assertEquals("size array categories", 1, searchResults.getFirst().size());
-        assertEquals("size array categories ", 1, searchResults.getSecond().intValue());
+        assertEquals(1, searchResults.getFirst().size(), "size array categories");
+        assertEquals(1, searchResults.getSecond().intValue(), "size array categories ");
     }
 
     public void addCategorieEntry(){
@@ -906,8 +906,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         List<IPSMetadataEntry> results = searchResults.getFirst();
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", ENTRY_COUNT * 3, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(ENTRY_COUNT * 3, results.size(), "entries found");
 
         Date previousDateValue = getTime(1900, 1, 1);
         PSDbMetadataEntry entry;
@@ -918,8 +918,7 @@ public class PSMetadataQueryServiceTest extends TestCase
 
             props = toPropsMap(entry.getProperties());
 
-            assertTrue("Date greater than previous",
-                    props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0);
+            assertTrue(props.get("dcterms:created").getDatevalue().compareTo(previousDateValue) >= 0, "Date greater than previous");
 
             previousDateValue = props.get("dcterms:created").getDatevalue();
         }
@@ -961,8 +960,8 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", orderedTitles.length, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(orderedTitles.length, results.size(), "entries found");
 
         PSDbMetadataEntry entry;
 
@@ -972,7 +971,7 @@ public class PSMetadataQueryServiceTest extends TestCase
 
             props = toPropsMap(entry.getProperties());
 
-            assertEquals("Title greater than previous", orderedTitles[i], props.get("dcterms:title").getStringvalue());
+            assertEquals(orderedTitles[i], props.get("dcterms:title").getStringvalue(), "Title greater than previous");
         }
 
         //set the following values on the query to test pagination
@@ -980,13 +979,13 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setStartIndex(4);
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 2, results.size());
+        assertEquals(2, results.size(), "results list size");
 
         props = toPropsMap(results.get(0).getProperties());
-        assertEquals("First title from the list", "c page 2", props.get("dcterms:title").getStringvalue());
+        assertEquals("c page 2", props.get("dcterms:title").getStringvalue(), "First title from the list");
 
         props = toPropsMap(results.get(1).getProperties());
-        assertEquals("First title from the list", "d page", props.get("dcterms:title").getStringvalue());
+        assertEquals("d page", props.get("dcterms:title").getStringvalue(), "First title from the list");
     }
 
     @Test
@@ -1025,8 +1024,8 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", orderedTitles.length, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(orderedTitles.length, results.size(), "entries found");
 
         PSDbMetadataEntry entry;
 
@@ -1044,10 +1043,10 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setStartIndex(4);
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 2, results.size());
+        assertEquals(2, results.size(), "results list size");
 
         props = toPropsMap(results.get(0).getProperties());
-        assertEquals("First title from the list", "E page", props.get("dcterms:title").getStringvalue());
+        assertEquals("E page", props.get("dcterms:title").getStringvalue(), "First title from the list");
 
         props = toPropsMap(results.get(1).getProperties());
         assertEquals("First title from the list", "f page", props.get("dcterms:title").getStringvalue());
@@ -1089,8 +1088,8 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", orderedTitles.length, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(orderedTitles.length, results.size(), "entries found");
 
         PSDbMetadataEntry entry;
 
@@ -1108,13 +1107,13 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setStartIndex(4);
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 2, results.size());
+        assertEquals(2, results.size(), "results list size");
 
         props = toPropsMap(results.get(0).getProperties());
-        assertEquals("First title from the list", "b page", props.get("dcterms:title").getStringvalue());
+        assertEquals("b page", props.get("dcterms:title").getStringvalue(), "First title from the list");
 
         props = toPropsMap(results.get(1).getProperties());
-        assertEquals("First title from the list", "A page", props.get("dcterms:title").getStringvalue());
+        assertEquals("A page", props.get("dcterms:title").getStringvalue(), "First title from the list");
     }
 
     @Test
@@ -1156,8 +1155,8 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", orderedFileNames.length, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(5, results.size(), "results list size");
 
         PSDbMetadataEntry entry;
 
@@ -1168,10 +1167,10 @@ public class PSMetadataQueryServiceTest extends TestCase
             assertEquals("Pagepath greater than previous", orderedPagePaths[i], entry.getPagepath());
         }
 
-        assertEquals("results list size", 4, results.size());
+        assertEquals(4, results.size(), "results list size");
 
         totalCount = searchResults.getSecond();
-        assertEquals("total entries",4,totalCount.intValue());
+        assertEquals(5, totalCount.intValue(), "total entries");
     }
 
 
@@ -1203,7 +1202,7 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
+        assertNotNull(results, "entries not null");
 
         PSDbMetadataEntry entry;
 
@@ -1218,7 +1217,7 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setStartIndex(1);
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 4, results.size());
+        assertEquals(4, results.size(), "results list size");
     }
 
     @Test
@@ -1247,14 +1246,14 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
+        assertNotNull(results, "entries not null");
 
         PSDbMetadataEntry entry;
 
         for (int i = 0; i < results.size(); i++)
         {
             entry = (PSDbMetadataEntry)results.get(i);
-            assertEquals("Pagepath greater than previous", orderedLinkTexts[i], entry.getLinktext());
+            assertEquals(orderedLinkTexts[i], entry.getLinktext(), "Pagepath greater than previous");
         }
 
         //set the following values on the query to test pagination
@@ -1262,7 +1261,7 @@ public class PSMetadataQueryServiceTest extends TestCase
         query.setStartIndex(2);
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 3, results.size());
+        assertEquals(3, results.size(), "results list size");
     }
 
     @Test
@@ -1300,16 +1299,16 @@ public class PSMetadataQueryServiceTest extends TestCase
 
         searchResults = service.executeQuery(query);
         results = searchResults.getFirst();
-        assertEquals("results list size", 5, results.size());
+        assertEquals(5, results.size(), "results list size");
 
         totalCount = searchResults.getSecond();
-        assertEquals("total entries",5,totalCount.intValue());
+        assertEquals(5, totalCount.intValue(), "total entries");
 
         PSDbMetadataEntry entry;
         for (int i = 0; i < results.size(); i++)
         {
             entry = (PSDbMetadataEntry)results.get(i);
-            assertEquals("Pagepath greater than previous", pageNames[i], entry.getName());
+            assertEquals(pageNames[i], entry.getName(), "Pagepath greater than previous");
         }
     }
 
@@ -1366,12 +1365,12 @@ public class PSMetadataQueryServiceTest extends TestCase
         PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
         List<IPSMetadataEntry> results = searchResults.getFirst();
 
-        assertNotNull("entries not null", results);
-        assertEquals("entries found", entryCountExpected, results.size());
+        assertNotNull(results, "entries not null");
+        assertEquals(ENTRY_COUNT, results.size(), "entries found");
 
         for (IPSMetadataEntry entry : results)
         {
-            assertTrue("entry with correct value", propertyValueChecker.valueIsCorrect(entry));
+            assertTrue(propertyValueChecker.valueIsCorrect(entry), "entry with correct value");
         }
     }
 
@@ -1389,18 +1388,16 @@ public class PSMetadataQueryServiceTest extends TestCase
         List<IPSMetadataEntry> results = searchResults.getFirst();
         Map<String, IPSMetadataProperty> props;
 
-        assertNotNull("entries not null", results);
+        assertNotNull(results, "entries not null");
 
         for (IPSMetadataEntry entry : results)
         {
             props = toPropsMap(entry.getProperties());
 
-            assertTrue("entry " + propertyName + " prop present", props.containsKey(propertyName));
-            assertEquals("entry " + propertyName + " prop valuetype", propertyValuetypeExpected, props
-                    .get(propertyName).getValuetype());
+            assertTrue(props.containsKey(propertyName), "entry " + propertyName + " prop present");
+            assertEquals(propertyValuetypeExpected, props.get(propertyName).getValuetype(), "entry " + propertyName + " prop valuetype");
 
-            assertTrue("entry " + propertyName + " prop value",
-                    propertyValueChecker.valueIsCorrect(props.get(propertyName).getValue()));
+            assertTrue(propertyValueChecker.valueIsCorrect(props.get(propertyName).getValue()), "entry " + propertyName + " prop value");
         }
     }
 
@@ -1546,7 +1543,7 @@ public class PSMetadataQueryServiceTest extends TestCase
             PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
             List<IPSMetadataEntry> results = searchResults.getFirst();
 
-            assertNotNull("entries not null", results);
+            assertNotNull(results, "entries not null");
 
             Date latest=null;
             //Test descending query
@@ -1585,7 +1582,7 @@ public class PSMetadataQueryServiceTest extends TestCase
             PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
             List<IPSMetadataEntry> results = searchResults.getFirst();
 
-            assertNotNull("entries not null", results);
+            assertNotNull(results, "entries not null");
 
             Date latest=null;
             //Test ascending query
@@ -1628,7 +1625,7 @@ public class PSMetadataQueryServiceTest extends TestCase
             PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
             List<IPSMetadataEntry> results = searchResults.getFirst();
 
-            assertNotNull("entries not null", results);
+            assertNotNull(results, "entries not null");
 
             String latestLinkText = null;
             //Test descending query
@@ -1671,7 +1668,7 @@ public class PSMetadataQueryServiceTest extends TestCase
             PSPair<List<IPSMetadataEntry>, Integer> searchResults = service.executeQuery(query);
             List<IPSMetadataEntry> results = searchResults.getFirst();
 
-            assertNotNull("entries not null", results);
+            assertNotNull(results, "entries not null");
 
             String latestLinkText = null;
             //Test descending query

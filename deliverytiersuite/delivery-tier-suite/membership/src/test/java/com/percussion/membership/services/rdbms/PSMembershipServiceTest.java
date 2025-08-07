@@ -48,7 +48,6 @@ public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
     @BeforeEach
     public void setUp() throws Exception
     {
-        super.setUp();
         Session session = getSession();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -65,7 +64,6 @@ public class PSMembershipServiceTest extends PSBaseMembershipServiceTest
     @AfterEach
     public void tearDown() throws Exception
     {
-        super.tearDown();
     }
 
     private Session getSession(){

@@ -38,6 +38,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.Root;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +53,7 @@ import java.util.List;
 @Transactional
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations = {"classpath:test-beans.xml"})
-public class PSMembershipDaoTest extends TestCase
+public class PSMembershipDaoTest
 {
     
     @Autowired
@@ -62,7 +66,6 @@ public class PSMembershipDaoTest extends TestCase
     @BeforeEach
     public void setUp() throws Exception
     {
-        super.setUp();
         Session session = getSession();
         try {
             CriteriaBuilder builder = session.getCriteriaBuilder();
@@ -83,7 +86,6 @@ public class PSMembershipDaoTest extends TestCase
     @AfterEach
     public void tearDown() throws Exception
     {
-        super.tearDown();
     }
     
     
@@ -216,7 +218,6 @@ public class PSMembershipDaoTest extends TestCase
         assertEquals(members, found);
     }
     
-    // TODO: Remove me @SuppressFBWarnings("PREDICTABLE_RANDOM")
     @Test
     public void testChangeStatusAccount() throws Exception
     {
@@ -248,7 +249,6 @@ public class PSMembershipDaoTest extends TestCase
         membershipDao.deleteAccount(userId);
     }
     
-    // TODO: Remove me @SuppressFBWarnings("PREDICTABLE_RANDOM")
     @Test
     public void testDeleteAccount() throws Exception
     {

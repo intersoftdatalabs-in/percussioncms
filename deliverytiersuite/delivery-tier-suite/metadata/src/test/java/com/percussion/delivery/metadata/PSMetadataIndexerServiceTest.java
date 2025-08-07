@@ -25,6 +25,7 @@ import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,7 +48,7 @@ import java.util.Set;
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
-public class PSMetadataIndexerServiceTest extends TestCase
+public class PSMetadataIndexerServiceTest
 {
     @Autowired
     public IPSMetadataIndexerService service;
@@ -60,7 +61,6 @@ public class PSMetadataIndexerServiceTest extends TestCase
     @BeforeEach
     public void setUp() throws Exception
     {
-        super.setUp();
         service.deleteAllMetadataEntries();
     }
 
@@ -106,23 +106,23 @@ public class PSMetadataIndexerServiceTest extends TestCase
 
         List<IPSMetadataEntry> allSavedEntries = service.getAllEntries();
         Map<String, List<IPSMetadataProperty>> props;
-        assertEquals("Entries count", ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, allSavedEntries.size());
+        assertEquals(ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, allSavedEntries.size());
 
         for (IPSMetadataEntry e : allSavedEntries)
         {
-            assertTrue("Pagepath", e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"));
-            assertEquals("Linktext", "the linktext value", e.getLinktext());
+            assertTrue(e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"), "Pagepath");
+            assertEquals("the linktext value", e.getLinktext(), "Linktext");
 
             props = toPropsMap(e.getProperties());
-            assertEquals("Properties count", 2, props.size());
+            assertEquals(2, props.size(), "Properties count");
 
-            assertTrue("prop1 exists", props.containsKey("prop1"));
-            assertEquals("prop1 value type", VALUETYPE.STRING, props.get("prop1").get(0).getValuetype());
-            assertEquals("prop1 value", "foo1", props.get("prop1").get(0).getStringvalue());
+            assertTrue(props.containsKey("prop1"), "prop1 exists");
+            assertEquals(VALUETYPE.STRING, props.get("prop1").get(0).getValuetype(), "prop1 value type");
+            assertEquals("foo1", props.get("prop1").get(0).getStringvalue(), "prop1 value");
 
-            assertTrue("prop2 exists", props.containsKey("prop2"));
-            assertEquals("prop2 value type", VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype());
-            assertEquals("prop2 value", new Double(4), props.get("prop2").get(0).getNumbervalue());
+            assertTrue(props.containsKey("prop2"), "prop2 exists");
+            assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
+            assertEquals(new Double(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
         }
 
         System.out.println();
@@ -161,27 +161,27 @@ public class PSMetadataIndexerServiceTest extends TestCase
         Calendar after = Calendar.getInstance();
 
         List<IPSMetadataEntry> allSavedEntries = service.getAllEntries();
-        assertEquals("Entries count", ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, allSavedEntries.size());
+        assertEquals(ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, allSavedEntries.size());
 
         for (IPSMetadataEntry e : allSavedEntries)
         {
-            assertTrue("Pagepath", e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"));
-            assertEquals("Linktext", "New value for linktext", e.getLinktext());
+            assertTrue(e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"), "Pagepath");
+            assertEquals("New value for linktext", e.getLinktext(), "Linktext");
 
             props = toPropsMap(e.getProperties());
-            assertEquals("Properties count", 3, props.size());
+            assertEquals(3, props.size(), "Properties count");
 
-            assertTrue("prop1 exists", props.containsKey("prop1"));
-            assertEquals("prop1 value type", VALUETYPE.STRING, props.get("prop1").get(0).getValuetype());
-            assertEquals("prop1 value", "foo1", props.get("prop1").get(0).getStringvalue());
+            assertTrue(props.containsKey("prop1"), "prop1 exists");
+            assertEquals(VALUETYPE.STRING, props.get("prop1").get(0).getValuetype(), "prop1 value type");
+            assertEquals("foo1", props.get("prop1").get(0).getStringvalue(), "prop1 value");
 
-            assertTrue("prop2 exists", props.containsKey("prop2"));
-            assertEquals("prop2 value type", VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype());
-            assertEquals("prop2 value", new Double(4), props.get("prop2").get(0).getNumbervalue());
+            assertTrue(props.containsKey("prop2"), "prop2 exists");
+            assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
+            assertEquals(new Double(4), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
 
-            assertTrue("prop3 exists", props.containsKey("prop3"));
-            assertEquals("prop3 value type", VALUETYPE.DATE, props.get("prop3").get(0).getValuetype());
-            assertEquals("prop3 value", new Date(2011, 01, 28), props.get("prop3").get(0).getDatevalue());
+            assertTrue(props.containsKey("prop3"), "prop3 exists");
+            assertEquals(VALUETYPE.DATE, props.get("prop3").get(0).getValuetype(), "prop3 value type");
+            assertEquals(new Date(2011, 01, 28), props.get("prop3").get(0).getDatevalue(), "prop3 value");
         }
 
         System.out.println();
@@ -204,13 +204,13 @@ public class PSMetadataIndexerServiceTest extends TestCase
         for (IPSMetadataEntry e : allSavedEntries)
             entriesToDelete.add(e.getPagepath());
 
-        assertEquals("Entries count", ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, entriesToDelete.size());
+        assertEquals(ENTRIES_COUNT_FOR_PERFORMANCE_TESTING, entriesToDelete.size());
 
         Calendar before = Calendar.getInstance();
         service.delete(entriesToDelete);
         Calendar after = Calendar.getInstance();
 
-        assertEquals("Entries count after deletion", 0, service.getAllEntries().size());
+        assertEquals(0, service.getAllEntries().size());
 
         System.out.println();
         System.out
@@ -244,15 +244,15 @@ public class PSMetadataIndexerServiceTest extends TestCase
         
         // Assert
         List<IPSMetadataEntry> allSavedEntries = service.getAllEntries();
-        assertEquals("Entries count", entriesCount, allSavedEntries.size());
+        assertEquals(entriesCount, allSavedEntries.size());
         
         for (IPSMetadataEntry e : allSavedEntries)
         {
-            assertTrue("Pagepath", e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"));
-            assertEquals("Linktext", "New value for linktext", e.getLinktext());
+            assertTrue(e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"), "Pagepath");
+            assertEquals("New value for linktext", e.getLinktext(), "Linktext");
             
             props = toPropsMap(e.getProperties());
-            assertEquals("Properties count", 0, props.size());
+            assertEquals(0, props.size(), "Properties count");
         }
     }
 
@@ -287,23 +287,23 @@ public class PSMetadataIndexerServiceTest extends TestCase
         
         // Assert
         List<IPSMetadataEntry> allSavedEntries = service.getAllEntries();
-        assertEquals("Entries count", entriesCount, allSavedEntries.size());
+        assertEquals(entriesCount, allSavedEntries.size(), "Entries count");
         
         for (IPSMetadataEntry e : allSavedEntries)
         {
-            assertTrue("Pagepath", e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"));
-            assertEquals("Linktext", "New value for linktext", e.getLinktext());
+            assertTrue(e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"), "Pagepath");
+            assertEquals("New value for linktext", e.getLinktext(), "Linktext");
             
             props = toPropsMap(e.getProperties());
-            assertEquals("Properties count", 2, props.size());
+            assertEquals(2, props.size(), "Properties count");
             
-            assertTrue("prop1 exists", props.containsKey("prop1"));
-            assertEquals("prop1 value type", VALUETYPE.STRING, props.get("prop1").get(0).getValuetype());
-            assertEquals("prop1 value", "foo1changed", props.get("prop1").get(0).getStringvalue());
+            assertTrue(props.containsKey("prop1"), "prop1 exists");
+            assertEquals(VALUETYPE.STRING, props.get("prop1").get(0).getValuetype(), "prop1 value type");
+            assertEquals("foo1changed", props.get("prop1").get(0).getStringvalue(), "prop1 value");
             
-            assertTrue("prop2 exists", props.containsKey("prop2"));
-            assertEquals("prop2 value type", VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype());
-            assertEquals("prop2 value", new Double(10), props.get("prop2").get(0).getNumbervalue());
+            assertTrue(props.containsKey("prop2"), "prop2 exists");
+            assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
+            assertEquals(new Double(10), props.get("prop2").get(0).getNumbervalue(), "prop2 value");
         }
     }
 
@@ -316,7 +316,7 @@ public class PSMetadataIndexerServiceTest extends TestCase
         List<IPSMetadataEntry> entries = createEntries(entriesCount);
         service.save(entries);
         List<IPSMetadataEntry> allSavedEntries = service.getAllEntries();
-        assertEquals("Entries count", entriesCount,allSavedEntries.size());
+        assertEquals(entriesCount, allSavedEntries.size(), "Entries count");
 
         Map<String, List<IPSMetadataProperty>> props;
 
@@ -343,17 +343,17 @@ public class PSMetadataIndexerServiceTest extends TestCase
 
         // Assert
 
-        assertEquals("Entries count", entriesCount, allSavedEntries.size());
+        assertEquals(entriesCount, allSavedEntries.size(), "Entries count");
 
         for (IPSMetadataEntry e : allSavedEntries)
         {
 
-            assertTrue("Pagepath", e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"));
-            assertEquals("Linktext", "New value for linktext", e.getLinktext());
+            assertTrue(e.getPagepath().startsWith("/testsite/folder1/child1/foo.html"), "Pagepath");
+            assertEquals("New value for linktext", e.getLinktext(), "Linktext");
 
             //Removed property should not be returned
             Set<IPSMetadataProperty> propsN = e.getProperties();
-            assertEquals("Properties count", 1, propsN.size());
+            assertEquals(1, propsN.size(), "Properties count");
         }
     }
 
@@ -381,7 +381,7 @@ public class PSMetadataIndexerServiceTest extends TestCase
         assertEquals(3, entry.getProperties().size());
         
         Map<String, List<IPSMetadataProperty>> propsMap = toPropsMap(entry.getProperties());
-        assertEquals("prop1 count", 1, propsMap.get("prop1").size());
+        assertEquals(1, propsMap.get("prop1").size(), "prop1 count");
         
         List<String> expectedProp1Values = new ArrayList<String>();
         expectedProp1Values.add("foo1");
@@ -389,11 +389,11 @@ public class PSMetadataIndexerServiceTest extends TestCase
         
         for (IPSMetadataProperty pro : propsMap.get("prop1"))
         {
-            assertTrue("expected prop1 value", expectedProp1Values.contains(pro.getStringvalue()));
+            assertTrue(expectedProp1Values.contains(pro.getStringvalue()), "expected prop1 value");
             expectedProp1Values.remove(pro.getStringvalue());
         }
         
-        assertEquals("prop2 expected value", new Double(4), propsMap.get("prop2").get(0).getNumbervalue());
+        assertEquals(new Double(4), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 expected value");
 
         // Update
         entry.setName("TestEntry1_Modified");
@@ -443,19 +443,19 @@ public class PSMetadataIndexerServiceTest extends TestCase
         
         IPSMetadataEntry dbEntry = service.findEntry(pagepath);
         assertNotNull(dbEntry);
-        assertEquals("dbEntry - name", "foo.html", dbEntry.getName());
-        assertEquals("dbEntry - folder", "/folder1/child1", dbEntry.getFolder());
-        assertEquals("dbEntry - type", "TestType", dbEntry.getType());
-        assertEquals("dbEntry - type", "testsite", dbEntry.getSite());
-        assertEquals("dbEntry - linktext", "link text 1", dbEntry.getLinktext());
+        assertEquals("foo.html", dbEntry.getName(), "dbEntry - name");
+        assertEquals("/folder1/child1", dbEntry.getFolder(), "dbEntry - folder");
+        assertEquals("TestType", dbEntry.getType(), "dbEntry - type");
+        assertEquals("testsite", dbEntry.getSite(), "dbEntry - type");
+        assertEquals("link text 1", dbEntry.getLinktext(), "dbEntry - linktext");
         
-        assertNotNull("dbEntry - properties", dbEntry.getProperties());
+        assertNotNull(dbEntry.getProperties(), "dbEntry - properties");
         Map<String, List<IPSMetadataProperty>> props = toPropsMap(dbEntry.getProperties());
-        assertEquals("dbEntry - properties size", 1, dbEntry.getProperties().size());
+        assertEquals(1, dbEntry.getProperties().size(), "dbEntry - properties size");
         
-        assertTrue("prop1 exists", props.containsKey("prop1"));
-        assertEquals("prop1 value type", VALUETYPE.TEXT, props.get("prop1").get(0).getValuetype());
-        assertEquals("prop1 value", sb.toString(), props.get("prop1").get(0).getStringvalue());
+        assertTrue(props.containsKey("prop1"), "prop1 exists");
+        assertEquals(VALUETYPE.TEXT, props.get("prop1").get(0).getValuetype(), "prop1 value type");
+        assertEquals(sb.toString(), props.get("prop1").get(0).getStringvalue(), "prop1 value");
     }
     
     @Test
@@ -490,13 +490,13 @@ public class PSMetadataIndexerServiceTest extends TestCase
         IPSMetadataEntry updatedEntry = service.findEntry(pagepath);
         assertNotNull(updatedEntry);
         assertNotNull(updatedEntry.getProperties());
-        assertEquals("Property count wrong",3, updatedEntry.getProperties().size());
+        assertEquals(3, updatedEntry.getProperties().size());
 
         Map<String, List<IPSMetadataProperty>> propsMap = toPropsMap(updatedEntry.getProperties());
-        assertEquals("TestEntry1_Modified", updatedEntry.getName());
-        assertEquals(new Double(66), propsMap.get("prop2").get(0).getNumbervalue());
-        assertEquals("foo1", propsMap.get("prop1").get(0).getStringvalue());
-        assertEquals(new Double(77), propsMap.get("prop3").get(0).getNumbervalue());
+        assertEquals("TestEntry1_Modified", updatedEntry.getName(), "Entry name");
+        assertEquals(new Double(66), propsMap.get("prop2").get(0).getNumbervalue(), "prop2 value");
+        assertEquals("foo1", propsMap.get("prop1").get(0).getStringvalue(), "prop1 value");
+        assertEquals(new Double(77), propsMap.get("prop3").get(0).getNumbervalue(), "prop3 value");
 
         // Delete
         service.delete(pagepath);
@@ -569,44 +569,44 @@ public class PSMetadataIndexerServiceTest extends TestCase
         // Check entry1
         PSDbMetadataEntry dbEntry = (PSDbMetadataEntry)service.findEntry(pagepath);
         assertNotNull(dbEntry);
-        assertEquals("dbEntry - name", "foo.html", dbEntry.getName());
-        assertEquals("dbEntry - folder", "/folder1/child1", dbEntry.getFolder());
-        assertEquals("dbEntry - type", "TestType", dbEntry.getType());
-        assertEquals("dbEntry - type", "testsite1", dbEntry.getSite());
-        assertEquals("dbEntry - linktext", "link text 1", dbEntry.getLinktext());
+        assertEquals("foo.html", dbEntry.getName(), "dbEntry - name");
+        assertEquals("/folder1/child1", dbEntry.getFolder(), "dbEntry - folder");
+        assertEquals("TestType", dbEntry.getType(), "dbEntry - type");
+        assertEquals("testsite1", dbEntry.getSite(), "dbEntry - type");
+        assertEquals("link text 1", dbEntry.getLinktext(), "dbEntry - linktext");
         
-        assertNotNull("dbEntry - properties", dbEntry.getProperties());
+        assertNotNull(dbEntry.getProperties(), "dbEntry - properties");
         Map<String, List<IPSMetadataProperty>> props = toPropsMap(dbEntry.getProperties());
-        assertEquals("dbEntry - properties size", 2, dbEntry.getProperties().size());
+        assertEquals(2, dbEntry.getProperties().size(), "dbEntry - properties size");
         
-        assertTrue("prop1 exists", props.containsKey("prop1"));
-        assertEquals("prop1 value type", VALUETYPE.STRING, props.get("prop1").get(0).getValuetype());
-        assertEquals("prop1 value", "foo1", props.get("prop1").get(0).getStringvalue());
+        assertTrue(props.containsKey("prop1"), "prop1 exists");
+        assertEquals(VALUETYPE.STRING, props.get("prop1").get(0).getValuetype(), "prop1 value type");
+        assertEquals("foo1", props.get("prop1").get(0).getStringvalue(), "prop1 value");
         
-        assertTrue("prop2 exists", props.containsKey("prop2"));
-        assertEquals("prop2 value type", VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype());
-        assertEquals("prop2 value", 4.0, props.get("prop2").get(0).getNumbervalue());
+        assertTrue(props.containsKey("prop2"), "prop2 exists");
+        assertEquals(VALUETYPE.NUMBER, props.get("prop2").get(0).getValuetype(), "prop2 value type");
+        assertEquals(4.0, props.get("prop2").get(0).getNumbervalue(), "prop2 value");
         
         // Check entry2
         dbEntry = (PSDbMetadataEntry)service.findEntry(pagepath2);
         assertNotNull(dbEntry);
-        assertEquals("dbEntry - name", "foo2.html", dbEntry.getName());
-        assertEquals("dbEntry - folder", "/folder1/child1", dbEntry.getFolder());
-        assertEquals("dbEntry - type", "TestType", dbEntry.getType());
-        assertEquals("dbEntry - type", "testsite2", dbEntry.getSite());
-        assertEquals("dbEntry - linktext", "link text 2", dbEntry.getLinktext());
+        assertEquals("foo2.html", dbEntry.getName(), "dbEntry - name");
+        assertEquals("/folder1/child1", dbEntry.getFolder(), "dbEntry - folder");
+        assertEquals("TestType", dbEntry.getType(), "dbEntry - type");
+        assertEquals("testsite2", dbEntry.getSite(), "dbEntry - type");
+        assertEquals("link text 2", dbEntry.getLinktext(), "dbEntry - linktext");
         
-        assertNotNull("dbEntry - properties", dbEntry.getProperties());
+        assertNotNull(dbEntry.getProperties(), "dbEntry - properties");
         props = toPropsMap(dbEntry.getProperties());
-        assertEquals("dbEntry - properties size", 2, dbEntry.getProperties().size());
+        assertEquals(2, dbEntry.getProperties().size(), "dbEntry - properties size");
         
-        assertTrue("prop3 exists", props.containsKey("prop3"));
-        assertEquals("prop3 value type", VALUETYPE.STRING, props.get("prop3").get(0).getValuetype());
-        assertEquals("prop3 value", "foo12", props.get("prop3").get(0).getStringvalue());
+        assertTrue(props.containsKey("prop3"), "prop3 exists");
+        assertEquals(VALUETYPE.STRING, props.get("prop3").get(0).getValuetype(), "prop3 value type");
+        assertEquals("foo12", props.get("prop3").get(0).getStringvalue(), "prop3 value");
         
-        assertTrue("prop4 exists", props.containsKey("prop4"));
-        assertEquals("prop4 value type", VALUETYPE.NUMBER, props.get("prop4").get(0).getValuetype());
-        assertEquals("prop4 value", 5.0, props.get("prop4").get(0).getNumbervalue());
+        assertTrue(props.containsKey("prop4"), "prop4 exists");
+        assertEquals(VALUETYPE.NUMBER, props.get("prop4").get(0).getValuetype(), "prop4 value type");
+        assertEquals(5.0, props.get("prop4").get(0).getNumbervalue(), "prop4 value");
         
 
         // Delete
@@ -668,18 +668,18 @@ public class PSMetadataIndexerServiceTest extends TestCase
         
         List<IPSMetadataProperty> allProperties = getAllProperties();
         
-        assertNotNull("properties not null", allProperties);
-        assertEquals("count of properties before deleting entry", 4, allProperties.size());
+        assertNotNull(allProperties, "properties not null");
+        assertEquals(4, allProperties.size(), "count of properties before deleting entry");
         
         service.delete(entry.getPagepath());
         
         allProperties = getAllProperties();
         
-        assertNotNull("properties not null", allProperties);
-        assertEquals("count of properties before deleting entry", 2, allProperties.size());
+        assertNotNull(allProperties, "properties not null");
+        assertEquals(2, allProperties.size(), "count of properties before deleting entry");
         
         for (IPSMetadataProperty prop : allProperties)
-            assertEquals("entry of property", entry2.getPagepath(), ((PSDbMetadataProperty)prop).getMetadataEntry().getPagepath());
+            assertEquals(((PSDbMetadataProperty)prop).getMetadataEntry().getPagepath(), entry2.getPagepath(), "entry of property");
     }
 
     private List<IPSMetadataProperty> getAllProperties()
@@ -744,10 +744,10 @@ public class PSMetadataIndexerServiceTest extends TestCase
 
         // Get all indexed directories
         Set<String> indexedDirectories = service.getAllIndexedDirectories();
-        assertEquals("Directories count", 3, indexedDirectories.size());
-        assertTrue("Directory name - 1", indexedDirectories.contains("/testsite/folder1/child1"));
-        assertTrue("Directory name - 2", indexedDirectories.contains("/testsite2/folder2/child2"));
-        assertTrue("Directory name - 3", indexedDirectories.contains("/testsite2/folder2"));
+        assertEquals(3, indexedDirectories.size(), "Directories count");
+        assertTrue(indexedDirectories.contains("/testsite/folder1/child1"), "Directory name - 1");
+        assertTrue(indexedDirectories.contains("/testsite2/folder2/child2"), "Directory name - 2");
+        assertTrue(indexedDirectories.contains("/testsite2/folder2"), "Directory name - 3");
     }
     
    

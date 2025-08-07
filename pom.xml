@@ -168,7 +168,7 @@
         <any23.version>2.3</any23.version>
         <owl.version>5.1.10</owl.version>
        <awssdk.version>1.12.261</awssdk.version>
-        <bc.version>1.78</bc.version>
+        <bc.version>1.81</bc.version>
         <jackson.version>2.15.0</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
@@ -197,7 +197,7 @@
        <solr.version>8.11.3</solr.version>
         <nettyall.version>4.1.45.Final</nettyall.version>
        <hikari.version>4.0.3</hikari.version>
-       <snakeyaml.version>2.0</snakeyaml.version>
+       <snakeyaml.version>2.4</snakeyaml.version>
        <commons-email.version>1.5</commons-email.version>
        <commons.codec.version>1.15</commons.codec.version>
        <tinymce.version>5.10.3</tinymce.version>
@@ -2491,35 +2491,35 @@
                 <scope>compile</scope>
             </dependency><dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcmail-jdk15to18</artifactId>
+                <artifactId>bcmail-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpg-jdk15to18</artifactId>
+                <artifactId>bcpg-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
 
              <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15to18</artifactId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15to18</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-ext-jdk15to18</artifactId>
+                <artifactId>bcprov-ext-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bctls-jdk15to18</artifactId>
+                <artifactId>bctls-jdk18on</artifactId>
                 <version>${bc.version}</version>
             </dependency>
             <dependency>

@@ -149,7 +149,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
 //        createThemeDir("/percussion");
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes");
-//        Assert.assertNotNull("Path item list not null", pathItems);
+//        assertNotNull("Path item list not null", pathItems);
 //        Assertions.assertEquals("Path item list count", 1, pathItems.size());
 //        
 //        // PSPathItem properties
@@ -191,7 +191,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
   //        createThemeDir("/web_resources", true);
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes");
-//        Assert.assertNotNull("Path item list not null", pathItems);
+//        assertNotNull("Path item list not null", pathItems);
 //        Assertions.assertEquals("Path item list count", 2, pathItems.size());
 //        
 //        // PSPathItem properties
@@ -215,7 +215,7 @@ public class PSDesignPathItemServiceTest extends PSServletTestCase {
 //        createThemeFile("/percussionTest/z_perc_theme.css", 20);
 //        
 //        List<PSPathItem> pathItems = pathService.findChildren("/Design/web_resources/themes/percussionTest");
-//        Assert.assertNotNull("Path item list not null", pathItems);
+//        assertNotNull("Path item list not null", pathItems);
 //        Assertions.assertEquals("path items count", 7, pathItems.size());
 //        
 //        validatePathItemOrder(pathItems, new String[] {

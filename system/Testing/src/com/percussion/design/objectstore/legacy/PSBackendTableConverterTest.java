@@ -281,7 +281,7 @@ public class PSBackendTableConverterTest extends PSBaseConverterTest
       PSLegacyBackEndTable srcTable;
       
       src = getTableXml(name);
-      Assert.assertNotNull("Table xml is null", src);
+      assertNotNull("Table xml is null", src);
       srcTable = new PSLegacyBackEndTable(src, null, null);
       
       

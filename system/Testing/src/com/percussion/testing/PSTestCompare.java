@@ -17,7 +17,7 @@
 package com.percussion.testing;
 
 import com.percussion.utils.string.PSStringUtils;
-import junit.framework.Assert;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -127,9 +127,9 @@ public class PSTestCompare
    public static void assertEqualIgnoringWhitespace(String exp, String act)
    {
       if (exp != null)
-         Assert.assertNotNull("actual value must not be null", act);
+         assertNotNull("actual value must not be null", act);
       if (act != null)
-         Assert.assertNotNull("expected value must not be null", exp);
+         assertNotNull("expected value must not be null", exp);
       
       if (exp == null)
          Assert.assertNull("actual value must be null", act);

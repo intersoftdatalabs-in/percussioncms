@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +34,7 @@ import java.util.List;
  *
  */
 @Transactional
-public abstract class PSBaseMembershipServiceTest extends TestCase
+public abstract class PSBaseMembershipServiceTest
 {
     @Autowired
     private IPSMembershipService membershipService;    
@@ -43,14 +43,12 @@ public abstract class PSBaseMembershipServiceTest extends TestCase
     
     @BeforeEach
     public void setup() throws Exception{
-        super.setUp();
     	//Setup the tenant id for the mongo tests
         PSThreadLocalTenantContext.setTenantId(TEST_TENANT_ID);
     }
     
     @AfterEach
     public void teardown() throws Exception{
-        super.tearDown();
     	//Clear the tenant id for the next test script
     	PSThreadLocalTenantContext.clearTenantId();
     }

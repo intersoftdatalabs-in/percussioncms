@@ -23,7 +23,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
@@ -66,7 +66,7 @@ public  class PSBaseMembershipRestServiceTest extends JerseyTest
         WebTarget webTarget = client.target("/membership/version");
         Invocation.Builder invocationBuilder =  webTarget.request(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder.get();
-        Assert.assertNotNull(response);
+        assertNotNull(response);
         Assertions.assertEquals(200,response.getStatus());
         Assertions.assertEquals(testGetVersion(), response.getEntity());
 	}
@@ -74,9 +74,8 @@ public  class PSBaseMembershipRestServiceTest extends JerseyTest
 
 	private String testGetVersion(){
 		String version = PSVersionHelper.getVersion(this.getClass());
-		Assert.assertNotNull(version);
+		assertNotNull(version);
 		System.out.print(version);
 		return version;
 	}
-  
 }

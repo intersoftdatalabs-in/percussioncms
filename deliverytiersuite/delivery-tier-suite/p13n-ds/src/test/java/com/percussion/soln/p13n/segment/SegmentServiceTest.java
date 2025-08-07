@@ -20,7 +20,7 @@ import static integrationtest.spring.SpringSetup.getBean;
 import static integrationtest.spring.SpringSetup.loadXmlBeanFiles;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThat;
 
 import java.util.List;
 

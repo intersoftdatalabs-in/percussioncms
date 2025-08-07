@@ -83,7 +83,7 @@ public class PSFormDataJoinerTest
         // TODO This test case must be validated. Should the joiner
         // return an empty string when it receives an empty list of
         // PSFormData? Before refactoring, it did it.
-        assertEquals("output is empty",
+        assertEquals(
                 StringUtils.EMPTY,
                 formDataJoiner.generateCsv(new ArrayList<IPSFormData>()));
     }
@@ -103,7 +103,7 @@ public class PSFormDataJoinerTest
             );
         
         Date created = data.get(0).getCreateDate();
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join("Form name,Create date,field1",
                         "testform1," + created.toString() + ",value1"),
                 formDataJoiner.generateCsv(data));
@@ -121,7 +121,7 @@ public class PSFormDataJoinerTest
                             }
                         }
                     );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join("Form name,Create date,field1",
                         "testform1," + formData.get(0).getCreateDate().toString() + ",\"value1, with comma\""),
                 formDataJoiner.generateCsv(formData));
@@ -151,7 +151,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2",
                         "testform1,{0},value1,value2",
                         "testform2,{0},value1_1,value2_1",
@@ -185,7 +185,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2",
                         "testform1,{0},\"value1, with comma\",value2",
                         "testform2,{0},value1_1,value2_1",
@@ -217,7 +217,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2",
                         "testform1,{0},\"\"\"value1, with double quote\",value2",
                         "testform2,{0},value3,value4",
@@ -249,7 +249,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2",
                         "testform1,{0},\"value1 \"\"with\"\" double quote\",value2",
                         "testform2,{0},value3,value4",
@@ -281,7 +281,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2",
                         "testform1,{0},\"value1 with double quote\"\"\",value2",
                         "testform2,{0},value3,value4",
@@ -313,7 +313,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2,field3,field4",
                         "testform1,{0},value1,value2,,",
                         "testform2,{0},,,value3,value4",
@@ -345,7 +345,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2,field3,field4",
                         "testform2,{0},,,value3,value4",
                         "testform2,{0},,,value31,value41",
@@ -377,7 +377,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2,field3",
                         "testform1,{0},value1,value2,",
                         "testform2,{0},,value21,value31",
@@ -409,7 +409,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,field2,field3",
                         "testform1,{0},value1,value2,",
                         "testform1,{0},,value21,value31",
@@ -441,7 +441,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,Field2,field3",
                         "testform1,{0},value1,value2,",
                         "testform2,{0},,value21,value31",
@@ -479,7 +479,7 @@ public class PSFormDataJoinerTest
                         }
                     }
                 );
-        assertEquals("output CSV is correctly generated",
+        assertEquals(
                 join(formData, "Form name,Create date,field1,Field2,FIELD3",
                         "testform1,{0},value1,value2,",
                         "testform1,{0},value11,value21,",
@@ -504,7 +504,7 @@ public class PSFormDataJoinerTest
             );
         
         Date created = data.get(0).getCreateDate();
-        assertEquals("EmailBody is correctly generated",
+        assertEquals(
                 getEmailBody("Form name", "testform1", "Create date", created.toString(),"field1", "value1",
                         "field2","value2"),
                 formDataJoiner.generateEmailBody(data.get(0)));

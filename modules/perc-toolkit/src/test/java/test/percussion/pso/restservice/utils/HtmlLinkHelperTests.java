@@ -17,7 +17,7 @@
 package test.percussion.pso.restservice.utils;
 
 import com.percussion.pso.restservice.utils.HtmlLinkHelper;
-import junit.framework.Assert;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.SAXException;

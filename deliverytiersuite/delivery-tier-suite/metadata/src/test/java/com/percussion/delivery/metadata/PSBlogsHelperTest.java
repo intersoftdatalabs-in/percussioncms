@@ -26,6 +26,7 @@ import com.percussion.delivery.metadata.rdbms.impl.PSDbMetadataProperty;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,7 +46,7 @@ import java.util.List;
  @ExtendWith(org.springframework.test.context.junit.jupiter.SpringExtension.class)
 @ContextConfiguration(locations =
 {"classpath:test-beans.xml"})
-public class PSBlogsHelperTest extends TestCase
+public class PSBlogsHelperTest
 {
 
     @Autowired
@@ -63,7 +64,6 @@ public class PSBlogsHelperTest extends TestCase
     @BeforeEach
     public void before() throws Exception
     {
-        super.setUp();
         indexer.deleteAllMetadataEntries();
         addTestEntries();
     }
@@ -85,8 +85,8 @@ public class PSBlogsHelperTest extends TestCase
         PSMetadataRestBlogList yearsList = new PSMetadataRestBlogList();
         yearsList = psBlogsHelper.getProcessedBlogs(results);
                 
-        assertNotNull("entries not null", results);
-        assertEquals("years found", YEAR_COUNT, yearsList.getYears().size());
+        assertNotNull(results);
+        assertEquals( YEAR_COUNT, yearsList.getYears().size());
         
         for(PSMetadataBlogYear year : yearsList.getYears()){
             System.out.println("Proccesed year: " + year.getYear());

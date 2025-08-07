@@ -18,14 +18,17 @@ package com.percussion.delivery.metadata.data.impl;
 
 import com.percussion.delivery.metadata.error.PSMalformedMetadataQueryException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import com.percussion.delivery.metadata.data.impl.PSCriteriaElement;
 
 /**
  * @author erikserating
  *
  */
-public class PSCriteriaElementTest extends TestCase
+public class PSCriteriaElementTest
 {
-   
+ 
+   @Test
    public void testParsingValidCriteria() throws Exception
    {
       
@@ -104,6 +107,7 @@ public class PSCriteriaElementTest extends TestCase
 
    }
    
+   @Test
    public void testParsingMalformedCriteria() throws Exception
    {
      
