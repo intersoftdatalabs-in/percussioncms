@@ -15,48 +15,46 @@
         <dependency>
             <groupId>com.percussion.deliverytier</groupId>
             <artifactId>perc-shared-app</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
-            <version>${tomcat.version}</version>
+            <!-- version inherited from parent -->
         </dependency>
-
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-juli</artifactId>
-            <version>${tomcat.version}</version>
             <scope>provided</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-coyote</artifactId>
-            <version>${tomcat.version}</version>
             <scope>provided</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.api.version}</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
-            <version>${jersey.version}</version>
             <scope>test</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework</groupId>
             <artifactId>jersey-test-framework-core</artifactId>
-            <version>${jersey.version}</version>
             <scope>test</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>rxutils</artifactId>
-            <version>${project.parent.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-beanutils</groupId>
@@ -85,22 +83,16 @@
             </exclusions>
             <type>test-jar</type>
             <scope>test</scope>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
             <artifactId>perc-security-utils</artifactId>
-            <version>${project.parent.version}</version>
+            <!-- version inherited from parent -->
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.10.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -108,21 +100,8 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
             </plugin>
         </plugins>
     </build>
-    <distributionManagement>
-        <snapshotRepository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>percussion.s3.repo</id>
-            <url>s3://percussioncms-maven.intsof.com/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
+
 </project>

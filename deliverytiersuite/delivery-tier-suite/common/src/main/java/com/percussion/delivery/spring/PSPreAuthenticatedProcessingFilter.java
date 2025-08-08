@@ -24,7 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,10 +59,9 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
                 for (String role: roles){
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role));
                 }
-                String password = principal.getPassword();
-                if(password == null)
-                    password = "NO_PASSWORD";
-                return new PreAuthenticatedAuthenticationToken(principal.getName(),password,grantedAuthorities);
+                // GenericPrincipal does not expose password, use default value
+                String password = "NO_PASSWORD";
+                return new PreAuthenticatedAuthenticationToken(principal.getName(), password, grantedAuthorities);
             }
         }
     }

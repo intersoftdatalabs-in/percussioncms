@@ -27,7 +27,7 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import org.glassfish.hk2.runlevel.RunLevelException;
 import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import static javax.servlet.http.HttpServletResponse.SC_MOVED_PERMANENTLY;
  * @author natechadwick
  *
  */
-public class PSMultiAppVersionRedirectorValve extends ValveBase implements Lifecycle {
+public class PSMultiAppVersionRedirectorValve extends ValveBase {
 
 	public static final String PERC_VERSION_HEADER = "perc-version";
 
@@ -140,9 +140,10 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase implements Lifec
 	}
 
 	@Override
-	public void invoke(Request request, Response response) throws IOException, ServletException {
+	public void invoke(Request request, Response response) throws IOException {
 		log.debug("invoke");
 		
+		try{
 		if (Boolean.TRUE.equals(pipelining.get())) {
 			getNext().invoke(request, response);
 			pipelining.remove();
@@ -180,10 +181,15 @@ public class PSMultiAppVersionRedirectorValve extends ValveBase implements Lifec
 			if(nextValve != null) {
 				nextValve.invoke(request, response);
 			}
+			
 		}
 		
 		//Make sure thread local is cleared.
 		pipelining.remove();
+		} catch (Exception e) {
+			log.error("Error invoking next valve", e);
+			throw new RuntimeException(e);
+		}
 	}
 	
     @Override

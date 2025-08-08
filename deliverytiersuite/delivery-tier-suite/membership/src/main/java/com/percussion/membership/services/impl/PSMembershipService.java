@@ -39,7 +39,7 @@ import org.jasypt.util.password.PasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
+import jakarta.ws.rs.core.Context;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;

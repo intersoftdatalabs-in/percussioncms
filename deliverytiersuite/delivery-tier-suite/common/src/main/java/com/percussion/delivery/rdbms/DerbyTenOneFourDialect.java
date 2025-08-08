@@ -17,29 +17,13 @@
 
 package com.percussion.delivery.rdbms;
 
-import org.hibernate.dialect.DerbyTenSevenDialect;
+import org.hibernate.dialect.DerbyDialect;
 
-import java.sql.Types;
 
-public class DerbyTenOneFourDialect extends DerbyTenSevenDialect {
+public class DerbyTenOneFourDialect extends DerbyDialect {
 
     public DerbyTenOneFourDialect(){
         super();
-
-        //re-map nationalized types as they are unsupported by derby
-        registerColumnType(Types.NCHAR,"char($l)");
-        registerColumnType(Types.NVARCHAR,"varchar($l)");
-        registerColumnType(Types.LONGNVARCHAR,"long varchar($l)");
-        registerColumnType(Types.NCLOB,"clob($l)");
     }
 
-    /**
-     * Does this dialect support Nationalized Types
-     *
-     * @return boolean
-     */
-    @Override
-    public boolean supportsNationalizedTypes() {
-        return false;
-    }
 }

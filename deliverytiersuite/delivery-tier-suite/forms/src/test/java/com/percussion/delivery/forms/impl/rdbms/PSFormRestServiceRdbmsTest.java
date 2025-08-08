@@ -42,13 +42,13 @@ import org.springframework.test.context.ContextConfiguration;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Configuration;
-import javax.ws.rs.core.Cookie;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.core.Configuration;
+import jakarta.ws.rs.core.Cookie;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.SecurityContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -667,7 +667,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getRequestHeader(java.lang.String)
+         * @see jakarta.ws.rs.core.HttpHeaders#getRequestHeader(java.lang.String)
          */
         @Override
         public List<String> getRequestHeader(String name)
@@ -677,7 +677,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getRequestHeaders()
+         * @see jakarta.ws.rs.core.HttpHeaders#getRequestHeaders()
          */
         @Override
         public MultivaluedMap<String, String> getRequestHeaders()
@@ -687,7 +687,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getAcceptableMediaTypes()
+         * @see jakarta.ws.rs.core.HttpHeaders#getAcceptableMediaTypes()
          */
         @Override
         public List<MediaType> getAcceptableMediaTypes()
@@ -697,7 +697,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getAcceptableLanguages()
+         * @see jakarta.ws.rs.core.HttpHeaders#getAcceptableLanguages()
          */
         @Override
         public List<Locale> getAcceptableLanguages()
@@ -707,7 +707,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getMediaType()
+         * @see jakarta.ws.rs.core.HttpHeaders#getMediaType()
          */
         @Override
         public MediaType getMediaType()
@@ -717,7 +717,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getLanguage()
+         * @see jakarta.ws.rs.core.HttpHeaders#getLanguage()
          */
         @Override
         public Locale getLanguage()
@@ -727,7 +727,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         }
 
         /* (non-Javadoc)
-         * @see javax.ws.rs.core.HttpHeaders#getCookies()
+         * @see jakarta.ws.rs.core.HttpHeaders#getCookies()
          */
         @Override
         public Map<String, Cookie> getCookies()

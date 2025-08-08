@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Form;
+import jakarta.ws.rs.core.Form;
 import java.io.IOException;
 
 // REFACTORED: CP-JAVA11

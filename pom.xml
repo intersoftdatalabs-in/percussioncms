@@ -171,7 +171,7 @@
         <owl.version>5.1.10</owl.version>
        <awssdk.version>1.12.261</awssdk.version>
         <bc.version>1.81</bc.version>
-        <jackson.version>2.18.0</jackson.version>
+        <jackson.version>2.19.2</jackson.version>
         <jsoup.version>1.15.3</jsoup.version>
         <json.version>20240303</json.version>
         <junit5.version>5.13.0</junit5.version>
@@ -227,17 +227,16 @@
     <!-- Optional: keep javax annotation property for legacy modules if referenced -->
     <javax.annotation.api.version>1.3.2</javax.annotation.api.version>
 
-   <jakarta.activation.version>2.0.1</jakarta.activation.version>
-   <jakarta.xml.bind.version>3.0.1</jakarta.xml.bind.version>
-
-   <jakarta.servlet-api.version>4.0.4</jakarta.servlet-api.version>
+   <jakarta.activation.version>2.1.1</jakarta.activation.version>
+   <jakarta.xml.bind.version>4.0.0</jakarta.xml.bind.version>
+   <jakarta.servlet.api.version>4.0.4</jakarta.servlet.api.version>
     <servlet.spec>4.0.1</servlet.spec>
     <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 
 
    <jakarta.ws.rs.version>3.1.0</jakarta.ws.rs.version>
     <javax.ws.rs.version>2.1.1</javax.ws.rs.version>
-
+    <jakarta.json.api.version>2.1.2</jakarta.json.api.version>  
     <twelveMonkeys.version>3.10.1</twelveMonkeys.version>
     </properties>
 

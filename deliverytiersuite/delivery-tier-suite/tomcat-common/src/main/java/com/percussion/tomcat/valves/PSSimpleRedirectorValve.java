@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright 1999-2025 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,11 @@
  * limitations under the License.
  */
 // REFACTORED: CP-JAVA11
-package com.percussion.tomcat.valves;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -33,8 +32,6 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tomcat.util.buf.CharChunk;
-import org.apache.tomcat.util.buf.MessageBytes;
 
 /**
  * This class is a very simple redirector, based on the same technique used by
@@ -61,7 +58,7 @@ import org.apache.tomcat.util.buf.MessageBytes;
  *      delivery side services</li>
  * </ol>
  */
-public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle {
+public class PSSimpleRedirectorValve extends ValveBase {
     private static final Logger log = LogManager.getLogger(PSSimpleRedirectorValve.class);
 
     /**
@@ -89,7 +86,7 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle {
     }
 
     @Override
-    public void invoke(Request request, Response response) throws IOException, ServletException {
+    public void invoke(Request request, Response response) throws IOException {
         var matched = false;
         if (started && !targetHost.equals(request.getServerName())) {
             var path = request.getRequestPathMB();
@@ -104,8 +101,9 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle {
                         request.getConnector().getProtocolHandler().getAdapter().service(
                                 request.getCoyoteRequest(),
                                 response.getCoyoteResponse());
+                    } catch (ServletException e) {
+                        throw new RuntimeException("ServletException during redirect", e);
                     } catch (Exception e) {
-                        //will be handled higher up the stack
                         throw new RuntimeException(e);
                     }
                     break;
@@ -113,7 +111,12 @@ public class PSSimpleRedirectorValve extends ValveBase implements Lifecycle {
             }
         }
         if (!matched) {
-            getNext().invoke(request, response);
+            try {
+                getNext().invoke(request, response);
+            } catch (Exception e) {
+                log.error("Error invoking next valve", e);
+                throw new RuntimeException(e);
+            }   
         }
     }
 

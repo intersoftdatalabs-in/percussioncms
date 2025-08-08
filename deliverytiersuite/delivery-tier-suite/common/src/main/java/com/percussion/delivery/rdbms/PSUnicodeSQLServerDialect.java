@@ -17,9 +17,6 @@
 
 package com.percussion.delivery.rdbms;
 
-import java.sql.Types;
-
-import org.hibernate.dialect.SQLServer2012Dialect;
 
 /**
  * Custom Dialect Class used to redefine native types for hibernate using MSSql Server 2008
@@ -27,10 +24,10 @@ import org.hibernate.dialect.SQLServer2012Dialect;
  * @author federicoromanelli
  *
  */
-public class PSUnicodeSQLServerDialect extends SQLServer2012Dialect
+public class PSUnicodeSQLServerDialect extends org.hibernate.dialect.SQLServerDialect
 {
         /**
-         * Initializes a new instance of the {@link SQLServer2012Dialect} class.
+         * Initializes a new instance of the {@link org.hibernate.dialect.SQLServerDialect} class.
          * 
          * Note: the mapping for the values used in registerColumnType method are the same
          * as the ones described in the following file:
@@ -39,28 +36,5 @@ public class PSUnicodeSQLServerDialect extends SQLServer2012Dialect
         public PSUnicodeSQLServerDialect() {
             super();
             
-            // Register the native data types to use by Hibernate
-            // Make sure to use the values included in PSJdbcDataTypeMaps.xml
-            registerColumnType(Types.BIT, "BIT");
-            registerColumnType(Types.TINYINT, "TINYINT");
-            registerColumnType(Types.SMALLINT, "SMALLINT");            
-            registerColumnType(Types.INTEGER, "INT");
-            registerColumnType(Types.BIGINT, "BIGINT");
-            registerColumnType(Types.FLOAT, "REAL");
-            registerColumnType(Types.REAL, "REAL");
-            registerColumnType(Types.DOUBLE, "FLOAT(53)");
-            registerColumnType(Types.NUMERIC, "NUMERIC(18,0)");
-            registerColumnType(Types.DECIMAL, "DECIMAL(18,0)");
-            registerColumnType(Types.CHAR, "NCHAR($l)");
-            registerColumnType(Types.VARCHAR, "NVARCHAR($l)");
-            registerColumnType(Types.LONGVARCHAR, "NTEXT");
-            registerColumnType(Types.DATE, "DATETIME");
-            registerColumnType(Types.TIME, "DATETIME");
-            registerColumnType(Types.TIMESTAMP, "DATETIME");
-            registerColumnType(Types.BINARY, "BINARY");
-            registerColumnType(Types.VARBINARY, "VARBINARY");
-            registerColumnType(Types.LONGVARBINARY, "IMAGE");
-            registerColumnType(Types.BLOB, "IMAGE");
-            registerColumnType(Types.CLOB, "NTEXT");
         }
 }
