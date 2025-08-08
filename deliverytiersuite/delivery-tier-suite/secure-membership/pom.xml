@@ -94,6 +94,11 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+    <groupId>org.glassfish.jersey.ext</groupId>
+    <artifactId>jersey-spring5</artifactId>
+    <version>2.46</version> <!-- ✅ Latest version available -->
+</dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
             <scope>provided</scope>

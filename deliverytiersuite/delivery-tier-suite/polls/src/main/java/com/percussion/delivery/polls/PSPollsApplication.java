@@ -25,13 +25,9 @@ import com.percussion.delivery.polls.services.PSPollsRestService;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
-import org.glassfish.jersey.server.spring.AutowiredInjectResolver;
 import org.glassfish.jersey.server.spring.SpringComponentProvider;
-import org.glassfish.jersey.server.spring.SpringLifecycleListener;
-import org.glassfish.jersey.server.spring.SpringWebApplicationInitializer;
-import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 
-import javax.ws.rs.ApplicationPath;
+import jakarta.ws.rs.ApplicationPath;
 
 /**
  * Jersey application configuration for Polls REST API.
@@ -40,11 +36,9 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class PSPollsApplication extends ResourceConfig {
     public PSPollsApplication() {
-        register(RequestContextFilter.class);
-        register(SpringComponentProvider.class);
-        register(AutowiredInjectResolver.class);
-        register(SpringLifecycleListener.class);
-        register(SpringWebApplicationInitializer.class);
+        // RequestContextFilter registration removed; Jersey 2.x Spring integration does not require it.
+        // Removed AutowiredInjectResolver registration; not required for Jersey 2.x Spring integration.
+        // Removed SpringWebApplicationInitializer registration; not required for Jersey 2.x Spring integration.
         register(PSPollsRestService.class);
         register(LoggingFeature.class);
         register(RolesAllowedDynamicFeature.class);

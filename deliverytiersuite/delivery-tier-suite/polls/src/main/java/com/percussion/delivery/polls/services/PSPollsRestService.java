@@ -28,22 +28,24 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HEAD;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * REST service for polls feature implementation.
@@ -181,8 +183,13 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
      * {@inheritDoc}
      */
     @Override
-    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+    @DELETE
+    @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("deliverymanager")
+    public Response updateOldSiteEntries(@PathParam("prevSiteName") String prevSiteName, @PathParam("newSiteName") String newSiteName) {
         log.debug("Polls service for site rename. Nothing to do for site: {}", prevSiteName);
-        return Response.status(Status.NO_CONTENT).build();
+        // No operation needed for polls on site rename.
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
