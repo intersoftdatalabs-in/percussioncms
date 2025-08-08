@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,48 +62,47 @@ public class PSDefaultModerationState implements IPSDefaultModerationState
    }
 
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+*/
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getSite()
+*/
 public String getSite()
    {
       return site;
    }
 
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+*/
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setSite(java.lang.String)
+*/
 public void setSite(String site)
    {
       this.site = site;
    }
 
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+*/
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#getDefaultState()
+*/
 public String getDefaultState()
    {
       return defaultState;
    }
 
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+*/
    /* (non-Javadoc)
- * @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
- */
+* @see com.percussion.delivery.comments.service.rdbms.IPSDefaultModerationState#setDefaultState(java.lang.String)
+*/
 public void setDefaultState(String defaultState)
    {
       this.defaultState = defaultState;
    }   
    
-
 }

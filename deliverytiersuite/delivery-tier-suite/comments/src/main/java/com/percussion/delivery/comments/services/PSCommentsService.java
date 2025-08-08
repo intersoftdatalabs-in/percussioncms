@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -630,6 +630,16 @@ public class PSCommentsService implements IPSCommentsService {
             return false;
         }
         return true;
+    }
+
+/*
+     * (non-Javadoc)
+     * 
+     * @see com.percussion.comments.services.IPSCommentsService#getComments(com.percussion.delivery.comments.data.PSCommentCriteria)
+     */
+    public PSComments getComments(PSCommentCriteria criteria) throws Exception
+    {
+        return getComments(criteria, false);
     }
 }
 

@@ -1,5 +1,6 @@
+// REFACTORED: CP-JAVA11
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,6 +72,16 @@ public interface IPSCommentsService
      * @return list of tags, never <code>null</code>, may be empty.
      */
     public List<String> getTags(int maxResults, int startIndex);
+
+    /**
+     * Retrieves a list of comments for specified criteria. This method is used by the REST service
+     * to get comments for a specific page.
+     *
+     * @param criteria the comment criteria object that specifies the comments to be returned.
+     * Cannot be <code>null</code>.
+     * @return list of comments, never <code>null</code>, may be empty.
+     */
+    public PSComments getComments(PSCommentCriteria criteria) throws Exception;
 
     /**
      * Adds a comment to the datastore for the specified namespace. Any existing
