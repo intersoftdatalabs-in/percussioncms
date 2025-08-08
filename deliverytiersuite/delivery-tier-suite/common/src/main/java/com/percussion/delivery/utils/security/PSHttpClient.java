@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package com.percussion.delivery.utils.security;
 
 import com.percussion.security.ToDoVulnerability;
-
-import javax.net.ssl.HostnameVerifier;
+import jakarta.ws.rs.client.Client;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import jakarta.ws.rs.client.ClientBuilder;
 import javax.net.ssl.TrustManager;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
 
 /**
  * Common helper class to return a HTTP client.

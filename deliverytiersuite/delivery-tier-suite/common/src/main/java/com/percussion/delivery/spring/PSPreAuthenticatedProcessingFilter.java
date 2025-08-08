@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2025 Percussion Software, Inc.
+ * Copyright 1999-2023 Percussion Software, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
     }
 
     @Override
-    protected Object getPreAuthenticatedPrincipal(HttpServletRequest request) {
-            return "ANONYMOUS";
+    protected Object getPreAuthenticatedPrincipal(final HttpServletRequest request) {
+        return "ANONYMOUS";
     }
 
     @Override
-    protected Object getPreAuthenticatedCredentials(HttpServletRequest request) {
+    protected Object getPreAuthenticatedCredentials(final HttpServletRequest request) {
         return "N/A";
     }
 
@@ -66,5 +66,4 @@ public class PSPreAuthenticatedProcessingFilter extends AbstractPreAuthenticated
             }
         }
     }
-
-    }
+}
