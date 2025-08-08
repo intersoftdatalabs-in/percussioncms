@@ -25,9 +25,9 @@ import com.percussion.utils.io.PathUtils;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.Disabled;
@@ -74,7 +74,7 @@ public class PSSecurityFilterTest
    @ClassRule
    public static Path tempFolder = TemporaryFolder.builder().build();
 
-   @AfterClass
+   @AfterAll
    public static void tearDown() throws Exception
    {
       System.setProperty(NON_SECURE_HTTP_BIND_ADDRESS, "");
@@ -97,7 +97,7 @@ public class PSSecurityFilterTest
            });
 }
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setupClass() throws IOException, URISyntaxException {
       System.setProperty(PathUtils.DEPLOY_DIR_PROP, tempFolder.getRoot().getAbsolutePath());
 

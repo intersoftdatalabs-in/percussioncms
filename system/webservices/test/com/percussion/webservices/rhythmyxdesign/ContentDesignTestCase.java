@@ -56,8 +56,8 @@ import com.percussion.webservices.faults.PSErrorsFaultServiceCallError;
 import com.percussion.webservices.faults.PSInvalidSessionFault;
 import com.percussion.webservices.faults.PSLockFault;
 import com.percussion.webservices.faults.PSNotAuthorizedFault;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -78,7 +78,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("IntegrationTest")
 public class ContentDesignTestCase extends PSContentTestBase
 {
-  @BeforeEach Class
+  @BeforeAll
    public static void setup() throws Exception
    {
       deleteTestKeywords();
@@ -93,7 +93,7 @@ public class ContentDesignTestCase extends PSContentTestBase
       }
    }
 
-   @AfterClass
+   @AfterAll
    protected static void tearDown() throws Exception
    {
       deleteTestKeywords();

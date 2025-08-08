@@ -18,7 +18,7 @@ package com.percussion.data;
 
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
@@ -38,7 +38,7 @@ public class PSStylesheetCleanupFilterTest{
    {
    }
   
-   @BeforeEach Class
+   @BeforeAll
    public static  void setupFilter() throws Exception
    {
       initFilter();  

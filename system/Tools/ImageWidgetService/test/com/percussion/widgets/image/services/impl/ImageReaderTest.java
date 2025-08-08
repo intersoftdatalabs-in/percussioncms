@@ -33,7 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.velocity.shaded.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +54,7 @@ public class ImageReaderTest
 
    private static final Logger log = LogManager.getLogger(ImageReaderTest.class);
 
-   @BeforeEach Class
+   @BeforeAll
    public static void runBeforeClass()
    {
 
@@ -172,7 +172,7 @@ public class ImageReaderTest
          ImageData resizedImage = resizeManager.generateImage(getClass()
                .getClassLoader().getResourceAsStream(resourcePath));
 
-         Assert.assertTrue(
+         Assertions.assertTrue(
                "Invalid ImageData for generateImage(InputStream input)",
                validateImageData(resizedImage));
       }
@@ -181,7 +181,7 @@ public class ImageReaderTest
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
 
-         Assert.fail("Caught exception on resize");
+         Assertions.fail("Caught exception on resize");
 
       }
       return success;
@@ -198,7 +198,7 @@ public class ImageReaderTest
             || (imageData.getBinary().length == 0))
       {
          valid = false;
-         Assert.fail("Invalid ImageData returned after resize");
+         Assertions.fail("Invalid ImageData returned after resize");
       }
       return valid;
    }
@@ -215,7 +215,7 @@ public class ImageReaderTest
       }
       catch (ImageReaderException imageReaderException)
       {
-         Assert.fail("Caught image reader exception");
+         Assertions.fail("Caught image reader exception");
          log.error(imageReaderException.getMessage());
          log.debug(imageReaderException.getMessage(), imageReaderException);
       }
@@ -237,14 +237,14 @@ public class ImageReaderTest
       }
       catch (ImageReadException e)
       {
-         Assert.fail("Caught image read exception getting image information:"
+         Assertions.fail("Caught image read exception getting image information:"
                + e.getMessage());
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       }
       catch (IOException e)
       {
-         Assert.fail("Caught IO exception getting image information:"
+         Assertions.fail("Caught IO exception getting image information:"
                + e.getMessage());
          log.error(PSExceptionUtils.getMessageForLog(e));
          log.debug(PSExceptionUtils.getDebugMessageForLog(e));

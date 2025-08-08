@@ -31,7 +31,7 @@ public class PSProxyURLTest {
 
         String result = PSCommandHandler.fixProxiedUrl(url, "macbook-pro.local",8080 );
         System.out.println(result);
-        Assert.assertTrue("http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title".equals(result));
+        Assertions.assertTrue("http://macbook-pro.local:8080/Rhythmyx/psx_cepercRichTextAsset/percRichTextAsset.html?sys_revision=1&sys_contentid=10051&sys_command=edit&sys_pageid=0&sys_view=sys_HiddenFields%3Asys_title".equals(result));
 
     }
 }

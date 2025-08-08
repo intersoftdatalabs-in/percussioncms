@@ -23,23 +23,21 @@ import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.StringReader;
 
 /**
  * Unit tests for <code>PSJdbcDataTypeMapping</code>.
  */
-public class PSJdbcDataTypeMappingTest extends TestCase
+public class PSJdbcDataTypeMappingTest
 {
-   public PSJdbcDataTypeMappingTest(String name)
-   {
-      super( name );
-   }
-
+   
    /**
     * Tests the various permutations of illegal parameters to the ctor to make
     * sure they all throw IllegalArgumentExceptions.
     */ 
+    @Test
    public void testIllegalCtors() throws Exception
    {
       testIllegalCtor( "", "BIT", null, null, null);
@@ -88,7 +86,7 @@ public class PSJdbcDataTypeMappingTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue( didThrow );
+      assertTrue( didThrow, "Expected IllegalArgumentException for invalid ctor args" );
    }
    
 
@@ -107,7 +105,7 @@ public class PSJdbcDataTypeMappingTest extends TestCase
       {
          didThrow = true;
       }
-      assertTrue( didThrow );
+      assertTrue( didThrow, "Expected PSJdbcTableFactoryException for invalid XML ctor" );
    }
 
 
@@ -115,6 +113,7 @@ public class PSJdbcDataTypeMappingTest extends TestCase
     * Tests the ctor with a various parameters and makes sure the parameters
     * are assigned.
     */ 
+    @Test
    public void testCtorAndGetters() throws Exception
    {
       testCtorsAndGetters( "BIT", "BIT", null, null, null);
@@ -165,16 +164,5 @@ public class PSJdbcDataTypeMappingTest extends TestCase
       assertEquals( suffix, dataType.getSuffix() );
    }
 
-
-   /**
-    * Collect all tests into a TestSuite and returns it
-    */ 
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSJdbcDataTypeMappingTest("testIllegalCtors"));
-      suite.addTest(new PSJdbcDataTypeMappingTest("testCtorAndGetters"));
-       return suite;
-   }
    
 }

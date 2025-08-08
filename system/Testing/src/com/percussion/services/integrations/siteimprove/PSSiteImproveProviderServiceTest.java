@@ -64,7 +64,7 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 	@Test
 	public void validateCredentialsTest() throws Exception {
 		//Ensure a valid username and email validates properly.
-		Assert.assertTrue(providerService.validateCredentials(testingCredentials));
+		Assertions.assertTrue(providerService.validateCredentials(testingCredentials));
 	}
 
 	@Test
@@ -116,14 +116,14 @@ public class PSSiteImproveProviderServiceTest extends TestCase {
 	@Test
 	public void a_SiteImproveGetSiteTest() throws Exception {
 		siteId = providerService.retrieveSiteInfo(TESTING_SITE, testingCredentials);
-		Assert.assertTrue(!siteId.isEmpty());
+		Assertions.assertTrue(!siteId.isEmpty());
 	}
 
 	@Test
 	public void b_SiteImproveGetPageTest() throws Exception {
 
 		String pageId = providerService.retrievePageInfo(siteId, TESTING_PAGE, testingCredentials);
-		Assert.assertTrue(!pageId.isEmpty());
+		Assertions.assertTrue(!pageId.isEmpty());
 	}
 
 	@Test

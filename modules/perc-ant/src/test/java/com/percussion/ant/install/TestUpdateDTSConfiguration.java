@@ -61,7 +61,7 @@ public class TestUpdateDTSConfiguration {
 
     @Test
     public void testProperties() throws IOException {
-        Path root = temporaryFolder.getRoot().toPath();
+        Path root = temporaryFolder.toPath();
 
         InputStream srcWinLax = DtsConnectorConfigurationAdapterTest.class.getResourceAsStream("/com/percussion/utils/container/PercussionServer.lax");
         InputStream srcLinuxLax = DtsConnectorConfigurationAdapterTest.class.getResourceAsStream("/com/percussion/utils/container/PercussionServer.bin.lax");
@@ -132,7 +132,7 @@ public class TestUpdateDTSConfiguration {
     @Test
     public void testDTSUpgradeExistingCatalinaProps() throws IOException {
 
-        Path root = temporaryFolder.getRoot().toPath().resolve("8to8upgrade");
+        Path root = temporaryFolder.toPath().resolve("8to8upgrade");
         root.toFile().mkdirs();
 
         InputStream srcProdDTSXML= DtsConnectorConfigurationAdapterTest.class.getResourceAsStream("/com/percussion/ant/install/mockinstall/Deployment/Server/conf/server.xml");
@@ -206,7 +206,7 @@ public class TestUpdateDTSConfiguration {
     @Test
     public void testDTSUpgradeStagingExistingCatalinaProps() throws IOException {
 
-        Path root = temporaryFolder.getRoot().toPath().resolve("53Stageto8upgrade");
+        Path root = temporaryFolder.toPath().resolve("53Stageto8upgrade");
         root.toFile().mkdirs();
 
         InputStream srcProdDTSXML= DtsConnectorConfigurationAdapterTest.class.getResourceAsStream("/com/percussion/ant/install/mockinstall/Deployment/Server/conf/server.xml");

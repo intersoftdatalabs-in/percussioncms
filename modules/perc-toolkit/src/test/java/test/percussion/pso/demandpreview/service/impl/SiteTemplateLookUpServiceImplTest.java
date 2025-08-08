@@ -156,7 +156,7 @@ public class SiteTemplateLookUpServiceImplTest
 	            will(throwException(new PSNotFoundException("Site Not Found")));
 	     	   }});	   
 		   lookUp.LookUpSiteEdition("142");
-           Assert.fail("Test with wrong site name failed");
+           Assertions.fail("Test with wrong site name failed");
 		}
 		catch (SiteLookUpException | PSNotFoundException ex)
 		{

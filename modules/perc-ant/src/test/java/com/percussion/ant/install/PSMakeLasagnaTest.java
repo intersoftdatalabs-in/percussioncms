@@ -57,7 +57,7 @@ public class PSMakeLasagnaTest
     public void setUp()
     {
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir",temporaryFolder.getAbsolutePath());
     }
 
     @AfterEach

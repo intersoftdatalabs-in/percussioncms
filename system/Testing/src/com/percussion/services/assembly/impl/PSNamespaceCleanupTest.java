@@ -23,7 +23,7 @@ import java.io.File;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.util.PSResourceUtils;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -40,7 +40,7 @@ public class PSNamespaceCleanupTest
     */
    static File ms_cfile = null;
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setUp() throws Exception
    {
       ms_cfile = PSResourceUtils.getFile(PSNamespaceCleanupTest.class,

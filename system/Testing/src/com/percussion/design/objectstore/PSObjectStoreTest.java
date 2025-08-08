@@ -47,7 +47,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -61,7 +61,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PSObjectStoreTest extends PSClientTestCase
 {
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setUp()
    {
       BasicConfigurator.configure();

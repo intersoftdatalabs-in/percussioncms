@@ -94,7 +94,7 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().toAbsolutePath().toString());
+        System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
     }
 
     @AfterEach
@@ -245,15 +245,15 @@ public class PSFormRestServiceRdbmsTest extends PSBaseFormServiceTest
         if (subject != null && toList != null)
         {
             params.put("perc_emnt", Arrays.asList(PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             ).encrypt(toList, PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().toAbsolutePath().toString().  concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.toAbsolutePath().toString().  concat(PSEncryptor.SECURE_DIR)
             ).DEFAULT_KEY())));
             params.put("perc_emns", Arrays.asList(PSLegacyEncrypter.getInstance(
-                    temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
+                    temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
             )
                     .encrypt(subject, PSLegacyEncrypter.getInstance(
-                            temporaryFolder.getRoot().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
+                            temporaryFolder.toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR)
                     ).DEFAULT_KEY())));
         }
 

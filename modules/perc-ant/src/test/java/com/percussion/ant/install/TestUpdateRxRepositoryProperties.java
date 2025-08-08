@@ -52,7 +52,7 @@ public class TestUpdateRxRepositoryProperties {
 
     private Path setupRoot() throws IOException, URISyntaxException {
 
-        Path p =  temporaryFolder.getRoot().toPath();
+        Path p =  temporaryFolder.toPath();
 
         PSTaskTestUtils.copyFolder(getResourcePath("/com/percussion/ant/install/mockinstall"),p);
 

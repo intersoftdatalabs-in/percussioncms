@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.segment.ISegmentService;
@@ -34,7 +34,7 @@ public class SegmentServiceTest {
     private static ISegmentService segmentService;
     
     
-    @BeforeEach Class
+    @BeforeAll
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/applicationContext-ds.xml",

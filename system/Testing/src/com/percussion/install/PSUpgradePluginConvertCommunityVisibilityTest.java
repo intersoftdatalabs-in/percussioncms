@@ -40,8 +40,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
@@ -85,7 +85,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
 
    private PSConnectionInfo m_info;
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setUp() throws Exception
    {
       // Forces spring to initialize with standard junit configuration
@@ -204,7 +204,7 @@ public class PSUpgradePluginConvertCommunityVisibilityTest
     * Remove acls created during the test
     * @throws PSSecurityException
     */
-   @AfterClass
+   @AfterAll
    public void cleanAclEntries() throws PSSecurityException
    {
       IPSAclService acl = PSAclServiceLocator.getAclService();

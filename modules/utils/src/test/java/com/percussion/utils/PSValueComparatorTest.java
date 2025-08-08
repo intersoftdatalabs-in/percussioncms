@@ -111,7 +111,6 @@ public class PSValueComparatorTest
       assertTrue(r == 0);
    }
 
-   @Test
    private void doTest(Object o1, Object o2) throws ValueFormatException
    {
       Value v1 = PSValueFactory.createValue(o1);

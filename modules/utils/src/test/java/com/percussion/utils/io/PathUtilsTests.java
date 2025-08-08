@@ -43,7 +43,7 @@ public class PathUtilsTests {
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().toAbsolutePath().toString());
+        System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
     }
 
     @AfterEach
@@ -75,7 +75,7 @@ public class PathUtilsTests {
         File rxconfig = temporaryFolder.resolve("rxconfig").toFile()    ;
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().toAbsolutePath(),
+        assertEquals(temporaryFolder.toAbsolutePath(),
                 PathUtils.getRxDir(rxconfig.getAbsolutePath()).getAbsolutePath());
 
 
@@ -83,13 +83,13 @@ public class PathUtilsTests {
         System.setProperty("user.dir", dtsBase.getAbsolutePath());
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().toAbsolutePath(), PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
+        assertEquals(temporaryFolder.toAbsolutePath(), PathUtils.getRxDir(dtsBase.getAbsolutePath()).getAbsolutePath());
 
         File jettyBase = temporaryFolder.resolve("jetty").resolve("base").toFile();
         System.setProperty("user.dir", jettyBase.getAbsolutePath());
         PathUtils.clearRxDir();
 
-        assertEquals(temporaryFolder.getRoot().toAbsolutePath(), PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
+        assertEquals(temporaryFolder.toAbsolutePath(), PathUtils.getRxDir(jettyBase.getAbsolutePath()).getAbsolutePath());
 
 
 

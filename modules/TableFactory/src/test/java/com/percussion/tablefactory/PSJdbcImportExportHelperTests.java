@@ -27,6 +27,8 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,10 +45,10 @@ public class PSJdbcImportExportHelperTests {
     public void setup() throws IOException {
 
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+        System.setProperty("rxdeploydir", temporaryFolder.toAbsolutePath().toString());
     }
 
-    @After
+    @AfterEach
     public void teardown(){
         if(rxdeploydir != null)
             System.setProperty("rxdeploydir",rxdeploydir);
@@ -55,20 +57,20 @@ public class PSJdbcImportExportHelperTests {
     @Test
     public void testGetOptions() throws IOException {
 
-        File props = temporaryFolder.newFile("db.properties");
+        File props = Files.createFile(temporaryFolder.resolve("db.properties")).toFile();
         props.deleteOnExit();
         FileOutputStream out = new FileOutputStream(props);
 
         IOUtils.copy(this.getClass().getResourceAsStream("/com/percussion/tablefactory/db.properties"),out);
 
-        String args[] = {"-dbexport","-dbprops",props.getAbsolutePath(), "-storagepath",temporaryFolder.getRoot().getAbsolutePath(),"-tablestoskip","PSX_PUBLICATION_DOC,PSX_PUBLICATIONSTATUS,PSX_PUBLICATION_SITE_ITEM,CONTENTSTATUSHISTORY_BAK,PSX_CONTENTCHANGEEVENT_BAK,PSX_SEARCHINDEXQUEUE"};
+        String args[] = {"-dbexport","-dbprops",props.getAbsolutePath(), "-storagepath",temporaryFolder.toAbsolutePath().toString(),"-tablestoskip","PSX_PUBLICATION_DOC,PSX_PUBLICATIONSTATUS,PSX_PUBLICATION_SITE_ITEM,CONTENTSTATUSHISTORY_BAK,PSX_CONTENTCHANGEEVENT_BAK,PSX_SEARCHINDEXQUEUE"};
         Map<String,String> options = PSJdbcImportExportHelper.getOptions(args);
 
         assertNotNull(options);
 
         assertEquals("-dbexport",options.get("dboption"));
         assertEquals(props.getAbsolutePath(),options.get("-dbprops"));
-        assertEquals(temporaryFolder.getRoot().getAbsolutePath(),options.get("-storagepath"));
+        assertEquals(temporaryFolder.toAbsolutePath().toString(),options.get("-storagepath"));
         assertEquals("PSX_PUBLICATION_DOC,PSX_PUBLICATIONSTATUS,PSX_PUBLICATION_SITE_ITEM,CONTENTSTATUSHISTORY_BAK,PSX_CONTENTCHANGEEVENT_BAK,PSX_SEARCHINDEXQUEUE",options.get("-tablestoskip"));
 
 }

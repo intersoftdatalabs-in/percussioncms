@@ -45,7 +45,7 @@ import junit.framework.AssertionFailedError;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -135,7 +135,7 @@ public class PSAssemblyTestBase extends PSTestBase
       }
    }
 
-   @BeforeEach Class
+   @BeforeAll
    public void setUp() throws Exception
    {
 

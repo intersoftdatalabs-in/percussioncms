@@ -60,11 +60,11 @@ public class PSTestCompare
    {
       if (a == null && b != null)
       {
-         Assert.fail("One url is null and the other isn't");
+         Assertions.fail("One url is null and the other isn't");
       }
       if (b == null)
       {
-         Assert.fail("One url is null and the other isn't");
+         Assertions.fail("One url is null and the other isn't");
       }
       
       Assertions.assertEquals(a.getProtocol(), b.getProtocol());
@@ -95,7 +95,7 @@ public class PSTestCompare
          for(int i = 0; i < parts.length; i++)
          {
             String pieces[] = parts[i].split("=");
-            Assert.assertTrue(pieces.length == 2);
+            Assertions.assertTrue(pieces.length == 2);
             rval.put(pieces[0],pieces[1]);
          }
       }

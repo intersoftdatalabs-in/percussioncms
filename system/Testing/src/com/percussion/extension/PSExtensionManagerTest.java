@@ -22,7 +22,7 @@ import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.utils.collections.PSIteratorUtils;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
@@ -417,7 +417,7 @@ public class PSExtensionManagerTest
    /* (non-Javadoc)
     * @see IPSServerBasedJunitTest#oneTimeTearDown()
     */
-   @AfterClass
+   @AfterAll
    public void oneTimeTearDown()
    {
       // noop      

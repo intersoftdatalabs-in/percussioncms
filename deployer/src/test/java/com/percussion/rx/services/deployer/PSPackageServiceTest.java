@@ -29,8 +29,8 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageActionStatus;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
 import com.percussion.utils.guid.IPSGuid;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 
 import java.util.ArrayList;
@@ -149,7 +149,7 @@ public class PSPackageServiceTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#setUp()
     */
-   @BeforeEach Class
+   @BeforeAll
    public static void setUp() throws Exception
    {
       instance = new PSPackageServiceTest();
@@ -218,7 +218,7 @@ public class PSPackageServiceTest
       }
    }
 
-   @AfterClass
+   @AfterAll
    public void tearDown() throws Exception
    {
       //Remove config entries first

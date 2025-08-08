@@ -57,7 +57,7 @@ public class PSPkgConfigFileEmptyConditionTest
    @Test
    public void testEval() throws IOException
    {
-      Path root = temporaryFolder.getRoot().toPath();
+      Path root = temporaryFolder.toPath();
 
       PSPkgConfigFileEmptyCondition p = new PSPkgConfigFileEmptyCondition();
       p.setRootDir(root.toAbsolutePath().toString());

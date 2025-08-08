@@ -25,7 +25,7 @@ import org.jmock.Mockery;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
@@ -40,7 +40,7 @@ public class SegmentControlTreeXmlTest {
     Mockery context = new JUnit4Mockery();
     SegmentMocks segMocks;
     
-    @BeforeEach Class
+    @BeforeAll
     public static void setUpXML() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
     }

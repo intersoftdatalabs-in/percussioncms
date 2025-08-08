@@ -27,7 +27,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -46,7 +46,7 @@ public class VisitorTrackingServiceIntegrationTest {
      */
     private static final Log log = LogFactory.getLog(VisitorTrackingServiceTest.class);
     
-    @BeforeEach Class
+    @BeforeAll
     public static void setupSpring() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/applicationContext-ds.xml",

@@ -45,7 +45,7 @@ public class PSLegacyEncrypterTest
    @BeforeEach
    public void setup(){
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getRoot().toAbsolutePath().toString());
+      System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString());
    }
 
    @AfterEach
@@ -64,7 +64,7 @@ public class PSLegacyEncrypterTest
    public void testEncrypt() throws Exception
    {
       if (rxdeploydir == null)
-         rxdeploydir = temporaryFolder.getRoot().toAbsolutePath().toString();
+         rxdeploydir = temporaryFolder.toAbsolutePath().toString();
 
       testKey("jass is the way", "demo");
       testKey(PSLegacyEncrypter.getInstance(rxdeploydir + PSEncryptor.SECURE_DIR).OLD_SECURITY_KEY(), "demo");

@@ -491,7 +491,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter("x", -1, "x", "2");
-         Assert.fail();
+         Assertions.fail();
       }
       catch(Exception e)
       {
@@ -500,7 +500,7 @@ public class PSSiteManagerTest
       try
       {
          scheme.addParameter(null, 11, "x", "2");
-         Assert.fail();
+         Assertions.fail();
       }
       catch(Exception success)
       {}      

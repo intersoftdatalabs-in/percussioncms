@@ -26,8 +26,8 @@ import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.sitemgr.PSSiteManagerException;
 import com.percussion.services.sitemgr.PSSiteManagerLocator;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -84,7 +84,7 @@ public class PSPubServerDaoTest
    IPSSite m_site;
    static PSPubServerDaoTest instance;
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setup()
    {
       instance = new PSPubServerDaoTest();
@@ -94,7 +94,7 @@ public class PSPubServerDaoTest
       sitemgr.saveSite(instance.m_site);
    }
 
-   @AfterClass
+   @AfterAll
    public static void tearDown()
    {
       sitemgr.deleteSite(instance.m_site);

@@ -19,14 +19,12 @@ package com.ibm.cadf.middleware;
 
 import java.io.File;
 
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.ibm.cadf.exception.CADFException;
-import com.ibm.cadf.middleware.AuditContext;
-import com.ibm.cadf.middleware.AuditMiddleware;
 import com.ibm.cadf.model.Event;
 import com.ibm.cadf.util.Constants;
 
@@ -65,11 +63,11 @@ public class AuditMiddlewareTest
         }
         catch (CADFException e)
         {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void clean()
     {
         File auditFile = new File(Constants.JSON_AUDIT_FILES_NAME);

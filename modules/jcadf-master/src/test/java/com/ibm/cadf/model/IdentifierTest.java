@@ -39,7 +39,7 @@ public class IdentifierTest
         Config.getInstance().registerProperty("namespace", "jcloud");
         String uid = Identifier.generateUniqueId();
         boolean b = uid.startsWith("jcloud");
-        Assert.assertTrue("Wrong prefix", b);
+        Assertions.assertTrue(b,"Wrong prefix");
     }
 
 }

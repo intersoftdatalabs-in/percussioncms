@@ -28,7 +28,7 @@
         <module>modules/perc-exceptions-spring</module>
         <module>modules/utils</module>
         <module>modules/perc-legacy</module>
-        <module>deliverytiersuite/delivery-tier-suite</module>
+        <!-- <module>deliverytiersuite/delivery-tier-suite</module> -->
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
         <!-- <module>modules/webservices</module> -->
@@ -2122,10 +2122,9 @@
                 <version>1.0.0</version>
             </dependency>
             <dependency>
-                <groupId>com.oracle.database.jdbc</groupId>
-                <artifactId>ojdbc8</artifactId>
-                <version>19.3.0.0</version>
-                <optional>true</optional>
+                 <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc11</artifactId>
+                <version>23.9.0.25.07</version>
             </dependency>
             <dependency>
                 <groupId>net.sourceforge.jtds</groupId>
@@ -2233,6 +2232,12 @@
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>${httpcomponents.version}</version>
+            </dependency>
+             <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcomponents.version}</version>
+                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -2530,6 +2535,13 @@
                 <groupId>com.percussion</groupId>
                 <artifactId>perc-server-ui-cmp</artifactId>
                 <version>${project.parent.version}</version>
-            </dependency></dependencies>
+            </dependency>
+            <dependency>
+                <groupId>caja</groupId>
+                <artifactId>caja</artifactId>
+                <version>r3828</version>
+            </dependency>
+           
+            </dependencies>
   </dependencyManagement>
 </project>

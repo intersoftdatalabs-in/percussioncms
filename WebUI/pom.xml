@@ -976,10 +976,9 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <artifactId>ojdbc11</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -1169,7 +1168,13 @@
             <artifactId>caja</artifactId>
             <version>r3828</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
+        
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    
         <dependency>
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
@@ -1234,12 +1239,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-
-            <scope>compile</scope>
-        </dependency>
+     
         <dependency>
             <groupId>org.owasp</groupId>
             <artifactId>csrfguard</artifactId>

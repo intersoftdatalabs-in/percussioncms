@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opencsv.CSVReader;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +52,7 @@ public class CSVAuditLoggerTest
     }
 
     @Test
-    public void testCSVAuditing() throws CADFException, IOException
+    public void testCSVAuditing() throws CADFException, IOException, com.opencsv.exceptions.CsvException
     {
 
         File file = new File(Constants.CSV_AUDIT_FILES_NAME);
@@ -93,7 +93,7 @@ public class CSVAuditLoggerTest
         event.addMeasurement(measurement2);
         auditLogger.audit(event);
 
-        Assert.assertTrue(true);
+        Assertions.assertTrue(true);
 
 
         file = new File(Constants.CSV_AUDIT_FILES_NAME);
@@ -103,7 +103,7 @@ public class CSVAuditLoggerTest
 
             // create CSVReader object
             CSVReader reader = new CSVReader(
-                    new FileReader(Constants.CSV_AUDIT_FILES_NAME), ',');
+                    new FileReader(Constants.CSV_AUDIT_FILES_NAME));
 
             // read all lines at once
             List<String[]> records = reader.readAll();
@@ -134,15 +134,9 @@ public class CSVAuditLoggerTest
                     + measurement2.getResult() + " : >", auditRecord[7]);
             reader.close();
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
     
-    @AfterClass
-    public static void clean()
-    {
-        File auditFile = new File(Constants.CSV_AUDIT_FILES_NAME);
-       // auditFile.delete();
-    }
 
 }

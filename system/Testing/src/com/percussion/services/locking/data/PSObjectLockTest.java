@@ -25,8 +25,8 @@ import com.percussion.services.system.PSSystemServiceLocator;
 import com.percussion.services.system.data.PSSharedProperty;
 import com.percussion.utils.guid.IPSGuid;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -168,7 +168,7 @@ public class PSObjectLockTest
       service.releaseLocks(Collections.singletonList(lock));
    }
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setUp() throws Exception
    {
       IPSSystemService systemService = 
@@ -180,7 +180,7 @@ public class PSObjectLockTest
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @AfterClass
+   @AfterAll
    public void tearDown() throws Exception
    {
       if (m_property != null)

@@ -19,7 +19,7 @@ package com.percussion.log;
 import com.percussion.testing.IPSServerBasedJunitTest;
 import com.percussion.testing.PSConfigHelperTestCase;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -195,7 +195,7 @@ public class PSLogManagerTest extends PSConfigHelperTestCase
     * Set up the test case variables
     * @throws Exception
     */
-   @BeforeEach Class
+   @BeforeAll
    public void setUp() throws Exception
    {
       m_validDBMSProps  = new Properties(getConnectionProps(CONN_TYPE_SQL));

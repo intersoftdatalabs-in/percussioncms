@@ -290,10 +290,10 @@
             <artifactId>mssql-jdbc</artifactId>
             <version>${sqlserver.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-        </dependency>
+            <dependency>
+                 <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc11</artifactId>
+            </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -542,7 +542,7 @@
                             </dependency>
                             <dependency>
                                 <groupId>com.oracle.database.jdbc</groupId>
-                                <artifactId>ojdbc8</artifactId>
+                                <artifactId>ojdbc11</artifactId>
                             </dependency>
                             <dependency>
                                 <groupId>com.zaxxer</groupId>
@@ -1042,9 +1042,10 @@
                                         <groupId>com.microsoft.sqlserver</groupId>
                                         <artifactId>mssql-jdbc</artifactId>
                                     </dependency>
+                                    
                                     <dependency>
                                         <groupId>com.oracle.database.jdbc</groupId>
-                                        <artifactId>ojdbc8</artifactId>
+                                        <artifactId>ojdbc11</artifactId>
                                     </dependency>
 
                                     <dependency>

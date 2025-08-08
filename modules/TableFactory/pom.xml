@@ -71,6 +71,11 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
+            <artifactId>perc-xml-security</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.percussion</groupId>
             <artifactId>perc-legacy</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -83,8 +88,7 @@
         </dependency>
  <dependency>
                 <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                
+                <artifactId>junit-jupiter</artifactId>          
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -92,12 +96,10 @@
                 <artifactId>junit-jupiter-api</artifactId>
                 <scope>test</scope>
             </dependency>
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <optional>true</optional>
-            <scope>runtime</scope>
-        </dependency>
+            <dependency>
+                 <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc11</artifactId>
+            </dependency>
         <dependency>
             <groupId>org.apache.derby</groupId>
             <artifactId>derbyclient</artifactId>

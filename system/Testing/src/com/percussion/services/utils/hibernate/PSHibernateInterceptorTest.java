@@ -32,8 +32,8 @@ import com.percussion.utils.guid.IPSGuid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -85,7 +85,7 @@ public class PSHibernateInterceptorTest
    /**
     * Remove any existing test filter and create a new one.
     */
-   @BeforeEach Class
+   @BeforeAll
    public void setupInitialData()
    {
       // Remove any existing mutable filter instances from db
@@ -210,7 +210,7 @@ public class PSHibernateInterceptorTest
    /**
     * Cleanup object created in testing - should be a noop
     */
-   @AfterClass
+   @AfterAll
    public void cleanupData()
    {
       // Remove any existing mutable filter instances from db

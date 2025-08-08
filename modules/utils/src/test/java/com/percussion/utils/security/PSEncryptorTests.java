@@ -48,7 +48,7 @@ public class PSEncryptorTests {
     @BeforeEach
     public void setup(){
         rxdeploydir = System.getProperty("rxdeploydir");
-        System.setProperty("rxdeploydir",temporaryFolder.getRoot().toAbsolutePath().toString() + File.separator + "test-secure");
+        System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString() + File.separator + "test-secure");
     }
 
     @AfterEach

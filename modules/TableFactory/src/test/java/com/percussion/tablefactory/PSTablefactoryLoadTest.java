@@ -33,8 +33,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-
+import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Test adding data to db. Assumes a database with specific credentials,
@@ -48,7 +49,7 @@ public class PSTablefactoryLoadTest
 
    private static final Logger log = LogManager.getLogger(PSTablefactoryLoadTest.class);
 
-   @Rule
+   @TempDir
    public Path temporaryFolder;
    private String rxdeploydir;
    protected String baseDir;
@@ -60,9 +61,9 @@ public class PSTablefactoryLoadTest
    public void setup() throws IOException {
 
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+      System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString());
 
-      baseDir = temporaryFolder.getRoot().getAbsolutePath();
+      baseDir = temporaryFolder.toAbsolutePath().toString();  
 
        File ao_data = new File(baseDir,"ao_data.xml");
        ao_data.deleteOnExit();
@@ -146,7 +147,7 @@ public class PSTablefactoryLoadTest
          PSJdbcTableFactory.main(args);
          assertTrue(server!=null);
       }catch(Exception e){
-         org.junit.Assert.fail(e.getMessage());
+         fail(e.getMessage());
       }
    }
 

@@ -61,8 +61,8 @@ import junit.framework.AssertionFailedError;
 
 import org.apache.axis.client.Call;
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -306,7 +306,7 @@ public class PSTestBase extends PSClientTestCase
       }
    }
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setup() throws Exception
    {
       Properties properties = null;
@@ -345,7 +345,7 @@ public class PSTestBase extends PSClientTestCase
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @AfterClass
+   @AfterAll
    protected static void tearDown() throws Exception
    {
    }

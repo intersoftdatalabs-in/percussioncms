@@ -52,9 +52,9 @@ import com.percussion.utils.timing.PSStopwatch;
 import com.percussion.workflow.PSWorkflowAppsContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -575,7 +575,7 @@ public class PSWorkflowServiceTest
    /**
     * Setup additional information needed to test adhoc user assignment
     */
-   @BeforeEach Class
+   @BeforeAll
    public static void setupAdhocInfo()
    {
       IPSWorkflowService service = PSWorkflowServiceLocator.getWorkflowService();
@@ -596,7 +596,7 @@ public class PSWorkflowServiceTest
    /**
     * Teardown additional information needed to test adhoc user assignment
     */
-   @AfterClass
+   @AfterAll
    public static void teardownAdhocInfo()
    {
       IPSWorkflowService service = PSWorkflowServiceLocator

@@ -46,8 +46,8 @@ import com.percussion.utils.timing.PSStopwatchStack;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 
@@ -240,7 +240,7 @@ public class PSAssignmentTypeHelperTest
     * 
     * @throws PSORMException
     */
-   @BeforeEach Class
+   @BeforeAll
    public static void setupInfo() throws PSORMException
    {
       IPSWorkflowService service = PSWorkflowServiceLocator
@@ -464,7 +464,7 @@ public class PSAssignmentTypeHelperTest
     * 
     * @throws PSORMException
     */
-   @AfterClass
+   @AfterAll
    public static void teardownInfo() throws PSORMException
    {
       IPSWorkflowService service = PSWorkflowServiceLocator

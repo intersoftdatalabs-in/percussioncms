@@ -22,27 +22,24 @@ import org.junit.jupiter.api.Test;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Unit test for PSJdbcPrimaryKey.
  */
-public class PSJdbcPrimaryKeyTest extends TestCase
+public class PSJdbcPrimaryKeyTest
 {
-   public PSJdbcPrimaryKeyTest(String name)
-   {
-      super(name);
-   }
-
    /**
     * Test the def
     */
+    @Test
    public void testDef() throws Exception
    {
       // build a def with a dupe name
-      List cols = new ArrayList();
+      List<String> cols = new ArrayList<>();
       cols.add("col1");
       cols.add("col2");
       cols.add("col1");
@@ -60,7 +57,7 @@ public class PSJdbcPrimaryKeyTest extends TestCase
       assertTrue(caught);
 
       // build def with null name
-      cols = new ArrayList();
+      cols = new ArrayList<>();
       cols.add("col1");
       cols.add(null);
 
@@ -77,7 +74,7 @@ public class PSJdbcPrimaryKeyTest extends TestCase
       assertTrue(caught);
 
       // build def with empty name
-      cols = new ArrayList();
+      cols = new ArrayList<>();
       cols.add("col1");
       cols.add("");
 
@@ -94,7 +91,7 @@ public class PSJdbcPrimaryKeyTest extends TestCase
       assertTrue(caught);
 
       // build def with empty list
-      cols = new ArrayList();
+      cols = new ArrayList<>();
 
       caught = false;
       try
@@ -109,7 +106,7 @@ public class PSJdbcPrimaryKeyTest extends TestCase
       assertTrue(caught);
 
       // build valid def
-      cols = new ArrayList();
+      cols = new ArrayList<>();
       cols.add("col1");
       cols.add("col2");
       cols.add("col3");
@@ -128,9 +125,10 @@ public class PSJdbcPrimaryKeyTest extends TestCase
    /**
     * Tests that the ctor assigns the fields
     */  
+   @Test
    public void testGetters() throws Exception
    {
-      ArrayList cols = new ArrayList();
+      ArrayList<String> cols = new ArrayList<>();
       cols.add("col1");
       cols.add("col2");
       cols.add("col3");
@@ -146,14 +144,6 @@ public class PSJdbcPrimaryKeyTest extends TestCase
       assertEquals( PSJdbcTableComponent.ACTION_NONE, pk.getAction() );
       
    }
-   
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSJdbcPrimaryKeyTest("testDef"));
-      suite.addTest(new PSJdbcPrimaryKeyTest("testGetters"));
-       return suite;
-   }
+  
 
 }

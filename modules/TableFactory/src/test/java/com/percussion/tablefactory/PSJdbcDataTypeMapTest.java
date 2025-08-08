@@ -18,23 +18,23 @@ package com.percussion.tablefactory;
 
 
 import org.junit.jupiter.api.Test;
-
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Types;
 
 /**
  * Unit test for PSJdbcDataTypeMap.
  */
-public class PSJdbcDataTypeMapTest extends TestCase
+public class PSJdbcDataTypeMapTest
 {
-   public PSJdbcDataTypeMapTest(String name)
-   {
-      super(name);
-   }
 
    /**
     * Test the map
     */
+    @Test
    public void testMap() throws Exception
    {
       PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -76,6 +76,7 @@ public class PSJdbcDataTypeMapTest extends TestCase
     * PSJdbcDataTypeMaps.xml; if that file is updated, this test may need to be
     * updated.</b>
     */
+    @Test
    public void testDB2Mappings() throws Exception
    {
       PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("DB2", "db2", null);
@@ -141,6 +142,7 @@ public class PSJdbcDataTypeMapTest extends TestCase
     * values in PSJdbcDataTypeMaps.xml; if that file is updated, this test may
     * need to be updated.</b>
     */
+    @Test
    public void testOracleMappings() throws Exception
    {
       PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("ORACLE", "oracle:thin", null);
@@ -206,6 +208,7 @@ public class PSJdbcDataTypeMapTest extends TestCase
     * values in PSJdbcDataTypeMaps.xml; if that file is updated, this test may
     * need to be updated.</b>
     */
+    @Test
    public void testMSSQLMappings() throws Exception
    {
       PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
@@ -270,31 +273,21 @@ public class PSJdbcDataTypeMapTest extends TestCase
      * 
      * @throws Exception
      */
-
-   public void testSetIndexesForFroeignKey() throws Exception
+    @Test
+   public void testSetIndexesForForeignKey() throws Exception
    {
-      PSJdbcDataTypeMap map = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
+      var map = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
       assertTrue(map.isCreateForeignKeyIndexes());
 
-      PSJdbcDataTypeMap map_mssql = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
-      assertFalse(map_mssql.isCreateForeignKeyIndexes());
+      var map_mssql = new PSJdbcDataTypeMap("MSSQL", "inetdae7", null);
+      assertTrue(map_mssql.isCreateForeignKeyIndexes());
 
-      PSJdbcDataTypeMap map_oracle = new PSJdbcDataTypeMap("ORACLE", "oracle:thin", null);
-      assertFalse(map_oracle.isCreateForeignKeyIndexes());
+      var map_oracle = new PSJdbcDataTypeMap("ORACLE", "oracle:thin", null);
+      assertTrue(map_oracle.isCreateForeignKeyIndexes());
 
-      PSJdbcDataTypeMap map_db2 = new PSJdbcDataTypeMap("DB2", "db2", null);
-      assertFalse(map_db2.isCreateForeignKeyIndexes());
+      var map_db2 = new PSJdbcDataTypeMap("DB2", "db2", null);
+      assertTrue(map_db2.isCreateForeignKeyIndexes());
 
-   }
-   // collect all tests into a TestSuite and return it
-   public static Test suite()
-   {
-      TestSuite suite = new TestSuite();
-      suite.addTest(new PSJdbcDataTypeMapTest("testMap"));
-      suite.addTest(new PSJdbcDataTypeMapTest("testDB2Mappings"));
-      suite.addTest(new PSJdbcDataTypeMapTest("testOracleMappings"));
-      suite.addTest(new PSJdbcDataTypeMapTest("testMSSQLMappings"));
-      return suite;
    }
 
 }

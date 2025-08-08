@@ -49,10 +49,10 @@ public class PSJdbcForeignKeyTest
       //Now ForeignKeys are different incase their components are different,
       // if name is different and components are same, they are considered same
       fk2.setName("FK_SOME_OTHER_NAME_1");
-      assertEquals("Should not be equal", fk, fk2);
+      assertEquals(fk, fk2, "Should not be equal");
 
       fk2.addColumn("col3", "extTable3", "extCol3");
-      assertNotEquals("Should not be equal", fk, fk2);
+      assertNotEquals(fk, fk2, "Should not be equal");
 
    }
 

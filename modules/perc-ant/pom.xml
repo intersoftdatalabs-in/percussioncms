@@ -131,12 +131,10 @@
             <artifactId>mssql-jdbc</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>19.3.0.0</version>
-            <optional>true</optional>
-        </dependency>
+            <dependency>
+                 <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc11</artifactId>
+            </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>

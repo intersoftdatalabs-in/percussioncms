@@ -17,13 +17,14 @@
 package com.percussion.tablefactory;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,23 +33,21 @@ import java.util.List;
 /**
  * Unit test for PSJdbcTableSchema.
  */
-public class PSJdbcTableSchemaTest extends TestCase
+public class PSJdbcTableSchemaTest
 {
-   public PSJdbcTableSchemaTest(String name)
-   {
-      super(name);
-   }
+
 
    /**
     * Test the def
     */
+    @Test
    public void testDef() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap =  new PSJdbcDataTypeMap("MSSQL", "sqlserver",
          null);
 
       PSJdbcColumnDef col;
-      ArrayList coldefs = new ArrayList<>();
+      ArrayList<PSJdbcColumnDef> coldefs = new ArrayList<>();
       coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col1",
          PSJdbcTableComponent.ACTION_REPLACE, Types.CHAR, "10", true, null));
       coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col2",
@@ -61,7 +60,7 @@ public class PSJdbcTableSchemaTest extends TestCase
       tableSchema.setAlter(true);
       tableSchema.setDelOldData(true);
 
-      List pkcols = new ArrayList<>();
+      List<String> pkcols = new ArrayList<>();
       pkcols.add("col1");
       pkcols.add("col2");
       PSJdbcPrimaryKey pk = new PSJdbcPrimaryKey(pkcols.iterator(),
@@ -69,12 +68,12 @@ public class PSJdbcTableSchemaTest extends TestCase
       tableSchema.setPrimaryKey(pk);
 
 
-      List ukcols = new ArrayList<>();
+      List<String> ukcols = new ArrayList<>();
       ukcols.add("col1");
       PSJdbcUpdateKey uk = new PSJdbcUpdateKey(ukcols.iterator());
       tableSchema.setUpdateKey(uk);
 
-      List fkCols = new ArrayList<>();
+      List<String[]> fkCols = new ArrayList<>();
       String[] fcol1 = {"col1", "etable", "ecol1"};
       String[] fcol2 = {"col2", "etable", "ecol2"};
       fkCols.add(fcol1);
@@ -86,13 +85,13 @@ public class PSJdbcTableSchemaTest extends TestCase
       fks.add(fk);
       tableSchema.setForeignKeys(fks,true);
 
-      List indexCols = new ArrayList<>();
+      List<String> indexCols = new ArrayList<>();
       indexCols.add("col2");
       indexCols.add("col3");
       PSJdbcIndex index1 = new PSJdbcIndex("index1", indexCols.iterator(),
          PSJdbcTableComponent.ACTION_CREATE);
       tableSchema.setIndex(index1);
-      List indexCols2 = new ArrayList<>();
+      List<String> indexCols2 = new ArrayList<>();
       indexCols2.add("col2");
       PSJdbcIndex index2 = new PSJdbcIndex("index2", indexCols2.iterator(),
          PSJdbcTableComponent.ACTION_CREATE);
@@ -104,10 +103,10 @@ public class PSJdbcTableSchemaTest extends TestCase
       PSJdbcTableSchema tableSchema2 = new PSJdbcTableSchema(el, dataTypeMap);
       assertTrue(tableSchema.equals(tableSchema2));
 
-      List dataCols = new ArrayList<>();
+      List<PSJdbcColumnData> dataCols = new ArrayList<>();
       dataCols.add(new PSJdbcColumnData("col1", "foo"));
       dataCols.add(new PSJdbcColumnData("col3", "1"));
-      List dataRows = new ArrayList<>();
+      List<PSJdbcRowData> dataRows = new ArrayList<>();
       dataRows.add(new PSJdbcRowData(dataCols.iterator(),
          PSJdbcRowData.ACTION_INSERT));
       PSJdbcTableData tableData = new PSJdbcTableData("myTable",
@@ -133,6 +132,8 @@ public class PSJdbcTableSchemaTest extends TestCase
      * @throws Exception
      */
 
+   @Test
+   @Disabled
    public void testAddingNewIndexWithoutIndex() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
@@ -173,7 +174,8 @@ public class PSJdbcTableSchemaTest extends TestCase
     * 
     * @throws Exception
     */
-
+   @Test
+   @Disabled
    public void testAddingNewIndex() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
@@ -223,7 +225,8 @@ public class PSJdbcTableSchemaTest extends TestCase
     * 
     * @throws Exception
     */
-
+   @Test
+   @Disabled
    public void testAddingNewIndexWhenFKContainsIndexColumns() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
@@ -278,7 +281,7 @@ public class PSJdbcTableSchemaTest extends TestCase
     * 
     * @throws Exception
     */
-
+   @Test
    public void testAddingNewIndexWhenIndexContainsFKColumns() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
@@ -319,7 +322,8 @@ public class PSJdbcTableSchemaTest extends TestCase
     * 
     * @throws Exception
     */
-
+   @Test
+   @Disabled
    public void testAddingNewIndexWithFKName() throws Exception
    {
       PSJdbcDataTypeMap dataTypeMap = new PSJdbcDataTypeMap("MYSQL", "mysql", null);
@@ -374,7 +378,7 @@ public class PSJdbcTableSchemaTest extends TestCase
     
    private PSJdbcForeignKey createForeignKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException
    {
-      List<String[]> fkCols = new ArrayList<String[]>();
+      List<String[]> fkCols = new ArrayList<>();
       String[] fcol1 =
       {"col1", "etable", "ecol1"};
       fkCols.add(fcol1);
@@ -399,7 +403,7 @@ public class PSJdbcTableSchemaTest extends TestCase
 
    private void setPrimaryKey(PSJdbcTableSchema tableSchema) throws PSJdbcTableFactoryException
    {
-      List<String> pkcols = new ArrayList<String>();
+      List<String> pkcols = new ArrayList<>();
       pkcols.add("col1");
       PSJdbcPrimaryKey pk = new PSJdbcPrimaryKey(pkcols.iterator(), PSJdbcTableComponent.ACTION_REPLACE);
       tableSchema.setPrimaryKey(pk);
@@ -429,12 +433,12 @@ public class PSJdbcTableSchemaTest extends TestCase
     * 
     * @param dataTypeMap data type map object
     * 
-    * @returns coldefs Column definition object
+    * @return coldefs Column definition object
     */
 
    private ArrayList<PSJdbcColumnDef> createColumnDef(PSJdbcDataTypeMap dataTypeMap)
    {
-      ArrayList<PSJdbcColumnDef> coldefs = new ArrayList<PSJdbcColumnDef>();
+      ArrayList<PSJdbcColumnDef> coldefs = new ArrayList<>();
       coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col1", PSJdbcTableComponent.ACTION_REPLACE, Types.CHAR, "10",
               true, null));
       coldefs.add(new PSJdbcColumnDef(dataTypeMap, "col2", PSJdbcTableComponent.ACTION_CREATE, Types.DATE, "15",
@@ -442,13 +446,5 @@ public class PSJdbcTableSchemaTest extends TestCase
       return coldefs;
    }
 
-    // collect all tests into a TestSuite and return it
-    
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite();
-        suite.addTest(new PSJdbcTableSchemaTest("testDef"));
-        return suite;
-    }
 
 }

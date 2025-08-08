@@ -40,10 +40,10 @@ public class TestExecSQLRemoveDupes {
     private static final String driver = "org.apache.derby.jdbc.EmbeddedDriver";
     private static final String connectionURL = "jdbc:derby:CMDB;create=true;user=CMDB;password=demo";
 
-    @BeforeEach Class
+    @BeforeAll
     public static void setup() throws Exception{
         temporaryFolder.create();
-        repoRoot = temporaryFolder.getRoot().getAbsolutePath() + File.separator + "Repository";
+        repoRoot = temporaryFolder.getAbsolutePath() + File.separator + "Repository";
         oldRepoRoot = System.getProperty("derby.system.home");
         System.setProperty("derby.system.home",repoRoot );
 
@@ -64,9 +64,9 @@ public class TestExecSQLRemoveDupes {
             statement.execute(sql);
         }
 
-        Files.createDirectories(temporaryFolder.getRoot().toPath().resolve("rxconfig/Installer/"));
+        Files.createDirectories(temporaryFolder.toPath().resolve("rxconfig/Installer/"));
         PSTaskTestUtils.copy(PSTaskTestUtils.getRepositoryFileFromResources(),
-                temporaryFolder.getRoot().toPath().resolve("rxconfig/Installer/rxrepository.properties"));
+                temporaryFolder.toPath().resolve("rxconfig/Installer/rxrepository.properties"));
     }
 
     @AfterEach
@@ -83,7 +83,7 @@ public class TestExecSQLRemoveDupes {
         PSExecSQLRemoveDupes task = new PSExecSQLRemoveDupes();
         task.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
         task.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
-        task.setRootDir(temporaryFolder.getRoot().getAbsolutePath() + File.separator);
+        task.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
         task.execute();
 
         //Now make sure that the data was updated correctly
@@ -131,7 +131,7 @@ public class TestExecSQLRemoveDupes {
             PSExecSQLRemoveDupes newTask = new PSExecSQLRemoveDupes();
             newTask.setQualifyingTableName("CT_PAGE_PAGE_CATEGORIES_SET");
             newTask.setColumns("CONTENTID,REVISIONID,PAGE_CATEGORIES_TREE");
-            newTask.setRootDir(temporaryFolder.getRoot().getAbsolutePath() + File.separator);
+            newTask.setRootDir(temporaryFolder.getAbsolutePath() + File.separator);
             newTask.execute();
         }
         System.setProperty("derby.system.home",repoRoot );

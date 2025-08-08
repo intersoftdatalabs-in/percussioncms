@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.percussion.soln.p13n.tracking.IVisitorProfileDataService;
@@ -35,7 +35,7 @@ public class VisitorProfileDaoTest {
     
     private static IVisitorProfileDataService dao;
 
-    @BeforeEach Class
+    @BeforeAll
     public static void setUp() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/*.xml");

@@ -17,7 +17,7 @@
 
 package com.percussion.soln.p13n.delivery.data;
 
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -35,7 +35,7 @@ public class DSDeliveryHibernateDaoTest {
 
     static IDeliveryDataService dao;
     
-    @BeforeEach Class
+    @BeforeAll
     public static void setUp() throws Exception {
         loadXmlBeanFiles("file:ds/webapp/WEB-INF/applicationContext.xml",
                 "file:ds/webapp/WEB-INF/spring/ds/*.xml");

@@ -47,7 +47,7 @@ public class PSDbmsMappingTest
    public void setup() throws IOException {
 
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir", temporaryFolder.getRoot().getAbsolutePath());
+      System.setProperty("rxdeploydir", temporaryFolder.getAbsolutePath());
    }
 
    @AfterEach

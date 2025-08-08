@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import java.nio.file.Path;
 import java.sql.Types;
 import java.util.Properties;
 
@@ -57,23 +57,23 @@ public class PSJdbcColumnDefTest
       columnDef = new PSJdbcColumnDef( m_map, "test", 
          PSJdbcTableComponent.ACTION_CREATE, Types.VARCHAR, "255", false, 
          "foo" );
-      assertTrue( "XML serialization", xmlRoundTripIsEqual( columnDef ) );
+      assertTrue( xmlRoundTripIsEqual( columnDef ), "XML serialization" );
 
       // ctor #1 (no default value)
       columnDef = new PSJdbcColumnDef( m_map, "test",
          PSJdbcTableComponent.ACTION_CREATE, Types.VARCHAR, "255", true, 
          null );
-      assertTrue( "XML serialization", xmlRoundTripIsEqual( columnDef ) );
+      assertTrue( xmlRoundTripIsEqual( columnDef ), "XML serialization" );
 
       // ctor #2 (with scale)
       columnDef = new PSJdbcColumnDef( m_map, "test",
          PSJdbcTableComponent.ACTION_CREATE, Types.NUMERIC, "10", "3", true, 
          null );
-      assertTrue( "XML serialization", xmlRoundTripIsEqual( columnDef ) );
+      assertTrue( xmlRoundTripIsEqual( columnDef ), "XML serialization" );
       
       // ctor #3 (shallow copy)
       PSJdbcColumnDef def2 = new PSJdbcColumnDef( columnDef );
-      assertEquals( "shallow copy ctor is not equal", def2, columnDef );
+      assertEquals( def2, columnDef, "shallow copy ctor is not equal" );
       
       // make sure empty size is rejected
       didThrow = false;
@@ -85,7 +85,7 @@ public class PSJdbcColumnDefTest
       {
          didThrow = true;
       }
-      assertTrue( "Rejected empty size", didThrow );
+      assertTrue( didThrow, "Rejected empty size" );
 
       // make sure empty scale is rejected
       didThrow = false;
@@ -98,7 +98,7 @@ public class PSJdbcColumnDefTest
       {
          didThrow = true;
       }
-      assertTrue( "Rejected empty scale", didThrow );
+      assertTrue( didThrow, "Rejected empty scale" );
 
    }
 
@@ -211,11 +211,9 @@ public class PSJdbcColumnDefTest
    private void assertReallyNotEquals(PSJdbcColumnDef oldDef, 
                                      PSJdbcColumnDef newDef)
    {
-      assertTrue( "different columns are equal", !oldDef.equals( newDef ) );
-      assertTrue( "different columns have the same hashcode", 
-         newDef.hashCode() != oldDef.hashCode() );
-      assertTrue( "different columns are not considered changed",
-         newDef.isChanged( oldDef ) );
+      assertTrue( !oldDef.equals( newDef ), "different columns are equal" );
+      assertTrue( newDef.hashCode() != oldDef.hashCode(), "different columns have the same hashcode" );
+      assertTrue( newDef.isChanged( oldDef ), "different columns are not considered changed" );
    }
 
    /**
@@ -568,7 +566,7 @@ public class PSJdbcColumnDefTest
        assertTrue(size.equals("1000"));
    }
 
-   @Rule
+   @TempDir
    public Path temporaryFolder;
 
    private String rxdeploydir;
@@ -581,7 +579,7 @@ public class PSJdbcColumnDefTest
    {
       m_map = new PSJdbcDataTypeMap( "MSSQL", "inetdae7", null );
       rxdeploydir = System.getProperty("rxdeploydir");
-      System.setProperty("rxdeploydir",temporaryFolder.getRoot().getAbsolutePath());
+      System.setProperty("rxdeploydir",temporaryFolder.toAbsolutePath().toString());
    }
 
    @AfterEach

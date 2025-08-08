@@ -36,8 +36,8 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -101,7 +101,7 @@ public class PSSecurityTestBase extends PSTestBase
       }
    }
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setup() throws Exception
    {
 
@@ -118,7 +118,7 @@ public class PSSecurityTestBase extends PSTestBase
       }
    }
 
-  @AfterClass
+  @AfterAll
    protected static void tearDown() throws Exception
    {
       deleteTestCommunities(m_session);

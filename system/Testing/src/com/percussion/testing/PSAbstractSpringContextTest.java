@@ -22,7 +22,7 @@ import com.percussion.utils.annotations.IgnoreInWebAppSpringContext;
 
 import com.percussion.utils.testing.SpringContextTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -50,7 +50,7 @@ public class PSAbstractSpringContextTest {
     public  void setContext(){
         PSBaseServiceLocator.setCtx(ctx);
     }
-    @BeforeEach Class
+    @BeforeAll
     public static void setupJndi() throws Exception {
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.osjava.sj.memory.MemoryContextFactory");
         System.setProperty("org.osjava.sj.jndi.shared", "true");

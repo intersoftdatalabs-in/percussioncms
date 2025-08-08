@@ -36,8 +36,8 @@ import javax.xml.rpc.ServiceException;
 import junit.framework.AssertionFailedError;
 
 import org.apache.commons.lang.StringUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -126,7 +126,7 @@ public class PSUiTestBase extends PSTestBase
       }
    }
 
-   @BeforeEach Class
+   @BeforeAll
    public static void setup() throws Exception
    {
       m_session = PSTestUtils.login();
@@ -156,7 +156,7 @@ public class PSUiTestBase extends PSTestBase
    /* (non-Javadoc)
     * @see junit.framework.TestCase#tearDown()
     */
-   @AfterClass
+   @AfterAll
    protected static void tearDown() throws Exception
    {
       try

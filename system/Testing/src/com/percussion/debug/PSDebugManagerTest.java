@@ -30,8 +30,8 @@ import java.io.FileInputStream;
 
 
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
 import org.w3c.dom.Document;
@@ -66,7 +66,7 @@ public class PSDebugManagerTest extends PSConfigHelperTestCase
    /* (non-Javadoc)
     * @see com.percussion.testing.IPSServerBasedJunitTest#oneTimeTearDown()
     */
-   @AfterClass
+   @AfterAll
    public void oneTimeTearDown() {
       // TODO Auto-generated method stub
       

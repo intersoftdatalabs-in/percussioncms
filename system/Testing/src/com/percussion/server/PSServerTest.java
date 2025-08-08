@@ -20,7 +20,7 @@ package com.percussion.server;
 
 import com.percussion.utils.io.PathUtils;
 
-import org.junit.AfterClass;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Tag;
 
 import java.io.File;
@@ -107,7 +107,7 @@ public class PSServerTest
    }
 
 
-   @AfterClass
+   @AfterAll
    protected void tearDown() throws Exception
    {
       restoreDeployDirProperty();

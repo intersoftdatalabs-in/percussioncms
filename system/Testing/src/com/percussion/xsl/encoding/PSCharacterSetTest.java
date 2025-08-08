@@ -24,7 +24,7 @@ import com.percussion.security.xml.PSSecureXMLUtils;
 import com.percussion.util.IOTools;
 
 import com.percussion.xml.PSXmlDocumentBuilder;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Tag;
@@ -65,7 +65,7 @@ public class PSCharacterSetTest
     * Performs the setup required by the tests: defining system properties for
     * each character set.
     */
-   @BeforeEach Class
+   @BeforeAll
    public static void setup() throws Exception
    {
       PSSecureXMLUtils.setupJAXPDefaults();

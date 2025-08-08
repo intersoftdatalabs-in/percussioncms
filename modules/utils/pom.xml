@@ -299,8 +299,8 @@
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <scope>compile</scope>
+            <artifactId>ojdbc11</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <artifactId>xercesImpl</artifactId>
