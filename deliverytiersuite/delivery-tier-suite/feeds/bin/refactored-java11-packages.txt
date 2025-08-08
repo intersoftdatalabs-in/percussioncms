@@ -1,0 +1,7 @@
+# Refactored Java 11 Packages - Feeds Module
+# Last updated: July 21, 2025
+
+com.percussion.delivery.feeds
+com.percussion.delivery.feeds.data
+com.percussion.delivery.feeds.services
+com.percussion.delivery.feeds.services.rdbms
