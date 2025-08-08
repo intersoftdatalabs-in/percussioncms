@@ -28,7 +28,7 @@
         <module>modules/perc-exceptions-spring</module>
         <module>modules/utils</module>
         <module>modules/perc-legacy</module>
-        <!-- <module>deliverytiersuite/delivery-tier-suite</module> -->
+        <module>deliverytiersuite/delivery-tier-suite</module>
         <module>modules/perc-i18n</module>
         <module>modules/perc-shared-test-resources</module>
         <!-- <module>modules/webservices</module> -->
