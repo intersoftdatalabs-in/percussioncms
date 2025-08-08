@@ -201,21 +201,6 @@
     </exclusions>
 </dependency>
 
-
- <!-- https://mvnrepository.com/artifact/org.jmock/jmock -->
-<dependency>
-    <groupId>org.jmock</groupId>
-    <artifactId>jmock</artifactId>
-    <scope>test</scope>
-</dependency>
-<!-- https://mvnrepository.com/artifact/org.jmock/jmock-junit4 -->
-<dependency>
-    <groupId>org.jmock</groupId>
-    <artifactId>jmock-junit4</artifactId>
-    <version>2.13.1</version>
-    <scope>test</scope>
-</dependency>
- <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
 <dependency>
     <groupId>com.google.api-client</groupId>
     <artifactId>google-api-client</artifactId>

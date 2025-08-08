@@ -33,16 +33,7 @@
            <artifactId>rxutils</artifactId>
            <version>${project.parent.version}</version>
        </dependency>
-       <dependency>
-           <groupId>org.jmock</groupId>
-           <artifactId>jmock</artifactId>
-           <scope>test</scope>
-       </dependency>
-       <dependency>
-           <groupId>org.jmock</groupId>
-           <artifactId>jmock-junit4</artifactId>
-           <version>2.13.1</version><scope>test</scope>
-       </dependency>
+    
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>

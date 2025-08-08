@@ -538,12 +538,7 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
+
     
         <dependency>
             <groupId>simple-jndi</groupId>

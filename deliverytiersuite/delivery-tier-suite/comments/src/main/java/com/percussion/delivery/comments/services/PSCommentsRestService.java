@@ -45,6 +45,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
@@ -550,9 +551,10 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
     }
 
 
-    /**
-     * {@inheritDoc}
-     */
+    @DELETE
+    @Path("/updateOldSiteEntries/{prevSiteName}/{newSiteName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("deliverymanager")
     @Override
     public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
         log.info("Attempting to update comments for site name: {}", prevSiteName);

@@ -91,16 +91,6 @@
                 <artifactId>junit-jupiter-api</artifactId>
                 <scope>test</scope>
             </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jmock</groupId>
-            <artifactId>jmock-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>xmlunit</groupId>
